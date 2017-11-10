@@ -8,9 +8,14 @@ package org.transmartproject.copy.table
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import me.tongfei.progressbar.ProgressBar
+import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
+
+import java.sql.ResultSet
+import java.sql.SQLException
 
 @Slf4j
 @CompileStatic
@@ -63,128 +68,151 @@ class Relations {
         }
     }
 
+    @CompileStatic
+    static class RelationTypeRowHandler implements RowCallbackHandler {
+        final Map<String, Long> relationTypeLabelToId = [:]
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            def label = rs.getString('label')
+            def id = rs.getLong('id')
+            relationTypeLabelToId[label] = id
+        }
+    }
+
     void fetch() {
         if (!tablesExists) {
             log.debug "Skip fetching relation types. No relation tables available."
             return
         }
-        database.sql.rows(
-                "select id, label from ${relation_type_table}".toString()
-        ).each { Map row ->
-            def label = row['label'] as String
-            def id = row['id'] as long
-            relationTypeLabelToId[label] = id
-        }
+        def relationTypeHandler = new RelationTypeRowHandler()
+        database.jdbcTemplate.query(
+                "select id, label from ${relation_type_table}".toString(),
+                relationTypeHandler
+        )
+        relationTypeLabelToId.putAll(relationTypeHandler.relationTypeLabelToId)
         log.info "Relation types loaded: ${relationTypeLabelToId.size()} entries."
         log.debug "Entries: ${relationTypeLabelToId.toMapString()}"
     }
 
-    String[] transformRow(final String[] data) {
-        String[] result = Arrays.copyOf(data, data.length)
+    void transformRow(Map<String, Object> row) {
         // replace patient index with patient num
-        def relationTypeIndex = data[relationTypeIdIndex] as int
+        def relationTypeIndex = row.relation_type_id as int
         if (relationTypeIndex >= indexToRelationTypeId.size()) {
             throw new InvalidInput("Invalid relation type index (${relationTypeIndex}). Only ${indexToRelationTypeId.size()} relation types found.")
         }
-        def leftSubjectIndex = data[leftSubjectIdIndex] as int
+        def leftSubjectIndex = row.left_subject_id as int
         if (leftSubjectIndex >= patients.indexToPatientNum.size()) {
             throw new InvalidInput("Invalid patient index (${leftSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
         }
-        def rightSubjectIndex = data[rightSubjectIdIndex] as int
+        def rightSubjectIndex = row.right_subject_id as int
         if (rightSubjectIndex >= patients.indexToPatientNum.size()) {
             throw new InvalidInput("Invalid patient index (${rightSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
         }
-        result[relationTypeIdIndex] = indexToRelationTypeId[relationTypeIndex]
-        result[leftSubjectIdIndex] = patients.indexToPatientNum[leftSubjectIndex]
-        result[rightSubjectIdIndex] = patients.indexToPatientNum[rightSubjectIndex]
-        result
+        row.relation_type_id = indexToRelationTypeId[relationTypeIndex]
+        row.left_subject_id = patients.indexToPatientNum[leftSubjectIndex]
+        row.right_subject_id = patients.indexToPatientNum[rightSubjectIndex]
     }
 
-    void load(String rootPath, File tmpDir) {
+    void load(String rootPath) {
         if (!tablesExists) {
             log.debug "Skip loading of relation types and relations. No relation tables available."
             return
         }
-        database.sql.withTransaction {
-            // Insert relation types
-            def relationTypesFile = new File(rootPath, relation_type_file)
-            relationTypesFile.withReader { reader ->
-                def tsvReader = Util.tsvReader(reader)
-                tsvReader.eachWithIndex { String[] data, int i ->
-                    if (i == 0) {
-                        Util.verifyHeader(relation_type_file, data, relation_type_columns)
-                        return
+        // Insert relation types
+        def relationTypesFile = new File(rootPath, relation_type_file)
+        relationTypesFile.withReader { reader ->
+            def tsvReader = Util.tsvReader(reader)
+            tsvReader.eachWithIndex { String[] data, int i ->
+                if (i == 0) {
+                    Util.verifyHeader(relation_type_file, data, relation_type_columns)
+                    return
+                }
+                try {
+                    def relationTypeData = Util.asMap(relation_type_columns, data)
+                    def relationTypeIndex = relationTypeData['id'] as long
+                    if (i != relationTypeIndex + 1) {
+                        throw new InvalidInput("The relation types are not in order. (Found ${relationTypeIndex} on line ${i}.)")
                     }
-                    try {
-                        def relationTypeData = Util.asMap(relation_type_columns, data)
-                        def relationTypeIndex = relationTypeData['id'] as long
-                        if (i != relationTypeIndex + 1) {
-                            throw new InvalidInput("The relation types are not in order. (Found ${relationTypeIndex} on line ${i}.)")
-                        }
 
-                        def label = relationTypeData['label'] as String
-                        def id = relationTypeLabelToId[label]
-                        if (id) {
-                            log.info "Found relation type ${label}."
-                        } else {
-                            log.info "Inserting relation type ${label} ..."
-                            id = database.insertEntry(relation_type_table, relation_type_columns, 'id', relationTypeData)
-                            relationTypeLabelToId[label] = id
+                    def label = relationTypeData['label'] as String
+                    def id = relationTypeLabelToId[label]
+                    if (id) {
+                        log.info "Found relation type ${label}."
+                    } else {
+                        log.info "Inserting relation type ${label} ..."
+                        id = database.insertEntry(relation_type_table, relation_type_columns, 'id', relationTypeData)
+                        relationTypeLabelToId[label] = id
+                    }
+                    indexToRelationTypeId.add(id)
+                } catch (Exception e) {
+                    log.error "Error on line ${i} of ${relation_type_file}: ${e.message}."
+                    throw e
+                }
+            }
+        }
+
+        // Remove relations
+        log.info "Deleting relations ..."
+        int relationCount = database.jdbcTemplate.update("truncate ${relation_table}".toString())
+        log.info "${relationCount} relations deleted."
+
+        // Insert relations
+        def relationsFile = new File(rootPath, relation_file)
+
+        // Count number of rows
+        int rowCount = 0
+        relationsFile.withReader { reader ->
+            def tsvReader = Util.tsvReader(reader)
+            while (tsvReader.readNext() != null) {
+                rowCount++
+            }
+        }
+
+        // Transform data: replace patient index with patient num, relation type index with relation type id,
+        // and write transformed data to temporary file.
+        log.info 'Reading, transforming and writing relations data ...'
+        relationsFile.withReader { reader ->
+            def tsvReader = Util.tsvReader(reader)
+            String[] data = tsvReader.readNext()
+            if (data != null) {
+                int i = 1
+                LinkedHashMap<String, Class> header = Util.verifyHeader(relation_file, data, relation_columns)
+                def insert = database.getInserter(relation_table, header)
+                final progressBar = new ProgressBar("Insert into ${relation_table}", rowCount - 1)
+                progressBar.start()
+                ArrayList<Map> batch = []
+                data = tsvReader.readNext()
+                i++
+                while (data != null) {
+                    try {
+                        if (header.size() != data.length) {
+                            throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${header.size()}).")
                         }
-                        indexToRelationTypeId.add(id)
+                        def row = Database.getValueMap(header, data)
+                        transformRow(row)
+                        progressBar.stepBy(1)
+                        batch.add(row)
+                        if (batch.size() == Database.batchSize) {
+                            insert.executeBatch(batch.toArray() as Map[])
+                            batch = []
+                        }
                     } catch (Exception e) {
-                        log.error "Error on line ${i} of ${relation_type_file}: ${e.message}."
+                        progressBar.stop()
+                        log.error "Error processing row ${i} of ${relation_file}", e
                         throw e
                     }
+                    data = tsvReader.readNext()
+                    i++
                 }
-            }
-
-            // Remove relations
-            log.info "Deleting relations ..."
-            int relationCount = database.sql.executeUpdate("truncate ${relation_table}".toString())
-            log.info "${relationCount} relations deleted."
-
-            // Insert relations
-            def relationsFile = new File(rootPath, relation_file)
-            File tempFile = File.createTempFile('relations_', '.tsv', tmpDir)
-            // Transform data: replace patient index with patient num, relation type index with relation type id,
-            // and write transformed data to temporary file.
-            log.info 'Reading and transforming relations data ...'
-            log.info "Writing to temporary file ${tempFile.path} ..."
-            int n = 0
-            relationsFile.withReader { reader ->
-                tempFile.withPrintWriter { writer ->
-                    def tsvReader = Util.tsvReader(reader)
-                    def tsvWriter = Util.tsvWriter(writer)
-                    tsvReader.eachWithIndex { String[] data, int i ->
-                        if (i == 0) {
-                            Util.verifyHeader(tempFile.path, data, relation_columns)
-                            return
-                        }
-                        n = i
-                        try {
-                            if (relation_columns.size() != data.length) {
-                                throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${relation_columns.size()}).")
-                            }
-                            String[] result = transformRow(data)
-                            tsvWriter.writeNext(result)
-                            if (i % 1000 == 0) {
-                                log.info "${i} rows read ..."
-                                tsvWriter.flush()
-                            }
-                        } catch (Exception e) {
-                            log.error "Error processing row ${i} of ${relation_file}", e
-                        }
-                    }
-                    tsvWriter.flush()
+                if (batch.size() > 0) {
+                    insert.executeBatch(batch.toArray() as Map[])
                 }
+                progressBar.stop()
+                return
             }
-            log.info "Done reading and transforming relations data. ${n} rows read."
-            // Insert transformed data
-            log.info 'Loading relations data into the database ...'
-            database.copyFile(relation_table, tempFile, n)
-            log.info 'Done loading observations data.'
         }
+        log.info 'Done loading relations data.'
     }
 
 }

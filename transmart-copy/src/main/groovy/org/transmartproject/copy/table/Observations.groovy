@@ -6,9 +6,11 @@
 
 package org.transmartproject.copy.table
 
+import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.apache.commons.lang3.time.StopWatch
+import me.tongfei.progressbar.ProgressBar
+import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
@@ -20,9 +22,10 @@ class Observations {
     static final String table = 'i2b2demodata.observation_fact'
     static final String observations_file = 'i2b2demodata/observation_fact.tsv'
 
-    static final String emptyDate = '0001-01-01 00:00:00.0'
+    static final String emptyDate = '0001-01-01 00:00:00'
 
     final Database database
+    final Copy.Config config
 
     final LinkedHashMap<String, Class> columns
 
@@ -30,14 +33,9 @@ class Observations {
     final Concepts concepts
     final Patients patients
 
-    int patientNumIndex
-    int trialVisitNumIndex
-    int conceptCodeIndex
-    int instanceNumIndex
-    int startDateIndex
-
-    Observations(Database database, Studies studies, Concepts concepts, Patients patients) {
+    Observations(Database database, Studies studies, Concepts concepts, Patients patients, Copy.Config config) {
         this.database = database
+        this.config = config
         this.columns = this.database.getColumnMetadata(table)
         this.studies = studies
         this.concepts = concepts
@@ -52,93 +50,156 @@ class Observations {
     }
 
     int getMaxInstanceNum() {
-        database.sql.firstRow(
+        database.jdbcTemplate.queryForObject(
                 "select max(instance_num) as max_instance_num from ${table}".toString(),
-        )['max_instance_num'] as int
+                Integer.class
+        ) as int
     }
 
-    void setIndexes(LinkedHashMap<String, Class> header) {
-        this.patientNumIndex = header.collect { it.key }.indexOf('patient_num')
-        this.trialVisitNumIndex = header.collect { it.key }.indexOf('trial_visit_num')
-        this.conceptCodeIndex = header.collect { it.key }.indexOf('concept_cd')
-        this.instanceNumIndex = header.collect { it.key }.indexOf('instance_num')
-        this.startDateIndex = header.collect { it.key }.indexOf('start_date')
-    }
-
-    String[] transformRow(final String[] data, final int baseInstanceNum) {
-        String[] result = Arrays.copyOf(data, data.length)
+    void transformRow(Map<String, Object> row, final int baseInstanceNum) {
         // replace patient index with patient num
-        def patientIndex = data[patientNumIndex] as int
+        def patientIndex = row.patient_num as int
         if (patientIndex >= patients.indexToPatientNum.size()) {
             throw new InvalidInput("Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
         }
-        result[patientNumIndex] = patients.indexToPatientNum[patientIndex]
-        def trialVisitIndex = data[trialVisitNumIndex] as int
+        row.patient_num = patients.indexToPatientNum[patientIndex]
+        def trialVisitIndex = row.trial_visit_num as int
         if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
             throw new InvalidInput("Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
         }
-        result[trialVisitNumIndex] = studies.indexToTrialVisitNum[trialVisitIndex]
-        def conceptCode = data[conceptCodeIndex] as String
+        row.trial_visit_num = studies.indexToTrialVisitNum[trialVisitIndex]
+        def conceptCode = row.concept_cd as String
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new InvalidInput("Unknown concept code: ${conceptCode}")
         }
-        def instanceIndex = data[instanceNumIndex] as int
-        result[instanceNumIndex] = baseInstanceNum + instanceIndex
-        def startDate = data[startDateIndex]
+        def instanceIndex = row.instance_num as int
+        row.instance_num = baseInstanceNum + instanceIndex
+        def startDate = row.start_date
         if (!startDate) {
-            result[startDateIndex] = emptyDate
+            row.start_date = emptyDate
         }
-        result
     }
 
-    void load(String rootPath, File tmpDir) {
-        File inputFile = new File(rootPath, observations_file)
-        File tempFile = File.createTempFile('observation_fact_', '.tsv', tmpDir)
-        // Transform data: replace patient index with patient num,
-        // and write transformed data to temporary file.
-        def stopWatch = StopWatch.createStarted()
-        log.info 'Reading and transforming observations data ...'
-        log.info "Writing to temporary file ${tempFile.path} ..."
-        int n = 0
+    static final Map<String, List> tableIndexes = [
+            'fact_modifier_patient': ['modifier_cd', 'patient_num'],
+            'idx_fact_patient_num': ['patient_num'],
+            'idx_fact_trial_visit_num': ['trial_visit_num'],
+            'idx_fact_concept': ['concept_cd'],
+            'idx_fact_cpe': ['concept_cd', 'patient_num', 'encounter_num']
+    ]
+
+    void restoreTableIndexes() {
+        if (config.unlogged) {
+            try {
+                log.info "Set 'logged' on ${table} ..."
+                database.executeCommand("alter table ${table} set logged")
+            } catch (Exception e) {
+                log.warn "Could not set 'logged' on database table: ${e.message}"
+            }
+        }
+        if (config.dropIndexes) {
+            log.info "Restore indexes on ${table} ..."
+            tableIndexes.each { name, columns ->
+                database.executeCommand("create if not exists index ${name} on ${table} using btree (${columns.join(', ')})")
+            }
+        }
+    }
+
+    void dropTableIndexes() {
+        if (config.unlogged) {
+            try {
+                log.info "Set 'unlogged' on ${table} ..."
+                database.executeCommand("alter table ${table} set unlogged")
+            } catch (Exception e) {
+                log.warn "Could not set 'unlogged' on database table: ${e.message}"
+            }
+        }
+        if (config.dropIndexes) {
+            log.info "Temporarily drop indexes on ${table} ..."
+            tableIndexes.keySet().each { name ->
+                database.executeCommand("drop if exists index i2b2demodata.${name}")
+            }
+        }
+    }
+
+    void load(String rootPath) {
+        log.info "Determining instance num ..."
         int baseInstanceNum = maxInstanceNum + 1
         log.info "Using ${baseInstanceNum} as lowest instance num."
-        inputFile.withReader { reader ->
-            tempFile.withPrintWriter { writer ->
-                def tsvReader = Util.tsvReader(reader)
-                def tsvWriter = Util.tsvWriter(writer)
-                LinkedHashMap<String, Class> header = [:]
-                tsvReader.eachWithIndex { String[] data, int i ->
-                    if (i == 0) {
-                        header = Util.verifyHeader(observations_file, data, columns)
-                        setIndexes(header)
-                        return
-                    }
-                    n = i
+        File observationsFile = new File(rootPath, observations_file)
+
+        // Count number of rows
+        int rowCount = 0
+        observationsFile.withReader { reader ->
+            def tsvReader = Util.tsvReader(reader)
+            while (tsvReader.readNext() != null) {
+                rowCount++
+            }
+        }
+
+        dropTableIndexes()
+
+        Writer writer
+        CSVWriter tsvWriter
+        if (config.write) {
+            writer = new PrintWriter(config.outputFile)
+            tsvWriter = Util.tsvWriter(writer)
+        }
+
+        // Transform data: replace patient index with patient num,
+        // trial visit index with trial visit num and instance num index with instance num,
+        // and write transformed data to database.
+        log.info 'Reading, transforming and writing observations data ...'
+        observationsFile.withReader { reader ->
+            def tsvReader = Util.tsvReader(reader)
+            String[] data = tsvReader.readNext()
+            if (data != null) {
+                int i = 1
+                LinkedHashMap<String, Class> header = Util.verifyHeader(observations_file, data, columns)
+                def insert = database.getInserter(table, header)
+                final progressBar = new ProgressBar("Insert into ${table}", rowCount - 1)
+                progressBar.start()
+                ArrayList<Map> batch = []
+                data = tsvReader.readNext()
+                i++
+                while (data != null) {
                     try {
                         if (header.size() != data.length) {
                             throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${header.size()}).")
                         }
-                        String[] result = transformRow(data, baseInstanceNum)
-                        tsvWriter.writeNext(result)
-                        if (i % 1000 == 0) {
-                            log.debug "${i} rows transformed ..."
-                            tsvWriter.flush()
+                        def row = Database.getValueMap(header, data)
+                        transformRow(row, baseInstanceNum)
+                        progressBar.stepBy(1)
+                        if (config.write) {
+                            tsvWriter.writeNext(row.values()*.toString() as String[])
+                        } else {
+                            batch.add(row)
+                            if (batch.size() == Database.batchSize) {
+                                insert.executeBatch(batch.toArray() as Map[])
+                                batch = []
+                            }
                         }
                     } catch (Exception e) {
-                        log.error "Error processing row ${i} of ${observations_file}", e
+                        progressBar.stop()
+                        log.error "Error processing row ${i} of ${observations_file}: ${e.message}"
+                        restoreTableIndexes()
+                        throw e
                     }
+                    data = tsvReader.readNext()
+                    i++
                 }
-                tsvWriter.flush()
+                if (batch.size() > 0) {
+                    insert.executeBatch(batch.toArray() as Map[])
+                }
+                progressBar.stop()
+                restoreTableIndexes()
+                return
             }
         }
-        stopWatch.stop()
-        log.info "Done reading and transforming observations data. ${n} rows read. [${stopWatch}]"
-        // Insert transformed data
-        stopWatch = StopWatch.createStarted()
-        log.info 'Loading observations data into the database ...'
-        database.copyFile(table, tempFile, n)
-        stopWatch.stop()
-        log.info "Done loading observations data. [${stopWatch}]"
+        if (config.write) {
+            tsvWriter.close()
+        }
+        log.info "Done loading observations data."
     }
 
 }

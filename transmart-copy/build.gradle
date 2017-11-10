@@ -16,6 +16,8 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.2.2'
     compile "org.postgresql:postgresql:${postgresqlVersion}"
     compile 'me.tongfei:progressbar:0.5.5'
+    compile 'com.zaxxer:HikariCP:2.6.1'
+    compile 'org.springframework:spring-jdbc:4.3.12.RELEASE'
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 }

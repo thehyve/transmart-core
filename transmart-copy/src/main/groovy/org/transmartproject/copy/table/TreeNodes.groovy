@@ -8,9 +8,13 @@ package org.transmartproject.copy.table
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
+
+import java.sql.ResultSet
+import java.sql.SQLException
 
 @Slf4j
 @CompileStatic
@@ -35,13 +39,23 @@ class TreeNodes {
         this.columns = this.database.getColumnMetadata(table)
     }
 
-    void fetch() {
-        def fullNames = database.sql.rows(
-                "select c_fullname from ${table}".toString()
-        ).collect {
-            it['c_fullname'] as String
+    @CompileStatic
+    static class TreeNodeRowHandler implements RowCallbackHandler {
+        final List<String> paths = []
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            paths.add(rs.getString('c_fullname'))
         }
-        paths.addAll(fullNames)
+    }
+
+    void fetch() {
+        def treeNodeHandler = new TreeNodeRowHandler()
+        database.jdbcTemplate.query(
+                "select c_fullname from ${table}".toString(),
+                treeNodeHandler
+        )
+        paths.addAll(treeNodeHandler.paths)
         log.info "Tree nodes loaded: ${paths.size()}."
         log.debug "Paths: ${paths}"
     }

@@ -8,8 +8,12 @@ package org.transmartproject.copy.table
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Util
+
+import java.sql.ResultSet
+import java.sql.SQLException
 
 @Slf4j
 @CompileStatic
@@ -29,19 +33,33 @@ class Modifiers {
         this.columns = this.database.getColumnMetadata(table)
     }
 
-    void fetch() {
-        def codes = database.sql.rows(
-                "select modifier_cd from ${table}".toString()
-        ).collect {
-            it['modifier_cd'] as String
+    @CompileStatic
+    static class ModifierRowHandler implements RowCallbackHandler {
+        final List<String> modifierCodes = []
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            modifierCodes << rs.getString('modifier_cd')
         }
-        modifierCodes.addAll(codes)
+    }
+
+    void fetch() {
+        def modifierHandler = new ModifierRowHandler()
+        database.jdbcTemplate.query(
+                "select modifier_cd from ${table}".toString(),
+                modifierHandler
+        )
+        modifierCodes.addAll(modifierHandler.modifierCodes)
         log.info "Modifier codes loaded: ${modifierCodes.size()}."
         log.debug "Modifier codes: ${modifierCodes}"
     }
 
     void load(String rootPath) {
         def modifiersFile = new File(rootPath, modifiers_file)
+        if (!modifiersFile.exists()) {
+            log.info "Skip loading of modifiers. No file ${modifiers_file} found."
+            return
+        }
         modifiersFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->

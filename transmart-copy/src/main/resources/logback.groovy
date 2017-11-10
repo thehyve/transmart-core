@@ -10,5 +10,6 @@ appender("stderr", ConsoleAppender) {
     }
     target = 'System.err'
 }
+logger('com.zaxxer.hikari', WARN)
 
 root(INFO, ["stderr"])

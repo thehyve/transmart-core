@@ -10,9 +10,13 @@ import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
+import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
+
+import java.sql.ResultSet
+import java.sql.SQLException
 
 @Slf4j
 @CompileStatic
@@ -49,18 +53,28 @@ class Tags {
         this.columns = this.database.getColumnMetadata(table)
     }
 
-    void fetch() {
-        def tagEntries = database.sql.rows(
-                "select tag_id, path, tag_type, tags_idx from ${table}".toString()
-        ).collectEntries {
-            def id = it['tag_id'] as Long
-            def path = it['path'] as String
-            def tagType = it['tag_type'] as String
-            def index = it['tags_idx'] as int
+    @CompileStatic
+    static class TagRowHandler implements RowCallbackHandler {
+        final Map<TagKey, Long> tags = [:]
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            def id = rs.getLong('tag_id')
+            def path = rs.getString('path')
+            def tagType = rs.getString('tag_type')
+            def index = rs.getInt('tags_idx')
             def key = new TagKey(path: path, tagType: tagType, index: index)
-            [(key): id]
+            tags.put(key, id)
         }
-        tags.putAll(tagEntries)
+    }
+
+    void fetch() {
+        def tagHandler = new TagRowHandler()
+        database.jdbcTemplate.query(
+                "select tag_id, path, tag_type, tags_idx from ${table}".toString(),
+                tagHandler
+        )
+        tags.putAll(tagHandler.tags)
         log.info "Tags loaded: ${tags.size()}."
     }
 

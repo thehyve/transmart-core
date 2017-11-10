@@ -6,15 +6,22 @@
 
 package org.transmartproject.copy
 
-import groovy.sql.Sql
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.postgresql.copy.CopyManager
-import org.postgresql.core.BaseConnection
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
+import org.springframework.jdbc.datasource.DataSourceUtils
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.TransactionStatus
+import org.springframework.transaction.support.DefaultTransactionDefinition
 import org.transmartproject.copy.exception.InvalidState
 
 import java.sql.Connection
-import java.sql.DriverManager
 import java.time.Instant
 
 import static java.lang.System.getenv
@@ -50,11 +57,18 @@ class Database {
         }
     }
 
-    Connection connection
-    CopyManager copyManager
-    Sql sql
+    static final int batchSize = 500
+    static final DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition()
 
-    void init() {
+    final HikariConfig config = new HikariConfig()
+    final HikariDataSource dataSource
+    final PlatformTransactionManager transactionManager
+    final Connection connection
+    final JdbcTemplate jdbcTemplate
+    final NamedParameterJdbcTemplate namedParameterJdbcTemplate
+    final CopyManager copyManager
+
+    Database() {
         String host = getenv('PGHOST')
         if (!host || host == '/tmp') {
             host = 'localhost'
@@ -63,12 +77,29 @@ class Database {
         String database = getenv('PGDATABASE') ?: 'transmart'
         String url = "jdbc:postgresql://${host}:${port}/${database}"
         String tm_cz_password = getenv('TM_CZ_PWD') ?: 'tm_cz'
-        this.connection = DriverManager.getConnection(url, 'tm_cz', tm_cz_password)
 
+        config.jdbcUrl = url
+        config.username = 'tm_cz'
+        config.password = tm_cz_password
+        config.autoCommit = false
+        dataSource = new HikariDataSource(config)
+
+        def dataSourceTransactionManager = new DataSourceTransactionManager()
+        dataSourceTransactionManager.setDataSource(dataSource)
+        transactionManager = dataSourceTransactionManager
+
+        this.connection = DataSourceUtils.getConnection(dataSource)
+        this.jdbcTemplate = new JdbcTemplate(dataSource)
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource)
         log.info "Connected to database ${url}."
+    }
 
-        this.sql = new Sql(this.connection)
-        this.copyManager = new CopyManager(this.connection as BaseConnection)
+    TransactionStatus beginTransaction() {
+        transactionManager.getTransaction(transactionDefinition)
+    }
+
+    void commit(TransactionStatus tx) {
+        transactionManager.commit(tx)
     }
 
     boolean tableExists(String table) {
@@ -97,40 +128,102 @@ class Database {
         result
     }
 
-    void copyFile(String tableName, File file, int rowCount) {
-        file.withReader { reader ->
-            def progressReportingReader = new ProgressReportingReader(reader, tableName, rowCount)
-            log.info "Loading into ${tableName} from ${file} ..."
-            long count = copyManager.copyIn("COPY ${tableName} FROM STDIN CSV DELIMITER E'\t'", progressReportingReader)
-            progressReportingReader.progressBar.stop()
-            log.info "${count} rows inserted."
+    static Map<String, Object> getValueMap(final LinkedHashMap<String, Class> columns, final String[] row) {
+        assert columns.size() == row.length
+        def result = [:] as Map<String, Object>
+        int i = 0
+        for(Map.Entry<String, Class> column: columns) {
+            String columnName = column.key
+            Class columnType = column.value
+            if (row[i] == null || (row[i].empty && columnType != String.class)) {
+                result[columnName] = null
+            } else {
+                def value
+                switch(columnType) {
+                    case String.class:
+                        value = row[i]
+                        break
+                    case Instant.class:
+                        value = Util.parseDate(row[i])
+                        break
+                    case Double.class:
+                        value = Double.parseDouble(row[i])
+                        break
+                    case Integer.class:
+                        value = Integer.parseInt(row[i])
+                        break
+                    case Long.class:
+                        value = Long.parseLong(row[i])
+                        break
+                    default:
+                        throw new InvalidState("Unexpected type ${columnType}")
+                }
+                result[columnName] = value
+            }
+            i++
         }
+        result
+    }
+
+    final Map<String, SimpleJdbcInsert> idGeneratingInserters = [:]
+
+    SimpleJdbcInsert getIdGeneratingInserter(String table, LinkedHashMap<String, Class> columns, String idColumn) {
+        SimpleJdbcInsert inserter = idGeneratingInserters[table]
+        if (!inserter) {
+            log.debug "Creating id generating inserter for ${table} ..."
+            List<String> parts = table.tokenize('.')
+            assert (parts.size() == 2)
+            def schemaDef = parts[0]
+            def tableDef = parts[1]
+            inserter = new SimpleJdbcInsert(dataSource)
+                .withSchemaName(schemaDef)
+                .withTableName(tableDef)
+                .usingColumns(columns.collect { it.key }.findAll { it != idColumn }.toArray() as String[])
+                .usingGeneratedKeyColumns(idColumn)
+            inserters[table] = inserter
+        }
+        inserter
     }
 
     Long insertEntry(String table, LinkedHashMap<String, Class> columns, String idColumn, Map<String, Object> data) {
-        def insertColumns = columns.collect { it.key }.findAll { it != idColumn }
-        def statement = "insert into ${table} " +
-                "(${insertColumns.join(', ')}) " +
-                "values (${insertColumns.collect { ":${it}" }.join(', ')})".toString()
+        def inserter = getIdGeneratingInserter(table, columns, idColumn)
+        inserter.executeAndReturnKey(data) as Long
+    }
 
-        def result = sql.executeInsert(data, statement, [idColumn])
-        assert result.size() == 1
-        result[0][idColumn] as Long
+    final Map<String, SimpleJdbcInsert> inserters = [:]
+
+    SimpleJdbcInsert getInserter(String table, LinkedHashMap<String, Class> columns) {
+        SimpleJdbcInsert inserter = inserters[table]
+        if (!inserter) {
+            log.debug "Creating inserter for ${table} ..."
+            List<String> parts = table.tokenize('.')
+            assert (parts.size() == 2)
+            def schemaDef = parts[0]
+            def tableDef = parts[1]
+            inserter = new SimpleJdbcInsert(dataSource)
+                    .withSchemaName(schemaDef)
+                    .withTableName(tableDef)
+                    .usingColumns(columns.collect { it.key }.toArray() as String[])
+            inserters[table] = inserter
+        }
+        inserter
     }
 
     void insertEntry(String table, LinkedHashMap<String, Class> columns, Map<String, Object> data) {
-        def insertColumns = columns.collect { it.key }
-        def statement = "insert into ${table} " +
-                "(${insertColumns.join(', ')}) " +
-                "values (${insertColumns.collect { ":${it}" }.join(', ')})".toString()
+        getInserter(table, columns).execute(data)
+    }
 
-        def result = sql.executeInsert(data, statement)
-        assert result.size() == 1
+    void executeCommand(String command) {
+        log.debug "Executing command: ${command} ..."
+        def conn = DataSourceUtils.getConnection(dataSource)
+        conn.autoCommit = true
+        conn.createStatement().execute('vacuum analyze')
+        conn.autoCommit = false
     }
 
     void vacuumAnalyze() {
         log.info 'Running VACUUM ANALYZE ...'
-        sql.execute('vacuum analyze')
+        executeCommand('vacuum analyze')
         log.info 'Done.'
     }
 

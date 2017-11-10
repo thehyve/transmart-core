@@ -7,6 +7,7 @@
 package org.transmartproject.copy
 
 import groovy.transform.CompileStatic
+import groovy.transform.Immutable
 import groovy.util.logging.Slf4j
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
@@ -32,17 +33,29 @@ import org.transmartproject.copy.table.TreeNodes
 @CompileStatic
 class Copy {
 
+    @Immutable
+    static class Config {
+        boolean dropIndexes
+        boolean unlogged
+        boolean write
+        String outputFile
+    }
+
     static Options options = new Options()
     static {
         options.addOption('h', 'help', false, 'Help.')
         options.addOption('d', 'delete', true, 'Delete study by id.')
+        options.addOption('r', 'restore-indexes', false, 'Restore indexes.')
+        options.addOption('i', 'drop-indexes', false, 'Drop indexes when loading.')
+        options.addOption('u', 'unlogged', false, 'Set observations table to unlogged when loading.')
+        options.addOption('w', 'write', true, 'Write observations to TSV file.')
     }
 
     static printHelp() {
         String header = 'Copy tool for loading TranSMART data into a PostgreSQL database.\n\n'
         String footer = '\nPlease report issues at https://github.com/thehyve/transmart-core/issues.'
 
-        HelpFormatter formatter = new HelpFormatter();
+        HelpFormatter formatter = new HelpFormatter()
         formatter.printHelp('transmart-copy', header, options, footer, true)
     }
 
@@ -52,53 +65,57 @@ class Copy {
 
     void init() {
         database = new Database()
-        database.init()
     }
 
-    void run(String rootPath) {
-        File.createTempDir('transmart-copy-', '-tmp').with { tmpDir ->
+    void restoreIndexes() {
+        def config = new Config(dropIndexes: true, unlogged: true)
+        def observations = new Observations(database, null, null, null, config)
+        observations.restoreTableIndexes()
+        database.vacuumAnalyze()
+    }
 
-            // Check if dimensions are present, load mapping from file
-            def dimensions = new Dimensions(database)
-            dimensions.fetch()
-            dimensions.load(rootPath)
+    void run(String rootPath, Config config) {
 
-            // Check if study is not already present
-            studies = new Studies(database, dimensions)
-            studies.check(rootPath)
-            // Insert study, trial visit objects
-            studies.load(rootPath)
+        // Check if dimensions are present, load mapping from file
+        def dimensions = new Dimensions(database)
+        dimensions.fetch()
+        dimensions.load(rootPath)
 
-            patients = new Patients(database)
-            patients.fetch()
-            patients.load(rootPath)
+        // Check if study is not already present
+        studies = new Studies(database, dimensions)
+        studies.check(rootPath)
+        // Insert study, trial visit objects
+        studies.load(rootPath)
 
-            def relations = new Relations(database, patients)
-            relations.fetch()
-            relations.load(rootPath, tmpDir)
+        patients = new Patients(database)
+        patients.fetch()
+        patients.load(rootPath)
 
-            def concepts = new Concepts(database)
-            concepts.fetch()
-            concepts.load(rootPath)
+        def relations = new Relations(database, patients)
+        relations.fetch()
+        relations.load(rootPath)
 
-            def modifiers = new Modifiers(database)
-            modifiers.fetch()
-            modifiers.load(rootPath)
+        def concepts = new Concepts(database)
+        concepts.fetch()
+        concepts.load(rootPath)
 
-            def treeNodes = new TreeNodes(database, studies, concepts)
-            treeNodes.fetch()
-            treeNodes.load(rootPath)
+        def modifiers = new Modifiers(database)
+        modifiers.fetch()
+        modifiers.load(rootPath)
 
-            def tags = new Tags(database, treeNodes)
-            tags.fetch()
-            tags.load(rootPath)
+        def treeNodes = new TreeNodes(database, studies, concepts)
+        treeNodes.fetch()
+        treeNodes.load(rootPath)
 
-            def observations = new Observations(database, studies, concepts, patients)
-            observations.checkFiles(rootPath)
-            observations.load(rootPath, tmpDir)
+        def tags = new Tags(database, treeNodes)
+        tags.fetch()
+        tags.load(rootPath)
 
-            database.vacuumAnalyze()
-        }
+        def observations = new Observations(database, studies, concepts, patients, config)
+        observations.checkFiles(rootPath)
+        observations.load(rootPath)
+
+        database.vacuumAnalyze()
     }
 
     void deleteStudy(String studyId) {
@@ -126,10 +143,18 @@ class Copy {
                 try {
                     copy.deleteStudy(studyId)
                 } catch(Exception e) {
-                    log.error "Error deleting study ${studyId}"
+                    log.error "Error deleting study ${studyId}: ${e.message}"
                 }
+            } else if (cl.hasOption('restore-indexes')) {
+                copy.restoreIndexes()
             } else {
-                copy.run('.')
+                def config = new Config(
+                        dropIndexes: cl.hasOption('drop-indexes'),
+                        unlogged: cl.hasOption('unlogged'),
+                        write: cl.hasOption('write'),
+                        outputFile: cl.getOptionValue('write')
+                )
+                copy.run('.', config)
             }
         } catch (ParseException e) {
             log.error e.message

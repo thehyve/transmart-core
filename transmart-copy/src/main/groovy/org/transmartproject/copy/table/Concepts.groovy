@@ -8,8 +8,12 @@ package org.transmartproject.copy.table
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Util
+
+import java.sql.ResultSet
+import java.sql.SQLException
 
 @Slf4j
 @CompileStatic
@@ -30,16 +34,26 @@ class Concepts {
         this.columns = this.database.getColumnMetadata(table)
     }
 
+    @CompileStatic
+    static class ConceptRowHandler implements RowCallbackHandler {
+        final List<String> conceptCodes = []
+        final List<String> conceptPaths = []
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            conceptCodes << rs.getString('concept_cd')
+            conceptPaths << rs.getString('concept_path')
+        }
+    }
+
     void fetch() {
-        def concepts = database.sql.rows(
-                "select concept_path, concept_cd from ${table}".toString()
+        def rowHandler = new ConceptRowHandler()
+        database.jdbcTemplate.query(
+                "select concept_path, concept_cd from ${table}".toString(),
+                rowHandler
         )
-        conceptPaths.addAll(concepts.collect {
-            it['concept_path'] as String
-        })
-        conceptCodes.addAll(concepts.collect {
-            it['concept_cd'] as String
-        })
+        conceptPaths.addAll(rowHandler.conceptPaths)
+        conceptCodes.addAll(rowHandler.conceptCodes)
         log.info "Concepts loaded: ${conceptCodes.size()}."
         log.debug "Concept codes: ${conceptCodes}"
     }

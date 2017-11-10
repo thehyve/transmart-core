@@ -8,9 +8,13 @@ package org.transmartproject.copy.table
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
+
+import java.sql.ResultSet
+import java.sql.SQLException
 
 @Slf4j
 @CompileStatic
@@ -31,21 +35,35 @@ class Dimensions {
         this.columns = this.database.getColumnMetadata(table)
     }
 
-    void fetch() {
-        database.sql.rows(
-                "select id, name from ${table}".toString()
-        ).each { Map row ->
-            def name = row['name'] as String
-            def id = row['id'] as long
+    @CompileStatic
+    static class DimensionRowHandler implements RowCallbackHandler {
+        final Map<String, Long> dimensionNameToId = [:]
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            def id = rs.getLong('id')
+            def name = rs.getString('name')
             dimensionNameToId[name] = id
         }
+    }
+
+    void fetch() {
+        def dimensionHandler = new DimensionRowHandler()
+        database.jdbcTemplate.query(
+                "select id, name from ${table}".toString(),
+                dimensionHandler
+        )
+        dimensionNameToId.putAll(dimensionHandler.dimensionNameToId)
         log.info "Dimensions loaded: ${dimensionNameToId.size()} entries."
         log.debug "Entries: ${dimensionNameToId.toMapString()}"
     }
 
     void load(String rootPath) {
-        def mappingFile = new File(rootPath, dimensions_file)
-        mappingFile.withReader { reader ->
+        def dimensionsFile = new File(rootPath, dimensions_file)
+        dimensionsFile.withReader { reader ->
+            log.info "Reading concepts from file ..."
+            def insertCount = 0
+            def existingCount = 0
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
@@ -60,18 +78,23 @@ class Dimensions {
                     }
                     def dimensionName = dimensionData['name'] as String
                     def dimensionId = dimensionNameToId[dimensionName]
-                    if (!dimensionId) {
-                        log.info "Inserting unknown dimension: ${dimensionName}."
+                    if (dimensionId) {
+                        existingCount++
+                    } else {
+                        insertCount++
+                        log.info "Inserting dimension: ${dimensionName}."
                         dimensionId = database.insertEntry(table, columns, 'id', dimensionData)
-                        log.info "Dimension inserted [id: ${dimensionId}]."
+                        log.debug "Dimension inserted [id: ${dimensionId}]."
                     }
                     indexToDimensionId.add(dimensionId)
-                    log.info "Registered dimension at index ${dimensionIndex}: ${dimensionName} [${dimensionId}]."
+                    log.debug "Registered dimension at index ${dimensionIndex}: ${dimensionName} [${dimensionId}]."
                 } catch(Exception e) {
                     log.error "Error on line ${i} of ${dimensions_file}: ${e.message}."
                     throw e
                 }
             }
+            log.info "${existingCount} existing dimensions found."
+            log.info "${insertCount} dimensions inserted."
         }
     }
 
