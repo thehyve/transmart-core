@@ -58,6 +58,7 @@ interface constraints {
            ConceptConstraint = 'concept',
            NullConstraint = 'null',
            StudyNameConstraint = 'study_name',
-           SubSelectionConstraint = 'subselection'
+           SubSelectionConstraint = 'subselection',
+           RelationConstraint = 'relation'
 }
 

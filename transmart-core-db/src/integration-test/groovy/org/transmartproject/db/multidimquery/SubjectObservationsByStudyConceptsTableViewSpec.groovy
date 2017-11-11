@@ -42,15 +42,20 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         )
         then: 'header matches expectations'
         def columns = transformedView.indicesList
-        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date', 'gender1', 'gender1.date']
+        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date',
+                           'gender1', 'gender1.date', 'nmultbab', 'nmultbab.date', 'nmultfam', 'nmultfam.date',
+                           'twin', 'twin.date']
         then: 'columns metadata matches expectations'
         def metadata = columns*.metadata
-        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE]
-        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
-        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book', 'Date of measurement', 'Gender', 'Date of measurement']
-        metadata*.width == [12, 22, 22, 400, 22, 12, 22]
-        metadata*.decimals == [0, null, null, null, null, null, null]
-        metadata*.columns == [12, 22, 22, 400, 22, 14, 22]
+        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE, STRING, DATE, STRING, DATE, STRING, DATE]
+        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
+        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book',
+                                  'Date of measurement', 'Gender', 'Date of measurement', 'Has multiple babies',
+                                  'Date of measurement', 'Numbers of multiples in family', 'Date of measurement',
+                                  'Is a Twin', 'Date of measurement']
+        metadata*.width == [12, 22, 22, 400, 22, 12, 22, 25, 22, 25, 22, 25, 22]
+        metadata*.decimals == [0, null, null, null, null, null, null, null, null, null, null, null, null]
+        metadata*.columns == [12, 22, 22, 400, 22, 14, 22, 25, 22, 25, 22, 25, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
         height1Metadata.valueLabels == [(1): 'Female', (2): 'Male', (-2): 'Not Specified']
         height1Metadata.missingValues == [-2]
@@ -58,20 +63,24 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         when: 'get row'
         def rows = transformedView.rows.toList()
         then: 'content matches expectations'
-        rows[0][columns[0]] == '123457'
-        rows[0][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1986-10-22 00:00:00', UTC)
-        rows[0][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2010-12-16 20:23:15')
-        that rows[0][columns[3]] as String, containsString('Dostoyevsky')
-        rows[0][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
-        rows[0][columns[5]] == -2
-        rows[0][columns[6]] == null
-        rows[1][columns[0]] == '123456'
-        rows[1][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00', UTC)
-        rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2015-11-14 19:05:00')
-        that rows[1][columns[3]] as String, containsString('Hofstadter')
-        rows[1][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
-        rows[1][columns[5]] == 2
-        rows[1][columns[6]] == null
+        rows.size() == 14
+        def secondSubjRow = rows.find { row ->  row[columns[0]] == '2' }
+        secondSubjRow
+        secondSubjRow[columns[0]] == '2'
+        secondSubjRow[columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1986-10-22 00:00:00', UTC)
+        secondSubjRow[columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2010-12-16 20:23:15')
+        that secondSubjRow[columns[3]] as String, containsString('Dostoyevsky')
+        secondSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
+        secondSubjRow[columns[5]] == -2
+        secondSubjRow[columns[6]] == null
+        def firstSubjRow = rows.find { row ->  row[columns[0]] == '1' }
+        firstSubjRow[columns[0]] == '1'
+        firstSubjRow[columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00', UTC)
+        firstSubjRow[columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2015-11-14 19:05:00')
+        that firstSubjRow[columns[3]] as String, containsString('Hofstadter')
+        firstSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
+        firstSubjRow[columns[5]] == 2
+        firstSubjRow[columns[6]] == null
 
         cleanup:
         if(transformedView) transformedView.close()
@@ -108,13 +117,13 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         when: 'get row'
         def rows = transformedView.rows.toList()
         then: 'content matches expactations'
-        rows[0][columns[0]] == '123457'
+        rows[0][columns[0]] == '2'
         rows[0][columns[1]] == 'No description'
         rows[0][columns[2]] == null
         rows[0][columns[3]] <=> 169 == 0
         rows[0][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2004-08-27 10:45:32')
-        rows[1][columns[0]] == '123456'
-        rows[1][columns[1]] == 'Description about subject 123456'
+        rows[1][columns[0]] == '1'
+        rows[1][columns[1]] == 'Description about subject 1'
         rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
         rows[1][columns[3]] == -1
         rows[1][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2005-05-24 13:40:00')

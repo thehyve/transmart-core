@@ -39,3 +39,5 @@ assets {
 bootRun {
     jvmArgs = ['-Dspring.output.ansi.enabled=always']
 }
+
+integrationTest.testLogging.exceptionFormat = 'full'

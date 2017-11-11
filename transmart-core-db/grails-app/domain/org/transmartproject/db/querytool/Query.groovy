@@ -36,11 +36,11 @@ class Query implements UserQuery {
 
     static mapping = {
         table schema: 'BIOMART_USER'
+        id generator: 'sequence', params: [sequence: 'query_id_seq', schema: 'biomart_user']
         version false
     }
 
     static constraints = {
-        id generator: 'sequence', params: [sequence: 'query_id_seq', schema: 'biomart_user']
         name maxSize: 1000
         username maxSize: 50
         patientsQuery nullable: true

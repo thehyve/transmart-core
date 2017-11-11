@@ -261,7 +261,27 @@ info:
         "type": "true"
     }
     ```
-    
+
+    ## Relation
+    Pedigree relations constraints.
+    `relationTypeLabel` is mandatory and specifies code of relation. e.g. PAR (Parent-Child)
+    `relatedSubjectsConstraint` is optional and specifies a constraint to apply to the related subjects.
+    `biological` is optional field to restrict whether relation biological or not. If not specified, no filtering on this flag applied.
+    `shareHousehold` is optional field to restrict whether subjects share the same address or not. If not specified, no filtering on this flag applied.
+
+    Below is example of selecting subjects that are parents (`relationTypeLabel=PAR`) of subjects with ids `-62`, `-52` and `-42`.
+    ```json
+    {
+        "type": "relation",
+        "relatedSubjectsConstraint": {
+           "type": "patient_set",
+           "patientIds": [-62,-52,-42]
+        }
+        "relationTypeLabel": "PAR",
+        "biological": true,
+        "shareHousehold": true
+    }
+    ```
     
     # Response types
     #### application/json
@@ -1913,6 +1933,20 @@ paths:
       responses:
         204:
           description: 'returns null'
+  /v2/pedigree/relation_types:
+    get:
+      description: |
+        Gets the list of the relation types.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            returns the list of the relation types.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/relation_type'
 definitions:
   version:
     type: object
@@ -2417,3 +2451,16 @@ definitions:
                 type: object
                 additionalProperties:
                   type: number
+  relation_type:
+    type: object
+    properties:
+      id:
+        type: integer
+      label:
+        type: string
+      description:
+        type: string
+      symmetrical:
+        type: boolean
+      biological:
+        type: boolean

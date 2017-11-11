@@ -635,6 +635,28 @@ class SubSelectionConstraint extends Constraint {
     }
 }
 
+@Canonical
+class RelationConstraint extends Constraint {
+    static String constraintName = 'relation'
+
+    @BindUsing({ obj, source ->
+        ConstraintFactory.create(source['relatedSubjectsConstraint'])
+    })
+    Constraint relatedSubjectsConstraint
+
+    String relationTypeLabel
+
+    Boolean biological
+
+    Boolean shareHousehold
+
+    static constraints = {
+        relationTypeLabel nullable: false
+        relatedSubjectsConstraint nullable: true
+        biological nullable: true
+        shareHousehold nullable: true
+    }
+}
 
 /**
  * A Constraint factory that creates {@link Constraint} objects from a map using
@@ -678,6 +700,7 @@ class ConstraintFactory {
             StudyObjectConstraint,
             NullConstraint,
             SubSelectionConstraint,
+            RelationConstraint,
         ].collectEntries { Class type ->
             [(type.constraintName): type]
         } as Map<String, Class>
