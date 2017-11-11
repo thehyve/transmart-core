@@ -61,7 +61,8 @@ class Dimensions {
     void load(String rootPath) {
         def dimensionsFile = new File(rootPath, dimensions_file)
         dimensionsFile.withReader { reader ->
-            log.info "Reading concepts from file ..."
+            log.info "Reading dimensions from file ..."
+            def tx = database.beginTransaction()
             def insertCount = 0
             def existingCount = 0
             def tsvReader = Util.tsvReader(reader)
@@ -93,6 +94,7 @@ class Dimensions {
                     throw e
                 }
             }
+            database.commit(tx)
             log.info "${existingCount} existing dimensions found."
             log.info "${insertCount} dimensions inserted."
         }
