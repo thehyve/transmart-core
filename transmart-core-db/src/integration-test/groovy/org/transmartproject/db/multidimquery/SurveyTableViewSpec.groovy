@@ -20,7 +20,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Rollback
 @Integration
-class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
+class SurveyTableViewSpec extends Specification {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
@@ -34,12 +34,7 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new SubjectObservationsByStudyConceptsTableView(hypercube,
-                subjectIdColumnName: 'FISNumber',
-                subjectIdColumnDescription: 'FIS Number',
-                subjectIdSource: 'SUBJ_ID',
-                dateColDescription: 'Date of measurement',
-        )
+        def transformedView = new SurveyTableView(hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
         columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date', 'gender1', 'gender1.date']
@@ -84,12 +79,7 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new SubjectObservationsByStudyConceptsTableView(hypercube,
-                subjectIdColumnName: 'FISNumber',
-                subjectIdColumnDescription: 'FIS Number',
-                subjectIdSource: 'SUBJ_ID',
-                dateColDescription: 'Date of measurement',
-        )
+        def transformedView = new SurveyTableView(hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
         columns*.label == ['FISNumber', 'description', 'description.date', 'height1', 'height1.date']

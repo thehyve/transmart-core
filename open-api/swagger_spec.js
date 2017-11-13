@@ -2039,7 +2039,7 @@ var spec = {
                 },
                 "elements": {
                   "type": "string",
-                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, tabular:<boolean>]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
+                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
                 }
               },
               "required": [
@@ -2169,6 +2169,15 @@ var spec = {
         "description": "Gets supported export file formats.\n",
         "tags": [
           "v2"
+        ],
+        "parameters": [
+          {
+            "name": "dataView",
+            "required": false,
+            "in": "query",
+            "description": "Data view.",
+            "type": "string"
+          }
         ],
         "produces": [
           "application/json"

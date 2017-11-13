@@ -61,7 +61,7 @@ class ExportController {
      *      elements: {
      *          dataType: "<clinical/mrna/...>" //supported data type
      *          format: "<TSV/SPSS/...>" //supported file format
-     *          tabular: <true/false> //optional, false by default.
+     *          dataView: "<data view>" //optional
      *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
      *      }
      * }
@@ -173,13 +173,13 @@ class ExportController {
 
     /**
      * List supported file formats:
-     * <code>/v2/export/file_formats
+     * <code>/v2/export/file_formats?dataView=<data view>
      *
      * @return File format types
      */
-    def fileFormats() {
-        checkForUnsupportedParams(params, [])
-        def fileFormats = restExportService.supportedFileFormats
+    def fileFormats(@RequestParam('dataView') String dataView) {
+        checkForUnsupportedParams(params, ['dataView'])
+        def fileFormats = restExportService.getSupportedFormats(dataView)
         def results = [fileFormats: fileFormats]
         render results as JSON
     }

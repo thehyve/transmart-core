@@ -10,17 +10,13 @@ import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class TabularResultTSVSerializer {
+class TabularResultTSVSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
 
-    /**
-     * Writes a tabular file content to the csv/tsv file to the output stream.
-     * Does not close the output stream afterwards.
-     * @param out the stream to write to.
-     */
-    static writeFilesToZip(TabularResult tabularResult, ZipOutputStream zipOutStream) {
+    @Override
+    void writeFilesToZip(TabularResult tabularResult, ZipOutputStream zipOutStream) {
         zipOutStream.putNextEntry(new ZipEntry('data.tsv'))
         writeValues(tabularResult, zipOutStream)
         zipOutStream.closeEntry()
