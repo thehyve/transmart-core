@@ -113,17 +113,17 @@ class RelationSpec extends Specification {
         parentsThatLiveSeparateFromTheirKids*.id as Set == [-3002L, -3003L, -3004, -3005] as Set
 
         when: 'get all biological siblings that have twin kids.'
-        def siblingsWitTwins = multiDimService.getDimensionElements(PATIENT,
+        def siblingsWithTwins = multiDimService.getDimensionElements(PATIENT,
                 new RelationConstraint(
                         relatedSubjectsConstraint: new AndConstraint(args: [
-                                new ConceptConstraint(path: '\\Pedigree\\Has multiple babies\\'),
+                                new ConceptConstraint(path: '\\Pedigree\\Number of children that are multiplet\\'),
                                 new ValueConstraint(Type.NUMERIC, Operator.GREATER_THAN, 0)
                         ]),
                         relationTypeLabel: 'SIB',
                         biological: true,
                 ), user)
         then: 'the sisters ids have been returned'
-        siblingsWitTwins*.id as Set == [-3002L, -3004L] as Set
+        siblingsWithTwins*.id as Set == [-3002L, -3004L] as Set
     }
 
 }
