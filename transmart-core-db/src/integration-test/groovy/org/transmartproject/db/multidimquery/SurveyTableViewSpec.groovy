@@ -45,7 +45,7 @@ class SurveyTableViewSpec extends Specification {
         metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE, STRING, DATE, STRING, DATE, STRING, DATE]
         metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
         metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book',
-                                  'Date of measurement', 'Gender', 'Date of measurement', 'Has multiple babies',
+                                  'Date of measurement', 'Gender', 'Date of measurement', 'Number of children that are multiplet',
                                   'Date of measurement', 'Numbers of multiples in family', 'Date of measurement',
                                   'Is a Twin', 'Date of measurement']
         metadata*.width == [12, 22, 22, 400, 22, 12, 22, 25, 22, 25, 22, 25, 22]
