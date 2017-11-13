@@ -49,11 +49,15 @@ class Observations {
         }
     }
 
-    int getMaxInstanceNum() {
+    Integer getMaxInstanceNum() {
         database.jdbcTemplate.queryForObject(
                 "select max(instance_num) as max_instance_num from ${table}".toString(),
                 Integer.class
-        ) as int
+        )
+    }
+
+    Integer getBaseInstanceNum() {
+        (maxInstanceNum ?: 0) + 1
     }
 
     void transformRow(Map<String, Object> row, final int baseInstanceNum) {
@@ -124,7 +128,7 @@ class Observations {
 
     void load(String rootPath) {
         log.info "Determining instance num ..."
-        int baseInstanceNum = maxInstanceNum + 1
+        int baseInstanceNum = baseInstanceNum
         log.info "Using ${baseInstanceNum} as lowest instance num."
         File observationsFile = new File(rootPath, observations_file)
 
