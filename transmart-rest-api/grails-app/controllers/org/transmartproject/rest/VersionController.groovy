@@ -70,6 +70,7 @@ class VersionController {
                         'inline-selections',
                         'observation-sets',
                         'pedigree',
+                        'survey-table-view',
                 ]
             ]
     ])

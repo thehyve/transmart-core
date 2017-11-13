@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest.serialization.tabular
 
 import com.opencsv.CSVWriter
@@ -12,17 +13,13 @@ import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class TabularResultSPSSSerializer {
+class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy hh:mm")
 
-    /**
-     * Writes a tabular file content to the output stream.
-     * Does not close the output stream afterwards.
-     * @param out the stream to write to.
-     */
-    static writeFilesToZip(TabularResult tabularResult, ZipOutputStream zipOutStream) {
+    @Override
+    void writeFilesToZip(TabularResult tabularResult, ZipOutputStream zipOutStream) {
         def tsvDataFile = 'data.tsv'
         zipOutStream.putNextEntry(new ZipEntry(tsvDataFile))
         writeValues(tabularResult, zipOutStream)
