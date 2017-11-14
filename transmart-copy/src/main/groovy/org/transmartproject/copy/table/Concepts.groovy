@@ -60,6 +60,7 @@ class Concepts {
 
     void load(String rootPath) {
         def conceptsFile = new File(rootPath, concepts_file)
+        def tx = database.beginTransaction()
         conceptsFile.withReader { reader ->
             log.info "Reading concepts from file ..."
             def insertCount = 0
@@ -89,6 +90,7 @@ class Concepts {
                     throw e
                 }
             }
+            database.commit(tx)
             log.info "${existingCount} existing concepts found."
             log.info "${insertCount} concepts inserted."
         }

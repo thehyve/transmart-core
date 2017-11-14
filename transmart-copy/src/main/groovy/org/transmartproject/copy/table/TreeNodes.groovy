@@ -109,6 +109,7 @@ class TreeNodes {
 
     void load(String rootPath) {
         def treeNodesFile = new File(rootPath, tree_nodes_file)
+        def tx = database.beginTransaction()
         treeNodesFile.withReader { reader ->
             log.info "Reading tree nodes from file ..."
             def insertCount = 0
@@ -137,6 +138,7 @@ class TreeNodes {
                     throw e
                 }
             }
+            database.commit(tx)
             log.info "${existingCount} existing tree nodes found."
             log.info "${insertCount} tree nodes inserted."
         }

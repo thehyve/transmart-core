@@ -60,6 +60,7 @@ class Modifiers {
             log.info "Skip loading of modifiers. No file ${modifiers_file} found."
             return
         }
+        def tx = database.beginTransaction()
         modifiersFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
@@ -83,6 +84,7 @@ class Modifiers {
                 }
             }
         }
+        database.commit(tx)
     }
 
 }

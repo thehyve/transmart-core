@@ -103,6 +103,7 @@ class Patients {
                 }
             }
         }
+        def tx = database.beginTransaction()
         def patientsFile = new File(rootPath, patient_dimension_file)
         patientsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
@@ -133,6 +134,7 @@ class Patients {
                 }
             }
         }
+        database.commit(tx)
         log.info "${existingCount} existing patients found."
         log.info "${insertCount} patients inserted."
     }

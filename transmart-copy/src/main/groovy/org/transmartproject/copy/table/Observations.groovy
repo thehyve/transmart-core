@@ -153,6 +153,7 @@ class Observations {
         // Transform data: replace patient index with patient num,
         // trial visit index with trial visit num and instance num index with instance num,
         // and write transformed data to database.
+        def tx = database.beginTransaction()
         log.info 'Reading, transforming and writing observations data ...'
         observationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
@@ -200,6 +201,7 @@ class Observations {
                 return
             }
         }
+        database.commit(tx)
         if (config.write) {
             tsvWriter.close()
         }

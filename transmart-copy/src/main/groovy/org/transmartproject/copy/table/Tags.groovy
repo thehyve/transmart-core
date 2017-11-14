@@ -84,6 +84,7 @@ class Tags {
             log.info "Skip loading of tags. No file ${tags_file} found."
             return
         }
+        def tx = database.beginTransaction()
         tagsFile.withReader { reader ->
             log.info "Reading tags from file ..."
             def insertCount = 0
@@ -118,6 +119,7 @@ class Tags {
                     throw e
                 }
             }
+            database.commit(tx)
             log.info "${existingCount} existing tags found."
             log.info "${insertCount} tags inserted."
         }
