@@ -102,7 +102,7 @@ class Util {
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> parseDate(value) })
                     break
                 default:
-                    result[columnName] = data[i]
+                    result[columnName] = parseIfNotEmpty(data[i], { it })
             }
         }
         result
