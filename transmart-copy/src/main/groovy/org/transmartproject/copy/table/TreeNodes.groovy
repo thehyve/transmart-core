@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
@@ -20,8 +21,7 @@ import java.sql.SQLException
 @CompileStatic
 class TreeNodes {
 
-    static final String table = 'i2b2metadata.i2b2_secure'
-    static final String tree_nodes_file = 'i2b2metadata/i2b2_secure.tsv'
+    static final Table table = new Table('i2b2metadata', 'i2b2_secure')
 
     final Database database
 
@@ -109,7 +109,7 @@ class TreeNodes {
     }
 
     void load(String rootPath) {
-        def treeNodesFile = new File(rootPath, tree_nodes_file)
+        def treeNodesFile = new File(rootPath, table.fileName)
         def tx = database.beginTransaction()
         treeNodesFile.withReader { reader ->
             log.info "Reading tree nodes from file ..."
@@ -118,7 +118,7 @@ class TreeNodes {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(tree_nodes_file, data, columns)
+                    Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
@@ -136,7 +136,7 @@ class TreeNodes {
                         paths.add(path)
                     }
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${tree_nodes_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
                     throw e
                 }
             }

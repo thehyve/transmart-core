@@ -11,6 +11,7 @@ import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
@@ -21,10 +22,8 @@ import java.sql.SQLException
 @CompileStatic
 class Relations {
 
-    static final String relation_type_table = 'i2b2demodata.relation_type'
-    static final String relation_type_file = 'i2b2demodata/relation_type.tsv'
-    static final String relation_table = 'i2b2demodata.relation'
-    static final String relation_file = 'i2b2demodata/relation.tsv'
+    static final Table relation_type_table = new Table('i2b2demodata', 'relation_type')
+    static final Table relation_table = new Table('i2b2demodata', 'relation')
 
     final Database database
 
@@ -120,12 +119,12 @@ class Relations {
             return
         }
         // Insert relation types
-        def relationTypesFile = new File(rootPath, relation_type_file)
+        def relationTypesFile = new File(rootPath, relation_type_table.fileName)
         relationTypesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(relation_type_file, data, relation_type_columns)
+                    Util.verifyHeader(relation_type_table.fileName, data, relation_type_columns)
                     return
                 }
                 try {
@@ -146,7 +145,7 @@ class Relations {
                     }
                     indexToRelationTypeId.add(id)
                 } catch (Exception e) {
-                    log.error "Error on line ${i} of ${relation_type_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${relation_type_table.fileName}: ${e.message}."
                     throw e
                 }
             }
@@ -158,7 +157,7 @@ class Relations {
         log.info "${relationCount} relations deleted."
 
         // Insert relations
-        def relationsFile = new File(rootPath, relation_file)
+        def relationsFile = new File(rootPath, relation_table.fileName)
 
         // Count number of rows
         int rowCount = 0
@@ -178,7 +177,7 @@ class Relations {
             String[] data = tsvReader.readNext()
             if (data != null) {
                 int i = 1
-                LinkedHashMap<String, Class> header = Util.verifyHeader(relation_file, data, relation_columns)
+                LinkedHashMap<String, Class> header = Util.verifyHeader(relation_table.fileName, data, relation_columns)
                 def insert = database.getInserter(relation_table, header)
                 final progressBar = new ProgressBar("Insert into ${relation_table}", rowCount - 1)
                 progressBar.start()
@@ -200,7 +199,7 @@ class Relations {
                         }
                     } catch (Exception e) {
                         progressBar.stop()
-                        log.error "Error processing row ${i} of ${relation_file}", e
+                        log.error "Error processing row ${i} of ${relation_table.fileName}", e
                         throw e
                     }
                     data = tsvReader.readNext()

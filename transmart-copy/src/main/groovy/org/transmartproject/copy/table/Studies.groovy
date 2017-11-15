@@ -11,9 +11,8 @@ import groovy.transform.Immutable
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 import org.transmartproject.copy.exception.InvalidState
@@ -25,12 +24,9 @@ import java.sql.SQLException
 @CompileStatic
 class Studies {
 
-    static final String study_table = 'i2b2demodata.study'
-    static final String studies_file = 'i2b2demodata/study.tsv'
-    static final String trial_visit_table = 'i2b2demodata.trial_visit_dimension'
-    static final String trial_visit_file = 'i2b2demodata/trial_visit_dimension.tsv'
-    static final String study_dimensions_table = 'i2b2metadata.study_dimension_descriptions'
-    static final String study_dimensions_file = 'i2b2metadata/study_dimension_descriptions.tsv'
+    static final Table study_table = new Table('i2b2demodata', 'study')
+    static final Table trial_visit_table = new Table('i2b2demodata', 'trial_visit_dimension')
+    static final Table study_dimensions_table = new Table('i2b2metadata', 'study_dimension_descriptions')
 
 
     final Database database
@@ -170,18 +166,18 @@ class Studies {
     }
 
     void check(String rootPath) {
-        def studiesFile = new File(rootPath, studies_file)
+        def studiesFile = new File(rootPath, study_table.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(studies_file, data, study_columns)
+                    Util.verifyHeader(study_table.fileName, data, study_columns)
                     return
                 }
                 def studyData = Util.asMap(study_columns, data)
                 def studyIndex = studyData['study_num'] as long
                 if (i != studyIndex + 1) {
-                    throw new InvalidInput("The studies ${studies_file} are not in order. (Found ${studyIndex} on line ${i}.)")
+                    throw new InvalidInput("The studies ${study_table.fileName} are not in order. (Found ${studyIndex} on line ${i}.)")
                 }
                 def studyId = studyData['study_id'] as String
                 checkIfStudyExists(studyId)
@@ -190,12 +186,12 @@ class Studies {
     }
 
     void clean() {
-        def studiesFile = new File(studies_file)
+        def studiesFile = new File(study_table.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(studies_file, data, study_columns)
+                    Util.verifyHeader(study_table.fileName, data, study_columns)
                     return
                 }
                 def studyData = Util.asMap(study_columns, data)
@@ -211,12 +207,12 @@ class Studies {
     void load(String rootPath) {
         def tx = database.beginTransaction()
         // Insert study records
-        def studiesFile = new File(rootPath, studies_file)
+        def studiesFile = new File(rootPath, study_table.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(studies_file, data, study_columns)
+                    Util.verifyHeader(study_table.fileName, data, study_columns)
                     return
                 }
                 try {
@@ -227,7 +223,7 @@ class Studies {
                     indexToStudyNum.add(studyNum)
                     studyIdToStudyNum[studyId] = studyNum
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${studies_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${study_table.fileName}: ${e.message}."
                     throw e
                 }
             }
@@ -236,12 +232,12 @@ class Studies {
 
         tx = database.beginTransaction()
         // Insert trial visits
-        def trialVisitsFile = new File(rootPath, trial_visit_file)
+        def trialVisitsFile = new File(rootPath, trial_visit_table.fileName)
         trialVisitsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(trial_visit_file, data, trial_visit_columns)
+                    Util.verifyHeader(trial_visit_table.fileName, data, trial_visit_columns)
                     return
                 }
                 try {
@@ -256,21 +252,21 @@ class Studies {
                     log.info "Trial visit inserted [trial_visit_num: ${trialVisitNum}]."
                     indexToTrialVisitNum.add(trialVisitNum)
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${trial_visit_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${trial_visit_table.fileName}: ${e.message}."
                     throw e
                 }
             }
         }
 
         // Insert study dimension descriptions
-        def studyDimensionsFile = new File(rootPath, study_dimensions_file)
+        def studyDimensionsFile = new File(rootPath, study_dimensions_table.fileName)
         studyDimensionsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             log.info "Reading study dimensions from file ..."
             def insertCount = 0
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(study_dimensions_file, data, study_dimensions_columns)
+                    Util.verifyHeader(study_dimensions_table.fileName, data, study_dimensions_columns)
                     return
                 }
                 try {
@@ -291,7 +287,7 @@ class Studies {
                     insertCount++
                     log.debug "Study dimension inserted [study_id: ${studyNum}, dimension_description_id: ${dimensionId}]."
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${study_dimensions_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${study_dimensions_table.fileName}: ${e.message}."
                     throw e
                 }
             }

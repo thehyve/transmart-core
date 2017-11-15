@@ -12,6 +12,7 @@ import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
 import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
@@ -19,8 +20,7 @@ import org.transmartproject.copy.exception.InvalidInput
 @CompileStatic
 class Observations {
 
-    static final String table = 'i2b2demodata.observation_fact'
-    static final String observations_file = 'i2b2demodata/observation_fact.tsv'
+    static final Table table = new Table('i2b2demodata', 'observation_fact')
 
     static final String emptyDate = '0001-01-01 00:00:00'
 
@@ -43,9 +43,9 @@ class Observations {
     }
 
     void checkFiles(String rootPath) {
-        File inputFile = new File(rootPath, observations_file)
+        File inputFile = new File(rootPath, table.fileName)
         if (!inputFile.exists()) {
-            throw new InvalidInput("No file ${observations_file}")
+            throw new InvalidInput("No file ${table.fileName}")
         }
     }
 
@@ -130,7 +130,7 @@ class Observations {
         log.info "Determining instance num ..."
         int baseInstanceNum = baseInstanceNum
         log.info "Using ${baseInstanceNum} as lowest instance num."
-        File observationsFile = new File(rootPath, observations_file)
+        File observationsFile = new File(rootPath, table.fileName)
 
         // Count number of rows
         int rowCount = 0
@@ -160,7 +160,7 @@ class Observations {
             String[] data = tsvReader.readNext()
             if (data != null) {
                 int i = 1
-                LinkedHashMap<String, Class> header = Util.verifyHeader(observations_file, data, columns)
+                LinkedHashMap<String, Class> header = Util.verifyHeader(table.fileName, data, columns)
                 def insert = database.getInserter(table, header)
                 final progressBar = new ProgressBar("Insert into ${table}", rowCount - 1)
                 progressBar.start()
@@ -186,7 +186,7 @@ class Observations {
                         }
                     } catch (Exception e) {
                         progressBar.stop()
-                        log.error "Error processing row ${i} of ${observations_file}: ${e.message}"
+                        log.error "Error processing row ${i} of ${table.fileName}: ${e.message}"
                         restoreTableIndexes()
                         throw e
                     }

@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
@@ -20,8 +21,7 @@ import java.sql.SQLException
 @CompileStatic
 class Dimensions {
 
-    static final String table = 'i2b2metadata.dimension_description'
-    static final String dimensions_file = 'i2b2metadata/dimension_description.tsv'
+    static final Table table = new Table('i2b2metadata', 'dimension_description')
 
     final Database database
 
@@ -59,7 +59,7 @@ class Dimensions {
     }
 
     void load(String rootPath) {
-        def dimensionsFile = new File(rootPath, dimensions_file)
+        def dimensionsFile = new File(rootPath, table.fileName)
         dimensionsFile.withReader { reader ->
             log.info "Reading dimensions from file ..."
             def tx = database.beginTransaction()
@@ -68,7 +68,7 @@ class Dimensions {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(dimensions_file, data, columns)
+                    Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
@@ -90,7 +90,7 @@ class Dimensions {
                     indexToDimensionId.add(dimensionId)
                     log.debug "Registered dimension at index ${dimensionIndex}: ${dimensionName} [${dimensionId}]."
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${dimensions_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
                     throw e
                 }
             }

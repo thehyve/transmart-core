@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 
 import java.sql.ResultSet
@@ -19,8 +20,7 @@ import java.sql.SQLException
 @CompileStatic
 class Modifiers {
 
-    static final String table = 'i2b2demodata.modifier_dimension'
-    static final String modifiers_file = 'i2b2demodata/modifier_dimension.tsv'
+    static final Table table = new Table('i2b2demodata', 'modifier_dimension')
 
     final Database database
 
@@ -55,9 +55,9 @@ class Modifiers {
     }
 
     void load(String rootPath) {
-        def modifiersFile = new File(rootPath, modifiers_file)
+        def modifiersFile = new File(rootPath, table.fileName)
         if (!modifiersFile.exists()) {
-            log.info "Skip loading of modifiers. No file ${modifiers_file} found."
+            log.info "Skip loading of modifiers. No file ${table.fileName} found."
             return
         }
         def tx = database.beginTransaction()
@@ -65,7 +65,7 @@ class Modifiers {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(modifiers_file, data, columns)
+                    Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
@@ -79,7 +79,7 @@ class Modifiers {
                         modifierCodes.add(modifierCode)
                     }
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${modifiers_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
                     throw e
                 }
             }

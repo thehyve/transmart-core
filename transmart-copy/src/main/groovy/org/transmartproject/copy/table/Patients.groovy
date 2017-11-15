@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
@@ -20,10 +21,8 @@ import java.sql.SQLException
 @CompileStatic
 class Patients {
 
-    static final String patient_dimension_table = 'i2b2demodata.patient_dimension'
-    static final String patient_dimension_file = 'i2b2demodata/patient_dimension.tsv'
-    static final String patient_mapping_table = 'i2b2demodata.patient_mapping'
-    static final String patient_mapping_file = 'i2b2demodata/patient_mapping.tsv'
+    static final Table patient_dimension_table = new Table('i2b2demodata', 'patient_dimension')
+    static final Table patient_mapping_table = new Table('i2b2demodata', 'patient_mapping')
 
     final Database database
 
@@ -70,12 +69,12 @@ class Patients {
         def existingCount = 0
         Set<Integer> missingPatients = []
         Map<Integer, Map> missingPatientsMappingData = [:]
-        def mappingFile = new File(rootPath, patient_mapping_file)
+        def mappingFile = new File(rootPath, patient_mapping_table.fileName)
         mappingFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(patient_mapping_file, data, patient_mapping_columns)
+                    Util.verifyHeader(patient_mapping_table.fileName, data, patient_mapping_columns)
                     return
                 }
                 try {
@@ -98,18 +97,18 @@ class Patients {
                         missingPatientsMappingData[patientIndex] = patientMappingData
                     }
                 } catch (Exception e) {
-                    log.error "Error on line ${i} of ${patient_mapping_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${patient_mapping_table.fileName}: ${e.message}."
                     throw e
                 }
             }
         }
         def tx = database.beginTransaction()
-        def patientsFile = new File(rootPath, patient_dimension_file)
+        def patientsFile = new File(rootPath, patient_dimension_table.fileName)
         patientsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(patient_dimension_file, data, patient_dimension_columns)
+                    Util.verifyHeader(patient_dimension_table.fileName, data, patient_dimension_columns)
                     return
                 }
                 try {
@@ -129,7 +128,7 @@ class Patients {
                         log.debug "Patient mapping inserted [patient_num: ${patientNum}]."
                     }
                 } catch (Exception e) {
-                    log.error "Error on line ${i} of ${patient_dimension_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${patient_dimension_table.fileName}: ${e.message}."
                     throw e
                 }
             }

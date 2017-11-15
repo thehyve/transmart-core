@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 
 import java.sql.ResultSet
@@ -19,8 +20,7 @@ import java.sql.SQLException
 @CompileStatic
 class Concepts {
 
-    static final String table = 'i2b2demodata.concept_dimension'
-    static final String concepts_file = 'i2b2demodata/concept_dimension.tsv'
+    static final Table table = new Table('i2b2demodata', 'concept_dimension')
 
     final Database database
 
@@ -59,7 +59,7 @@ class Concepts {
     }
 
     void load(String rootPath) {
-        def conceptsFile = new File(rootPath, concepts_file)
+        def conceptsFile = new File(rootPath, table.fileName)
         def tx = database.beginTransaction()
         conceptsFile.withReader { reader ->
             log.info "Reading concepts from file ..."
@@ -68,7 +68,7 @@ class Concepts {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(concepts_file, data, columns)
+                    Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
@@ -86,7 +86,7 @@ class Concepts {
                         conceptPaths.add(conceptPath)
                     }
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${concepts_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
                     throw e
                 }
             }

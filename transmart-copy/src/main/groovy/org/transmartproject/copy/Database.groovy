@@ -102,23 +102,15 @@ class Database {
         transactionManager.commit(tx)
     }
 
-    boolean tableExists(String table) {
+    boolean tableExists(Table table) {
         log.debug "Check if table ${table} exists ..."
-        List<String> parts = table.tokenize('.')
-        assert (parts.size() == 2)
-        def schemaDef = parts[0]
-        def tableDef = parts[1]
-        def resultSet = connection.metaData.getTables(null, schemaDef, tableDef)
+        def resultSet = connection.metaData.getTables(null, table.schema, table.name)
         resultSet.next()
     }
 
-    LinkedHashMap<String, Class> getColumnMetadata(String table) {
+    LinkedHashMap<String, Class> getColumnMetadata(Table table) {
         log.debug "Fetching metadata for ${table} ..."
-        List<String> parts = table.tokenize('.')
-        assert (parts.size() == 2)
-        def schemaDef = parts[0]
-        def tableDef = parts[1]
-        def resultSet = connection.metaData.getColumns(null, schemaDef, tableDef, null)
+        def resultSet = connection.metaData.getColumns(null, table.schema, table.name, null)
         def result = [:] as LinkedHashMap
         while (resultSet.next()) {
             String columnName   = resultSet.getString('COLUMN_NAME')
@@ -165,19 +157,15 @@ class Database {
         result
     }
 
-    final Map<String, SimpleJdbcInsert> idGeneratingInserters = [:]
+    final Map<Table, SimpleJdbcInsert> idGeneratingInserters = [:]
 
-    SimpleJdbcInsert getIdGeneratingInserter(String table, LinkedHashMap<String, Class> columns, String idColumn) {
+    SimpleJdbcInsert getIdGeneratingInserter(Table table, LinkedHashMap<String, Class> columns, String idColumn) {
         SimpleJdbcInsert inserter = idGeneratingInserters[table]
         if (!inserter) {
             log.debug "Creating id generating inserter for ${table} ..."
-            List<String> parts = table.tokenize('.')
-            assert (parts.size() == 2)
-            def schemaDef = parts[0]
-            def tableDef = parts[1]
             inserter = new SimpleJdbcInsert(dataSource)
-                .withSchemaName(schemaDef)
-                .withTableName(tableDef)
+                .withSchemaName(table.schema)
+                .withTableName(table.name)
                 .usingColumns(columns.collect { it.key }.findAll { it != idColumn }.toArray() as String[])
                 .usingGeneratedKeyColumns(idColumn)
             inserters[table] = inserter
@@ -185,31 +173,27 @@ class Database {
         inserter
     }
 
-    Long insertEntry(String table, LinkedHashMap<String, Class> columns, String idColumn, Map<String, Object> data) {
+    Long insertEntry(Table table, LinkedHashMap<String, Class> columns, String idColumn, Map<String, Object> data) {
         def inserter = getIdGeneratingInserter(table, columns, idColumn)
         inserter.executeAndReturnKey(data) as Long
     }
 
-    final Map<String, SimpleJdbcInsert> inserters = [:]
+    final Map<Table, SimpleJdbcInsert> inserters = [:]
 
-    SimpleJdbcInsert getInserter(String table, LinkedHashMap<String, Class> columns) {
+    SimpleJdbcInsert getInserter(Table table, LinkedHashMap<String, Class> columns) {
         SimpleJdbcInsert inserter = inserters[table]
         if (!inserter) {
             log.debug "Creating inserter for ${table} ..."
-            List<String> parts = table.tokenize('.')
-            assert (parts.size() == 2)
-            def schemaDef = parts[0]
-            def tableDef = parts[1]
             inserter = new SimpleJdbcInsert(dataSource)
-                    .withSchemaName(schemaDef)
-                    .withTableName(tableDef)
+                    .withSchemaName(table.schema)
+                    .withTableName(table.name)
                     .usingColumns(columns.collect { it.key }.toArray() as String[])
             inserters[table] = inserter
         }
         inserter
     }
 
-    void insertEntry(String table, LinkedHashMap<String, Class> columns, Map<String, Object> data) {
+    void insertEntry(Table table, LinkedHashMap<String, Class> columns, Map<String, Object> data) {
         getInserter(table, columns).execute(data)
     }
 

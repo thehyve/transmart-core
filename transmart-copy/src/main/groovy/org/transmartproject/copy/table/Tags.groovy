@@ -11,6 +11,7 @@ import groovy.transform.Immutable
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
+import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
@@ -33,8 +34,7 @@ class Tags {
         }
     }
 
-    static final String table = 'i2b2metadata.i2b2_tags'
-    static final String tags_file = 'i2b2metadata/i2b2_tags.tsv'
+    static final Table table = new Table('i2b2metadata', 'i2b2_tags')
 
     final Database database
 
@@ -84,9 +84,9 @@ class Tags {
     }
 
     void load(String rootPath) {
-        def tagsFile = new File(rootPath, tags_file)
+        def tagsFile = new File(rootPath, table.fileName)
         if (!tagsFile.exists()) {
-            log.info "Skip loading of tags. No file ${tags_file} found."
+            log.info "Skip loading of tags. No file ${table.fileName} found."
             return
         }
         def tx = database.beginTransaction()
@@ -97,14 +97,14 @@ class Tags {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(tags_file, data, columns)
+                    Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
                     def tagData = Util.asMap(columns, data)
                     def path = tagData['path'] as String
                     if (!(path in treeNodes.pathsFromFile)) {
-                        throw new InvalidInput("Tag found for tree path ${path} that does not exist in ${TreeNodes.tree_nodes_file}.")
+                        throw new InvalidInput("Tag found for tree path ${path} that does not exist in ${TreeNodes.table.fileName}.")
                     } else {
                         def tagType = tagData['tag_type'] as String
                         def index = tagData['tags_idx'] as int
@@ -122,7 +122,7 @@ class Tags {
                         }
                     }
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${tags_file}: ${e.message}."
+                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
                     throw e
                 }
             }
