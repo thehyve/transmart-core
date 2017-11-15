@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
+import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -28,6 +29,7 @@ class Concepts {
 
     final Set<String> conceptCodes = []
     final Set<String> conceptPaths = []
+    final Map<String, String> conceptCodeToConceptPath = [:]
 
     Concepts(Database database) {
         this.database = database
@@ -38,11 +40,24 @@ class Concepts {
     static class ConceptRowHandler implements RowCallbackHandler {
         final List<String> conceptCodes = []
         final List<String> conceptPaths = []
+        final Map<String, String> conceptCodeToConceptPath = [:]
 
         @Override
         void processRow(ResultSet rs) throws SQLException {
-            conceptCodes << rs.getString('concept_cd')
-            conceptPaths << rs.getString('concept_path')
+            def conceptCode = rs.getString('concept_cd')
+            def conceptPath = rs.getString('concept_path')
+            def codeInserted = conceptCodes << conceptCode
+            conceptPaths << conceptPath
+            if (!codeInserted) {
+                log.warn "Duplicate concept code in the database: ${conceptCode}"
+                def knownPath = conceptCodeToConceptPath[conceptCode]
+                if (knownPath != conceptPath) {
+                    log.warn "Inconsistent data in the database: concept code ${conceptCode} associated with multiple paths:"
+                    log.warn " - ${knownPath}"
+                    log.warn " - ${conceptPath}"
+                }
+            }
+            conceptCodeToConceptPath[conceptCode] = conceptPath
         }
     }
 
@@ -54,6 +69,7 @@ class Concepts {
         )
         conceptPaths.addAll(rowHandler.conceptPaths)
         conceptCodes.addAll(rowHandler.conceptCodes)
+        conceptCodeToConceptPath.putAll(rowHandler.conceptCodeToConceptPath)
         log.info "Concepts loaded: ${conceptCodes.size()}."
         log.debug "Concept codes: ${conceptCodes}"
     }
@@ -76,17 +92,27 @@ class Concepts {
                     def conceptCode = conceptData['concept_cd'] as String
                     def conceptPath = conceptData['concept_path'] as String
                     if (conceptCode in conceptCodes) {
+                        if (conceptPath != conceptCodeToConceptPath[conceptCode]) {
+                            log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
+                            log.error "but concept with that code already exists with path ${conceptCodeToConceptPath[conceptCode]}."
+                            throw new InvalidInput("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
+                        }
                         existingCount++
                         log.debug "Found existing concept: ${conceptCode}."
+                    } else if (conceptPath in conceptPaths) {
+                        log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
+                        log.error "but concept with that path already exists with another code."
+                        throw new InvalidInput("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
                     } else {
                         insertCount++
                         log.debug "Inserting new concept: ${conceptCode} ..."
                         database.insertEntry(table, columns, conceptData)
                         conceptCodes.add(conceptCode)
                         conceptPaths.add(conceptPath)
+                        conceptCodeToConceptPath[conceptCode] = conceptPath
                     }
                 } catch(Exception e) {
-                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
+                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}"
                     throw e
                 }
             }

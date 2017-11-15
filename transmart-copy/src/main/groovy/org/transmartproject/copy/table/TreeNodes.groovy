@@ -87,7 +87,7 @@ class TreeNodes {
                 }
             } else if (columnName == 'concept_path') {
                 if (!(dimCode in concepts.conceptPaths)) {
-                    log.debug "Unknown concept path for node ${path}: ${dimCode}."
+                    throw new InvalidInput("Unknown concept path for node ${path}: ${dimCode}.")
                 }
             } else {
                 throw new InvalidInput("Unexpected column name for concept node ${path}: ${columnName}.")
