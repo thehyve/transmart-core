@@ -94,6 +94,25 @@ class CopySpec extends Specification {
         expectedCounts == afterCounts
     }
 
+    def 'test detecting if table exists'() {
+        given: 'Test database is available'
+
+        def copy = new Copy()
+        copy.init()
+        assert !copy.database.connection.closed
+
+        when: 'Checking for a non-existing table'
+        def tableBar = new Table('foo', 'bar')
+        def tableBarExists = copy.database.tableExists(tableBar)
+        then: 'The result is false.'
+        !tableBarExists
+
+        when: 'Checking for an existing table'
+        def observationsTableExists = copy.database.tableExists(Observations.table)
+        then: 'The result is true'
+        observationsTableExists
+    }
+
     Map<Table, Number> count(Database database, Iterable<Table> tables) {
         tables.collectEntries { Table table ->
             [

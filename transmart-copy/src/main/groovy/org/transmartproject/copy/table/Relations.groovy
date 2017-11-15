@@ -118,8 +118,13 @@ class Relations {
             log.debug "Skip loading of relation types and relations. No relation tables available."
             return
         }
-        // Insert relation types
         def relationTypesFile = new File(rootPath, relation_type_table.fileName)
+        if (!relationTypesFile.exists()) {
+            log.info "Skip loading of relation types. No file ${relation_type_table.fileName} found."
+            return
+        }
+
+        // Insert relation types
         relationTypesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
@@ -151,13 +156,16 @@ class Relations {
             }
         }
 
+        def relationsFile = new File(rootPath, relation_table.fileName)
+        if (!relationsFile.exists()) {
+            log.info "Skip loading of relations. No file ${relation_table.fileName} found."
+            return
+        }
+
         // Remove relations
         log.info "Deleting relations ..."
         int relationCount = database.jdbcTemplate.update("truncate ${relation_table}".toString())
         log.info "${relationCount} relations deleted."
-
-        // Insert relations
-        def relationsFile = new File(rootPath, relation_table.fileName)
 
         // Count number of rows
         int rowCount = 0

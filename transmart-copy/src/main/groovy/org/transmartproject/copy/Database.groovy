@@ -35,6 +35,8 @@ class Database {
             null
         } else {
             switch(dataTypeName.trim().toLowerCase()) {
+                case 'bool':
+                    return Boolean.class
                 case 'numeric':
                     return Double.class
                 case 'integer':
@@ -104,7 +106,7 @@ class Database {
 
     boolean tableExists(Table table) {
         log.debug "Check if table ${table} exists ..."
-        def resultSet = connection.metaData.getTables(null, table.schema, table.name)
+        def resultSet = connection.metaData.getTables(null, table.schema, table.name, null)
         resultSet.next()
     }
 
