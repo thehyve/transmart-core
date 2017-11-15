@@ -29,6 +29,7 @@ class Dimensions {
 
     final Map<String, Long> dimensionNameToId = [:]
     final List<Long> indexToDimensionId = []
+    final Set<String> modifierDimensionCodes = []
 
     Dimensions(Database database) {
         this.database = database
@@ -38,24 +39,30 @@ class Dimensions {
     @CompileStatic
     static class DimensionRowHandler implements RowCallbackHandler {
         final Map<String, Long> dimensionNameToId = [:]
+        final Set<String> modifierDimensionCodes = []
 
         @Override
         void processRow(ResultSet rs) throws SQLException {
             def id = rs.getLong('id')
             def name = rs.getString('name')
+            def modifierCode = rs.getString('modifier_code')
             dimensionNameToId[name] = id
+            if (modifierCode) {
+                modifierDimensionCodes.add(modifierCode)
+            }
         }
     }
 
     void fetch() {
         def dimensionHandler = new DimensionRowHandler()
         database.jdbcTemplate.query(
-                "select id, name from ${table}".toString(),
+                "select id, name, modifier_code from ${table}".toString(),
                 dimensionHandler
         )
         dimensionNameToId.putAll(dimensionHandler.dimensionNameToId)
+        modifierDimensionCodes.addAll(dimensionHandler.modifierDimensionCodes)
         log.info "Dimensions loaded: ${dimensionNameToId.size()} entries."
-        log.debug "Entries: ${dimensionNameToId.toMapString()}"
+        log.info "Entries: ${dimensionNameToId.toMapString()}"
     }
 
     void load(String rootPath) {
@@ -82,6 +89,10 @@ class Dimensions {
                     if (dimensionId) {
                         existingCount++
                     } else {
+                        def modifierCode = dimensionData['modifier_code'] as String
+                        if (modifierCode && modifierDimensionCodes.contains(modifierCode)) {
+                            throw new InvalidInput("Cannot insert dimension '${dimensionName}'. Another dimension already exists for modifier code ${modifierCode}.")
+                        }
                         insertCount++
                         log.info "Inserting dimension: ${dimensionName}."
                         dimensionId = database.insertEntry(table, columns, 'id', dimensionData)
