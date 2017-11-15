@@ -31,6 +31,7 @@ class TreeNodes {
     final Concepts concepts
 
     final Set<String> paths = []
+    final Set<String> pathsFromFile = []
 
     TreeNodes(Database database, Studies studies, Concepts concepts) {
         this.database = database
@@ -124,6 +125,7 @@ class TreeNodes {
                     def treeNodeData = Util.asMap(columns, data)
                     validateNode(treeNodeData)
                     def path = treeNodeData['c_fullname'] as String
+                    pathsFromFile.add(path)
                     if (path in paths) {
                         existingCount++
                         log.debug "Found existing tree node path: ${path}."

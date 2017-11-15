@@ -135,6 +135,14 @@ class Studies {
         )
         log.info "${studyDimensionCount} study dimensions deleted."
 
+        log.info "Deleting tags for study ${studyId} ..."
+        int tagCount = database.namedParameterJdbcTemplate.update(
+                """delete from ${Tags.table} where path in 
+                    (select c_fullname from ${TreeNodes.table} where sourcesystem_cd = :studyId)""".toString(),
+                [studyId: studyId]
+        )
+        log.info "${tagCount} tags deleted."
+
         log.info "Deleting tree nodes for study ${studyId} ..."
         int treeNodeCount = database.namedParameterJdbcTemplate.update(
                 "delete from ${TreeNodes.table} where sourcesystem_cd = :studyId".toString(),

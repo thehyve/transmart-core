@@ -8,7 +8,6 @@ package org.transmartproject.copy.table
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
@@ -27,11 +26,10 @@ class Tags {
     static class TagKey {
         String path
         String tagType
-        int index
 
         @Override
         String toString() {
-            "(${path}, ${tagType}, ${index})"
+            "(${path}, ${tagType})"
         }
     }
 
@@ -45,6 +43,7 @@ class Tags {
     final TreeNodes treeNodes
 
     final Map<TagKey, Long> tags = [:]
+    final Map<String, Integer> maxIndexes = [:]
 
 
     Tags(Database database, TreeNodes treeNodes) {
@@ -56,6 +55,7 @@ class Tags {
     @CompileStatic
     static class TagRowHandler implements RowCallbackHandler {
         final Map<TagKey, Long> tags = [:]
+        final Map<String, Integer> maxIndexes = [:]
 
         @Override
         void processRow(ResultSet rs) throws SQLException {
@@ -63,8 +63,12 @@ class Tags {
             def path = rs.getString('path')
             def tagType = rs.getString('tag_type')
             def index = rs.getInt('tags_idx')
-            def key = new TagKey(path: path, tagType: tagType, index: index)
+            def key = new TagKey(path: path, tagType: tagType)
             tags.put(key, id)
+            def maxIndex = maxIndexes[path]
+            if (maxIndex == null || index > maxIndex) {
+                maxIndexes[path] = index
+            }
         }
     }
 
@@ -75,6 +79,7 @@ class Tags {
                 tagHandler
         )
         tags.putAll(tagHandler.tags)
+        maxIndexes.putAll(tagHandler.maxIndexes)
         log.info "Tags loaded: ${tags.size()}."
     }
 
@@ -98,18 +103,20 @@ class Tags {
                 try {
                     def tagData = Util.asMap(columns, data)
                     def path = tagData['path'] as String
-                    if (!(path in treeNodes.paths)) {
-                        throw new InvalidInput("Tag found for non existing tree path ${path}.")
+                    if (!(path in treeNodes.pathsFromFile)) {
+                        throw new InvalidInput("Tag found for tree path ${path} that does not exist in ${TreeNodes.tree_nodes_file}.")
                     } else {
                         def tagType = tagData['tag_type'] as String
                         def index = tagData['tags_idx'] as int
-                        def key = new TagKey(path: path, tagType: tagType, index: index)
+                        def key = new TagKey(path: path, tagType: tagType)
                         if (tags.containsKey(key)) {
                             existingCount++
                             log.debug "Tag ${key} already present."
                         } else {
+                            // increase tag index with the number of existing tags for the node
+                            tagData['tags_idx'] = (maxIndexes[path] ?: 0) + index + 1
                             insertCount++
-                            log.info "Inserting new tag ${key} ..."
+                            log.debug "Inserting new tag ${key} ..."
                             Long id = database.insertEntry(table, columns, 'tag_id', tagData)
                             tags.put(key, id)
                         }
