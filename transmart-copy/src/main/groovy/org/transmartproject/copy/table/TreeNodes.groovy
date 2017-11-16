@@ -73,10 +73,16 @@ class TreeNodes {
         def columnName = (treeNode['c_columnname'] as String)?.trim()?.toLowerCase()
         def operator = (treeNode['c_operator'] as String)?.trim()?.toLowerCase()
         def dimCode = treeNode['c_dimcode'] as String
+        if (visualAttributes?.length() > 3) {
+            throw new InvalidInput("Invalid visual attributes for ${path}: '${visualAttributes}' (maximum length is 3).")
+        }
         if (visualAttributes?.startsWith('C')) {
             log.debug "Container: ${path}"
             return
         }
+
+        def isLeafNode = visualAttributes?.startsWith('L')
+        def isStudyNode = visualAttributes?.length() == 3 && visualAttributes[2] == 'S'
         if (tableName == 'concept_dimension') {
             if (!(operator in operators)) {
                 throw new InvalidInput("Unexpected operator for node ${path}: ${operator}.")
@@ -92,7 +98,7 @@ class TreeNodes {
             } else {
                 throw new InvalidInput("Unexpected column name for concept node ${path}: ${columnName}.")
             }
-        } else if (tableName == 'study') {
+        } else if (isStudyNode && tableName == 'study') {
             if (!(operator in operators)) {
                 throw new InvalidInput("Unexpected operator for node ${path}: ${operator}.")
             }
@@ -103,7 +109,7 @@ class TreeNodes {
             } else {
                 throw new InvalidInput("Unexpected column name for study node ${path}: ${columnName}.")
             }
-        } else {
+        } else if (isLeafNode || isStudyNode) {
             throw new InvalidInput("Unexpected table name for node ${path}: ${tableName}.")
         }
     }
