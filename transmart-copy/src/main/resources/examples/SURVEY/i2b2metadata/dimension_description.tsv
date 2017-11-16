@@ -3,4 +3,4 @@ id	density	modifier_code	value_type	name	packable	size_cd
 1				concept		
 2				patient		
 3				start time		
-4	DENSE	MISSVAL	T	Missing Value	NOT_PACKABLE	SMALL
+4	DENSE	MISSVAL	T	missing_value	NOT_PACKABLE	SMALL

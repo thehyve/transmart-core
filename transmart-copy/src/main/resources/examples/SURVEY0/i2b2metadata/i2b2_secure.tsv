@@ -3,9 +3,9 @@ c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode
 1	\Demographics\Height\	Height	N	LAN		height		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Height\			@	2016-11-09 13:44:06									PUBLIC
 0	\Interests\	Interests	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\			@	2016-11-09 13:44:06									PUBLIC
 1	\Interests\Favourite Food\	Favourite Food	N	LAT		favouritefood		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\Favourite Food\			@	2016-11-09 13:44:06									PUBLIC
-0	\Projects\	Projects	N	CA 				""	STUDY	STUDY_ID	T	=	""			@	2016-11-09 13:44:06									PUBLIC
-1	\Projects\Survey 0\	Survey 0	N	FAS				""	STUDY	STUDY_ID	T	=	SURVEY0			@	2016-11-09 13:44:06									PUBLIC
-2	\Projects\Survey 0\Demographics\	Demographics	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\			@	2016-11-09 13:44:06									PUBLIC
-3	\Projects\Survey 0\Demographics\Gender\	Gender	N	LAC		gender		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Gender\			@	2016-11-09 13:44:06									PUBLIC
-2	\Projects\Survey 0\Interests\	Interests	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\			@	2016-11-09 13:44:06									PUBLIC
-3	\Projects\Survey 0\Interests\Favourite Food\	Favourite Food	N	LAT		favouritefood		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\Favourite Food\			@	2016-11-09 13:44:06									PUBLIC
+0	\Projects\	Projects	N	CA 					STUDY	STUDY_ID	T	=				@	2016-11-09 13:44:06									PUBLIC
+1	\Projects\Survey 0\	Survey 0	N	FAS					STUDY	STUDY_ID	T	=	SURVEY0			@	2016-11-09 13:44:06			SURVEY0						PUBLIC
+2	\Projects\Survey 0\Demographics\	Demographics	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\			@	2016-11-09 13:44:06			SURVEY0						PUBLIC
+3	\Projects\Survey 0\Demographics\Gender\	Gender	N	LAC		gender		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Gender\			@	2016-11-09 13:44:06			SURVEY0						PUBLIC
+2	\Projects\Survey 0\Interests\	Interests	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\			@	2016-11-09 13:44:06			SURVEY0						PUBLIC
+3	\Projects\Survey 0\Interests\Favourite Food\	Favourite Food	N	LAT		favouritefood		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\Favourite Food\			@	2016-11-09 13:44:06			SURVEY0						PUBLIC
