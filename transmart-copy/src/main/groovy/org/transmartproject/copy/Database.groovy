@@ -70,7 +70,7 @@ class Database {
     final NamedParameterJdbcTemplate namedParameterJdbcTemplate
     final CopyManager copyManager
 
-    Database() {
+    Database(boolean connectAsAdmin) {
         String host = getenv('PGHOST')
         if (!host || host == '/tmp') {
             host = 'localhost'
@@ -78,11 +78,19 @@ class Database {
         String port = getenv('PGPORT') ?: '5432'
         String database = getenv('PGDATABASE') ?: 'transmart'
         String url = "jdbc:postgresql://${host}:${port}/${database}"
-        String tm_cz_password = getenv('TM_CZ_PWD') ?: 'tm_cz'
+        String username
+        String password
+        if (connectAsAdmin) {
+            username = getenv('PGUSER') ?: 'admin'
+            password = getenv('PGPASSWORD') ?: 'admin'
+        } else {
+            username = 'tm_cz'
+            password = getenv('TM_CZ_PWD') ?: 'tm_cz'
+        }
 
         config.jdbcUrl = url
-        config.username = 'tm_cz'
-        config.password = tm_cz_password
+        config.username = username
+        config.password = password
         config.autoCommit = false
         dataSource = new HikariDataSource(config)
 
@@ -93,7 +101,7 @@ class Database {
         this.connection = DataSourceUtils.getConnection(dataSource)
         this.jdbcTemplate = new JdbcTemplate(dataSource)
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource)
-        log.info "Connected to database ${url}."
+        log.info "Connected to database ${url}${connectAsAdmin ? ' as admin' : ''}."
     }
 
     TransactionStatus beginTransaction() {
@@ -203,7 +211,7 @@ class Database {
         log.debug "Executing command: ${command} ..."
         def conn = DataSourceUtils.getConnection(dataSource)
         conn.autoCommit = true
-        conn.createStatement().execute('vacuum analyze')
+        conn.createStatement().execute(command)
         conn.autoCommit = false
     }
 

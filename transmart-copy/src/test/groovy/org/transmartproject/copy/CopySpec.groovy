@@ -30,7 +30,7 @@ class CopySpec extends Specification {
         given: 'Test database is available, the study is not loaded'
 
         def copy = new Copy()
-        copy.init()
+        copy.init(false)
         assert !copy.database.connection.closed
         def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         if (TEST_STUDY in studyIds) {
@@ -70,7 +70,7 @@ class CopySpec extends Specification {
     def 'test deleting the study'() {
         given: 'Test database is available, the study is loaded'
         def copy = new Copy()
-        copy.init()
+        copy.init(false)
         assert !copy.database.connection.closed
         def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         if (!(TEST_STUDY in studyIds)) {
@@ -98,7 +98,7 @@ class CopySpec extends Specification {
         given: 'Test database is available'
 
         def copy = new Copy()
-        copy.init()
+        copy.init(false)
         assert !copy.database.connection.closed
 
         when: 'Checking for a non-existing table'

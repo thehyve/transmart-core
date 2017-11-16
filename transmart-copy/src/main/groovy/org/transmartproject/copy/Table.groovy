@@ -15,6 +15,6 @@ class Table {
 
     @Override
     String toString() {
-        "${schema}.${name}"
+        schema ? "${schema}.${name}" : name
     }
 }

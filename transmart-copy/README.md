@@ -21,6 +21,13 @@ java -jar transmart-copy.jar [-h|--help] [--delete <STUDY_ID>]
 _Parameters:_
 - `-h`, `--help`: Shows the available parameters. 
 - `-d <STUDY_ID>`, `--delete <STUDY_ID`: Deletes the study with id `<STUDY_ID>` and related data.
+- `-a`, `--admin`: Connect to the database as admin.
+- `-r`, `--restore-indexes`: Restore indexes.
+- `-i`, `--drop-indexes`: Drop indexes when loading, restore them afterwards.
+- `-u`, `--unlogged`: Set observations table to unlogged when loading.
+- `-t`, `--temporary-table`: Use a temporary table when loading.
+- `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
+
 
 The program reads table data from the current working directory
 and inserts new rows into the database if a row with the same identifier
@@ -75,6 +82,8 @@ The database settings are read from the environment variables:
 - `PGHOST`: the hostname of the database server (default: `localhost`)
 - `PGPORT`: the database server port (default: `5432`)
 - `PGDATABASE`: the database name (default: `transmart`)
+- `PGUSER`: the database admin user (default: `admin`)
+- `PGPASSWORD`: the password of the admin user (default: `admin`)
 - `TM_CZ_PWD`: the password of the `tm_cz` user (default: `tm_cz`)
 
 

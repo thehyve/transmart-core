@@ -20,6 +20,7 @@ import org.transmartproject.copy.exception.InvalidInput
 @CompileStatic
 class Observations {
 
+    static final Table temporaryTable = new Table(null, 'observation_fact_upload')
     static final Table table = new Table('i2b2demodata', 'observation_fact')
 
     static final String emptyDate = '0001-01-01 00:00:00'
@@ -96,7 +97,7 @@ class Observations {
         if (config.unlogged) {
             try {
                 log.info "Set 'logged' on ${table} ..."
-                database.executeCommand("alter table ${table} set logged")
+                database.jdbcTemplate.execute("alter table ${table} set logged")
             } catch (Exception e) {
                 log.warn "Could not set 'logged' on database table: ${e.message}"
             }
@@ -104,7 +105,7 @@ class Observations {
         if (config.dropIndexes) {
             log.info "Restore indexes on ${table} ..."
             tableIndexes.each { name, columns ->
-                database.executeCommand("create if not exists index ${name} on ${table} using btree (${columns.join(', ')})")
+                database.jdbcTemplate.execute("create index if not exists ${name} on ${table} using btree (${columns.join(', ')})")
             }
         }
     }
@@ -113,7 +114,7 @@ class Observations {
         if (config.unlogged) {
             try {
                 log.info "Set 'unlogged' on ${table} ..."
-                database.executeCommand("alter table ${table} set unlogged")
+                database.jdbcTemplate.execute("alter table ${table} set unlogged")
             } catch (Exception e) {
                 log.warn "Could not set 'unlogged' on database table: ${e.message}"
             }
@@ -121,8 +122,25 @@ class Observations {
         if (config.dropIndexes) {
             log.info "Temporarily drop indexes on ${table} ..."
             tableIndexes.keySet().each { name ->
-                database.executeCommand("drop if exists index i2b2demodata.${name}")
+                database.jdbcTemplate.execute("drop index if exists i2b2demodata.${name}")
             }
+        }
+    }
+
+    void prepareTemporaryTable() {
+        log.info "Creating temporary table ${temporaryTable} ..."
+        try {
+            URL url = getClass().getClassLoader().getResource('sql/observation_fact_upload.sql')
+            url.withReader { reader ->
+                String uploadTableDefinition = reader.text
+                database.executeCommand(uploadTableDefinition)
+                def uploadTableColumns = this.database.getColumnMetadata(temporaryTable)
+                assert !uploadTableColumns.empty
+                log.info 'Temporary table created.'
+            }
+        } catch (Exception e) {
+            log.error "Error creating table: ${e.message}", e
+            throw e
         }
     }
 
@@ -154,15 +172,26 @@ class Observations {
         // trial visit index with trial visit num and instance num index with instance num,
         // and write transformed data to database.
         def tx = database.beginTransaction()
+
+        def insertTable = table
+        if (config.temporaryTable) {
+            prepareTemporaryTable()
+            tx.flush()
+            insertTable = temporaryTable
+        }
+
         log.info 'Reading, transforming and writing observations data ...'
         observationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             String[] data = tsvReader.readNext()
             if (data != null) {
                 int i = 1
-                LinkedHashMap<String, Class> header = Util.verifyHeader(table.fileName, data, columns)
-                def insert = database.getInserter(table, header)
-                final progressBar = new ProgressBar("Insert into ${table}", rowCount - 1)
+                LinkedHashMap<String, Class> header = Util.verifyHeader(insertTable.fileName, data, columns)
+                def insert = database.getInserter(insertTable, header)
+                if (config.temporaryTable) {
+                    insert = insert.withoutTableColumnMetaDataAccess()
+                }
+                final progressBar = new ProgressBar("Insert into ${insertTable}", rowCount - 1)
                 progressBar.start()
                 ArrayList<Map> batch = []
                 data = tsvReader.readNext()
@@ -201,6 +230,17 @@ class Observations {
                 return
             }
         }
+
+        if (config.temporaryTable) {
+            // transfer data from temporary table to observations table
+            def columnSpec = columns.collect { it.key }.join(', ')
+            def command = "insert into ${table} (${columnSpec}) select ${columnSpec} from ${temporaryTable}"
+            database.jdbcTemplate.execute(command)
+            tx.flush()
+
+            database.jdbcTemplate.execute("drop table ${temporaryTable}")
+        }
+
         database.commit(tx)
         if (config.write) {
             tsvWriter.close()

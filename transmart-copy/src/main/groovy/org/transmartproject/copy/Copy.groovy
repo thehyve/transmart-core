@@ -38,16 +38,19 @@ class Copy {
         boolean dropIndexes
         boolean unlogged
         boolean write
+        boolean temporaryTable
         String outputFile
     }
 
     static Options options = new Options()
     static {
         options.addOption('h', 'help', false, 'Help.')
+        options.addOption('a', 'admin', false, 'Connect to the database as admin.')
         options.addOption('d', 'delete', true, 'Delete study by id.')
         options.addOption('r', 'restore-indexes', false, 'Restore indexes.')
         options.addOption('i', 'drop-indexes', false, 'Drop indexes when loading.')
         options.addOption('u', 'unlogged', false, 'Set observations table to unlogged when loading.')
+        options.addOption('t', 'temporary-table', false, 'Use a temporary table when loading.')
         options.addOption('w', 'write', true, 'Write observations to TSV file.')
     }
 
@@ -63,8 +66,8 @@ class Copy {
     Patients patients
     Studies studies
 
-    void init() {
-        database = new Database()
+    void init(boolean connectAsAdmin) {
+        database = new Database(connectAsAdmin)
     }
 
     void restoreIndexes() {
@@ -137,7 +140,7 @@ class Copy {
                 return
             }
             def copy = new Copy()
-            copy.init()
+            copy.init(cl.hasOption('admin'))
             if (cl.hasOption('delete')) {
                 def studyId = cl.getOptionValue('delete')
                 try {
@@ -151,6 +154,7 @@ class Copy {
                 def config = new Config(
                         dropIndexes: cl.hasOption('drop-indexes'),
                         unlogged: cl.hasOption('unlogged'),
+                        temporaryTable: cl.hasOption('temporary-table'),
                         write: cl.hasOption('write'),
                         outputFile: cl.getOptionValue('write')
                 )
