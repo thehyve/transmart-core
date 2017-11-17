@@ -57,7 +57,7 @@ class TreeNodes {
                 treeNodeHandler
         )
         paths.addAll(treeNodeHandler.paths)
-        log.info "Tree nodes loaded: ${paths.size()}."
+        log.info "Tree nodes in the database: ${paths.size()}."
         log.debug "Paths: ${paths}"
     }
 

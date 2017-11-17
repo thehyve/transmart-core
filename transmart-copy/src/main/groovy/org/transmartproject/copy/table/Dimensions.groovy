@@ -61,14 +61,14 @@ class Dimensions {
         )
         dimensionNameToId.putAll(dimensionHandler.dimensionNameToId)
         modifierDimensionCodes.addAll(dimensionHandler.modifierDimensionCodes)
-        log.info "Dimensions loaded: ${dimensionNameToId.size()} entries."
-        log.info "Entries: ${dimensionNameToId.toMapString()}"
+        log.info "Dimension descriptions in the database: ${dimensionNameToId.size()}."
+        log.debug "Entries: ${dimensionNameToId.toMapString()}"
     }
 
     void load(String rootPath) {
         def dimensionsFile = new File(rootPath, table.fileName)
         dimensionsFile.withReader { reader ->
-            log.info "Reading dimensions from file ..."
+            log.info "Reading dimension descriptions from file ..."
             def tx = database.beginTransaction()
             def insertCount = 0
             def existingCount = 0
@@ -82,7 +82,7 @@ class Dimensions {
                     def dimensionData = Util.asMap(columns, data)
                     def dimensionIndex = dimensionData['id'] as long
                     if (i != dimensionIndex + 1) {
-                        throw new InvalidInput("The dimensions are not in order. (Found ${dimensionIndex} on line ${i}.)")
+                        throw new InvalidInput("The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")
                     }
                     def dimensionName = dimensionData['name'] as String
                     def dimensionId = dimensionNameToId[dimensionName]
@@ -91,12 +91,12 @@ class Dimensions {
                     } else {
                         def modifierCode = dimensionData['modifier_code'] as String
                         if (modifierCode && modifierDimensionCodes.contains(modifierCode)) {
-                            throw new InvalidInput("Cannot insert dimension '${dimensionName}'. Another dimension already exists for modifier code ${modifierCode}.")
+                            throw new InvalidInput("Cannot insert dimension description '${dimensionName}'. Another dimension description already exists for modifier code ${modifierCode}.")
                         }
                         insertCount++
-                        log.info "Inserting dimension: ${dimensionName}."
+                        log.info "Inserting dimension description: ${dimensionName}."
                         dimensionId = database.insertEntry(table, columns, 'id', dimensionData)
-                        log.debug "Dimension inserted [id: ${dimensionId}]."
+                        log.debug "Dimension description inserted [id: ${dimensionId}]."
                     }
                     indexToDimensionId.add(dimensionId)
                     log.debug "Registered dimension at index ${dimensionIndex}: ${dimensionName} [${dimensionId}]."
@@ -106,8 +106,8 @@ class Dimensions {
                 }
             }
             database.commit(tx)
-            log.info "${existingCount} existing dimensions found."
-            log.info "${insertCount} dimensions inserted."
+            log.info "${existingCount} existing dimension descriptions found."
+            log.info "${insertCount} dimension descriptions inserted."
         }
     }
 

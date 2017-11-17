@@ -60,7 +60,7 @@ class Patients {
                 patientMappingHandler
         )
         subjectIdToPatientNum.putAll(patientMappingHandler.subjectIdToPatientNum)
-        log.info "Patient mapping loaded: ${subjectIdToPatientNum.size()} entries."
+        log.info "Patient mapping entries in the database: ${subjectIdToPatientNum.size()}."
     }
 
     void load(String rootPath) {

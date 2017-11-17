@@ -70,7 +70,7 @@ class Concepts {
         conceptPaths.addAll(rowHandler.conceptPaths)
         conceptCodes.addAll(rowHandler.conceptCodes)
         conceptCodeToConceptPath.putAll(rowHandler.conceptCodeToConceptPath)
-        log.info "Concepts loaded: ${conceptCodes.size()}."
+        log.info "Concepts in the database: ${conceptCodes.size()}."
         log.debug "Concept codes: ${conceptCodes}"
     }
 

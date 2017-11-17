@@ -50,7 +50,7 @@ class Modifiers {
                 modifierHandler
         )
         modifierCodes.addAll(modifierHandler.modifierCodes)
-        log.info "Modifier codes loaded: ${modifierCodes.size()}."
+        log.info "Modifiers in the database: ${modifierCodes.size()}."
         log.debug "Modifier codes: ${modifierCodes}"
     }
 

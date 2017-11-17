@@ -90,7 +90,7 @@ class Relations {
                 relationTypeHandler
         )
         relationTypeLabelToId.putAll(relationTypeHandler.relationTypeLabelToId)
-        log.info "Relation types loaded: ${relationTypeLabelToId.size()} entries."
+        log.info "Relation types in the database: ${relationTypeLabelToId.size()} entries."
         log.debug "Entries: ${relationTypeLabelToId.toMapString()}"
     }
 

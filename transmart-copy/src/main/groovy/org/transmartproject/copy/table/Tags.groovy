@@ -80,7 +80,7 @@ class Tags {
         )
         tags.putAll(tagHandler.tags)
         maxIndexes.putAll(tagHandler.maxIndexes)
-        log.info "Tags loaded: ${tags.size()}."
+        log.info "Tags in the database: ${tags.size()}."
     }
 
     void load(String rootPath) {
