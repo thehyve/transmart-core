@@ -59,7 +59,8 @@ class Database {
         }
     }
 
-    static final int batchSize = 500
+    static final int defaultBatchSize = 500
+    static final int defaultFlushSize = 1000
     static final DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition()
 
     final HikariConfig config = new HikariConfig()

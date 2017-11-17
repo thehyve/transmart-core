@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -26,8 +27,8 @@ class Relations {
     static final Table relation_table = new Table('i2b2demodata', 'relation')
 
     final Database database
-
     final Patients patients
+    final Copy.Config config
 
     final LinkedHashMap<String, Class> relation_type_columns
     final LinkedHashMap<String, Class> relation_columns
@@ -40,9 +41,10 @@ class Relations {
 
     final boolean tablesExists
 
-    Relations(Database database, Patients patients) {
+    Relations(Database database, Patients patients, Copy.Config config) {
         this.database = database
         this.patients = patients
+        this.config = config
         if (!database.tableExists(relation_type_table)) {
             log.warn "Table ${relation_type_table} does not exist. Skip loading of relations."
             tablesExists = false
@@ -201,7 +203,7 @@ class Relations {
                         transformRow(row)
                         progressBar.stepBy(1)
                         batch.add(row)
-                        if (batch.size() == Database.batchSize) {
+                        if (batch.size() == config.batchSize) {
                             insert.executeBatch(batch.toArray() as Map[])
                             batch = []
                         }

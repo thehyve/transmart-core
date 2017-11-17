@@ -40,6 +40,8 @@ class Copy {
         boolean write
         boolean temporaryTable
         String outputFile
+        int batchSize
+        int flushSize
     }
 
     static Options options = new Options()
@@ -52,6 +54,8 @@ class Copy {
         options.addOption('i', 'drop-indexes', false, 'Drop indexes when loading.')
         options.addOption('u', 'unlogged', false, 'Set observations table to unlogged when loading.')
         options.addOption('t', 'temporary-table', false, 'Use a temporary table when loading.')
+        options.addOption('b', 'batch-size', true, 'Number of observation to insert in a batch (default: 500).')
+        options.addOption('f', 'flush-size', true, 'Number of batches to flush to the database (default: 1000).')
         options.addOption('w', 'write', true, 'Write observations to TSV file.')
     }
 
@@ -94,7 +98,7 @@ class Copy {
         patients.fetch()
         patients.load(rootPath)
 
-        def relations = new Relations(database, patients)
+        def relations = new Relations(database, patients, config)
         relations.fetch()
         relations.load(rootPath)
 
@@ -148,10 +152,14 @@ class Copy {
             } else if (cl.hasOption('restore-indexes')) {
                 copy.restoreIndexes()
             } else {
+                int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
+                int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
                 def config = new Config(
                         dropIndexes: cl.hasOption('drop-indexes'),
                         unlogged: cl.hasOption('unlogged'),
                         temporaryTable: cl.hasOption('temporary-table'),
+                        batchSize: batchSize,
+                        flushSize: flushSize,
                         write: cl.hasOption('write'),
                         outputFile: cl.getOptionValue('write')
                 )

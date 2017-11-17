@@ -201,6 +201,7 @@ class Observations {
                 ArrayList<Map> batch = []
                 data = tsvReader.readNext()
                 i++
+                int batchCount = 0
                 while (data != null) {
                     try {
                         if (header.size() != data.length) {
@@ -213,8 +214,12 @@ class Observations {
                             tsvWriter.writeNext(row.values()*.toString() as String[])
                         } else {
                             batch.add(row)
-                            if (batch.size() == Database.batchSize) {
+                            if (batch.size() == config.batchSize) {
+                                batchCount++
                                 insert.executeBatch(batch.toArray() as Map[])
+                                if (config.flushSize > 0 && batchCount % config.flushSize == 0) {
+                                    tx.flush()
+                                }
                                 batch = []
                             }
                         }
@@ -228,9 +233,11 @@ class Observations {
                     i++
                 }
                 if (batch.size() > 0) {
+                    batchCount++
                     insert.executeBatch(batch.toArray() as Map[])
                 }
                 progressBar.stop()
+                log.info "${batchCount} batches of ${config.batchSize} inserted."
                 restoreTableIndexes()
                 return
             }
