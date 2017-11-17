@@ -20,7 +20,7 @@ class MDStudySerializationHelper extends AbstractHalOrJsonSerializationHelper<St
     @Override
     Map<String, Object> convertToMap(StudyWrapper object) {
         Study study = object.study
-        [
+        def result = [
                 id: study.id,
                 studyId: study.studyId,
                 bioExperimentId: study.bioExperimentId,
@@ -28,6 +28,11 @@ class MDStudySerializationHelper extends AbstractHalOrJsonSerializationHelper<St
                     dim.name
                 }
         ]
+        def conceptToVariableName = study.metadata?.conceptToVariableName
+        if (conceptToVariableName) {
+            result.metadata = [conceptToVariableName: conceptToVariableName]
+        }
+        result
     }
 
 }
