@@ -48,6 +48,7 @@ class Copy {
         options.addOption('a', 'admin', false, 'Connect to the database as admin.')
         options.addOption('d', 'delete', true, 'Delete study by id.')
         options.addOption('r', 'restore-indexes', false, 'Restore indexes.')
+        options.addOption('v', 'vacuum-analyze', false, 'Run vacuum analyze on the database.')
         options.addOption('i', 'drop-indexes', false, 'Drop indexes when loading.')
         options.addOption('u', 'unlogged', false, 'Set observations table to unlogged when loading.')
         options.addOption('t', 'temporary-table', false, 'Use a temporary table when loading.')
@@ -74,7 +75,6 @@ class Copy {
         def config = new Config(dropIndexes: true, unlogged: true)
         def observations = new Observations(database, null, null, null, config)
         observations.restoreTableIndexes()
-        database.vacuumAnalyze()
     }
 
     void run(String rootPath, Config config) {
@@ -117,8 +117,6 @@ class Copy {
         def observations = new Observations(database, studies, concepts, patients, config)
         observations.checkFiles(rootPath)
         observations.load(rootPath)
-
-        database.vacuumAnalyze()
     }
 
     void deleteStudy(String studyId) {
@@ -127,8 +125,6 @@ class Copy {
         studies = new Studies(database, dimensions)
         studies.delete(studyId)
         log.info "Study ${studyId} deleted."
-
-        database.vacuumAnalyze()
     }
 
     static void main(String[] args) {
@@ -146,7 +142,8 @@ class Copy {
                 try {
                     copy.deleteStudy(studyId)
                 } catch(Exception e) {
-                    log.error "Error deleting study ${studyId}: ${e.message}"
+                    log.error "Error deleting study ${studyId}."
+                    throw e
                 }
             } else if (cl.hasOption('restore-indexes')) {
                 copy.restoreIndexes()
@@ -159,6 +156,9 @@ class Copy {
                         outputFile: cl.getOptionValue('write')
                 )
                 copy.run('.', config)
+            }
+            if (cl.hasOption('vacuum-analyze')) {
+                copy.database.vacuumAnalyze()
             }
         } catch (ParseException e) {
             log.error e.message
