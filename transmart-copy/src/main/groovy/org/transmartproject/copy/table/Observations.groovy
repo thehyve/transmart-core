@@ -16,6 +16,8 @@ import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
+import java.text.NumberFormat
+
 @Slf4j
 @CompileStatic
 class Observations {
@@ -151,6 +153,7 @@ class Observations {
         File observationsFile = new File(rootPath, table.fileName)
 
         // Count number of rows
+        log.info "Counting number of rows ..."
         int rowCount = 0
         observationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
@@ -158,6 +161,7 @@ class Observations {
                 rowCount++
             }
         }
+        log.info "${NumberFormat.getInstance().format(rowCount > 0 ? rowCount - 1 : 0)} rows in ${table.fileName}."
 
         dropTableIndexes()
 
