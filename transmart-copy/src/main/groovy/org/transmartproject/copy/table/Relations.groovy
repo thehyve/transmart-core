@@ -162,6 +162,7 @@ class Relations {
             return
         }
 
+        def tx = database.beginTransaction()
         // Remove relations
         log.info "Deleting relations ..."
         int relationCount = database.jdbcTemplate.update("truncate ${relation_table}".toString())
@@ -178,7 +179,6 @@ class Relations {
 
         // Transform data: replace patient index with patient num, relation type index with relation type id,
         // and write transformed data to temporary file.
-        def tx = database.beginTransaction()
         log.info 'Reading, transforming and writing relations data ...'
         relationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)

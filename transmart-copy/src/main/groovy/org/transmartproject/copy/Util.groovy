@@ -82,6 +82,17 @@ class Util {
         result
     }
 
+    static final Boolean parseBoolean(String value) {
+        if (!value) {
+            return null
+        }
+        String lValue = value.toLowerCase()
+        if (lValue in ['t', 'f']) {
+           return lValue == 't'
+        }
+        Boolean.parseBoolean(value)
+    }
+
     static final Map<String, Object> asMap(final LinkedHashMap<String, Class> columns, final String[] data) {
         if (columns.size() != data.length) {
             throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${columns.size()}).")

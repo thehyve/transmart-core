@@ -157,6 +157,9 @@ class Database {
                     case Long.class:
                         value = Long.parseLong(row[i])
                         break
+                    case Boolean.class:
+                        value = Util.parseBoolean(row[i])
+                        break
                     default:
                         throw new InvalidState("Unexpected type ${columnType}")
                 }

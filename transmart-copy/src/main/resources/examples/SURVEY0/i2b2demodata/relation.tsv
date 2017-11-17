@@ -1,0 +1,13 @@
+left_subject_id	relation_type_id	right_subject_id	biological	share_household
+0	1	1		t
+1	1	0		t
+0	0	2	t	t
+2	6	0	t	t
+1	0	2	t	t
+2	6	1	t	t
+0	0	3	f	f
+3	6	0	f	f
+1	0	3	t	f
+3	6	1	t	f
+3	2	2	t	f
+2	2	3	t	f
