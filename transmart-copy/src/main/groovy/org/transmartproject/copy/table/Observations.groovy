@@ -16,6 +16,7 @@ import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
 import org.transmartproject.copy.exception.InvalidInput
 
+import java.sql.Timestamp
 import java.text.NumberFormat
 
 @Slf4j
@@ -25,7 +26,7 @@ class Observations {
     static final Table temporaryTable = new Table(null, 'observation_fact_upload')
     static final Table table = new Table('i2b2demodata', 'observation_fact')
 
-    static final String emptyDate = '0001-01-01 00:00:00'
+    static final Timestamp emptyDate = Timestamp.valueOf('0001-01-01 00:00:00')
 
     final Database database
     final Copy.Config config
