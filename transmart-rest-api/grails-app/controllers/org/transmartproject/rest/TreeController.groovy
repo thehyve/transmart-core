@@ -7,11 +7,11 @@ import grails.rest.render.util.AbstractLinkingRenderer
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestParam
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.serialization.TreeJsonSerializer
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
@@ -35,6 +35,8 @@ class TreeController {
      *
      * @param root (Optional) the root element from which to fetch.
      * @param depth (Optional) the maximum number of levels to fetch.
+     * @param constraints flag if the constraints should be included in the result
+     *   (always true for hal, defaults to false for json)
      * @param counts flag if counts should be included in the result (default: false)
      * @param tags flag if tags should be included in the result (default: false)
      *
@@ -43,13 +45,14 @@ class TreeController {
     def index(@RequestParam('api_version') String apiVersion,
               @RequestParam('root') String root,
               @RequestParam('depth') Integer depth,
+              @RequestParam('constraints') Boolean constraints,
               @RequestParam('counts') Boolean counts,
               @RequestParam('tags') Boolean tags) {
-        checkForUnsupportedParams(params, ['root', 'depth', 'counts', 'tags'])
+        checkForUnsupportedParams(params, ['root', 'depth', 'constraints', 'counts', 'tags'])
         if (root) {
             root = URLDecoder.decode(root, 'UTF-8')
         }
-        log.info "Tree. apiVersion = ${apiVersion}, root = ${root}, depth = ${depth}, counts = ${counts}, tags = ${tags}"
+        log.info "Tree. apiVersion = ${apiVersion}, root = ${root}, depth = ${depth}, constraints = ${constraints}, counts = ${counts}, tags = ${tags}"
         List<TreeNode> nodes = treeResource.findNodesForUser(
                 root,
                 depth,
@@ -57,7 +60,14 @@ class TreeController {
                 tags,
                 currentUser)
         log.info "${nodes.size()} results."
-        respond wrapNodes(apiVersion, root, depth, nodes)
+        if (request.format == 'hal') {
+            respond wrapNodes(apiVersion, root, depth, nodes)
+        } else {
+            response.status = 200
+            response.contentType = 'application/json'
+            response.characterEncoding = 'utf-8'
+            new TreeJsonSerializer().write([writeConstraints: constraints], nodes, response.outputStream)
+        }
     }
 
     /**
