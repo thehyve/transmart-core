@@ -6,6 +6,7 @@ package org.transmartproject.rest.serialization
 enum Format {
     JSON('application/json'),
     PROTOBUF('application/x-protobuf'),
+    //TODO has it to be a mime type?
     TSV('TSV'),
     SPSS('SPSS'),
     NONE('none')

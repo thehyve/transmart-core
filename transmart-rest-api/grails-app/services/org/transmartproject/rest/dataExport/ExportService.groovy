@@ -46,6 +46,7 @@ class ExportService {
         Constraint constraint = jobDataMap.constraint
 
         dataTypeAndFormatList.each { typeFormatPair ->
+            //TODO don't use 'from'
             Format outFormat = from(typeFormatPair.format)
             String dataType = typeFormatPair.dataType
             DataSerializer dataSerializer = getDataSerializerByDataView(typeFormatPair.dataView)

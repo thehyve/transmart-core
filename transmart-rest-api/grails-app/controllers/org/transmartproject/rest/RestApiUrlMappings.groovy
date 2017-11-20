@@ -191,6 +191,10 @@ class RestApiUrlMappings {
                 apiVersion = "v2"
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
+            "/data-table"(controller: 'dataTable') {
+                action = [GET: 'index', POST: 'index']
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {
