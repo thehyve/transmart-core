@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -95,14 +94,14 @@ class Concepts {
                         if (conceptPath != conceptCodeToConceptPath[conceptCode]) {
                             log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
                             log.error "but concept with that code already exists with path ${conceptCodeToConceptPath[conceptCode]}."
-                            throw new InvalidInput("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
+                            throw new IllegalStateException("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
                         }
                         existingCount++
                         log.debug "Found existing concept: ${conceptCode}."
                     } else if (conceptPath in conceptPaths) {
                         log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
                         log.error "but concept with that path already exists with another code."
-                        throw new InvalidInput("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
+                        throw new IllegalStateException("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
                     } else {
                         insertCount++
                         log.debug "Inserting new concept: ${conceptCode} ..."

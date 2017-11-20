@@ -14,7 +14,6 @@ import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.Timestamp
 import java.text.NumberFormat
@@ -49,7 +48,7 @@ class Observations {
     void checkFiles(String rootPath) {
         File inputFile = new File(rootPath, table.fileName)
         if (!inputFile.exists()) {
-            throw new InvalidInput("No file ${table.fileName}")
+            throw new IllegalStateException("No file ${table.fileName}")
         }
     }
 
@@ -68,17 +67,17 @@ class Observations {
         // replace patient index with patient num
         def patientIndex = row.patient_num as int
         if (patientIndex >= patients.indexToPatientNum.size()) {
-            throw new InvalidInput("Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
+            throw new IllegalStateException("Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
         }
         row.patient_num = patients.indexToPatientNum[patientIndex]
         def trialVisitIndex = row.trial_visit_num as int
         if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
-            throw new InvalidInput("Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
+            throw new IllegalStateException("Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
         }
         row.trial_visit_num = studies.indexToTrialVisitNum[trialVisitIndex]
         def conceptCode = row.concept_cd as String
         if (!(conceptCode in concepts.conceptCodes)) {
-            throw new InvalidInput("Unknown concept code: ${conceptCode}")
+            throw new IllegalStateException("Unknown concept code: ${conceptCode}")
         }
         def instanceIndex = row.instance_num as int
         row.instance_num = baseInstanceNum + instanceIndex
@@ -205,7 +204,7 @@ class Observations {
                 while (data != null) {
                     try {
                         if (header.size() != data.length) {
-                            throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${header.size()}).")
+                            throw new IllegalStateException("Data row length (${data.length}) does not match number of columns (${header.size()}).")
                         }
                         def row = Database.getValueMap(header, data)
                         transformRow(row, baseInstanceNum)

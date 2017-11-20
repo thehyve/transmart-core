@@ -19,7 +19,6 @@ import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
-import org.transmartproject.copy.exception.InvalidState
 
 import java.sql.Connection
 import java.time.Instant
@@ -54,7 +53,7 @@ class Database {
                 case 'timestamp':
                     return Instant.class
                 default:
-                    throw new InvalidState("Unknown data type name: ${dataTypeName}.")
+                    throw new IllegalArgumentException("Unknown data type name: ${dataTypeName}.")
             }
         }
     }
@@ -162,7 +161,7 @@ class Database {
                         value = Util.parseBoolean(row[i])
                         break
                     default:
-                        throw new InvalidState("Unexpected type ${columnType}")
+                        throw new IllegalArgumentException("Unexpected type ${columnType}")
                 }
                 result[columnName] = value
             }

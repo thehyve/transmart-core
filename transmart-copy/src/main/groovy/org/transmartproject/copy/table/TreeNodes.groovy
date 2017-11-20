@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -66,7 +65,7 @@ class TreeNodes {
     void validateNode(Map<String, Object> treeNode) {
         def path = (treeNode['c_fullname'] as String)?.trim()
         if (!path.contains('\\')) {
-            throw new InvalidInput("Invalid path: ${path}")
+            throw new IllegalStateException("Invalid path: ${path}")
         }
         def visualAttributes = treeNode['c_visualattributes'] as String
         def tableName = (treeNode['c_tablename'] as String)?.trim()?.toLowerCase()
@@ -74,7 +73,7 @@ class TreeNodes {
         def operator = (treeNode['c_operator'] as String)?.trim()?.toLowerCase()
         def dimCode = treeNode['c_dimcode'] as String
         if (visualAttributes?.length() > 3) {
-            throw new InvalidInput("Invalid visual attributes for ${path}: '${visualAttributes}' (maximum length is 3).")
+            throw new IllegalStateException("Invalid visual attributes for ${path}: '${visualAttributes}' (maximum length is 3).")
         }
         if (visualAttributes?.startsWith('C')) {
             log.debug "Container: ${path}"
@@ -85,32 +84,32 @@ class TreeNodes {
         def isStudyNode = visualAttributes?.length() == 3 && visualAttributes[2] == 'S'
         if (tableName == 'concept_dimension') {
             if (!(operator in operators)) {
-                throw new InvalidInput("Unexpected operator for node ${path}: ${operator}.")
+                throw new IllegalStateException("Unexpected operator for node ${path}: ${operator}.")
             }
             if (columnName == 'concept_cd') {
                 if (!(dimCode in concepts.conceptCodes)) {
-                    throw new InvalidInput("Unknown concept code for node ${path}: ${dimCode}.")
+                    throw new IllegalStateException("Unknown concept code for node ${path}: ${dimCode}.")
                 }
             } else if (columnName == 'concept_path') {
                 if (!(dimCode in concepts.conceptPaths)) {
-                    throw new InvalidInput("Unknown concept path for node ${path}: ${dimCode}.")
+                    throw new IllegalStateException("Unknown concept path for node ${path}: ${dimCode}.")
                 }
             } else {
-                throw new InvalidInput("Unexpected column name for concept node ${path}: ${columnName}.")
+                throw new IllegalStateException("Unexpected column name for concept node ${path}: ${columnName}.")
             }
         } else if (isStudyNode && tableName == 'study') {
             if (!(operator in operators)) {
-                throw new InvalidInput("Unexpected operator for node ${path}: ${operator}.")
+                throw new IllegalStateException("Unexpected operator for node ${path}: ${operator}.")
             }
             if (columnName == 'study_id') {
                 if (!(dimCode in studies.studyIdToStudyNum.keySet())) {
-                    throw new InvalidInput("Unknown study id for node ${path}: ${dimCode}.")
+                    throw new IllegalStateException("Unknown study id for node ${path}: ${dimCode}.")
                 }
             } else {
-                throw new InvalidInput("Unexpected column name for study node ${path}: ${columnName}.")
+                throw new IllegalStateException("Unexpected column name for study node ${path}: ${columnName}.")
             }
         } else if (isLeafNode || isStudyNode) {
-            throw new InvalidInput("Unexpected table name for node ${path}: ${tableName}.")
+            throw new IllegalStateException("Unexpected table name for node ${path}: ${tableName}.")
         }
     }
 

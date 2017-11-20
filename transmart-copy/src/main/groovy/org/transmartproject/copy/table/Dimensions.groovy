@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -82,7 +81,7 @@ class Dimensions {
                     def dimensionData = Util.asMap(columns, data)
                     def dimensionIndex = dimensionData['id'] as long
                     if (i != dimensionIndex + 1) {
-                        throw new InvalidInput("The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")
+                        throw new IllegalStateException("The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")
                     }
                     def dimensionName = dimensionData['name'] as String
                     def dimensionId = dimensionNameToId[dimensionName]
@@ -91,7 +90,7 @@ class Dimensions {
                     } else {
                         def modifierCode = dimensionData['modifier_code'] as String
                         if (modifierCode && modifierDimensionCodes.contains(modifierCode)) {
-                            throw new InvalidInput("Cannot insert dimension description '${dimensionName}'. Another dimension description already exists for modifier code ${modifierCode}.")
+                            throw new IllegalStateException("Cannot insert dimension description '${dimensionName}'. Another dimension description already exists for modifier code ${modifierCode}.")
                         }
                         insertCount++
                         log.info "Inserting dimension description: ${dimensionName}."

@@ -13,7 +13,6 @@ import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -104,7 +103,7 @@ class Tags {
                     def tagData = Util.asMap(columns, data)
                     def path = tagData['path'] as String
                     if (!(path in treeNodes.pathsFromFile)) {
-                        throw new InvalidInput("Tag found for tree path ${path} that does not exist in ${TreeNodes.table.fileName}.")
+                        throw new IllegalStateException("Tag found for tree path ${path} that does not exist in ${TreeNodes.table.fileName}.")
                     } else {
                         def tagType = tagData['tag_type'] as String
                         def index = tagData['tags_idx'] as int

@@ -14,7 +14,6 @@ import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -100,15 +99,15 @@ class Relations {
         // replace patient index with patient num
         def relationTypeIndex = row.relation_type_id as int
         if (relationTypeIndex >= indexToRelationTypeId.size()) {
-            throw new InvalidInput("Invalid relation type index (${relationTypeIndex}). Only ${indexToRelationTypeId.size()} relation types found.")
+            throw new IllegalStateException("Invalid relation type index (${relationTypeIndex}). Only ${indexToRelationTypeId.size()} relation types found.")
         }
         def leftSubjectIndex = row.left_subject_id as int
         if (leftSubjectIndex >= patients.indexToPatientNum.size()) {
-            throw new InvalidInput("Invalid patient index (${leftSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
+            throw new IllegalStateException("Invalid patient index (${leftSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
         }
         def rightSubjectIndex = row.right_subject_id as int
         if (rightSubjectIndex >= patients.indexToPatientNum.size()) {
-            throw new InvalidInput("Invalid patient index (${rightSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
+            throw new IllegalStateException("Invalid patient index (${rightSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
         }
         row.relation_type_id = indexToRelationTypeId[relationTypeIndex]
         row.left_subject_id = patients.indexToPatientNum[leftSubjectIndex]
@@ -138,7 +137,7 @@ class Relations {
                     def relationTypeData = Util.asMap(relation_type_columns, data)
                     def relationTypeIndex = relationTypeData['id'] as long
                     if (i != relationTypeIndex + 1) {
-                        throw new InvalidInput("The relation types are not in order. (Found ${relationTypeIndex} on line ${i}.)")
+                        throw new IllegalStateException("The relation types are not in order. (Found ${relationTypeIndex} on line ${i}.)")
                     }
 
                     def label = relationTypeData['label'] as String
@@ -197,7 +196,7 @@ class Relations {
                 while (data != null) {
                     try {
                         if (header.size() != data.length) {
-                            throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${header.size()}).")
+                            throw new IllegalStateException("Data row length (${data.length}) does not match number of columns (${header.size()}).")
                         }
                         def row = Database.getValueMap(header, data)
                         transformRow(row)

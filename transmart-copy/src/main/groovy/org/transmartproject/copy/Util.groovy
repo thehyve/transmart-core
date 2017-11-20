@@ -13,7 +13,6 @@ import com.opencsv.CSVWriter
 import com.opencsv.ICSVParser
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.Timestamp
 import java.time.Instant
@@ -54,7 +53,7 @@ class Util {
         if ((header as Set) != (columnNames as Set)) {
             log.error "Expected: ${columnNames}"
             log.error "Was: ${header.toList()}"
-            throw new InvalidInput("Incorrect headers in file ${filename}.")
+            throw new IllegalStateException("Incorrect headers in file ${filename}.")
         }
         LinkedHashMap result = [:]
         header.each { String column ->
@@ -95,7 +94,7 @@ class Util {
 
     static final Map<String, Object> asMap(final LinkedHashMap<String, Class> columns, final String[] data) {
         if (columns.size() != data.length) {
-            throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${columns.size()}).")
+            throw new IllegalArgumentException("Data row length (${data.length}) does not match number of columns (${columns.size()}).")
         }
         def result = [:] as Map<String, Object>
         columns.eachWithIndex{ String columnName, Class columnType, int i ->

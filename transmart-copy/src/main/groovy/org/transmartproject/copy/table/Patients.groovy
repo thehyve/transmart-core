@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowCallbackHandler
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -81,7 +80,7 @@ class Patients {
                     def patientMappingData = Util.asMap(patient_mapping_columns, data)
                     def patientIndex = patientMappingData['patient_num'] as int
                     if (i != patientIndex + 1) {
-                        throw new InvalidInput("The patients in the patient mapping are not in order. (Found ${patientIndex} on line ${i}.)")
+                        throw new IllegalStateException("The patients in the patient mapping are not in order. (Found ${patientIndex} on line ${i}.)")
                     }
                     def patientIde = patientMappingData['patient_ide'] as String
                     def patientIdeSource = patientMappingData['patient_ide_source'] as String
@@ -115,7 +114,7 @@ class Patients {
                     def patientData = Util.asMap(patient_dimension_columns, data)
                     def patientIndex = patientData['patient_num'] as int
                     if (i != patientIndex + 1) {
-                        throw new InvalidInput("The patients are not in order. (Found ${patientIndex} on line ${i}.)")
+                        throw new IllegalStateException("The patients are not in order. (Found ${patientIndex} on line ${i}.)")
                     }
                     if (patientIndex in missingPatients) {
                         insertCount++

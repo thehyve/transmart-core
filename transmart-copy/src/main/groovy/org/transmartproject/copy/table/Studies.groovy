@@ -14,8 +14,6 @@ import org.springframework.jdbc.core.RowMapper
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
-import org.transmartproject.copy.exception.InvalidInput
-import org.transmartproject.copy.exception.InvalidState
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -107,7 +105,7 @@ class Studies {
         def tx = database.beginTransaction()
         def study = findStudy(studyId)
         if (!study) {
-            throw new InvalidState("Study not found: ${studyId}.")
+            throw new IllegalStateException("Study not found: ${studyId}.")
         }
         log.info "Deleting observations for study ${studyId} ..."
         int observationCount = database.namedParameterJdbcTemplate.update(
@@ -160,7 +158,7 @@ class Studies {
         if (study) {
             log.error "Found existing study: ${study}."
             log.error "You can delete the study and associated data with: `transmart-copy --delete ${studyId}`."
-            throw new InvalidState("Study already exists: ${studyId}.")
+            throw new IllegalStateException("Study already exists: ${studyId}.")
         }
         log.info "Study ${studyId} does not exists in the database yet."
     }
@@ -177,7 +175,7 @@ class Studies {
                 def studyData = Util.asMap(study_columns, data)
                 def studyIndex = studyData['study_num'] as long
                 if (i != studyIndex + 1) {
-                    throw new InvalidInput("The studies ${study_table.fileName} are not in order. (Found ${studyIndex} on line ${i}.)")
+                    throw new IllegalStateException("The studies ${study_table.fileName} are not in order. (Found ${studyIndex} on line ${i}.)")
                 }
                 def studyId = studyData['study_id'] as String
                 checkIfStudyExists(studyId)
@@ -244,7 +242,7 @@ class Studies {
                     def trialVisitData = Util.asMap(trial_visit_columns, data)
                     def studyIndex = trialVisitData['study_num'] as int
                     if (studyIndex >= indexToStudyNum.size()) {
-                        throw new InvalidInput("Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
+                        throw new IllegalStateException("Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
                     }
                     def studyNum = indexToStudyNum[studyIndex]
                     trialVisitData['study_num'] = studyNum
@@ -273,13 +271,13 @@ class Studies {
                     def studyDimensionData = Util.asMap(study_dimensions_columns, data)
                     def studyIndex = studyDimensionData['study_id'] as int
                     if (studyIndex >= indexToStudyNum.size()) {
-                        throw new InvalidInput("Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
+                        throw new IllegalStateException("Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
                     }
                     def studyNum = indexToStudyNum[studyIndex]
                     studyDimensionData['study_id'] = studyNum
                     def dimensionIndex = studyDimensionData['dimension_description_id'] as int
                     if (dimensionIndex >= dimensions.indexToDimensionId.size()) {
-                        throw new InvalidInput("Invalid dimension index (${dimensionIndex}). Only ${dimensions.indexToDimensionId.size()} dimensions found.")
+                        throw new IllegalStateException("Invalid dimension index (${dimensionIndex}). Only ${dimensions.indexToDimensionId.size()} dimensions found.")
                     }
                     def dimensionId = dimensions.indexToDimensionId[dimensionIndex]
                     studyDimensionData['dimension_description_id'] = dimensionId
