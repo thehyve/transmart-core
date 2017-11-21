@@ -91,7 +91,7 @@ class TreeNodes {
                     throw new IllegalStateException("Unknown concept code for node ${path}: ${dimCode}.")
                 }
             } else if (columnName == 'concept_path') {
-                if (!(dimCode in concepts.conceptPaths)) {
+                if (!(dimCode in concepts.conceptPaths) && isLeafNode) {
                     throw new IllegalStateException("Unknown concept path for node ${path}: ${dimCode}.")
                 }
             } else {
