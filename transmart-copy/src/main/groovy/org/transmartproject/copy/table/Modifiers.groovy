@@ -61,21 +61,22 @@ class Modifiers {
             return
         }
         def tx = database.beginTransaction()
+        LinkedHashMap<String, Class> header = columns
         modifiersFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
-                    def modifierData = Util.asMap(columns, data)
+                    def modifierData = Util.asMap(header, data)
                     def modifierCode = modifierData['modifier_cd'] as String
                     if (modifierCode in modifierCodes) {
                         log.info "Found existing modifier: ${modifierCode}."
                     } else {
                         log.info "Inserting new modifier: ${modifierCode} ..."
-                        database.insertEntry(table, columns, modifierData)
+                        database.insertEntry(table, header, modifierData)
                         modifierCodes.add(modifierCode)
                     }
                 } catch(Exception e) {

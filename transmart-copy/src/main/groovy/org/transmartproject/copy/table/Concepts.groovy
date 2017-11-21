@@ -81,13 +81,14 @@ class Concepts {
             def insertCount = 0
             def existingCount = 0
             def tsvReader = Util.tsvReader(reader)
+            LinkedHashMap<String, Class> header = columns
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
-                    def conceptData = Util.asMap(columns, data)
+                    def conceptData = Util.asMap(header, data)
                     def conceptCode = conceptData['concept_cd'] as String
                     def conceptPath = conceptData['concept_path'] as String
                     if (conceptCode in conceptCodes) {
@@ -105,7 +106,7 @@ class Concepts {
                     } else {
                         insertCount++
                         log.debug "Inserting new concept: ${conceptCode} ..."
-                        database.insertEntry(table, columns, conceptData)
+                        database.insertEntry(table, header, conceptData)
                         conceptCodes.add(conceptCode)
                         conceptPaths.add(conceptPath)
                         conceptCodeToConceptPath[conceptCode] = conceptPath

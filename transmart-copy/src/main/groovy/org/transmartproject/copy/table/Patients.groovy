@@ -68,16 +68,17 @@ class Patients {
         def existingCount = 0
         Set<Integer> missingPatients = []
         Map<Integer, Map> missingPatientsMappingData = [:]
+        LinkedHashMap<String, Class> patient_mapping_header = patient_mapping_columns
         def mappingFile = new File(rootPath, patient_mapping_table.fileName)
         mappingFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(patient_mapping_table.fileName, data, patient_mapping_columns)
+                    patient_mapping_header = Util.verifyHeader(patient_mapping_table.fileName, data, patient_mapping_columns)
                     return
                 }
                 try {
-                    def patientMappingData = Util.asMap(patient_mapping_columns, data)
+                    def patientMappingData = Util.asMap(patient_mapping_header, data)
                     def patientIndex = patientMappingData['patient_num'] as int
                     if (i != patientIndex + 1) {
                         throw new IllegalStateException("The patients in the patient mapping are not in order. (Found ${patientIndex} on line ${i}.)")
@@ -102,28 +103,29 @@ class Patients {
             }
         }
         def tx = database.beginTransaction()
+        LinkedHashMap<String, Class> patient_dimension_header = patient_dimension_columns
         def patientsFile = new File(rootPath, patient_dimension_table.fileName)
         patientsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(patient_dimension_table.fileName, data, patient_dimension_columns)
+                    patient_dimension_header = Util.verifyHeader(patient_dimension_table.fileName, data, patient_dimension_columns)
                     return
                 }
                 try {
-                    def patientData = Util.asMap(patient_dimension_columns, data)
+                    def patientData = Util.asMap(patient_dimension_header, data)
                     def patientIndex = patientData['patient_num'] as int
                     if (i != patientIndex + 1) {
                         throw new IllegalStateException("The patients are not in order. (Found ${patientIndex} on line ${i}.)")
                     }
                     if (patientIndex in missingPatients) {
                         insertCount++
-                        Long patientNum = database.insertEntry(patient_dimension_table, patient_dimension_columns, 'patient_num', patientData)
+                        Long patientNum = database.insertEntry(patient_dimension_table, patient_dimension_header, 'patient_num', patientData)
                         log.debug "Patient inserted [patient_num: ${patientNum}]."
                         indexToPatientNum.add(patientIndex, patientNum)
                         def patientMappingData = missingPatientsMappingData[patientIndex]
                         patientMappingData['patient_num'] = patientNum
-                        database.insertEntry(patient_mapping_table, patient_mapping_columns, patientMappingData)
+                        database.insertEntry(patient_mapping_table, patient_mapping_header, patientMappingData)
                         log.debug "Patient mapping inserted [patient_num: ${patientNum}]."
                     }
                 } catch (Exception e) {

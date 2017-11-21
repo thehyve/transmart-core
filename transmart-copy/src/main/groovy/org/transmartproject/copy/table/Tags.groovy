@@ -93,14 +93,15 @@ class Tags {
             log.info "Reading tags from file ..."
             def insertCount = 0
             def existingCount = 0
+            LinkedHashMap<String, Class> header = columns
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
-                    def tagData = Util.asMap(columns, data)
+                    def tagData = Util.asMap(header, data)
                     def path = tagData['path'] as String
                     if (!(path in treeNodes.pathsFromFile)) {
                         throw new IllegalStateException("Tag found for tree path ${path} that does not exist in ${TreeNodes.table.fileName}.")
@@ -116,7 +117,7 @@ class Tags {
                             tagData['tags_idx'] = (maxIndexes[path] ?: 0) + index + 1
                             insertCount++
                             log.debug "Inserting new tag ${key} ..."
-                            Long id = database.insertEntry(table, columns, 'tag_id', tagData)
+                            Long id = database.insertEntry(table, header, 'tag_id', tagData)
                             tags.put(key, id)
                         }
                     }
