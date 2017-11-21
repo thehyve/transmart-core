@@ -81,7 +81,7 @@ class TreeJsonSerializer {
     void write(Map args, final List<TreeNode> forest, OutputStream out) {
         this.writer = new JsonWriter(new PrintWriter(new BufferedOutputStream(out)))
         this.writer.indent = ''
-        this.writeConstaints = args?.writeConstraints ?: false
+        this.writeConstaints = args?.writeConstraints == null ? true : args?.writeConstraints
         writer.beginObject()
         writer.name('tree_nodes')
         writeNodes(forest)

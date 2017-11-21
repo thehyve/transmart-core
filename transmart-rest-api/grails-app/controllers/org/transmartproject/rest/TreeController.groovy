@@ -36,7 +36,7 @@ class TreeController {
      * @param root (Optional) the root element from which to fetch.
      * @param depth (Optional) the maximum number of levels to fetch.
      * @param constraints flag if the constraints should be included in the result
-     *   (always true for hal, defaults to false for json)
+     *   (always true for hal, defaults to true for json)
      * @param counts flag if counts should be included in the result (default: false)
      * @param tags flag if tags should be included in the result (default: false)
      *
