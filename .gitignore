@@ -13,6 +13,7 @@ gradlew*
 .idea
 *.ipr
 *.iws
+*.iml
 # - Eclipse
 .project
 .settings

@@ -1259,6 +1259,10 @@ paths:
           in: query
           type: integer
           description: 'The max node depth returned'
+        - name: constraints
+          in: query
+          type: boolean
+          description: 'Flag if the constraints should be included in the result (always true for hal, defaults to true for json)'
         - name: counts
           in: query
           type: boolean

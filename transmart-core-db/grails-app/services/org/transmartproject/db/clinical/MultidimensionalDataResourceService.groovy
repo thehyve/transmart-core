@@ -5,6 +5,8 @@ package org.transmartproject.db.clinical
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
+import grails.plugin.cache.CacheEvict
+import grails.plugin.cache.Cacheable
 import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
@@ -19,8 +21,6 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult

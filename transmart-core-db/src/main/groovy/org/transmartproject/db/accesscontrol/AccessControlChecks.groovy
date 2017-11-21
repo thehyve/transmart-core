@@ -20,6 +20,7 @@
 package org.transmartproject.db.accesscontrol
 
 import grails.gorm.DetachedCriteria
+import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
@@ -231,6 +232,7 @@ class AccessControlChecks {
     }
 
     /* Study is included if the user has ANY kind of access */
+    @Transactional(readOnly = true)
     Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
         if (user.admin) {
             return org.transmartproject.db.i2b2data.Study.findAll()

@@ -19,14 +19,16 @@
 
 package org.transmartproject.db.user
 
+import grails.transaction.Transactional
 import org.hibernate.Query
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.users.User as CoreUser
 import org.transmartproject.core.users.UsersResource
 
 class UsersResourceService implements UsersResource {
 
     @Override
-    org.transmartproject.core.users.User getUserFromUsername(String username)
+    CoreUser getUserFromUsername(String username)
             throws NoSuchResourceException {
 
         /* prefetch the roles so that the object can be used when detached.
@@ -46,19 +48,22 @@ class UsersResourceService implements UsersResource {
             def users = query.list()
 
             users[0]
-        }
+        } as CoreUser
 
         if (!user) {
             throw new NoSuchResourceException("No user with username " +
                     "$username was found")
         }
-        
+
         user
     }
 
+    @Transactional(readOnly = true)
     @Override
-    List<org.transmartproject.core.users.User> getUsers() {
-        User.all
+    List<CoreUser> getUsers() {
+        User.withSession { session ->
+            session.createQuery('FROM User u LEFT JOIN FETCH u.roles').list()
+        } as List<CoreUser>
     }
 
 }
