@@ -127,14 +127,15 @@ class Relations {
 
         // Insert relation types
         relationTypesFile.withReader { reader ->
+            LinkedHashMap<String, Class> header = relation_type_columns
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(relation_type_table.fileName, data, relation_type_columns)
+                    header = Util.verifyHeader(relation_type_table.fileName, data, relation_type_columns)
                     return
                 }
                 try {
-                    def relationTypeData = Util.asMap(relation_type_columns, data)
+                    def relationTypeData = Util.asMap(header, data)
                     def relationTypeIndex = relationTypeData['id'] as long
                     if (i != relationTypeIndex + 1) {
                         throw new IllegalStateException("The relation types are not in order. (Found ${relationTypeIndex} on line ${i}.)")
@@ -146,7 +147,7 @@ class Relations {
                         log.info "Found relation type ${label}."
                     } else {
                         log.info "Inserting relation type ${label} ..."
-                        id = database.insertEntry(relation_type_table, relation_type_columns, 'id', relationTypeData)
+                        id = database.insertEntry(relation_type_table, header, 'id', relationTypeData)
                         relationTypeLabelToId[label] = id
                     }
                     indexToRelationTypeId.add(id)

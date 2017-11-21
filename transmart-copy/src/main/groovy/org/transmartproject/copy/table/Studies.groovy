@@ -164,15 +164,16 @@ class Studies {
     }
 
     void check(String rootPath) {
+        LinkedHashMap<String, Class> header = study_columns
         def studiesFile = new File(rootPath, study_table.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(study_table.fileName, data, study_columns)
+                    header = Util.verifyHeader(study_table.fileName, data, study_columns)
                     return
                 }
-                def studyData = Util.asMap(study_columns, data)
+                def studyData = Util.asMap(header, data)
                 def studyIndex = studyData['study_num'] as long
                 if (i != studyIndex + 1) {
                     throw new IllegalStateException("The studies ${study_table.fileName} are not in order. (Found ${studyIndex} on line ${i}.)")
@@ -184,15 +185,16 @@ class Studies {
     }
 
     void clean() {
+        LinkedHashMap<String, Class> header = study_columns
         def studiesFile = new File(study_table.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(study_table.fileName, data, study_columns)
+                    header = Util.verifyHeader(study_table.fileName, data, study_columns)
                     return
                 }
-                def studyData = Util.asMap(study_columns, data)
+                def studyData = Util.asMap(header, data)
                 def studyId = studyData['study_id'] as String
                 def study = findStudy(studyId)
                 if (study) {
@@ -204,19 +206,20 @@ class Studies {
 
     void load(String rootPath) {
         def tx = database.beginTransaction()
+        LinkedHashMap<String, Class> study_header = study_columns
         // Insert study records
         def studiesFile = new File(rootPath, study_table.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(study_table.fileName, data, study_columns)
+                    study_header = Util.verifyHeader(study_table.fileName, data, study_columns)
                     return
                 }
                 try {
-                    def studyData = Util.asMap(study_columns, data)
+                    def studyData = Util.asMap(study_header, data)
                     def studyId = studyData['study_id'] as String
-                    def studyNum = database.insertEntry(study_table, study_columns, 'study_num', studyData)
+                    def studyNum = database.insertEntry(study_table, study_header, 'study_num', studyData)
                     log.info "Study ${studyId} inserted [study_num: ${studyNum}]."
                     indexToStudyNum.add(studyNum)
                     studyIdToStudyNum[studyId] = studyNum
@@ -229,24 +232,25 @@ class Studies {
         database.commit(tx)
 
         tx = database.beginTransaction()
+        LinkedHashMap<String, Class> trial_visit_header = trial_visit_columns
         // Insert trial visits
         def trialVisitsFile = new File(rootPath, trial_visit_table.fileName)
         trialVisitsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(trial_visit_table.fileName, data, trial_visit_columns)
+                    trial_visit_header = Util.verifyHeader(trial_visit_table.fileName, data, trial_visit_columns)
                     return
                 }
                 try {
-                    def trialVisitData = Util.asMap(trial_visit_columns, data)
+                    def trialVisitData = Util.asMap(trial_visit_header, data)
                     def studyIndex = trialVisitData['study_num'] as int
                     if (studyIndex >= indexToStudyNum.size()) {
                         throw new IllegalStateException("Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
                     }
                     def studyNum = indexToStudyNum[studyIndex]
                     trialVisitData['study_num'] = studyNum
-                    def trialVisitNum = database.insertEntry(trial_visit_table, trial_visit_columns, 'trial_visit_num', trialVisitData)
+                    def trialVisitNum = database.insertEntry(trial_visit_table, trial_visit_header, 'trial_visit_num', trialVisitData)
                     log.info "Trial visit inserted [trial_visit_num: ${trialVisitNum}]."
                     indexToTrialVisitNum.add(trialVisitNum)
                 } catch(Exception e) {
@@ -256,6 +260,7 @@ class Studies {
             }
         }
 
+        LinkedHashMap<String, Class> study_dimensions_header = study_dimensions_columns
         // Insert study dimension descriptions
         def studyDimensionsFile = new File(rootPath, study_dimensions_table.fileName)
         studyDimensionsFile.withReader { reader ->
@@ -264,11 +269,11 @@ class Studies {
             def insertCount = 0
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(study_dimensions_table.fileName, data, study_dimensions_columns)
+                    study_dimensions_header = Util.verifyHeader(study_dimensions_table.fileName, data, study_dimensions_columns)
                     return
                 }
                 try {
-                    def studyDimensionData = Util.asMap(study_dimensions_columns, data)
+                    def studyDimensionData = Util.asMap(study_dimensions_header, data)
                     def studyIndex = studyDimensionData['study_id'] as int
                     if (studyIndex >= indexToStudyNum.size()) {
                         throw new IllegalStateException("Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
@@ -281,7 +286,7 @@ class Studies {
                     }
                     def dimensionId = dimensions.indexToDimensionId[dimensionIndex]
                     studyDimensionData['dimension_description_id'] = dimensionId
-                    database.insertEntry(study_dimensions_table, study_dimensions_columns, studyDimensionData)
+                    database.insertEntry(study_dimensions_table, study_dimensions_header, studyDimensionData)
                     insertCount++
                     log.debug "Study dimension inserted [study_id: ${studyNum}, dimension_description_id: ${dimensionId}]."
                 } catch(Exception e) {

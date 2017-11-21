@@ -72,13 +72,14 @@ class Dimensions {
             def insertCount = 0
             def existingCount = 0
             def tsvReader = Util.tsvReader(reader)
+            LinkedHashMap<String, Class> header = columns
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
-                    def dimensionData = Util.asMap(columns, data)
+                    def dimensionData = Util.asMap(header, data)
                     def dimensionIndex = dimensionData['id'] as long
                     if (i != dimensionIndex + 1) {
                         throw new IllegalStateException("The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")
@@ -94,7 +95,7 @@ class Dimensions {
                         }
                         insertCount++
                         log.info "Inserting dimension description: ${dimensionName}."
-                        dimensionId = database.insertEntry(table, columns, 'id', dimensionData)
+                        dimensionId = database.insertEntry(table, header, 'id', dimensionData)
                         log.debug "Dimension description inserted [id: ${dimensionId}]."
                     }
                     indexToDimensionId.add(dimensionId)

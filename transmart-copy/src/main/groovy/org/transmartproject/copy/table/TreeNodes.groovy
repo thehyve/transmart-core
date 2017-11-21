@@ -120,14 +120,15 @@ class TreeNodes {
             log.info "Reading tree nodes from file ..."
             def insertCount = 0
             def existingCount = 0
+            LinkedHashMap<String, Class> header = columns
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(table.fileName, data, columns)
                     return
                 }
                 try {
-                    def treeNodeData = Util.asMap(columns, data)
+                    def treeNodeData = Util.asMap(header, data)
                     validateNode(treeNodeData)
                     def path = treeNodeData['c_fullname'] as String
                     pathsFromFile.add(path)
@@ -137,7 +138,7 @@ class TreeNodes {
                     } else {
                         insertCount++
                         log.debug "Inserting new tree node: ${path} ..."
-                        database.insertEntry(table, columns, treeNodeData)
+                        database.insertEntry(table, header, treeNodeData)
                         paths.add(path)
                     }
                 } catch(Exception e) {
