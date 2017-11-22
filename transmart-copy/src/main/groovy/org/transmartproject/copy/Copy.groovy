@@ -58,6 +58,7 @@ class Copy {
         options.addOption('f', 'flush-size', true, 'Number of batches to flush to the database (default: 1000).')
         options.addOption('w', 'write', true, 'Write observations to TSV file.')
         options.addOption('d', 'directory', true, 'Specifies a data directory.')
+        options.addOption('m', 'mode', true, 'Load mode (e.g. \'study\' or \'pedigree\').')
     }
 
     static printHelp() {
@@ -82,7 +83,7 @@ class Copy {
         observations.restoreTableIndexes()
     }
 
-    void run(String rootPath, Config config) {
+    void uploadStudy(String rootPath, Config config) {
 
         // Check if dimensions are present, load mapping from file
         def dimensions = new Dimensions(database)
@@ -98,10 +99,6 @@ class Copy {
         patients = new Patients(database)
         patients.fetch()
         patients.load(rootPath)
-
-        def relations = new Relations(database, patients, config)
-        relations.fetch()
-        relations.load(rootPath)
 
         def concepts = new Concepts(database)
         concepts.fetch()
@@ -122,6 +119,17 @@ class Copy {
         def observations = new Observations(database, studies, concepts, patients, config)
         observations.checkFiles(rootPath)
         observations.load(rootPath)
+    }
+
+    void uploadPedigree(String rootPath, Config config) {
+
+        patients = new Patients(database)
+        patients.fetch()
+        patients.load(rootPath)
+
+        def relations = new Relations(database, patients, config)
+        relations.fetch()
+        relations.load(rootPath)
     }
 
     void deleteStudy(String studyId) {
@@ -165,7 +173,19 @@ class Copy {
                         outputFile: cl.getOptionValue('write')
                 )
                 String directory = cl.hasOption('directory') ? cl.getOptionValue('directory') : '.'
-                copy.run(directory, config)
+                if (cl.hasOption('mode')) {
+                    def modes = cl.getOptionValues('mode')
+                    log.debug("Load modes specified: ${modes}")
+                    if ('pedigree' in modes) {
+                        copy.uploadPedigree(directory, config)
+                    }
+                    if ('study' in modes) {
+                        copy.uploadStudy(directory, config)
+                    }
+                } else {
+                    log.debug('No load mode specified. Use default study mode.')
+                    copy.uploadStudy(directory, config)
+                }
             }
             if (cl.hasOption('vacuum-analyze')) {
                 copy.database.vacuumAnalyze()

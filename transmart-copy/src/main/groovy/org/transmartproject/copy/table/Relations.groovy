@@ -119,12 +119,8 @@ class Relations {
             log.debug "Skip loading of relation types and relations. No relation tables available."
             return
         }
+        def tx = database.beginTransaction()
         def relationTypesFile = new File(rootPath, relation_type_table.fileName)
-        if (!relationTypesFile.exists()) {
-            log.info "Skip loading of relation types. No file ${relation_type_table.fileName} found."
-            return
-        }
-
         // Insert relation types
         relationTypesFile.withReader { reader ->
             LinkedHashMap<String, Class> header = relation_type_columns
@@ -157,6 +153,7 @@ class Relations {
                 }
             }
         }
+        database.commit(tx)
 
         def relationsFile = new File(rootPath, relation_table.fileName)
         if (!relationsFile.exists()) {
@@ -164,7 +161,7 @@ class Relations {
             return
         }
 
-        def tx = database.beginTransaction()
+        tx = database.beginTransaction()
         // Remove relations
         log.info "Deleting relations ..."
         int relationCount = database.jdbcTemplate.update("truncate ${relation_table}".toString())

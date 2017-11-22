@@ -48,7 +48,7 @@ class CopySpec extends Specification {
         def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
 
         when: 'Loading example study data'
-        copy.run(STUDY_FOLDER, defaultConfig)
+        copy.uploadStudy(STUDY_FOLDER, defaultConfig)
 
         studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         Map afterCounts = count(copy.database, studySpecificTables)
@@ -79,7 +79,7 @@ class CopySpec extends Specification {
         assert !copy.database.connection.closed
         def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         if (!(TEST_STUDY in studyIds)) {
-            copy.run(STUDY_FOLDER, defaultConfig)
+            copy.uploadStudy(STUDY_FOLDER, defaultConfig)
             studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         }
         assert TEST_STUDY in studyIds
