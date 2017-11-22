@@ -48,7 +48,7 @@ class Copy {
     static {
         options.addOption('h', 'help', false, 'Help.')
         options.addOption('a', 'admin', false, 'Connect to the database as admin.')
-        options.addOption('d', 'delete', true, 'Delete study by id.')
+        options.addOption('D', 'delete', true, 'Delete study by id.')
         options.addOption('r', 'restore-indexes', false, 'Restore indexes.')
         options.addOption('v', 'vacuum-analyze', false, 'Run vacuum analyze on the database.')
         options.addOption('i', 'drop-indexes', false, 'Drop indexes when loading.')
@@ -57,6 +57,7 @@ class Copy {
         options.addOption('b', 'batch-size', true, 'Number of observation to insert in a batch (default: 500).')
         options.addOption('f', 'flush-size', true, 'Number of batches to flush to the database (default: 1000).')
         options.addOption('w', 'write', true, 'Write observations to TSV file.')
+        options.addOption('d', 'directory', true, 'Specifies a data directory.')
     }
 
     static printHelp() {
@@ -163,7 +164,8 @@ class Copy {
                         write: cl.hasOption('write'),
                         outputFile: cl.getOptionValue('write')
                 )
-                copy.run('.', config)
+                String directory = cl.hasOption('directory') ? cl.getOptionValue('directory') : '.'
+                copy.run(directory, config)
             }
             if (cl.hasOption('vacuum-analyze')) {
                 copy.database.vacuumAnalyze()
