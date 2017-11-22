@@ -29,7 +29,7 @@ class Patients {
     final LinkedHashMap<String, Class> patient_mapping_columns
 
     final Map<String, Long> subjectIdToPatientNum = [:]
-    final List<Long> indexToPatientNum = []
+    final Map<Integer, Long> indexToPatientNum = [:]
     final List<String> indexToSubjectId = []
 
     Patients(Database database) {
@@ -91,7 +91,7 @@ class Patients {
                     if (patientNum) {
                         existingCount++
                         log.debug "Patient ${patientIndex} already present."
-                        indexToPatientNum.add(patientIndex, patientNum)
+                        indexToPatientNum[patientIndex] = patientNum
                     } else {
                         missingPatients.add(patientIndex)
                         missingPatientsMappingData[patientIndex] = patientMappingData
@@ -122,7 +122,7 @@ class Patients {
                         insertCount++
                         Long patientNum = database.insertEntry(patient_dimension_table, patient_dimension_header, 'patient_num', patientData)
                         log.debug "Patient inserted [patient_num: ${patientNum}]."
-                        indexToPatientNum.add(patientIndex, patientNum)
+                        indexToPatientNum[patientIndex] = patientNum
                         def patientMappingData = missingPatientsMappingData[patientIndex]
                         patientMappingData['patient_num'] = patientNum
                         database.insertEntry(patient_mapping_table, patient_mapping_header, patientMappingData)
