@@ -196,7 +196,7 @@ class Copy {
             printHelp()
             System.exit(2)
         } catch (Exception e) {
-            log.error e.message
+            log.error e.message, e
             System.exit(1)
         }
     }
