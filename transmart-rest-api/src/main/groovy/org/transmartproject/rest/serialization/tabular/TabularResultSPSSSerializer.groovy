@@ -20,12 +20,12 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     @Override
     void writeFilesToZip(TabularResult tabularResult, ZipOutputStream zipOutStream) {
-        def tsvDataFile = 'data.tsv'
+        def tsvDataFile = 'spss/data.tsv'
         zipOutStream.putNextEntry(new ZipEntry(tsvDataFile))
         writeValues(tabularResult, zipOutStream)
         zipOutStream.closeEntry()
 
-        zipOutStream.putNextEntry(new ZipEntry('data.sps'))
+        zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
         writeSpsFile(tabularResult, zipOutStream, tsvDataFile)
         zipOutStream.closeEntry()
     }
