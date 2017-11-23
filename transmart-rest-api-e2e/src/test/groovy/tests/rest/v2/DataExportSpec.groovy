@@ -360,8 +360,8 @@ class DataExportSpec extends RESTSpec {
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 2
-        filesLineNumbers['data.tsv'] == 3
-        filesLineNumbers['data.sps'] == 32
+        filesLineNumbers['spss/data.tsv'] == 3
+        filesLineNumbers['spss/data.sps'] == 32
     }
 
     @RequiresStudy(CATEGORICAL_VALUES_ID)
@@ -400,8 +400,8 @@ class DataExportSpec extends RESTSpec {
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 2
-        filesLineNumbers['data.tsv'] == 4
-        filesLineNumbers['data.sps'] == 29
+        filesLineNumbers['spss/data.tsv'] == 4
+        filesLineNumbers['spss/data.sps'] == 29
     }
 
     def "get supported file formats for survey table"() {
