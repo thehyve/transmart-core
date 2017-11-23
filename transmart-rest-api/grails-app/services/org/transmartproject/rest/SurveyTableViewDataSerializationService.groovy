@@ -40,7 +40,7 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
 
     Map<Format, TabularResultSerializer> formatToSerializer = [
             (Format.TSV) : new TabularResultTSVSerializer(),
-            (Format.SPSS): new TabularResultSPSSSerializer(),
+            (Format.SPSS): new TabularResultSPSSSerializer()
     ]
             .withDefault { Format format -> throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}") }
 
@@ -54,7 +54,7 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
         def tabularView = new SurveyTableView(hypercube)
         try {
             log.info "Writing tabular data in ${format} format."
-            formatToSerializer[format].writeFilesToZip(tabularView, (ZipOutputStream) out)
+            formatToSerializer[format].writeFilesToZip(user, tabularView, (ZipOutputStream) out)
         } finally {
             tabularView.close()
         }
