@@ -33,3 +33,6 @@ favouritebook	\Interests\Favourite Book\	Favourite Book	"{
     ""columns"": 400,
     ""measure"": ""Nominal""
 }"						
+twin	\Pedigree\Is a Twin\	Is a Twin							
+nmultfam	\Pedigree\Numbers of multiples in family\	Numbers of multiples in family							
+nmultbab	\Pedigree\Number of children that are multiplet\	Number of children that are multiplet							

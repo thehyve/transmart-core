@@ -1,0 +1,38 @@
+--
+-- Type: TABLE; Owner: I2B2DEMODATA; Name: RELATION
+--
+CREATE TABLE "I2B2DEMODATA"."RELATION" (
+    "LEFT_SUBJECT_ID" NUMBER(38,0) NOT NULL,
+    "RELATION_TYPE_ID" INTEGER NOT NULL,
+    "RIGHT_SUBJECT_ID" NUMBER(38,0) NOT NULL,
+    "BIOLOGICAL" CHAR(1 BYTE),
+    "SHARE_HOUSEHOLD" CHAR(1 BYTE),
+    CONSTRAINT "RELATION_PK" PRIMARY KEY ("LEFT_SUBJECT_ID", "RELATION_TYPE_ID", "RIGHT_SUBJECT_ID")
+);
+
+--
+-- Type: REF_CONSTRAINT; Owner: I2B2DEMODATA; Name: LEFT_SUBJECT_ID_FK
+--
+ALTER TABLE "I2B2DEMODATA"."RELATION" ADD CONSTRAINT "LEFT_SUBJECT_ID_FK" FOREIGN KEY ("LEFT_SUBJECT_ID")
+ REFERENCES "I2B2DEMODATA"."PATIENT_DIMENSION" ("PATIENT_NUM");
+
+--
+-- Type: REF_CONSTRAINT; Owner: I2B2DEMODATA; Name: LEFT_SUBJECT_ID_FK
+--
+ALTER TABLE "I2B2DEMODATA"."RELATION" ADD CONSTRAINT "RELATION_TYPE_ID_FK" FOREIGN KEY ("RELATION_TYPE_ID")
+ REFERENCES "I2B2DEMODATA"."RELATION_TYPE" ("ID");
+
+--
+-- Type: REF_CONSTRAINT; Owner: I2B2DEMODATA; Name: RIGHT_SUBJECT_ID_FK
+--
+ALTER TABLE "I2B2DEMODATA"."RELATION" ADD CONSTRAINT "RIGHT_SUBJECT_ID_FK" FOREIGN KEY ("RIGHT_SUBJECT_ID")
+ REFERENCES "I2B2DEMODATA"."PATIENT_DIMENSION" ("PATIENT_NUM");
+
+
+COMMENT ON TABLE i2b2demodata.relation IS 'Represents relationships between subjects. e.g. pedigree.';
+
+COMMENT ON COLUMN i2b2demodata.relation.left_subject_id IS 'Id of the left subject in the relation.';
+COMMENT ON COLUMN i2b2demodata.relation.relation_type_id IS 'Relation type id.';
+COMMENT ON COLUMN i2b2demodata.relation.right_subject_id IS 'Id of the right subject in the relation.';
+COMMENT ON COLUMN i2b2demodata.relation.biological IS 'Specifies whether relation biological.';
+COMMENT ON COLUMN i2b2demodata.relation.share_household IS 'Specifies whether subjects share household.';

@@ -253,7 +253,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 || constraint instanceof ModifierConstraint
                 || constraint instanceof ValueConstraint
                 || constraint instanceof TimeConstraint
-                || constraint instanceof NullConstraint) {
+                || constraint instanceof NullConstraint
+                || constraint instanceof RelationConstraint) {
             //
         } else if (constraint instanceof Negation) {
             checkAccess(constraint.arg, user)

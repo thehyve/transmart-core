@@ -114,7 +114,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             this.label = label
             this.originalColumn = originalColumn
             def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
-            metadata = concept.metadata ?: computeColumnMetadata()
+            metadata = concept.metadata ?: computeColumnMetadata(concept)
             labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] }
         }
 
@@ -144,11 +144,12 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             new Date(value as Long)
         }
 
-        private VariableMetadata computeColumnMetadata() {
+        private VariableMetadata computeColumnMetadata(
+                org.transmartproject.db.i2b2data.ConceptDimension conceptDimension) {
             new VariableMetadata(
                     type: STRING,
                     measure: NOMINAL,
-                    description: originalColumn.label,
+                    description: conceptDimension.name,
                     width: 25,
                     columns: 25,
             )

@@ -34,6 +34,10 @@ dependsOn = [
         'i2b2demodata.linked_file_collection':[
                 'i2b2demodata.storage_system',
                 'i2b2demodata.study'
+        ],
+        'i2b2demodata.relation':[
+                'i2b2demodata.relation_type',
+                'i2b2demodata.patient_dimension'
         ]
 ]
 
