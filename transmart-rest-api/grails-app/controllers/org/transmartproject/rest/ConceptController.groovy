@@ -2,12 +2,17 @@ package org.transmartproject.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.concept.ConceptsResource
+import org.transmartproject.rest.marshallers.ConceptWrapper
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class ConceptController extends AbstractQueryController {
 
-    static responseFormats = ['json']
+    static responseFormats = ['json', 'hal']
 
     @Autowired
     ConceptsResource conceptsResource
@@ -17,9 +22,9 @@ class ConceptController extends AbstractQueryController {
      *
      * @return the list of concepts as JSON.
      */
-    def index() {
+    def index(@RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
-        respond concepts: conceptsResource.getConcepts(currentUser)
+        respond wrapConcepts(apiVersion, conceptsResource.getConcepts(currentUser))
     }
 
     /**
@@ -30,9 +35,20 @@ class ConceptController extends AbstractQueryController {
      * @throws org.transmartproject.core.exceptions.NoSuchResourceException
      * if the concept does not exists or the user does not have access to it.
      */
-    def show(@PathVariable('conceptCode') String conceptCode) {
+    def show(@RequestParam('api_version') String apiVersion, @PathVariable('conceptCode') String conceptCode) {
         checkForUnsupportedParams(params, ['conceptCode'])
-        respond conceptsResource.getConceptByConceptCodeForUser(conceptCode, currentUser)
+        respond new ConceptWrapper(
+                apiVersion: apiVersion,
+                concept: conceptsResource.getConceptByConceptCodeForUser(conceptCode, currentUser)
+        )
+    }
+
+    private static wrapConcepts(String apiVersion, Collection<Concept> source) {
+        new ContainerResponseWrapper(
+                key: 'concepts',
+                container: source.collect { new ConceptWrapper(apiVersion: apiVersion, concept: it) },
+                componentType: Concept,
+        )
     }
 
 }
