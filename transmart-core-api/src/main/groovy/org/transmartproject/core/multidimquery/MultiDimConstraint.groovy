@@ -8,4 +8,5 @@ package org.transmartproject.core.multidimquery
  * No methods, the constraint objects are used internally
  */
 interface MultiDimConstraint {
+    String toJson()
 }
