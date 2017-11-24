@@ -383,7 +383,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
-            key = '{ #constraint.toString(), #user.username }')
+            key = '{ #constraint.toJson(), #user.username }')
     Counts cachedCounts(MultiDimConstraint constraint, User user) {
         counts(constraint, user)
     }
@@ -654,7 +654,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
-            key = '{ #constraint.toString(), #user.username }')
+            key = '{ #constraint.toJson(), #user.username }')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
         getDimensionElementsCount(PATIENT, constraint, user)
     }
