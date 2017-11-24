@@ -5,6 +5,7 @@ import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.users.User
 
 import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
@@ -16,7 +17,7 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
 
     @Override
-    void writeFilesToZip(TabularResult tabularResult, ZipOutputStream zipOutStream) {
+    void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
         zipOutStream.putNextEntry(new ZipEntry('data.tsv'))
         writeValues(tabularResult, zipOutStream)
         zipOutStream.closeEntry()

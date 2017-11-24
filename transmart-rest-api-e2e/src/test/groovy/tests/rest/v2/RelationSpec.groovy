@@ -52,7 +52,7 @@ class RelationSpec extends RESTSpec {
                 acceptType: JSON,
         ])
         then:
-        responseData.relationTypes.size() == 6
+        responseData.relationTypes.size() == 7
         def mz = responseData.relationTypes.find { it.label == 'MZ' }
         mz.id == 4
         mz.biological == true

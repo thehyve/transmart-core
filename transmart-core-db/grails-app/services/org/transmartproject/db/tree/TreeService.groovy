@@ -209,6 +209,25 @@ class TreeService implements TreeResource {
     }
 
     /**
+     * Checks if a cache rebuild task is active.
+     * Only available for administrators.
+     *
+     * @param currentUser the current user.
+     * @return true iff a cache rebuild task is active.
+     */
+    boolean isRebuildActive(User currentUser) {
+        DbUser dbUser = (DbUser) usersResource.getUserFromUsername(currentUser.username)
+        if (!dbUser.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        if (tryLock()) {
+            unlock()
+            return false
+        }
+        true
+    }
+
+    /**
      * Clears the tree node cache and the counts caches, and
      * rebuild the tree node cache for every user.
      *

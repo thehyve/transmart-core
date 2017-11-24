@@ -35,6 +35,15 @@ interface TreeResource {
     void clearCache(User currentUser)
 
     /**
+     * Checks if a cache rebuild task is active.
+     * Only available for administrators.
+     *
+     * @param currentUser the current user.
+     * @return true iff a cache rebuild task is active.
+     */
+    boolean isRebuildActive(User currentUser)
+
+    /**
      * Clears the tree node cache and the counts caches, and
      * rebuild the tree node cache for every user.
      *
