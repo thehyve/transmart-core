@@ -10,12 +10,17 @@ import org.transmartproject.core.users.ProtectedResource
  *
  */
 interface MDStudy extends ProtectedResource {
+
+    Long getId()
+
     String getName()
 
     Collection<Dimension> getDimensions()
 
     Dimension getDimensionByName(String name)
 
-    StudyMetadata getMetadata()
     //Todo: also expose the org.transmart.biomart.Experiment?
+    Long getBioExperimentId()
+
+    StudyMetadata getMetadata()
 }
