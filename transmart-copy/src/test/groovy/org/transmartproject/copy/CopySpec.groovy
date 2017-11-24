@@ -45,7 +45,6 @@ class CopySpec extends Specification {
         def expectedModifierPaths = readFieldsFromFile(STUDY_FOLDER, Modifiers.table, 'modifier_path')
         def expectedSubjectIds = readFieldsFromFile(STUDY_FOLDER, Patients.patient_mapping_table, 'patient_ide')
         def expectedTreeNodePaths = readFieldsFromFile(STUDY_FOLDER, TreeNodes.table, 'c_fullname')
-        def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
 
         when: 'Loading example study data'
         copy.uploadStudy(STUDY_FOLDER, defaultConfig)
@@ -58,7 +57,6 @@ class CopySpec extends Specification {
         def inDbModifierPaths = readFieldsFromDb(copy.database, Modifiers.table, 'modifier_path')
         def inDbSubjectIds = readFieldsFromDb(copy.database, Patients.patient_mapping_table, 'patient_ide')
         def inDbTreeNodePaths = readFieldsFromDb(copy.database, TreeNodes.table, 'c_fullname')
-        def inDbRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
 
 
         then: 'Expect the study to be loaded'
@@ -68,8 +66,24 @@ class CopySpec extends Specification {
         inDbModifierPaths.containsAll(expectedModifierPaths)
         inDbSubjectIds.containsAll(expectedSubjectIds)
         inDbTreeNodePaths.containsAll(expectedTreeNodePaths)
-        inDbRelationTypeLabels.containsAll(expectedRelationTypeLabels)
+    }
+
+    def 'test loading the relations data'() {
+        given: 'Test database is available, the study is not loaded'
+
+        def copy = new Copy()
+        copy.init(false)
+        assert !copy.database.connection.closed
+
+        def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
+
+        when: 'Loading the pedigree data'
+        copy.uploadPedigree(STUDY_FOLDER, defaultConfig)
+
+        then: 'Expect the study to be loaded'
+        def inDbRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
         count(copy.database, [Relations.relation_table]) == count(STUDY_FOLDER, [Relations.relation_table])
+        inDbRelationTypeLabels.containsAll(expectedRelationTypeLabels)
     }
 
     def 'test deleting the study'() {
