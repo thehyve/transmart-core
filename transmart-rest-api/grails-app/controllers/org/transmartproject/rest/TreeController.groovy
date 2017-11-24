@@ -101,6 +101,23 @@ class TreeController {
         response.status = 200
     }
 
+    /**
+     * Checks if a cache rebuild task is running:
+     * <code>/${apiVersion}/tree_nodes/rebuild_status</code>
+     * Returns an object with a field <code>status</code> with value 'running'
+     * or 'stopped'.
+     * Example: <code>{"status": "running"}</code>.
+     *
+     * Only available for administrators.
+     *
+     * @return an object with a field <code>status</code> with value <code>running</code>
+     * or <code>stopped</code>.
+     */
+    def rebuildStatus() {
+        checkForUnsupportedParams(params, [])
+        respond status: treeResource.isRebuildActive(currentUser) ? 'running' : 'stopped'
+    }
+
     private setVersion(String apiVersion, List<TreeNode> nodes) {
         nodes.each {
             it.apiVersion = apiVersion
