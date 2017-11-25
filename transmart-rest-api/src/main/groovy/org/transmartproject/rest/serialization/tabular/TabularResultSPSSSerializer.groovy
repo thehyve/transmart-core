@@ -31,7 +31,13 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         writeSpsFile(tabularResult, zipOutStream, 'data.tsv')
         zipOutStream.closeEntry()
 
-        writeSavFile(user, tabularResult, zipOutStream)
+        try {
+            writeSavFile(user, tabularResult, zipOutStream)
+        } catch(Exception e) {
+            zipOutStream.putNextEntry(new ZipEntry('spss/data.sav.err'))
+            zipOutStream << e.message
+            zipOutStream.closeEntry()
+        }
     }
 
     static writeSavFile(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
@@ -91,10 +97,14 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         }
     }
 
+    private final static toSpssLabel(String label) {
+        label?.replaceAll(/[^a-zA-Z0-9_.]/, '_')
+    }
+
     static writeValues(TabularResult tabularResult, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream, 'utf-8'), COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
         List<DataColumn> columns = tabularResult.indicesList
-        csvWriter.writeNext(columns*.label as String[])
+        csvWriter.writeNext(columns.collect { toSpssLabel(it.label) } as String[])
         tabularResult.rows.each { DataRow row ->
             List valuesRow = columns.collect { DataColumn column -> row[column] }
             csvWriter.writeNext(formatRowValues(valuesRow))
@@ -139,14 +149,14 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 '/ARRANGEMENT = DELIMITED',
                 '/FIRSTCASE = 2',
                 '/VARIABLES =',
-                columns.collect { [it.label, getSpsDataTypeCode(it.metadata)].join(' ') }.join('\n')
+                columns.collect { [toSpssLabel(it.label), getSpsDataTypeCode(it.metadata)].join(' ') }.join('\n')
         ].join('\n')
         buffer << '\n.\n'
 
         List<MetadataAwareDataColumn> columnsWithDescriptions = columns.findAll { it.metadata.description }
         if (columnsWithDescriptions) {
             buffer << 'VARIABLE LABELS\n'
-            buffer << columnsWithDescriptions.collect { [it.label, quote(it.metadata.description)].join(' ') }.join('\n/')
+            buffer << columnsWithDescriptions.collect { [toSpssLabel(it.label), quote(it.metadata.description)].join(' ') }.join('\n/')
             buffer << '\n.\n'
         }
 
@@ -156,7 +166,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             buffer << columns
                     .findAll { it.metadata.valueLabels }
                     .collect { column ->
-                ([column.label]
+                ([toSpssLabel(column.label)]
                         + column.metadata.valueLabels
                         .collect { value, label -> quote(value as String) + ' ' + quote(label) }).join('\n')
             }.join('\n/')
@@ -167,7 +177,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         if (columnsWithMissingValues) {
             buffer << 'MISSING VALUES\n'
             buffer << columnsWithMissingValues.collect { column ->
-                "${column.label} ${missingValueExpression(column.metadata.missingValues)}"
+                "${toSpssLabel(column.label)} ${missingValueExpression(column.metadata.missingValues)}"
             }.join('\n/')
             buffer << '\n.\n'
         }
@@ -176,7 +186,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         if (columnsWithMeasures) {
             buffer << 'VARIABLE LEVEL\n'
             buffer << columnsWithMeasures.collect { column ->
-                "${column.label} (${column.metadata.measure})"
+                "${toSpssLabel(column.label)} (${column.metadata.measure})"
             }.join('\n/')
             buffer << '\n.\n'
         }
@@ -185,7 +195,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         if (columnsWithColumns) {
             buffer << 'VARIABLE WIDTH\n'
             buffer << columnsWithColumns.collect { column ->
-                "${column.label} (${column.metadata.columns})"
+                "${toSpssLabel(column.label)} (${column.metadata.columns})"
             }.join('\n/')
             buffer << '\n.\n'
         }
@@ -201,7 +211,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     private static String missingValueExpression(MissingValues missingValues) {
         List<String> parts = []
         if (missingValues.lower || missingValues.upper) {
-            parts.add((missingValues.lower ?: 'LOWEST') + ' THRU ' +(missingValues.upper ?: 'HIGHEST'))
+            parts.add((missingValues.lower as String ?: 'LOWEST') + ' THRU ' + (missingValues.upper as String ?: 'HIGHEST'))
         }
         if (missingValues.values) {
             parts.add(missingValues.values.join(', '))
@@ -226,7 +236,12 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             case VariableDataType.NUMERIC:
                 return 'F' + (metadata.width ?: '') + (metadata.decimals ? '.' + metadata.decimals : '')
             case VariableDataType.DATE:
-                return 'DATETIME' + (metadata.width ?: '')
+                def width = metadata.width
+                if (!width || width < 17 || width > 40) {
+                    log.warn "Invalid width for DATETIME type: ${width}."
+                    width = 22
+                }
+                return 'DATETIME' + (width ?: '')
             case VariableDataType.STRING:
                 return 'A' + (metadata.width ?: '')
             default: throw new UnsupportedOperationException()

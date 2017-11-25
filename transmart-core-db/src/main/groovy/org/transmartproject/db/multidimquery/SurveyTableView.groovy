@@ -108,14 +108,14 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         final String label
         final HypercubeDataColumn originalColumn
         final VariableMetadata metadata
-        private final Map<String, BigDecimal> labelsToValues = [:]
+        private final Map<String, BigDecimal> labelsToValues
 
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
             def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
             metadata = concept.metadata ?: computeColumnMetadata()
-            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] }
+            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] } as Map<String, BigDecimal>
         }
 
         Object getValue(HypercubeDataRow row) {
@@ -124,10 +124,16 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             def value = hValue.value
             switch (metadata?.type) {
                 case NUMERIC:
-                    if (value instanceof Number) return value
+                    if (value instanceof Number) {
+                        return value
+                    }
                     String label = value == null ? getMissingValueLabel(hValue) : value
-                    if (labelsToValues.containsKey(label)) return labelsToValues[label]
-                    if (value == null) return null
+                    if (labelsToValues.containsKey(label)) {
+                        return labelsToValues[label]
+                    }
+                    if (value == null) {
+                        return null
+                    }
                     throw new UnexpectedResultException("${value} is not of a number type.")
                 case DATE:
                     if (value == null) return null
@@ -150,7 +156,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
                     measure: NOMINAL,
                     description: originalColumn.label,
                     width: 25,
-                    columns: 25,
+                    columns: 25
             )
         }
 
