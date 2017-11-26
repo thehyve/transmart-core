@@ -4,7 +4,7 @@ gender	\Demographics\Gender\	Gender	"{
     ""columns"": 14,
     ""measure"": ""Nominal"",
     ""valueLabels"": {""1"":""Female"", ""2"":""Male"", ""-2"": ""Not Specified""},
-    ""missingValues"": [-2]
+    ""missingValues"": {""values"": [""-2""] }
 }"						A
 height	\Demographics\Height\	Height	"{
     ""type"": ""Numeric"",
@@ -13,7 +13,7 @@ height	\Demographics\Height\	Height	"{
     ""columns"": 15,
     ""measure"": ""Scale"",,
     ""valueLabels"": {""-1"":""Asked, but not answered""},
-    ""missingValues"": [-1]
+    ""missingValues"": {""values"": [""-1""] }
 }"						
 birthdate	\Demographics\Birth Date\	Birth Date	"{
     ""type"": ""Date"",
