@@ -146,7 +146,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         List<MetadataAwareDataColumn> columnsWithDescriptions = columns.findAll { it.metadata.description }
         if (columnsWithDescriptions) {
             buffer << 'VARIABLE LABELS\n'
-            buffer << columnsWithDescriptions.collect { [it.label, "'${it.metadata.description}'"].join(' ') }.join('\n/')
+            buffer << columnsWithDescriptions.collect { [it.label, quote(it.metadata.description)].join(' ') }.join('\n/')
             buffer << '\n.\n'
         }
 
@@ -157,7 +157,8 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                     .findAll { it.metadata.valueLabels }
                     .collect { column ->
                 ([column.label]
-                        + column.metadata.valueLabels.collect { value, label -> "'${value}' '${label}'" }).join('\n')
+                        + column.metadata.valueLabels
+                        .collect { value, label -> quote(value as String) + ' ' + quote(label) }).join('\n')
             }.join('\n/')
             buffer << '\n.\n'
         }
@@ -168,6 +169,14 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
 
         buffer << 'EXECUTE.'
         outputStream << buffer
+    }
+
+    private static String quote(String s) {
+        "'${escapeQuote(s)}'"
+    }
+
+    private static String escapeQuote(String s) {
+        s.replaceAll("'", "''")
     }
 
     private static String getSpsDataTypeCode(VariableMetadata metadata) {
