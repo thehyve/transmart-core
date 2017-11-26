@@ -108,7 +108,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         final String label
         final HypercubeDataColumn originalColumn
         final VariableMetadata metadata
-        private final Map<String, Integer> labelsToValues = [:]
+        private final Map<String, BigDecimal> labelsToValues = [:]
 
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label

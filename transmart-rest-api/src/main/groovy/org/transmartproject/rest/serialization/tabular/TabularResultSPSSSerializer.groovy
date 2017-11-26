@@ -163,12 +163,32 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             buffer << '\n.\n'
         }
 
+        List<MetadataAwareDataColumn> columnsWithMissingValues = columns.findAll { it.metadata.missingValues }
+        if (columnsWithMissingValues) {
+            buffer << 'MISSING VALUES\n'
+            buffer << columnsWithMissingValues.collect { column ->
+                "${column.label} ${missingValueExpression(column.metadata.missingValues)}"
+            }.join('\n/')
+            buffer << '\n.\n'
+        }
+
         if (outputFile) {
             buffer << "SAVE /OUTFILE=\"${outputFile}\"\n/COMPRESSED.\n"
         }
 
         buffer << 'EXECUTE.'
         outputStream << buffer
+    }
+
+    private static String missingValueExpression(MissingValues missingValues) {
+        List<String> parts = []
+        if (missingValues.lower || missingValues.upper) {
+            parts.add((missingValues.lower ?: 'LOWEST') + ' THRU ' +(missingValues.upper ?: 'HIGHEST'))
+        }
+        if (missingValues.values) {
+            parts.add(missingValues.values.join(', '))
+        }
+        "(${parts.join(', ')})"
     }
 
     private static String quote(String s) {
