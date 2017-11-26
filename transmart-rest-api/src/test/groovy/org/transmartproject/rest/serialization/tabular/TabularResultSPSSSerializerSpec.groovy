@@ -164,6 +164,37 @@ class TabularResultSPSSSerializerSpec extends Specification {
         commands.last() == 'EXECUTE'
     }
 
+    def 'quotes escaping'() {
+        def table = Mock(TabularResult)
+        def column1 = Mock(MetadataAwareDataColumn)
+        column1.label >> 'column1'
+        column1.metadata >> new VariableMetadata(
+                type: VariableDataType.NUMERIC,
+                description: 'this variable has \' in the middle',
+                valueLabels: [1: 'val\'1', 2: 'val\'2'],
+        )
+        table.indicesList >> [column1]
+
+        when:
+        def out = new ByteArrayOutputStream()
+        writeSpsFile(table, out, 'data.tsv')
+        then:
+        def commands = parseSpsCommands(out)
+        commands.size() == 4
+
+        def varLabelsCommand = commands.find { it.startsWith('VARIABLE LABELS') }
+        varLabelsCommand
+        def varLabels = (varLabelsCommand - 'VARIABLE LABELS ').split('/')*.trim()
+        varLabels.size() == 1
+        'column1 \'this variable has \'\' in the middle\'' in varLabels
+
+        def valLabelsCommand = commands.find { it.startsWith('VALUE LABELS') }
+        valLabelsCommand
+        def valLabels = (valLabelsCommand - 'VALUE LABELS ').split('/')*.trim()
+        valLabels.size() == 1
+        'column1 \'1\' \'val\'\'1\' \'2\' \'val\'\'2\'' in valLabels
+    }
+
     static List<String> parseSpsCommands(ByteArrayOutputStream out) {
         parseSpsCommands(getTextContent(out))
     }
