@@ -123,6 +123,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         column2.metadata >> new VariableMetadata(
                 type: VariableDataType.DATE,
                 width: 20,
+                columns: 25,
                 measure:  Measure.ORDINAL,
                 description: 'date variable',
         )
@@ -142,7 +143,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         writeSpsFile(table, out, 'data.tsv')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 5
+        commands.size() == 6
 
         commands.first().startsWith('GET DATA ')
         def getDataAttributes = commands[0].split('/')*.trim()
@@ -169,6 +170,13 @@ class TabularResultSPSSSerializerSpec extends Specification {
         'column1 (SCALE)' in varLevels
         'column2 (ORDINAL)' in varLevels
         'column3 (NOMINAL)' in varLevels
+
+        def varWidthCommand = commands.find { it.startsWith('VARIABLE WIDTH') }
+        varWidthCommand
+        def varWidths = (varWidthCommand - 'VARIABLE WIDTH ').split('/')*.trim()
+        varWidths.size() == 2
+        'column2 (25)' in varWidths
+        'column3 (40)' in varWidths
 
         commands.last() == 'EXECUTE'
     }
