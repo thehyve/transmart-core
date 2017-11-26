@@ -3,12 +3,7 @@ package org.transmartproject.rest.serialization.tabular
 
 import com.opencsv.CSVWriter
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.DataRow
-import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.VariableDataType
-import org.transmartproject.core.dataquery.VariableMetadata
-import org.transmartproject.core.dataquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
@@ -25,6 +20,9 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     @Override
     void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
+        if (!tabularResult.indicesList) {
+            throw new IllegalArgumentException("Can't write spss files for empty table.")
+        }
         zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
         writeValues(tabularResult, zipOutStream)
         zipOutStream.closeEntry()
@@ -37,6 +35,9 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     }
 
     static writeSavFile(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
+        if (!tabularResult.indicesList) {
+            throw new IllegalArgumentException("Can't write sav file for empty table.")
+        }
         try {
             def command = 'pspp --version'
             def process = command.execute()
@@ -112,27 +113,42 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         } as String[]
     }
 
-    static writeSpsFile(TabularResult tabularResult, OutputStream outputStream, String dataFile, String outputFile = null) {
+    static writeSpsFile(TabularResult<? extends MetadataAwareDataColumn ,? extends DataRow> tabularResult,
+                        OutputStream outputStream,
+                        String dataFile,
+                        String outputFile = null) {
+        if (!tabularResult.indicesList) {
+            throw new IllegalArgumentException("Can't write sps expression file for empty table.")
+        }
         List<MetadataAwareDataColumn> columns = tabularResult.indicesList
-                .findAll { it instanceof MetadataAwareDataColumn }
-        if (!columns) return
+                .findAll { it instanceof MetadataAwareDataColumn && it.metadata }
+        if (columns.size() < tabularResult.indicesList.size()) {
+            throw new IllegalArgumentException("All table columns have to contain metadata.")
+        }
+
         def buffer = new StringBuffer()
         buffer << [
                 '* Encoding: UTF-8.',
                 '* NOTE: If you have put this file in a different folder from the associated data file, ',
                 '* you will have to change the FILE location on the line below to point to the physical ',
                 '* location of your data file.',
-                'GET DATA  /TYPE = TXT/FILE = ',
-                '"' + dataFile + '"',
-                '/DELCASE = LINE /DELIMITERS = "\\t" /ARRANGEMENT = DELIMITED /FIRSTCASE = 2 /VARIABLES =',
-                ''
+                'GET DATA  /TYPE = TXT',
+                '/FILE = "' + dataFile + '"',
+                '/DELCASE = LINE',
+                '/DELIMITERS = "\\t"',
+                '/ARRANGEMENT = DELIMITED',
+                '/FIRSTCASE = 2',
+                '/VARIABLES =',
+                columns.collect { [it.label, getSpsDataTypeCode(it.metadata)].join(' ') }.join('\n')
         ].join('\n')
-        buffer << columns.collect { [it.label, getSpsDataTypeCode(it.metadata)].join(' ') }.join('\n')
         buffer << '\n.\n'
 
-        buffer << 'VARIABLE LABELS\n'
-        buffer << columns.collect { [it.label, '"' + it.metadata.description + '"', '/'].join(' ') }.join('\n')
-        buffer << '\n.\n'
+        List<MetadataAwareDataColumn> columnsWithDescriptions = columns.findAll { it.metadata.description }
+        if (columnsWithDescriptions) {
+            buffer << 'VARIABLE LABELS\n'
+            buffer << columnsWithDescriptions.collect { [it.label, "'${it.metadata.description}'"].join(' ') }.join('\n/')
+            buffer << '\n.\n'
+        }
 
         List<MetadataAwareDataColumn> columnsWithLabels = columns.findAll { it.metadata.valueLabels }
         if (columnsWithLabels) {
@@ -141,9 +157,8 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                     .findAll { it.metadata.valueLabels }
                     .collect { column ->
                 ([column.label]
-                        + column.metadata.valueLabels.collect { value, label -> "'${value}' \"${label}\"" }
-                        + '/').join('\n')
-            }.join('\n')
+                        + column.metadata.valueLabels.collect { value, label -> "'${value}' '${label}'" }).join('\n')
+            }.join('\n/')
             buffer << '\n.\n'
         }
 
@@ -156,14 +171,18 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     }
 
     private static String getSpsDataTypeCode(VariableMetadata metadata) {
-        switch (metadata?.type) {
+        VariableDataType type = metadata.type
+        if (!type) {
+            throw new IllegalArgumentException("Variable has to have a type specified.")
+        }
+        switch (type) {
             case VariableDataType.NUMERIC:
                 return 'F' + (metadata.width ?: '') + (metadata.decimals ? '.' + metadata.decimals : '')
             case VariableDataType.DATE:
                 return 'DATETIME' + (metadata.width ?: '')
             case VariableDataType.STRING:
                 return 'A' + (metadata.width ?: '')
-            default: return ''
+            default: throw new UnsupportedOperationException()
         }
     }
 }
