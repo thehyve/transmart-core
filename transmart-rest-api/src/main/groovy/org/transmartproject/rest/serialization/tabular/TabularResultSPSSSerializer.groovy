@@ -172,6 +172,15 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             buffer << '\n.\n'
         }
 
+        List<MetadataAwareDataColumn> columnsWithMeasures = columns.findAll { it.metadata.measure }
+        if (columnsWithMeasures) {
+            buffer << 'VARIABLE LEVEL\n'
+            buffer << columnsWithMeasures.collect { column ->
+                "${column.label} (${column.metadata.measure})"
+            }.join('\n/')
+            buffer << '\n.\n'
+        }
+
         if (outputFile) {
             buffer << "SAVE /OUTFILE=\"${outputFile}\"\n/COMPRESSED.\n"
         }

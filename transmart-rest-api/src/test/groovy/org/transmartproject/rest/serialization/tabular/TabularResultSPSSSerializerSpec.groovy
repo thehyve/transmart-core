@@ -142,7 +142,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         writeSpsFile(table, out, 'data.tsv')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 4
+        commands.size() == 5
 
         commands.first().startsWith('GET DATA ')
         def getDataAttributes = commands[0].split('/')*.trim()
@@ -161,6 +161,14 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def valLabels = (valLabelsCommand - 'VALUE LABELS ').split('/')*.trim()
         valLabels.size() == 1
         'column1 \'1\' \'val1\' \'2\' \'val2\'' in valLabels
+
+        def varLevelsCommand = commands.find { it.startsWith('VARIABLE LEVEL') }
+        varLevelsCommand
+        def varLevels = (varLevelsCommand - 'VARIABLE LEVEL ').split('/')*.trim()
+        varLevels.size() == 3
+        'column1 (SCALE)' in varLevels
+        'column2 (ORDINAL)' in varLevels
+        'column3 (NOMINAL)' in varLevels
 
         commands.last() == 'EXECUTE'
     }
