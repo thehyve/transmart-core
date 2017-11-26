@@ -21,6 +21,7 @@ package org.transmartproject.rest.serialization.tabular
 
 import org.transmartproject.core.dataquery.Measure
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.MissingValues
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.VariableDataType
 import org.transmartproject.core.dataquery.VariableMetadata
@@ -115,7 +116,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
                 measure:  Measure.SCALE,
                 decimals: 3,
                 description: 'numeric variable',
-                valueLabels: [1: 'val1', 2: 'val2'],
+                valueLabels: [(new BigDecimal(1)): 'val1', (new BigDecimal(2)): 'val2'],
         )
         def column2 = Mock(MetadataAwareDataColumn)
         column2.label >> 'column2'
@@ -171,7 +172,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         column1.metadata >> new VariableMetadata(
                 type: VariableDataType.NUMERIC,
                 description: 'this variable has \' in the middle',
-                valueLabels: [1: 'val\'1', 2: 'val\'2'],
+                valueLabels: [(new BigDecimal(1)): 'val\'1', (new BigDecimal(2)): 'val\'2'],
         )
         table.indicesList >> [column1]
 
@@ -193,6 +194,60 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def valLabels = (valLabelsCommand - 'VALUE LABELS ').split('/')*.trim()
         valLabels.size() == 1
         'column1 \'1\' \'val\'\'1\' \'2\' \'val\'\'2\'' in valLabels
+    }
+
+    def 'missing values'() {
+        def table = Mock(TabularResult)
+        def column1 = Mock(MetadataAwareDataColumn)
+        column1.label >> 'column1'
+        column1.metadata >> new VariableMetadata(
+                type: VariableDataType.NUMERIC,
+                missingValues: new MissingValues(
+                        upper: new BigDecimal(-1),
+                        lower: new BigDecimal(-10),
+                        values: [ new BigDecimal('-12.5') ]
+                )
+        )
+        def column2 = Mock(MetadataAwareDataColumn)
+        column2.label >> 'column2'
+        column2.metadata >> new VariableMetadata(
+                type: VariableDataType.NUMERIC,
+                missingValues: new MissingValues(
+                        values: [ new BigDecimal('-100'), new BigDecimal('-200'), new BigDecimal('-300') ]
+                )
+        )
+        def column3 = Mock(MetadataAwareDataColumn)
+        column3.label >> 'column3'
+        column3.metadata >> new VariableMetadata(
+                type: VariableDataType.NUMERIC,
+                missingValues: new MissingValues(
+                        upper: new BigDecimal(-1),
+                )
+        )
+        def column4 = Mock(MetadataAwareDataColumn)
+        column4.label >> 'column4'
+        column4.metadata >> new VariableMetadata(
+                type: VariableDataType.NUMERIC,
+                missingValues: new MissingValues(
+                        lower: new BigDecimal(100),
+                )
+        )
+        table.indicesList >> [column1, column2, column3, column4]
+
+        when:
+        def out = new ByteArrayOutputStream()
+        writeSpsFile(table, out, 'data.tsv')
+        then:
+        def commands = parseSpsCommands(out)
+        commands.size() == 3
+        def missingValuesCommand = commands.find { it.startsWith('MISSING VALUES') }
+        missingValuesCommand
+        def missingValuesDeclarations = (missingValuesCommand - 'MISSING VALUES ').split('/')*.trim()
+        missingValuesDeclarations.size() == 4
+        'column1 (-10 THRU -1, -12.5)' in missingValuesDeclarations
+        'column2 (-100, -200, -300)' in missingValuesDeclarations
+        'column3 (LOWEST THRU -1)' in missingValuesDeclarations
+        'column4 (100 THRU HIGHEST)' in missingValuesDeclarations
     }
 
     static List<String> parseSpsCommands(ByteArrayOutputStream out) {

@@ -47,8 +47,8 @@ class SurveyTableViewSpec extends Specification {
         metadata*.decimals == [0, null, null, null, null, null, null]
         metadata*.columns == [12, 22, 22, 400, 22, 14, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
-        height1Metadata.valueLabels == [(1): 'Female', (2): 'Male', (-2): 'Not Specified']
-        height1Metadata.missingValues == [-2]
+        height1Metadata.valueLabels == [(new BigDecimal(1)): 'Female', (new BigDecimal(2)): 'Male', (new BigDecimal(-2)): 'Not Specified']
+        height1Metadata.missingValues.values == [new BigDecimal(-2)]
 
         when: 'get row'
         def rows = transformedView.rows.toList()
@@ -92,8 +92,8 @@ class SurveyTableViewSpec extends Specification {
         metadata*.decimals == [0, null, null, 2, null]
         metadata*.columns == [12, 210, 22, 15, 22]
         def height1Metadata = columns.find { it.label == 'height1' }.metadata
-        height1Metadata.valueLabels == [(-1): 'Asked, but not answered']
-        height1Metadata.missingValues == [-1]
+        height1Metadata.valueLabels == [(new BigDecimal(-1)): 'Asked, but not answered']
+        height1Metadata.missingValues.values == [new BigDecimal(-1)]
 
         when: 'get row'
         def rows = transformedView.rows.toList()
