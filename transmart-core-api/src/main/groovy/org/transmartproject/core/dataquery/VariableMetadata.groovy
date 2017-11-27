@@ -36,11 +36,11 @@ class VariableMetadata {
     /**
      * Values index. e.g. 1=Female, 2=Male -1=Not provided
      */
-    Map<Integer, String> valueLabels = [:]
+    Map<BigDecimal, String> valueLabels = [:]
     /**
      * Contains indexes that represent missing values. Usually negative values. e.g. -1
      */
-    List<Integer> missingValues = []
+    MissingValues missingValues
 
 
     static VariableMetadata fromJson(String jsonText) {
@@ -55,9 +55,26 @@ class VariableMetadata {
                 width: json.width as Integer,
                 decimals: json.decimals as Integer,
                 valueLabels: json.valueLabels?.collectEntries { String key, String value ->
-                    [new BigDecimal(key).intValueExact(), value] } ?: [:],
-                missingValues: json.missingValues?.collect { new BigDecimal(it).intValueExact() } ?: [],
+                    [new BigDecimal(key), value] } ?: [:],
+                missingValues: toMissingValues(json.missingValues),
                 columns: json.columns as Integer
+        )
+    }
+
+    private static toMissingValues(json) {
+        if (json == null) {
+            return null
+        }
+        List<BigDecimal> values = []
+        if (json.value) {
+            values.add(json.value as BigDecimal)
+        } else if (json.values) {
+            json.values.each { values.add(it as BigDecimal) }
+        }
+        new MissingValues(
+                upper: json.upper as BigDecimal,
+                lower: json.lower as BigDecimal,
+                values: values,
         )
     }
 }
