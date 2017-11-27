@@ -108,14 +108,14 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         final String label
         final HypercubeDataColumn originalColumn
         final VariableMetadata metadata
-        private final Map<String, Integer> labelsToValues = [:]
+        private final Map<String, BigDecimal> labelsToValues
 
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
             def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
             metadata = concept.metadata ?: computeColumnMetadata(concept)
-            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] }
+            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] } as Map<String, BigDecimal>
         }
 
         Object getValue(HypercubeDataRow row) {
@@ -124,10 +124,16 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             def value = hValue.value
             switch (metadata?.type) {
                 case NUMERIC:
-                    if (value instanceof Number) return value
+                    if (value instanceof Number) {
+                        return value
+                    }
                     String label = value == null ? getMissingValueLabel(hValue) : value
-                    if (labelsToValues.containsKey(label)) return labelsToValues[label]
-                    if (value == null) return null
+                    if (labelsToValues.containsKey(label)) {
+                        return labelsToValues[label]
+                    }
+                    if (value == null) {
+                        return null
+                    }
                     throw new UnexpectedResultException("${value} is not of a number type.")
                 case DATE:
                     if (value == null) return null
@@ -144,14 +150,13 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             new Date(value as Long)
         }
 
-        private VariableMetadata computeColumnMetadata(
-                org.transmartproject.db.i2b2data.ConceptDimension conceptDimension) {
+        private VariableMetadata computeColumnMetadata(Concept concept) {
             new VariableMetadata(
                     type: STRING,
                     measure: NOMINAL,
-                    description: conceptDimension.name,
+                    description: concept.name,
                     width: 25,
-                    columns: 25,
+                    columns: 25
             )
         }
 

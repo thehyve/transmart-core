@@ -47,7 +47,7 @@ class VariableMetadataTests {
                 hasProperty('decimals', nullValue()),
                 hasProperty('columns', nullValue()),
                 hasProperty('valueLabels', equalTo([:])),
-                hasProperty('missingValues', empty()),
+                hasProperty('missingValues', nullValue()),
         )
     }
 
@@ -66,7 +66,11 @@ class VariableMetadataTests {
               "1.0":"A",
               "2.0":"B"
            },
-           "missingValues":[-1.0]
+           "missingValues": { 
+                "lower": -100,
+                "upper": -10,
+                "value": -10.5,
+            }
         }
         """
 
@@ -79,8 +83,12 @@ class VariableMetadataTests {
                 hasProperty('width', equalTo(15)),
                 hasProperty('decimals', equalTo(3)),
                 hasProperty('columns', equalTo(18)),
-                hasProperty('valueLabels', equalTo([(-1): 'M', 1: 'A', 2: 'B'])),
-                hasProperty('missingValues', equalTo([-1])),
+                hasProperty('valueLabels', equalTo([(new BigDecimal('-1.0')): 'M', (new BigDecimal('1.0')): 'A', (new BigDecimal('2.0')): 'B'])),
+                hasProperty('missingValues', allOf(
+                        hasProperty('lower', equalTo(new BigDecimal('-100'))),
+                        hasProperty('upper', equalTo(new BigDecimal('-10'))),
+                        hasProperty('values', equalTo([new BigDecimal('-10.5')])),
+                )),
         )
     }
 
@@ -88,23 +96,16 @@ class VariableMetadataTests {
     void testQuotedMissingValues() {
         def jsonText = """
         {  
-           "missingValues":["-2.0"]
+           "missingValues":{"values": ["-2.0", "-3.2"]}
         }
         """
 
         VariableMetadata metadata = VariableMetadata.fromJson(jsonText)
-        assertThat metadata, hasProperty('missingValues', equalTo([-2]))
-    }
-
-    @Test(expected = ArithmeticException)
-    void testFloatMissingValues() {
-        def jsonText = """
-        {  
-           "missingValues":["-3.14"]
-        }
-        """
-
-        VariableMetadata.fromJson(jsonText)
+        assertThat metadata, hasProperty('missingValues', allOf(
+                hasProperty('upper', nullValue()),
+                hasProperty('lower', nullValue()),
+                hasProperty('values', equalTo([new BigDecimal('-2.0'), new BigDecimal('-3.2')])),
+        ))
     }
 
 }
