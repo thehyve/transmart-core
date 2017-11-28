@@ -4,16 +4,30 @@ import com.google.gson.stream.JsonWriter
 import grails.converters.JSON
 import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.tree.TreeNode
 
 @CompileStatic
 class TreeJsonSerializer {
 
     protected JsonWriter writer
-    protected boolean writeConstaints
+    protected boolean writeConstraints
+    protected boolean writeTags
 
     protected void writeConstraint(final MultiDimConstraint constraint) {
         writer.jsonValue((constraint as JSON).toString(false))
+    }
+
+    protected void writeMetadata(final List<OntologyTermTag> tags) {
+        if (tags == null) {
+            writer.nullValue()
+        } else {
+            writer.beginObject()
+            for (OntologyTermTag tag: tags) {
+                writer.name(tag.name).value(tag.description)
+            }
+            writer.endObject()
+        }
     }
 
     protected void writeNode(final TreeNode node) {
@@ -43,9 +57,13 @@ class TreeJsonSerializer {
         if (node.patientCount) {
             writer.name('patientCount').value(node.patientCount)
         }
-        if (this.writeConstaints && node.constraint) {
+        if (this.writeConstraints && node.constraint) {
             writer.name('constraint')
             writeConstraint(node.constraint)
+        }
+        if (this.writeTags && node.tags) {
+            writer.name('metadata')
+            writeMetadata(node.tags)
         }
         if (node.children) {
             writer.name('children')
@@ -56,8 +74,8 @@ class TreeJsonSerializer {
 
     protected void writeNodes(final List<TreeNode> nodes) {
         writer.beginArray()
-        nodes.each {
-            writeNode(it)
+        for(TreeNode node: nodes) {
+            writeNode(node)
         }
         writer.endArray()
     }
@@ -65,23 +83,33 @@ class TreeJsonSerializer {
     /**
      * Writes the tree node to JSON.
      *
+     * @param args map with arguments to indicate if constraints and tags should be written:
+     *  - writeConstraints: indicate if constraints should be written (default: true)
+     *  - writeTags: indicate if tags should be written (default: false)
+     * @param node the tree node to serialise.
      * @param out the stream to write to.
      */
     void write(Map args, final TreeNode node, OutputStream out) {
-        this.writer = new JsonWriter(new PrintWriter(new BufferedOutputStream(out)))
-        this.writeConstaints = args?.writeConstraints ?: false
+        this.writer = new JsonWriter(new BufferedWriter(new OutputStreamWriter(out)))
+        this.writeConstraints = args?.writeConstraints == null ? true : args?.writeConstraints
+        this.writeTags = args?.writeTags ?: false
         writeNode(node)
     }
 
     /**
      * Writes the tree nodes to JSON.
      *
+     * @param args map with arguments to indicate if constraints and tags should be written:
+     *  - writeConstraints: indicate if constraints should be written (default: true)
+     *  - writeTags: indicate if tags should be written (default: false)
+     * @param forest the tree nodes to serialise.
      * @param out the stream to write to.
      */
     void write(Map args, final List<TreeNode> forest, OutputStream out) {
         this.writer = new JsonWriter(new PrintWriter(new BufferedOutputStream(out)))
         this.writer.indent = ''
-        this.writeConstaints = args?.writeConstraints == null ? true : args?.writeConstraints
+        this.writeConstraints = args?.writeConstraints == null ? true : args?.writeConstraints
+        this.writeTags = args?.writeTags ?: false
         writer.beginObject()
         writer.name('tree_nodes')
         writeNodes(forest)
