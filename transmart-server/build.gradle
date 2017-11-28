@@ -64,7 +64,7 @@ war {
             into 'Rscripts'
         })
         with copySpec({
-            from 'src/main/resources/dataExportRScripts'
+            from '../transmartApp/src/main/resources/dataExportRScripts'
             into 'dataExportRScripts'
         })
         with copySpec({
