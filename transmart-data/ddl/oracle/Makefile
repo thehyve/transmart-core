@@ -45,7 +45,7 @@ $(LOAD_USER_TARGETS):
 	$(RUN_SQL) GLOBAL/$(patsubst load_user_%,%,$@).sql
 
 load_users:
-	$(RUN_SQL) -j 3 $(foreach u,$(SCHEMAS),-f GLOBAL/$(u).sql)
+	$(RUN_SQL) -j 1 $(foreach u,$(SCHEMAS),-f GLOBAL/$(u).sql)
 	$(MAKE) load_passwords
 
 load_passwords:
@@ -74,10 +74,10 @@ $(WRITE_GRANT_TARGETS): _scripts/generate_grants.php grants.php
 	php $< grants.php $(patsubst %/_grants.sql,%,$@) > $@
 
 drop_users: drop_users.php $(JDBC_DRIVER_ORA_PATH)
-	php $< $(SCHEMAS) | $(RUN_SQL) -c -j 4
+	php $< $(SCHEMAS) | $(RUN_SQL) -c -j 1
 
 drop_tablespaces: drop_tablespaces.sql
-	$(RUN_SQL) -c -j 4 -f $<
+	$(RUN_SQL) -c -j 1 -f $<
 
 $(DUMP_SCHEMA_TARGETS) dump_users $(LOAD_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA_PATH)
 $(LOAD_USER_TARGETS) load_tablespaces load_users drop_users drop_tablespaces: $(JDBC_DRIVER_ORA_PATH)
