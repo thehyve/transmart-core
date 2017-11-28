@@ -66,7 +66,12 @@ class TreeController {
             response.status = 200
             response.contentType = 'application/json'
             response.characterEncoding = 'utf-8'
-            new TreeJsonSerializer().write([writeConstraints: constraints], nodes, response.outputStream)
+            new TreeJsonSerializer().write([
+                        writeConstraints: constraints,
+                        writeTags: tags
+                    ],
+                    nodes,
+                    response.outputStream)
         }
     }
 
