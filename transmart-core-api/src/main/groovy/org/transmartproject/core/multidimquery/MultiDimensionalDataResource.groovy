@@ -143,4 +143,10 @@ interface MultiDimensionalDataResource {
      */
     void clearPatientCountCache()
 
+    /**
+     * Clears the counts per concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    void clearCountsPerConceptCache()
+
 }

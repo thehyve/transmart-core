@@ -20,6 +20,7 @@ import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.core.users.User
@@ -181,6 +182,7 @@ class TreeService implements TreeResource {
         treeCacheService.clearAllCacheEntries()
         multiDimensionalDataResource.clearCountsCache()
         multiDimensionalDataResource.clearPatientCountCache()
+        multiDimensionalDataResource.clearCountsPerConceptCache()
     }
 
     static class SimpleLock {
@@ -263,6 +265,8 @@ class TreeService implements TreeResource {
                     log.info "Rebuilding the cache for user ${user.username} ..."
                     stopWatch.start("Rebuild the cache for ${user.username}")
                     treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), I2b2Secure.ROOT, 0)
+                    //triggers caching counts per concepts for the given user
+                    multiDimensionalDataResource.countsPerStudyAndConcept(new TrueConstraint(), user)
                     stopWatch.stop()
                 }
                 log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
