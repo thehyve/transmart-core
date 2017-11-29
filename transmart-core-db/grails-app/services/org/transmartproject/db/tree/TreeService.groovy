@@ -250,16 +250,14 @@ class TreeService implements TreeResource {
         if (!tryLock()) {
             throw new ServiceNotAvailableException('Rebuild operation already in progress.')
         }
+        log.info 'Clearing all caches ...'
+        clearCache(currentUser)
         log.debug "Starting task (lock: ${sharedLock.locked})"
         task {
             log.debug "Task started (lock: ${sharedLock.locked})"
             def session = sessionFactory.openSession()
             try {
                 def stopWatch = new StopWatch('Rebuild cache')
-                log.info 'Clearing all caches ...'
-                stopWatch.start('Clearing the caches')
-                clearCache(currentUser)
-                stopWatch.stop()
                 usersResource.getUsers().each {
                     DbUser user = (DbUser)it
                     log.info "Rebuilding the cache for user ${user.username} ..."
