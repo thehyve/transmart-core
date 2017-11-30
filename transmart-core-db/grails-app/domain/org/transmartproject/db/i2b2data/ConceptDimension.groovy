@@ -21,7 +21,6 @@ package org.transmartproject.db.i2b2data
 
 import groovy.transform.ToString
 import org.transmartproject.core.concept.Concept
-import org.transmartproject.core.dataquery.VariableMetadata
 
 @ToString
 class ConceptDimension implements Concept {
@@ -61,15 +60,6 @@ class ConceptDimension implements Concept {
         //importDate       nullable:   true
         //sourcesystemCd   nullable:   true,   maxSize:   50
         //uploadId         nullable:   true
-    }
-
-    @Override
-    VariableMetadata getMetadata() {
-        def metadata = VariableMetadata.fromJson(conceptBlob)
-        if (metadata && !metadata.description) {
-            metadata.description = name
-        }
-        metadata
     }
 
 }

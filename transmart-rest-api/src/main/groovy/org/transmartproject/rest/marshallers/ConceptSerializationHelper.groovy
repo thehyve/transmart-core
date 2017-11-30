@@ -19,15 +19,11 @@ class ConceptSerializationHelper extends AbstractHalOrJsonSerializationHelper<Co
     @Override
     Map<String, Object> convertToMap(ConceptWrapper object) {
         Concept concept = object.concept
-        def result = [
+        [
                 conceptCode: concept.conceptCode,
                 conceptPath: concept.conceptPath,
                 name: concept.name
         ]
-        if (concept.metadata) {
-            result.metadata = concept.metadata
-        }
-        result
     }
 
 }

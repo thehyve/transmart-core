@@ -19,12 +19,12 @@
 
 package org.transmartproject.rest.serialization.tabular
 
-import org.transmartproject.core.dataquery.Measure
+import org.transmartproject.core.ontology.Measure
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.dataquery.MissingValues
+import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.VariableDataType
-import org.transmartproject.core.dataquery.VariableMetadata
+import org.transmartproject.core.ontology.VariableDataType
+import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
 import spock.lang.Specification
 

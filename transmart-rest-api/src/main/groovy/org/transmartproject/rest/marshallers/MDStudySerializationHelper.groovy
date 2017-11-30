@@ -28,9 +28,9 @@ class MDStudySerializationHelper extends AbstractHalOrJsonSerializationHelper<St
                     dim.name
                 }
         ]
-        def conceptToVariableName = study.metadata?.conceptToVariableName
-        if (conceptToVariableName) {
-            result.metadata = [conceptToVariableName: conceptToVariableName]
+        def studyMetadata = study.metadata
+        if (studyMetadata) {
+            result.metadata = studyMetadata
         }
         result
     }

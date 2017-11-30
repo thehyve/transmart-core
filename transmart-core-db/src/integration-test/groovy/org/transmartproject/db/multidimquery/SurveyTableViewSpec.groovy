@@ -11,11 +11,11 @@ import org.transmartproject.db.user.User
 import spock.lang.Specification
 
 import static org.hamcrest.CoreMatchers.containsString
-import static org.transmartproject.core.dataquery.VariableDataType.NUMERIC
-import static org.transmartproject.core.dataquery.VariableDataType.STRING
-import static org.transmartproject.core.dataquery.VariableDataType.DATE
-import static org.transmartproject.core.dataquery.Measure.NOMINAL
-import static org.transmartproject.core.dataquery.Measure.SCALE
+import static org.transmartproject.core.ontology.VariableDataType.NUMERIC
+import static org.transmartproject.core.ontology.VariableDataType.STRING
+import static org.transmartproject.core.ontology.VariableDataType.DATE
+import static org.transmartproject.core.ontology.Measure.NOMINAL
+import static org.transmartproject.core.ontology.Measure.SCALE
 import static spock.util.matcher.HamcrestSupport.that
 
 @Rollback
