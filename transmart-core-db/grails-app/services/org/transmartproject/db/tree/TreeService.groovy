@@ -24,6 +24,7 @@ import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.core.users.User
+import org.transmartproject.db.util.SharedLock
 import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
@@ -185,30 +186,7 @@ class TreeService implements TreeResource {
         multiDimensionalDataResource.clearCountsPerConceptCache()
     }
 
-    static class SimpleLock {
-        boolean locked
-    }
-
-    static final private SimpleLock sharedLock = new SimpleLock(locked: false)
-    static final private Lock lockLock = new ReentrantLock()
-
-    boolean tryLock() {
-        lockLock.lock()
-        if (sharedLock.locked) {
-            lockLock.unlock()
-            return false
-        } else {
-            sharedLock.locked = true
-            lockLock.unlock()
-            return true
-        }
-    }
-
-    void unlock() {
-        lockLock.lock()
-        sharedLock.locked = false
-        lockLock.unlock()
-    }
+    static final private SharedLock lock = new SharedLock()
 
     /**
      * Checks if a cache rebuild task is active.
@@ -222,8 +200,8 @@ class TreeService implements TreeResource {
         if (!dbUser.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
-        if (tryLock()) {
-            unlock()
+        if (lock.tryLock()) {
+            lock.unlock()
             return false
         }
         true
@@ -247,16 +225,17 @@ class TreeService implements TreeResource {
         if (!dbUser.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
-        if (!tryLock()) {
+        if (!lock.tryLock()) {
             throw new ServiceNotAvailableException('Rebuild operation already in progress.')
         }
         log.info 'Clearing all caches ...'
         clearCache(currentUser)
-        log.debug "Starting task (lock: ${sharedLock.locked})"
+        log.debug "Starting task (lock: ${lock.locked})"
         task {
-            log.debug "Task started (lock: ${sharedLock.locked})"
-            def session = sessionFactory.openSession()
+            def session
             try {
+                log.debug "Task started (lock: ${lock.locked})"
+                session = sessionFactory.openSession()
                 def stopWatch = new StopWatch('Rebuild cache')
                 usersResource.getUsers().each {
                     DbUser user = (DbUser)it
@@ -272,10 +251,10 @@ class TreeService implements TreeResource {
                 log.error "Unexpected error while rebuilding cache: ${e.message}", e
                 throw e
             } finally {
-                log.debug "Closing task (lock: ${sharedLock.locked})"
+                log.debug "Closing task (lock: ${lock.locked})"
                 session?.close()
-                unlock()
-                log.debug "Task closed (lock: ${sharedLock.locked})"
+                lock.unlock()
+                log.debug "Task closed (lock: ${lock.locked})"
             }
         }
     }
