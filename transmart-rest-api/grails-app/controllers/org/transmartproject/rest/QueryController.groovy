@@ -153,7 +153,7 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.cachedCounts(constraint, user)
+        def counts = multiDimService.counts(constraint, user)
         render counts as JSON
     }
 
