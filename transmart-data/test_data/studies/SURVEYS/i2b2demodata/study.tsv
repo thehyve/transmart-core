@@ -1,7 +1,61 @@
--50		SURVEY1	PUBLIC	"{
-	""conceptToVariableName"": { ""gender"": ""gender1"", ""birthdate"": ""birthdate1"" },
-	""privateVariableNames"" : [""birthdate1""]
+-50		SURVEY1	PUBLIC	"{  
+   ""conceptCodeToVariableMetadata"": {  
+      ""gender"": {  
+         ""name"": ""gender1"",
+         ""description"": ""Gender"",
+         ""type"":""Numeric"",
+         ""width"":12,
+         ""columns"":14,
+         ""measure"":""Nominal"",
+         ""valueLabels"":{  
+            ""1"":""Female"",
+            ""2"":""Male"",
+            ""-2"":""Not Specified""
+         },
+         ""missingValues"":{  
+            ""values"":[  
+               ""-2""
+            ]
+         }
+      },
+      ""birthdate"": {  
+         ""name"": ""birthdate1"",
+         ""description"": ""Birth Date"",
+         ""type"":""Date"",
+         ""width"":22,
+         ""columns"":22,
+         ""measure"":""Scale""
+      },
+      ""favouritebook"": {  
+         ""name"": ""favouritebook"",
+         ""description"": ""Favourite Book"",
+         ""type"":""String"",
+         ""width"":400,
+         ""columns"":400,
+         ""measure"":""Nominal""
+      }
+   }
 }"
--51		SURVEY2	PUBLIC	"{
-	""conceptToVariableName"": { ""height"": ""height1"" }
+-51		SURVEY2	PUBLIC	"{  
+   ""conceptCodeToVariableMetadata"": {
+      ""height"": {
+          ""name"": ""height1"",
+          ""description"": ""Height"",
+          ""type"": ""Numeric"",
+          ""width"": 14,
+          ""decimals"": 2,
+          ""columns"": 15,
+          ""measure"": ""Scale"",,
+          ""valueLabels"": {""-1"":""Asked, but not answered""},
+          ""missingValues"": {""values"": [""-1""] }
+      },
+      ""description"": {
+          ""name"": ""description"",
+          ""description"": ""Description"",
+          ""type"": ""String"",
+          ""width"": 200,
+          ""columns"": 210,
+          ""measure"": ""Nominal""
+      }
+   }
 }"
