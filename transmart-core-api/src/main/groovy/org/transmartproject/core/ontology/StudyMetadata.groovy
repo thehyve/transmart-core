@@ -1,10 +1,12 @@
 package org.transmartproject.core.ontology
 
 import groovy.json.JsonSlurper
+import groovy.util.logging.Slf4j
 
 /**
  * Metadata about the study.
  */
+@Slf4j
 class StudyMetadata {
 
     private static final JsonSlurper JSON_SLURPER = new JsonSlurper()
@@ -15,7 +17,15 @@ class StudyMetadata {
         if (!jsonText?.trim()) {
             return null
         }
-        def json = JSON_SLURPER.parseText(jsonText)
+        def json = null
+        try {
+            json = JSON_SLURPER.parseText(jsonText)
+        } catch (Exception e) {
+            log.error("Failed parsing study blob ${jsonText}.", e)
+        }
+        if (json == null) {
+            return null
+        }
         new StudyMetadata(
                 conceptCodeToVariableMetadata: json.conceptCodeToVariableMetadata?.
                         collectEntries { String code, Object varMeta -> [code, toVariableMetadata(varMeta)] }

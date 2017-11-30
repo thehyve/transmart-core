@@ -35,6 +35,22 @@ class StudyMetadataTests {
     }
 
     @Test
+    void testNullJsonValue() {
+        def jsonText = 'null'
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        assertThat metadata, nullValue()
+    }
+
+    @Test
+    void testInvalidJsonValue() {
+        def jsonText = 'not a json at all'
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        assertThat metadata, nullValue()
+    }
+
+    @Test
     void testEmptyJson() {
         def jsonText = '{}'
 
