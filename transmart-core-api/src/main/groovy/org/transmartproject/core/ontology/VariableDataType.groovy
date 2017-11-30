@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery
+package org.transmartproject.core.ontology
 
 /**
  * A data type of column values.

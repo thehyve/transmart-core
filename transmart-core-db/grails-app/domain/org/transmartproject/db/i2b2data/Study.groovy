@@ -2,7 +2,6 @@
 
 package org.transmartproject.db.i2b2data
 
-import groovy.json.JsonSlurper
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.StudyMetadata
 import org.transmartproject.db.metadata.DimensionDescription
@@ -26,7 +25,6 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 class Study implements MDStudy {
 
     static final String PUBLIC = 'PUBLIC'
-    private static final JsonSlurper JSON_SLURPER = new JsonSlurper()
 
     /**
      * String label (optional)
@@ -81,21 +79,8 @@ class Study implements MDStudy {
         dd.dimension
     }
 
-    private studyBlobAsJson() {
-        if (studyBlob) {
-            JSON_SLURPER.parseText(studyBlob)
-        } else {
-            [:]
-        }
-    }
-
     @Override
     StudyMetadata getMetadata() {
-        def json = studyBlobAsJson()
-        if (json) {
-            return new StudyMetadata(
-                    conceptToVariableName: json.conceptToVariableName ?: [:]
-            )
-        }
+        StudyMetadata.fromJson(studyBlob)
     }
 }

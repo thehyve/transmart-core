@@ -5,6 +5,9 @@ import com.opencsv.CSVWriter
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.ontology.MissingValues
+import org.transmartproject.core.ontology.VariableDataType
+import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 

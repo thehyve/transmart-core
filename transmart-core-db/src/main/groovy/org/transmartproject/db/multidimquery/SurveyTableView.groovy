@@ -7,10 +7,11 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.ontology.VariableMetadata
 
-import static VariableDataType.*
-import static org.transmartproject.core.dataquery.Measure.NOMINAL
-import static org.transmartproject.core.dataquery.Measure.SCALE
+import static org.transmartproject.core.ontology.VariableDataType.*
+import static org.transmartproject.core.ontology.Measure.NOMINAL
+import static org.transmartproject.core.ontology.Measure.SCALE
 
 /**
  * Custom tabular view
@@ -114,7 +115,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             this.label = label
             this.originalColumn = originalColumn
             def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
-            metadata = concept.metadata ?: computeColumnMetadata(concept)
+            metadata = getStudyVariableMetadata(originalColumn) ?: computeColumnMetadata(concept)
             labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] } as Map<String, BigDecimal>
         }
 
@@ -168,15 +169,19 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
     }
 
     private static String getVariableName(HypercubeDataColumn originalColumn) {
-        def study = originalColumn.getDimensionElement(DimensionImpl.STUDY) as MDStudy
-        def concept =
-                originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
-
-        def studyMetadata = study.metadata
-        if (studyMetadata?.conceptToVariableName?.containsKey(concept.conceptCode)) {
-            return studyMetadata.conceptToVariableName[concept.conceptCode]
+        VariableMetadata varMeta = getStudyVariableMetadata(originalColumn)
+        if (varMeta?.name) {
+            return varMeta?.name
         } else {
-            concept.conceptCode
+            def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+            return concept.conceptCode
         }
+    }
+
+    private static VariableMetadata getStudyVariableMetadata(HypercubeDataColumn originalColumn) {
+        def study = originalColumn.getDimensionElement(DimensionImpl.STUDY) as MDStudy
+        def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+
+        study.metadata?.conceptCodeToVariableMetadata?.get(concept.conceptCode)
     }
 }

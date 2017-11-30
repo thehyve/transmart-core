@@ -1,38 +1,8 @@
-gender	\Demographics\Gender\	Gender	"{
-    ""type"": ""Numeric"",
-    ""width"": 12,
-    ""columns"": 14,
-    ""measure"": ""Nominal"",
-    ""valueLabels"": {""1"":""Female"", ""2"":""Male"", ""-2"": ""Not Specified""},
-    ""missingValues"": {""values"": [""-2""] }
-}"						A
-height	\Demographics\Height\	Height	"{
-    ""type"": ""Numeric"",
-    ""width"": 14,
-    ""decimals"": 2,
-    ""columns"": 15,
-    ""measure"": ""Scale"",,
-    ""valueLabels"": {""-1"":""Asked, but not answered""},
-    ""missingValues"": {""values"": [""-1""] }
-}"						
-birthdate	\Demographics\Birth Date\	Birth Date	"{
-    ""type"": ""Date"",
-    ""width"": 22,
-    ""columns"": 22,
-    ""measure"": ""Scale""
-}"						
-description	\General\Description\	Description	"{
-    ""type"": ""String"",
-    ""width"": 200,
-    ""columns"": 210,
-    ""measure"": ""Nominal""
-}"						
-favouritebook	\Interests\Favourite Book\	Favourite Book	"{
-    ""type"": ""String"",
-    ""width"": 400,
-    ""columns"": 400,
-    ""measure"": ""Nominal""
-}"						
-twin	\Pedigree\Is a Twin\	Is a Twin							
+gender	\Demographics\Gender\	Gender							A
+height	\Demographics\Height\	Height							
+birthdate	\Demographics\Birth Date\	Birth Date							
+description	\General\Description\	Description							
+favouritebook	\Interests\Favourite Book\	Favourite Book							
+twin	\Pedigree\Is a Twin\	Is a Twin							A
 nmultfam	\Pedigree\Numbers of multiples in family\	Numbers of multiples in family							
 nmultbab	\Pedigree\Number of children that are multiplet\	Number of children that are multiplet							
