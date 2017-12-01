@@ -92,7 +92,8 @@ class Observations {
             'idx_fact_patient_num': ['patient_num'],
             'idx_fact_trial_visit_num': ['trial_visit_num'],
             'idx_fact_concept': ['concept_cd'],
-            'idx_fact_cpe': ['concept_cd', 'patient_num', 'encounter_num']
+            'idx_fact_cpe': ['concept_cd', 'patient_num', 'encounter_num'],
+            'idx_fact_cptm': ['concept_cd', 'patient_num', 'trial_visit_num', 'modifier_cd']
     ]
 
     void restoreTableIndexes() {
