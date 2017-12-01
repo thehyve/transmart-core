@@ -60,6 +60,11 @@ CREATE INDEX idx_fact_concept ON observation_fact USING btree (concept_cd);
 CREATE INDEX idx_fact_cpe ON observation_fact USING btree (concept_cd, patient_num, encounter_num);
 
 --
+-- Name: idx_fact_cpe; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX idx_fact_cptm ON observation_fact USING btree (concept_cd, patient_num, trial_visit_num, modifier_cd);
+
+--
 -- Name: observation_fact_trial_visit_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
 --
 ALTER TABLE ONLY observation_fact
