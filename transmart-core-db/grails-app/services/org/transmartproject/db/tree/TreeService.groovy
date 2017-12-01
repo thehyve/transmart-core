@@ -11,6 +11,7 @@ import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.ServiceNotAvailableException
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
@@ -24,6 +25,7 @@ import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.core.users.User
+import org.transmartproject.db.util.SharedLock
 import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
@@ -54,7 +56,7 @@ class TreeService implements TreeResource {
     SessionFactory sessionFactory
 
     /**
-     * Adds observation counts and patient counts to leaf nodes.
+     * Adds observation counts and patient counts to leaf nodes and study nodes.
      */
     void enrichWithCounts(List<TreeNode> forest, User user) {
         if (!forest) {
@@ -64,13 +66,15 @@ class TreeService implements TreeResource {
             def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    def counts = multiDimensionalDataResource.cachedCounts(node.constraint, user)
+                    def counts = multiDimensionalDataResource.counts(node.constraint, user)
                     node.observationCount = counts.observationCount
                     node.patientCount = counts.patientCount
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
+                    def counts = multiDimensionalDataResource.counts(node.constraint, user)
+                    node.observationCount = counts.observationCount
+                    node.patientCount = counts.patientCount
                 }
                 enrichWithCounts(node.children, user)
             }
@@ -99,7 +103,7 @@ class TreeService implements TreeResource {
             Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user) as Collection<Study>
             studyTokens = studies*.secureObjectToken
         }
-        studyTokens
+        studyTokens.sort().unique()
     }
 
     private I2b2Secure fetchRootNode(DbUser user, String rootKey) {
@@ -185,30 +189,7 @@ class TreeService implements TreeResource {
         multiDimensionalDataResource.clearCountsPerConceptCache()
     }
 
-    static class SimpleLock {
-        boolean locked
-    }
-
-    static final private SimpleLock sharedLock = new SimpleLock(locked: false)
-    static final private Lock lockLock = new ReentrantLock()
-
-    boolean tryLock() {
-        lockLock.lock()
-        if (sharedLock.locked) {
-            lockLock.unlock()
-            return false
-        } else {
-            sharedLock.locked = true
-            lockLock.unlock()
-            return true
-        }
-    }
-
-    void unlock() {
-        lockLock.lock()
-        sharedLock.locked = false
-        lockLock.unlock()
-    }
+    static final private SharedLock lock = new SharedLock()
 
     /**
      * Checks if a cache rebuild task is active.
@@ -222,16 +203,15 @@ class TreeService implements TreeResource {
         if (!dbUser.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
-        if (tryLock()) {
-            unlock()
+        if (lock.tryLock()) {
+            lock.unlock()
             return false
         }
         true
     }
 
     /**
-     * Clears the tree node cache and the counts caches, and
-     * rebuild the tree node cache for every user.
+     * Rebuild the tree nodes and counts caches for every user.
      *
      * This function should be called after loading, removing or updating
      * tree nodes or observations in the database.
@@ -247,37 +227,41 @@ class TreeService implements TreeResource {
         if (!dbUser.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
-        if (!tryLock()) {
+        if (!lock.tryLock()) {
             throw new ServiceNotAvailableException('Rebuild operation already in progress.')
         }
-        log.debug "Starting task (lock: ${sharedLock.locked})"
+        log.debug "Starting task (lock: ${lock.locked})"
         task {
-            log.debug "Task started (lock: ${sharedLock.locked})"
-            def session = sessionFactory.openSession()
+            def session = null
             try {
+                log.debug "Task started (lock: ${lock.locked})"
+                session = sessionFactory.openSession()
                 def stopWatch = new StopWatch('Rebuild cache')
-                log.info 'Clearing all caches ...'
-                stopWatch.start('Clearing the caches')
-                clearCache(currentUser)
-                stopWatch.stop()
                 usersResource.getUsers().each {
                     DbUser user = (DbUser)it
                     log.info "Rebuilding the cache for user ${user.username} ..."
-                    stopWatch.start("Rebuild the cache for ${user.username}")
-                    treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), I2b2Secure.ROOT, 0)
-                    //triggers caching counts per concepts for the given user
-                    multiDimensionalDataResource.countsPerStudyAndConcept(new TrueConstraint(), user)
+                    stopWatch.start("Rebuild the tree nodes cache for ${user.username}")
+                    def studyTokens = getStudyTokens(user)
+                    treeCacheService.updateSubtreeCache(user.admin, studyTokens, I2b2Secure.ROOT, 0)
+                    stopWatch.stop()
+                    stopWatch.start("Rebuild the counts cache for ${user.username}")
+                    // Update observations, patients counts
+                    multiDimensionalDataResource.rebuildCountsCacheForUser(user)
                     stopWatch.stop()
                 }
+                stopWatch.start('Rebuild the counts per study and concept cache')
+                // Rebuild cache of counts per study and concept for the given user
+                multiDimensionalDataResource.rebuildCountsPerStudyAndConceptCache()
+                stopWatch.stop()
                 log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
             } catch (Exception e) {
                 log.error "Unexpected error while rebuilding cache: ${e.message}", e
                 throw e
             } finally {
-                log.debug "Closing task (lock: ${sharedLock.locked})"
+                log.debug "Closing task (lock: ${lock.locked})"
                 session?.close()
-                unlock()
-                log.debug "Task closed (lock: ${sharedLock.locked})"
+                lock.unlock()
+                log.debug "Task closed (lock: ${lock.locked})"
             }
         }
     }
