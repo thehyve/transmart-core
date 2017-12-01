@@ -206,7 +206,7 @@ class Observations {
                         if (header.size() != data.length) {
                             throw new IllegalStateException("Data row length (${data.length}) does not match number of columns (${header.size()}).")
                         }
-                        def row = Database.getValueMap(header, data)
+                        def row = Util.asMap(header, data)
                         transformRow(row, baseInstanceNum)
                         progressBar.stepBy(1)
                         if (config.write) {
