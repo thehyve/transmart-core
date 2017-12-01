@@ -130,46 +130,6 @@ class Database {
         result
     }
 
-    static Map<String, Object> getValueMap(final LinkedHashMap<String, Class> columns, final String[] row) {
-        assert columns.size() == row.length
-        def result = [:] as Map<String, Object>
-        int i = 0
-        for(Map.Entry<String, Class> column: columns) {
-            String columnName = column.key
-            Class columnType = column.value
-            if (row[i] == null || (row[i].empty && columnType != String.class)) {
-                result[columnName] = null
-            } else {
-                def value
-                switch(columnType) {
-                    case String.class:
-                        value = row[i]
-                        break
-                    case Instant.class:
-                        value = Util.parseDate(row[i])
-                        break
-                    case Double.class:
-                        value = Double.parseDouble(row[i])
-                        break
-                    case Integer.class:
-                        value = Integer.parseInt(row[i])
-                        break
-                    case Long.class:
-                        value = Long.parseLong(row[i])
-                        break
-                    case Boolean.class:
-                        value = Util.parseBoolean(row[i])
-                        break
-                    default:
-                        throw new IllegalArgumentException("Unexpected type ${columnType}")
-                }
-                result[columnName] = value
-            }
-            i++
-        }
-        result
-    }
-
     final Map<Table, SimpleJdbcInsert> idGeneratingInserters = [:]
 
     SimpleJdbcInsert getIdGeneratingInserter(Table table, LinkedHashMap<String, Class> columns, String idColumn) {

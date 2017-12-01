@@ -196,7 +196,7 @@ class Relations {
                         if (header.size() != data.length) {
                             throw new IllegalStateException("Data row length (${data.length}) does not match number of columns (${header.size()}).")
                         }
-                        def row = Database.getValueMap(header, data)
+                        def row = Util.asMap(header, data)
                         transformRow(row)
                         progressBar.stepBy(1)
                         batch.add(row)

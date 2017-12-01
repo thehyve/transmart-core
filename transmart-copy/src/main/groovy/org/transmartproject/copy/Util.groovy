@@ -99,6 +99,9 @@ class Util {
         def result = [:] as Map<String, Object>
         columns.eachWithIndex{ String columnName, Class columnType, int i ->
             switch(columnType) {
+                case String.class:
+                    result[columnName] = parseIfNotEmpty(data[i], { it })
+                    break
                 case Integer.class:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> Integer.parseInt(value) })
                     break
@@ -111,8 +114,11 @@ class Util {
                 case Instant.class:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> parseDate(value) })
                     break
+                case Boolean.class:
+                    result[columnName] = parseIfNotEmpty(data[i], { String value -> parseBoolean(value) })
+                    break
                 default:
-                    result[columnName] = parseIfNotEmpty(data[i], { it })
+                    throw new IllegalArgumentException("Unexpected type ${columnType}")
             }
         }
         result
