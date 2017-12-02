@@ -10,7 +10,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.postgresql.copy.CopyManager
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
@@ -22,8 +21,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition
 
 import java.sql.Connection
 import java.time.Instant
-
-import static java.lang.System.getenv
 
 @Slf4j
 @CompileStatic
@@ -68,25 +65,19 @@ class Database {
     final Connection connection
     final JdbcTemplate jdbcTemplate
     final NamedParameterJdbcTemplate namedParameterJdbcTemplate
-    final CopyManager copyManager
 
-    Database(boolean connectAsAdmin) {
-        String host = getenv('PGHOST')
+    Database(Map<String, String> params) {
+        String host = params['PGHOST']
         if (!host || host == '/tmp') {
             host = 'localhost'
         }
-        String port = getenv('PGPORT') ?: '5432'
-        String database = getenv('PGDATABASE') ?: 'transmart'
+        String port = params['PGPORT'] ?: '5432'
+        String database = params['PGDATABASE'] ?: 'transmart'
         String url = "jdbc:postgresql://${host}:${port}/${database}"
         String username
         String password
-        if (connectAsAdmin) {
-            username = getenv('PGUSER') ?: 'admin'
-            password = getenv('PGPASSWORD') ?: 'admin'
-        } else {
-            username = 'tm_cz'
-            password = getenv('TM_CZ_PWD') ?: 'tm_cz'
-        }
+        username = params['PGUSER'] ?: 'tm_cz'
+        password = params['PGPASSWORD'] ?: 'tm_cz'
 
         config.jdbcUrl = url
         config.username = username
@@ -101,7 +92,7 @@ class Database {
         this.connection = DataSourceUtils.getConnection(dataSource)
         this.jdbcTemplate = new JdbcTemplate(dataSource)
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource)
-        log.info "Connected to database ${url}${connectAsAdmin ? ' as admin' : ''}."
+        log.info "Connected to database ${url} as ${username} user."
     }
 
     TransactionStatus beginTransaction() {

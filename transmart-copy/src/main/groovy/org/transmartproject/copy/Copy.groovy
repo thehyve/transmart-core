@@ -24,6 +24,8 @@ import org.transmartproject.copy.table.Studies
 import org.transmartproject.copy.table.Tags
 import org.transmartproject.copy.table.TreeNodes
 
+import static java.lang.System.getenv
+
 /**
  * Command-line utility to copy tab delimited files to the TranSMART database.
  *
@@ -45,7 +47,6 @@ class Copy {
     static Options options = new Options()
     static {
         options.addOption('h', 'help', false, 'Help.')
-        options.addOption('a', 'admin', false, 'Connect to the database as admin.')
         options.addOption('D', 'delete', true, 'Delete study by id.')
         options.addOption('r', 'restore-indexes', false, 'Restore indexes.')
         options.addOption('v', 'vacuum-analyze', false, 'Run vacuum analyze on the database.')
@@ -71,8 +72,8 @@ class Copy {
     Patients patients
     Studies studies
 
-    void init(boolean connectAsAdmin) {
-        database = new Database(connectAsAdmin)
+    void init(Map<String, String> params = [:]) {
+        database = new Database(params.withDefault { String key -> getenv(key) })
     }
 
     void restoreIndexes() {
@@ -156,7 +157,6 @@ class Copy {
                 return
             }
             def copy = new Copy()
-            copy.init(cl.hasOption('admin'))
             if (cl.hasOption('delete')) {
                 def studyId = cl.getOptionValue('delete')
                 try {
