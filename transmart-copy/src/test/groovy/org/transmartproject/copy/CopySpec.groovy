@@ -9,6 +9,9 @@ import org.transmartproject.copy.table.Studies
 import org.transmartproject.copy.table.TreeNodes
 import spock.lang.Specification
 
+import java.sql.DatabaseMetaData
+import java.sql.ResultSet
+
 class CopySpec extends Specification {
 
     static String TEST_STUDY = 'SURVEY0'
@@ -22,8 +25,6 @@ class CopySpec extends Specification {
     ]
 
     static defaultConfig = new Copy.Config(
-            dropIndexes: false,
-            unlogged: false,
             write: false
     )
 
@@ -130,6 +131,39 @@ class CopySpec extends Specification {
         def observationsTableExists = copy.database.tableExists(Observations.table)
         then: 'The result is true'
         observationsTableExists
+    }
+
+    def 'test index management'() {
+        def copy = new Copy()
+        copy.init(true)
+        assert !copy.database.connection.closed
+        def metaData = copy.database.connection.getMetaData()
+        def count = { ResultSet rs ->
+            Set<String> indxNames = [] as Set
+            while (rs.next()) {
+                indxNames << rs.getString('INDEX_NAME')
+            }
+            indxNames
+        }
+        def indexesOnFactTable = { -> count(metaData
+                .getIndexInfo(null, 'i2b2demodata', 'observation_fact', false, false))}
+
+        when: 'dropping and restore indexes'
+        copy.dropIndexes()
+        def afterDropIndexes = indexesOnFactTable()
+        copy.restoreIndexes()
+
+        then:
+        afterDropIndexes == ['observation_fact_pkey'] as Set
+        indexesOnFactTable() == [
+                'observation_fact_pkey',
+                'fact_modifier_patient',
+                'idx_fact_patient_num',
+                'idx_fact_trial_visit_num',
+                'idx_fact_concept',
+                'idx_fact_cpe',
+                'idx_fact_cptm'
+        ] as Set
     }
 
     Map<Table, Number> count(Database database, Iterable<Table> tables) {

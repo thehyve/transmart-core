@@ -96,38 +96,29 @@ class Observations {
             'idx_fact_cptm': ['concept_cd', 'patient_num', 'trial_visit_num', 'modifier_cd']
     ]
 
-    void restoreTableIndexes() {
-        if (config.unlogged) {
-            try {
-                log.info "Set 'logged' on ${table} ..."
-                database.jdbcTemplate.execute("alter table ${table} set logged")
-            } catch (Exception e) {
-                log.warn "Could not set 'logged' on database table: ${e.message}"
-            }
-        }
-        if (config.dropIndexes) {
-            log.info "Restore indexes on ${table} ..."
-            tableIndexes.each { name, columns ->
-                database.jdbcTemplate.execute("create index if not exists ${name} on ${table} using btree (${columns.join(', ')})")
-            }
-        }
+    void setLoggedMode(boolean logged) {
+        def tx = database.beginTransaction()
+        log.info "Set 'logged' on ${table} to ${logged}"
+        database.jdbcTemplate.execute("alter table ${table} set ${logged ? 'logged' : 'unlogged'}")
+        database.commit(tx)
     }
 
-    void dropTableIndexes() {
-        if (config.unlogged) {
-            try {
-                log.info "Set 'unlogged' on ${table} ..."
-                database.jdbcTemplate.execute("alter table ${table} set unlogged")
-            } catch (Exception e) {
-                log.warn "Could not set 'unlogged' on database table: ${e.message}"
-            }
+    void restoreTableIndexesIfNotExist() {
+        def tx = database.beginTransaction()
+        log.info "Restore indexes on ${table} ..."
+        tableIndexes.each { name, columns ->
+            database.jdbcTemplate.execute("create index if not exists ${name} on ${table} using btree (${columns.join(', ')})")
         }
-        if (config.dropIndexes) {
-            log.info "Temporarily drop indexes on ${table} ..."
-            tableIndexes.keySet().each { name ->
-                database.jdbcTemplate.execute("drop index if exists i2b2demodata.${name}")
-            }
+        database.commit(tx)
+    }
+
+    void dropTableIndexesIfExist() {
+        def tx = database.beginTransaction()
+        log.info "Drop indexes on ${table} ..."
+        tableIndexes.keySet().each { name ->
+            database.jdbcTemplate.execute("drop index if exists i2b2demodata.${name}")
         }
+        database.commit(tx)
     }
 
     void prepareTemporaryTable() {
@@ -163,8 +154,6 @@ class Observations {
             }
         }
         log.info "${NumberFormat.getInstance().format(rowCount > 0 ? rowCount - 1 : 0)} rows in ${table.fileName}."
-
-        dropTableIndexes()
 
         Writer writer
         CSVWriter tsvWriter
@@ -226,7 +215,6 @@ class Observations {
                     } catch (Exception e) {
                         progressBar.stop()
                         log.error "Error processing row ${i} of ${table.fileName}: ${e.message}"
-                        restoreTableIndexes()
                         throw e
                     }
                     data = tsvReader.readNext()
@@ -238,7 +226,6 @@ class Observations {
                 }
                 progressBar.stop()
                 log.info "${batchCount} batches of ${config.batchSize} inserted."
-                restoreTableIndexes()
                 return
             }
         }
@@ -252,7 +239,6 @@ class Observations {
 
             database.jdbcTemplate.execute("drop table ${temporaryTable}")
         }
-
         database.commit(tx)
         if (config.write) {
             tsvWriter.close()
