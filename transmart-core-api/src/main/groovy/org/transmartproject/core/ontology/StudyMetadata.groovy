@@ -15,21 +15,30 @@ class StudyMetadata {
 
     static StudyMetadata fromJson(String jsonText) {
         if (!jsonText?.trim()) {
+            log.debug("Returns null metadata as the input is '${jsonText}'")
             return null
         }
-        def json = null
         try {
-            json = JSON_SLURPER.parseText(jsonText)
+            def json = JSON_SLURPER.parseText(jsonText)
+            if (json != null) {
+                Map<String, VariableMetadata> conceptCodeToVariableMetadata = json.conceptCodeToVariableMetadata?.
+                        collectEntries { String code, Object varMeta ->
+                            try {
+                                return [(code): toVariableMetadata(varMeta)]
+                            } catch (Exception e) {
+                                log.error("Can't parse the folowing variable metadata json for concept with code ${code}: ${varMeta}", e)
+                            }
+                            return [:]
+                        }
+
+                return new StudyMetadata(
+                        conceptCodeToVariableMetadata: conceptCodeToVariableMetadata
+                )
+            }
         } catch (Exception e) {
-            log.error("Failed parsing study blob ${jsonText}.", e)
+            log.error("Failed parsing the folowing study metadata json: ${jsonText}", e)
         }
-        if (json == null) {
-            return null
-        }
-        new StudyMetadata(
-                conceptCodeToVariableMetadata: json.conceptCodeToVariableMetadata?.
-                        collectEntries { String code, Object varMeta -> [code, toVariableMetadata(varMeta)] }
-        )
+        return null
     }
 
     private static VariableMetadata toVariableMetadata(Object json) {

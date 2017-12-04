@@ -61,6 +61,30 @@ class StudyMetadataTests {
     }
 
     @Test
+    void testInvalidVarMeta() {
+        def jsonText = """
+            {
+                "conceptCodeToVariableMetadata": {
+                    "test1": {  
+                       "name": "test1",
+                    },
+                    "failed": [1, 2, 3],
+                    "test2": {  
+                       "name": "test2",
+                    }
+                }
+            }
+        """
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+
+        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', allOf(
+                hasEntry(equalTo('test1'), hasProperty('name', equalTo('test1'))),
+                hasEntry(equalTo('test2'), hasProperty('name', equalTo('test2'))),
+        ))
+    }
+
+    @Test
     void testAllFieldsParsing() {
         def jsonText = """
             {
