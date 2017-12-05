@@ -65,6 +65,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         studies
     }
 
+    Collection<TrialVisit> getTrialVisits() {
+        getStudies().collect { it.trialVisits }.flatten()
+    }
+
     HibernateCriteriaQueryBuilder subQueryBuilder() {
         new HibernateCriteriaQueryBuilder(
                 aliasSuffixes: aliasSuffixes,
@@ -522,19 +526,17 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         if (constraint.studyId == null){
             throw new QueryBuilderException("Study constraint shouldn't have a null value for studyId")
         }
-        def trialVisitAlias = getAlias('trialVisit')
-        DetachedCriteria subCriteria = DetachedCriteria.forClass(Study, 'study')
-        subCriteria.add(Restrictions.eq('study.studyId', constraint.studyId))
-                .setProjection(Projections.id())
-        return Subqueries.propertyIn("${trialVisitAlias}.study", subCriteria)
+
+        def trialVisits = TrialVisit.findByStudy(Study.findByStudyId(constraint.studyId))
+        return Restrictions.in('trialVisit', trialVisits)
     }
 
     Criterion build(StudyObjectConstraint constraint){
         if (constraint.study == null){
             throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
         }
-        def trialVisitAlias = getAlias('trialVisit')
-        return Restrictions.eq("${trialVisitAlias}.study", constraint.study)
+
+        build(new StudyNameConstraint(studyId: constraint.study.id))
     }
 
 
@@ -621,9 +623,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     DetachedCriteria buildCriteria(Constraint constraint=null, Criterion modifierCriterion=defaultModifierCriterion) {
         aliases = [:]
         def result = builder()
-        def trialVisitAlias = getAlias('trialVisit')
         List restrictions = [constraint ? build(constraint) : null,
-                            Restrictions.in("${trialVisitAlias}.study", getStudies()),
+                            Restrictions.in('trialVisit', getTrialVisits()),
                             modifierCriterion
         ].findAll()
         def criterion = Restrictions.and(*restrictions)
@@ -635,29 +636,6 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         result.add(criterion)
         result
     }
-
-//    /**
-//     * Builds a DetachedCriteria object representing the query for observation facts without additional constraints
-//     *
-//     * @param constraint
-//     * @return
-//     */
-//    DetachedCriteria buildCriteria(Criterion modifierCriterion) {
-//        aliases = [:]
-//        def result = builder()
-//        def trialVisitAlias = getAlias('trialVisit')
-//        def criterion = Restrictions.and(
-//                Restrictions.in("${trialVisitAlias}.study", getStudies()),
-//                modifierCriterion
-//        )
-//        aliases.each { property, alias ->
-//            if (property != 'observation_fact') {
-//                result.createAlias(property, alias)
-//            }
-//        }
-//        result.add(criterion)
-//        result
-//    }
 
     /**
      * Builds a DetachedCriteria object representing the query for elements of specified dimension
@@ -695,10 +673,9 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             aliases[sub.path] = sub.alias
         }
         def alreadyAddedAliases = aliases.keySet() + ['observation_fact']
-        def trialVisitAlias = getAlias('trialVisit')
         Criterion criterion = Restrictions.and(
                 build(new Combination(operator: Operator.AND, args: constraint)),
-                Restrictions.in("${trialVisitAlias}.study", getStudies())
+                Restrictions.in('trialVisit', getTrialVisits())
         )
         this.aliases.each { property, alias ->
             if(!(property in alreadyAddedAliases)) {
