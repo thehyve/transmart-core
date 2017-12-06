@@ -2,19 +2,16 @@
 
 package org.transmartproject.db.multidimquery.query
 
-interface QueryBuilder<ConstraintResult, QueryResult> {
+import org.transmartproject.core.multidimquery.MultiDimConstraint
+
+interface QueryBuilder<QueryResult> {
 
     /**
-     * Builds a queryable object for the {@link Constraint} object.
+     * Builds a queryable object for the {@link MultiDimConstraint} object.
      *
      * @param constraint
      * @return the result.
      */
-    ConstraintResult build(Constraint constraint)
-
-    QueryResult buildCriteria(Constraint constraint)
-
-    void build(Object obj)
+    QueryResult buildCriteria(MultiDimConstraint constraint)
 
 }
-
