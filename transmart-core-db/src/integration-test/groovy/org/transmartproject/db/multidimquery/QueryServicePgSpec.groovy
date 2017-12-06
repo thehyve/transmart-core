@@ -109,7 +109,7 @@ class QueryServicePgSpec extends Specification {
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def trialVisitConstraint = new FieldConstraint(
                 field: new Field(
-                        dimension: TRIAL_VISIT,
+                        dimension: TRIAL_VISIT.name,
                         fieldName: 'relTimeLabel',
                         type: 'STRING'
                 ),
@@ -119,7 +119,7 @@ class QueryServicePgSpec extends Specification {
 
         when:
         trialVisitConstraint.value = 'Baseline'
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
+        combination = new Combination(Operator.AND, [conceptConstraint, trialVisitConstraint])
         Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -130,7 +130,7 @@ class QueryServicePgSpec extends Specification {
 
         when:
         trialVisitConstraint.value = 'Week 1'
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
+        combination = new Combination(Operator.AND, [conceptConstraint, trialVisitConstraint])
         hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -151,7 +151,7 @@ class QueryServicePgSpec extends Specification {
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def startDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: START_TIME,
+                        dimension: START_TIME.name,
                         fieldName: 'startDate',
                         type: 'DATE'
                 ),
@@ -161,7 +161,7 @@ class QueryServicePgSpec extends Specification {
 
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: END_TIME,
+                        dimension: END_TIME.name,
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
@@ -172,7 +172,7 @@ class QueryServicePgSpec extends Specification {
         def combination
         Hypercube hypercube
         when:
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, startDateTimeConstraint])
+        combination = new Combination(Operator.AND, [conceptConstraint, startDateTimeConstraint])
         hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -210,7 +210,7 @@ class QueryServicePgSpec extends Specification {
                 operator: Operator.AFTER,
                 value: minDate,
                 field: new Field(
-                        dimension: VISIT,
+                        dimension: VISIT.name,
                         fieldName: 'startDate',
                         type: 'DATE'
                 )
@@ -236,7 +236,6 @@ class QueryServicePgSpec extends Specification {
         if (hypercube) hypercube.close()
     }
 
-
     void 'HD data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
@@ -244,7 +243,7 @@ class QueryServicePgSpec extends Specification {
                 operator: Operator.AFTER,
                 value: sdf.parse('2016-05-05 10:00:00'),
                 field: new Field(
-                        dimension: VISIT,
+                        dimension: VISIT.name,
                         fieldName: 'endDate',
                         type: 'DATE'
                 )
@@ -254,8 +253,8 @@ class QueryServicePgSpec extends Specification {
                 path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\'
         )
         def combination = new Combination(
-                args: [timeDimensionConstraint, conceptConstraint],
-                operator: Operator.AND
+                Operator.AND,
+                [timeDimensionConstraint, conceptConstraint]
         )
         when:
         Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
@@ -267,7 +266,6 @@ class QueryServicePgSpec extends Specification {
         cleanup:
         if (hypercube) hypercube.close()
     }
-
 
     void 'HD data selected based on sample type (modifier)'() {
         def user = User.findByUsername('test-public-user-1')
@@ -286,8 +284,8 @@ class QueryServicePgSpec extends Specification {
         )
 
         def combination = new Combination(
-                operator: Operator.AND,
-                args: [modifierConstraint, conceptConstraint]
+                Operator.AND,
+                [modifierConstraint, conceptConstraint]
         )
         when:
         Hypercube hypercube = multiDimService.retrieveClinicalData(combination, user)
@@ -306,7 +304,7 @@ class QueryServicePgSpec extends Specification {
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: END_TIME,
+                        dimension: END_TIME.name,
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
@@ -314,7 +312,7 @@ class QueryServicePgSpec extends Specification {
                 operator: Operator.AFTER //only exist one before, none after
         )
         when:
-        Combination combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
+        Combination combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeConstraint])
         Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
 
 
@@ -348,8 +346,8 @@ class QueryServicePgSpec extends Specification {
         }
         Constraint assayConstraint = new PatientSetConstraint(patientIds: secondSubject*.id)
         Constraint combinationConstraint = new Combination(
-                operator: Operator.AND,
-                args: [
+                Operator.AND,
+                [
                         conceptConstraint,
                         assayConstraint
                 ]
@@ -408,8 +406,8 @@ class QueryServicePgSpec extends Specification {
         def user = User.findByUsername('test-public-user-1')
 
         Constraint constraint = new SubSelectionConstraint(
-                dimension: VISIT,
-                constraint: new AndConstraint(args: [
+                dimension: VISIT.name,
+                constraint: new AndConstraint([
                         new ValueConstraint(
                                 valueType: "NUMERIC",
                                 operator: Operator.EQUALS,
@@ -509,7 +507,7 @@ class QueryServicePgSpec extends Specification {
     void "test searching for large text values (raw data type)"() {
         def user = User.findByUsername('test-public-user-1')
 
-        Constraint constraint = new AndConstraint(args: [
+        Constraint constraint = new AndConstraint([
                 new ConceptConstraint(conceptCode: 'favouritebook'),
                 new ValueConstraint(Type.TEXT, Operator.CONTAINS, 'Karamazov')
         ])
@@ -689,17 +687,16 @@ class QueryServicePgSpec extends Specification {
         includingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 4
     }
 
-
     void "test time values constraint"() {
         def user = User.findByUsername('test-public-user-1')
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
 
         Constraint constraint = new AndConstraint(
-                args: [
+                [
                         new ConceptConstraint(path: '\\Demographics\\Birth Date\\'),
                         new TimeConstraint(
                             field: new Field(
-                                    dimension: VALUE,
+                                    dimension: VALUE.name,
                                     fieldName: 'numberValue',
                                     type: 'DATE'
                             ),

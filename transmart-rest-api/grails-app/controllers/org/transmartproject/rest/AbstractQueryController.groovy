@@ -38,12 +38,14 @@ abstract class AbstractQueryController implements Controller {
         if (constraintParam instanceof String) {
             try {
                 def constraintData = JSON.parse(constraintParam) as Map
-                return ConstraintFactory.create(constraintData)
+                def constraint =  ConstraintFactory.create(constraintData)
+                return constraint?.normalise()
             } catch (ConverterException c) {
                 throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
             }
         } else {
-            return ConstraintFactory.create(constraintParam)
+            def constraint =  ConstraintFactory.create(constraintParam)
+            return constraint?.normalise()
         }
     }
 

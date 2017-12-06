@@ -30,6 +30,7 @@ class DimensionMetadata {
 
     static final Mapping observationFactMapping = GrailsDomainBinder.getMapping(ObservationFact)
 
+    @Memoized
     static final DimensionMetadata forDimensionName(String dimensionName) {
         def dim = DimensionImpl.fromName(dimensionName)
         if (dim == null) throw new QueryBuilderException("Dimension not found: ${dimensionName}")
@@ -88,7 +89,7 @@ class DimensionMetadata {
         } else if (String.class.isAssignableFrom(field.type)) {
             type = Type.STRING
         }
-        new Field(dimension: this.dimension, type: type, fieldName: field.name)
+        new Field(dimension: this.dimension.name, type: type, fieldName: field.name)
     }
 
     DimensionMetadata(Dimension dim) {
