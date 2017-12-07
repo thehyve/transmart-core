@@ -1,0 +1,11 @@
+SUBJ_ID	NanoString||Sample Annotation
+Universal RNA Control	NanoString Universal RNA Control
+005-0002	Patient
+004-0004	Patient
+001-0007	Patient
+003-0001	Patient
+018-0301	Patient
+016-0002	Patient
+003-0002	Patient
+Stimulated	NanoString Stimulated Control
+Unstimulated	NanoString Unstimulated Control

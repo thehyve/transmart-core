@@ -61,7 +61,7 @@ abstract class AbstractTypicalHdDataJobConfig {
     @Resource
     Step validatePatientIntersection
     @Resource
-    Step insertPseudoFacts
+    Step insertHighDimFacts
 
     @Resource
     Step deleteObservationFacts
@@ -114,9 +114,9 @@ abstract class AbstractTypicalHdDataJobConfig {
                 //.next(deleteObservationFacts)
 
                 .next(insertConcepts)
-                .next(insertPseudoFacts)
                 .next(insertConceptCounts)
                 .next(insertAssays)
+                .next(insertHighDimFacts)
                 .next(partitionDataTable)
                 .next(secondPass)
                 .build()

@@ -26,16 +26,25 @@ class ClinicalFactsRowSet {
     Date endDate
     Integer instanceNum
     TrialVisit trialVisit
+    String markerType
+
+    boolean highDimModifierFlag
 
     Date importDate = new Date()
 
     final List<ClinicalFact> clinicalFacts = []
 
-    void addValue(ConceptNode concept, XtrialNode xtrialNode, String value) {
-        clinicalFacts << new ClinicalFact(
+    void addValue(ConceptNode concept, XtrialNode xtrialNode, String value, String modifierCode = null,
+                  boolean isHighDimModifier = false) {
+        highDimModifierFlag = isHighDimModifier
+        ClinicalFact fact = new ClinicalFact(
                 concept: concept,
                 xtrialNode: xtrialNode,
                 value: value,)
+        if (modifierCode) {
+            fact.modifierCode = modifierCode
+        }
+        clinicalFacts << fact
         if (concept.ontologyNode) {
             // Add entry with modifier to indicate the original variable name
             // used for an observation.
@@ -53,6 +62,9 @@ class ClinicalFactsRowSet {
         XtrialNode xtrialNode
 
         ConceptType getType() {
+            if(highDimModifierFlag && modifierCode){
+                return ConceptType.NUMERICAL
+            }
             modifierCode ? ConceptType.CATEGORICAL : concept.type
         }
 
