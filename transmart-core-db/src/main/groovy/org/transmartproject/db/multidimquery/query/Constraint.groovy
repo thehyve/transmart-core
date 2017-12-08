@@ -226,7 +226,7 @@ abstract class Constraint implements Validateable, MultiDimConstraint {
      * @return the normalised constraint.
      */
     Constraint normalise() {
-        this
+        new NormaliseConstraintRewriter().build(this)
     }
 
 }
@@ -369,32 +369,32 @@ class ConceptConstraint extends Constraint {
     static String constraintName = "concept"
 
     String conceptCode
+    List<String> conceptCodes
     String path
 
-    @Override
-    Constraint normalise() {
-        if (conceptCode) {
-            new ConceptConstraint(conceptCode: conceptCode)
-        } else {
-            new ConceptConstraint(path: path)
-        }
-    }
-
     static constraints = {
-        path nullable: true, blank: false
         conceptCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
-            if (!val && !obj.path) {
+            if (!val && !obj.conceptCodes && !obj.path) {
                 errors.rejectValue(
                         'conceptCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode. Got none.")
-            } else if (val && obj.path) {
+                        "Concept constraint requires path or conceptCode(s). Got none.")
+            } else if (val && obj.path || val && obj.conceptCodes) {
                 errors.rejectValue(
                         'conceptCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode. Got both.")
+                        "Concept constraint requires path or conceptCode(s). Got multiple.")
             }
         }
+        conceptCodes nullable: true, minSize: 1, validator: {val, obj, Errors errors ->
+            if (val && obj.path) {
+                errors.rejectValue(
+                        'conceptCodes',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Concept constraint requires path or conceptCode(s). Got multiple.")
+            }
+        }
+        path nullable: true, blank: false
     }
 }
 
@@ -561,19 +561,10 @@ class PatientSetConstraint extends Constraint {
 class Negation extends Constraint {
     static String constraintName = "negation"
 
-    final Operator operator = Operator.NOT
+    Operator getOperator() { Operator.NOT }
 
     @BindUsing({ obj, source -> ConstraintFactory.create(source['arg']) })
     Constraint arg
-
-    @Override
-    Constraint normalise() {
-        if (arg != null && arg instanceof Negation) {
-            arg.arg?.normalise()
-        } else {
-            new Negation(arg: arg?.normalise())
-        }
-    }
 
     static constraints = {
         arg validator: { it?.validate() }
@@ -604,35 +595,6 @@ class Combination extends Constraint {
 
     Operator getOperator() {
         operator
-    }
-
-    @Override
-    Constraint normalise() {
-        List<Constraint> normalisedArgs = []
-        args*.normalise().each {
-            if (it instanceof Combination && it.getOperator() == this.getOperator()) {
-                normalisedArgs.addAll(it.args)
-            } else if (this.getOperator() == Operator.AND && it instanceof TrueConstraint) {
-                // skip
-            } else if (this.getOperator() == Operator.OR && it instanceof TrueConstraint) {
-                // disjunction with true constraint as argument is equal to the true constraint
-                return new TrueConstraint()
-            } else {
-                normalisedArgs.add(it)
-            }
-        }
-        if (normalisedArgs.size() == 1) {
-            // if the combination has a single argument, that argument is returned instead.
-            return normalisedArgs[0]
-        }
-        switch (this.getOperator()) {
-            case Operator.AND:
-                return new AndConstraint(normalisedArgs)
-            case Operator.OR:
-                return new OrConstraint(normalisedArgs)
-            default:
-                return new Combination(this.getOperator(), normalisedArgs)
-        }
     }
 
     static constraints = {
@@ -695,13 +657,9 @@ class TemporalConstraint extends Constraint {
 
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
+
     @BindUsing({ obj, source -> ConstraintFactory.create(source['eventConstraint']) })
     Constraint eventConstraint
-
-    @Override
-    Constraint normalise() {
-        new TemporalConstraint(operator: this.operator, eventConstraint: this.eventConstraint?.normalise())
-    }
 
     static constraints = {
         operator validator: { Operator op -> op.supportsType(Type.EVENT) }
@@ -719,11 +677,6 @@ class SubSelectionConstraint extends Constraint {
         ConstraintFactory.create(source['constraint'])
     })
     Constraint constraint
-
-    @Override
-    Constraint normalise() {
-        new SubSelectionConstraint(dimension: this.dimension, constraint: this.constraint?.normalise())
-    }
 
     static constraints = {
         dimension   nullable: false
@@ -749,25 +702,16 @@ class MultipleSubSelectionsConstraint extends Constraint {
 class RelationConstraint extends Constraint {
     static String constraintName = 'relation'
 
+    String relationTypeLabel
+
     @BindUsing({ obj, source ->
         ConstraintFactory.create(source['relatedSubjectsConstraint'])
     })
     Constraint relatedSubjectsConstraint
 
-    String relationTypeLabel
-
     Boolean biological
 
     Boolean shareHousehold
-
-    @Override
-    Constraint normalise() {
-        new RelationConstraint(
-                relationTypeLabel: this.relationTypeLabel,
-                biological: this.biological,
-                shareHousehold: this.shareHousehold,
-                relatedSubjectsConstraint: this.relatedSubjectsConstraint?.normalise())
-    }
 
     static constraints = {
         relationTypeLabel nullable: false

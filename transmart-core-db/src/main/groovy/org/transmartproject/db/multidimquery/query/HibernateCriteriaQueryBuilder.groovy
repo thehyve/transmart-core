@@ -28,6 +28,7 @@ import org.transmartproject.db.pedigree.Relation
 import org.transmartproject.db.pedigree.RelationType
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
+import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -47,7 +48,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.*
  */
 @Slf4j
 @CompileStatic
-class HibernateCriteriaQueryBuilder implements QueryBuilder<DetachedCriteria> {
+class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> implements QueryBuilder<DetachedCriteria> {
 
     public static final String SUBJECT_ID_SOURCE = 'SUBJ_ID'
     final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(VALUE)
@@ -543,6 +544,17 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<DetachedCriteria> {
      * The constraint object should have operator {@link Operator#INTERSECT} or {@link Operator#UNION},
      * a dimension to subquery on, and a non-empty list of subquery constraints.
      *
+     * Because the Hibernate API does not directly support intersect and union operators, nested subqueries are constructed:
+     * instead of querying { p | p in (A intersect B) } directly, a nested quer
+     * { p | p in { p' in A | p' in B } }.
+     *
+     * Example SQL for subselections on the patient dimension, for constraints A and B:
+     * <code>patient_num in (select o1.patient_num from ObservationFact o1 where A and o1.patient_num in
+     *      (select o2.patient_num from ObservationFact o2 where B))</code>
+     * This is equivalent to :
+     * <code>patient_num in ((select o1.patient_num from ObservationFact o1 where A) intersect
+     *      (select o2.patient_num from ObservationFact o2 where B))</code>.
+     *
      * @param constraint the constraint object.
      * @return the criterion for this constraint.
      */
@@ -585,6 +597,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<DetachedCriteria> {
     Criterion build(ConceptConstraint constraint){
         if (constraint.conceptCode) {
             return Restrictions.eq('conceptCode', constraint.conceptCode)
+        } else if (constraint.conceptCodes) {
+            return InQuery.inValues('conceptCode', constraint.conceptCodes)
         } else if (constraint.path) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(ConceptDimension, 'concept_dimension')
             subCriteria.add(Restrictions.eq('concept_dimension.conceptPath', constraint.path))
@@ -659,7 +673,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<DetachedCriteria> {
         List<Criterion> parts = currentLevelConstraints.collect {
             build(it)
         }
-        // Combine subselect queries for the same dimension into a single MultipleSubSelectionsConstraint.
+        /**
+         * Combine subselect queries for the same dimension into a single {@link MultipleSubSelectionsConstraint}.
+         *
+         * Rationale:
+         * { p | (p in A) and (p in B) } is equivalent to { p | p in (A intersect B) }.
+         *
+         * It appears that the latter results in a better query plan on PostgreSQL databases.
+         */
         def subSelectConstraintsByDimension = subSelectConstraints.groupBy { it.dimension }
         subSelectConstraintsByDimension.each { String dimension, List<SubSelectionConstraint> constraints ->
             def dimensionSubselect = new MultipleSubSelectionsConstraint(
@@ -745,51 +766,6 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<DetachedCriteria> {
         Subqueries.propertyIn('patient', relationCriteria.setProjection(Projections.property("leftSubject")))
     }
 
-    Criterion build(MultiDimConstraint constraint) {
-        switch (constraint.class) {
-            case TrueConstraint:
-                return build((TrueConstraint) constraint)
-            case Negation:
-                return build((Negation) constraint)
-            case Combination:
-                AndConstraint:
-                OrConstraint:
-                return build((Combination) constraint)
-            case SubSelectionConstraint:
-                return build((SubSelectionConstraint) constraint)
-            case MultipleSubSelectionsConstraint:
-                return build((MultipleSubSelectionsConstraint) constraint)
-            case NullConstraint:
-                return build((NullConstraint) constraint)
-            case BiomarkerConstraint:
-                return build((BiomarkerConstraint) constraint)
-            case ModifierConstraint:
-                return build((ModifierConstraint) constraint)
-            case FieldConstraint:
-                return build((FieldConstraint) constraint)
-            case ValueConstraint:
-                return build((ValueConstraint) constraint)
-            case RowValueConstraint:
-                return build((RowValueConstraint) constraint)
-            case TimeConstraint:
-                return build((TimeConstraint) constraint)
-            case PatientSetConstraint:
-                return build((PatientSetConstraint) constraint)
-            case TemporalConstraint:
-                return build((TemporalConstraint) constraint)
-            case ConceptConstraint:
-                return build((ConceptConstraint) constraint)
-            case StudyNameConstraint:
-                return build((StudyNameConstraint) constraint)
-            case StudyObjectConstraint:
-                return build((StudyObjectConstraint) constraint)
-            case RelationConstraint:
-                return build((RelationConstraint) constraint)
-            default:
-                throw new QueryBuilderException("Constraint type not supported: ${constraint.class}.")
-        }
-    }
-
     static final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
 
     /**
@@ -803,7 +779,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<DetachedCriteria> {
         aliases = [:]
         def result = builder()
         def trialVisitAlias = getAlias('trialVisit')
-        List restrictions = [constraint ? build(constraint) : null,
+        List restrictions = [constraint ? build((Constraint)constraint) : null,
                             Restrictions.in("${trialVisitAlias}.study", getStudies()),
                             modifierCriterion
         ].findAll()
@@ -867,7 +843,4 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<DetachedCriteria> {
         criteria
     }
 
-    DetachedCriteria build(Object obj) {
-        throw new QueryBuilderException("Type not supported: ${obj?.class?.simpleName}")
-    }
 }
