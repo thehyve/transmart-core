@@ -1,0 +1,61 @@
+package org.transmartproject.db.multidimquery.query
+
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+
+@CompileStatic
+@Slf4j
+class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
+
+    /**
+     * Rewrites a combination constraint of the form
+     * (StudyNameConstraint and ConceptConstraint) or (StudyNameConstraint and ConceptConstraint) or ...
+     * to an equivalent constraint of the form
+     * (StudyNameConstraint and (ConceptConstraint or ConceptConstraint)) or (StudyNameConstraint and ...) ...
+     */
+    @Override
+    Constraint build(Combination constraint) {
+        log.debug "Rewriting combination constraint ..."
+        def normalisedConstraint = super.build(constraint)
+        if (!(normalisedConstraint instanceof Combination)) {
+            return normalisedConstraint
+        }
+        def combination = (Combination)normalisedConstraint
+        if (combination.operator != Operator.OR) {
+            return combination
+        }
+        def disjuncts = combination.args
+        // Filter on disjuncts of the form (StudyNameConstraint and ...)
+        def groups = disjuncts.split {
+            if (it instanceof Combination && ((Combination)it).operator == Operator.AND) {
+                def conjunct = (Combination) it
+                return conjunct.args.findAll { it instanceof StudyNameConstraint }.size() == 1
+            }
+            false
+        }
+        def singleStudyConjunctiveDisjuncts = groups[0] as List<Combination>
+        def otherDisjuncts = groups[1] as List<Constraint>
+        Map<String, List> studyConstraintsMap = [:].withDefault { [] as List<Constraint> }
+        for (Combination conjunct: singleStudyConjunctiveDisjuncts) {
+            def terms = conjunct.args.split { it instanceof StudyNameConstraint }
+            // get study id from the study name constraint
+            def studyNameConstraints = terms[0] as List<StudyNameConstraint>
+            assert studyNameConstraints.size() == 1
+            def studyId = studyNameConstraints[0].studyId
+            // combine the other conjuncts in a new conjunction
+            def studySpecificTerms = terms[1] as List<Constraint>
+            def studySpecificConjunction = new AndConstraint(studySpecificTerms)
+            studyConstraintsMap[studyId].add(studySpecificConjunction)
+        }
+        // rebuild the study specific constraints in the form
+        // StudyNameConstraint and ( ... or ... or ... )
+        def studySpecificConstraints = studyConstraintsMap.collect { studyId, studySpecificConjunctions ->
+            // combine the list of conjuncts for study in a disjunction
+            new AndConstraint([new StudyNameConstraint(studyId), new OrConstraint(studySpecificConjunctions)])
+        } as List<Constraint>
+
+        // Combine the study specific disjuncts with the other disjuncts and normalise the result
+        super.build(new OrConstraint(studySpecificConstraints + otherDisjuncts))
+    }
+
+}

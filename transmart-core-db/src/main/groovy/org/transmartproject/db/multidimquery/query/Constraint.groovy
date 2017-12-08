@@ -226,7 +226,7 @@ abstract class Constraint implements Validateable, MultiDimConstraint {
      * @return the normalised constraint.
      */
     Constraint normalise() {
-        new NormaliseConstraintRewriter().build(this)
+        new CombinationConstraintRewriter().build(this)
     }
 
 }

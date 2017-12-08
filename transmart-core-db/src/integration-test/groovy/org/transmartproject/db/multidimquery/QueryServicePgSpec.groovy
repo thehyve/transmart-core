@@ -713,4 +713,64 @@ class QueryServicePgSpec extends Specification {
         result.size() == 1
     }
 
+    void 'test multiple subselect constraints'() {
+        given: 'a query with two subselect subqueries'
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint subConstraint1 = new AndConstraint([
+                new StudyNameConstraint('SURVEY1'),
+                new ConceptConstraint('favouritebook')
+        ])
+
+        Constraint subselectConstraint1 = new SubSelectionConstraint('patient', subConstraint1)
+
+        Constraint subConstraint2 = new ConceptConstraint('twin')
+
+        Constraint subselectConstraint2 = new SubSelectionConstraint('patient', subConstraint2)
+
+        Constraint multipleSubselectConstraint = new OrConstraint([
+                subselectConstraint1,
+                subselectConstraint2
+        ])
+
+        when: 'executing the query and the subqueries of which it is are composed'
+        def subselectResult1 = multiDimService.retrieveClinicalData(subselectConstraint1, user).asList()
+        def subselectResult2 = multiDimService.retrieveClinicalData(subselectConstraint2, user).asList()
+        def multipleSubselectResult = multiDimService.retrieveClinicalData(multipleSubselectConstraint, user).asList()
+
+        then: 'the combined subselect result match the results of the separate subselect queries'
+        subselectResult1.size() == 14
+        subselectResult2.size() == 15
+        // in this case the selected patient sets (and, hence, the observation sets)
+        // happen to be disjoint, so the result should equal to the sum of the separate queries
+        multipleSubselectResult.size() == subselectResult1.size() + subselectResult2.size()
+    }
+
+    void 'test constraint rewriting of study specific constraints'() {
+        given: 'two logically equivalent constraints, the second form preferred'
+        Constraint constraint1 = new OrConstraint([
+                new AndConstraint([
+                        new StudyNameConstraint('SURVEY0'),
+                        new ConceptConstraint('height')
+                ]),
+                new AndConstraint([
+                        new StudyNameConstraint('SURVEY0'),
+                        new ConceptConstraint('birthdate')
+                ])
+        ])
+        Constraint constraint2 = new AndConstraint([
+                new StudyNameConstraint('SURVEY0'),
+                new OrConstraint([
+                        new ConceptConstraint('height'),
+                        new ConceptConstraint('birthdate')
+                ])
+        ])
+
+        when: 'rewriting the first constraint'
+        def rewriteResult = new CombinationConstraintRewriter().build(constraint1)
+
+        then: 'the rewrite result is equal to the preferred form'
+        rewriteResult.toJson() == constraint2.toJson()
+    }
+
 }
