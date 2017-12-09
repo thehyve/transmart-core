@@ -8,6 +8,47 @@ import groovy.util.logging.Slf4j
 class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
 
     /**
+     * Combines multiple concept constraints in a disjunction to a single
+     * concept constraint with multiple concept codes.
+     * <code>{type: or, args: [{type: concept, conceptCode: A}, {type: concept, conceptCode: B}]}</code>
+     * is rewritten to:
+     * <code>{type: concept, conceptCodes: [A, B]}</code>.
+     */
+    private static Constraint combineConceptConstraints(Constraint constraint) {
+        if (!(constraint instanceof Combination)) {
+            return constraint
+        }
+        def combination = (Combination)constraint
+        if (combination.operator != Operator.OR) {
+            return combination
+        }
+
+        def groups = combination.args.split {
+            if (it instanceof ConceptConstraint) {
+                def conceptConstraint = (ConceptConstraint)it
+                return conceptConstraint.conceptCode || conceptConstraint.conceptCodes
+            }
+            false
+        }
+        def conceptConstraints = groups[0] as List<ConceptConstraint>
+        def otherDisjuncts = groups[1] as List<Constraint>
+        Set<String> conceptCodes = []
+        for (ConceptConstraint conceptConstraint: conceptConstraints) {
+            if (conceptConstraint.conceptCode) {
+                conceptCodes.add(conceptConstraint.conceptCode)
+            } else {
+                conceptCodes.addAll(conceptConstraint.conceptCodes)
+            }
+        }
+        def conceptConstraint = new ConceptConstraint(conceptCodes: conceptCodes.asList())
+        if (otherDisjuncts.empty) {
+            return conceptConstraint
+        } else {
+            return new OrConstraint(otherDisjuncts + conceptConstraint)
+        }
+    }
+
+    /**
      * Rewrites a combination constraint of the form
      * (StudyNameConstraint and ConceptConstraint) or (StudyNameConstraint and ConceptConstraint) or ...
      * to an equivalent constraint of the form
@@ -16,13 +57,15 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
     @Override
     Constraint build(Combination constraint) {
         log.debug "Rewriting combination constraint ..."
-        def normalisedConstraint = super.build(constraint)
+        Constraint normalisedConstraint = super.build(constraint)
         if (!(normalisedConstraint instanceof Combination)) {
-            return normalisedConstraint
+            return this.build((Constraint)normalisedConstraint)
         }
         def combination = (Combination)normalisedConstraint
         if (combination.operator != Operator.OR) {
-            return combination
+            return new Combination(combination.operator,
+                    combination.args.collect { build(it) }
+            )
         }
         def disjuncts = combination.args
         // Filter on disjuncts of the form (StudyNameConstraint and ...)
@@ -43,7 +86,7 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
             assert studyNameConstraints.size() == 1
             def studyId = studyNameConstraints[0].studyId
             // combine the other conjuncts in a new conjunction
-            def studySpecificTerms = terms[1] as List<Constraint>
+            def studySpecificTerms = terms[1].collect { build(it) } as List<Constraint>
             def studySpecificConjunction = new AndConstraint(studySpecificTerms)
             studyConstraintsMap[studyId].add(studySpecificConjunction)
         }
@@ -55,7 +98,10 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
         } as List<Constraint>
 
         // Combine the study specific disjuncts with the other disjuncts and normalise the result
-        super.build(new OrConstraint(studySpecificConstraints + otherDisjuncts))
+        def disjunction = super.build(new OrConstraint(studySpecificConstraints + otherDisjuncts))
+
+        // Combine ConceptConstraints
+        return combineConceptConstraints(disjunction)
     }
 
 }
