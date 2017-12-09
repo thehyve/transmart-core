@@ -213,7 +213,7 @@ class Field implements Validateable {
 abstract class Constraint implements Validateable, MultiDimConstraint {
 
     String toJson() {
-        new JSON(this).toString()
+        ConstraintSerialiser.toJson(this)
     }
 
     /**

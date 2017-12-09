@@ -1,11 +1,11 @@
 package org.transmartproject.rest.serialization
 
 import com.google.gson.stream.JsonWriter
-import grails.converters.JSON
 import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.tree.TreeNode
+import org.transmartproject.db.multidimquery.query.ConstraintSerialiser
 
 @CompileStatic
 class TreeJsonSerializer {
@@ -15,7 +15,7 @@ class TreeJsonSerializer {
     protected boolean writeTags
 
     protected void writeConstraint(final MultiDimConstraint constraint) {
-        writer.jsonValue((constraint as JSON).toString(false))
+        new ConstraintSerialiser(writer).writeConstraint(constraint)
     }
 
     protected void writeMetadata(final List<OntologyTermTag> tags) {
