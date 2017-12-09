@@ -746,31 +746,4 @@ class QueryServicePgSpec extends Specification {
         multipleSubselectResult.size() == subselectResult1.size() + subselectResult2.size()
     }
 
-    void 'test constraint rewriting of study specific constraints'() {
-        given: 'two logically equivalent constraints, the second form preferred'
-        Constraint constraint1 = new OrConstraint([
-                new AndConstraint([
-                        new StudyNameConstraint('SURVEY0'),
-                        new ConceptConstraint('height')
-                ]),
-                new AndConstraint([
-                        new StudyNameConstraint('SURVEY0'),
-                        new ConceptConstraint('birthdate')
-                ])
-        ])
-        Constraint constraint2 = new AndConstraint([
-                new StudyNameConstraint('SURVEY0'),
-                new OrConstraint([
-                        new ConceptConstraint('height'),
-                        new ConceptConstraint('birthdate')
-                ])
-        ])
-
-        when: 'rewriting the first constraint'
-        def rewriteResult = new CombinationConstraintRewriter().build(constraint1)
-
-        then: 'the rewrite result is equal to the preferred form'
-        rewriteResult.toJson() == constraint2.toJson()
-    }
-
 }
