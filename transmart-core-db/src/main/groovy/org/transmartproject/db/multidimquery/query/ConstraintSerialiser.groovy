@@ -87,19 +87,15 @@ class ConstraintSerialiser extends ConstraintBuilder<Void> {
 
     @Override
     Void build(TrueConstraint constraint) {
-        writer.beginObject()
         writer.name('type').value(TrueConstraint.constraintName)
-        writer.endObject()
         return
     }
 
     @Override
     Void build(Negation constraint) {
-        writer.beginObject()
         writer.name('type').value(Negation.constraintName)
         writer.name('arg')
         build(constraint.arg)
-        writer.endObject()
         return
     }
 
