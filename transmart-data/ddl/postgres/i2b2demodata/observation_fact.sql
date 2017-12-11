@@ -71,35 +71,6 @@ ALTER TABLE ONLY observation_fact
 ADD CONSTRAINT observation_fact_trial_visit_fk FOREIGN KEY (trial_visit_num) REFERENCES trial_visit_dimension(trial_visit_num);
 
 --
--- Name: tf_trg_encounter_num(); Type: FUNCTION; Schema: i2b2demodata; Owner: -
---
-CREATE FUNCTION tf_trg_encounter_num() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-begin
-       if NEW.ENCOUNTER_NUM is null then
- select nextval('i2b2demodata.SEQ_ENCOUNTER_NUM') into NEW.ENCOUNTER_NUM ;
-end if;
-       RETURN NEW;
-end;
-$$;
-
---
--- Name: trg_encounter_num; Type: TRIGGER; Schema: i2b2demodata; Owner: -
---
-CREATE TRIGGER trg_encounter_num BEFORE INSERT ON observation_fact FOR EACH ROW EXECUTE PROCEDURE tf_trg_encounter_num();
-
---
--- Name: seq_encounter_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
---
-CREATE SEQUENCE seq_encounter_num
-    START WITH 49814595
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
---
 -- add documentation
 --
 COMMENT ON TABLE i2b2demodata.observation_fact IS 'Table that stores all observations';
