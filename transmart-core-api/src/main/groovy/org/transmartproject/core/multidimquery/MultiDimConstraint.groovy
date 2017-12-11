@@ -9,4 +9,6 @@ package org.transmartproject.core.multidimquery
  */
 interface MultiDimConstraint {
     String toJson()
+
+    MultiDimConstraint normalise()
 }

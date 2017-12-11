@@ -280,16 +280,17 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 }
             }
         } else if (constraint instanceof FieldConstraint) {
-            if (constraint.field.dimension == CONCEPT) {
+            if (constraint.field.dimension == CONCEPT.name) {
                 throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
-            } else if (constraint.field.dimension == STUDY) {
+            } else if (constraint.field.dimension == STUDY.name) {
                 throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
-            } else if (constraint.field.dimension == TRIAL_VISIT) {
+            } else if (constraint.field.dimension == TRIAL_VISIT.name) {
                 if (constraint.field.fieldName == 'study') {
                     throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
                 }
             }
         } else if (constraint instanceof ConceptConstraint) {
+            constraint = (ConceptConstraint)constraint
             if (constraint.path && constraint.conceptCode) {
                 throw new InvalidQueryException("Expected one of path and conceptCode, got both.")
             } else if (!constraint.path && !constraint.conceptCode) {
@@ -377,7 +378,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+        DetachedCriteria criteria = builder.buildCriteria(constraint).setProjection(Projections.projectionList()
                 .add(Projections.rowCount(), 'observationCount')
                 .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
@@ -414,7 +415,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+        DetachedCriteria criteria = builder.buildCriteria(constraint).setProjection(Projections.projectionList()
                 .add(Projections.groupProperty('conceptCode'), 'conceptCode')
                 .add(Projections.rowCount(), 'observationCount')
                 .add(Projections.countDistinct('patient'), 'patientCount'))
@@ -451,7 +452,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
                     .add(Projections.rowCount(), 'observationCount')
@@ -477,7 +478,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
         Map<String, Map<String, Counts>> result = studies.collectEntries { Study study ->
             Constraint studySpecificConstraint =
-                    new AndConstraint(args: [constraint, new StudyNameConstraint(studyId: study.studyId)])
+                    new AndConstraint([constraint, new StudyNameConstraint(study.studyId)]).normalise()
             [study.studyId, wrappedThis.countsPerConcept(studySpecificConstraint, user)]
         }
         def t2 = new Date()
@@ -518,7 +519,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
             def studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
             for (Study study : studies) {
-                def constraint = new AndConstraint(args: [new TrueConstraint(), new StudyNameConstraint(studyId: study.studyId)])
+                def constraint = new AndConstraint([new TrueConstraint(), new StudyNameConstraint(study.studyId)])
                 wrappedThis.updateCountsPerConceptCache(constraint, user, countsPerStudy[study.studyId])
             }
         }

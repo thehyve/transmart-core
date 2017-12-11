@@ -8,12 +8,13 @@ import grails.validation.Validateable
 import grails.web.databinding.DataBinder
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
-import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.db.multidimquery.DimensionImpl
 
 /**
  * The data type of a field.
@@ -32,10 +33,10 @@ enum Type {
     CONSTRAINT,
     NONE
 
-    private static final Map<String, Type> mapping = new HashMap<>();
+    private static final Map<String, Type> mapping = new HashMap<>()
     static {
         for (Type type: values()) {
-            mapping.put(type.name().toLowerCase(), type);
+            mapping.put(type.name().toLowerCase(), type)
         }
     }
 
@@ -69,7 +70,7 @@ enum Type {
     }
 
     boolean supportsValue(Object obj) {
-        obj != null && this != NONE && classForType[this].isInstance(obj)
+        obj != null && this != NONE && (classForType[this].isInstance(obj) || (this == NUMERIC && obj instanceof Date))
     }
 }
 
@@ -96,6 +97,8 @@ enum Operator {
     OR('or'),
     NOT('not'),
     EXISTS('exists'),
+    INTERSECT('intersect'),
+    UNION('union'),
     NONE('none')
 
 
@@ -105,14 +108,14 @@ enum Operator {
         this.symbol = symbol
     }
 
-    private static final Map<String, Operator> mapping = new HashMap<>();
+    private static final Map<String, Operator> mapping = new HashMap<>()
     static {
         for (Operator op: Operator.values()) {
-            mapping.put(op.symbol, op);
+            mapping.put(op.symbol, op)
         }
     }
 
-    public static Operator forSymbol(String symbol) {
+    static Operator forSymbol(String symbol) {
         if (mapping.containsKey(symbol)) {
             return mapping[symbol]
         } else {
@@ -134,7 +137,10 @@ enum Operator {
                     NOT_EQUALS,
                     LESS_THAN_OR_EQUALS,
                     GREATER_THAN_OR_EQUALS,
-                    IN
+                    IN,
+                    BEFORE,
+                    AFTER,
+                    BETWEEN
             ] as Set<Operator>,
             (Type.DATE): [
                     BEFORE,
@@ -188,9 +194,8 @@ enum Operator {
  */
 @Canonical
 class Field implements Validateable {
-    @BindUsing({ obj, source -> DimensionImpl.fromName(source['dimension'])})
-    Dimension dimension
-    @BindUsing({ obj, source -> Type.forName(source['type']) })
+    String dimension
+    @BindUsing({ obj, source -> Type.forName((String)source['type']) })
     Type type = Type.NONE
     String fieldName
 
@@ -208,7 +213,20 @@ class Field implements Validateable {
 abstract class Constraint implements Validateable, MultiDimConstraint {
 
     String toJson() {
-        (this as JSON).toString()
+        ConstraintSerialiser.toJson(this)
+    }
+
+    /**
+     * Normalise the constraint. E.g., eliminate double negation, merge nested
+     * boolean operators, apply rewrite rules such as
+     *  - a && (b && c) -> a && b && c
+     *  - !!a -> a
+     *  - a && true -> a
+     *  - a || true -> true
+     * @return the normalised constraint.
+     */
+    Constraint normalise() {
+        new CombinationConstraintRewriter().build(this)
     }
 
 }
@@ -297,7 +315,7 @@ class FieldConstraint extends Constraint {
 
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
+    @BindUsing({ obj, source -> Operator.forSymbol((String)source['operator']) })
     Operator operator = Operator.NONE
     Object value
 
@@ -313,7 +331,7 @@ class FieldConstraint extends Constraint {
                 if (obj.operator in [Operator.IN, Operator.BETWEEN]) {
                     if (val instanceof Collection) {
                         val.each {
-                            if (!obj.field.type.supportsValue(it)) {
+                            if (obj.field.type != Type.NONE && !obj.field.type.supportsValue(it)) {
                                 errors.rejectValue(
                                         'value',
                                         'org.transmartproject.query.invalid.value.operator.message',
@@ -328,7 +346,7 @@ class FieldConstraint extends Constraint {
                                 [obj.operator, val] as String[],
                                 "Collection expected for operator [$obj.operator.symbol], got '$val'")
                     }
-                } else if (!obj.field.type.supportsValue(val)) {
+                } else if (obj.field.type != Type.NONE && !obj.field.type.supportsValue(val)) {
                     errors.rejectValue(
                             'value',
                             'org.transmartproject.query.invalid.value.operator.message',
@@ -337,7 +355,7 @@ class FieldConstraint extends Constraint {
                 }
             } }
         operator validator: { Operator op, obj, Errors errors ->
-            if (obj.field && !op.supportsType(obj.field.type)) {
+            if (obj.field && obj.field.type != Type.NONE && !op.supportsType(obj.field.type)) {
                 errors.rejectValue(
                         'operator',
                         'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.field.type] as String[],
@@ -351,23 +369,32 @@ class ConceptConstraint extends Constraint {
     static String constraintName = "concept"
 
     String conceptCode
+    List<String> conceptCodes
     String path
 
     static constraints = {
-        path nullable: true, blank: false
         conceptCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
-            if (!val && !obj.path) {
+            if (!val && !obj.conceptCodes && !obj.path) {
                 errors.rejectValue(
                         'conceptCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode. Got none.")
-            } else if (val && obj.path) {
+                        "Concept constraint requires path or conceptCode(s). Got none.")
+            } else if (val && obj.path || val && obj.conceptCodes) {
                 errors.rejectValue(
                         'conceptCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode. Got both.")
+                        "Concept constraint requires path or conceptCode(s). Got multiple.")
             }
         }
+        conceptCodes nullable: true, minSize: 1, validator: {val, obj, Errors errors ->
+            if (val && obj.path) {
+                errors.rejectValue(
+                        'conceptCodes',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Concept constraint requires path or conceptCode(s). Got multiple.")
+            }
+        }
+        path nullable: true, blank: false
     }
 }
 
@@ -425,7 +452,15 @@ class ValueConstraint extends Constraint {
     Object value
 
     static constraints = {
-        valueType validator: { Type t -> t == Type.NUMERIC || t == Type.STRING }
+        valueType validator: { Object val, obj, Errors errors ->
+            def t = val as Type
+            if (!(t in [Type.NUMERIC, Type.STRING])) {
+                errors.rejectValue(
+                        'valueType',
+                        'org.transmartproject.query.invalid.valueType.message',
+                        [val, obj.valueType] as String[],
+                        "Invalid value type ${t}")
+            } }
         value validator: { Object val, obj, Errors errors ->
             if (!obj.valueType.supportsValue(val)) {
                 errors.rejectValue(
@@ -526,7 +561,7 @@ class PatientSetConstraint extends Constraint {
 class Negation extends Constraint {
     static String constraintName = "negation"
 
-    final Operator operator = Operator.NOT
+    Operator getOperator() { Operator.NOT }
 
     @BindUsing({ obj, source -> ConstraintFactory.create(source['arg']) })
     Constraint arg
@@ -545,9 +580,22 @@ class Combination extends Constraint {
     static String constraintName = "combination"
 
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
-    Operator operator = Operator.NONE
+    private Operator operator = Operator.NONE
     @BindUsing({ obj, source -> source['args'].collect { ConstraintFactory.create(it) } })
     List<Constraint> args
+
+    Combination() {
+
+    }
+
+    Combination(Operator operator, List<Constraint> args) {
+        this.operator = operator
+        this.args = args
+    }
+
+    Operator getOperator() {
+        operator
+    }
 
     static constraints = {
         operator validator: { Operator op -> op.supportsType(Type.CONSTRAINT) }
@@ -572,7 +620,9 @@ class Combination extends Constraint {
 /**
  * Subclass of Combination that implements a conjunction
  */
-@Canonical
+@EqualsAndHashCode(callSuper = true)
+@ToString(includeSuperProperties = true)
+@TupleConstructor(includeSuperProperties = true)
 class AndConstraint extends Combination {
     static String constraintName = "and"
     Operator getOperator() { Operator.AND }
@@ -581,7 +631,9 @@ class AndConstraint extends Combination {
 /**
  * Subclass of Combination that implements a disjunction
  */
-@Canonical
+@EqualsAndHashCode(callSuper = true)
+@ToString(includeSuperProperties = true)
+@TupleConstructor(includeSuperProperties = true)
 class OrConstraint extends Combination {
     static String constraintName = "or"
     Operator getOperator() { Operator.OR }
@@ -605,6 +657,7 @@ class TemporalConstraint extends Constraint {
 
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
+
     @BindUsing({ obj, source -> ConstraintFactory.create(source['eventConstraint']) })
     Constraint eventConstraint
 
@@ -618,32 +671,43 @@ class TemporalConstraint extends Constraint {
 class SubSelectionConstraint extends Constraint {
     static String constraintName = 'subselection'
 
+    String dimension
+
     @BindUsing({ obj, source ->
         ConstraintFactory.create(source['constraint'])
     })
     Constraint constraint
 
-    @BindUsing({ obj, source ->
-        DimensionImpl.fromName(source['dimension'])
-    })
-    Dimension dimension
-
     static constraints = {
+        dimension   nullable: false
         constraint  nullable: false
-        dimension   nullable: false, validator: { it != null }
     }
+}
+
+@Canonical
+class MultipleSubSelectionsConstraint extends Constraint {
+    static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
+
+    String dimension
+
+    /**
+     * {@link Operator#INTERSECT} or {@link Operator#UNION}.
+     */
+    Operator operator
+
+    List<Constraint> args
 }
 
 @Canonical
 class RelationConstraint extends Constraint {
     static String constraintName = 'relation'
 
+    String relationTypeLabel
+
     @BindUsing({ obj, source ->
         ConstraintFactory.create(source['relatedSubjectsConstraint'])
     })
     Constraint relatedSubjectsConstraint
-
-    String relationTypeLabel
 
     Boolean biological
 
@@ -738,19 +802,7 @@ class ConstraintFactory {
         }
         String dimensionName = values['dimension'] as String
         String fieldName = values['fieldName'] as String
-        try {
-            Field field = DimensionMetadata.getField(dimensionName, fieldName)
-            Type fieldType = Type.forName(values['type'] as String)
-            if (fieldType != Type.NONE && field.type != fieldType) {
-                field = new Field(dimension: field.dimension, type: fieldType, fieldName: field.fieldName)
-            }
-            log.debug "Field data: ${field}"
-            object[name] = field
-            log.debug "Object: ${object}"
-            return field
-        } catch (QueryBuilderException e) {
-            throw new ConstraintBindingException(
-                    "Error finding field for dimension '${dimensionName}', field name '${fieldName}'.", e)
-        }
+        Type fieldType = Type.forName(values['type'] as String)
+        new Field(dimension: dimensionName, type: fieldType, fieldName: fieldName)
     }
 }

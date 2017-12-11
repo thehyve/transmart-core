@@ -105,7 +105,7 @@ class QueryServiceSpec extends TransmartSpecification {
     void "test query for all observations"() {
         setupHypercubeData()
 
-        Constraint constraint = new OrConstraint(args: hypercubeTestData.clinicalData.allHypercubeStudies.collect {
+        Constraint constraint = new OrConstraint(hypercubeTestData.clinicalData.allHypercubeStudies.collect {
             new StudyObjectConstraint(it)})
 
         when:
@@ -306,10 +306,10 @@ class QueryServiceSpec extends TransmartSpecification {
         setupHypercubeData()
 
         def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
-        Constraint constraint = new AndConstraint(args: [
+        Constraint constraint = new AndConstraint([
                 new StudyObjectConstraint(study: hypercubeTestData.clinicalData.longitudinalStudy),
                 new SubSelectionConstraint(
-                        dimension: DimensionImpl.PATIENT,
+                        dimension: DimensionImpl.PATIENT.name,
                         constraint: new ValueConstraint(
                                 valueType: "STRING",
                                 operator: Operator.EQUALS,
@@ -335,7 +335,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
         Constraint constraint = new SubSelectionConstraint(
-                dimension: DimensionImpl.STUDY,
+                dimension: DimensionImpl.STUDY.name,
                 constraint: new ValueConstraint(
                         valueType: "STRING",
                         operator: Operator.EQUALS,
@@ -358,11 +358,11 @@ class QueryServiceSpec extends TransmartSpecification {
         setupHypercubeData()
 
         def testObservation = hypercubeTestData.clinicalData.ehrClinicalFacts[0]
-        Constraint constraint = new AndConstraint(args: [
-                new StudyObjectConstraint(study: hypercubeTestData.clinicalData.ehrStudy),
+        Constraint constraint = new AndConstraint([
+                new StudyObjectConstraint(hypercubeTestData.clinicalData.ehrStudy),
                 new SubSelectionConstraint(
-                        dimension: DimensionImpl.VISIT,
-                        constraint: new ValueConstraint(
+                        DimensionImpl.VISIT.name,
+                        new ValueConstraint(
                                 valueType: "NUMERIC",
                                 operator: Operator.EQUALS,
                                 value: testObservation.numberValue
@@ -385,7 +385,7 @@ class QueryServiceSpec extends TransmartSpecification {
     void "test query for 'trial visit' dimension elements"() {
         setupHypercubeData()
         DimensionImpl dimension = DimensionImpl.TRIAL_VISIT
-        Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.multidimsStudy.studyId )
+        Constraint constraint = new StudyNameConstraint(hypercubeTestData.clinicalData.multidimsStudy.studyId )
         def expectedResults = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
 
         when:"I query for all trial visits for a constraint"

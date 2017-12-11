@@ -40,8 +40,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     }
 
     void setupData() {
-        patientAgeField = new Field(dimension: DimensionImpl.PATIENT, fieldName: 'age', type: Type.NUMERIC)
-        conceptCodeField = new Field(dimension: DimensionImpl.CONCEPT, fieldName: 'conceptCode', type: Type.STRING)
+        patientAgeField = new Field(dimension: DimensionImpl.PATIENT.name, fieldName: 'age', type: Type.NUMERIC)
+        conceptCodeField = new Field(dimension: DimensionImpl.CONCEPT.name, fieldName: 'conceptCode', type: Type.STRING)
 
         testData = new TestData().createDefault()
         testData.i2b2Data.patients[0].age = 70
@@ -290,7 +290,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         when:
         def constraint = new NullConstraint(
                 field: new Field(
-                        dimension: DimensionImpl.VALUE,
+                        dimension: DimensionImpl.VALUE.name,
                         fieldName: 'textValue',
                         type: 'STRING'
                 )

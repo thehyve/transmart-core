@@ -115,7 +115,7 @@ class RelationSpec extends Specification {
         when: 'get all biological siblings that have twin kids.'
         def siblingsWithTwins = multiDimService.getDimensionElements(PATIENT,
                 new RelationConstraint(
-                        relatedSubjectsConstraint: new AndConstraint(args: [
+                        relatedSubjectsConstraint: new AndConstraint([
                                 new ConceptConstraint(path: '\\Pedigree\\Number of children that are multiplet\\'),
                                 new ValueConstraint(Type.NUMERIC, Operator.GREATER_THAN, 0)
                         ]),

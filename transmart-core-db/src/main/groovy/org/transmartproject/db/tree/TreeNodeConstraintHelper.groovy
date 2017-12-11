@@ -42,8 +42,8 @@ class TreeNodeConstraintHelper {
                         return conceptConstraint
                     }
                     // combine concept constraint with study constraint
-                    def studyConstraint = new StudyNameConstraint(studyId: parentStudyId)
-                    return new AndConstraint(args: [conceptConstraint, studyConstraint])
+                    def studyConstraint = new StudyNameConstraint(parentStudyId)
+                    return new AndConstraint([conceptConstraint, studyConstraint])
                 }
                 return null
             case 'patient_dimension':
