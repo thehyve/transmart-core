@@ -113,7 +113,7 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
 
     private List<Map<String, Object>> getAssayIds(String sample_id) {
         List result = jdbcTemplate.queryForList """
-                SELECT DISTINCT assay_id
+                SELECT assay_id
                 FROM $Tables.SUBJ_SAMPLE_MAP
                 WHERE gpl_id = :gpl_id
                 AND sample_cd = :sample_cd
