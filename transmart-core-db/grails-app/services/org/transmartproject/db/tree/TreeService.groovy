@@ -187,6 +187,7 @@ class TreeService implements TreeResource {
         multiDimensionalDataResource.clearCountsCache()
         multiDimensionalDataResource.clearPatientCountCache()
         multiDimensionalDataResource.clearCountsPerConceptCache()
+        multiDimensionalDataResource.clearCountsPerStudyAndConceptCache()
     }
 
     static final private SharedLock lock = new SharedLock()
