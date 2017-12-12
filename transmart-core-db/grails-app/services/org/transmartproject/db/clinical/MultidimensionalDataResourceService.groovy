@@ -437,14 +437,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         freshCountsPerConcept(constraint, user)
     }
 
-    @CachePut(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerConcept',
-            key = '{ #constraint.toJson(), #user.username }')
-    @Transactional(readOnly = true)
-    Map<String, Counts> updateCountsPerConceptCache(MultiDimConstraint constraint, User user, Map<String, Counts> newCounts) {
-        log.debug "Updating counts per concept cache for user: ${user.username}, constraint: ${constraint.toJson()}"
-        newCounts
-    }
-
     @Override
     Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per study ..."
@@ -513,7 +505,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @CachePut(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Map<String, Counts> updateCountsPerStudyAndConcept(MultiDimConstraint constraint, User user, Map<String, Counts> newCounts) {
+    Map<String, Counts> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint, User user, Map<String, Counts> newCounts) {
         log.debug "Updating counts per study per concept cache for user: ${user.username}, constraint: ${constraint.toJson()}"
         newCounts
     }
@@ -541,7 +533,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 countsPerStudyAndConcept.putAll(freshCountsPerStudyAndConcept(constraintToPreCache, user))
             }
             def countsForUser = studyIds.collectEntries { String studyId -> [studyId, countsPerStudyAndConcept[studyId]] }
-            wrappedThis.updateCountsPerStudyAndConcept(constraintToPreCache, user, countsForUser)
+            wrappedThis.updateCountsPerStudyAndConceptCache(constraintToPreCache, user, countsForUser)
         }
 
         def t2 = new Date()
@@ -954,6 +946,16 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             allEntries = true)
     void clearCountsPerConceptCache() {
         log.info 'Clearing counts per concept count cache ...'
+    }
+
+    /**
+     * Clears the counts per study and concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
+            allEntries = true)
+    void clearCountsPerStudyAndConceptCache() {
+        log.info 'Clearing counts per study and concept count cache ...'
     }
 
 }
