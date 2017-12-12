@@ -32,6 +32,10 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
         }
         def conceptConstraints = groups[0] as List<ConceptConstraint>
         def otherDisjuncts = groups[1] as List<Constraint>
+        if (conceptConstraints.empty) {
+            // no concept constraints in this disjunction
+            return constraint
+        }
         Set<String> conceptCodes = []
         for (ConceptConstraint conceptConstraint: conceptConstraints) {
             if (conceptConstraint.conceptCode) {
