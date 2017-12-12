@@ -530,7 +530,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
             if (notFetchedStudyIds) {
                 Map<String, Map<String, Counts>> freshCounts = freshCountsPerStudyAndConcept(constraintToPreCache, user)
-                countsPerStudyAndConcept.putAll(freshCountsPerStudyAndConcept(constraintToPreCache, user))
+                countsPerStudyAndConcept.putAll(freshCounts)
             }
             def countsForUser = studyIds.collectEntries { String studyId -> [studyId, countsPerStudyAndConcept[studyId]] }
             wrappedThis.updateCountsPerStudyAndConceptCache(constraintToPreCache, user, countsForUser)
