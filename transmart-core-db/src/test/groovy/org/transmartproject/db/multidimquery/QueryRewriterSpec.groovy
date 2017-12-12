@@ -226,6 +226,49 @@ class QueryRewriterSpec extends Specification {
         result.toJson() == expected.toJson()
     }
 
+    void 'test rewriting of subselect with true subconstraint'() {
+        given: 'two logically equivalent constraints, the second form preferred'
+        Constraint constraint = new SubSelectionConstraint('patient', new TrueConstraint())
+
+        Constraint expected = new TrueConstraint()
+
+        when: 'rewriting the first constraint'
+        def result = new CombinationConstraintRewriter().build(constraint)
+
+        then: 'the rewrite result is equal to the preferred form'
+        result.toJson() == expected.toJson()
+    }
+
+    void 'test rewriting of conjunction with subselect with true subconstraint'() {
+        given: 'two logically equivalent constraints, the second form preferred'
+        Constraint constraint = new AndConstraint([
+                new SubSelectionConstraint('patient', new TrueConstraint()),
+                new ConceptConstraint('favouritebook')
+        ])
+
+        Constraint expected = new ConceptConstraint('favouritebook')
+
+        when: 'rewriting the first constraint'
+        def result = new CombinationConstraintRewriter().build(constraint)
+
+        then: 'the rewrite result is equal to the preferred form'
+        result.toJson() == expected.toJson()
+    }
+
+    void 'test rewriting of nested subselect with true subconstraint'() {
+        given: 'two logically equivalent constraints, the second form preferred'
+        Constraint constraint = new SubSelectionConstraint('patient',
+                new SubSelectionConstraint('patient', new TrueConstraint()))
+
+        Constraint expected = new TrueConstraint()
+
+        when: 'rewriting the first constraint'
+        def result = new CombinationConstraintRewriter().build(constraint)
+
+        then: 'the rewrite result is equal to the preferred form'
+        result.toJson() == expected.toJson()
+    }
+
     void 'test date serialisation'() {
         given: 'a time constraint'
         String date = '2017-03-25T13:37:17.783Z'
