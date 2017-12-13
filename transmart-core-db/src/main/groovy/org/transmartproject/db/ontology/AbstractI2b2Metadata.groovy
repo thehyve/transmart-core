@@ -27,7 +27,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
-import org.transmartproject.db.util.GormWorkarounds
+import org.transmartproject.db.util.HibernateUtils
 import org.transmartproject.db.util.StringUtils
 
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
@@ -72,7 +72,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     }
 
     static constraints = {
-        GormWorkarounds.fixupClassPropertyFetcher(AbstractI2b2Metadata)
+        HibernateUtils.fixupClassPropertyFetcher(AbstractI2b2Metadata)
 
         level             nullable: false, min:     0
         fullName          nullable: false, size:    2..700

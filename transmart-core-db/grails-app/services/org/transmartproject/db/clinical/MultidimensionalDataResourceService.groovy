@@ -24,26 +24,16 @@ import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.exceptions.EmptySetException
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.multidimquery.Counts
-import org.transmartproject.core.ontology.OntologyTermsResource
+import org.transmartproject.core.exceptions.*
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
@@ -52,17 +42,17 @@ import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.*
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.querytool.*
 import org.transmartproject.db.user.User as DbUser
-import org.transmartproject.db.util.GormWorkarounds
+import org.transmartproject.db.util.HibernateUtils
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -155,7 +145,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
         session.connection().autoCommit = false
 
-        HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
+        HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
         q.with {
             // The main reason to use this projections block is that it clears all the default projections that
             // select all fields.
@@ -611,7 +601,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 i2b2RequestXml : null,
                 apiVersion          : apiVersion
         )
-
+        queryMaster.save(failOnError: true)
         // 2. Populate qt_query_instance
         def queryInstance = new QtQueryInstance(
                 userId       : user.username,
@@ -621,7 +611,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 queryMaster  : queryMaster,
         )
         queryMaster.addToQueryInstances(queryInstance)
-
+        queryInstance.save(failOnError: true)
         // 3. Populate qt_query_result_instance
         def resultInstance = new QtQueryResultInstance(
                 name            : name,
@@ -631,8 +621,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 queryResultType : queryResultType,
                 description     : name
         )
-        queryMaster.save(failOnError: true)
-
+        resultInstance.save(failOnError: true, flush: true)
         try {
             // 4. Execute the query
             resultInstance.setSize = queryExecutor(resultInstance)
@@ -651,10 +640,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             queryInstance.endDate = new Date()
             queryInstance.statusTypeId = QueryStatus.ERROR.id
         }
-        // 6. Validate and save the query instance and the result instance.
-        queryInstance.save(failOnError: true)
-        resultInstance.save(failOnError: true)
-
         resultInstance
     }
 
@@ -678,11 +663,13 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param query
      * @param user
      */
-    @Override QueryResult createPatientSetQueryResult(String name,
-                                                      MultiDimConstraint constraint,
-                                                      User user,
-                                                      String constraintText,
-                                                      String apiVersion) {
+    @Override
+    QueryResult createPatientSetQueryResult(String name,
+                                            MultiDimConstraint constraint,
+                                            User user,
+                                            String constraintText,
+                                            String apiVersion) {
+        checkAccess(constraint, user)
 
         createQueryResult(
                 name,
@@ -690,19 +677,19 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 constraintText,
                 apiVersion,
                 QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)) { QtQueryResultInstance queryResult ->
+            assert queryResult
+            assert queryResult.id
 
-            List<Patient> patients = getDimensionElements(PATIENT, constraint, user).toList()
-            patients.eachWithIndex { Patient patient, Integer index ->
-                queryResult.addToPatientSet(
-                    new QtPatientSetCollection(
-                            resultInstance: queryResult,
-                            patient: PatientDimension.load(patient.id),
-                            setIndex: index + 1
-                    )
-                )
-            }
+            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user).buildCriteria(constraint)
+                    .setProjection(
+                    Projections.projectionList()
+                            .add(Projections.distinct(Projections.property('patient.id')), 'pid')
+                            .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
+                            [StandardBasicTypes.LONG] as org.hibernate.type.Type[])))
 
-            patients.size()
+            Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
+            return HibernateUtils
+                    .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
         }
     }
 

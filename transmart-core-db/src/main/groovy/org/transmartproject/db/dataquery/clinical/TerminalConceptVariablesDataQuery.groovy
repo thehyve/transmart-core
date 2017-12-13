@@ -36,7 +36,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.support.InQuery
 
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.transmartproject.db.util.HibernateUtils.createCriteriaBuilder
 
 class TerminalConceptVariablesDataQuery {
 

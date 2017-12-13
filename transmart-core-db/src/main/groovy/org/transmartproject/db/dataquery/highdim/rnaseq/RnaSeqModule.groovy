@@ -44,7 +44,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedPara
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /**
  * Module for RNA-seq, as implemented for Postgres by TraIT.
