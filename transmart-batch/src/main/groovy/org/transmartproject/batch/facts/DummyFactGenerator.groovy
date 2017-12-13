@@ -117,7 +117,8 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
                 FROM $Tables.SUBJ_SAMPLE_MAP
                 WHERE gpl_id = :gpl_id
                 AND sample_cd = :sample_cd
-            """, [gpl_id: platform.id, sample_cd: sample_id]
+                AND trial_name =:trial_name
+            """, [gpl_id: platform.id, sample_cd: sample_id, trial_name: studyId]
         result
     }
 
