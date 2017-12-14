@@ -665,21 +665,32 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 user,
                 constraintText,
                 apiVersion,
-                QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)) { QtQueryResultInstance queryResult ->
-            assert queryResult
-            assert queryResult.id
+                QtQueryResultType.load(QueryResultType.PATIENT_SET_ID),
+                { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
+        )
+    }
 
-            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user).buildCriteria(constraint)
-                    .setProjection(
-                    Projections.projectionList()
-                            .add(Projections.distinct(Projections.property('patient.id')), 'pid')
-                            .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
-                            [StandardBasicTypes.LONG] as org.hibernate.type.Type[])))
+    /**
+     * Populates given query result with patient set that satisfy provided constaints with regards with user access rights.
+     * @param queryResult query result to populate with patients
+     * @param constraint constraint to get results that satisfy it
+     * @param user user for whom to execute the patient set query. Result will depend on the user access rights.
+     * @return Number of patients inserted in the patient set
+     */
+    private Integer populatePatientSetQueryResult(QtQueryResultInstance queryResult, MultiDimConstraint constraint, User user) {
+        assert queryResult
+        assert queryResult.id
 
-            Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
-            return HibernateUtils
-                    .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
-        }
+        DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user).buildCriteria(constraint)
+                .setProjection(
+                Projections.projectionList()
+                        .add(Projections.distinct(Projections.property('patient.id')), 'pid')
+                        .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
+                        [StandardBasicTypes.LONG] as org.hibernate.type.Type[])))
+
+        Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
+        return HibernateUtils
+                .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
     }
 
     @Override QueryResult findQueryResult(Long queryResultId, User user) {
