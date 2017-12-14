@@ -198,7 +198,7 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         writer.endArray()
         if (cell.numericValue != null) {
             writer.name('numericValue').value(cell.numericValue)
-        } else if (cell.stringValue) {
+        } else if (cell.stringValue != null) {
             writer.name('stringValue').value(cell.stringValue)
         }
         writer.endObject()
