@@ -19,7 +19,7 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
             return constraint
         }
         def combination = (Combination)constraint
-        if (combination.operator != Operator.OR) {
+        if (combination.getOperator() != Operator.OR) {
             return combination
         }
 
@@ -66,7 +66,7 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
             return this.build((Constraint)normalisedConstraint)
         }
         def combination = (Combination)normalisedConstraint
-        if (combination.operator != Operator.OR) {
+        if (combination.getOperator() != Operator.OR) {
             return new Combination(combination.operator,
                     combination.args.collect { build(it) }
             )
@@ -74,7 +74,7 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
         def disjuncts = combination.args
         // Filter on disjuncts of the form (StudyNameConstraint and ...)
         def groups = disjuncts.split {
-            if (it instanceof Combination && ((Combination)it).operator == Operator.AND) {
+            if (it instanceof Combination && ((Combination)it).getOperator() == Operator.AND) {
                 def conjunct = (Combination) it
                 return conjunct.args.findAll { it instanceof StudyNameConstraint }.size() == 1
             }

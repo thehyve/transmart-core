@@ -1398,7 +1398,7 @@ var spec = {
             "name": "constraints",
             "in": "query",
             "type": "boolean",
-            "description": "Flag if the constraints should be included in the result (always true for hal, defaults to true for json)"
+            "description": "Flag if the constraints should be included in the result (always false for hal, defaults to true for json)"
           },
           {
             "name": "counts",
@@ -2691,23 +2691,23 @@ var spec = {
           }
         },
         "observationCount": {
-          "description": "only available on ConceptNodes",
+          "description": "only available on concept nodes",
           "type": "integer"
         },
         "patientCount": {
-          "description": "only available on ConceptNodes",
+          "description": "only available on concept nodes",
           "type": "integer"
         },
         "constraint": {
-          "description": "only available on ConceptNodes",
+          "description": "only available on concept nodes; not available for HAL.",
           "type": "object",
           "properties": {
             "type": {
-              "description": "Example: ConceptConstraint",
+              "description": "Example: `concept`",
               "type": "string"
             },
-            "path": {
-              "description": "Example: `\\Public Studies\\CLINICAL_TRIAL\\Demography\\Age\\`",
+            "conceptCode": {
+              "description": "Example: `age`",
               "type": "string"
             }
           }

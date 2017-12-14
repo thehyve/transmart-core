@@ -43,7 +43,6 @@ class TreeJsonSerializer {
         if (node.conceptPath) {
             writer.name('conceptPath').value(node.conceptPath)
         }
-        writer.name('name').value(node.name)
         writer.name('type').value(node.ontologyTermType.name())
         writer.name('visualAttributes')
         writer.beginArray()
@@ -94,6 +93,7 @@ class TreeJsonSerializer {
         this.writeConstraints = args?.writeConstraints == null ? true : args?.writeConstraints
         this.writeTags = args?.writeTags ?: false
         writeNode(node)
+        writer.flush()
     }
 
     /**
