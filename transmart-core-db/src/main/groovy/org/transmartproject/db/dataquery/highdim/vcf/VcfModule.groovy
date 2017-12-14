@@ -37,8 +37,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
-
 class VcfModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'vcf'

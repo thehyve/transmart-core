@@ -39,7 +39,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealPr
 import javax.annotation.PostConstruct
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 

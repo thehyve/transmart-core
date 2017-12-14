@@ -484,7 +484,6 @@ class QueryServicePgSpec extends Specification {
         def patientSetEntries = QtPatientSetCollection
                 .findAllByResultInstance(QtQueryResultInstance.load(patientSetQueryResult.id))
         patientSetEntries.size() == 3
-        (patientSetEntries*.setIndex - (1..3 as List)).empty
         patientSetEntries*.patient.id != null
     }
 

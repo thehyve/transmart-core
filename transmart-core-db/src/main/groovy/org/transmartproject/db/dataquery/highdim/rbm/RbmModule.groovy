@@ -37,7 +37,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class RbmModule extends AbstractHighDimensionDataTypeModule {
 

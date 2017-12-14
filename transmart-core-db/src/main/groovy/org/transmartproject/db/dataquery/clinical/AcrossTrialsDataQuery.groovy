@@ -34,7 +34,7 @@ import org.transmartproject.db.ontology.ModifierDimensionView
 import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.transmartproject.db.util.HibernateUtils.createCriteriaBuilder
 
 /**
  * Across trials counterpart of {@link TerminalConceptVariablesDataQuery}.
