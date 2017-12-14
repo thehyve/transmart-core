@@ -617,11 +617,8 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         if (constraint.studyId == null){
             throw new QueryBuilderException("Study constraint shouldn't have a null value for studyId")
         }
-        def trialVisitAlias = getAlias('trialVisit')
-        DetachedCriteria subCriteria = DetachedCriteria.forClass(Study, 'study')
-        subCriteria.add(Restrictions.eq('study.studyId', constraint.studyId))
-                .setProjection(Projections.id())
-        return Subqueries.propertyIn("${trialVisitAlias}.study", subCriteria)
+        Study study = Study.find { studyId == constraint.studyId }
+        return build(new StudyObjectConstraint(study: study))
     }
 
     Criterion build(StudyObjectConstraint constraint){

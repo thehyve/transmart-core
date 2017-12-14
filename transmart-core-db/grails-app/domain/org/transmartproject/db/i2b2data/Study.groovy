@@ -63,6 +63,7 @@ class Study implements MDStudy {
         bioExperimentId     column: 'bio_experiment_id'
         dimensionDescriptions joinTable: [schema: 'i2b2metadata']
         version false
+        cache true
     }
 
     @Override String getName() {
