@@ -38,7 +38,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.*
  * the query.
  * Example:
  * <code>
- *     def builder = new HibernateCriteriaQueryBuilder(studies)
+ *     def builder = HibernateCriteriaQueryBuilder.forStudies(studies)
  *     def query = new ConceptConstraint(conceptCode: 'favouritebook')
  *     def criteria = builder.buildCriteria(query)
  *     def results = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
@@ -64,20 +64,22 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
     final Collection<Study> studies
     final boolean accessToAllStudies
 
-    HibernateCriteriaQueryBuilder(boolean accessToAllStudies) {
-        this.accessToAllStudies = accessToAllStudies
-        this.studies = null
+    static HibernateCriteriaQueryBuilder forStudies(Collection<Study> studies) {
+        new HibernateCriteriaQueryBuilder(false, studies)
     }
 
-    HibernateCriteriaQueryBuilder(Collection<Study> studies) {
-        this.accessToAllStudies = false
+    static HibernateCriteriaQueryBuilder forAllStudies() {
+        new HibernateCriteriaQueryBuilder(true, null)
+    }
+
+    private HibernateCriteriaQueryBuilder(boolean accessToAllStudies, Collection<Study> studies) {
+        this.accessToAllStudies = accessToAllStudies
         this.studies = studies
     }
 
     HibernateCriteriaQueryBuilder subQueryBuilder() {
         HibernateCriteriaQueryBuilder subQueryBuilder =
-                accessToAllStudies ? new HibernateCriteriaQueryBuilder(accessToAllStudies)
-                        : new HibernateCriteriaQueryBuilder(studies)
+                accessToAllStudies ? forAllStudies() : forStudies(studies)
         subQueryBuilder.aliasSuffixes = aliasSuffixes
         subQueryBuilder
     }

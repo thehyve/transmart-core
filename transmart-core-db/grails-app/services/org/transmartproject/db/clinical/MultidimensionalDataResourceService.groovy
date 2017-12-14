@@ -107,7 +107,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         assert (orderByDimensions - dimensions).empty : 'Some dimensions were not found in this result set to sort by'
 
         CriteriaImpl hibernateCriteria = buildCriteria(dimensions, orderByDimensions)
-        HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder(accessibleStudies)
+        HibernateCriteriaQueryBuilder restrictionsBuilder = HibernateCriteriaQueryBuilder.forStudies(accessibleStudies)
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
         restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
@@ -315,9 +315,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     private HibernateCriteriaQueryBuilder getCheckedQueryBuilder(User user) {
         def unlimitedStudiesAccess = accessControlChecks.hasUnlimitedStudiesAccess(user)
-        unlimitedStudiesAccess ?
-        new HibernateCriteriaQueryBuilder(unlimitedStudiesAccess) :
-        new HibernateCriteriaQueryBuilder(accessControlChecks.getDimensionStudiesForUser(user))
+        unlimitedStudiesAccess ? HibernateCriteriaQueryBuilder.forAllStudies() :
+            HibernateCriteriaQueryBuilder.forStudies(accessControlChecks.getDimensionStudiesForUser(user))
     }
 
     private def get(DetachedCriteria criteria) {
