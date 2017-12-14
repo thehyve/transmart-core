@@ -231,10 +231,14 @@ class AccessControlChecks {
         }
     }
 
+    boolean hasUnlimitedStudiesAccess(User user) {
+        user.admin
+    }
+
     /* Study is included if the user has ANY kind of access */
     @Transactional(readOnly = true)
     Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
-        if (user.admin) {
+        if (hasUnlimitedStudiesAccess(user)) {
             return org.transmartproject.db.i2b2data.Study.findAll()
         }
 

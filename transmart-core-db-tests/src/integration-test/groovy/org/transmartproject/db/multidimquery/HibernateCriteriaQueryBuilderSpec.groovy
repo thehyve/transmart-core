@@ -84,9 +84,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     void 'test CriteriaQueryBuilder with patient set constraint'() {
         setupData()
 
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(true)
 
         when:
         def patientIds = [this.testData.clinicalData.patients[1].id,
@@ -123,9 +121,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = patientAgeField
         constraint.operator = Operator.GREATER_THAN
         constraint.value = 60L
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(true)
 
         DetachedCriteria criteria = builder.buildCriteria(new Negation(arg: constraint))
 
@@ -145,9 +141,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.valueType = Type.NUMERIC
         constraint.operator = Operator.GREATER_THAN
         constraint.value = 1L
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(true)
 
         DetachedCriteria criteria = builder.buildCriteria(constraint)
 
@@ -169,9 +163,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = conceptCodeField
         constraint.operator = Operator.EQUALS
         constraint.value = concept.conceptCode
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(true)
 
         DetachedCriteria criteria = builder.buildCriteria(constraint)
 
@@ -192,9 +184,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
                 operator: Operator.BEFORE,
                 eventConstraint: constraint
         )
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        builder = new HibernateCriteriaQueryBuilder(true)
         DetachedCriteria temporalCriteria = builder.buildCriteria(beforeConstraint)
         List temporalResults = getList(temporalCriteria)
         log.info "Main query results:"
@@ -216,9 +206,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = conceptCodeField
         constraint.operator = Operator.EQUALS
         constraint.value = concept.conceptCode
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(true)
 
         def criteria = builder.buildCriteria(constraint)
 
@@ -230,9 +218,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         result
 
         when:
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        builder = new HibernateCriteriaQueryBuilder(true)
         criteria = builder.buildCriteria(new Negation(arg: constraint))
         result = exists(criteria)
         log.info "Exists: ${result}"
@@ -242,9 +228,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         when:
         constraint.value = "xyzabc"
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        builder = new HibernateCriteriaQueryBuilder(true)
         criteria = builder.buildCriteria(constraint)
         result = exists(criteria)
         log.info "Exists: ${result}"
@@ -259,9 +243,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         when:
         def constraint= new ConceptConstraint(path: '\\foo\\study1\\bar\\')
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(true)
         def criteria = builder.buildCriteria(constraint)
 
         def result = getList(criteria)
@@ -295,9 +277,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
                         type: 'STRING'
                 )
         )
-        def builder = new HibernateCriteriaQueryBuilder(
-            studies: Study.findAll()
-        )
+        def builder = new HibernateCriteriaQueryBuilder(true)
 
         def criteria = builder.buildCriteria(constraint)
         def result = getList(criteria)
@@ -311,9 +291,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
     void 'test CriteriaQueryBuilder with default modifier code'() {
         setupHypercubeData()
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: [hypercubeTestData.clinicalData.sampleStudy]
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder([hypercubeTestData.clinicalData.sampleStudy])
 
         when:
         def patientIds = hypercubeTestData.clinicalData.sampleClinicalFacts*.patientId
@@ -333,9 +311,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
     void 'test CriteriaQueryBuilder with modifier constraints'() {
         setupHypercubeData()
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: [hypercubeTestData.clinicalData.sampleStudy]
-        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder([hypercubeTestData.clinicalData.sampleStudy])
 
         // test modifierCode + textValue.equals
         when:

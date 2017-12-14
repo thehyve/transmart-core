@@ -38,9 +38,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.*
  * the query.
  * Example:
  * <code>
- *     def builder = new HibernateCriteriaQueryBuilder(
- *         studies: studies
- *     )
+ *     def builder = new HibernateCriteriaQueryBuilder(studies)
  *     def query = new ConceptConstraint(conceptCode: 'favouritebook')
  *     def criteria = builder.buildCriteria(query)
  *     def results = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
@@ -63,20 +61,25 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
 
     protected Map<String, Integer> aliasSuffixes = [:]
     Map<String, String> aliases = [:]
-    Collection<Study> studies = null
+    final Collection<Study> studies
+    final boolean accessToAllStudies
 
-    Collection<Study> getStudies() {
-        if (studies == null) {
-            throw new QueryBuilderException("Studies not set. Please set the accessible studies.")
-        }
-        studies
+    HibernateCriteriaQueryBuilder(boolean accessToAllStudies) {
+        this.accessToAllStudies = accessToAllStudies
+        this.studies = null
+    }
+
+    HibernateCriteriaQueryBuilder(Collection<Study> studies) {
+        this.accessToAllStudies = false
+        this.studies = studies
     }
 
     HibernateCriteriaQueryBuilder subQueryBuilder() {
-        new HibernateCriteriaQueryBuilder(
-                aliasSuffixes: aliasSuffixes,
-                studies: studies
-        )
+        HibernateCriteriaQueryBuilder subQueryBuilder =
+                accessToAllStudies ? new HibernateCriteriaQueryBuilder(accessToAllStudies)
+                        : new HibernateCriteriaQueryBuilder(studies)
+        subQueryBuilder.aliasSuffixes = aliasSuffixes
+        subQueryBuilder
     }
 
     /**
@@ -775,20 +778,26 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      * @param constraint
      * @return
      */
-    DetachedCriteria buildCriteria(MultiDimConstraint constraint, Criterion modifierCriterion = defaultModifierCriterion) {
-        aliases = [:]
+    DetachedCriteria buildCriteria(MultiDimConstraint constraint,
+                                   Criterion modifierCriterion = defaultModifierCriterion,
+                                   Set<String> propertiesToReserveAliases = [] as Set) {
+        assert constraint instanceof Constraint
+        aliases.clear()
+        propertiesToReserveAliases.each { String property -> getAlias(property) }
         def result = builder()
-        def trialVisitAlias = getAlias('trialVisit')
-        List restrictions = [constraint ? build((Constraint)constraint) : null,
-                            Restrictions.in("${trialVisitAlias}.study", getStudies()),
-                            modifierCriterion
-        ].findAll()
-        def criterion = Restrictions.and(restrictions as Criterion[])
+        List restrictions = [ build(constraint) ]
+        if (!accessToAllStudies) {
+            restrictions << studiesCriterion
+        }
+        if (modifierCriterion) {
+            restrictions << modifierCriterion
+        }
         aliases.each { property, alias ->
             if (property != 'observation_fact') {
                 result.createAlias(property, alias)
             }
         }
+        def criterion = Restrictions.and(restrictions as Criterion[])
         result.add(criterion)
         result
     }
@@ -829,11 +838,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             aliases[sub.path] = sub.alias
         }
         def alreadyAddedAliases = aliases.keySet() + ['observation_fact']
-        def trialVisitAlias = getAlias('trialVisit')
-        Criterion criterion = Restrictions.and(
-                build(new Combination(Operator.AND, constraints as List<Constraint>)),
-                Restrictions.in("${trialVisitAlias}.study", getStudies())
-        )
+        def criterion = build(new Combination(Operator.AND, constraints as List<Constraint>))
+        if (!accessToAllStudies) {
+            criterion = Restrictions.and(criterion, studiesCriterion)
+        }
         this.aliases.each { property, alias ->
             if(!(property in alreadyAddedAliases)) {
                 criteria.createAlias(property, alias)
@@ -841,6 +849,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         }
         criteria.add(criterion)
         criteria
+    }
+
+    private Criterion getStudiesCriterion() {
+        Restrictions.in("${getAlias('trialVisit')}.study", studies)
     }
 
 }

@@ -584,6 +584,13 @@ class QueryServicePgSpec extends Specification {
         observationCount == countsPerStudyAndConcept.values().sum { Map<String, Counts> countsMap ->
             countsMap.values().sum { Counts counts -> counts.observationCount }
         }
+
+        when: "fetching all counts per study and concept for admin"
+        def countsPerStudyAndConceptForAdmin = multiDimService.countsPerStudyAndConcept(new TrueConstraint(), User.findByUsername('admin'))
+
+        then: "gives the same results"
+        countsPerStudyAndConceptForAdmin
+        (countsPerStudyAndConceptForAdmin.keySet() - countsPerStudyAndConcept.keySet()) == ["SHARED_CONCEPTS_STUDY_C_PRIV", "SHARED_HD_CONCEPTS_STUDY_C_PR"] as Set
     }
 
     void 'test numerical value aggregates'() {

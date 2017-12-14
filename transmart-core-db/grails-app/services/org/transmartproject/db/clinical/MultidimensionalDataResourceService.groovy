@@ -107,9 +107,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         assert (orderByDimensions - dimensions).empty : 'Some dimensions were not found in this result set to sort by'
 
         CriteriaImpl hibernateCriteria = buildCriteria(dimensions, orderByDimensions)
-        HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder(
-                studies: accessibleStudies
-        )
+        HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder(accessibleStudies)
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
         restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
@@ -316,9 +314,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     private HibernateCriteriaQueryBuilder getCheckedQueryBuilder(User user) {
-        new HibernateCriteriaQueryBuilder(
-                studies: (Collection) accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-        )
+        def unlimitedStudiesAccess = accessControlChecks.hasUnlimitedStudiesAccess(user)
+        unlimitedStudiesAccess ?
+        new HibernateCriteriaQueryBuilder(unlimitedStudiesAccess) :
+        new HibernateCriteriaQueryBuilder(accessControlChecks.getDimensionStudiesForUser(user))
     }
 
     private def get(DetachedCriteria criteria) {
@@ -441,11 +440,13 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria(constraint)
+        DetachedCriteria criteria = builder.buildCriteria(constraint,
+                HibernateCriteriaQueryBuilder.defaultModifierCriterion,
+                ['trialVisit'] as Set)
                 .setProjection(Projections.projectionList()
-                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(Projections.rowCount(), 'observationCount')
-                    .add(Projections.countDistinct('patient'), 'patientCount'))
+                .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -469,7 +470,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
+        DetachedCriteria criteria = builder.buildCriteria(constraint,
+                HibernateCriteriaQueryBuilder.defaultModifierCriterion,
+                ['trialVisit'] as Set)
                 .setProjection(Projections.projectionList()
                 .add(Projections.groupProperty('conceptCode'), 'conceptCode')
                 .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
