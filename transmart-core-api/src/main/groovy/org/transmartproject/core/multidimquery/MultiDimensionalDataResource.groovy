@@ -100,7 +100,18 @@ interface MultiDimensionalDataResource {
 
     Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
 
+    /**
+     * @description Function for creating a patient set consisting of patients for which there are observations
+     * that are specified by <code>query</code>.
+     */
     QueryResult createPatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion)
+
+    /**
+     * The same as {@link this.createPatientSetQueryResult}, but first ties to reuse existing patient set that satisfies
+     * provided constraints
+     * @return A new ore reused patient set.
+     */
+    QueryResult createOrReusePatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion)
 
     QueryResult findQueryResult(Long queryResultId, User user)
 

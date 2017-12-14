@@ -487,6 +487,29 @@ class QueryServicePgSpec extends Specification {
         patientSetEntries*.patient.id != null
     }
 
+    void "reuse patient set query if one with similar constraints already exists for the user"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        QueryResult patientSetQueryResult1 = multiDimService.createOrReusePatientSetQueryResult("Test set",
+                constraint,
+                user,
+                (constraint as JSON).toString(),
+                'v2')
+
+        when:
+        QueryResult patientSetQueryResult2 = multiDimService.createOrReusePatientSetQueryResult("Test set 2",
+                constraint,
+                user,
+                (constraint as JSON).toString(),
+                'v2')
+
+        then:
+        patientSetQueryResult1 == patientSetQueryResult2
+    }
+
     void "test large text values (raw data type)"() {
         def user = User.findByUsername('test-public-user-1')
 

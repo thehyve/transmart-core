@@ -42,6 +42,7 @@ import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -319,6 +320,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             HibernateCriteriaQueryBuilder.forStudies(accessControlChecks.getDimensionStudiesForUser(user))
     }
 
+    private getFirst(DetachedCriteria criteria) {
+        getExecutableCriteria(criteria).setMaxResults(1).uniqueResult()
+    }
+
     private def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
@@ -576,19 +581,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                                             String apiVersion,
                                             QtQueryResultType queryResultType,
                                             Closure<Long> queryExecutor) {
-        // 1. Populate qt_query_master
-        def queryMaster = new QtQueryMaster(
-                name           : name,
-                userId         : user.username,
-                groupId        : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
-                createDate     : new Date(),
-                generatedSql   : null,
-                requestXml     : "",
-                requestConstraints  : constraintText,
-                i2b2RequestXml : null,
-                apiVersion          : apiVersion
-        )
-        queryMaster.save(failOnError: true)
+        // 1. Populate or reuse qt_query_master
+        Object queryMaster = createOrReuseQueryMaster(user, constraintText, name, apiVersion)
         // 2. Populate qt_query_instance
         def queryInstance = new QtQueryInstance(
                 userId       : user.username,
@@ -630,6 +624,47 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         resultInstance
     }
 
+    private QtQueryMaster createOrReuseQueryMaster(User user, String constraintText, name, apiVersion) {
+        def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
+                .add(Restrictions.eq('qm.userId', user.username))
+                .add(Restrictions.eq('qm.requestConstraints', constraintText))
+                .addOrder(Order.desc('qm.createDate'))
+
+        getFirst(queryMasterCriteria) ?: new QtQueryMaster(
+                name: name,
+                userId: user.username,
+                groupId: Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                createDate: new Date(),
+                generatedSql: null,
+                requestXml: "",
+                requestConstraints: constraintText,
+                i2b2RequestXml: null,
+                apiVersion: apiVersion
+        ).save(failOnError: true)
+    }
+
+    /**
+     * Tries to reuse query result that satisfy provided constraint for the user before creating it.
+     * @return A new one or reused query result.
+     */
+    QueryResult createOrReuseQueryResult(String name,
+                                             User user,
+                                             String constraintText,
+                                             String apiVersion,
+                                             QtQueryResultType queryResultType,
+                                             Closure<Long> queryExecutor) {
+
+        def criteria = DetachedCriteria.forClass(QtQueryResultInstance, 'qri')
+                .createCriteria('qri.queryInstance', 'qi')
+                .createCriteria('qi.queryMaster', 'qm')
+                .add(Restrictions.eq('qri.queryResultType', queryResultType))
+                .add(Restrictions.eq('qi.userId', user.username))
+                .add(Restrictions.eq('qm.requestConstraints', constraintText))
+                .addOrder(Order.desc('qri.endDate'))
+
+        getFirst(criteria) ?: createQueryResult(name, user, constraintText, apiVersion, queryResultType, queryExecutor)
+    }
+
     /**
      * @description Function for creating a patient set consisting of patients for which there are observations
      * that are specified by <code>query</code>.
@@ -649,6 +684,29 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         checkAccess(constraint, user)
 
         createQueryResult(
+                name,
+                user,
+                constraintText,
+                apiVersion,
+                QtQueryResultType.load(QueryResultType.PATIENT_SET_ID),
+                { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
+        )
+    }
+
+    /**
+     * The same as {@link this.createPatientSetQueryResult}, but first ties to reuse existing patient set that satisfies
+     * provided constraints
+     * @return A new ore reused patient set.
+     */
+    @Override
+    QueryResult createOrReusePatientSetQueryResult(String name,
+                                            MultiDimConstraint constraint,
+                                            User user,
+                                            String constraintText,
+                                            String apiVersion) {
+        checkAccess(constraint, user)
+
+        createOrReuseQueryResult(
                 name,
                 user,
                 constraintText,
