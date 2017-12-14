@@ -42,7 +42,6 @@ import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -641,16 +640,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             queryInstance.statusTypeId = QueryStatus.ERROR.id
         }
         resultInstance
-    }
-
-    QtQueryResultInstance finishQueryResultInstance(QtQueryResultInstance queryResult) {
-        queryResult.setSize = queryResult.realSetSize = patients.size()
-        queryResult.endDate = new Date()
-        queryResult.statusTypeId = QueryStatus.FINISHED.id
-
-        queryResult.queryInstance.endDate = new Date()
-        queryResult.queryInstance.statusTypeId = QueryStatus.COMPLETED.id
-        queryResult.save(failOnError: true)
     }
 
     /**
