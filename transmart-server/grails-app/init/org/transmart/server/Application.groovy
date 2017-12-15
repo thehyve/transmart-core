@@ -24,7 +24,7 @@ class Application extends GrailsAutoConfiguration implements EnvironmentAware {
         }
 
         String applicationName = 'transmart'
-        String userHome = System.getProperty('user.home')
+        String userHome = System.getProperty('user.home').replace('\\','/')
 
         addToEnvironmentAsFirstSource(environment, "${userHome}/.grails/${applicationName}Config/Config.groovy")
         addToEnvironmentAsFirstSource(environment, "${userHome}/.grails/${applicationName}Config/DataSource.groovy")
