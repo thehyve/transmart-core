@@ -4,8 +4,6 @@ import org.transmartproject.db.multidimquery.query.AndConstraint
 import org.transmartproject.db.multidimquery.query.CombinationConstraintRewriter
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintSerialiser
-import org.transmartproject.db.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.Negation
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.OrConstraint
@@ -13,13 +11,10 @@ import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.db.multidimquery.query.TemporalConstraint
-import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
 import spock.lang.Specification
-
-import java.time.Instant
 
 class QueryRewriterSpec extends Specification {
 
@@ -267,19 +262,6 @@ class QueryRewriterSpec extends Specification {
 
         then: 'the rewrite result is equal to the preferred form'
         result.toJson() == expected.toJson()
-    }
-
-    void 'test date serialisation'() {
-        given: 'a time constraint'
-        String date = '2017-03-25T13:37:17.783Z'
-        Constraint constraint = new TimeConstraint(new Field('value', Type.NUMERIC, 'numValue'),
-            Operator.BEFORE, [Date.from(Instant.parse(date))])
-
-        when: 'serialising the constraint'
-        def result = ConstraintSerialiser.toJson(constraint)
-
-        then: 'the constraint is properly serialised'
-        result == '{"type":"time","field":{"dimension":"value","type":"NUMERIC","fieldName":"numValue"},"operator":"<-","values":["' + date + '"]}'
     }
 
 }

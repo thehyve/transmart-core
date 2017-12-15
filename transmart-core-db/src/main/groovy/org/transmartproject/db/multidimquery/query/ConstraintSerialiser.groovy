@@ -102,16 +102,16 @@ class ConstraintSerialiser extends ConstraintBuilder<Void> {
     @Override
     Void build(Combination constraint) {
         writer.name('type')
-        switch(constraint.operator) {
+        switch(constraint.getOperator()) {
             case Operator.AND:
-                writer.value(AndConstraint.constraintName)
+                writer.value('and')
                 break
             case Operator.OR:
-                writer.value(OrConstraint.constraintName)
+                writer.value('or')
                 break
             default:
                 writer.value(Combination.constraintName)
-                writer.name('operator').value(constraint.operator.symbol)
+                writer.name('operator').value(constraint.getOperator().symbol)
         }
         writer.name('args')
         buildArray(constraint.args)
