@@ -116,35 +116,21 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             this.originalColumn = originalColumn
             def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
             metadata = getStudyVariableMetadata(originalColumn) ?: computeColumnMetadata(concept)
-            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] } as Map<String, BigDecimal>
+            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [ value, key ] }
         }
 
         Object getValue(HypercubeDataRow row) {
             def hValue = row.getHypercubeValue(originalColumn.index)
             if (hValue == null) return null
             def value = hValue.value
-            switch (metadata?.type) {
-                case NUMERIC:
-                    if (value instanceof Number) {
-                        return value
-                    }
-                    String label = value == null ? getMissingValueLabel(hValue) : value
-                    if (labelsToValues.containsKey(label)) {
-                        return labelsToValues[label]
-                    }
-                    if (value == null) {
-                        return null
-                    }
-                    throw new UnexpectedResultException("${value} is not of a number type.")
-                case DATE:
-                    if (value == null) return null
-                    if (value instanceof Number) return toDate(value)
-                    throw new UnexpectedResultException("${value} can't be converted to the date type.")
-                case STRING:
-                    return value as String
-                default:
-                    return value
+            def label = value == null ? getMissingValueLabel(hValue) : value
+            if (labelsToValues.containsKey(label)) {
+                return labelsToValues[label]
             }
+            if (metadata?.type == DATE && value instanceof Number) {
+                return toDate(value)
+            }
+            return value
         }
 
         private Date toDate(Number value) {

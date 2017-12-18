@@ -745,7 +745,7 @@ class QueryServicePgSpec extends Specification {
         def multipleSubselectResult = multiDimService.retrieveClinicalData(multipleSubselectConstraint, user).asList()
 
         then: 'the combined subselect result match the results of the separate subselect queries'
-        subselectResult1.size() == 14
+        subselectResult1.size() == 16
         subselectResult2.size() == 15
         // in this case the selected patient sets (and, hence, the observation sets)
         // happen to be disjoint, so the result should equal to the sum of the separate queries

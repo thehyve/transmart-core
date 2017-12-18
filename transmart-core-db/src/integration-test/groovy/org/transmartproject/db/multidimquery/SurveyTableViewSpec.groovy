@@ -39,18 +39,18 @@ class SurveyTableViewSpec extends Specification {
         def columns = transformedView.indicesList
         columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date',
                            'gender1', 'gender1.date', 'nmultbab', 'nmultbab.date', 'nmultfam', 'nmultfam.date',
-                           'twin', 'twin.date']
+                           'sport', 'sport.date', 'twin', 'twin.date']
         then: 'columns metadata matches expectations'
         def metadata = columns*.metadata
-        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE, STRING, DATE, STRING, DATE, STRING, DATE]
-        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
+        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE, STRING, DATE, STRING, DATE, STRING, DATE, STRING, DATE]
+        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
         metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book',
                                   'Date of measurement', 'Gender', 'Date of measurement', 'Number of children that are multiplet',
                                   'Date of measurement', 'Numbers of multiples in family', 'Date of measurement',
-                                  'Is a Twin', 'Date of measurement']
-        metadata*.width == [12, 22, 22, 400, 22, 12, 22, 25, 22, 25, 22, 25, 22]
-        metadata*.decimals == [0, null, null, null, null, null, null, null, null, null, null, null, null]
-        metadata*.columns == [12, 22, 22, 400, 22, 14, 22, 25, 22, 25, 22, 25, 22]
+                                  'How often do you do sport activities?', 'Date of measurement', 'Is a Twin', 'Date of measurement']
+        metadata*.width == [12, 22, 22, 400, 22, 12, 22, 25, 22, 25, 22, null, 22, 25, 22]
+        metadata*.decimals == [0, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+        metadata*.columns == [12, 22, 22, 400, 22, 14, 22, 25, 22, 25, 22, null, 22, 25, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
         height1Metadata.valueLabels == [(new BigDecimal(1)): 'Female', (new BigDecimal(2)): 'Male', (new BigDecimal(-2)): 'Not Specified']
         height1Metadata.missingValues.values == [new BigDecimal(-2)]
@@ -68,6 +68,7 @@ class SurveyTableViewSpec extends Specification {
         secondSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
         secondSubjRow[columns[5]] == -2
         secondSubjRow[columns[6]] == null
+        secondSubjRow[columns[11]] == '3'
         def firstSubjRow = rows.find { row ->  row[columns[0]] == '1' }
         firstSubjRow[columns[0]] == '1'
         firstSubjRow[columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00', UTC)
@@ -76,6 +77,7 @@ class SurveyTableViewSpec extends Specification {
         firstSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
         firstSubjRow[columns[5]] == 2
         firstSubjRow[columns[6]] == null
+        firstSubjRow[columns[11]] == 10
 
         cleanup:
         if(transformedView) transformedView.close()

@@ -3,6 +3,7 @@ height	\Demographics\Height\	Height
 birthdate	\Demographics\Birth Date\	Birth Date							
 description	\General\Description\	Description							
 favouritebook	\Interests\Favourite Book\	Favourite Book							
+sport	\Interests\Sport\	Sport							
 twin	\Pedigree\Is a Twin\	Is a Twin							A
 nmultfam	\Pedigree\Numbers of multiples in family\	Numbers of multiples in family							
 nmultbab	\Pedigree\Number of children that are multiplet\	Number of children that are multiplet							
