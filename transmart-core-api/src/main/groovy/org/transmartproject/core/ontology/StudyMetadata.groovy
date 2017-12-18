@@ -50,7 +50,7 @@ class StudyMetadata {
                 width: json.width as Integer,
                 decimals: json.decimals as Integer,
                 valueLabels: json.valueLabels?.collectEntries { String key, String value ->
-                    [new BigDecimal(key), value]
+                    [new BigDecimal(key.trim()), value]
                 } ?: [:],
                 missingValues: toMissingValues(json.missingValues),
                 columns: json.columns as Integer
