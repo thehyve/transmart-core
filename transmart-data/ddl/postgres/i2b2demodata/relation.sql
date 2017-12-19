@@ -27,12 +27,16 @@ ALTER TABLE ONLY i2b2demodata.relation
 ALTER TABLE ONLY i2b2demodata.relation
     ADD CONSTRAINT relation_type_id_fk FOREIGN KEY (relation_type_id) REFERENCES i2b2demodata.relation_type(id);
 
-
 --
 -- Name: right_subject_id_fk; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY i2b2demodata.relation
     ADD CONSTRAINT right_subject_id_fk FOREIGN KEY (right_subject_id) REFERENCES i2b2demodata.patient_dimension(patient_num);
+
+--
+-- Name: relation_type_id_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX relation_type_id_idx ON i2b2demodata.relation USING btree (relation_type_id);
 
 COMMENT ON TABLE i2b2demodata.relation IS 'Represents relationships between subjects. e.g. pedigree.';
 

@@ -160,12 +160,10 @@ class CopySpec extends Specification {
         afterDropIndexes == ['observation_fact_pkey'] as Set
         indexesOnFactTable() == [
                 'observation_fact_pkey',
-                'fact_modifier_patient',
                 'idx_fact_patient_num',
                 'idx_fact_trial_visit_num',
                 'idx_fact_concept',
-                'idx_fact_cpe',
-                'idx_fact_cptm'
+                'observation_fact_pct_idx'
         ] as Set
     }
 
