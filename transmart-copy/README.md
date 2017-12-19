@@ -1,7 +1,8 @@
 # transmart-copy
 
 Data uploader tool for [TranSMART](../), specifically for PostgreSQL databases.
-For loading the observations data, it uses the `COPY` command, hence the name `transmart-copy`.
+For loading the observations data, it copies data from table specific data files to database table,
+only substituting indexes for database identifiers for subjects, trial visits and studies.
 
 ### Download
 The latest version can be downloaded here:
@@ -21,7 +22,6 @@ java -jar transmart-copy.jar [-h|--help] [--delete <STUDY_ID>]
 _Parameters:_
 - `-h`, `--help`: Shows the available parameters. 
 - `-d <STUDY_ID>`, `--delete <STUDY_ID`: Deletes the study with id `<STUDY_ID>` and related data.
-- `-a`, `--admin`: Connect to the database as admin.
 - `-r`, `--restore-indexes`: Restore indexes.
 - `-i`, `--drop-indexes`: Drop indexes when loading, restore them afterwards.
 - `-u`, `--unlogged`: Set observations table to unlogged when loading.
@@ -82,9 +82,8 @@ The database settings are read from the environment variables:
 - `PGHOST`: the hostname of the database server (default: `localhost`)
 - `PGPORT`: the database server port (default: `5432`)
 - `PGDATABASE`: the database name (default: `transmart`)
-- `PGUSER`: the database admin user (default: `admin`)
-- `PGPASSWORD`: the password of the admin user (default: `admin`)
-- `TM_CZ_PWD`: the password of the `tm_cz` user (default: `tm_cz`)
+- `PGUSER`: the database admin user (required)
+- `PGPASSWORD`: the password of the admin user (required)
 
 
 

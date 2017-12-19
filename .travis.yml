@@ -20,7 +20,7 @@ env:
     - DIR=.; TEST=":transmart-core-api:publishToMavenLocal :transmart-data:publishToMavenLocal :transmart-server:publishToMavenLocal :transmart-batch:publishToMavenLocal"
 
 addons:
-  postgresql: 9.4
+  postgresql: 9.6
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock

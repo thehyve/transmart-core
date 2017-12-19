@@ -24,6 +24,8 @@ import org.transmartproject.copy.table.Studies
 import org.transmartproject.copy.table.Tags
 import org.transmartproject.copy.table.TreeNodes
 
+import static java.lang.System.getenv
+
 /**
  * Command-line utility to copy tab delimited files to the TranSMART database.
  *
@@ -35,8 +37,6 @@ class Copy {
 
     @Immutable
     static class Config {
-        boolean dropIndexes
-        boolean unlogged
         boolean write
         boolean temporaryTable
         String outputFile
@@ -47,7 +47,6 @@ class Copy {
     static Options options = new Options()
     static {
         options.addOption('h', 'help', false, 'Help.')
-        options.addOption('a', 'admin', false, 'Connect to the database as admin.')
         options.addOption('D', 'delete', true, 'Delete study by id.')
         options.addOption('r', 'restore-indexes', false, 'Restore indexes.')
         options.addOption('v', 'vacuum-analyze', false, 'Run vacuum analyze on the database.')
@@ -73,14 +72,23 @@ class Copy {
     Patients patients
     Studies studies
 
-    void init(boolean connectAsAdmin) {
-        database = new Database(connectAsAdmin)
+    void init(Map<String, String> params = [:]) {
+        database = new Database(params.withDefault { String key -> getenv(key) })
     }
 
     void restoreIndexes() {
-        def config = new Config(dropIndexes: true, unlogged: true)
-        def observations = new Observations(database, null, null, null, config)
-        observations.restoreTableIndexes()
+        def observations = new Observations(database, null, null, null, null)
+        observations.restoreTableIndexesIfNotExist()
+    }
+
+    void dropIndexes() {
+        def observations = new Observations(database, null, null, null, null)
+        observations.dropTableIndexesIfExist()
+    }
+
+    void setLoggedMode(boolean logged) {
+        def observations = new Observations(database, null, null, null, null)
+        observations.setLoggedMode(logged)
     }
 
     void uploadStudy(String rootPath, Config config) {
@@ -149,7 +157,6 @@ class Copy {
                 return
             }
             def copy = new Copy()
-            copy.init(cl.hasOption('admin'))
             if (cl.hasOption('delete')) {
                 def studyId = cl.getOptionValue('delete')
                 try {
@@ -158,22 +165,25 @@ class Copy {
                     log.error "Error deleting study ${studyId}."
                     throw e
                 }
-            } else if (cl.hasOption('restore-indexes')) {
-                copy.restoreIndexes()
-            } else {
-                int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
-                int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
-                def config = new Config(
-                        dropIndexes: cl.hasOption('drop-indexes'),
-                        unlogged: cl.hasOption('unlogged'),
-                        temporaryTable: cl.hasOption('temporary-table'),
-                        batchSize: batchSize,
-                        flushSize: flushSize,
-                        write: cl.hasOption('write'),
-                        outputFile: cl.getOptionValue('write')
-                )
-                String directory = cl.hasOption('directory') ? cl.getOptionValue('directory') : '.'
-                if (cl.hasOption('mode')) {
+            }
+            if (cl.hasOption('drop-indexes')) {
+                copy.dropIndexes()
+            }
+            if (cl.hasOption('mode')) {
+                if (cl.hasOption('unlogged')) {
+                    copy.setLoggedMode(false)
+                }
+                try {
+                    int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
+                    int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
+                    def config = new Config(
+                            temporaryTable: cl.hasOption('temporary-table'),
+                            batchSize: batchSize,
+                            flushSize: flushSize,
+                            write: cl.hasOption('write'),
+                            outputFile: cl.getOptionValue('write')
+                    )
+                    String directory = cl.hasOption('directory') ? cl.getOptionValue('directory') : '.'
                     def modes = cl.getOptionValues('mode')
                     log.debug("Load modes specified: ${modes}")
                     if ('pedigree' in modes) {
@@ -182,10 +192,15 @@ class Copy {
                     if ('study' in modes) {
                         copy.uploadStudy(directory, config)
                     }
-                } else {
-                    log.debug('No load mode specified. Use default study mode.')
-                    copy.uploadStudy(directory, config)
+                } catch (Exception e) {
+                    log.error('Loading data has failed.', e)
                 }
+                if (cl.hasOption('unlogged')) {
+                    copy.setLoggedMode(true)
+                }
+            }
+            if (cl.hasOption('restore-indexes')) {
+                copy.restoreIndexes()
             }
             if (cl.hasOption('vacuum-analyze')) {
                 copy.database.vacuumAnalyze()
