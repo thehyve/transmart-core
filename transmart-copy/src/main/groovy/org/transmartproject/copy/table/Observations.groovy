@@ -88,12 +88,13 @@ class Observations {
     }
 
     static final Map<String, List> tableIndexes = [
-            'fact_modifier_patient': ['modifier_cd', 'patient_num'],
             'idx_fact_patient_num': ['patient_num'],
-            'idx_fact_trial_visit_num': ['trial_visit_num'],
             'idx_fact_concept': ['concept_cd'],
-            'idx_fact_cpe': ['concept_cd', 'patient_num', 'encounter_num'],
-            'idx_fact_cptm': ['concept_cd', 'patient_num', 'trial_visit_num', 'modifier_cd']
+            'idx_fact_trial_visit_num': ['trial_visit_num'],
+    ]
+
+    static final Map<String, List> nonModifiersTableIndexes = [
+            'observation_fact_pct_idx': ['patient_num', 'concept_cd', 'trial_visit_num'],
     ]
 
     void setLoggedMode(boolean logged) {
@@ -107,15 +108,22 @@ class Observations {
         def tx = database.beginTransaction()
         log.info "Restore indexes on ${table} ..."
         tableIndexes.each { name, columns ->
-            database.jdbcTemplate.execute("create index if not exists ${name} on ${table} using btree (${columns.join(', ')})")
+            database.jdbcTemplate.execute(composeCreateIndexSql(name, columns))
+        }
+        nonModifiersTableIndexes.each { name, columns ->
+            database.jdbcTemplate.execute("${composeCreateIndexSql(name, columns)} where modifier_cd='@'")
         }
         database.commit(tx)
+    }
+
+    private static String composeCreateIndexSql(String name, Iterable<String> columns) {
+        "create index if not exists ${name} on ${table} using btree (${columns.join(', ')})"
     }
 
     void dropTableIndexesIfExist() {
         def tx = database.beginTransaction()
         log.info "Drop indexes on ${table} ..."
-        tableIndexes.keySet().each { name ->
+        (tableIndexes.keySet() + nonModifiersTableIndexes.keySet()).each { name ->
             database.jdbcTemplate.execute("drop index if exists i2b2demodata.${name}")
         }
         database.commit(tx)
