@@ -323,6 +323,31 @@ grails { plugin { springsecurity {
 } } }
 /* }}} */
 
+/* {{{ GlowingBear query subscription configuration */
+grails {
+    mail {
+        host = "smtp.gmail.com"
+        'default' {
+            from = "subscription.gb@gmail.com"
+        }
+        port = 465
+        username = "subscription.gb@gmail.com"
+        password = "gb@TheHyve"
+        props = ["mail.smtp.auth":"true",
+                 "mail.smtp.ssl.enable": "true",
+                 "mail.smtp.socketFactory.port":"465",
+                 "mail.smtp.socketFactory.class":"javax.net.ssl.SSLSocketFactory",
+                 "mail.smtp.socketFactory.fallback":"false"]
+    }
+}
+/* }}} */
+
+/* {{{ Quartz plugin configuration - job for queryDiff subscription */
+quartz {
+    autoStartup = true
+}
+/* }}} */
+
 
 /* {{{ DATASOURCES configuration */
 // OAuth2 dataSource settings are a part of transmart-oauth config
