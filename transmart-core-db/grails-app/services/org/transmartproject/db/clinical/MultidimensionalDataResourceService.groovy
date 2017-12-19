@@ -348,20 +348,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         return crit.uniqueResult()
     }
 
-    /**
-     * @description Function for getting a list of observations that are specified by <code>query</code>.
-     * @param query
-     * @param user
-     */
-    private List<ObservationFact> highDimObservationList(Constraint constraint, User user, Criterion modifier = null) {
-        checkAccess(constraint, user)
-        log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser((DbUser) user)*.studyId}"
-        def builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = modifier ? builder.buildCriteria(constraint, modifier)
-                : builder.buildCriteria(constraint)
-        getList(criteria)
-    }
-
     @Override Long count(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
@@ -836,7 +822,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         checkAccess(assayConstraint, user)
 
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
-        if(!oldAssayConstraints || oldAssayConstraints.size() == 0) {
+        if(!oldAssayConstraints) {
             return new EmptyHypercube()
         }
 
@@ -873,9 +859,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override List retrieveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
-
-        Constraint assayConstraint = (Constraint) assayConstraint_
+    @Override List retrieveHighDimDataTypes(MultiDimConstraint assayConstraint, User user){
+        assert assayConstraint instanceof Constraint
+        checkAccess(assayConstraint, user)
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
         if(!oldAssayConstraints) {
             return []
@@ -887,22 +873,43 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         assaysByType.keySet()?.collect {it.dataTypeName}
     }
 
-    private ArrayList<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
-        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
-                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
+    private List<Study> selectStudiesWithDimensionSupport(Iterable<Study> studies, DimensionImpl dimension) {
+        DetachedCriteria studiesCriteria = DetachedCriteria.forClass(Study)
+            .createAlias('dimensionDescriptions', 'd')
+            .add(Restrictions.in('id', studies*.id))
+            .add(Restrictions.in('d.name', dimension.name))
 
-        List assayIds = []
-        for(def o : observations) {
-            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
-            assayIds.add(o.numberValue.toLong())
+        getList(studiesCriteria)
+    }
+
+    private List<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
+        assert user instanceof DbUser
+
+        Collection<Study> userStudies = accessControlChecks.getDimensionStudiesForUser(user)
+        List<Study> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
+        if (!assaySupportStudies) {
+            log.debug("No studies with assay dimension for user ${user.name} were found.")
+            return Collections.emptyList()
         }
 
-        if (assayIds.empty){
-            return []
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies(assaySupportStudies)
+
+        Criterion modifierCriterion = type == 'autodetect' ?
+                defaultHDModifierCriterion : HDModifierCriterionForType(type)
+
+        DetachedCriteria assayIdsCriteria = builder.buildCriteria(assayConstraint, modifierCriterion)
+                .setProjection(Projections.property('numberValue'))
+
+        List<BigDecimal> assayIds = getList(assayIdsCriteria)
+
+        if (assayIds.empty) {
+            Collections.emptyList()
+        } else {
+            [
+                    highDimensionResourceService
+                            .createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+            ]
         }
-        return [
-                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
-        ]
     }
 
     @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user, List<Dimension> orderByDimensions = []) {
