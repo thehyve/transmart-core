@@ -67,6 +67,7 @@ class PatientDimension implements Patient {
         religion      column:    'religion_cd'
 
         patientBlob   sqlType:   'text'
+        mappings      fetch:     'join'
 
         version false
     }
