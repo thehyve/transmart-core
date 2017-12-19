@@ -76,8 +76,14 @@ class Database {
         String url = "jdbc:postgresql://${host}:${port}/${database}"
         String username
         String password
-        username = params['PGUSER'] ?: 'tm_cz'
-        password = params['PGPASSWORD'] ?: 'tm_cz'
+        username = params['PGUSER']
+        password = params['PGPASSWORD']
+        if (!username) {
+            throw new IllegalArgumentException('Please set the PGUSER environment variable.')
+        }
+        if (!password) {
+            throw new IllegalArgumentException('Please set the PGPASSWORD environment variable.')
+        }
 
         config.jdbcUrl = url
         config.username = username

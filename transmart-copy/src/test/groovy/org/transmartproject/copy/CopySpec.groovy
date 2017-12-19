@@ -9,13 +9,16 @@ import org.transmartproject.copy.table.Studies
 import org.transmartproject.copy.table.TreeNodes
 import spock.lang.Specification
 
-import java.sql.DatabaseMetaData
 import java.sql.ResultSet
 
 class CopySpec extends Specification {
 
     static String TEST_STUDY = 'SURVEY0'
     static STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY
+    static DATABASE_CREDENTIALS = [
+            PGUSER: 'i2b2demodata',
+            PGPASSWORD: 'i2b2demodata'
+    ]
 
     def studySpecificTables = [
             Observations.table,
@@ -32,7 +35,7 @@ class CopySpec extends Specification {
         given: 'Test database is available, the study is not loaded'
 
         def copy = new Copy()
-        copy.init()
+        copy.init(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
         def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         if (TEST_STUDY in studyIds) {
@@ -73,7 +76,7 @@ class CopySpec extends Specification {
         given: 'Test database is available, the study is not loaded'
 
         def copy = new Copy()
-        copy.init()
+        copy.init(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
 
         def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
@@ -90,7 +93,7 @@ class CopySpec extends Specification {
     def 'test deleting the study'() {
         given: 'Test database is available, the study is loaded'
         def copy = new Copy()
-        copy.init()
+        copy.init(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
         def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         if (!(TEST_STUDY in studyIds)) {
@@ -118,7 +121,7 @@ class CopySpec extends Specification {
         given: 'Test database is available'
 
         def copy = new Copy()
-        copy.init()
+        copy.init(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
 
         when: 'Checking for a non-existing table'
@@ -135,7 +138,7 @@ class CopySpec extends Specification {
 
     def 'test index management'() {
         def copy = new Copy()
-        copy.init(PGUSER: 'i2b2demodata', PGPASSWORD: 'i2b2demodata')
+        copy.init(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
         def metaData = copy.database.connection.getMetaData()
         def count = { ResultSet rs ->
