@@ -2,13 +2,13 @@
 
 package org.transmartproject.db.multidimquery.query
 
-import grails.converters.JSON
 import grails.databinding.BindUsing
 import grails.validation.Validateable
 import grails.web.databinding.DataBinder
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.Sortable
 import groovy.transform.ToString
 import groovy.transform.TupleConstructor
 import groovy.util.logging.Slf4j
@@ -193,7 +193,8 @@ enum Operator {
  * early validation (assuming that clients know the data type of a field).
  */
 @Canonical
-class Field implements Validateable {
+@Sortable
+class Field implements Validateable, Comparable<Field> {
     String dimension
     @BindUsing({ obj, source -> Type.forName((String)source['type']) })
     Type type = Type.NONE
@@ -203,6 +204,7 @@ class Field implements Validateable {
         type validator: { Object type, obj -> type != Type.NONE }
         fieldName blank: false
     }
+
 }
 
 /**
@@ -229,6 +231,9 @@ abstract class Constraint implements Validateable, MultiDimConstraint {
         new CombinationConstraintRewriter().build(this)
     }
 
+    Constraint canonise() {
+        new CanonicalConstraintRewriter().build(this)
+    }
 }
 
 @Canonical
@@ -252,6 +257,7 @@ class BiomarkerConstraint extends Constraint {
  * to <code>operator</code> and <code>value</code>.
  */
 @Canonical
+@Sortable
 class ModifierConstraint extends Constraint {
     static String constraintName = "modifier"
     String modifierCode
@@ -310,7 +316,7 @@ class ModifierConstraint extends Constraint {
  * </code>
  */
 @Canonical
-class FieldConstraint extends Constraint {
+class FieldConstraint extends Constraint implements Comparable<FieldConstraint> {
     static String constraintName = "field"
 
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
@@ -318,6 +324,10 @@ class FieldConstraint extends Constraint {
     @BindUsing({ obj, source -> Operator.forSymbol((String)source['operator']) })
     Operator operator = Operator.NONE
     Object value
+
+    int compareTo(FieldConstraint other) {
+        field <=> other.field ?: operator <=> other.operator ?: value.toString() <=> other.value.toString()
+    }
 
     static constraints = {
         field validator: { val, obj, Errors errors ->
@@ -399,6 +409,7 @@ class ConceptConstraint extends Constraint {
 }
 
 @Canonical
+@Sortable
 class StudyNameConstraint extends Constraint {
     static String constraintName = "study_name"
 
@@ -416,6 +427,7 @@ class StudyObjectConstraint extends Constraint {
 }
 
 @Canonical
+@Sortable
 class NullConstraint extends Constraint {
     static String constraintName = "null"
 
@@ -442,7 +454,7 @@ class RowValueConstraint extends Constraint {
  * </code>
  */
 @Canonical
-class ValueConstraint extends Constraint {
+class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
     static String constraintName = "value"
 
     @BindUsing({ obj, source -> Type.forName(source['valueType']) })
@@ -450,6 +462,10 @@ class ValueConstraint extends Constraint {
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     Object value
+
+    int compareTo(ValueConstraint other) {
+        valueType <=> other.valueType ?: operator <=> other.operator ?: value.toString() <=> other.value.toString()
+    }
 
     static constraints = {
         valueType validator: { Object val, obj, Errors errors ->
@@ -485,7 +501,7 @@ class ValueConstraint extends Constraint {
  * in <code>values</code>.
  */
 @Canonical
-class TimeConstraint extends Constraint {
+class TimeConstraint extends Constraint implements Comparable<TimeConstraint> {
     static String constraintName = "time"
 
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
@@ -493,6 +509,10 @@ class TimeConstraint extends Constraint {
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     List<Date> values
+
+    int compareTo(TimeConstraint other) {
+        field <=> other.field ?: operator <=> other.operator ?: values.toListString() <=> other.values.toListString()
+    }
 
     static constraints = {
         values nullable: false, validator: { List values, obj ->
