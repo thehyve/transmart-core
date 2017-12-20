@@ -45,4 +45,9 @@ class QueryDiff implements UserQueryDiff {
     Long getQueryId() {
         return query.id
     }
+
+    @Override
+    List<QueryDiffEntry> getQueryDiffEntries(){
+        return queryDiffEntries
+    }
 }
