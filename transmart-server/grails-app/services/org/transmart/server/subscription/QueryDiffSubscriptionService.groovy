@@ -5,12 +5,15 @@ import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmart.server.subsctiption.ChangeFlag
 import org.transmart.server.subsctiption.SubscriptionFrequency
+import org.transmartproject.core.userquery.UserQueryDiff
+import org.transmartproject.core.userquery.UserQueryDiffResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 
 /**
- * Generates and sends a daily and/or weekly subscription email for each user
+ * Generates and sends a daily or weekly subscription email for each user
  * that subscribed for a query data result updates.
  *
  * The DSL for sending emails is provided by the Grails mail plugin.
@@ -25,6 +28,11 @@ class QueryDiffSubscriptionService {
 
     @Autowired
     UsersResource usersResource
+
+    @Autowired
+    UserQueryDiffResource userQueryDiffResource
+
+    private final static String NEW_LINE = "\n"
 
     /**
      * Creates and sends a daily or weekly email for each user having an email specified.
@@ -57,15 +65,35 @@ class QueryDiffSubscriptionService {
      *
      */
     private String generateEmail(String username, SubscriptionFrequency frequency) {
-        // todo collect data
-        // use transmart-core-db.UserQueryDiffResourceService (via core-api), with a date and userId as parameters to get
-        //    queryId: number
-        //    queryName
-        //    date: timestamp
-        //    measure_date: timestamp
-        //    objectIdsAdded: List
-        //    objectIdsRemoved: List
-        return "Email for $username, ${frequency.toString()}"
+        // todo pagination params
+        int firstResult = 0
+        int numResults = 10
+
+        def currentDate = new Date()
+
+
+        List<UserQueryDiff> queryDiffs = userQueryDiffResource.getByFrequency(frequency.value(), username,
+                firstResult, numResults)
+        StringBuilder textStringBuilder = new StringBuilder()
+
+        textStringBuilder.append("Change log of ${currentDate.format("d.' of 'M Y h:mm aa z")}")
+
+        for(diff in queryDiffs) {
+            //todo prettify a message text
+            def addedIds = diff.queryDiffEntries.collect {
+                it.changeFlag == ChangeFlag.ADDED.value()
+            }?.toListString()
+            def removedIds = diff.queryDiffEntries.collect {
+                it.changeFlag == ChangeFlag.REMOVED.value()
+            }?.toListString()
+            textStringBuilder.append(NEW_LINE)
+            textStringBuilder.append("For query $diff.id: \n" +
+                    "date of the change: + $diff.date, \n" +
+                    "added ids: $addedIds \n" +
+                    "removed ids: $removedIds \n")
+            textStringBuilder.append(NEW_LINE)
+        }
+        return textStringBuilder.toString()
     }
 
     /**
