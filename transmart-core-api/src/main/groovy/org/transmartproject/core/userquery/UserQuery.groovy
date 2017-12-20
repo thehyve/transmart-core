@@ -45,6 +45,20 @@ interface UserQuery {
     void setBookmarked(Boolean bookmarked)
 
     /**
+     * Flag to indicate if the user has subscribed for the query.
+     */
+    Boolean getSubscribed()
+
+    void setSubscribed(Boolean subscribed)
+
+    /**
+     * Frequency of the subscription: daily or weekly
+     */
+    String getSubscriptionFreq()
+
+    void setSubscriptionFreq(String subscribed)
+
+    /**
      * Creation date and time of this query.
      */
     Date getCreateDate()
