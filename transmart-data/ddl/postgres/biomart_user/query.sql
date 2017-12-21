@@ -10,6 +10,8 @@ CREATE TABLE biomart_user.query (
     api_version character varying(25),
     bookmarked boolean,
     deleted boolean,
+    subscribed boolean,
+    subscription_freq character varying(25),
     create_date timestamp without time zone,
     update_date timestamp without time zone
 );
@@ -18,6 +20,10 @@ CREATE TABLE biomart_user.query (
 -- Name: query_user; Type: INDEX; Schema: biomart_user; Owner: -
 --
 CREATE INDEX query_username_deleted ON biomart_user.query USING btree (username, deleted);
+--
+-- Name: query_user; Type: INDEX; Schema: biomart_user; Owner: -
+--
+CREATE INDEX query_username_subscribed ON biomart_user.query USING btree (username, subscribed);
 
 --
 -- Table documentation
@@ -31,3 +37,5 @@ COMMENT ON COLUMN biomart_user.query.observations_query IS 'The observation sele
 COMMENT ON COLUMN biomart_user.query.api_version IS 'The version of the API the query was intended for.';
 COMMENT ON COLUMN biomart_user.query.bookmarked IS 'Flag to indicate if the user has bookmarked the query.';
 COMMENT ON COLUMN biomart_user.query.deleted IS 'Flag to indicate if the query has been deleted.';
+COMMENT ON COLUMN biomart_user.query.subscribed IS 'Flag to indicate if the user has subscribed to the query.';
+COMMENT ON COLUMN biomart_user.query.subscription_freq IS 'Frequency of query notifications: daily or weekly digest.';
