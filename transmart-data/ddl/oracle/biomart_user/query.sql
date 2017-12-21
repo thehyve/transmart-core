@@ -10,6 +10,8 @@ CREATE TABLE "BIOMART_USER"."QUERY"
     "OBSERVATIONS_QUERY" CLOB,
     "API_VERSION" VARCHAR2(25 BYTE),
     "BOOKMARKED" CHAR(1 BYTE),
+    "SUBSCRIBED" CHAR(1 BYTE),
+    "SUBSCRIPTION_FREQ" VARCHAR2(25 BYTE),
     "DELETED" CHAR(1 BYTE),
     "CREATE_DATE" TIMESTAMP (6),
     "UPDATE_DATE" TIMESTAMP (6),
@@ -20,6 +22,11 @@ CREATE TABLE "BIOMART_USER"."QUERY"
 -- Type: INDEX; Owner: BIOMART_USERNAME_DELETED; Name: QUERY_USER
 --
 CREATE INDEX "BIOMART_USER"."QUERY_USERNAME_DELETED" ON "BIOMART_USER"."QUERY" ("USERNAME", "DELETED")
+TABLESPACE "TRANSMART" ;
+--
+-- Type: INDEX; Owner: BIOMART_USER_SUBSCRIBED; Name: QUERY_USERNAME_SUBSCRIBED
+--
+CREATE INDEX "BIOMART_USER"."QUERY_USERNAME_SUBSCRIBED" ON "BIOMART_USER"."QUERY" ("USERNAME", "SUBSCRIBED")
 TABLESPACE "TRANSMART" ;
 
 --
@@ -55,3 +62,5 @@ COMMENT ON COLUMN biomart_user.query.observations_query IS 'The observation sele
 COMMENT ON COLUMN biomart_user.query.api_version IS 'The version of the API the query was intended for.';
 COMMENT ON COLUMN biomart_user.query.bookmarked IS 'Flag to indicate if the user has bookmarked the query.';
 COMMENT ON COLUMN biomart_user.query.deleted IS 'Flag to indicate if the query has been deleted.';
+COMMENT ON COLUMN biomart_user.query.subscribed IS 'Flag to indicate if the user has subscribed to the query.';
+COMMENT ON COLUMN biomart_user.query.subscription_freq IS 'Frequency of query notifications: daily or weekly digest.';
