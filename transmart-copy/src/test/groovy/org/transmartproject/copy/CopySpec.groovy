@@ -34,8 +34,7 @@ class CopySpec extends Specification {
     def 'test loading the study data'() {
         given: 'Test database is available, the study is not loaded'
 
-        def copy = new Copy()
-        copy.init(DATABASE_CREDENTIALS)
+        def copy = new Copy(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
         def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         if (TEST_STUDY in studyIds) {
@@ -75,8 +74,7 @@ class CopySpec extends Specification {
     def 'test loading the relations data'() {
         given: 'Test database is available, the study is not loaded'
 
-        def copy = new Copy()
-        copy.init(DATABASE_CREDENTIALS)
+        def copy = new Copy(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
 
         def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
@@ -92,8 +90,7 @@ class CopySpec extends Specification {
 
     def 'test deleting the study'() {
         given: 'Test database is available, the study is loaded'
-        def copy = new Copy()
-        copy.init(DATABASE_CREDENTIALS)
+        def copy = new Copy(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
         def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
         if (!(TEST_STUDY in studyIds)) {
@@ -120,8 +117,7 @@ class CopySpec extends Specification {
     def 'test detecting if table exists'() {
         given: 'Test database is available'
 
-        def copy = new Copy()
-        copy.init(DATABASE_CREDENTIALS)
+        def copy = new Copy(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
 
         when: 'Checking for a non-existing table'
@@ -137,8 +133,7 @@ class CopySpec extends Specification {
     }
 
     def 'test index management'() {
-        def copy = new Copy()
-        copy.init(DATABASE_CREDENTIALS)
+        def copy = new Copy(DATABASE_CREDENTIALS)
         assert !copy.database.connection.closed
         def metaData = copy.database.connection.getMetaData()
         def count = { ResultSet rs ->

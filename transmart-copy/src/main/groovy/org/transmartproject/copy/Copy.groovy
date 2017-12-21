@@ -72,7 +72,7 @@ class Copy {
     Patients patients
     Studies studies
 
-    void init(Map<String, String> params = [:]) {
+    Copy(Map<String, String> params = [:]) {
         database = new Database(params.withDefault { String key -> getenv(key) })
     }
 
