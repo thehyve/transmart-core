@@ -7,3 +7,5 @@
 \i biomart_user/ioe_temp_obj_reg2.sql
 \i biomart_user/kde_temp_obj_reg3.sql
 \i biomart_user/query.sql
+\i biomart_user/query_diff.sql
+\i biomart_user/query_diff_entry.sql
