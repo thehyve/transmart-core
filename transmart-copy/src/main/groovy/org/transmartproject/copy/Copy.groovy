@@ -194,6 +194,7 @@ class Copy {
                     }
                 } catch (Exception e) {
                     log.error('Loading data has failed.', e)
+                    System.exit(1)
                 }
                 if (cl.hasOption('unlogged')) {
                     copy.setLoggedMode(true)
