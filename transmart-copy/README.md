@@ -21,12 +21,15 @@ java -jar transmart-copy.jar [-h|--help] [--delete <STUDY_ID>]
 
 _Parameters:_
 - `-h`, `--help`: Shows the available parameters. 
-- `-d <STUDY_ID>`, `--delete <STUDY_ID`: Deletes the study with id `<STUDY_ID>` and related data.
+- `-D <STUDY_ID>`, `--delete <STUDY_ID`: Deletes the study with id `<STUDY_ID>` and related data.
 - `-r`, `--restore-indexes`: Restore indexes.
 - `-i`, `--drop-indexes`: Drop indexes when loading, restore them afterwards.
 - `-u`, `--unlogged`: Set observations table to unlogged when loading.
 - `-t`, `--temporary-table`: Use a temporary table when loading.
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
+- `-v`, `--vacuum-analyze`: Vacuum analyze the `observation_fact` table.
+- `-d`, `--directory`: Specifies a data directory.
+- `-m`, `--mode <study|pedigree>`: Load mode. What type of data to load. Data loading does not happen if you skip the mode.
 
 
 The program reads table data from the current working directory
