@@ -13,6 +13,11 @@ import org.transmartproject.db.querytool.Query
 class UserQueryService implements UserQueryResource {
 
     @Override
+    List<UserQuery> list() {
+        Query.findAllByDeleted(false)
+    }
+
+    @Override
     List<UserQuery> list(User currentUser) {
         Query.findAllByUsernameAndDeleted(currentUser.username, false)
     }

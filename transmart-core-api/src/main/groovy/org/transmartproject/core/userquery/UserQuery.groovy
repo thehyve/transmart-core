@@ -17,6 +17,11 @@ interface UserQuery {
     void setName(String name)
 
     /**
+     * The query username
+     */
+    String getUsername()
+
+    /**
      * The patient selection part of the query in json format.
      */
     String getPatientsQuery()
