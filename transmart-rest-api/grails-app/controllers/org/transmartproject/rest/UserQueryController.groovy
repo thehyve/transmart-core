@@ -41,7 +41,8 @@ class UserQueryController {
 
     def save(@RequestParam('api_version') String apiVersion) {
         def requestJson = request.JSON as Map
-        checkForUnsupportedParams(requestJson, ['name', 'patientsQuery', 'observationsQuery', 'bookmarked', 'subscriptionFreq'])
+        checkForUnsupportedParams(requestJson, ['name', 'patientsQuery', 'observationsQuery', 'bookmarked',
+                                                'subscribed', 'subscriptionFreq'])
         def patientsQueryString = requestJson.patientsQuery?.toString()
         def observationsQueryString = requestJson.observationsQuery?.toString()
 
