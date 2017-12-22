@@ -323,6 +323,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         )
     }
 
+    private getFirst(DetachedCriteria criteria) {
+        getExecutableCriteria(criteria).setMaxResults(1).uniqueResult()
+    }
+
     private def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
@@ -592,17 +596,25 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                                             Closure<Long> queryExecutor) {
         // 1. Populate qt_query_master
         def queryMaster = new QtQueryMaster(
-                name           : name,
-                userId         : user.username,
-                groupId        : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
-                createDate     : new Date(),
-                generatedSql   : null,
-                requestXml     : "",
-                requestConstraints  : constraintText,
-                i2b2RequestXml : null,
-                apiVersion          : apiVersion
+                name: name,
+                userId: user.username,
+                groupId: Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                createDate: new Date(),
+                generatedSql: null,
+                requestXml: "",
+                requestConstraints: constraintText,
+                i2b2RequestXml: null,
+                apiVersion: apiVersion
         )
 
+        createQueryResultInstance(name, user, queryMaster, queryResultType, queryExecutor)
+    }
+
+    QtQueryResultInstance createQueryResultInstance(String name,
+                                                    User user,
+                                                    QtQueryMaster queryMaster,
+                                                    QtQueryResultType queryResultType,
+                                                    Closure<Long> queryExecutor) {
         // 2. Populate qt_query_instance
         def queryInstance = new QtQueryInstance(
                 userId       : user.username,
@@ -697,13 +709,79 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override QueryResult findQueryResult(Long queryResultId, User user) {
+    /**
+     * @description Function for updating a patient set with new patients for which there were data changes
+     * and different patients are matching the constraints
+     *
+     * @param name
+     * @param constraint
+     * @param user
+     * @param constraintText
+     * @return
+     */
+    @Override QueryResult updatePatientSetQueryResult(String name,
+                                            MultiDimConstraint constraint,
+                                            User user,
+                                            String constraintText) {
+
+        QtQueryMaster queryMaster = getQueryMasterByConstraint(user, constraintText)
+        createQueryResultInstance(
+                name,
+                user,
+                queryMaster,
+                QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)) { QtQueryResultInstance queryResult ->
+
+            List<Patient> patients = getDimensionElements(PATIENT, constraint, user).toList()
+            patients.eachWithIndex { Patient patient, Integer index ->
+                queryResult.addToPatientSet(
+                        new QtPatientSetCollection(
+                                resultInstance: queryResult,
+                                patient: PatientDimension.load(patient.id),
+                                setIndex: index + 1
+                        )
+                )
+            }
+
+            patients.size()
+        }
+    }
+
+    private QtQueryMaster getQueryMasterByConstraint(User user, String constraintText) {
+        def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
+                .add(Restrictions.eq('qm.userId', user.username))
+                .add(Restrictions.eq('qm.requestConstraints', constraintText))
+                .addOrder(Order.desc('qm.createDate'))
+
+        QtQueryMaster queryMaster = getFirst(queryMasterCriteria)
+        queryMaster
+    }
+
+    @Override QueryResult findQueryResultById(Long queryResultId, User user) {
         QueryResult queryResult = QtQueryResultInstance.findById(queryResultId)
         if (queryResult == null) {
             throw new NoSuchResourceException("Patient set not found with id ${queryResultId}.")
         }
         if (!user.canPerform(WellKnownOperations.READ, queryResult)) {
             throw new AccessDeniedException("Access denied to patient set with id ${queryResultId}.")
+        }
+        queryResult
+    }
+
+    @Override QueryResult findQueryResultByConstraint(String constraintText, User user) {
+        QtQueryMaster queryMaster = getQueryMasterByConstraint(user, constraintText)
+        if (queryMaster == null) {
+            log.info "Patient set not found with specified constraints."
+            return null
+        }
+        QtQueryInstance queryInstance = queryMaster.queryInstances.find {
+            it.startDate == queryMaster.queryInstances*.startDate.max() && it.deleteFlag == 'N'
+        }
+        QueryResult queryResult = queryInstance.queryResults.find {
+            it.startDate == queryInstance.queryResults*.startDate.max() && it.deleteFlag == 'N'
+        }
+        if (queryResult == null) {
+            log.info "QueryResult not found for queryInstance with id=$queryInstance.id"
+            return null
         }
         queryResult
     }

@@ -6,7 +6,6 @@ import com.google.common.base.Function
 import com.google.common.collect.Iterators
 import grails.converters.JSON
 import grails.web.mime.MimeType
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.dataquery.Patient
@@ -104,7 +103,7 @@ class PatientQueryController extends AbstractQueryController {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        QueryResult patientSet = multiDimService.findQueryResult(id, user)
+        QueryResult patientSet = multiDimService.findQueryResultById(id, user)
         def constraint = patientSet.queryInstance.queryMaster.apiVersion
         def version = patientSet.queryInstance.queryMaster.requestConstraints
 

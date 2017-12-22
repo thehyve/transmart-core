@@ -47,6 +47,16 @@ class QueryDiff implements UserQueryDiff {
     }
 
     @Override
+    String getQueryName() {
+        return query.name
+    }
+
+    @Override
+    String getQueryUsername() {
+        return query.username
+    }
+
+    @Override
     List<QueryDiffEntry> getQueryDiffEntries(){
         return queryDiffEntries
     }
