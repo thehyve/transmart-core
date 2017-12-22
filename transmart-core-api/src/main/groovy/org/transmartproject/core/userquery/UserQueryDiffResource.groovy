@@ -1,6 +1,7 @@
 package org.transmartproject.core.userquery
 
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.User
 
 /**
@@ -26,7 +27,8 @@ interface UserQueryDiffResource {
      * @param numResults - parameter required to support pagination
      * @return List of queryDiffs
      */
-    List<UserQueryDiff> getByQueryId(Long queryId, int firstResult, int numResults)
+    List<UserQueryDiff> getAllByQueryId(Long queryId, User currentUser, int firstResult, int numResults)
+            throws AccessDeniedException, NoSuchResourceException
 
     /**
      * Gets a list of changes of query results for the queries the user subscribed for.
@@ -40,6 +42,6 @@ interface UserQueryDiffResource {
      * @param numResults - parameter required to support pagination
      * @return List of queryDiffs
      */
-    List<UserQueryDiff> getByFrequency(String frequency, String username, int firstResult, int numResults)
+    List<UserQueryDiff> getAllByUsernameAndFrequency(String frequency, String username, int firstResult, int numResults)
 
 }

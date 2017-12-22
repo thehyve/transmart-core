@@ -45,7 +45,7 @@ class UserQueryDiffController {
         int firstResult = params.firstResult
         int numResults = params.numResults
 
-        List<UserQueryDiff> queryDiffs = userQueryDiffResource.getByQueryId(queryId, firstResult, numResults)
+        List<UserQueryDiff> queryDiffs = userQueryDiffResource.getAllByQueryId(queryId, currentUser, firstResult, numResults)
         render queryDiffs as JSON
     }
 }

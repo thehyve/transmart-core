@@ -1,10 +1,8 @@
 package org.transmart.server.subscription
 
 import grails.plugins.mail.MailService
-import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 import org.transmart.server.subsctiption.ChangeFlag
 import org.transmart.server.subsctiption.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQueryDiff
@@ -72,7 +70,7 @@ class QueryDiffSubscriptionService {
         def currentDate = new Date()
 
 
-        List<UserQueryDiff> queryDiffs = userQueryDiffResource.getByFrequency(frequency.value(), username,
+        List<UserQueryDiff> queryDiffs = userQueryDiffResource.getAllByUsernameAndFrequency(frequency.value(), username,
                 firstResult, numResults)
         StringBuilder textStringBuilder = new StringBuilder()
 
@@ -87,7 +85,7 @@ class QueryDiffSubscriptionService {
                 it.changeFlag == ChangeFlag.REMOVED.value()
             }?.toListString()
             textStringBuilder.append(NEW_LINE)
-            textStringBuilder.append("For query $diff.id: \n" +
+            textStringBuilder.append("For query '$diff.queryName': \n" +
                     "date of the change: + $diff.date, \n" +
                     "added ids: $addedIds \n" +
                     "removed ids: $removedIds \n")
