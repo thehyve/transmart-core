@@ -65,7 +65,7 @@ class QueryDiffSubscriptionService {
     private String generateEmail(String username, SubscriptionFrequency frequency) {
         // todo pagination params
         int firstResult = 0
-        int numResults = 10
+        Integer numResults = 10
 
         def currentDate = new Date()
 

@@ -1,6 +1,5 @@
 package org.transmartproject.rest
 
-import grails.converters.JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.transmartproject.core.userquery.UserQueryDiff
@@ -35,17 +34,31 @@ class UserQueryDiffController {
      * Gets a list of query result change entries by query id - history of data changes for specific query:
      * <code>/${apiVersion}/query_diffs/${queryId}</code>
      *
-     * @param firstResult - first result - parameter required for pagination
+     * @param firstResult - first result - parameter required for pagination, by default equals 0
      * @param numResults - number of results - parameter required for pagination
      * @param queryId - id of the query
      * @return list of queryDiffs
      */
     def getByQueryId(@PathVariable('queryId') Long queryId) {
         checkForUnsupportedParams(params, ['queryId', 'firstResult', 'numResults'])
-        int firstResult = params.firstResult
-        int numResults = params.numResults
+        int firstResult = params.firstResult ?: 0
+        def numResults = params.numResults as Integer
 
         List<UserQueryDiff> queryDiffs = userQueryDiffResource.getAllByQueryId(queryId, currentUser, firstResult, numResults)
-        render queryDiffs as JSON
+        respond([queryDiffs: queryDiffs.collect { toResponseMap(it) }])
+    }
+
+    private static Map<String, Object> toResponseMap(UserQueryDiff queryDiff) {
+        queryDiff.with {
+            [
+                    id               : id,
+                    queryName        : queryName,
+                    queryUsername    : queryUsername,
+                    setId            : setId,
+                    setType          : setType,
+                    date             : date,
+                    queryDiffEntries : queryDiffEntries
+            ]
+        }
     }
 }

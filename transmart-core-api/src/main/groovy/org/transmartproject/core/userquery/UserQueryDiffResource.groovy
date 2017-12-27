@@ -27,7 +27,7 @@ interface UserQueryDiffResource {
      * @param numResults - parameter required to support pagination
      * @return List of queryDiffs
      */
-    List<UserQueryDiff> getAllByQueryId(Long queryId, User currentUser, int firstResult, int numResults)
+    List<UserQueryDiff> getAllByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults)
             throws AccessDeniedException, NoSuchResourceException
 
     /**
@@ -42,6 +42,6 @@ interface UserQueryDiffResource {
      * @param numResults - parameter required to support pagination
      * @return List of queryDiffs
      */
-    List<UserQueryDiff> getAllByUsernameAndFrequency(String frequency, String username, int firstResult, int numResults)
+    List<UserQueryDiff> getAllByUsernameAndFrequency(String frequency, String username, int firstResult, Integer numResults)
 
 }

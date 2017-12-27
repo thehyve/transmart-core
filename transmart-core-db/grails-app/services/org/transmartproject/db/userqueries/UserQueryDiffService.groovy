@@ -149,34 +149,38 @@ class UserQueryDiffService implements UserQueryDiffResource {
     }
 
     @Override
-    List<UserQueryDiff> getAllByQueryId(Long queryId, User currentUser, int firstResult, int numResults) {
+    List<UserQueryDiff> getAllByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults) {
         // check access and if query exists
         userQueryService.get(queryId, currentUser)
 
         def session = sessionFactory.openStatelessSession()
-        Criteria criteria = session.createCriteria(QueryDiff, "qd")
-                .createAlias("qd.query", "q")
-                .setProjection(Projections.projectionList()
-                .add(Projections.property("q.name").as("queryName"))
-                .add(Projections.property("q.username").as("queryUsername")))
-                .add(Restrictions.eq('qd.queryId', queryId))
-                .add(Restrictions.eq('q.deleted', false))
-                .addOrder(Order.desc('qd.date'))
+        Criteria criteria = session.createCriteria(QueryDiffEntry, "queryDiffEntry")
+                .createAlias("queryDiffEntry.queryDiff", "queryDiff")
+                .createAlias("queryDiff.query", "query")
+                .add(Restrictions.eq('query.id', queryId))
+                .add(Restrictions.eq('query.deleted', false))
+                .addOrder(Order.desc('queryDiff.date'))
                 .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
                 .setFirstResult(firstResult)
-                .setMaxResults(numResults)
-        def result = criteria.list() as List<UserQueryDiff>
+        if(numResults) {
+            criteria.setMaxResults(numResults)
+        }
+        def result = criteria.list()
         if (!result) {
             throw new NoSuchResourceException("Results for queryId ${queryId} not found.")
         }
-        if (currentUser.username != result.queryUsername) {
+
+
+        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin && currentUser.username != result.queryUsername) {
             throw new AccessDeniedException("Query does not belong to the current user.")
         }
-        return result
+        List queryDiffs = result.collect { it.queryDiffEntry }?.groupBy { it.queryDiff }
+        return queryDiffs
     }
 
     @Override
-    List<UserQueryDiff> getAllByUsernameAndFrequency(String frequency, String username, int firstResult, int numResults) {
+    List<UserQueryDiff> getAllByUsernameAndFrequency(String frequency, String username, int firstResult, Integer numResults) {
         Calendar calendar = Calendar.getInstance()
         if (frequency == 'DAILY') {
             calendar.add(Calendar.DATE, -1)
@@ -184,21 +188,20 @@ class UserQueryDiffService implements UserQueryDiffResource {
             calendar.add(Calendar.DATE, -7)
         }
         def session = sessionFactory.openStatelessSession()
-        Criteria criteria = session.createCriteria(QueryDiff, "qd")
-                .createAlias("qd.query", "q")
-                .createAlias("qd.queryDiffEntries", "qde", JoinType.LEFT_OUTER_JOIN)
-                .setProjection(Projections.projectionList()
-                .add(Projections.property("q.name").as("queryName"))
-                .add(Projections.property("q.username").as("queryUsername")))
-                .add(Restrictions.eq('q.username', username))
-                .add(Restrictions.eq('q.deleted', false))
-                .add(Restrictions.eq('q.subscribed', true))
-                .add(Restrictions.ge("qd.date", calendar.getTime()))
-                .addOrder(Order.desc('qd.date'))
+        Criteria criteria = session.createCriteria(QueryDiffEntry, "queryDiffEntry")
+                .createAlias("queryDiffEntry.queryDiff", "queryDiff")
+                .createAlias("queryDiff.query", "query")
+                .add(Restrictions.eq('query.username', username))
+                .add(Restrictions.eq('query.deleted', false))
+                .add(Restrictions.eq('query.subscribed', true))
+                .add(Restrictions.ge("queryDiff.date", calendar.getTime()))
+                .addOrder(Order.desc('queryDiff.date'))
                 .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
                 .setFirstResult(firstResult)
-                .setMaxResults(numResults)
-        def result = criteria.list() as List<UserQueryDiff>
+        if(numResults) {
+            criteria.setMaxResults(numResults)
+        }
+        def result = criteria.list()
         return result
     }
 
