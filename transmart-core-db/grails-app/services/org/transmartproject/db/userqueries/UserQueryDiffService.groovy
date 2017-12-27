@@ -3,13 +3,14 @@ package org.transmartproject.db.userqueries
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONException
 import org.hibernate.Criteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Order
 import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Property
 import org.hibernate.criterion.Restrictions
-import org.hibernate.criterion.Subqueries
 import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
@@ -39,6 +40,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
     @Autowired
     UserQueryService userQueryService
 
+    @Autowired
     MultidimensionalDataResourceService multiDimService
 
     @Autowired
@@ -48,66 +50,84 @@ class UserQueryDiffService implements UserQueryDiffResource {
 
     @Override
     void scan(User currentUser) {
-        org.transmartproject.db.user.User user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
+        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         // get list of all not deleted queries per user
-        List<UserQuery> userQueries = userQueryService.list(currentUser)
+        List<UserQuery> userQueries = userQueryService.list()
         if (!userQueries) {
+            log.info "No queries were found."
             return
         }
 
         for (query in userQueries) {
-            //get the latest queryDiff entry for the current query
-            QueryDiff latestQueryDiff = getLatestQueryDiffByQueryId(query.id)
-            if (!latestQueryDiff) {
+            DbUser queryUser = (DbUser) usersResource.getUserFromUsername(query.username)
+            def oldSet = getOldSet(query, queryUser)
+            if (!oldSet) {
+                log.info "Set for query: '$query.id' was not found."
                 return
             }
 
-            def oldSet = findSetByIdAndType(latestQueryDiff.setId, latestQueryDiff.setType, currentUser)
-            if (!oldSet) {
-                throw new NoSuchResourceException("Set with id ${latestQueryDiff.setId} " +
-                        "of type ${latestQueryDiff.setType} was not found.")
-            }
-
             if (oldSet instanceof QueryResult) {
-                List<Long> oldPatientIds = oldSet.patientSet*.id
+
                 Constraint patientConstraint = createConstraints(query.patientsQuery)
+                QueryResult newSet = multiDimService.updatePatientSetQueryResult(
+                        query.name, patientConstraint, user, JSON.parse(query.patientsQuery)?.constraint.toString())
 
-                QueryResult newPatientSet = multiDimService.updatePatientSetQueryResult(
-                        query.name, patientConstraint, user, query.patientsQuery.toString())
-                List<Long> newPatientIds = newPatientSet.patientSet*.id
-
-                List<Long> addedIds = getAddedIds(oldPatientIds, newPatientIds)
-                List<Long> removedIds = getRemovedIds(oldPatientIds, newPatientIds)
-
-                if(addedIds.size() || removedIds.size()) {
-                    QueryDiff queryDiff = new QueryDiff(
-                            query: (Query) query,
-                            setId: newPatientSet.id,
-                            setType: SetTypes.PATIENT.value()
-                    )
-
-                    List<QueryDiffEntry> queryDiffEntries = []
-                    queryDiffEntries.addAll(addedIds.collect {
-                        new QueryDiffEntry(
-                                queryDiff: queryDiff,
-                                objectId: it,
-                                changeFlag: 'ADDED'
-                        )
-                    })
-                    queryDiffEntries.addAll(removedIds.collect {
-                        new QueryDiffEntry(
-                                queryDiff: queryDiff,
-                                objectId: it,
-                                changeFlag: 'REMOVED'
-                        )
-                    })
-                    queryDiff.save(flush: true)
-                    queryDiffEntries*.save(flush: true)
-                }
+                createQueryDiffWithEntries(oldSet, newSet, query)
             }
+        }
+    }
+
+    private Object getOldSet(UserQuery query, DbUser user) {
+        //get the latest queryDiff entry for the current query 
+        QueryDiff latestQueryDiff = getLatestQueryDiffByQueryId(query.id)
+        if (latestQueryDiff) {
+            return findSetByIdAndType(latestQueryDiff.setId, latestQueryDiff.setType, user)
+        } else {
+            //todo different methods depending on query type (for now patient only)
+            try {
+                def constraint = JSON.parse(query.patientsQuery)?.constraint
+                def resultSet = findSetByConstraints(constraint.toString(), user)
+                return resultSet
+            } catch (JSONException e) {
+                log.error "Constraint for query: $query.id is not valid JSON"
+                return null
+            }
+        }
+    }
+
+    private static void createQueryDiffWithEntries(QueryResult oldSet, QueryResult newSet, Query query) {
+        List<Long> oldPatientIds = oldSet.patientSet*.patient.id
+        List<Long> newPatientIds = newSet.patientSet*.patient.id
+        List<Long> addedIds = getAddedIds(oldPatientIds, newPatientIds)
+        List<Long> removedIds = getRemovedIds(oldPatientIds, newPatientIds)
+
+        if (addedIds.size() > 0 || removedIds.size() > 0) {
+            QueryDiff queryDiff = new QueryDiff(
+                    query: query,
+                    setId: newSet.id,
+                    setType: SetTypes.PATIENT.value()
+            )
+
+            List<QueryDiffEntry> queryDiffEntries = []
+            queryDiffEntries.addAll(addedIds.collect {
+                new QueryDiffEntry(
+                        queryDiff: queryDiff,
+                        objectId: it,
+                        changeFlag: 'ADDED'
+                )
+            })
+            queryDiffEntries.addAll(removedIds.collect {
+                new QueryDiffEntry(
+                        queryDiff: queryDiff,
+                        objectId: it,
+                        changeFlag: 'REMOVED'
+                )
+            })
+            queryDiff.save(flush: true)
+            queryDiffEntries*.save(flush: true)
         }
     }
 
@@ -119,13 +139,13 @@ class UserQueryDiffService implements UserQueryDiffResource {
         return oldPatientIds - newPatientIds
     }
 
-    private static Constraint createConstraints(String constraintParam){
-            try {
-                def constraintData = JSON.parse(constraintParam) as Map
-                return ConstraintFactory.create(constraintData)
-            } catch (ConverterException c) {
-                throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
-            }
+    private static Constraint createConstraints(String constraintParam) {
+        try {
+            def constraintData = JSON.parse(constraintParam) as Map
+            return ConstraintFactory.create(constraintData)
+        } catch (ConverterException c) {
+            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
+        }
     }
 
     @Override
@@ -137,8 +157,8 @@ class UserQueryDiffService implements UserQueryDiffResource {
         Criteria criteria = session.createCriteria(QueryDiff, "qd")
                 .createAlias("qd.query", "q")
                 .setProjection(Projections.projectionList()
-                    .add(Projections.property("q.name").as("queryName"))
-                    .add(Projections.property("q.username").as("queryUsername")))
+                .add(Projections.property("q.name").as("queryName"))
+                .add(Projections.property("q.username").as("queryUsername")))
                 .add(Restrictions.eq('qd.queryId', queryId))
                 .add(Restrictions.eq('q.deleted', false))
                 .addOrder(Order.desc('qd.date'))
@@ -168,8 +188,8 @@ class UserQueryDiffService implements UserQueryDiffResource {
                 .createAlias("qd.query", "q")
                 .createAlias("qd.queryDiffEntries", "qde", JoinType.LEFT_OUTER_JOIN)
                 .setProjection(Projections.projectionList()
-                    .add(Projections.property("q.name").as("queryName"))
-                    .add(Projections.property("q.username").as("queryUsername")))
+                .add(Projections.property("q.name").as("queryName"))
+                .add(Projections.property("q.username").as("queryUsername")))
                 .add(Restrictions.eq('q.username', username))
                 .add(Restrictions.eq('q.deleted', false))
                 .add(Restrictions.eq('q.subscribed', true))
@@ -184,32 +204,36 @@ class UserQueryDiffService implements UserQueryDiffResource {
 
     QueryDiff getLatestQueryDiffByQueryId(Long id) {
         DetachedCriteria recentDate = DetachedCriteria.forClass(QueryDiff)
-                .add(Restrictions.eq('queryId', id))
+                .add(Restrictions.eq('query.id', id))
                 .setProjection(Projections.max("date"))
 
         // get the content for the most recent date and queryId
         def session = sessionFactory.openStatelessSession()
         QueryDiff recent = session.createCriteria(QueryDiff)
-                .add(Restrictions.eq("queryId", id))
-                .add(Subqueries.eq("date", recentDate))
+                .add(Restrictions.eq("query.id", id))
+                .add(Property.forName( "date" ).eq(recentDate))
                 .uniqueResult()
         return recent
     }
 
-    private Object findSetByIdAndType(long setId, String setType, currentUser) {
+
+    Object findSetByConstraints(String constraintText, DbUser user) {
+        return multiDimService.findQueryResultByConstraint(constraintText, user)
+    }
+
+    private Object findSetByIdAndType(long setId, String setType, DbUser user) {
         SetTypes type = SetTypes.valueOf(setType)
 
         switch (type) {
             case SetTypes.PATIENT:
-                return findPatientSet(setId, currentUser)
+                return findPatientSetById(setId, user)
             default:
                 return
         }
     }
 
-    private QueryResult findPatientSet(Long id, User currentUser){
-        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        return multiDimService.findQueryResult(id, user)
+    private QueryResult findPatientSetById(Long id, DbUser user) {
+        return multiDimService.findQueryResultById(id, user)
     }
 
 }

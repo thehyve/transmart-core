@@ -113,7 +113,9 @@ interface MultiDimensionalDataResource {
      */
     QueryResult updatePatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String constraintText)
 
-    QueryResult findQueryResult(Long queryResultId, User user)
+    QueryResult findQueryResultById(Long queryResultId, User user)
+
+    QueryResult findQueryResultByConstraint(String constraintText, User user)
 
     Iterable<QueryResult> findPatientSetQueryResults(User user)
 

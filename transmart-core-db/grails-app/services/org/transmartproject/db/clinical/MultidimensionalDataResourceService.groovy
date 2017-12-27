@@ -724,12 +724,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                                             User user,
                                             String constraintText) {
 
-        def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
-                .add(Restrictions.eq('qm.userId', user.username))
-                .add(Restrictions.eq('qm.requestConstraints', constraintText))
-                .addOrder(Order.desc('qm.createDate'))
-
-        QtQueryMaster queryMaster = getFirst(queryMasterCriteria)
+        QtQueryMaster queryMaster = getQueryMasterByConstraint(user, constraintText)
         createQueryResultInstance(
                 name,
                 user,
@@ -751,13 +746,42 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override QueryResult findQueryResult(Long queryResultId, User user) {
+    private QtQueryMaster getQueryMasterByConstraint(User user, String constraintText) {
+        def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
+                .add(Restrictions.eq('qm.userId', user.username))
+                .add(Restrictions.eq('qm.requestConstraints', constraintText))
+                .addOrder(Order.desc('qm.createDate'))
+
+        QtQueryMaster queryMaster = getFirst(queryMasterCriteria)
+        queryMaster
+    }
+
+    @Override QueryResult findQueryResultById(Long queryResultId, User user) {
         QueryResult queryResult = QtQueryResultInstance.findById(queryResultId)
         if (queryResult == null) {
             throw new NoSuchResourceException("Patient set not found with id ${queryResultId}.")
         }
         if (!user.canPerform(WellKnownOperations.READ, queryResult)) {
             throw new AccessDeniedException("Access denied to patient set with id ${queryResultId}.")
+        }
+        queryResult
+    }
+
+    @Override QueryResult findQueryResultByConstraint(String constraintText, User user) {
+        QtQueryMaster queryMaster = getQueryMasterByConstraint(user, constraintText)
+        if (queryMaster == null) {
+            log.info "Patient set not found with specified constraints."
+            return null
+        }
+        QtQueryInstance queryInstance = queryMaster.queryInstances.find {
+            it.startDate == queryMaster.queryInstances*.startDate.max() && it.deleteFlag == 'N'
+        }
+        QueryResult queryResult = queryInstance.queryResults.find {
+            it.startDate == queryInstance.queryResults*.startDate.max() && it.deleteFlag == 'N'
+        }
+        if (queryResult == null) {
+            log.info "QueryResult not found for queryInstance with id=$queryInstance.id"
+            return null
         }
         queryResult
     }
