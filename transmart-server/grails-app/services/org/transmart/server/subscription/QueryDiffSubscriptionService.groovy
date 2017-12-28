@@ -22,6 +22,8 @@ import org.transmartproject.core.users.UsersResource
 @Slf4j
 class QueryDiffSubscriptionService {
 
+    def grailsApplication
+
     MailService mailService
 
     @Autowired
@@ -63,9 +65,8 @@ class QueryDiffSubscriptionService {
      *
      */
     private String generateEmail(String username, SubscriptionFrequency frequency) {
-        // todo pagination params
         int firstResult = 0
-        Integer numResults = 10
+        Integer numResults = grailsApplication.config.org.transmart.server.subscription.numResults
 
         def currentDate = new Date()
 
