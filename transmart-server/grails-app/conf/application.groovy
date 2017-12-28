@@ -342,11 +342,16 @@ grails {
 }
 /* }}} */
 
-/* {{{ Quartz plugin configuration - job for queryDiff subscription */
+/* {{{ Query subscription configuration */
+//Quartz plugin configuration - job for queryDiff subscription
 quartz {
     autoStartup = true
 }
+// max number of queryDiff results for pagination
+org.transmart.server.subscription.numResults = 20
 /* }}} */
+
+
 
 
 /* {{{ DATASOURCES configuration */
