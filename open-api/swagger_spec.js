@@ -2263,6 +2263,12 @@ var spec = {
                 },
                 "bookmarked": {
                   "type": "boolean"
+                },
+                "subscribed": {
+                  "type": "boolean"
+                },
+                "subscriptionFreq": {
+                  "type": "string"
                 }
               }
             }
@@ -2331,6 +2337,12 @@ var spec = {
                 },
                 "bookmarked": {
                   "type": "boolean"
+                },
+                "subscribed": {
+                  "type": "boolean"
+                },
+                "subscriptionFreq": {
+                  "type": "string"
                 }
               }
             }
@@ -2358,6 +2370,52 @@ var spec = {
         "responses": {
           "204": {
             "description": "returns null"
+          }
+        }
+      }
+    },
+    "/v2/query_diffs/{queryId}": {
+      "get": {
+        "description": "Gets a list of query result change entries by query id.\nHistory of data changes for specific query.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "queryId",
+            "required": true,
+            "in": "path",
+            "description": "Id of a user query.",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an object that contains an array with all queryDiffs related to the query.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "queryDiffs": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/userQueryDiff"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/query_diffs/scan": {
+      "post": {
+        "description": "Scans for changes in results of the stored user queries and updates stored sets.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response"
           }
         }
       }
@@ -3116,6 +3174,12 @@ var spec = {
         "bookmarked": {
           "type": "boolean"
         },
+        "subscribed": {
+          "type": "boolean"
+        },
+        "subscriptionFreq": {
+          "type": "string"
+        },
         "createDate": {
           "type": "string",
           "format": "date-time"
@@ -3123,6 +3187,56 @@ var spec = {
         "updateDate": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "userQueryDiff": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "queryId": {
+          "type": "integer"
+        },
+        "queryName": {
+          "type": "string"
+        },
+        "queryUsername": {
+          "type": "string"
+        },
+        "setId": {
+          "type": "integer"
+        },
+        "setTyp": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "queryDiffEntries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/userQueryDiffEntry"
+          }
+        }
+      }
+    },
+    "userQueryDiffEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "queryDiffId": {
+          "type": "integer"
+        },
+        "objectId": {
+          "type": "integer"
+        },
+        "changeFlag": {
+          "type": "string"
         }
       }
     },
