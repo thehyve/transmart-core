@@ -3,6 +3,7 @@ package org.transmartproject.rest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.transmartproject.core.userquery.UserQueryDiff
+import org.transmartproject.core.userquery.UserQueryDiffEntry
 import org.transmartproject.core.userquery.UserQueryDiffResource
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -44,20 +45,27 @@ class UserQueryDiffController {
         int firstResult = params.firstResult ?: 0
         def numResults = params.numResults as Integer
 
-        List<UserQueryDiff> queryDiffs = userQueryDiffResource.getAllByQueryId(queryId, currentUser, firstResult, numResults)
-        respond([queryDiffs: queryDiffs.collect { toResponseMap(it) }])
+        List<UserQueryDiffEntry> queryDiffEntries = userQueryDiffResource.getAllEntriesByQueryId(queryId, currentUser, firstResult, numResults)
+        def queryDiffsMap = queryDiffEntries?.groupBy { it.queryDiff }
+        respond([queryDiffs: queryDiffsMap ? queryDiffsMap.collect { toResponseMap(it) } : []])
     }
 
-    private static Map<String, Object> toResponseMap(UserQueryDiff queryDiff) {
-        queryDiff.with {
+    private static Map<String, Object> toResponseMap(response) {
+        response.with {
             [
-                    id               : id,
-                    queryName        : queryName,
-                    queryUsername    : queryUsername,
-                    setId            : setId,
-                    setType          : setType,
-                    date             : date,
-                    queryDiffEntries : queryDiffEntries
+                    id              : it.key.id,
+                    queryName       : it.key.query.name,
+                    queryUsername   : it.key.query.username,
+                    setId           : it.key.setId,
+                    setType         : it.key.setType,
+                    date            : it.key.date,
+                    queryDiffEntries: value ? value.collect { entry ->
+                        [
+                                "id"        : entry.id,
+                                "changeFlag": entry.changeFlag,
+                                "objectId"  : entry.objectId
+                        ]
+                    } : []
             ]
         }
     }
