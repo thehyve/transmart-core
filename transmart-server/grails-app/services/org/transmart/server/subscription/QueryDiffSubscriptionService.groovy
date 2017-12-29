@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmart.server.subsctiption.ChangeFlag
 import org.transmart.server.subsctiption.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQueryDiff
+import org.transmartproject.core.userquery.UserQueryDiffEntry
 import org.transmartproject.core.userquery.UserQueryDiffResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
@@ -71,25 +72,27 @@ class QueryDiffSubscriptionService {
         def currentDate = new Date()
 
 
-        List<UserQueryDiff> queryDiffs = userQueryDiffResource.getAllByUsernameAndFrequency(frequency.value(), username,
-                firstResult, numResults)
+        List<UserQueryDiffEntry> queryDiffEntries = userQueryDiffResource
+                .getAllEntriesByUsernameAndFrequency(frequency.value(), username, firstResult, numResults)
+        def queryDiffsMap = queryDiffEntries?.groupBy { it.queryDiff }
+
         StringBuilder textStringBuilder = new StringBuilder()
 
         textStringBuilder.append("Change log of ${currentDate.format("d.' of 'M Y h:mm aa z")}")
 
-        for(diff in queryDiffs) {
+        for(entry in queryDiffEntries) {
             //todo prettify a message text
-            def addedIds = diff.queryDiffEntries.collect {
+            def addedIds = entry.collect {
                 it.changeFlag == ChangeFlag.ADDED.value()
             }?.toListString()
-            def removedIds = diff.queryDiffEntries.collect {
+            def removedIds = entry.collect {
                 it.changeFlag == ChangeFlag.REMOVED.value()
             }?.toListString()
             textStringBuilder.append(NEW_LINE)
-            textStringBuilder.append("For query '$diff.queryName': \n" +
-                    "date of the change: + $diff.date, \n" +
-                    "added ids: $addedIds \n" +
-                    "removed ids: $removedIds \n")
+//            textStringBuilder.append("For query '$entry.queryDiff.id': \n" +
+//                    "date of the change: + $entry.date, \n" +
+//                    "added ids: $addedIds \n" +
+//                    "removed ids: $removedIds \n")
             textStringBuilder.append(NEW_LINE)
         }
         return textStringBuilder.toString()

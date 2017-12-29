@@ -18,7 +18,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
-import org.transmartproject.core.userquery.UserQueryDiff
+import org.transmartproject.core.userquery.UserQueryDiffEntry
 import org.transmartproject.core.userquery.UserQueryDiffResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
@@ -149,14 +149,14 @@ class UserQueryDiffService implements UserQueryDiffResource {
     }
 
     @Override
-    List<UserQueryDiff> getAllByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults) {
+    List<UserQueryDiffEntry> getAllEntriesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults) {
         // check access and if query exists
         userQueryService.get(queryId, currentUser)
 
-        def session = sessionFactory.openStatelessSession()
+        def session = sessionFactory.currentSession
         Criteria criteria = session.createCriteria(QueryDiffEntry, "queryDiffEntries")
-                .createAlias("queryDiffEntries.queryDiff", "queryDiff", JoinType.RIGHT_OUTER_JOIN)
-                .createAlias("queryDiff.query", "query")
+                .createAlias("queryDiffEntries.queryDiff", "queryDiff", JoinType.INNER_JOIN)
+                .createAlias("queryDiff.query", "query", JoinType.INNER_JOIN)
                 .add(Restrictions.eq('query.id', queryId))
                 .add(Restrictions.eq('query.deleted', false))
                 .addOrder(Order.desc('queryDiff.date'))
@@ -174,23 +174,22 @@ class UserQueryDiffService implements UserQueryDiffResource {
         if (!user.admin && result.query.first().username != currentUser.username) {
             throw new AccessDeniedException("Query does not belong to the current user.")
         }
-        //List queryDiffs = result.collect { it.queryDiffEntry }?.groupBy { it.queryDiff }
-        List<UserQueryDiff> queryDiffs = result.queryDiff
-        return queryDiffs
+        List<UserQueryDiffEntry> queryDiffEntries = result.queryDiffEntries
+        return queryDiffEntries
     }
 
     @Override
-    List<UserQueryDiff> getAllByUsernameAndFrequency(String frequency, String username, int firstResult, Integer numResults) {
+    List<UserQueryDiffEntry> getAllEntriesByUsernameAndFrequency(String frequency, String username, int firstResult, Integer numResults) {
         Calendar calendar = Calendar.getInstance()
         if (frequency == 'DAILY') {
             calendar.add(Calendar.DATE, -1)
         } else {
             calendar.add(Calendar.DATE, -7)
         }
-        def session = sessionFactory.openStatelessSession()
-        Criteria criteria = session.createCriteria(QueryDiffEntry, "queryDiffEntry")
-                .createAlias("queryDiffEntry.queryDiff", "queryDiff")
-                .createAlias("queryDiff.query", "query")
+        def session = sessionFactory.currentSession
+        Criteria criteria = session.createCriteria(QueryDiffEntry, "queryDiffEntries")
+                .createAlias("queryDiffEntries.queryDiff", "queryDiff", JoinType.INNER_JOIN)
+                .createAlias("queryDiff.query", "query", JoinType.INNER_JOIN)
                 .add(Restrictions.eq('query.username', username))
                 .add(Restrictions.eq('query.deleted', false))
                 .add(Restrictions.eq('query.subscribed', true))
@@ -202,7 +201,8 @@ class UserQueryDiffService implements UserQueryDiffResource {
             criteria.setMaxResults(numResults)
         }
         def result = criteria.list()
-        return result
+        List<UserQueryDiffEntry> queryDiffEntries = result.queryDiffEntries
+        return queryDiffEntries
     }
 
     private QueryDiff getLatestQueryDiffByQueryId(Long id) {
@@ -211,7 +211,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
                 .setProjection(Projections.max("date"))
 
         // get the content for the most recent date and queryId
-        def session = sessionFactory.openStatelessSession()
+        def session = sessionFactory.currentSession
         QueryDiff recent = session.createCriteria(QueryDiff)
                 .add(Restrictions.eq("query.id", id))
                 .add(Property.forName( "date" ).eq(recentDate))
