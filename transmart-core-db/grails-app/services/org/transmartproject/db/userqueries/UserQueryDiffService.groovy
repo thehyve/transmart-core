@@ -154,8 +154,8 @@ class UserQueryDiffService implements UserQueryDiffResource {
         userQueryService.get(queryId, currentUser)
 
         def session = sessionFactory.openStatelessSession()
-        Criteria criteria = session.createCriteria(QueryDiffEntry, "queryDiffEntry")
-                .createAlias("queryDiffEntry.queryDiff", "queryDiff")
+        Criteria criteria = session.createCriteria(QueryDiffEntry, "queryDiffEntries")
+                .createAlias("queryDiffEntries.queryDiff", "queryDiff", JoinType.RIGHT_OUTER_JOIN)
                 .createAlias("queryDiff.query", "query")
                 .add(Restrictions.eq('query.id', queryId))
                 .add(Restrictions.eq('query.deleted', false))
@@ -170,12 +170,12 @@ class UserQueryDiffService implements UserQueryDiffResource {
             throw new NoSuchResourceException("Results for queryId ${queryId} not found.")
         }
 
-
         DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin && currentUser.username != result.queryUsername) {
+        if (!user.admin && result.query.first().username != currentUser.username) {
             throw new AccessDeniedException("Query does not belong to the current user.")
         }
-        List queryDiffs = result.collect { it.queryDiffEntry }?.groupBy { it.queryDiff }
+        //List queryDiffs = result.collect { it.queryDiffEntry }?.groupBy { it.queryDiff }
+        List<UserQueryDiff> queryDiffs = result.queryDiff
         return queryDiffs
     }
 
@@ -205,7 +205,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
         return result
     }
 
-    QueryDiff getLatestQueryDiffByQueryId(Long id) {
+    private QueryDiff getLatestQueryDiffByQueryId(Long id) {
         DetachedCriteria recentDate = DetachedCriteria.forClass(QueryDiff)
                 .add(Restrictions.eq('query.id', id))
                 .setProjection(Projections.max("date"))
@@ -220,7 +220,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
     }
 
 
-    Object findSetByConstraints(String constraintText, DbUser user) {
+    private Object findSetByConstraints(String constraintText, DbUser user) {
         return multiDimService.findQueryResultByConstraint(constraintText, user)
     }
 
