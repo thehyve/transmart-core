@@ -43,5 +43,5 @@ interface UserQueryDiff {
     /**
      * List of objectIds added and/or removed from the set
      */
-    List<UserQueryDiffEntry> getQueryDiffEntries()
+    Set<UserQueryDiffEntry> getQueryDiffEntries()
 }
