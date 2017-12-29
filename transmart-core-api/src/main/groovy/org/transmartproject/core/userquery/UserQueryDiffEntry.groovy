@@ -10,11 +10,6 @@ interface UserQueryDiffEntry {
     Long getId()
 
     /**
-     * Identifier of the queryDiff
-     */
-    UserQueryDiff getQueryDiff()
-
-    /**
      * The id of the object that was updated in the query result
      */
     Long getObjectId()

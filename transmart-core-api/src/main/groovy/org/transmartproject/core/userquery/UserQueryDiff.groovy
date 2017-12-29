@@ -11,19 +11,9 @@ interface UserQueryDiff {
     Long getId()
 
     /**
-     * Identifier of the related query.
+     * Related query.
      */
-    Long getQueryId()
-
-    /**
-     * Name of the related query.
-     */
-    String getQueryName()
-
-    /**
-     * Name of the related query.
-     */
-    String getQueryUsername()
+    UserQuery getQuery()
 
     /**
      * The id of the set the query is related to
