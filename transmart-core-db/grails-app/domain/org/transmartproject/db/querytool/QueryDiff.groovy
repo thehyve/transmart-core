@@ -42,19 +42,4 @@ class QueryDiff implements UserQueryDiff {
         query column: 'query_id'
     }
 
-    @Override
-    Long getQueryId() {
-        return query.id
-    }
-
-    @Override
-    String getQueryName() {
-        return query.name
-    }
-
-    @Override
-    String getQueryUsername() {
-        return query.username
-    }
-
 }

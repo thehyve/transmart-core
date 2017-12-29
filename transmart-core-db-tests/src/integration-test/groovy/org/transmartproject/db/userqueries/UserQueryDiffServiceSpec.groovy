@@ -23,17 +23,31 @@ class UserQueryDiffServiceSpec extends TransmartSpecification {
         userQueryTestData.saveAll()
     }
 
-    void "test fetching queryDiffs for a query"(){
+    void "test fetching queryDiffs for a query"() {
         setupData()
 
         when:
         def user = userQueryTestData.user
-        def result = userQueryDiffService.getAllByQueryId(userQueryTestData.queries[0].id, user, 0, 20)
+        def result = userQueryDiffService.getAllEntriesByQueryId(userQueryTestData.queries[0].id, user, 0, 20)
 
         then:
         result != null
-        result.size() == 2
+
+        // check queryDiffEntries
+        result.size() == 4
+        result.containsAll(userQueryTestData.queryDiffEntries[0], userQueryTestData.queryDiffEntries[1],
+                userQueryTestData.queryDiffEntries[2], userQueryTestData.queryDiffEntries[3])
+
+        // check queryDiffs
+        (result.queryDiff as Set).size() == 2
+        result.queryDiff.containsAll(userQueryTestData.queryDiffs[0], userQueryTestData.queryDiffs[1])
+
+        // check query
+        (result.queryDiff.query as Set).size() == 1
+        result.queryDiff.query.contains(userQueryTestData.queries[0])
+
     }
-
-
 }
+
+
+
