@@ -23,6 +23,7 @@ import org.transmartproject.core.userquery.UserQueryDiff
 
 class QueryDiff implements UserQueryDiff {
 
+    Long id
     Long setId
     String setType
     Date date = new Date()
@@ -56,8 +57,4 @@ class QueryDiff implements UserQueryDiff {
         return query.username
     }
 
-    @Override
-    List<QueryDiffEntry> getQueryDiffEntries(){
-        return queryDiffEntries
-    }
 }

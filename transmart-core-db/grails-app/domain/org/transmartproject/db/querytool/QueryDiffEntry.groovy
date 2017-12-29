@@ -23,6 +23,7 @@ import org.transmartproject.core.userquery.UserQueryDiffEntry
 
 class QueryDiffEntry implements UserQueryDiffEntry {
 
+    Long id
     Long objectId
     String changeFlag
     QueryDiff queryDiff
@@ -31,6 +32,7 @@ class QueryDiffEntry implements UserQueryDiffEntry {
 
     static mapping = {
         table schema: 'BIOMART_USER'
+        queryDiff fetch: 'join'
         version false
     }
 
@@ -39,8 +41,4 @@ class QueryDiffEntry implements UserQueryDiffEntry {
         queryDiff column: 'query_diff_id'
     }
 
-    @Override
-    Long getQueryDiffId() {
-        return queryDiff.id
-    }
 }

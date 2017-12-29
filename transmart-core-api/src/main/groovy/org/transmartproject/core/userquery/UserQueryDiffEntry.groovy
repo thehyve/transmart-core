@@ -12,7 +12,7 @@ interface UserQueryDiffEntry {
     /**
      * Identifier of the queryDiff
      */
-    Long getQueryDiffId()
+    UserQueryDiff getQueryDiff()
 
     /**
      * The id of the object that was updated in the query result
