@@ -89,7 +89,7 @@ class ExportController {
             throw new InvalidArgumentsException('Empty elements map.')
         }
 
-        Constraint constraint = ConstraintFactory.create(requestBody.constraint)
+        Constraint constraint = ConstraintFactory.create(requestBody.constraint).normalise()
 
         def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId)
 
