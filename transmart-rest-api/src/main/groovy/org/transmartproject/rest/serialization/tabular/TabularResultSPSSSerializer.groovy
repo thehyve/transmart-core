@@ -26,13 +26,6 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         if (!tabularResult.indicesList) {
             throw new IllegalArgumentException("Can't write spss files for empty table.")
         }
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
-        writeValues(tabularResult, zipOutStream)
-        zipOutStream.closeEntry()
-
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
-        writeSpsFile(tabularResult, zipOutStream, 'data.tsv')
-        zipOutStream.closeEntry()
 
         try {
             writeSavFile(user, tabularResult, zipOutStream)
@@ -44,36 +37,44 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     }
 
     static writeSavFile(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
-        if (!tabularResult.indicesList) {
-            throw new IllegalArgumentException("Can't write sav file for empty table.")
-        }
-        try {
-            def command = 'pspp --version'
-            def process = command.execute()
-            process.waitForProcessOutput()
-            if (process.exitValue() != 0) {
-                log.warn 'PSPP not available. Skip saving of spss/data.sav.'
-                return
-            }
-        } catch(IOException e) {
-            log.warn 'PSPP not available. Skip saving of spss/data.sav.'
-            return
-        }
-
-        // FIXME: This leaks data to the /tmp dir.
         def workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
 
+        // Write TSV file to disk and to the outputstream
         def tsvDataFile = new File(workingDir, 'data.tsv')
         tsvDataFile.withOutputStream { outputStream ->
             writeValues(tabularResult, outputStream)
         }
+        zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
+        tsvDataFile.withInputStream { stream ->
+            zipOutStream << stream
+        }
+        zipOutStream.closeEntry()
 
+        // Write SPS file to disk and to the outputstream
         def spsFile = new File(workingDir, 'data.sps')
         spsFile.withOutputStream { outputStream ->
             writeSpsFile(tabularResult, outputStream, tsvDataFile.path, 'data.sav')
         }
+        zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
+        spsFile.withInputStream { stream ->
+            zipOutStream << stream
+        }
+        zipOutStream.closeEntry()
 
         try {
+            try {
+                def command = 'pspp --version'
+                def process = command.execute()
+                process.waitForProcessOutput()
+                if (process.exitValue() != 0) {
+                    log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+                    return
+                }
+            } catch(IOException e) {
+                log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+                return
+            }
+
             def command = 'pspp data.sps'
             log.debug "Running PSPP in ${workingDir} ..."
             def process = command.execute((String[])null, workingDir)
@@ -246,7 +247,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 }
                 return 'DATETIME' + (width ?: '')
             case VariableDataType.STRING:
-                return 'A' + (metadata.width ?: '')
+                return 'A' + (metadata.width ?: '255')
             default: throw new UnsupportedOperationException()
         }
     }
