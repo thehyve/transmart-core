@@ -33,7 +33,7 @@ ext {
     transmartVersion = '17.1-SNAPSHOT'
 
     assetPipelineVersion = '2.11.6'
-    gradleWrapperVersion = '2.13'
+    gradleWrapperVersion = '3.5'
     grailsVersion = '3.2.3'
     guavaVersion = '19.0'
     ojdb7Version = '12.1.0.1'
@@ -93,6 +93,8 @@ subprojects { project ->
         } else {
             apply plugin: 'org.grails.grails-plugin'
             apply plugin: 'org.grails.grails-plugin-publish'
+
+            bootRepackage.enabled = false
         }
         apply plugin: 'org.grails.grails-gsp'
         apply plugin: 'asset-pipeline'
