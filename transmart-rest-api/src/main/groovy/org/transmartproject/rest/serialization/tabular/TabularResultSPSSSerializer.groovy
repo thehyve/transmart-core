@@ -2,6 +2,7 @@
 package org.transmartproject.rest.serialization.tabular
 
 import com.opencsv.CSVWriter
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -12,10 +13,12 @@ import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
 import java.text.SimpleDateFormat
+import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 @Slf4j
+@CompileStatic
 class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
@@ -106,25 +109,30 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     }
 
     static writeValues(TabularResult tabularResult, OutputStream outputStream) {
-        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream, 'utf-8'), COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
+        CSVWriter csvWriter = new CSVWriter(
+                new BufferedWriter(
+                        new OutputStreamWriter(outputStream, 'utf-8'),
+                        // large 32k chars buffer to reduce overhead
+                        32*1024),
+                COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
         List<DataColumn> columns = tabularResult.indicesList
         csvWriter.writeNext(columns.collect { toSpssLabel(it.label) } as String[])
-        tabularResult.rows.each { DataRow row ->
-            List valuesRow = columns.collect { DataColumn column -> row[column] }
+        tabularResult.rows.forEachRemaining({DataRow row ->
+            List<Object> valuesRow = columns.stream().map({DataColumn column -> row[column]}).collect(Collectors.toList())
             csvWriter.writeNext(formatRowValues(valuesRow))
-        }
+        })
         csvWriter.flush()
     }
 
     private static String[] formatRowValues(List<Object> valuesRow) {
-        valuesRow.collect { value ->
+        valuesRow.stream().map({value ->
             if (value == null) return ''
             if (value instanceof Date) {
                 DATE_FORMAT.format(value)
             } else {
-                value as String
+                value.toString()
             }
-        } as String[]
+        }).toArray()
     }
 
     static writeSpsFile(TabularResult<? extends MetadataAwareDataColumn ,? extends DataRow> tabularResult,
@@ -170,7 +178,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             buffer << columns
                     .findAll { it.metadata.valueLabels }
                     .collect { column ->
-                ([toSpssLabel(column.label)]
+                (([toSpssLabel(column.label)] as List<String>)
                         + column.metadata.valueLabels
                         .collect { value, label -> quote(value as String) + ' ' + quote(label) }).join('\n')
             }.join('\n/')
