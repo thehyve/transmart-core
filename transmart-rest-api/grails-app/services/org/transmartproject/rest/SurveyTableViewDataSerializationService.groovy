@@ -19,6 +19,7 @@
 package org.transmartproject.rest
 
 import grails.transaction.Transactional
+import org.grails.core.util.StopWatch
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -50,13 +51,19 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
                        User user,
                        OutputStream out) {
         def patientDimension = multiDimService.getDimension('patient')
+        def stopWatch = new StopWatch('Write clinical data')
+        stopWatch.start('Retrieve data')
         def hypercube = multiDimService.retrieveClinicalData(constraint, user, [patientDimension])
+        stopWatch.stop()
         def tabularView = new SurveyTableView(hypercube)
         try {
             log.info "Writing tabular data in ${format} format."
+            stopWatch.start('Write data')
             formatToSerializer[format].writeFilesToZip(user, tabularView, (ZipOutputStream) out)
         } finally {
             tabularView.close()
+            stopWatch.stop()
+            log.info "Writing clinical data completed.\n${stopWatch.prettyPrint()}"
         }
     }
 

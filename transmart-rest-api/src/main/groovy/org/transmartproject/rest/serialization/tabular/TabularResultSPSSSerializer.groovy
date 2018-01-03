@@ -4,6 +4,7 @@ package org.transmartproject.rest.serialization.tabular
 import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.grails.core.util.StopWatch
 import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.MissingValues
@@ -42,7 +43,10 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     static writeSavFile(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
         def workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
 
+        def stopWatch = new StopWatch('Export to SPSS')
+
         // Write TSV file to disk and to the outputstream
+        stopWatch.start('Write TSV')
         def tsvDataFile = new File(workingDir, 'data.tsv')
         tsvDataFile.withOutputStream { outputStream ->
             writeValues(tabularResult, outputStream)
@@ -52,8 +56,10 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             zipOutStream << stream
         }
         zipOutStream.closeEntry()
+        stopWatch.stop()
 
         // Write SPS file to disk and to the outputstream
+        stopWatch.start('Write SPS')
         def spsFile = new File(workingDir, 'data.sps')
         spsFile.withOutputStream { outputStream ->
             writeSpsFile(tabularResult, outputStream, tsvDataFile.path, 'data.sav')
@@ -63,6 +69,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             zipOutStream << stream
         }
         zipOutStream.closeEntry()
+        stopWatch.stop()
 
         try {
             try {
@@ -78,6 +85,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 return
             }
 
+            stopWatch.start('Convert to SAV')
             def command = 'pspp data.sps'
             log.debug "Running PSPP in ${workingDir} ..."
             def process = command.execute((String[])null, workingDir)
@@ -96,10 +104,13 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 zipOutStream << inputStream
             }
             zipOutStream.closeEntry()
+            stopWatch.stop()
         } catch(IOException e) {
+            stopWatch.stop()
             log.error "PSPP error: ${e.message}", e
             throw new UnexpectedResultException("PSPP error: ${e.message}", e)
         } finally {
+            log.info "Export to SPSS completed.\n${stopWatch.prettyPrint()}"
             workingDir.delete()
         }
     }
