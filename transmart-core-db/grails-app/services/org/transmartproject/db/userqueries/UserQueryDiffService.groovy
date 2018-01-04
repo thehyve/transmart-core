@@ -100,8 +100,8 @@ class UserQueryDiffService implements UserQueryDiffResource {
     private static void createQueryDiffWithEntries(QueryResult oldSet, QueryResult newSet, Query query) {
         List<Long> oldPatientIds = oldSet.patientSet*.patient.id
         List<Long> newPatientIds = newSet.patientSet*.patient.id
-        List<Long> addedIds = getAddedIds(oldPatientIds, newPatientIds)
-        List<Long> removedIds = getRemovedIds(oldPatientIds, newPatientIds)
+        List<Long> addedIds = newPatientIds - oldPatientIds
+        List<Long> removedIds = oldPatientIds - newPatientIds
 
         if (addedIds.size() > 0 || removedIds.size() > 0) {
             QueryDiff queryDiff = new QueryDiff(
@@ -128,14 +128,6 @@ class UserQueryDiffService implements UserQueryDiffResource {
             queryDiff.save(flush: true)
             queryDiffEntries*.save(flush: true)
         }
-    }
-
-    private static List<Long> getAddedIds(List<Long> oldPatientIds, List<Long> newPatientIds) {
-        return newPatientIds - oldPatientIds
-    }
-
-    private static List<Long> getRemovedIds(List<Long> oldPatientIds, List<Long> newPatientIds) {
-        return oldPatientIds - newPatientIds
     }
 
     private static Constraint createConstraints(String constraintParam) {
