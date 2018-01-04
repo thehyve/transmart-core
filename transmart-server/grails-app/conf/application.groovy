@@ -326,13 +326,13 @@ grails { plugin { springsecurity {
 /* {{{ GlowingBear query subscription configuration */
 grails {
     mail {
-        host = "smtp.gmail.com"
+        host = "localhost:25"
         'default' {
-            from = "subscription.gb@gmail.com"
+            from = "<default_email>"
         }
         port = 465
-        username = "subscription.gb@gmail.com"
-        password = "gb@TheHyve"
+        username = "<username>"
+        password = "<password>"
         props = ["mail.smtp.auth":"true",
                  "mail.smtp.ssl.enable": "true",
                  "mail.smtp.socketFactory.port":"465",

@@ -19,7 +19,9 @@ enum SetTypes {
 
     static SetTypes from(String type) {
         SetTypes t = values().find { it.type == type }
-        if (t == null) log.error "Unknown type of set: ${type}"
+        if (t == null) {
+            log.warn "Unknown type of set: ${type}"
+        }
         t
     }
 
