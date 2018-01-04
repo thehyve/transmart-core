@@ -4,7 +4,7 @@
 CREATE TABLE i2b2_tags (
     tag_id integer NOT NULL,
     path character varying(400) NOT NULL,
-    tag character varying(1000),
+    tag text,
     tag_type character varying(400) NOT NULL,
     tags_idx integer NOT NULL,
     tag_option_id integer
