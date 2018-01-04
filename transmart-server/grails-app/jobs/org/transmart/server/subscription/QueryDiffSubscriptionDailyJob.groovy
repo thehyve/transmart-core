@@ -1,7 +1,6 @@
 package org.transmart.server.subscription
 
 import groovy.util.logging.Slf4j
-import org.transmart.server.subscription.QueryDiffSubscriptionService
 import org.transmart.server.subsctiption.SubscriptionFrequency
 
 /**
@@ -12,7 +11,7 @@ import org.transmart.server.subsctiption.SubscriptionFrequency
 @Slf4j
 class QueryDiffSubscriptionDailyJob {
 
-    QueryDiffSubscriptionService queryDiffSubscriptionService
+    QueryDiffSubscriptionMailService queryDiffSubscriptionMailService
     /**
      * Specifies a cron expression for job trigger
      cronExpression: "s m h D M W Y"
@@ -40,7 +39,7 @@ class QueryDiffSubscriptionDailyJob {
      * Runs generating emails
      */
     void execute() {
-        queryDiffSubscriptionService.run(SubscriptionFrequency.DAILY)
+        queryDiffSubscriptionMailService.run(SubscriptionFrequency.DAILY)
         // todo add a new row to AsyncJob table (?)
         log.info "Daily subscription job executed."
     }
