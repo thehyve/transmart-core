@@ -2482,7 +2482,15 @@ var spec = {
         ],
         "responses": {
           "201": {
-            "description": "Successful response"
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "numberOfUpdatedSets": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         }
       }

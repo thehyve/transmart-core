@@ -17,7 +17,7 @@ interface UserQueryDiffResource {
      * @param currentUser
      * @throws AccessDeniedException
      */
-    void scan(User currentUser) throws AccessDeniedException
+    Integer scan(User currentUser) throws AccessDeniedException
 
     /**
      * Gets a list of changes of query results for the queries based on query id.

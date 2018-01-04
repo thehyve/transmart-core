@@ -13,6 +13,7 @@ import org.hibernate.criterion.Property
 import org.hibernate.criterion.Restrictions
 import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -30,6 +31,8 @@ import org.transmartproject.db.querytool.QueryDiffEntry
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+
+import static org.transmartproject.db.multidimquery.DimensionImpl.PATIENT
 
 @Transactional
 class UserQueryDiffService implements UserQueryDiffResource {
@@ -49,7 +52,8 @@ class UserQueryDiffService implements UserQueryDiffResource {
     SessionFactory sessionFactory
 
     @Override
-    void scan(User currentUser) {
+    Integer scan(User currentUser) {
+        int numberOfResults = 0
         DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
@@ -66,18 +70,17 @@ class UserQueryDiffService implements UserQueryDiffResource {
             def previousQueryResult = getPreviousQueryResult(query, queryUser)
             if (!previousQueryResult) {
                 log.info "Previous result for query: '$query.id' was not found."
-                return
-            }
-
-            if (previousQueryResult instanceof QueryResult) {
+            } else if (previousQueryResult instanceof QueryResult) {
 
                 Constraint patientConstraint = createConstraints(query.patientsQuery)
-                QueryResult newSet = multiDimService.updatePatientSetQueryResult(
-                        query.name, patientConstraint, user, query.getConstraintsFromPatientQuery())
+                List<Patient> previousPatients = multiDimService.getDimensionElements(PATIENT, patientConstraint, user).toList()
 
-                createQueryDiffWithEntries(previousQueryResult, newSet, query)
+                if(createQueryDiffWithEntries(previousQueryResult, previousPatients, (Query)query, user)) {
+                    numberOfResults++
+                }
             }
         }
+        return numberOfResults
     }
 
     private QueryResult getPreviousQueryResult(UserQuery query, DbUser user) {
@@ -97,13 +100,17 @@ class UserQueryDiffService implements UserQueryDiffResource {
         }
     }
 
-    private static void createQueryDiffWithEntries(QueryResult oldSet, QueryResult newSet, Query query) {
-        List<Long> oldPatientIds = oldSet.patientSet*.patient.id
-        List<Long> newPatientIds = newSet.patientSet*.patient.id
+    private boolean createQueryDiffWithEntries(QueryResult previousQueryResult, List<Patient> newPatients,
+                                            Query query, User user) {
+        List<Long> oldPatientIds = previousQueryResult.patientSet*.patient.id
+        List<Long> newPatientIds = newPatients*.id
         List<Long> addedIds = newPatientIds - oldPatientIds
         List<Long> removedIds = oldPatientIds - newPatientIds
 
         if (addedIds.size() > 0 || removedIds.size() > 0) {
+            QueryResult newSet = multiDimService.updatePatientSetQueryResult(previousQueryResult.id,
+                    query.name, newPatients, user)
+
             QueryDiff queryDiff = new QueryDiff(
                     query: query,
                     setId: newSet.id,
@@ -127,6 +134,11 @@ class UserQueryDiffService implements UserQueryDiffResource {
             })
             queryDiff.save(flush: true)
             queryDiffEntries*.save(flush: true)
+
+            return true
+
+        } else {
+            return false
         }
     }
 

@@ -719,19 +719,16 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param constraintText
      * @return
      */
-    @Override QueryResult updatePatientSetQueryResult(String name,
-                                            MultiDimConstraint constraint,
-                                            User user,
-                                            String constraintText) {
+    @Override
+    QueryResult updatePatientSetQueryResult(Long queryResultId, String name, List<Patient> patients, User user) {
 
-        QtQueryMaster queryMaster = getQueryMasterByConstraint(user, constraintText)
+        QtQueryMaster queryMaster = QtQueryResultInstance.findById(queryResultId).queryInstance.queryMaster
         createQueryResultInstance(
                 name,
                 user,
                 queryMaster,
                 QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)) { QtQueryResultInstance queryResult ->
 
-            List<Patient> patients = getDimensionElements(PATIENT, constraint, user).toList()
             patients.eachWithIndex { Patient patient, Integer index ->
                 queryResult.addToPatientSet(
                         new QtPatientSetCollection(
