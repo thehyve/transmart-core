@@ -1969,6 +1969,11 @@ paths:
         responses:
           201:
             description: Successful response
+            schema:
+              type: object
+              properties:
+                numberOfUpdatedSets:
+                  type: integer
 
 definitions:
   version:

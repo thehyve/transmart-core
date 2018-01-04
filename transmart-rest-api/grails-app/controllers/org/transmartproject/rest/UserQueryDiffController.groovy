@@ -1,8 +1,8 @@
 package org.transmartproject.rest
 
+import grails.converters.JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
-import org.transmartproject.core.userquery.UserQueryDiff
 import org.transmartproject.core.userquery.UserQueryDiffEntry
 import org.transmartproject.core.userquery.UserQueryDiffResource
 import org.transmartproject.rest.misc.CurrentUser
@@ -25,10 +25,13 @@ class UserQueryDiffController {
      *
      * This endpoint should be called after loading, deleting or updating the data.
      * Only available for administrators.
+     *
+     * @return number of sets that were updated, which is also number of created queryDiffs
      */
     def scan() {
-        userQueryDiffResource.scan(currentUser)
-        response.status = 204
+        Integer result = userQueryDiffResource.scan(currentUser)
+        response.status = 201
+        respond([numberOfUpdatedSets: result] as JSON)
     }
 
     /**
