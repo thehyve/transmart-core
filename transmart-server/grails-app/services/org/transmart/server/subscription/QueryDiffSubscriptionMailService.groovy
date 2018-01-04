@@ -73,7 +73,7 @@ class QueryDiffSubscriptionMailService {
 
 
         List<UserQueryDiffEntry> queryDiffEntries = userQueryDiffResource
-                .getAllEntriesByUsernameAndFrequency(frequency.value(), username, firstResult, numResults)
+                .getAllEntriesByUsernameAndFrequency(frequency.toString(), username, firstResult, numResults)
         def queryDiffsMap = queryDiffEntries?.groupBy { it.queryDiff }
 
         StringBuilder textStringBuilder = new StringBuilder()
@@ -83,10 +83,10 @@ class QueryDiffSubscriptionMailService {
         for(entry in queryDiffEntries) {
             //todo prettify a message text
             def addedIds = entry.collect {
-                it.changeFlag == ChangeFlag.ADDED.value()
+                it.changeFlag == ChangeFlag.ADDED.toString()
             }?.toListString()
             def removedIds = entry.collect {
-                it.changeFlag == ChangeFlag.REMOVED.value()
+                it.changeFlag == ChangeFlag.REMOVED.toString()
             }?.toListString()
             textStringBuilder.append(NEW_LINE)
 //            textStringBuilder.append("For query '$entry.queryDiff.id': \n" +
