@@ -63,24 +63,24 @@ class UserQueryDiffService implements UserQueryDiffResource {
 
         for (query in userQueries) {
             DbUser queryUser = (DbUser) usersResource.getUserFromUsername(query.username)
-            def oldSet = getOldSet(query, queryUser)
-            if (!oldSet) {
-                log.info "Set for query: '$query.id' was not found."
+            def previousQueryResult = getPreviousQueryResult(query, queryUser)
+            if (!previousQueryResult) {
+                log.info "Previous result for query: '$query.id' was not found."
                 return
             }
 
-            if (oldSet instanceof QueryResult) {
+            if (previousQueryResult instanceof QueryResult) {
 
                 Constraint patientConstraint = createConstraints(query.patientsQuery)
                 QueryResult newSet = multiDimService.updatePatientSetQueryResult(
                         query.name, patientConstraint, user, query.getConstraintsFromPatientQuery())
 
-                createQueryDiffWithEntries(oldSet, newSet, query)
+                createQueryDiffWithEntries(previousQueryResult, newSet, query)
             }
         }
     }
 
-    private Object getOldSet(UserQuery query, DbUser user) {
+    private QueryResult getPreviousQueryResult(UserQuery query, DbUser user) {
         //get the latest queryDiff entry for the current query 
         QueryDiff latestQueryDiff = getLatestQueryDiffByQueryId(query.id)
         if (latestQueryDiff) {
@@ -211,11 +211,11 @@ class UserQueryDiffService implements UserQueryDiffResource {
     }
 
 
-    private Object findSetByConstraints(String constraintText, DbUser user) {
+    private QueryResult findSetByConstraints(String constraintText, DbUser user) {
         return multiDimService.findQueryResultByConstraint(constraintText, user)
     }
 
-    private Object findSetByIdAndType(long setId, String setType, DbUser user) {
+    private QueryResult findSetByIdAndType(long setId, String setType, DbUser user) {
         SetTypes type = SetTypes.valueOf(setType)
 
         switch (type) {
