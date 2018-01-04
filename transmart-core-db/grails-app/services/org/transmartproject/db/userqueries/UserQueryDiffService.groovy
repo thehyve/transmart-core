@@ -63,24 +63,24 @@ class UserQueryDiffService implements UserQueryDiffResource {
 
         for (query in userQueries) {
             DbUser queryUser = (DbUser) usersResource.getUserFromUsername(query.username)
-            def oldSet = getOldSet(query, queryUser)
-            if (!oldSet) {
-                log.info "Set for query: '$query.id' was not found."
+            def previousQueryResult = getPreviousQueryResult(query, queryUser)
+            if (!previousQueryResult) {
+                log.info "Previous result for query: '$query.id' was not found."
                 return
             }
 
-            if (oldSet instanceof QueryResult) {
+            if (previousQueryResult instanceof QueryResult) {
 
                 Constraint patientConstraint = createConstraints(query.patientsQuery)
                 QueryResult newSet = multiDimService.updatePatientSetQueryResult(
-                        query.name, patientConstraint, user, JSON.parse(query.patientsQuery)?.constraint.toString())
+                        query.name, patientConstraint, user, query.getConstraintsFromPatientQuery())
 
-                createQueryDiffWithEntries(oldSet, newSet, query)
+                createQueryDiffWithEntries(previousQueryResult, newSet, query)
             }
         }
     }
 
-    private Object getOldSet(UserQuery query, DbUser user) {
+    private QueryResult getPreviousQueryResult(UserQuery query, DbUser user) {
         //get the latest queryDiff entry for the current query 
         QueryDiff latestQueryDiff = getLatestQueryDiffByQueryId(query.id)
         if (latestQueryDiff) {
@@ -88,8 +88,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
         } else {
             //todo different methods depending on query type (for now patient only)
             try {
-                def constraint = JSON.parse(query.patientsQuery)?.constraint
-                def resultSet = findSetByConstraints(constraint.toString(), user)
+                def resultSet = findSetByConstraints(query.getConstraintsFromPatientQuery(), user)
                 return resultSet
             } catch (JSONException e) {
                 log.error "Constraint for query: $query.id is not valid JSON"
@@ -101,8 +100,8 @@ class UserQueryDiffService implements UserQueryDiffResource {
     private static void createQueryDiffWithEntries(QueryResult oldSet, QueryResult newSet, Query query) {
         List<Long> oldPatientIds = oldSet.patientSet*.patient.id
         List<Long> newPatientIds = newSet.patientSet*.patient.id
-        List<Long> addedIds = getAddedIds(oldPatientIds, newPatientIds)
-        List<Long> removedIds = getRemovedIds(oldPatientIds, newPatientIds)
+        List<Long> addedIds = newPatientIds - oldPatientIds
+        List<Long> removedIds = oldPatientIds - newPatientIds
 
         if (addedIds.size() > 0 || removedIds.size() > 0) {
             QueryDiff queryDiff = new QueryDiff(
@@ -129,14 +128,6 @@ class UserQueryDiffService implements UserQueryDiffResource {
             queryDiff.save(flush: true)
             queryDiffEntries*.save(flush: true)
         }
-    }
-
-    private static List<Long> getAddedIds(List<Long> oldPatientIds, List<Long> newPatientIds) {
-        return newPatientIds - oldPatientIds
-    }
-
-    private static List<Long> getRemovedIds(List<Long> oldPatientIds, List<Long> newPatientIds) {
-        return oldPatientIds - newPatientIds
     }
 
     private static Constraint createConstraints(String constraintParam) {
@@ -220,11 +211,11 @@ class UserQueryDiffService implements UserQueryDiffResource {
     }
 
 
-    private Object findSetByConstraints(String constraintText, DbUser user) {
+    private QueryResult findSetByConstraints(String constraintText, DbUser user) {
         return multiDimService.findQueryResultByConstraint(constraintText, user)
     }
 
-    private Object findSetByIdAndType(long setId, String setType, DbUser user) {
+    private QueryResult findSetByIdAndType(long setId, String setType, DbUser user) {
         SetTypes type = SetTypes.valueOf(setType)
 
         switch (type) {
