@@ -29,6 +29,11 @@ interface UserQuery {
     void setPatientsQuery(String patientsQuery)
 
     /**
+     * The constraint body from a patient query.
+     */
+    String getConstraintsFromPatientQuery()
+
+    /**
      * The observation selection part of the query.
      */
     String getObservationsQuery()

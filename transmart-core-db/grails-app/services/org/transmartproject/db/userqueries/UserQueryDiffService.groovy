@@ -73,7 +73,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
 
                 Constraint patientConstraint = createConstraints(query.patientsQuery)
                 QueryResult newSet = multiDimService.updatePatientSetQueryResult(
-                        query.name, patientConstraint, user, JSON.parse(query.patientsQuery)?.constraint.toString())
+                        query.name, patientConstraint, user, query.getConstraintsFromPatientQuery())
 
                 createQueryDiffWithEntries(oldSet, newSet, query)
             }
@@ -88,8 +88,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
         } else {
             //todo different methods depending on query type (for now patient only)
             try {
-                def constraint = JSON.parse(query.patientsQuery)?.constraint
-                def resultSet = findSetByConstraints(constraint.toString(), user)
+                def resultSet = findSetByConstraints(query.getConstraintsFromPatientQuery(), user)
                 return resultSet
             } catch (JSONException e) {
                 log.error "Constraint for query: $query.id is not valid JSON"

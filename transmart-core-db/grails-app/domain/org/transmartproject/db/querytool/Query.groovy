@@ -19,6 +19,10 @@
 
 package org.transmartproject.db.querytool
 
+import grails.converters.JSON
+import groovy.transform.CompileStatic
+import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONElement
 import org.springframework.validation.Errors
 import org.transmartproject.core.userquery.UserQuery
 
@@ -60,5 +64,18 @@ class Query implements UserQuery {
         deleted nullable: true
         createDate nullable: true
         updateDate nullable: true
+    }
+
+    @Override @CompileStatic
+    String getConstraintsFromPatientQuery() {
+        if (patientsQuery) {
+            try {
+                JSONElement jsonQuery = JSON.parse(patientsQuery)
+                return jsonQuery.properties.constraint?.toString()
+            } catch (ConverterException c) {
+                log.warn "Query is not a valid JSON"
+            }
+        }
+        return null
     }
 }
