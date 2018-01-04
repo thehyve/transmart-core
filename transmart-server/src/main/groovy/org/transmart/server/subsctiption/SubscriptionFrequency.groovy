@@ -8,22 +8,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum SubscriptionFrequency {
 
-    DAILY ('DAILY'),
-    WEEKLY ('WEEKLY')
+    DAILY,
+    WEEKLY
 
-    private String subscriptionFrequency
-
-    SubscriptionFrequency(String subsciptionFrequency) {
-        this.subscriptionFrequency = subsciptionFrequency
-    }
-
-    static SubscriptionFrequency from(String frequency) {
-        SubscriptionFrequency f = values().find { it.subscriptionFrequency == frequency }
-        if (f == null) throw new Exception("Unknown frequency type: ${frequency}")
-        f
-    }
-
-    String value() {
-        subscriptionFrequency
-    }
 }
