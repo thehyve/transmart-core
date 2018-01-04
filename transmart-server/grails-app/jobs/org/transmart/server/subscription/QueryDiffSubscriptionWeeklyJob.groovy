@@ -11,7 +11,7 @@ import org.transmart.server.subsctiption.SubscriptionFrequency
 @Slf4j
 class QueryDiffSubscriptionWeeklyJob {
 
-    QueryDiffSubscriptionService queryDiffSubscriptionService
+    QueryDiffSubscriptionMailService queryDiffSubscriptionMailService
     /**
      * Specifies a cron expression for job trigger
      cronExpression: "s m h D M W Y"
@@ -38,7 +38,7 @@ class QueryDiffSubscriptionWeeklyJob {
      * Runs generating emails
      */
     void execute() {
-        queryDiffSubscriptionService.run(SubscriptionFrequency.WEEKLY)
+        queryDiffSubscriptionMailService.run(SubscriptionFrequency.WEEKLY)
         // todo add a new row to AsyncJob table (?)
         log.info "Weekly subscription job executed."
     }

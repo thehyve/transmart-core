@@ -21,7 +21,7 @@ import org.transmartproject.core.users.UsersResource
  *
  */
 @Slf4j
-class QueryDiffSubscriptionService {
+class QueryDiffSubscriptionMailService {
 
     def grailsApplication
 
