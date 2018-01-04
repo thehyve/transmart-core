@@ -767,12 +767,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             log.info "Patient set not found with specified constraints."
             return null
         }
-        QtQueryInstance queryInstance = queryMaster.queryInstances.find {
-            it.startDate == queryMaster.queryInstances*.startDate.max() && it.deleteFlag == 'N'
-        }
-        QueryResult queryResult = queryInstance.queryResults.find {
-            it.startDate == queryInstance.queryResults*.startDate.max() && it.deleteFlag == 'N'
-        }
+        QtQueryInstance queryInstance = queryMaster.queryInstances.findAll { it.deleteFlag == 'N' }?.max { it.startDate }
+        QueryResult queryResult = queryInstance.queryResults.findAll { it.deleteFlag == 'N' }?.max { it.startDate }
         if (queryResult == null) {
             log.info "QueryResult not found for queryInstance with id=$queryInstance.id"
             return null
