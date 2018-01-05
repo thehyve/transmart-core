@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.Memoized
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.StudyMetadata
 import org.transmartproject.db.metadata.DimensionDescription
@@ -80,7 +81,7 @@ class Study implements MDStudy {
         dd.dimension
     }
 
-    @Override
+    @Memoized
     StudyMetadata getMetadata() {
         StudyMetadata.fromJson(studyBlob)
     }

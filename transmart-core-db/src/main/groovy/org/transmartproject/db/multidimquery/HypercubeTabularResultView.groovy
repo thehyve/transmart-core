@@ -1,5 +1,6 @@
 package org.transmartproject.db.multidimquery
 
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
@@ -16,6 +17,7 @@ import org.transmartproject.db.util.AbstractGroupingIterator
  * It's expected from the hypercube to be ordered by row dimensions.
  */
 @Slf4j
+@CompileStatic
 class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, HypercubeDataRow> {
 
     public static final String DIMENSION_ELEMENTS_DELIMITER = ', '
@@ -62,33 +64,35 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
 
     @Override
     Iterator<HypercubeDataRow> iterator() {
-        new HypercubeTabularResultIterator(hypercube.iterator())
+        new HypercubeTabularResultIterator(hypercube.iterator()) as Iterator<HypercubeDataRow>
     }
 
     private static String getCoordinateLabel(Iterable<Dimension> dimensions) {
-        dimensions*.name.join(DIMENSION_ELEMENTS_DELIMITER) ?: NO_DIMENSIONS_LABEL
+        dimensions.collect { Dimension dim -> dim.name }.join(DIMENSION_ELEMENTS_DELIMITER) ?: NO_DIMENSIONS_LABEL
     }
 
     private static Map<Dimension, Integer> getIndex(Iterable<Dimension> dimensions, HypercubeValue hypercubeValue) {
-        dimensions.collectEntries { Dimension dim -> [dim, hypercubeValue.getDimElementIndex(dim)] }
+        Map<Dimension, Integer> result = [:]
+        for (Dimension dim: dimensions) {
+            result.put(dim, hypercubeValue.getDimElementIndex(dim))
+        }
+        result
     }
 
     private checkDimensionsConsistency() {
-        def notSupportedRowDimensions = rowDimensions - hypercube.dimensions
-        assert !notSupportedRowDimensions: 'Following row dimensions are not supported by the hypercube:'
-        +notSupportedRowDimensions
+        def notSupportedRowDimensions = rowDimensions - hypercube.dimensions as List<Dimension>
+        assert !notSupportedRowDimensions: 'Following row dimensions are not supported by the hypercube: ' + notSupportedRowDimensions
         def notSupportedColumnDimensions = columnDimensions - hypercube.dimensions
-        assert !notSupportedColumnDimensions: 'Following column dimensions are not supported by the hypercube:'
-        +notSupportedColumnDimensions
+        assert !notSupportedColumnDimensions: 'Following column dimensions are not supported by the hypercube: ' + notSupportedColumnDimensions
         def dimensionsIntersection = columnDimensions.intersect(cellDimensions)
-        assert !dimensionsIntersection: 'Following dimensions found as row and value dimensions at the same time'
-        +dimensionsIntersection
+        assert !dimensionsIntersection: 'Following dimensions found as row and value dimensions at the same time: ' + dimensionsIntersection
         assert (rowDimensions + columnDimensions + cellDimensions).containsAll(hypercube.dimensions)
     }
 
+    @CompileStatic
     class HypercubeTabularResultIterator extends AbstractGroupingIterator<HypercubeDataRow, HypercubeValue, Map<Dimension, Integer>> {
 
-        private HypercubeTabularResultIterator(Iterator<HypercubeValue> iterator) {
+        HypercubeTabularResultIterator(Iterator<HypercubeValue> iterator) {
             super(iterator)
         }
 
@@ -100,7 +104,7 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
         @Override
         HypercubeDataRow computeResultItem(Map<Dimension, Integer> groupKey, Iterable<HypercubeValue> groupedHValues) {
             def columnIndexToValue = [:]
-            groupedHValues.each { HypercubeValue hValue ->
+            for (HypercubeValue hValue: groupedHValues) {
                 def columnIndex = getIndex(columnDimensions, hValue)
                 assert !columnIndexToValue.containsKey(columnIndex) :
                         "There is more then one hypercube value that falls to [${groupKey} : ${columnIndex}] table cell."
@@ -115,9 +119,10 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
 
 @EqualsAndHashCode
 @ToString
+@CompileStatic
 class HypercubeDataColumn<T> implements ValueFetchingDataColumn<Object, HypercubeDataRow> {
     final Map<Dimension, Integer> index
-    private final Hypercube hypercube
+    final Hypercube hypercube
 
     HypercubeDataColumn(Map<Dimension, Integer> index, Hypercube hypercube) {
         this.index = index
@@ -143,12 +148,13 @@ class HypercubeDataColumn<T> implements ValueFetchingDataColumn<Object, Hypercub
 
 @EqualsAndHashCode
 @ToString
+@CompileStatic
 class HypercubeDataRow<T> implements DataRow<ValueFetchingDataColumn, T> {
     final Map<Dimension, Integer> index
-    private final Map<Map<Dimension, Integer>, HypercubeValue> columnIndexToHValue
+    private final Map<Map, HypercubeValue> columnIndexToHValue
 
     HypercubeDataRow(final Map<Dimension, Integer> index,
-                     Map<Map<Dimension, Integer>, HypercubeValue> columnIndexToHValue) {
+                     Map<Map, HypercubeValue> columnIndexToHValue) {
         this.index = index
         this.columnIndexToHValue = columnIndexToHValue
     }

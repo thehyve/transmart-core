@@ -1,13 +1,16 @@
 package org.transmartproject.db.multidimquery
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.dataquery.*
-import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.VariableMetadata
+
+import java.time.Instant
 
 import static org.transmartproject.core.ontology.VariableDataType.*
 import static org.transmartproject.core.ontology.Measure.NOMINAL
@@ -23,7 +26,18 @@ import static org.transmartproject.core.ontology.Measure.SCALE
  * - Returns back original codebook values
  */
 @Slf4j
+@CompileStatic
 class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow> {
+
+    @CompileStatic
+    static class DataColumnComparator<C extends DataColumn> implements Comparator<C> {
+        @Override
+        int compare(C a, C b) {
+            a.label <=> b.label
+        }
+    }
+
+    static final Comparator<MetadataAwareDataColumn> dataColumnComparator = new DataColumnComparator<MetadataAwareDataColumn>()
 
     @Delegate
     final HypercubeTabularResultView hypercubeTabularResultView
@@ -33,28 +47,28 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
     SurveyTableView(Hypercube hypercube) {
         this.hypercube = hypercube
 
-        def rowDimensions = [DimensionImpl.PATIENT]
-        def columnDimensions = [DimensionImpl.STUDY, DimensionImpl.CONCEPT]
+        def rowDimensions = [DimensionImpl.PATIENT] as List<Dimension>
+        def columnDimensions = [DimensionImpl.STUDY, DimensionImpl.CONCEPT] as List<Dimension>
         hypercubeTabularResultView = new HypercubeTabularResultView(hypercube, rowDimensions, columnDimensions)
     }
 
     @Lazy
     List<MetadataAwareDataColumn> indicesList = {
         def originalColumns = hypercubeTabularResultView.indicesList
-        def transformedColumns = []
-        transformedColumns << new FisNumberColumn()
-        transformedColumns.addAll(originalColumns.collect { originalColumn ->
+        List<MetadataAwareDataColumn> transformedColumns = []
+        transformedColumns.add(new FisNumberColumn())
+        for (HypercubeDataColumn originalColumn: originalColumns) {
             String varName = getVariableName(originalColumn)
-            [
-                    new VariableColumn(varName, originalColumn),
-                    new MeasurementDateColumn("${varName}.date", originalColumn)
-            ]
-        }.flatten().sort { DataColumn a, DataColumn b -> a.label <=> b.label })
+            transformedColumns.add(new VariableColumn(varName, originalColumn))
+            transformedColumns.add(new MeasurementDateColumn("${varName}.date", originalColumn))
+        }
+        transformedColumns.sort(dataColumnComparator)
         transformedColumns
     }()
 
+    @CompileStatic
     class FisNumberColumn implements ValueFetchingDataColumn<String, HypercubeDataRow>, MetadataAwareDataColumn {
-        String label = 'FISNumber'
+        final String label = 'FISNumber'
         static final String SUBJ_ID_SOURCE = 'SUBJ_ID'
 
         VariableMetadata metadata = new VariableMetadata(
@@ -76,10 +90,12 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         }
     }
 
+    @CompileStatic
     class MeasurementDateColumn implements ValueFetchingDataColumn<Date, HypercubeDataRow>, MetadataAwareDataColumn {
 
         final String label
         final HypercubeDataColumn originalColumn
+        final boolean hasStartDate
 
         VariableMetadata metadata = new VariableMetadata(
                 type: DATE,
@@ -92,36 +108,48 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         MeasurementDateColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
+            this.hasStartDate = DimensionImpl.START_TIME in originalColumn.hypercube.dimensions
         }
 
         Date getValue(HypercubeDataRow row) {
             def hValue = row.getHypercubeValue(originalColumn.index)
-            if (hValue && DimensionImpl.START_TIME in hValue.availableDimensions) {
-                return hValue[DimensionImpl.START_TIME] as Date
+            if (hValue && hasStartDate) {
+                Object value = hValue[(Dimension)DimensionImpl.START_TIME]
+                return (Date)value
             }
             null
         }
     }
 
+    @CompileStatic
     class VariableColumn implements ValueFetchingDataColumn<Object, HypercubeDataRow>, MetadataAwareDataColumn {
 
-        private final static MISSING_VALUE_MODIFIER_DIMENSION_NAME = 'missing_value'
+        final static MISSING_VALUE_MODIFIER_DIMENSION_NAME = 'missing_value'
         final String label
         final HypercubeDataColumn originalColumn
         final VariableMetadata metadata
         private final Map<String, BigDecimal> labelsToValues
+        final Dimension missingValueDimension
 
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
             def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
             metadata = getStudyVariableMetadata(originalColumn) ?: computeColumnMetadata(concept)
-            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [ value, key ] }
+            labelsToValues = metadata.valueLabels.collectEntries { BigDecimal key, String value -> [ value, key ] } as Map<String, BigDecimal>
+            for (Dimension dim: originalColumn.hypercube.dimensions) {
+                if (dim.name == MISSING_VALUE_MODIFIER_DIMENSION_NAME) {
+                    missingValueDimension = dim
+                    break
+                }
+            }
         }
 
         Object getValue(HypercubeDataRow row) {
             def hValue = row.getHypercubeValue(originalColumn.index)
-            if (hValue == null) return null
+            if (hValue == null) {
+                return null
+            }
             def value = hValue.value
             def label = value == null ? getMissingValueLabel(hValue) : value
             if (labelsToValues.containsKey(label)) {
@@ -134,7 +162,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         }
 
         private Date toDate(Number value) {
-            new Date(value as Long)
+            new Date(value.longValue())
         }
 
         private VariableMetadata computeColumnMetadata(Concept concept) {
@@ -148,9 +176,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         }
 
         private String getMissingValueLabel(HypercubeValue hValue) {
-            hValue.availableDimensions
-                    .find { it.name == MISSING_VALUE_MODIFIER_DIMENSION_NAME }
-                    .with { naDim -> hValue[naDim] }
+            hValue[missingValueDimension]
         }
     }
 
