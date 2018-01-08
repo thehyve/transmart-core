@@ -19,13 +19,18 @@
 
 package org.transmartproject.db.userqueries
 
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.user.RoleCoreDb
 import org.transmartproject.db.user.User
 
 import static org.transmartproject.db.TestDataHelper.save
 import org.transmartproject.db.querytool.Query
 import org.transmartproject.db.querytool.QueryDiff
 import org.transmartproject.db.querytool.QueryDiffEntry
-
+import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
+import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 
 class UserQueryTestData {
 
@@ -33,16 +38,32 @@ class UserQueryTestData {
     List<QueryDiff> queryDiffs
     List<QueryDiffEntry> queryDiffEntries
 
-    static User user = createUser()
+    static User user
+    static User adminUser
+    static RoleCoreDb adminRole
+    static List<PatientDimension> patients
+    static QueryResult queryResult
+    static QtQueryMaster patientsQueryMaster
 
     private static int number = 2
 
     static UserQueryTestData createDefault() {
+        user = createUser()
+        adminUser = createAdminUser()
+        createAndSavePatientSet()
+        queryResult = getQueryResultFromMaster patientsQueryMaster
         def result = new UserQueryTestData()
-        result.queries = createTestQueries(number)
+        result.queries = createTestQueries(1)
         result.queryDiffs = createQueryDiffsForQueries(number, result.queries)
         result.queryDiffEntries = createQueryDiffEntriesForQueryDiffs(number, result.queryDiffs)
         result
+    }
+
+    private static void createAndSavePatientSet() {
+        patients = createTestPatients(3, -100, 'STUDY_ID_1')
+        patientsQueryMaster = createQueryResult patients
+        save patients
+        patientsQueryMaster.save()
     }
 
     static List<QueryDiffEntry> createQueryDiffEntriesForQueryDiffs(int number, List<QueryDiff> queryDiffs) {
@@ -52,7 +73,7 @@ class UserQueryTestData {
             entries.add(
                     new QueryDiffEntry(
                             queryDiff: queryDiffs[i],
-                            objectId: -1,
+                            objectId: patients[0].id,
                             changeFlag: 'ADDED'
                     )
             )
@@ -74,15 +95,8 @@ class UserQueryTestData {
             diffs.add(
                     new QueryDiff(
                             query: queries[i],
-                            setId: -1,
+                            setId: queryResult.id,
                             setType: 'PATIENT'
-                    )
-            )
-            diffs.add(
-                    new QueryDiff(
-                            query: queries[i],
-                            setId: -2,
-                            setType: 'PATIENT',
                     )
             )
         }
@@ -97,8 +111,7 @@ class UserQueryTestData {
             queries.add(
                     new Query(
                             name             : 'test query 1',
-                            patientsQuery    : '{"constraint":{"studyId":"test","type":"study_name"},' +
-                                    '"type":"subselection","dimension":"patient"}',
+                            patientsQuery    : '{type: "true"}',
                             observationsQuery: '{type: "true"}',
                             bookmarked       : true,
                             subscribed       : true,
@@ -110,8 +123,7 @@ class UserQueryTestData {
             queries.add(
                     new Query(
                             name             : 'test query 2',
-                            patientsQuery    : '{"constraint":{"studyId":"test","type":"study_name"},' +
-                                    '"type":"subselection","dimension":"patient"}',
+                            patientsQuery    : '{type: "true"}',
                             observationsQuery: null,
                             bookmarked       : false,
                             subscribed       : true,
@@ -127,17 +139,43 @@ class UserQueryTestData {
 
     static User createUser() {
         def user = new User(
-                username: 'test_user',
-                uniqueId: 'test_user',
+                username: 'fake-user',
+                uniqueId: 'fake-user',
                 enabled: true)
 
         user.id = 100
         return user
+    }
 
+    static User createAdminUser() {
+        def adminUser = new User(
+                username: 'admin',
+                uniqueId: 'admin',
+                enabled: true)
+        adminUser.id = 101
+
+        adminRole = new RoleCoreDb(
+                authority: 'ROLE_ADMIN',
+                description: 'admin user'
+        )
+        adminRole.id = 101
+        adminUser.addToRoles(adminRole)
+        return adminUser
+    }
+
+    static List<PatientDimension> createTestPatients(int n, long baseId, String trialName = 'SAMP_TRIAL') {
+        (1..n).collect { int i ->
+            def p = new PatientDimension()
+            p.id = baseId - i
+            p.sourcesystemCd = "$trialName:SUBJ_ID_$i"
+            p
+        }
     }
 
     def saveAll() {
         user.save()
+        adminRole.save()
+        adminUser.save()
         save queries
         save queryDiffs
         save queryDiffEntries
