@@ -16,6 +16,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientMapping
@@ -61,10 +62,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
 
     protected Map<String, Integer> aliasSuffixes = [:]
     Map<String, String> aliases = [:]
-    final Collection<Study> studies
+    final Collection<MDStudy> studies
     final boolean accessToAllStudies
 
-    static HibernateCriteriaQueryBuilder forStudies(Collection<Study> studies) {
+    static HibernateCriteriaQueryBuilder forStudies(Collection<MDStudy> studies) {
         new HibernateCriteriaQueryBuilder(false, studies)
     }
 
@@ -72,7 +73,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         new HibernateCriteriaQueryBuilder(true, null)
     }
 
-    private HibernateCriteriaQueryBuilder(boolean accessToAllStudies, Collection<Study> studies) {
+    private HibernateCriteriaQueryBuilder(boolean accessToAllStudies, Collection<MDStudy> studies) {
         this.accessToAllStudies = accessToAllStudies
         this.studies = studies
     }

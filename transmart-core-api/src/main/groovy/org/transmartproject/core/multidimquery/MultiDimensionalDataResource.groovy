@@ -2,14 +2,13 @@
 
 package org.transmartproject.core.multidimquery
 
-import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
 
 interface MultiDimensionalDataResource {
 
     /**
-     * @param accessibleStudies : The studies the current user has access to.
+     * @param user : The current user.
      * @param dataType : The string identifying the data type. "clinical" for clinical data, for high dimensional data
      * the appropriate identifier string.
      * @param constraints : (nullable) A list of Constraint-s. If null, selects all the data in the database.
@@ -21,7 +20,7 @@ interface MultiDimensionalDataResource {
      *
      * @return a Hypercube result
      */
-    Hypercube retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies)
+    Hypercube retrieveData(Map args, String dataType, User user)
 
     Dimension getDimension(String name)
 

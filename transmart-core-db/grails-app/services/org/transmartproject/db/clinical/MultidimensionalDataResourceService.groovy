@@ -79,7 +79,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     /**
-     * @param accessibleStudies: The studies the current user has access to.
+     * @param user: The current user.
      * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
      * the appropriate identifier string (hdd is not yet implemented).
      * @param constraints: (nullable) A list of Constraint-s. If null, selects all the data in the database.
@@ -91,7 +91,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      *
      * @return a Hypercube result
      */
-    @Override HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
+    @Override HypercubeImpl retrieveData(Map args, String dataType, User user) {
         // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
         // that has not been implemented, so we only support clinical data in this call. Instead there is the
         // highDimension call that uses the old high dim api and converts the tabular result to a hypercube.
@@ -108,7 +108,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         assert (orderByDimensions - dimensions).empty : 'Some dimensions were not found in this result set to sort by'
 
         CriteriaImpl hibernateCriteria = buildCriteria(dimensions, orderByDimensions)
-        HibernateCriteriaQueryBuilder restrictionsBuilder = HibernateCriteriaQueryBuilder.forStudies(accessibleStudies)
+        HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user)
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
         restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
@@ -973,8 +973,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
         def dataType = 'clinical'
-        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(DbUser.load(user.id))
-        retrieveData(dataType, accessibleStudies, constraint: constraint, sort: orderByDimensions)
+        retrieveData(dataType, user, constraint: constraint, sort: orderByDimensions)
     }
 
     /**
