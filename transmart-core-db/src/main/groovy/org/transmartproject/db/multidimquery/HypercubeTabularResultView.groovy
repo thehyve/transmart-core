@@ -41,16 +41,15 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
         checkDimensionsConsistency()
     }
 
-    @Lazy
-    List<HypercubeDataColumn> indicesList = {
+    List<HypercubeDataColumn> getIndicesList() {
         Set<Map<Dimension, Integer>> columnIndexes = []
-        rows.each { HypercubeDataRow row ->
+        rows.forEachRemaining({ HypercubeDataRow row ->
             columnIndexes.addAll(row.presentColumnIndexes)
-        }
+        })
         columnIndexes.collect { Map<Dimension, Integer> index ->
             new HypercubeDataColumn(index, hypercube)
         }
-    }()
+    }
 
     @Override
     Iterator<HypercubeDataRow> getRows() {

@@ -10,8 +10,6 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.VariableMetadata
 
-import java.time.Instant
-
 import static org.transmartproject.core.ontology.VariableDataType.*
 import static org.transmartproject.core.ontology.Measure.NOMINAL
 import static org.transmartproject.core.ontology.Measure.SCALE
@@ -82,7 +80,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
 
         @Override
         String getValue(HypercubeDataRow row) {
-            def patient = row.getDimensionElement(DimensionImpl.PATIENT) as Patient
+            def patient = (Patient)row.getDimensionElement(DimensionImpl.PATIENT)
             if (patient) {
                 return patient.subjectIds[SUBJ_ID_SOURCE]
             }
@@ -134,7 +132,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
-            def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+            def concept = (Concept)originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
             metadata = getStudyVariableMetadata(originalColumn) ?: computeColumnMetadata(concept)
             labelsToValues = metadata.valueLabels.collectEntries { BigDecimal key, String value -> [ value, key ] } as Map<String, BigDecimal>
             for (Dimension dim: originalColumn.hypercube.dimensions) {
@@ -185,14 +183,14 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         if (varMeta?.name) {
             return varMeta?.name
         } else {
-            def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+            def concept = (Concept)originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
             return concept.conceptCode
         }
     }
 
     private static VariableMetadata getStudyVariableMetadata(HypercubeDataColumn originalColumn) {
-        def study = originalColumn.getDimensionElement(DimensionImpl.STUDY) as MDStudy
-        def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+        def study = (MDStudy)originalColumn.getDimensionElement(DimensionImpl.STUDY)
+        def concept = (Concept)originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
 
         study.metadata?.conceptCodeToVariableMetadata?.get(concept.conceptCode)
     }
