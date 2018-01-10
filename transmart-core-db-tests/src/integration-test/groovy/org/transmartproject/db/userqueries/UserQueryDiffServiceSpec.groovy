@@ -14,10 +14,9 @@ import org.transmartproject.db.querytool.QtQueryResultInstance
 @Rollback
 class UserQueryDiffServiceSpec extends TransmartSpecification {
 
-    @Autowired
+
     UserQueryDiffService userQueryDiffService
 
-    @Autowired
     SessionFactory sessionFactory
 
     UserQueryTestData userQueryTestData
@@ -25,6 +24,7 @@ class UserQueryDiffServiceSpec extends TransmartSpecification {
     void setupData() {
         userQueryTestData = UserQueryTestData.createDefault()
         userQueryTestData.saveAll()
+        sessionFactory.currentSession.flush()
     }
 
     void "test fetching queryDiffs for a query"() {
@@ -72,16 +72,8 @@ class UserQueryDiffServiceSpec extends TransmartSpecification {
         result != null
         // number of updated patient sets
         result == 2
-
-        cleanup:
-        cleanup()
     }
 
-    def cleanup() {
-        QtQueryResultInstance.findAll().each { it.delete(flush: true) }
-        QtQueryInstance.findAll().each { it.delete(flush: true) }
-        QtQueryMaster.findAll().each { it.delete(flush: true) }
-    }
 }
 
 
