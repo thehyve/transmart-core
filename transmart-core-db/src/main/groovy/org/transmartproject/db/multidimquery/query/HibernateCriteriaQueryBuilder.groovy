@@ -626,8 +626,9 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         if (constraint.study == null){
             throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
         }
-        def trialVisitAlias = getAlias('trialVisit')
-        return Restrictions.eq("${trialVisitAlias}.study", constraint.study)
+        def trialVisits = TrialVisit.findAll { study == constraint.study } as List<TrialVisit>
+        trialVisits.sort({a, b -> a.id <=> b.id})
+        return Restrictions.in('trialVisit', trialVisits)
     }
 
 
