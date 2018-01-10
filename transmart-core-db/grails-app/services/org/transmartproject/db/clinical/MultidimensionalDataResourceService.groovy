@@ -577,12 +577,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      */
     QtQueryResultInstance createQueryResult(String name,
                                             User user,
-                                            String constraintText,
+                                            MultiDimConstraint constraint,
                                             String apiVersion,
                                             QtQueryResultType queryResultType,
                                             Closure<Long> queryExecutor) {
         // 1. Populate or reuse qt_query_master
-        Object queryMaster = createOrReuseQueryMaster(user, constraintText, name, apiVersion)
+        Object queryMaster = createOrReuseQueryMaster(user, constraint, name, apiVersion)
         // 2. Populate qt_query_instance
         def queryInstance = new QtQueryInstance(
                 userId       : user.username,
@@ -624,7 +624,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         resultInstance
     }
 
-    private QtQueryMaster createOrReuseQueryMaster(User user, String constraintText, name, apiVersion) {
+    private QtQueryMaster createOrReuseQueryMaster(User user, MultiDimConstraint constraint, name, apiVersion) {
+        def constraintText = constraint.toJson()
         def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
                 .add(Restrictions.eq('qm.userId', user.username))
                 .add(Restrictions.eq('qm.requestConstraints', constraintText))
@@ -649,7 +650,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      */
     QueryResult createOrReuseQueryResult(String name,
                                              User user,
-                                             String constraintText,
+                                             MultiDimConstraint constraint,
                                              String apiVersion,
                                              QtQueryResultType queryResultType,
                                              Closure<Long> queryExecutor) {
@@ -659,10 +660,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 .createCriteria('qi.queryMaster', 'qm')
                 .add(Restrictions.eq('qri.queryResultType', queryResultType))
                 .add(Restrictions.eq('qi.userId', user.username))
-                .add(Restrictions.eq('qm.requestConstraints', constraintText))
+                .add(Restrictions.eq('qm.requestConstraints', constraint.toJson()))
                 .addOrder(Order.desc('qri.endDate'))
 
-        getFirst(criteria) ?: createQueryResult(name, user, constraintText, apiVersion, queryResultType, queryExecutor)
+        getFirst(criteria) ?: createQueryResult(name, user, constraint, apiVersion, queryResultType, queryExecutor)
     }
 
     /**
@@ -679,14 +680,13 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     QueryResult createPatientSetQueryResult(String name,
                                             MultiDimConstraint constraint,
                                             User user,
-                                            String constraintText,
                                             String apiVersion) {
         checkAccess(constraint, user)
 
         createQueryResult(
                 name,
                 user,
-                constraintText,
+                constraint,
                 apiVersion,
                 QtQueryResultType.load(QueryResultType.PATIENT_SET_ID),
                 { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
@@ -702,14 +702,13 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     QueryResult createOrReusePatientSetQueryResult(String name,
                                             MultiDimConstraint constraint,
                                             User user,
-                                            String constraintText,
                                             String apiVersion) {
         checkAccess(constraint, user)
 
         createOrReuseQueryResult(
                 name,
                 user,
-                constraintText,
+                constraint,
                 apiVersion,
                 QtQueryResultType.load(QueryResultType.PATIENT_SET_ID),
                 { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
