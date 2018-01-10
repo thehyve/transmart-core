@@ -344,8 +344,10 @@ grails {
 
 /* {{{ Query subscription configuration */
 //Quartz plugin configuration - job for queryDiff subscription
+// To disable the email sending job, change this parameters to false
 quartz {
-    autoStartup = true
+    autoStartup = false
+    jobEnabled = false
 }
 // max number of queryDiff results for pagination
 org.transmart.server.subscription.numResults = 20
