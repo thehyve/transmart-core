@@ -264,11 +264,6 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         matchesAllExpectedInlineDimensionElements(resultObs)
         matchesAllExpectedValues(resultObs)
 
-        when: 'we request dimension elements after the completed scan of data'
-        !hypercube.dimensionElements(PATIENT).empty
-        then: 'no more scans required to get dimension elements'
-        hypercube.completeScanNumber == 1
-
         when:
         def sortedResultObs = resultObs.sort(getKey)
         then:
@@ -302,11 +297,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         !hypercube.dimensionElements(PATIENT).empty
         then: 'all dimensions elements are pre-populated'
         matchesAllExpectedIndexedDimensionElements(hypercube)
-        hypercube.completeScanNumber == 1
         when: 'read all value cells'
         List<HypercubeValue> valueCells = Lists.newArrayList(hypercube)
         then:
-        hypercube.completeScanNumber == 2
         matchesAllExpectedInlineDimensionElements(valueCells)
         matchesAllExpectedValues(valueCells)
     }

@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.multidimquery
 
+import com.google.common.base.Function
 import com.google.common.collect.*
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
@@ -13,6 +14,7 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.IndexedArraySet
+import org.transmartproject.db.util.PeekingIteratorImpl
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -45,10 +47,14 @@ class HypercubeImpl implements Hypercube {
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
     // Only used for non-inline dimensions
     private final Map<Dimension, IndexedArraySet<Object>> dimensionElementKeys
-    private int completeScanNumber = 0
+    private boolean allDimensionElementsIndexed
 
     // A map that stores the actual dimension elements once they are loaded
     private Map<Dimension, ImmutableList<Object>> dimensionElements = new ConcurrentHashMap()
+
+    private final List<ModifierDimension> modifierDimensions
+    private final Map<String, Integer> aliases
+    private ScrollableResults scrollableResults
 
     HypercubeImpl(Collection<DimensionImpl> dimensions, CriteriaImpl criteria) {
         this.dimensions = ImmutableList.copyOf(dimensions)
@@ -57,20 +63,47 @@ class HypercubeImpl implements Hypercube {
         //to run the query in the same transaction all the time. e.g. for dimensions elements loading and data receiving.
         this.criteria.session.connection().autoCommit = false
         this.dimensionElementKeys = new ConcurrentHashMap()
+
+        this.aliases = criteria.projection.aliases.toList().withIndex().collectEntries()
+        this.modifierDimensions = this.dimensions.findAll { it instanceof ModifierDimension } as List<ModifierDimension>
     }
 
     @Override
     PeekingIterator<HypercubeValueImpl> iterator() {
-        new ResultIterator(dimensions, criteria, { Map<String, Object> row ->
-            def value = ObservationFact.observationFactValue(
-                    (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue, (String) row.rawValue)
+        Iterator<HypercubeValueImpl> tranformIterator = Iterators.transform(getResultIterator(),
+                new Function<Map<String, Object>, HypercubeValueImpl>() {
+                    @Override
+                    HypercubeValueImpl apply(Map<String, Object> row) {
+                        return composeHypercubeValue(row)
+                    }
+                })
+        PeekingIteratorImpl.getPeekingIterator(tranformIterator)
+    }
 
-            Object[] dimensionElementIdexes = getDimensionElementIndexes(row)
+    private HypercubeValueImpl composeHypercubeValue(Map<String, Object> row) {
+        def value = ObservationFact.observationFactValue(
+                (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue, (String) row.rawValue)
 
-            new HypercubeValueImpl(this, dimensionElementIdexes, value)
-        }, {
-            completeScanNumber += 1
-        })
+        Object[] dimensionElementIdexes = getDimensionElementIndexes(row)
+
+        new HypercubeValueImpl(this, dimensionElementIdexes, value)
+    }
+
+    private Iterator<Map<String, Object>> getResultIterator() {
+        modifierDimensions ? new ModifierResultIterator(modifierDimensions, aliases, getScrollableResults())
+                : new ProjectionMapIterator(aliases, getScrollableResults())
+    }
+
+    private ScrollableResults getScrollableResults() {
+        //if (this.scrollableResults == null) {
+            scrollableResults = criteria.with {
+                setFetchSize(FETCH_SIZE)
+                scroll(ScrollMode.FORWARD_ONLY)
+            }
+        //} else {
+        //    scrollableResults.beforeFirst()
+        //}
+        return scrollableResults
     }
 
     @Override
@@ -96,8 +129,8 @@ class HypercubeImpl implements Hypercube {
     IndexedArraySet<Object> dimensionElementKeys(Dimension dim) {
         checkDimension(dim)
         checkIsDense(dim)
-        if (completeScanNumber <= 0) {
-            fetchAllDimensionsElementKeys()
+        if (!allDimensionElementsIndexed) {
+            indexAllDimensionElements()
         }
         dimensionElementKeys[dim]
     }
@@ -106,8 +139,8 @@ class HypercubeImpl implements Hypercube {
     Object dimensionElementKey(Dimension dim, Integer idx) {
         checkDimension(dim)
         checkIsDense(dim)
-        if (completeScanNumber <= 0 && !dimensionElementKeys[dim].contains(idx)) {
-            fetchAllDimensionsElementKeys()
+        if (!allDimensionElementsIndexed && !dimensionElementKeys[dim].contains(idx)) {
+            indexAllDimensionElements()
         }
         dimensionElementKeys[dim][idx]
     }
@@ -124,10 +157,6 @@ class HypercubeImpl implements Hypercube {
             elementKeys.add(dimensionElementKey)
         }
         return dimElementIdx
-    }
-
-    int getCompleteScanNumber() {
-        completeScanNumber
     }
 
     private Object[] getDimensionElementIndexes(Map<String, Object> result) {
@@ -150,50 +179,6 @@ class HypercubeImpl implements Hypercube {
         dimensionElementIdxes
     }
 
-    class ResultIterator<T> extends AbstractIterator<T> implements PeekingIterator<T> {
-
-        private final ScrollableResults results
-        private final ImmutableMap<String, Integer> aliases
-        private final ImmutableList<ModifierDimension> modifierDimensions
-        private final Iterator<? extends Map<String, Object>> resultIterator
-        private final Closure<T> onNext
-        private final Closure onClose
-
-        ResultIterator(
-                final Collection<DimensionImpl> dimensions,
-                final CriteriaImpl criteria,
-                final Closure<T> onNext,
-                final Closure onClose = Closure.IDENTITY) {
-
-            this.onNext = onNext
-            this.onClose = onClose
-            this.results = criteria.with {
-                setFetchSize(FETCH_SIZE)
-                scroll(ScrollMode.FORWARD_ONLY)
-            }
-            this.aliases = ImmutableMap.copyOf(criteria.projection.aliases.toList().withIndex().collectEntries())
-            this.modifierDimensions = ImmutableList.copyOf((List) dimensions.findAll {
-                it instanceof ModifierDimension
-            })
-            this.resultIterator = (modifierDimensions
-                    ? new ModifierResultIterator(modifierDimensions, aliases, results)
-                    : new ProjectionMapIterator(aliases, results)
-            )
-        }
-
-        @Override
-        T computeNext() {
-            if (!resultIterator.hasNext()) {
-                onClose()
-                results.close()
-                return super.endOfData()
-            }
-
-            Map<String, Object> row = resultIterator.next()
-            onNext(row)
-        }
-    }
-
     static protected void checkIsDense(Dimension dim) {
         if (!dim.density.isDense) {
             throw new UnsupportedOperationException("Cannot get dimension element for sparse dimension " +
@@ -211,21 +196,22 @@ class HypercubeImpl implements Hypercube {
         i
     }
 
-    private fetchAllDimensionsElementKeys() {
+    private indexAllDimensionElements() {
         final List<DimensionImpl> denseDimensions = dimensions.findAll { it.density.isDense }
-        new ResultIterator(dimensions, criteria, { Map<String, Object> row ->
-            denseDimensions.collect { DimensionImpl dimension ->
-                def key = dimension.getElementKey(row)
+        Iterator<Map<String, Object>> iter = getResultIterator()
+        while (iter.hasNext()) {
+            for (DimensionImpl dimension in denseDimensions) {
+                def key = dimension.getElementKey(iter.next())
                 if (key) {
                     indexDimensionElement(dimension, key)
                 }
             }
-        }, {
-            completeScanNumber += 1
-        }).collect()
+        }
+        allDimensionElementsIndexed = true
     }
 
     void close() {
+        scrollableResults.close()
         if (!criteria.session.isClosed()) {
             if (criteria.session instanceof Closeable) {
                 ((Closeable) criteria.session).close()
@@ -317,7 +303,7 @@ class HypercubeImpl implements Hypercube {
     }
 
     @TupleConstructor
-    static class ProjectionMapIterator extends AbstractIterator<ProjectionMap> {
+    static class ProjectionMapIterator extends AbstractIterator<ProjectionMap> implements PeekingIterator {
         final Map<String, Integer> aliases
         final ScrollableResults results
 
