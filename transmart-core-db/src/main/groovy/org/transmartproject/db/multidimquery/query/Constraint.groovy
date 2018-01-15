@@ -208,7 +208,7 @@ class Field implements Validateable {
 abstract class Constraint implements Validateable, MultiDimConstraint {
 
     String toJson() {
-        (this as JSON).toString()
+        ConstraintSerialiser.toJson(this)
     }
 
 }
