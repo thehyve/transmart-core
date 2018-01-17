@@ -170,7 +170,7 @@ class UserQueryDiffService implements UserQueryDiffResource {
         }
         def result = criteria.list()
         if (!result) {
-            throw new NoSuchResourceException("Results for queryId ${queryId} not found.")
+            return []
         }
 
         DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
