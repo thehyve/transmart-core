@@ -10,6 +10,7 @@ import org.transmartproject.core.userquery.UserQueryDiffEntry
 import org.transmartproject.core.userquery.UserQueryDiffResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
+import org.transmartproject.db.userqueries.SetTypes
 
 /**
  * Generates and sends a daily or weekly subscription email for each user
@@ -48,7 +49,9 @@ class QueryDiffSubscriptionMailService {
         for (user in users) {
             String title = "Test email for query subscription"
             String emailBody = generateEmail(user.username, frequency)
-            sendEmail(user.email, title, emailBody)
+            if(emailBody) {
+                sendEmail(user.email, title, emailBody)
+            }
         }
     }
 
@@ -66,36 +69,45 @@ class QueryDiffSubscriptionMailService {
      *
      */
     private String generateEmail(String username, SubscriptionFrequency frequency) {
+
         int firstResult = 0
         Integer numResults = grailsApplication.config.org.transmart.server.subscription.numResults
 
         def currentDate = new Date()
 
-
         List<UserQueryDiffEntry> queryDiffEntries = userQueryDiffResource
                 .getAllEntriesByUsernameAndFrequency(frequency.toString(), username, firstResult, numResults)
-        def queryDiffsMap = queryDiffEntries?.groupBy { it.queryDiff }
 
-        StringBuilder textStringBuilder = new StringBuilder()
+        if(queryDiffEntries.size() > 0) {
+            def queryDiffsMap = queryDiffEntries.groupBy { it.queryDiff }
 
-        textStringBuilder.append("Change log of ${currentDate.format("d.' of 'M Y h:mm aa z")}")
+            StringBuilder textStringBuilder = new StringBuilder()
 
-        for(entry in queryDiffEntries) {
-            //todo prettify a message text
-            def addedIds = entry.collect {
-                it.changeFlag == ChangeFlag.ADDED.toString()
-            }?.toListString()
-            def removedIds = entry.collect {
-                it.changeFlag == ChangeFlag.REMOVED.toString()
-            }?.toListString()
+            textStringBuilder.append("Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}")
             textStringBuilder.append(NEW_LINE)
-//            textStringBuilder.append("For query '$entry.queryDiff.id': \n" +
-//                    "date of the change: + $entry.date, \n" +
-//                    "added ids: $addedIds \n" +
-//                    "removed ids: $removedIds \n")
-            textStringBuilder.append(NEW_LINE)
+
+            def patientSetMap = queryDiffsMap.findAll{it.key.setType == SetTypes.PATIENT.toString()}
+            for (entry in patientSetMap) {
+                def addedIds = entry.value.findAll {
+                    it.changeFlag == ChangeFlag.ADDED.toString()
+                }?.objectId
+                def removedIds = entry.value.findAll {
+                    it.changeFlag == ChangeFlag.REMOVED.toString()
+                }?.objectId
+                textStringBuilder.append(NEW_LINE)
+                textStringBuilder.append("For query named: '$entry.key.query.name' (id='$entry.key.query.id') \n" +
+                        "date of the change: $entry.key.date \n")
+                if(addedIds.size() > 0) {
+                    textStringBuilder.append("added patients with ids: $addedIds \n")
+                }
+                if(removedIds.size() > 0) {
+                    textStringBuilder.append("removed ids: $removedIds \n")
+                }
+                textStringBuilder.append(NEW_LINE)
+            }
+            return textStringBuilder.toString()
         }
-        return textStringBuilder.toString()
+        return null
     }
 
     /**
