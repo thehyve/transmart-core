@@ -31,7 +31,7 @@ class UserQueryDiffController {
     def scan() {
         Integer result = userQueryDiffResource.scan(currentUser)
         response.status = 201
-        respond([numberOfUpdatedSets: result] as JSON)
+        respond([numberOfUpdatedSets: result])
     }
 
     /**
