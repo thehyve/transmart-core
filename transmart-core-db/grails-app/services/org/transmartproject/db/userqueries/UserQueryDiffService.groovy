@@ -86,12 +86,12 @@ class UserQueryDiffService implements UserQueryDiffResource {
     private QueryResult getPreviousQueryResult(UserQuery query, DbUser user) {
         //get the latest queryDiff entry for the current query 
         QueryDiff latestQueryDiff = getLatestQueryDiffByQueryId(query.id)
-        if (latestQueryDiff) {
+        if (latestQueryDiff){
             return findSetByIdAndType(latestQueryDiff.setId, latestQueryDiff.setType, user)
         } else {
             //todo different methods depending on query type (for now patient only)
             try {
-                def resultSet = findSetByConstraints(query.getConstraintsFromPatientQuery(), user)
+                def resultSet = findSetByConstraints(query.patientsQuery, user)
                 return resultSet
             } catch (JSONException e) {
                 log.error "Constraint for query: $query.id is not valid JSON"

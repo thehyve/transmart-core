@@ -66,16 +66,4 @@ class Query implements UserQuery {
         updateDate nullable: true
     }
 
-    @Override @CompileStatic
-    String getConstraintsFromPatientQuery() {
-        if (patientsQuery) {
-            try {
-                JSONElement jsonQuery = JSON.parse(patientsQuery)
-                return jsonQuery.properties.constraint?.toString()
-            } catch (ConverterException c) {
-                log.warn "Query is not a valid JSON"
-            }
-        }
-        return null
-    }
 }
