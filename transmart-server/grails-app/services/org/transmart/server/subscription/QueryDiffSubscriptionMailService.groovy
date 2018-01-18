@@ -3,9 +3,8 @@ package org.transmart.server.subscription
 import grails.plugins.mail.MailService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmart.server.subsctiption.ChangeFlag
-import org.transmart.server.subsctiption.SubscriptionFrequency
-import org.transmartproject.core.userquery.UserQueryDiff
+import org.transmartproject.db.userqueries.ChangeFlag
+import org.transmartproject.db.userqueries.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQueryDiffEntry
 import org.transmartproject.core.userquery.UserQueryDiffResource
 import org.transmartproject.core.users.User
