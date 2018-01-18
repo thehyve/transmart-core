@@ -1,4 +1,4 @@
-package org.transmart.server.subsctiption
+package org.transmartproject.db.userqueries
 
 import groovy.transform.CompileStatic
 
