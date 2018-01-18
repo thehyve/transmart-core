@@ -68,7 +68,7 @@ class UserQueryController {
     def update(@RequestParam('api_version') String apiVersion,
                @PathVariable('id') Long id) {
         def requestJson = request.JSON as Map
-        checkForUnsupportedParams(requestJson, ['name', 'bookmarked', 'subscribed'])
+        checkForUnsupportedParams(requestJson, ['name', 'bookmarked', 'subscribed', 'subscriptionFreq'])
         UserQuery query = userQueryResource.get(id, currentUser)
         if (requestJson.containsKey('name')) {
             query.name = requestJson.name
@@ -78,6 +78,9 @@ class UserQueryController {
         }
         if (requestJson.containsKey('subscribed')) {
             query.subscribed = requestJson.subscribed
+        }
+        if (requestJson.containsKey('subscriptionFreq')) {
+            query.subscriptionFreq = requestJson.subscriptionFreq
         }
         userQueryResource.save(query, currentUser)
         response.status = 204
