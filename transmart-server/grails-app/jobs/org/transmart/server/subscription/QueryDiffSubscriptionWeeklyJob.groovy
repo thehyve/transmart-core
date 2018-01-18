@@ -1,7 +1,7 @@
 package org.transmart.server.subscription
 
 import groovy.util.logging.Slf4j
-import org.transmart.server.subsctiption.SubscriptionFrequency
+import org.transmartproject.db.userqueries.SubscriptionFrequency
 
 /**
  * Quartz plugin job

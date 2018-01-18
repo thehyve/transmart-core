@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
+import org.transmartproject.db.userqueries.SubscriptionFrequency
 import org.transmartproject.rest.misc.CurrentUser
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -48,6 +49,9 @@ class UserQueryController {
 
         validateQuery(patientsQueryString)
         validateQuery(observationsQueryString)
+        if (requestJson.containsKey('subscriptionFreq')) {
+            validateSubscriptionFrequency(requestJson.subscriptionFreq)
+        }
 
         UserQuery query = userQueryResource.create(currentUser)
         query.apiVersion = versionController.currentVersion(apiVersion)
@@ -68,7 +72,7 @@ class UserQueryController {
     def update(@RequestParam('api_version') String apiVersion,
                @PathVariable('id') Long id) {
         def requestJson = request.JSON as Map
-        checkForUnsupportedParams(requestJson, ['name', 'bookmarked', 'subscribed'])
+        checkForUnsupportedParams(requestJson, ['name', 'bookmarked', 'subscribed', 'subscriptionFreq'])
         UserQuery query = userQueryResource.get(id, currentUser)
         if (requestJson.containsKey('name')) {
             query.name = requestJson.name
@@ -78,6 +82,10 @@ class UserQueryController {
         }
         if (requestJson.containsKey('subscribed')) {
             query.subscribed = requestJson.subscribed
+        }
+        if (requestJson.containsKey('subscriptionFreq')) {
+            validateSubscriptionFrequency(requestJson.subscriptionFreq)
+            query.subscriptionFreq = requestJson.subscriptionFreq
         }
         userQueryResource.save(query, currentUser)
         response.status = 204
@@ -112,6 +120,12 @@ class UserQueryController {
             } catch (ConverterException c) {
                 throw new InvalidArgumentsException("Query is not a valid JSON")
             }
+        }
+    }
+
+    private static void validateSubscriptionFrequency(String frequency) {
+        if (frequency != SubscriptionFrequency.WEEKLY.toString() && frequency != SubscriptionFrequency.DAILY.toString()) {
+            throw new InvalidArgumentsException("Value $frequency of subscriptionFreq is not supported.")
         }
     }
 }
