@@ -9,9 +9,9 @@ import org.transmartproject.db.userqueries.SubscriptionFrequency
  * http://grails-plugins.github.io/grails-quartz/latest/guide/
  */
 @Slf4j
-class QueryDiffSubscriptionWeeklyJob {
+class QuerySetSubscriptionWeeklyJob {
 
-    QueryDiffSubscriptionMailService queryDiffSubscriptionMailService
+    QuerySetSubscriptionMailService querySetSubscriptionMailService
     /**
      * Specifies a cron expression for job trigger
      cronExpression: "s m h D M W Y"
@@ -38,7 +38,7 @@ class QueryDiffSubscriptionWeeklyJob {
      * Runs generating emails
      */
     void execute() {
-        queryDiffSubscriptionMailService.run(SubscriptionFrequency.WEEKLY)
+        querySetSubscriptionMailService.run(SubscriptionFrequency.WEEKLY)
         // todo add a new row to AsyncJob table (?)
         log.info "Weekly subscription job executed."
     }

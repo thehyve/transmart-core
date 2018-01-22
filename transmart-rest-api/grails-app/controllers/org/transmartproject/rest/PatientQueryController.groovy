@@ -103,7 +103,7 @@ class PatientQueryController extends AbstractQueryController {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        QueryResult patientSet = multiDimService.findQueryResultById(id, user)
+        QueryResult patientSet = multiDimService.findQueryResult(id, user)
         def constraint = patientSet.queryInstance.queryMaster.apiVersion
         def version = patientSet.queryInstance.queryMaster.requestConstraints
 

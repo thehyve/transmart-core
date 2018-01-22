@@ -2,7 +2,6 @@
 
 package org.transmartproject.core.multidimquery
 
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
@@ -90,19 +89,7 @@ interface MultiDimensionalDataResource {
 
     QueryResult createPatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion)
 
-    /**
-     * Update existing patient set with new patient ids
-     * @param queryResultId
-     * @param name
-     * @param patients
-     * @param user
-     * @return A patient set with updated results (patient ids)
-     */
-    QueryResult updatePatientSetQueryResult(Long queryResultId, String name, List<Patient> patients, User user)
-
-    QueryResult findQueryResultById(Long queryResultId, User user)
-
-    QueryResult findQueryResultByConstraint(String constraintText, User user)
+    QueryResult findQueryResult(Long queryResultId, User user)
 
     Iterable<QueryResult> findPatientSetQueryResults(User user)
 

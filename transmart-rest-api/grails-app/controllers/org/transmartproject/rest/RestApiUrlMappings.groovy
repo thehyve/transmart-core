@@ -201,10 +201,13 @@ class RestApiUrlMappings {
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete') {
                 apiVersion = "v2"
             }
-            "/query_diffs/scan"(method: 'POST', controller: 'userQueryDiff', action: 'scan') {
+            "/query_sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan') {
                 apiVersion = "v2"
             }
-            "/query_diffs/$queryId"(method: 'GET', controller: 'userQueryDiff', action: 'getByQueryId') {
+            "/query_sets/$queryId"(method: 'GET', controller: 'userQuerySet', action: 'getSetsByQueryId') {
+                apiVersion = "v2"
+            }
+            "/query_sets/$queryId/diffs"(method: 'GET', controller: 'userQuerySet', action: 'getDiffsByQueryId') {
                 apiVersion = "v2"
             }
         }

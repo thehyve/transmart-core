@@ -3193,14 +3193,21 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
-      "name" : "QUERY_DIFF"
+      "name" : "QUERY_SET"
     },
     "parents" : [ ]
   }, {
     "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
-      "name" : "QUERY_DIFF_ENTRY"
+      "name" : "QUERY_SET_INSTANCE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET_DIFF"
     },
     "parents" : [ ]
   }, {
@@ -5474,16 +5481,23 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
-      "name" : "QUERY_DIFF"
+      "name" : "QUERY_SET"
     },
-    "file" : "biomart_user/query_diff.sql"
+    "file" : "biomart_user/QUERY_SET.sql"
   }, {
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
-      "name" : "QUERY_DIFF_ENTRY"
+      "name" : "QUERY_SET_INSTANCE"
     },
-    "file" : "biomart_user/query_diff_entry.sql"
+    "file" : "biomart_user/QUERY_SET_INSTANCE.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET_DIFF"
+    },
+    "file" : "biomart_user/QUERY_SET_DIFF.sql"
   }, {
     "item" : {
       "type" : "INDEX",

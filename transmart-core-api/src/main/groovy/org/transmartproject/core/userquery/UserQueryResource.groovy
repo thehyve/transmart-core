@@ -11,9 +11,9 @@ import org.transmartproject.core.users.User
 interface UserQueryResource {
 
     /**
-     * @return list of all queries that were not deleted.
+     * @return list of all subscribed queries that were not deleted.
      */
-    List<UserQuery> list()
+    List<UserQuery> listSubscribed()
 
     /**
      * @param currentUser user whose queries to fetch
