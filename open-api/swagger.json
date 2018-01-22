@@ -2395,7 +2395,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "instances": {
+                "querySetInstances": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/userQuerySet"
@@ -2428,7 +2428,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "diffs": {
+                "querySetDiffs": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/userQuerySetDiffs"
@@ -3256,7 +3256,7 @@
           "type": "string",
           "format": "date-time"
         },
-        "querySetInstances": {
+        "instances": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/userQuerySetInstance"
@@ -3289,7 +3289,7 @@
           "type": "string",
           "format": "date-time"
         },
-        "querySetDiffEntries": {
+        "diffs": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/userQuerySetDiff"
