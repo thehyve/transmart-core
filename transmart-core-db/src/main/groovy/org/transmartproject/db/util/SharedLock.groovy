@@ -2,12 +2,12 @@ package org.transmartproject.db.util
 
 import groovy.transform.CompileStatic
 
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.Semaphore
 
 /**
  * Lock that can be shared between threads and can be released
  * by another thread than the thread that locked it.
+ * Generally called a mutual exclusion lock or binary semaphore.
  * E.g., when a thread first acquires a lock, then spawns a new thread
  * that should release the lock when it is completed.
  *
@@ -29,12 +29,7 @@ import java.util.concurrent.locks.ReentrantLock
 @CompileStatic
 class SharedLock {
 
-    static class SimpleLock {
-        boolean locked
-    }
-
-    final private SimpleLock sharedLock = new SimpleLock(locked: false)
-    final private Lock lockLock = new ReentrantLock()
+    final private Semaphore semaphore = new Semaphore(1)
 
     /**
      * Checks if the lock is locked.
@@ -42,7 +37,7 @@ class SharedLock {
      * @return true iff the lock is locked.
      */
     boolean isLocked() {
-        sharedLock.locked
+        semaphore.availablePermits() == 0
     }
 
     /**
@@ -52,24 +47,14 @@ class SharedLock {
      * @return true iff the lock is successfully acquired.
      */
     boolean tryLock() {
-        lockLock.lock()
-        if (locked) {
-            lockLock.unlock()
-            return false
-        } else {
-            sharedLock.locked = true
-            lockLock.unlock()
-            return true
-        }
+        semaphore.tryAcquire()
     }
 
     /**
      * Release the lock.
      */
     void unlock() {
-        lockLock.lock()
-        sharedLock.locked = false
-        lockLock.unlock()
+        semaphore.release()
     }
 
 }
