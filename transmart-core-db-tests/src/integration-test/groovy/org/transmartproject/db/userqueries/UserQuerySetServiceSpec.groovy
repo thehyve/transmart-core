@@ -5,13 +5,15 @@ import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.querytool.QuerySet
+import org.transmartproject.db.querytool.QuerySetDiff
 
 @Integration
 @Rollback
 class UserQuerySetServiceSpec extends TransmartSpecification {
 
 
-    UserQuerySetService userQueryDiffService
+    UserQuerySetService userQuerySetService
 
     SessionFactory sessionFactory
 
@@ -23,12 +25,12 @@ class UserQuerySetServiceSpec extends TransmartSpecification {
         sessionFactory.currentSession.flush()
     }
 
-    void "test fetching queryDiffs for a query"() {
+    void "test fetching querySetInstances by a query id"() {
         setupData()
 
         when:
         def user = userQueryTestData.user
-        def result = userQueryDiffService.getDiffEntriesByQueryId(userQueryTestData.queries[0].id, user, 0, 20)
+        def result = userQuerySetService.getSetInstancesByQueryId(userQueryTestData.queries[0].id, user, 0, 999)
 
         then:
         result != null
@@ -38,22 +40,22 @@ class UserQuerySetServiceSpec extends TransmartSpecification {
         result.containsAll(userQueryTestData.querySetInstances[0], userQueryTestData.querySetInstances[1])
 
         // check querySets
-        (result.queryDiff as Set).size() == 1
-        result.queryDiff.containsAll(userQueryTestData.querySets[0])
+        (result.querySet as Set).size() == 1
+        result.querySet.containsAll(userQueryTestData.querySets[0])
 
         // check query
-        (result.queryDiff.query as Set).size() == 1
-        result.queryDiff.query.contains(userQueryTestData.queries[0])
+        (result.querySet.query as Set).size() == 1
+        result.querySet.query.contains(userQueryTestData.queries[0])
 
     }
 
-    void "test scanning for patientSets changes"() {
+    void "test scanning for query set changes"() {
         setupData()
 
         when:
         // user is not admin
         def user = userQueryTestData.user
-        def result = userQueryDiffService.scan(user)
+        def result = userQuerySetService.scan(user)
 
         then:
         AccessDeniedException ex = thrown()
@@ -62,12 +64,21 @@ class UserQuerySetServiceSpec extends TransmartSpecification {
         when:
         // user is not admin
         user = userQueryTestData.adminUser
-        result = userQueryDiffService.scan(user)
+        result = userQuerySetService.scan(user)
+        def createdDiffsForFirstQuery = userQuerySetService.getDiffEntriesByQueryId(userQueryTestData.queries[0].id,
+                user, 0, 999)
 
         then:
         result != null
-        // number of updated patient sets
+        //check query_set_diffs entries
         result == 2
+        createdDiffsForFirstQuery.size() == 4
+        createdDiffsForFirstQuery.findAll{it.changeFlag == ChangeFlag.ADDED.toString()}.size() == 3
+        createdDiffsForFirstQuery.findAll{it.changeFlag == ChangeFlag.REMOVED.toString()}.size() == 1
+
+        //check number of added entries in total
+        QuerySet.list().size() == userQueryTestData.querySets.size() + result //old set entries + entries created by scan
+        QuerySetDiff.list().size() == 2 * createdDiffsForFirstQuery.size()    //both sets are the same
     }
 
 }
