@@ -1,13 +1,14 @@
 package org.transmartproject.core.userquery
 
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.User
 
 /**
  * User query result changes resource
  */
-interface UserQueryDiffResource {
+interface UserQuerySetResource {
 
     /**
      * Scans for changes of results of the stored queries and updates stored sets
@@ -20,14 +21,34 @@ interface UserQueryDiffResource {
     Integer scan(User currentUser) throws AccessDeniedException
 
     /**
+     * Creates a new query set wit query set instances
+     * @param query - related user query
+     * @param constraint to create a new set
+     * @param currentUser user who saves the query.
+     * @return
+     */
+    void createSetWithInstances(UserQuery query, String constraints, User currentUser)
+
+    /**
      * Gets a list of changes of query results for the queries based on query id.
      *
      * @param queryId - id of the query
      * @param firstResult - parameter required to support pagination
      * @param numResults - parameter required to support pagination
-     * @return List of queryDiffEntries
+     * @return List of querySets with querySetDiffs
      */
-    List<UserQueryDiffEntry> getAllEntriesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults)
+    List<UserQuerySetDiff> getDiffEntriesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults)
+            throws AccessDeniedException, NoSuchResourceException
+
+    /**
+     * Gets a list of sets with set entries based on related query id.
+     *
+     * @param queryId - id of the query
+     * @param firstResult - parameter required to support pagination
+     * @param numResults - parameter required to support pagination
+     * @return List of querySets with querySetEntries
+     */
+    List<UserQuerySetInstance> getSetInstancesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults)
             throws AccessDeniedException, NoSuchResourceException
 
     /**
@@ -40,8 +61,8 @@ interface UserQueryDiffResource {
      * @param user - user whose queries to fetch
      * @param firstResult - parameter required to support pagination
      * @param numResults - parameter required to support pagination
-     * @return List of queryDiffEntries
+     * @return List of querySetInstances
      */
-    List<UserQueryDiffEntry> getAllEntriesByUsernameAndFrequency(String frequency, String username, int firstResult, Integer numResults)
+    List<UserQuerySetDiff> getDiffEntriesByUsernameAndFrequency(String frequency, String username, int firstResult, Integer numResults)
 
 }

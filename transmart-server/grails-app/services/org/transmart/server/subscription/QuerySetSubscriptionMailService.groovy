@@ -3,10 +3,10 @@ package org.transmart.server.subscription
 import grails.plugins.mail.MailService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.userquery.UserQuerySetDiff
 import org.transmartproject.db.userqueries.ChangeFlag
 import org.transmartproject.db.userqueries.SubscriptionFrequency
-import org.transmartproject.core.userquery.UserQueryDiffEntry
-import org.transmartproject.core.userquery.UserQueryDiffResource
+import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.userqueries.SetTypes
@@ -21,7 +21,7 @@ import org.transmartproject.db.userqueries.SetTypes
  *
  */
 @Slf4j
-class QueryDiffSubscriptionMailService {
+class QuerySetSubscriptionMailService {
 
     def grailsApplication
 
@@ -31,7 +31,7 @@ class QueryDiffSubscriptionMailService {
     UsersResource usersResource
 
     @Autowired
-    UserQueryDiffResource userQueryDiffResource
+    UserQuerySetResource userQueryDiffResource
 
     private final static String NEW_LINE = "\n"
 
@@ -74,11 +74,11 @@ class QueryDiffSubscriptionMailService {
 
         def currentDate = new Date()
 
-        List<UserQueryDiffEntry> queryDiffEntries = userQueryDiffResource
-                .getAllEntriesByUsernameAndFrequency(frequency.toString(), username, firstResult, numResults)
+        List<UserQuerySetDiff> queryDiffEntries = userQueryDiffResource
+                .getDiffEntriesByUsernameAndFrequency(frequency.toString(), username, firstResult, numResults)
 
         if(queryDiffEntries.size() > 0) {
-            def queryDiffsMap = queryDiffEntries.groupBy { it.queryDiff }
+            def queryDiffsMap = queryDiffEntries.groupBy { it.querySetDiff }
 
             StringBuilder textStringBuilder = new StringBuilder()
 
@@ -95,7 +95,7 @@ class QueryDiffSubscriptionMailService {
                 }?.objectId
                 textStringBuilder.append(NEW_LINE)
                 textStringBuilder.append("For query named: '$entry.key.query.name' (id='$entry.key.query.id') \n" +
-                        "date of the change: $entry.key.date \n")
+                        "createDate of the change: $entry.key.date \n")
                 if(addedIds.size() > 0) {
                     textStringBuilder.append("added patients with ids: $addedIds \n")
                 }

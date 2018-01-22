@@ -2,8 +2,9 @@ include ../../../lib/makefile.inc
 
 FILES = \
 	../../../ddl/oracle/biomart_user/query
-	../../../ddl/oracle/biomart_user/query_diff
-    ../../../ddl/oracle/biomart_user/query_diff_entry
+	../../../ddl/oracle/biomart_user/query_set
+    ../../../ddl/oracle/biomart_user/query_set_instance
+    ../../../ddl/oracle/biomart_user/query_set_diff
 	../../../ddl/oracle/i2b2metadata/i2b2_tag_types
 	../../../ddl/oracle/i2b2metadata/i2b2_tag_options
 	data_migration
