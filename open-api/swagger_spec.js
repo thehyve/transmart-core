@@ -2389,7 +2389,7 @@ var spec = {
             "schema": {
               "type": "object",
               "properties": {
-                "instances": {
+                "querySetInstances": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/userQuerySet"
@@ -2422,7 +2422,7 @@ var spec = {
             "schema": {
               "type": "object",
               "properties": {
-                "diffs": {
+                "querySetDiffs": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/userQuerySetDiffs"
@@ -3250,7 +3250,7 @@ var spec = {
           "type": "string",
           "format": "date-time"
         },
-        "querySetInstances": {
+        "instances": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/userQuerySetInstance"
@@ -3283,7 +3283,7 @@ var spec = {
           "type": "string",
           "format": "date-time"
         },
-        "querySetDiffEntries": {
+        "diffs": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/userQuerySetDiff"
