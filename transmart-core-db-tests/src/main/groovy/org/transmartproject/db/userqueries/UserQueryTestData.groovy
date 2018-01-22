@@ -19,9 +19,7 @@
 
 package org.transmartproject.db.userqueries
 
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.TestData
 import org.transmartproject.db.user.RoleCoreDb
 import org.transmartproject.db.user.User
 
@@ -29,8 +27,6 @@ import static org.transmartproject.db.TestDataHelper.save
 import org.transmartproject.db.querytool.Query
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetInstance
-import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
-import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 
 class UserQueryTestData {
 
@@ -38,42 +34,31 @@ class UserQueryTestData {
     List<QuerySet> querySets
     List<QuerySetInstance> querySetInstances
 
+    static TestData testData
+
     static User user
     static User adminUser
     static RoleCoreDb adminRole
-    static List<PatientDimension> patients
-    static QueryResult queryResult
-    static QtQueryMaster patientsQueryMaster
-
-    private static int number = 2
 
     static UserQueryTestData createDefault() {
+        testData = TestData.createDefault()
         user = createUser()
         adminUser = createAdminUser()
-        createAndSavePatientSet()
-        queryResult = getQueryResultFromMaster patientsQueryMaster
         def result = new UserQueryTestData()
-        result.queries = createTestQueries(1)
-        result.querySets = createQueryDiffsForQueries(number, result.queries)
-        result.querySetInstances = createQueryDiffEntriesForQueryDiffs(number, result.querySets)
+        result.queries = createTestQuery()
+        result.querySets = createQuerySetsForQueries(result.queries)
+        result.querySetInstances = createQuerySetInstances(result.querySets)
         result
     }
 
-    private static void createAndSavePatientSet() {
-        patients = createTestPatients(3, -100, 'STUDY_ID_1')
-        patientsQueryMaster = createQueryResult patients
-        save patients
-        patientsQueryMaster.save()
-    }
-
-    static List<QuerySetInstance> createQueryDiffEntriesForQueryDiffs(int number, List<QuerySet> querySets) {
+    static List<QuerySetInstance> createQuerySetInstances(List<QuerySet> querySets) {
         List<QuerySetInstance> entries = []
 
-        for (int i = 0; i < number; i++) {
+        for (int i = 0; i < querySets.size(); i++) {
             entries.add(
                     new QuerySetInstance(
                             querySet: querySets[i],
-                            objectId: patients[0].id
+                            objectId: testData.i2b2Data.patients[0].id
                     )
             )
             entries.add(
@@ -86,14 +71,14 @@ class UserQueryTestData {
         entries
     }
 
-    static List<QuerySet> createQueryDiffsForQueries(int number, List<Query> queries) {
+    static List<QuerySet> createQuerySetsForQueries(List<Query> queries) {
         List<QuerySet> diffs = []
 
-        for (int i = 0; i < number; i++) {
+        for (int i = 0; i < queries.size(); i++) {
             diffs.add(
                     new QuerySet(
                             query: queries[i],
-                            setId: queryResult.id,
+                            setSize: 2,
                             setType: 'PATIENT'
                     )
             )
@@ -102,37 +87,34 @@ class UserQueryTestData {
 
     }
 
-    static List<Query> createTestQueries(int number) {
+    static List<Query> createTestQuery() {
         List<Query> queries = []
 
-        for (int i = 0; i < number; i++) {
-            queries.add(
-                    new Query(
-                            name             : 'test query 1',
-                            patientsQuery    : '{type: "true"}',
-                            observationsQuery: '{type: "true"}',
-                            bookmarked       : true,
-                            subscribed       : true,
-                            subscriptionFreq : 'DAILY',
-                            username         : user.username,
-                            apiVersion       : 'v2_test'
-                    )
-            )
-            queries.add(
-                    new Query(
-                            name             : 'test query 2',
-                            patientsQuery    : '{type: "true"}',
-                            observationsQuery: null,
-                            bookmarked       : false,
-                            subscribed       : true,
-                            subscriptionFreq : 'WEEKLY',
-                            username         : user.username,
-                            apiVersion       : 'v2_test'
-                    )
-            )
-        }
+        queries.add(
+                new Query(
+                        name: 'test query 1',
+                        patientsQuery: '{type: "true"}',
+                        observationsQuery: '{type: "true"}',
+                        bookmarked: true,
+                        subscribed: true,
+                        subscriptionFreq: 'DAILY',
+                        username: user.username,
+                        apiVersion: 'v2_test'
+                )
+        )
+        queries.add(
+                new Query(
+                        name: 'test query 2',
+                        patientsQuery: '{type: "true"}',
+                        observationsQuery: null,
+                        bookmarked: false,
+                        subscribed: true,
+                        subscriptionFreq: 'WEEKLY',
+                        username: user.username,
+                        apiVersion: 'v2_test'
+                )
+        )
         queries
-
     }
 
     static User createUser() {
@@ -161,16 +143,8 @@ class UserQueryTestData {
         return adminUser
     }
 
-    static List<PatientDimension> createTestPatients(int n, long baseId, String trialName = 'SAMP_TRIAL') {
-        (1..n).collect { int i ->
-            def p = new PatientDimension()
-            p.id = baseId - i
-            p.sourcesystemCd = "$trialName:SUBJ_ID_$i"
-            p
-        }
-    }
-
     def saveAll() {
+        testData.saveAll()
         user.save()
         adminRole.save()
         adminUser.save()
