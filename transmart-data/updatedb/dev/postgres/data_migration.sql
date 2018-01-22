@@ -11,8 +11,9 @@ ALTER TABLE ONLY i2b2metadata.i2b2_tags
 
 set search_path = biomart_user, pg_catalog;
 \i ../../../ddl/postgres/biomart_user/query.sql
-\i ../../../ddl/postgres/biomart_user/query_diff.sql
-\i ../../../ddl/postgres/biomart_user/query_diff_entry.sql
+\i ../../../ddl/postgres/biomart_user/query_set.sql
+\i ../../../ddl/postgres/biomart_user/query_set_diff.sql
+\i ../../../ddl/postgres/biomart_user/query_set_instance.sql
 
 set search_path = i2b2metadata, pg_catalog;
 \i ../../../ddl/postgres/i2b2metadata/i2b2_tag_types.sql

@@ -3,10 +3,10 @@ package org.transmartproject.core.userquery
 /**
  *  Stores query result changes
  */
-interface UserQueryDiff {
+interface UserQuerySet {
 
     /**
-     * Internal system identifier of the queryDiff.
+     * Internal system identifier of the querySet.
      */
     Long getId()
 
@@ -16,9 +16,9 @@ interface UserQueryDiff {
     UserQuery getQuery()
 
     /**
-     * The id of the set the query is related to
+     * The size of the set
      */
-    Long getSetId()
+    Long getSetSize()
 
     /**
      * The type of the set the query is related to
@@ -26,12 +26,17 @@ interface UserQueryDiff {
     String getSetType()
 
     /**
-     * When the changes in result of this query were detected.
+     * When the set was created.
      */
-    Date getDate()
+    Date getCreateDate()
+
+    /**
+     * List of objectIds that belong to the set
+     */
+    Set<UserQuerySetInstance> getQuerySetInstances()
 
     /**
      * List of objectIds added and/or removed from the set
      */
-    Set<UserQueryDiffEntry> getQueryDiffEntries()
+    Set<UserQuerySetDiff> getQuerySetDiffs()
 }

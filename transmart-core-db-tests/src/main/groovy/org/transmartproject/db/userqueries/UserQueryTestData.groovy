@@ -27,16 +27,16 @@ import org.transmartproject.db.user.User
 
 import static org.transmartproject.db.TestDataHelper.save
 import org.transmartproject.db.querytool.Query
-import org.transmartproject.db.querytool.QueryDiff
-import org.transmartproject.db.querytool.QueryDiffEntry
+import org.transmartproject.db.querytool.QuerySet
+import org.transmartproject.db.querytool.QuerySetInstance
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 
 class UserQueryTestData {
 
     List<Query> queries
-    List<QueryDiff> queryDiffs
-    List<QueryDiffEntry> queryDiffEntries
+    List<QuerySet> querySets
+    List<QuerySetInstance> querySetInstances
 
     static User user
     static User adminUser
@@ -54,8 +54,8 @@ class UserQueryTestData {
         queryResult = getQueryResultFromMaster patientsQueryMaster
         def result = new UserQueryTestData()
         result.queries = createTestQueries(1)
-        result.queryDiffs = createQueryDiffsForQueries(number, result.queries)
-        result.queryDiffEntries = createQueryDiffEntriesForQueryDiffs(number, result.queryDiffs)
+        result.querySets = createQueryDiffsForQueries(number, result.queries)
+        result.querySetInstances = createQueryDiffEntriesForQueryDiffs(number, result.querySets)
         result
     }
 
@@ -66,34 +66,32 @@ class UserQueryTestData {
         patientsQueryMaster.save()
     }
 
-    static List<QueryDiffEntry> createQueryDiffEntriesForQueryDiffs(int number, List<QueryDiff> queryDiffs) {
-        List<QueryDiffEntry> entries = []
+    static List<QuerySetInstance> createQueryDiffEntriesForQueryDiffs(int number, List<QuerySet> querySets) {
+        List<QuerySetInstance> entries = []
 
         for (int i = 0; i < number; i++) {
             entries.add(
-                    new QueryDiffEntry(
-                            queryDiff: queryDiffs[i],
-                            objectId: patients[0].id,
-                            changeFlag: 'ADDED'
+                    new QuerySetInstance(
+                            querySet: querySets[i],
+                            objectId: patients[0].id
                     )
             )
             entries.add(
-                    new QueryDiffEntry(
-                            queryDiff: queryDiffs[i],
-                            objectId: -2,
-                            changeFlag: 'REMOVED'
+                    new QuerySetInstance(
+                            querySet: querySets[i],
+                            objectId: -2
                     )
             )
         }
         entries
     }
 
-    static List<QueryDiff> createQueryDiffsForQueries(int number, List<Query> queries) {
-        List<QueryDiff> diffs = []
+    static List<QuerySet> createQueryDiffsForQueries(int number, List<Query> queries) {
+        List<QuerySet> diffs = []
 
         for (int i = 0; i < number; i++) {
             diffs.add(
-                    new QueryDiff(
+                    new QuerySet(
                             query: queries[i],
                             setId: queryResult.id,
                             setType: 'PATIENT'
@@ -177,7 +175,7 @@ class UserQueryTestData {
         adminRole.save()
         adminUser.save()
         save queries
-        save queryDiffs
-        save queryDiffEntries
+        save querySets
+        save querySetInstances
     }
 }
