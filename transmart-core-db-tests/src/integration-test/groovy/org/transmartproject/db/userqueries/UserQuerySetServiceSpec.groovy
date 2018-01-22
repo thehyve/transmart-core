@@ -3,19 +3,15 @@ package org.transmartproject.db.userqueries
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.querytool.QtQueryInstance
-import org.transmartproject.db.querytool.QtQueryMaster
-import org.transmartproject.db.querytool.QtQueryResultInstance
 
 @Integration
 @Rollback
-class UserQueryDiffServiceSpec extends TransmartSpecification {
+class UserQuerySetServiceSpec extends TransmartSpecification {
 
 
-    UserQueryDiffService userQueryDiffService
+    UserQuerySetService userQueryDiffService
 
     SessionFactory sessionFactory
 
@@ -32,18 +28,18 @@ class UserQueryDiffServiceSpec extends TransmartSpecification {
 
         when:
         def user = userQueryTestData.user
-        def result = userQueryDiffService.getAllEntriesByQueryId(userQueryTestData.queries[0].id, user, 0, 20)
+        def result = userQueryDiffService.getDiffEntriesByQueryId(userQueryTestData.queries[0].id, user, 0, 20)
 
         then:
         result != null
 
-        // check queryDiffEntries
+        // check querySetInstances
         result.size() == 2
-        result.containsAll(userQueryTestData.queryDiffEntries[0], userQueryTestData.queryDiffEntries[1])
+        result.containsAll(userQueryTestData.querySetInstances[0], userQueryTestData.querySetInstances[1])
 
-        // check queryDiffs
+        // check querySets
         (result.queryDiff as Set).size() == 1
-        result.queryDiff.containsAll(userQueryTestData.queryDiffs[0])
+        result.queryDiff.containsAll(userQueryTestData.querySets[0])
 
         // check query
         (result.queryDiff.query as Set).size() == 1

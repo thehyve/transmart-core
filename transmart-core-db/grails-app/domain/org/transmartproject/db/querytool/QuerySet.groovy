@@ -19,26 +19,30 @@
 
 package org.transmartproject.db.querytool
 
-import org.transmartproject.core.userquery.UserQueryDiffEntry
+import org.transmartproject.core.userquery.UserQuerySet
 
-class QueryDiffEntry implements UserQueryDiffEntry {
+class QuerySet implements UserQuerySet {
 
     Long id
-    Long objectId
-    String changeFlag
-    QueryDiff queryDiff
+    String setType
+    Long setSize
+    Date createDate = new Date()
+    Query query
 
-    static belongsTo = QueryDiff
+    static belongsTo = Query
+    static hasMany = [
+            querySetInstances: QuerySetInstance,
+            querySetDiffs: QuerySetDiff
+    ]
 
     static mapping = {
         table schema: 'BIOMART_USER'
-        queryDiff fetch: 'join'
         version false
     }
 
     static constraints = {
-        id generator: 'sequence', params: [sequence: 'query_diff_entry_id_seq', schema: 'biomart_user']
-        queryDiff column: 'query_diff_id'
+        id generator: 'sequence', params: [sequence: 'query_set_id_seq', schema: 'biomart_user']
+        query column: 'query_id'
     }
 
 }

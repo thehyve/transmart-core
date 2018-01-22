@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
+import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.db.userqueries.SubscriptionFrequency
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -24,6 +25,9 @@ class UserQueryController {
 
     @Autowired
     UserQueryResource userQueryResource
+
+    @Autowired
+    UserQuerySetResource userQuerySetResource
 
     private static final JsonSlurper JSON_SLURPER = new JsonSlurper()
 
@@ -65,6 +69,8 @@ class UserQueryController {
         }
 
         userQueryResource.save(query, currentUser)
+        userQuerySetResource.createSetWithInstances(query, patientsQueryString, currentUser)
+
         response.status = 201
         respond toResponseMap(query)
     }
