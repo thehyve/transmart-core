@@ -2005,7 +2005,7 @@ paths:
             schema:
               type: object
               properties:
-                instances:
+                querySetInstances:
                   type: array
                   items:
                     $ref: '#/definitions/userQuerySet'
@@ -2029,7 +2029,7 @@ paths:
             schema:
               type: object
               properties:
-                diffs:
+                querySetDiffs:
                   type: array
                   items:
                     $ref: '#/definitions/userQuerySetDiffs'
@@ -2594,7 +2594,7 @@ definitions:
       createDate:
         type: string
         format: 'date-time'
-      querySetInstances:
+      instances:
         type: array
         items:
           $ref: '#/definitions/userQuerySetInstance'
@@ -2617,7 +2617,7 @@ definitions:
       date:
         type: string
         format: 'date-time'
-      querySetDiffEntries:
+      diffs:
         type: array
         items:
           $ref: '#/definitions/userQuerySetDiff'
