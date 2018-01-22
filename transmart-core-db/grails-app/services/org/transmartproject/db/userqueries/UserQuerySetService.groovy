@@ -67,17 +67,13 @@ class UserQuerySetService implements UserQuerySetResource {
 
         for (query in userQueries) {
 
-            QuerySet previousQuerySet = getLatestQuerySetByQueryId(query.id)
-            List<Long> previousPatientIds = []
-            if (previousQuerySet && previousQuerySet.querySetInstances) {
-                previousPatientIds.addAll(previousQuerySet.querySetInstances.objectId)
-            }
+            List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(query.id)
 
             ArrayList<Long> newPatientIds = getPatientsForQuery(query, user)
 
-                if(createSetWithDiffEntries(previousPatientIds, newPatientIds, (Query) query)) {
-                    numberOfResults++
-                }
+            if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
+                numberOfResults++
+            }
 
         }
         return numberOfResults
@@ -115,8 +111,6 @@ class UserQuerySetService implements UserQuerySetResource {
 
     @Override
     List<UserQuerySetDiff> getDiffEntriesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults) {
-        // check access and if query exists
-        userQueryService.get(queryId, currentUser)
 
         def session = sessionFactory.currentSession
         Criteria criteria = session.createCriteria(QuerySetDiff, "querySetDiffs")
@@ -194,7 +188,7 @@ class UserQuerySetService implements UserQuerySetResource {
         }
     }
 
-    private QuerySet getLatestQuerySetByQueryId(Long id) {
+    private List<QuerySetInstance> getInstancesForLatestQuerySet(Long id) {
         DetachedCriteria recentDate = DetachedCriteria.forClass(QuerySet)
                 .add(Restrictions.eq('query.id', id))
                 .setProjection(Projections.max("createDate"))
@@ -205,7 +199,9 @@ class UserQuerySetService implements UserQuerySetResource {
                 .add(Restrictions.eq("query.id", id))
                 .add(Property.forName( "createDate" ).eq(recentDate))
                 .uniqueResult()
-        return recent
+
+        List<QuerySetInstance> instances = QuerySetInstance.findAllByQuerySet(recent)
+        return instances
     }
 
     private boolean createSetWithDiffEntries(List<Long> previousPatientIds, List<Long> newPatientIds, Query query) {
