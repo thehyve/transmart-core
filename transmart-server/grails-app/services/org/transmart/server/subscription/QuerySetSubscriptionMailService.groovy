@@ -78,11 +78,13 @@ class QuerySetSubscriptionMailService {
                 .getDiffEntriesByUsernameAndFrequency(frequency.toString(), username, firstResult, numResults)
 
         if(queryDiffEntries.size() > 0) {
-            def queryDiffsMap = queryDiffEntries.groupBy { it.querySetDiff }
+            def queryDiffsMap = queryDiffEntries.groupBy { it.querySet }
 
             StringBuilder textStringBuilder = new StringBuilder()
 
             textStringBuilder.append("Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}")
+            textStringBuilder.append(NEW_LINE)
+            textStringBuilder.append("List of updated query results:")
             textStringBuilder.append(NEW_LINE)
 
             def patientSetMap = queryDiffsMap.findAll{it.key.setType == SetTypes.PATIENT.toString()}
@@ -94,16 +96,16 @@ class QuerySetSubscriptionMailService {
                     it.changeFlag == ChangeFlag.REMOVED.toString()
                 }?.objectId
                 textStringBuilder.append(NEW_LINE)
-                textStringBuilder.append("For query named: '$entry.key.query.name' (id='$entry.key.query.id') \n" +
-                        "createDate of the change: $entry.key.date \n")
+                textStringBuilder.append("For a query named: '$entry.key.query.name' (id='$entry.key.query.id') \n" +
+                        "date of the change: $entry.key.createDate \n")
                 if(addedIds.size() > 0) {
                     textStringBuilder.append("added patients with ids: $addedIds \n")
                 }
                 if(removedIds.size() > 0) {
-                    textStringBuilder.append("removed ids: $removedIds \n")
+                    textStringBuilder.append("removed patients with ids: $removedIds \n")
                 }
-                textStringBuilder.append(NEW_LINE)
             }
+            textStringBuilder.append(NEW_LINE)
             return textStringBuilder.toString()
         }
         return null
