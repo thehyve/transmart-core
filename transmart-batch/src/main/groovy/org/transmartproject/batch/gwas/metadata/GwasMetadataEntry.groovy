@@ -5,6 +5,7 @@ import groovy.transform.ToString
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
+import javax.validation.constraints.Digits
 
 /**
  * Represents a line in the GWAS metadata file.
@@ -79,8 +80,8 @@ class GwasMetadataEntry {
     @Size(max = 500)
     String cellType
 
-    @Size(max = 50)
-    String pvalueCutoff
+    @Digits(integer = 1, fraction = 10)
+    BigDecimal pvalueCutoff
 
     @Size(max = 500)
     String inputFile // INPUT_FILENAME in kettle
