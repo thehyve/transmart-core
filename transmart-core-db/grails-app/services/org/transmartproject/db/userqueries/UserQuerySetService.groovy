@@ -61,14 +61,13 @@ class UserQuerySetService implements UserQuerySetResource {
         // get list of all not deleted queries per user
         List<UserQuery> userQueries = userQueryService.listSubscribed()
         if (!userQueries) {
-            log.info "No queries were found."
+            log.info "No subscribed queries were found."
             return numberOfResults
         }
 
         for (query in userQueries) {
 
             List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(query.id)
-
             ArrayList<Long> newPatientIds = getPatientsForQuery(query, user)
 
             if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
@@ -147,7 +146,7 @@ class UserQuerySetService implements UserQuerySetResource {
             calendar.add(Calendar.DATE, -7)
         }
         def session = sessionFactory.currentSession
-        Criteria criteria = session.createCriteria(QuerySetInstance, "querySetDiffs")
+        Criteria criteria = session.createCriteria(QuerySetDiff, "querySetDiffs")
                 .createAlias("querySetDiffs.querySet", "querySet", JoinType.INNER_JOIN)
                 .createAlias("querySet.query", "query", JoinType.INNER_JOIN)
                 .add(Restrictions.eq('query.username', username))
