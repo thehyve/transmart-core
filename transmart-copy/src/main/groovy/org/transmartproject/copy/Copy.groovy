@@ -148,11 +148,14 @@ class Copy {
         log.info "Study ${studyId} deleted."
     }
 
+    public final static Set<String> INDEPENDENT_OPERATION_OPTIONS = ['help', 'delete', 'drop-indexes',
+                                                                     'restore-indexes', 'vacuum-analyze'] as Set
     static void main(String[] args) {
         def parser = new DefaultParser()
         try {
             CommandLine cl = parser.parse(options, args)
-            if (cl.hasOption('help')) {
+            boolean independentOperationOptionSpecified = cl.options.any { it in INDEPENDENT_OPERATION_OPTIONS }
+            if (cl.hasOption('help') || !cl.options) {
                 printHelp()
                 return
             }
@@ -169,7 +172,7 @@ class Copy {
             if (cl.hasOption('drop-indexes')) {
                 copy.dropIndexes()
             }
-            if (cl.hasOption('mode')) {
+            if (cl.hasOption('mode') || !independentOperationOptionSpecified) {
                 if (cl.hasOption('unlogged')) {
                     copy.setLoggedMode(false)
                 }
@@ -189,7 +192,7 @@ class Copy {
                     if ('pedigree' in modes) {
                         copy.uploadPedigree(directory, config)
                     }
-                    if ('study' in modes) {
+                    if (!modes || 'study' in modes) {
                         copy.uploadStudy(directory, config)
                     }
                 } catch (Exception e) {
