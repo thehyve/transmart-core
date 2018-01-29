@@ -1,12 +1,10 @@
 package org.transmartproject.copy
 
-import org.transmartproject.copy.table.Concepts
-import org.transmartproject.copy.table.Modifiers
-import org.transmartproject.copy.table.Observations
-import org.transmartproject.copy.table.Patients
-import org.transmartproject.copy.table.Relations
-import org.transmartproject.copy.table.Studies
-import org.transmartproject.copy.table.TreeNodes
+import org.apache.commons.cli.CommandLine
+import org.apache.commons.cli.DefaultParser
+import org.apache.commons.cli.Option
+import org.apache.commons.cli.Options
+import org.transmartproject.copy.table.*
 import spock.lang.Specification
 
 import java.sql.ResultSet
@@ -14,11 +12,12 @@ import java.sql.ResultSet
 class CopySpec extends Specification {
 
     static String TEST_STUDY = 'SURVEY0'
-    static STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY
-    static DATABASE_CREDENTIALS = [
-            PGUSER: 'i2b2demodata',
+    static String STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY
+    static String CORRUPTED_STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY + '_corrupted'
+    static Map<String, String> DATABASE_CREDENTIALS = [
+            PGUSER    : 'i2b2demodata',
             PGPASSWORD: 'i2b2demodata'
-    ]
+    ].withDefault { String key -> System.getenv(key) }
 
     def studySpecificTables = [
             Observations.table,
@@ -27,22 +26,24 @@ class CopySpec extends Specification {
             Studies.study_dimensions_table,
     ]
 
+    Copy copy
+
     static defaultConfig = new Copy.Config(
             write: false
     )
 
+    def setup() {
+        copy = new Copy(DATABASE_CREDENTIALS)
+    }
+
+    def cleanup() {
+        copy.close()
+    }
+
     def 'test loading the study data'() {
         given: 'Test database is available, the study is not loaded'
-
-        def copy = new Copy(DATABASE_CREDENTIALS)
-        assert !copy.database.connection.closed
-        def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
-        if (TEST_STUDY in studyIds) {
-            copy.deleteStudy(TEST_STUDY)
-            studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
-        }
-        assert !(TEST_STUDY in studyIds)
-        Map beforeCounts = count(copy.database, studySpecificTables)
+        ensureTestStudyUnloaded()
+        Map beforeCounts = count(studySpecificTables)
         Map fileRowCounts = count(STUDY_FOLDER, studySpecificTables)
         def expectedConceptPaths = readFieldsFromFile(STUDY_FOLDER, Concepts.table, 'concept_path')
         def expectedModifierPaths = readFieldsFromFile(STUDY_FOLDER, Modifiers.table, 'modifier_path')
@@ -52,18 +53,17 @@ class CopySpec extends Specification {
         when: 'Loading example study data'
         copy.uploadStudy(STUDY_FOLDER, defaultConfig)
 
-        studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
-        Map afterCounts = count(copy.database, studySpecificTables)
+        Map afterCounts = count(studySpecificTables)
         Map expectedCounts = fileRowCounts
                 .collectEntries { Table table, Number rows -> [table, beforeCounts[table] + rows] }
-        def inDbConceptPaths = readFieldsFromDb(copy.database, Concepts.table, 'concept_path')
-        def inDbModifierPaths = readFieldsFromDb(copy.database, Modifiers.table, 'modifier_path')
-        def inDbSubjectIds = readFieldsFromDb(copy.database, Patients.patient_mapping_table, 'patient_ide')
-        def inDbTreeNodePaths = readFieldsFromDb(copy.database, TreeNodes.table, 'c_fullname')
+        def inDbConceptPaths = readFieldsFromDb(Concepts.table, 'concept_path')
+        def inDbModifierPaths = readFieldsFromDb(Modifiers.table, 'modifier_path')
+        def inDbSubjectIds = readFieldsFromDb(Patients.patient_mapping_table, 'patient_ide')
+        def inDbTreeNodePaths = readFieldsFromDb(TreeNodes.table, 'c_fullname')
 
 
         then: 'Expect the study to be loaded'
-        TEST_STUDY in studyIds
+        getTestStudyDbIdentifier()
         expectedCounts == afterCounts
         inDbConceptPaths.containsAll(expectedConceptPaths)
         inDbModifierPaths.containsAll(expectedModifierPaths)
@@ -74,9 +74,6 @@ class CopySpec extends Specification {
     def 'test loading the relations data'() {
         given: 'Test database is available, the study is not loaded'
 
-        def copy = new Copy(DATABASE_CREDENTIALS)
-        assert !copy.database.connection.closed
-
         def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
 
         when: 'Loading the pedigree data'
@@ -84,41 +81,30 @@ class CopySpec extends Specification {
 
         then: 'Expect the study to be loaded'
         def inDbRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
-        count(copy.database, [Relations.relation_table]) == count(STUDY_FOLDER, [Relations.relation_table])
+        count([Relations.relation_table]) == count(STUDY_FOLDER, [Relations.relation_table])
         inDbRelationTypeLabels.containsAll(expectedRelationTypeLabels)
     }
 
     def 'test deleting the study'() {
         given: 'Test database is available, the study is loaded'
-        def copy = new Copy(DATABASE_CREDENTIALS)
-        assert !copy.database.connection.closed
-        def studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
-        if (!(TEST_STUDY in studyIds)) {
-            copy.uploadStudy(STUDY_FOLDER, defaultConfig)
-            studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
-        }
-        assert TEST_STUDY in studyIds
-        Map beforeCounts = count(copy.database, studySpecificTables)
+        ensureTestStudyLoaded()
+        Map beforeCounts = count(studySpecificTables)
         Map fileRowCounts = count(STUDY_FOLDER, studySpecificTables)
 
         when: 'Deleting the study'
-        copy.deleteStudy(TEST_STUDY)
+        copy.deleteStudyById(TEST_STUDY)
 
-        studyIds = readFieldsFromDb(copy.database, Studies.study_table, 'study_id')
-        Map afterCounts = count(copy.database, studySpecificTables)
+        Map afterCounts = count(studySpecificTables)
         Map expectedCounts = fileRowCounts
                 .collectEntries { Table table, Number rows -> [table, beforeCounts[table] - rows] }
 
         then: 'Expect the study to be loaded'
-        !(TEST_STUDY in studyIds)
+        !getTestStudyDbIdentifier()
         expectedCounts == afterCounts
     }
 
     def 'test detecting if table exists'() {
         given: 'Test database is available'
-
-        def copy = new Copy(DATABASE_CREDENTIALS)
-        assert !copy.database.connection.closed
 
         when: 'Checking for a non-existing table'
         def tableBar = new Table('foo', 'bar')
@@ -133,19 +119,6 @@ class CopySpec extends Specification {
     }
 
     def 'test index management'() {
-        def copy = new Copy(DATABASE_CREDENTIALS)
-        assert !copy.database.connection.closed
-        def metaData = copy.database.connection.getMetaData()
-        def count = { ResultSet rs ->
-            Set<String> indxNames = [] as Set
-            while (rs.next()) {
-                indxNames << rs.getString('INDEX_NAME')
-            }
-            indxNames
-        }
-        def indexesOnFactTable = { -> count(metaData
-                .getIndexInfo(null, 'i2b2demodata', 'observation_fact', false, false))}
-
         when: 'dropping and restore indexes'
         copy.dropIndexes()
         def afterDropIndexes = indexesOnFactTable()
@@ -162,11 +135,107 @@ class CopySpec extends Specification {
         ] as Set
     }
 
-    Map<Table, Number> count(Database database, Iterable<Table> tables) {
+    def 'delete by path when no study'() {
+        given: 'there is no study'
+        ensureTestStudyUnloaded()
+
+        when:
+        copy.deleteStudy(STUDY_FOLDER, false)
+        then:
+        !getTestStudyDbIdentifier()
+
+        when:
+        copy.deleteStudy(STUDY_FOLDER, true)
+        then:
+        def exception = thrown(IllegalStateException)
+        exception.message == 'Study not found: ' + TEST_STUDY + '.'
+    }
+
+    def 'delete by path when study loaded'() {
+        given: 'there is the study'
+        ensureTestStudyLoaded()
+
+        when:
+        copy.deleteStudy(STUDY_FOLDER)
+        then:
+        !getTestStudyDbIdentifier()
+    }
+
+    def 'delete exclude default upload'() {
+        given: 'there is the study'
+        ensureTestStudyLoaded()
+        Options options = new Options()
+        options.addOption(new Option('d', 'delete', true, ''))
+
+        when: 'error during load happens'
+        CommandLine cli1 = new DefaultParser()
+                .parse(options, ['--delete', TEST_STUDY] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+        then: 'study has been deleted'
+        !getTestStudyDbIdentifier()
+    }
+
+    def 'test single transaction'() {
+        given: 'there is the study'
+        ensureTestStudyLoaded()
+        def studyId1 = getTestStudyDbIdentifier()
+        Options options = new Options()
+        options.addOption(new Option('ru', 're-upload', true, ''))
+
+        when: 'error during load happens'
+        CommandLine cli1 = new DefaultParser()
+                .parse(options, ['--re-upload', CORRUPTED_STUDY_FOLDER] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+        then: 'transaction has rolled back'
+        thrown(FileNotFoundException)
+        getTestStudyDbIdentifier() == studyId1
+
+        when: 'load is successful'
+        CommandLine cli2 = new DefaultParser().parse(options, ['--re-upload', STUDY_FOLDER] as String[])
+        Copy.runCopy(cli2, DATABASE_CREDENTIALS)
+        then: 'new data have been uploaded'
+        getTestStudyDbIdentifier() > studyId1
+    }
+
+    def count(ResultSet rs) {
+        Set<String> indxNames = [] as Set
+        while (rs.next()) {
+            indxNames << rs.getString('INDEX_NAME')
+        }
+        indxNames
+    }
+
+    def indexesOnFactTable() {
+        ResultSet rs = copy.database.connection.getMetaData()
+                .getIndexInfo(null, 'i2b2demodata', 'observation_fact', false, false)
+        def indxNames = count(rs)
+        return indxNames
+    }
+
+    Number getTestStudyDbIdentifier() {
+        def list = readFieldsFromDb(Studies.study_table, 'study_num', "where study_id='${TEST_STUDY}'")
+        list ? list.first() : null
+    }
+
+    void ensureTestStudyLoaded() {
+        if (!getTestStudyDbIdentifier()) {
+            copy.uploadStudy(STUDY_FOLDER, defaultConfig)
+            assert getTestStudyDbIdentifier()
+        }
+    }
+
+    void ensureTestStudyUnloaded() {
+        if (getTestStudyDbIdentifier()) {
+            copy.deleteStudyById(TEST_STUDY)
+            assert !getTestStudyDbIdentifier()
+        }
+    }
+
+    Map<Table, Number> count(Iterable<Table> tables) {
         tables.collectEntries { Table table ->
             [
                     table,
-                    database.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ${table}", new Object[0], Long)
+                    copy.database.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ${table}", new Object[0], Long)
             ]
         }
     }
@@ -184,12 +253,12 @@ class CopySpec extends Specification {
         }
     }
 
-    List readFieldsFromDb(Database database, Table table, String field, String where = '') {
-        readFieldsFromDb(database, table, [field], where).collect { it[field] }
+    List readFieldsFromDb(Table table, String field, String where = '') {
+        readFieldsFromDb(table, [field], where).collect { it[field] }
     }
 
-    List<Map> readFieldsFromDb(Database database, Table table, List<String> selectFields, String where = '') {
-        database.jdbcTemplate.queryForList("SELECT ${selectFields.join(', ')} FROM ${table}" + (where ? '' + where : ''))
+    List<Map> readFieldsFromDb(Table table, List<String> selectFields, String where = '') {
+        copy.database.jdbcTemplate.queryForList("SELECT ${selectFields.join(', ')} FROM ${table}" + (where ? ' ' + where : ''))
     }
 
     List readFieldsFromFile(String folder, Table table, String selectField) {
@@ -202,7 +271,11 @@ class CopySpec extends Specification {
             def headerIndex = [:]
             Util.tsvReader(reader).eachWithIndex { String[] row, int index ->
                 if (index == 0) {
-                    headerIndex = selectFields.collectEntries { String selectField -> [selectField, row.findIndexOf { it == selectField }] }
+                    headerIndex = selectFields.collectEntries { String selectField ->
+                        [selectField, row.findIndexOf {
+                            it == selectField
+                        }]
+                    }
                 } else {
                     result << headerIndex.collectEntries { header, column -> [header, row[column]] }
                 }

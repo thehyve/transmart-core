@@ -29,6 +29,7 @@ _Parameters:_
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
 - `-v`, `--vacuum-analyze`: Vacuum analyze the `observation_fact` table.
 - `-d`, `--directory`: Specifies a data directory.
+- `-ru`, `--re-upload`: Removes and loads the studies specified in the data directory.
 - `-m`, `--mode <study|pedigree>`: Load mode. What type of data to load. Data loading does not happen if you skip the mode.
 
 
