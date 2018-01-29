@@ -152,7 +152,7 @@ class Copy {
         def parser = new DefaultParser()
         try {
             CommandLine cl = parser.parse(options, args)
-            if (cl.hasOption('help')) {
+            if (cl.hasOption('help') || !cl.options) {
                 printHelp()
                 return
             }
