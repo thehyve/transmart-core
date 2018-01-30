@@ -195,6 +195,9 @@ class RestApiUrlMappings {
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
             "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
+            "/config"(controller: 'config') {
+                action = [GET: 'index', PUT: 'update']
+            }
         }
 
         group "/v1", {
