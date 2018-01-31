@@ -16,6 +16,7 @@ import org.transmartproject.batch.db.SequenceReserver
 import java.lang.reflect.Field
 import java.sql.PreparedStatement
 import java.sql.SQLException
+import java.sql.Types
 
 /**
  * Inserts rows into bio_assay_analysis_gwas.
@@ -55,8 +56,12 @@ class AssayAnalysisGwasWriter implements ItemWriter<GwasAnalysisRow> {
                     p_value_char,
                     p_value,
                     log_p_value,
+                    effect_allele,
+                    other_allele,
+                    standard_error,
+                    beta,
                     ext_data)
-                    VALUES(?, ?, ?, ?, ?, ?, ?)""",
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 new AssayAnalysisGwasWriterPreparedStatementSetter(items: items)
 
         DatabaseUtil.checkUpdateCounts(affected,
@@ -87,7 +92,22 @@ class AssayAnalysisGwasWriter implements ItemWriter<GwasAnalysisRow> {
                 ps.setDouble 6, logPValue
             }
 
-            ps.setString 7, getExtData(row)
+            ps.setString 7, row.allele1
+            ps.setString 8, row.allele2
+            
+            if (row.standardError != null) {
+                ps.setDouble 9, row.standardError.toDouble()
+            } else {
+                ps.setNull 9, Types.DOUBLE
+            }
+
+            if (row.beta != null) {
+                ps.setDouble 10, row.beta.toDouble()
+            } else {
+                ps.setNull 10, Types.DOUBLE
+            }
+
+            ps.setString 11, getExtData(row)
         }
 
         @Override

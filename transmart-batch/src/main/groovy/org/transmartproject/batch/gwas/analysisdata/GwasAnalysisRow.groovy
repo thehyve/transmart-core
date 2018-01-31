@@ -31,7 +31,7 @@ class GwasAnalysisRow {
     BigDecimal oddsRatio
 
     @Order(1)
-    String beta
+    BigDecimal beta
 
     @Order(2)
     String directionOfEffect
