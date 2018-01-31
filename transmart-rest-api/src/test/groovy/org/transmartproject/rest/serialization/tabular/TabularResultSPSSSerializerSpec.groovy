@@ -30,7 +30,6 @@ import spock.lang.Specification
 
 import java.util.zip.ZipOutputStream
 
-import static org.transmartproject.rest.serialization.tabular.TabularResultSPSSSerializer.writeSavFile
 import static org.transmartproject.rest.serialization.tabular.TabularResultSPSSSerializer.writeSpsFile
 
 class TabularResultSPSSSerializerSpec extends Specification {
@@ -44,12 +43,6 @@ class TabularResultSPSSSerializerSpec extends Specification {
         then: 'exception is thrown'
         def e1 = thrown(IllegalArgumentException)
         e1.message == "Can't write sps expression file for empty table."
-
-        when: 'producing sav file for empty table'
-        writeSavFile(Mock(User), table, Mock(ZipOutputStream))
-        then: 'exception is thrown'
-        def e2 = thrown(IllegalArgumentException)
-        e2.message == "Can't write sav file for empty table."
 
         when: 'producing spss files for empty table'
         new TabularResultSPSSSerializer().writeFilesToZip(Mock(User), table, Mock(ZipOutputStream))
