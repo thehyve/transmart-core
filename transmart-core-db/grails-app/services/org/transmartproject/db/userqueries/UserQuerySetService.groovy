@@ -80,8 +80,6 @@ class UserQuerySetService implements UserQuerySetResource {
 
     @Override
     List<UserQuerySetInstance> getSetInstancesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults) {
-        // check access and if query exists
-        userQueryService.get(queryId, currentUser)
 
         def session = sessionFactory.currentSession
         Criteria criteria = session.createCriteria(UserQuerySetInstance, "querySetInstances")
