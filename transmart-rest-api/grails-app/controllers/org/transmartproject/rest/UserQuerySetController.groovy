@@ -2,9 +2,14 @@ package org.transmartproject.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
+import org.transmartproject.core.userquery.UserQuerySet
 import org.transmartproject.core.userquery.UserQuerySetDiff
 import org.transmartproject.core.userquery.UserQuerySetInstance
 import org.transmartproject.core.userquery.UserQuerySetResource
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+import org.transmartproject.rest.marshallers.UserQuerySetDiffWrapper
+import org.transmartproject.rest.marshallers.UserQuerySetInstanceWrapper
+import org.transmartproject.rest.marshallers.UserQuerySetWrapper
 import org.transmartproject.rest.misc.CurrentUser
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -51,8 +56,7 @@ class UserQuerySetController {
         List<UserQuerySetInstance> querySetInstances = userQuerySetResource.getSetInstancesByQueryId(queryId, currentUser,
                 firstResult, numResults)
         def querySetInstancesMap = querySetInstances?.groupBy { it.querySet }
-        respond([querySetInstances: querySetInstancesMap ?
-                querySetInstancesMap.collect { toResponseMap(it, UserQuerySetInstance.class) } : []])
+        respond wrapQuerySetsWithInstances(querySetInstancesMap.keySet())
     }
 
     /**
@@ -72,36 +76,52 @@ class UserQuerySetController {
         List<UserQuerySetDiff> setDiffs = userQuerySetResource.getDiffEntriesByQueryId(queryId, currentUser,
                 firstResult, numResults)
         def queryDiffsMap = setDiffs?.groupBy { it.querySet }
-        respond([querySetDiffs: queryDiffsMap ? queryDiffsMap.collect { toResponseMap(it, UserQuerySetDiff.class) } : []])
+        respond wrapQuerySetsWithDiffs(queryDiffsMap.keySet())
     }
 
-    private static Map<String, Object> toResponseMap(response, Class<?> classType) {
-        response.with {
-            def responseMap = [
-                    id               : it.key.id,
-                    queryName        : it.key.query.name,
-                    queryUsername    : it.key.query.username,
-                    setSize          : it.key.setSize,
-                    setType          : it.key.setType,
-                    createDate       : it.key.createDate,
-            ]
-            if (classType == UserQuerySetDiff.class){
-                responseMap.put('diffs', value ? value.collect { entry ->
-                    [
-                            "id"        : entry.id,
-                            "objectId"  : entry.objectId,
-                            "changeFlag": entry.changeFlag
-                    ]
-                } : [])
-            } else {
-                responseMap.put('instances', value ? value.collect { entry ->
-                    [
-                            "id"        : entry.id,
-                            "objectId"  : entry.objectId
-                    ]
-                } : [])
-            }
-            responseMap
-        }
+    private static wrapQuerySetsWithDiffs(Collection<UserQuerySet> querySets) {
+        new ContainerResponseWrapper(
+                key: 'querySetDiffs',
+                container: querySets.collect { new UserQuerySetWrapper(
+                        id               : it.id,
+                        queryId          : it.query.id,
+                        queryName        : it.query.name,
+                        queryUsername    : it.query.username,
+                        setSize          : it.setSize,
+                        setType          : it.setType,
+                        createDate       : it.createDate,
+                        diffs            : it.querySetDiffs.collect{ diff ->
+                                                new UserQuerySetDiffWrapper(
+                                                        id        : diff.id,
+                                                        objectId  : diff.objectId,
+                                                        changeFlag: diff.changeFlag
+                                                )
+                                            }
+                )},
+                componentType: UserQuerySet
+        )
     }
+
+    private static wrapQuerySetsWithInstances(Collection<UserQuerySet> querySets) {
+        new ContainerResponseWrapper(
+                key: 'querySetInstances',
+                container: querySets.collect { new UserQuerySetWrapper(
+                        id               : it.id,
+                        queryId          : it.query.id,
+                        queryName        : it.query.name,
+                        queryUsername    : it.query.username,
+                        setSize          : it.setSize,
+                        setType          : it.setType,
+                        createDate       : it.createDate,
+                        instances        : it.querySetDiffs.collect{ diff ->
+                                                new UserQuerySetInstanceWrapper(
+                                                        id      : diff.id,
+                                                        objectId: diff.objectId
+                                                )
+                        }
+                )},
+                componentType: UserQuerySet
+        )
+    }
+
 }
