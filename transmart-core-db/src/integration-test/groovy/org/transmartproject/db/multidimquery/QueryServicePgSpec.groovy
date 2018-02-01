@@ -666,7 +666,7 @@ class QueryServicePgSpec extends Specification {
         then: 'answer contains count for the value and count for null value'
         withMissingValueResult.size() == 1
         'gender' in withMissingValueResult
-        withMissingValueResult['gender'].valueCounts[null] == 1
+        withMissingValueResult['gender'].valueCounts[''] == 1
         withMissingValueResult['gender'].valueCounts['Male'] == 1
 
         when: 'categorical aggregates runs on crosstudy concept with user that have limite access'
