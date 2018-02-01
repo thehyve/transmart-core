@@ -54,12 +54,16 @@ class RestApiUrlMappings {
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
-            "/observations/aggregate"(controller: 'query') {
-                action = [GET: 'aggregate', POST: 'aggregate']
+            "/observations/aggregates_per_concept"(controller: 'query') {
+                action = [GET: 'aggregatesPerConcept', POST: 'aggregatesPerConcept']
                 apiVersion = 'v2'
             }
             "/observations/count"(controller: 'query') {
                 action = [GET: 'count', POST: 'count']
+                apiVersion = 'v2'
+            }
+            "/observations/counts"(controller: 'query') {
+                action = [GET: 'counts', POST: 'counts']
                 apiVersion = 'v2'
             }
             "/observations/counts_per_concept"(controller: 'query') {
@@ -72,18 +76,6 @@ class RestApiUrlMappings {
             }
             "/observations/counts_per_study_and_concept"(controller: 'query') {
                 action = [GET: 'countsPerStudyAndConcept', POST: 'countsPerStudyAndConcept']
-                apiVersion = 'v2'
-            }
-            "/observation_sets/$id"(method: 'GET', controller: 'observationQuery',
-                    action: 'findObservationSetQueryResult') {
-                apiVersion = 'v2'
-            }
-            "/observation_sets"(method: 'GET', controller: 'observationQuery',
-                    action: 'findObservationSetQueryResultsForCurrentUser') {
-                apiVersion = 'v2'
-            }
-            "/observation_sets"(method: 'POST', controller: 'observationQuery',
-                    action: 'createObservationSetQueryResult') {
                 apiVersion = 'v2'
             }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
@@ -113,6 +105,12 @@ class RestApiUrlMappings {
                 apiVersion = 'v2'
             }
             "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
+                apiVersion = 'v2'
+            }
+            "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
+                apiVersion = 'v2'
+            }
+            "/tree_nodes/rebuild_status"(method: 'GET', controller: 'tree', action: 'rebuildStatus') {
                 apiVersion = 'v2'
             }
             "/files"(method: 'GET', controller: 'storage', action: 'index') {
@@ -181,7 +179,7 @@ class RestApiUrlMappings {
             "/export/jobs"(method: 'GET', controller: 'export', action: 'listJobs') {
                 apiVersion = "v2"
             }
-            "/export/data_formats"(method: 'GET', controller: 'export', action: 'dataFormats') {
+            "/export/data_formats"(method: 'POST', controller: 'export', action: 'dataFormats') {
                 apiVersion = "v2"
             }
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {

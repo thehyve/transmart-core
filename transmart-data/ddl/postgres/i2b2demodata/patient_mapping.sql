@@ -35,3 +35,11 @@ CREATE INDEX pm_patnum_idx ON patient_mapping USING btree (patient_num);
 --
 CREATE INDEX pm_uploadid_idx ON patient_mapping USING btree (upload_id);
 
+--
+-- Table documentation
+--
+COMMENT ON TABLE i2b2demodata.patient_mapping IS 'Table with subject identifiers from different sources.';
+
+COMMENT ON COLUMN patient_mapping.patient_ide IS 'Primary key. Subject identifier associated with a patient.';
+COMMENT ON COLUMN patient_mapping.patient_ide_source IS 'Primary key. Source of the subject identifier.';
+COMMENT ON COLUMN patient_mapping.patient_num IS 'The id of the patient in TranSMART. Refers to patient_num in patient_dimension.';

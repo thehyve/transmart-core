@@ -40,6 +40,7 @@ ext {
     openCsvVersion = '4.0'
     postgresqlVersion = '42.1.4'
     protobufVersion = '3.1.0'
+    quartzVersion = '2.0.8'
     springSecurityOauth2PluginVersion = '3.0.0-RC2'
     springSecurityPluginVersion = '3.1.1'
     springSecurityVersion = '3.2.3.RELEASE'
@@ -60,6 +61,7 @@ allprojects {
         openCsvVersion = openCsvVersion
         postgresqlVersion = postgresqlVersion
         protobufVersion = protobufVersion
+        quartzVersion = quartzVersion
         springSecurityOauth2PluginVersion = springSecurityOauth2PluginVersion
         springSecurityPluginVersion = springSecurityPluginVersion
         springSecurityVersion = springSecurityVersion
@@ -84,8 +86,8 @@ subprojects { project ->
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
-    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-java|transmart-legacy-db|transmart-rest-api|transmartApp|transmart-server|transmart-oauth)$/) {
-        if (project.name =~ /^(transmartApp|mock-ontology-server|transmart-server)$/) {
+    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-legacy-db|transmart-rest-api|transmartApp|transmart-server|transmart-oauth|transmart-solr-indexing)$/) {
+        if (project.name =~ /^(transmartApp|mock-ontology-server|transmart-server|transmart-solr-indexing)$/) {
             apply plugin: 'war'
             apply plugin: 'org.grails.grails-web'
         } else {
@@ -102,7 +104,7 @@ subprojects { project ->
             applyMavenExclusions false
         }
 
-        if (!(project.name =~ /^(transmart-server|transmartApp|mock-ontology-server)$/)) {
+        if (!(project.name =~ /^(transmart-server|transmartApp|mock-ontology-server|transmart-solr-indexing)$/)) {
             grailsPublish {
                 websiteUrl = 'http://transmartfoundation.org/'
                 license {

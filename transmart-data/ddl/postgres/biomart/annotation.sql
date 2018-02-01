@@ -12,7 +12,7 @@ CREATE TABLE annotation (
 );
 
 --
--- Name: annotation_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: annotation annotation_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY annotation
     ADD CONSTRAINT annotation_pk PRIMARY KEY (id);

@@ -22,7 +22,7 @@ CREATE TABLE bio_lit_model_data (
 );
 
 --
--- Name: bio_lit_model_data_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_lit_model_data bio_lit_model_data_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_lit_model_data
     ADD CONSTRAINT bio_lit_model_data_pk PRIMARY KEY (bio_lit_model_data_id);
@@ -42,7 +42,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_lit_model_data_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_lit_model_data trg_bio_lit_model_data_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_lit_model_data_id BEFORE INSERT ON bio_lit_model_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_lit_model_data_id();
 

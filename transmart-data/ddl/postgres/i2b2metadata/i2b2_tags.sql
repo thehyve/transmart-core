@@ -4,9 +4,10 @@
 CREATE TABLE i2b2_tags (
     tag_id integer NOT NULL,
     path character varying(400) NOT NULL,
-    tag character varying(1000),
+    tag text,
     tag_type character varying(400) NOT NULL,
-    tags_idx integer NOT NULL
+    tags_idx integer NOT NULL,
+    tag_option_id integer
 );
 
 --
@@ -47,3 +48,9 @@ CREATE SEQUENCE seq_i2b2_data_id
     NO MAXVALUE
     CACHE 1;
 
+--
+-- Name: i2b2_tags_tag_option_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY i2b2_tags
+    ADD CONSTRAINT i2b2_tags_tag_option_fk FOREIGN KEY (tag_option_id)
+    REFERENCES i2b2_tag_options(tag_option_id);

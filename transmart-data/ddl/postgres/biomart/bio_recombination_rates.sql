@@ -8,3 +8,8 @@ CREATE TABLE bio_recombination_rates (
     map numeric(18,6)
 );
 
+--
+-- Name: idx_bio_recomb_1; Type: INDEX; Schema: biomart; Owner: -
+--
+CREATE INDEX idx_bio_recomb_1 ON bio_recombination_rates USING btree ("position", chromosome);
+

@@ -63,7 +63,7 @@ class HypercubeImpl implements Hypercube {
     PeekingIterator<HypercubeValueImpl> iterator() {
         new ResultIterator(dimensions, criteria, { Map<String, Object> row ->
             def value = ObservationFact.observationFactValue(
-                    (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue)
+                    (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue, (String) row.rawValue)
 
             Object[] dimensionElementIdexes = getDimensionElementIndexes(row)
 

@@ -16,7 +16,7 @@ CREATE TABLE assay_analysis_data (
 );
 
 --
--- Name: assay_analysis_data_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: assay_analysis_data assay_analysis_data_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY assay_analysis_data
     ADD CONSTRAINT assay_analysis_data_pk PRIMARY KEY (bio_asy_analysis_data_id);

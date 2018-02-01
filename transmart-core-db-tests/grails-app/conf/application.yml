@@ -11,6 +11,7 @@ dataSource:
     jmxExport: true
     driverClassName: org.h2.Driver
     username: sa
+    dialect: org.hibernate.dialect.H2Dialect
     password:
 
 environments:

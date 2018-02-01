@@ -12,7 +12,7 @@ CREATE TABLE bio_data_correl_descr (
 );
 
 --
--- Name: bio_marker_relationship_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_correl_descr bio_marker_relationship_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_correl_descr
     ADD CONSTRAINT bio_marker_relationship_pk PRIMARY KEY (bio_data_correl_descr_id);
@@ -38,7 +38,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_mkr_correl_descr_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_data_correl_descr trg_bio_mkr_correl_descr_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_mkr_correl_descr_id BEFORE INSERT ON bio_data_correl_descr FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_mkr_correl_descr_id();
 

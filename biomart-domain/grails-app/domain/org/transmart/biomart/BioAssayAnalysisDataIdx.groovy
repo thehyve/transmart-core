@@ -1,8 +1,6 @@
 package org.transmart.biomart
 
-import com.recomdata.util.IExcelProfile
-
-class BioAssayAnalysisDataIdx implements IExcelProfile {
+class BioAssayAnalysisDataIdx {
 		
 	Long id
 	String ext_type

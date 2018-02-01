@@ -5,16 +5,14 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.AccessLevelTestData
 import spock.lang.Ignore
@@ -272,67 +270,6 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then: "List of all patient_sets does NOT contain the newly created patient set"
         assert !otherUserPatientSetList.contains(patientSet)
-    }
-
-    void "test for max, min, average aggregate"() {
-        setupData()
-
-        ObservationFact observationFact = createObservationWithSameConcept()
-        observationFact.numberValue = 50
-        testData.clinicalData.facts << observationFact
-
-        testData.saveAll()
-        def query = createQueryForConcept(observationFact)
-
-        when:
-        def result = multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
-
-        then:
-        result.max == 50
-
-        when:
-        result = multiDimService.aggregate([AggregateType.MIN], query, accessLevelTestData.users[0])
-
-        then:
-        result.min == 10
-
-        when:
-        result = multiDimService.aggregate([AggregateType.AVERAGE], query, accessLevelTestData.users[0])
-
-        then:
-        result.average == 30 //(10+50) / 2
-
-        when:
-        result = multiDimService.aggregate([AggregateType.MIN, AggregateType.MAX, AggregateType.AVERAGE], query,
-                accessLevelTestData.users[0])
-        then:
-        result.min == 10
-        result.max == 50
-        result.average == 30
-    }
-
-    void "test for values aggregate"() {
-        setupData()
-
-        def fact = findObservation('T')
-        int instanceId = fact.instanceNum
-        def facts = (1..3).collect {createObservationWithSameConcept(fact)}
-        facts[0].textValue = "hello"
-        facts[0].instanceNum = ++instanceId
-        facts[1].textValue = "you"
-        facts[1].instanceNum = ++instanceId
-        facts[2].textValue = "there"
-        facts[2].instanceNum = ++instanceId
-        testData.clinicalData.facts += facts
-
-        facts*.save()
-        def query = createQueryForConcept(facts[0])
-
-        when:
-        def result = multiDimService.aggregate([AggregateType.VALUES], query, accessLevelTestData.users[0])
-
-        then:
-        [fact.textValue, "hello", "you", "there"] as Set == result.values as Set
     }
 
     void "test observation count and patient count"() {

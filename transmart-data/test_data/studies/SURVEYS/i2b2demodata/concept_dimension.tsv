@@ -1,29 +1,5 @@
-gender	\Demographics\Gender\	Gender	"{
-    ""type"": ""Numeric"",
-    ""width"": 12,
-    ""columns"": 14,
-    ""measure"": ""Nominal"",
-    ""valueLabels"": {""1"":""Female"", ""2"":""Male"", ""-2"": ""Not Specified""},
-    ""missingValues"": [-2]
-}"						A
-height	\Demographics\Height\	Height	"{
-    ""type"": ""Numeric"",
-    ""width"": 14,
-    ""decimals"": 2,
-    ""columns"": 15,
-    ""measure"": ""Scale"",,
-    ""valueLabels"": {""-1"":""Asked, but not answered""},
-    ""missingValues"": [-1]
-}"						
-birthdate	\Demographics\Birth Date\	Birth Date	"{
-    ""type"": ""Date"",
-    ""width"": 22,
-    ""columns"": 22,
-    ""measure"": ""Scale""
-}"						
-description	\General\Description\	Description	"{
-    ""type"": ""String"",
-    ""width"": 200,
-    ""columns"": 210,
-    ""measure"": ""Nominal""
-}"						
+gender	\Demographics\Gender\	Gender							A
+height	\Demographics\Height\	Height							
+birthdate	\Demographics\Birth Date\	Birth Date							
+description	\General\Description\	Description							
+favouritebook	\Interests\Favourite Book\	Favourite Book							

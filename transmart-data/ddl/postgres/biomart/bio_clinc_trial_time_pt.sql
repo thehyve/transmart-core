@@ -11,7 +11,7 @@ CREATE TABLE bio_clinc_trial_time_pt (
 );
 
 --
--- Name: bio_clinical_trial_time_point_; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_time_pt bio_clinical_trial_time_point_; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_clinc_trial_time_pt
     ADD CONSTRAINT bio_clinical_trial_time_point_ PRIMARY KEY (bio_clinc_trial_tm_pt_id);
@@ -36,12 +36,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_cl_trl_time_pt_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_time_pt trg_bio_cl_trl_time_pt_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_cl_trl_time_pt_id BEFORE INSERT ON bio_clinc_trial_time_pt FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_cl_trl_time_pt_id();
 
 --
--- Name: bio_cli_trial_time_trl_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_time_pt bio_cli_trial_time_trl_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_clinc_trial_time_pt
     ADD CONSTRAINT bio_cli_trial_time_trl_fk FOREIGN KEY (bio_experiment_id) REFERENCES bio_clinical_trial(bio_experiment_id);

@@ -11,7 +11,7 @@ public class FormLayout {
     Boolean display = true;
 
     static mapping = {
-        table 'SEARCH_FORM_LAYOUT'
+        table name: 'SEARCH_FORM_LAYOUT', schema: 'SEARCHAPP'
         id generator: 'sequence', params: [sequence: 'SEQ_SEARCH_FORM_LAYOUT_ID']
         version false
         id column: 'FORM_LAYOUT_ID'

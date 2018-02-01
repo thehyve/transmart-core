@@ -8,7 +8,7 @@ CREATE TABLE bio_stats_exp_marker (
 );
 
 --
--- Name: bio_s_e_m_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_stats_exp_marker bio_s_e_m_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_stats_exp_marker
     ADD CONSTRAINT bio_s_e_m_pk PRIMARY KEY (bio_marker_id, bio_experiment_id);

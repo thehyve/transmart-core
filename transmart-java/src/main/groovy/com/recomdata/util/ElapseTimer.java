@@ -25,11 +25,12 @@
  */
 package com.recomdata.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ElapseTimer {
 
-    static Logger log = Logger.getLogger(ElapseTimer.class);
+    static Logger log = LoggerFactory.getLogger(ElapseTimer.class);
     
 	private Long startTime;
 

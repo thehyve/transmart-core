@@ -8,18 +8,19 @@ dependencies {
     testCompile 'junit:junit:4.11'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
     testCompile 'org.hamcrest:hamcrest-core:1.3'
-    testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.6'
+    testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
 
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
     provided "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:scaffolding"
     console "org.grails:grails-console"
+
+    compile "org.hibernate:hibernate-ehcache"
 
     compile "com.google.guava:guava:$guavaVersion"
     profile "org.grails.profiles:web-plugin"
@@ -28,8 +29,8 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     testCompile 'org.grails:grails-datastore-rest-client'
-    compile 'org.quartz-scheduler:quartz:2.2.1'
     compile "com.opencsv:opencsv:${openCsvVersion}"
+    compile "org.grails.plugins:quartz:${quartzVersion}"
 
     compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
     compile project(':transmart-core-api')

@@ -16,7 +16,7 @@ CREATE TABLE bio_sample (
 );
 
 --
--- Name: biosample_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_sample biosample_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_sample
     ADD CONSTRAINT biosample_pk PRIMARY KEY (bio_sample_id);
@@ -41,24 +41,24 @@ end;
 $$;
 
 --
--- Name: trg_bio_sample_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_sample trg_bio_sample_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_sample_id BEFORE INSERT ON bio_sample FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_sample_id();
 
 --
--- Name: bio_sample_bio_subject_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_sample bio_sample_bio_subject_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_sample
     ADD CONSTRAINT bio_sample_bio_subject_fk FOREIGN KEY (bio_subject_id) REFERENCES bio_subject(bio_subject_id);
 
 --
--- Name: bio_sample_cl_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_sample bio_sample_cl_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_sample
     ADD CONSTRAINT bio_sample_cl_fk FOREIGN KEY (bio_cell_line_id) REFERENCES bio_cell_line(bio_cell_line_id);
 
 --
--- Name: bio_sample_pt_evt_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_sample bio_sample_pt_evt_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_sample
     ADD CONSTRAINT bio_sample_pt_evt_fk FOREIGN KEY (bio_patient_event_id) REFERENCES bio_patient_event(bio_patient_event_id);

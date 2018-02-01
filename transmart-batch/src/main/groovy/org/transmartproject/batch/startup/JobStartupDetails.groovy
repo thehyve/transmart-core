@@ -30,6 +30,7 @@ import org.transmartproject.batch.highdim.rnaseq.transcript.platform.RnaSeqTrans
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.ontologymapping.FetchOntologyMappingJobSpecification
 import org.transmartproject.batch.support.StringUtils
+import org.transmartproject.batch.tag.TagTypesLoadJobSpecification
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
 import java.nio.file.Files
@@ -70,6 +71,7 @@ final class JobStartupDetails implements Comparable<JobStartupDetails> {
             'mirna_annotation'            : MirnaAnnotationJobSpecification,
             'mirna'                       : MirnaDataJobSpecification,
             'tags'                        : TagsLoadJobSpecification,
+            'tagtypes'                    : TagTypesLoadJobSpecification,
             'rnaseq_transcript_annotation': RnaSeqTranscriptAnnotationJobSpecification,
             'rnaseq_transcript'           : RnaSeqTranscriptDataJobSpecification,
     ]

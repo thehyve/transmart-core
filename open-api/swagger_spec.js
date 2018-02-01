@@ -7,7 +7,7 @@ var spec = {
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "description": "\n# OAuth2\nAll calls need an Authorization header. https://wiki.transmartfoundation.org/display/transmartwiki/RESTful+API\n```\nAuthorization:Bearer {token}\n```\n\n# Constraints\nConstraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).\n\n## Combinations (And/Or)\nMost often a combination of constraints is needed to get the right result. This can be done by the constraints with type \"and\" and \"or\".\nThey take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.\nHowever an `and` constraint with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.\n(There is also a constraint with type \"combination\" on which the And and Or constraints are built. It does not provide any functionality not provided by And and Or constraints, and it should be considered deprecated for direct usage.)\n\nExample:\n```json\n{\"type\": \"and\",\n \"args\": [\n    {\"type\": \"patient_set\", \"patientIds\": -62},\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n```json\n{\"type\": \"or\",\n \"args\": [\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Blood Pressure\\\\\"}\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n## StudyName\nEvaluate if an observation is part of a particular study\n\nExample:\n```json\n{\n  \"type\": \"study_name\",\n  \"studyId\": \"EHR\"\n}\n```\n\n## Concept\nEvaluate if an observation is of a particular Concept. Either by `path` or `conceptCode`.\n\n```json\n{\n  \"type\": \"concept\",\n  \"path\": \"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\",\n  \"conceptCode\": \"HR\"\n}\n```\n\n## Value\nEvaluate if the value of an observation is within the given parameters. It needs a `valueType`, `operator` and `value`.\n  `valueType`: [\\\"NUMERIC\\\", \\\"STRING\\\"]\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]\n\nExample:\n```json\n{\n  \"type\": \"value\",\n  \"valueType\": \"NUMERIC\",\n  \"operator\": \"=\", \"value\": 176\n}\n```\n\n## Field\nEvaluate if a specific field of an observation is within the given parameters. it needs a `field`, `operator` and `value`.\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]\n\nExample:\n```json\n{\n  \"type\": \"field\",\n  \"field\": {\n      \"dimension\": \"patient\",\n      \"fieldName\": \"age\",\n      \"type\": \"NUMERIC\"\n      },\n  \"operator\": \"!=\",\n  \"value\": 100\n}\n```\n\n## Time\nEvaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.\nThe list must hold one date for the before(<-) and after(->) operator. It must hold two dates for the between(<-->) operator. If the given date field for an observation is empty, the observation will be ignored.\n`operator`: [\"&lt;-\", \"-&gt;\", \"&lt;--&gt;\"]\n\nExample:\n```json\n{\n  \"type\": \"time\",\n  \"field\": {\n      \"dimension\": \"start time\",\n      \"fieldName\": \"startDate\",\n      \"type\": \"DATE\"\n      },\n  \"operator\": \"->\",\n  \"values\": [\"2016-01-01T00:00:00Z\"]\n}\n```\n\n## PatientSet\nEvaluate if an observation is liked to a patient in the set. It needs either a `patientSetId` or a list of `patientIds`.\n\nExample:\n```json\n{\n    \"type\": \"patient_set\",\n    \"patientSetId\": 28820,\n    \"patientIds\": [-62, -63]\n}\n```\n\n## SubSelection\nCreate a subselection of patients, visits, or another dimension element, and then select all observations for these dimension elements.\n\nExample: Select all observations for patients who have a certain diagnosis.\n```json\n{\n    \"type\": \"subselection\",\n    \"dimension\": \"patient\",\n    \"constraint\": {\n        \"type\": \"and\",\n        \"args\": [{\n                \"type\": \"concept\",\n                \"path\": \"\\\\Public Studies\\\\EHR\\\\Diagnosis\\\\\",\n                \"conceptCode\": \"DIAG\"\n            }, {\n                \"type\": \"value\",\n                \"valueType\": \"STRING\",\n                \"operator\": \"=\",\n                \"value\": \"My eye hurts\"\n            }]\n    }\n}\n```\n\n## Temporal\nEvaluate if an observation happened before or after an event. It needs an `operator` and an `event`. Any constraint can be used as an event. Most likely a combination.\n`operator`: [\"&lt;-\", \"-&gt;\", \"exists\"]\n\nExample:\n```json\n{\n    \"type\": \"temporal\",\n    \"operator\": \"exists\",\n    \"event\": {\n          \"type\": \"value\",\n          \"valueType\": \"NUMERIC\",\n          \"operator\": \"=\",\n          \"value\": 60\n          }\n}\n```\n\n## Null\nEvaluate if an specific field of an observation is null. It needs a field.\n\nExample:\n```json\n{\n    \"type\": \"null\",\n    \"field\":{\n        \"dimension\": \"end time\",\n        \"fieldName\": \"endDate\",\n        \"type\": \"DATE\"\n        }\n}\n```\n\n## Modifier\nEvaluate if an observation is linked to the specified modifier. Optionally if that modifier has the specific value. It must have a `path`, `dimensionName` or `modifierCode` and may have `values` in the form of a ValueConstraint.\n\nExample:\n```json\n{\n    \"type\": \"modifier\",\n    \"modifierCode\": \"TNS:SMPL\",\n    \"path\": \"\\\\Public Studies\\\\TUMOR_NORMAL_SAMPLES\\\\Sample Type\\\\\",\n    \"dimensionName\": \"sample_type\",\n    \"values\": {\n        \"type\": \"value\",\n        \"valueType\": \"STRING\",\n        \"operator\": \"=\",\n        \"value\": \"Tumor\"\n        }\n}\n```\n\n## Negation\nEvaluate if for an observation the given `arg` is false. `arg` is a constraint.\n\nExample:\n```json\n{\n    \"type\": \"negation\",\n    \"arg\": {\n        \"type\": \"patient_set\",\n        \"patientIds\": [-62,-52,-42]\n        }\n}\n```\nreturns all observations not linked to patient with id -62, -52 or -42\n\n## Biomarker\nUsed to filter high dimensional observations. It needs a 'biomarkerType' and a 'params' object. It can only be used\nwhen retrieving high dimensional data, and if so needs to be specified in a separate url parameter\n`biomarker_constraint`.\n`biomarkerType`: `[\"transcripts\", \"genes\"]`.\n\nExample:\n```json\n{\n    \"type\": \"biomarker\",\n    \"biomarkerType\": \"genes\",\n    \"params\": {\n        \"names\": [\"TP53\"]\n        }\n}\n```\n\n## True\n**!!WARNING!!** Use mainly for testing.  \nThe most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.\n\nExample:\n```json\n{\n    \"type\": \"true\"\n}\n```\n\n\n# Response types\n#### application/json\nAll calls support json. however this might not always be the best option. You will find schemas for the responses in this documentation.\n\n#### `application/hal+json`\nOnly the tree_node endpoint supports the application/hal+json format.\n\n#### `application/x-protobuf`\nCalls that return observations support protobuf as a more efficient binary format. The description of the protobuf object can be found in [observations.proto](../transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).\n"
+    "description": "\n# OAuth2\nAll calls need an Authorization header. https://wiki.transmartfoundation.org/display/transmartwiki/RESTful+API\n```\nAuthorization:Bearer {token}\n```\n\n# Constraints\nConstraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).\n\n## Combinations (And/Or)\nMost often a combination of constraints is needed to get the right result. This can be done by the constraints with type \"and\" and \"or\".\nThey take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.\nHowever an `and` constraint with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.\n(There is also a constraint with type \"combination\" on which the And and Or constraints are built. It does not provide any functionality not provided by And and Or constraints, and it should be considered deprecated for direct usage.)\n\nExample:\n```json\n{\"type\": \"and\",\n \"args\": [\n    {\"type\": \"patient_set\", \"patientIds\": -62},\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n```json\n{\"type\": \"or\",\n \"args\": [\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Blood Pressure\\\\\"}\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n## StudyName\nEvaluate if an observation is part of a particular study\n\nExample:\n```json\n{\n  \"type\": \"study_name\",\n  \"studyId\": \"EHR\"\n}\n```\n\n## Concept\nEvaluate if an observation is of a particular Concept. Either by `path` or `conceptCode`.\n\n```json\n{\n  \"type\": \"concept\",\n  \"path\": \"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\",\n  \"conceptCode\": \"HR\"\n}\n```\n\n## Value\nEvaluate if the value of an observation is within the given parameters. It needs a `valueType`, `operator` and `value`.\n  `valueType`: [\\\"NUMERIC\\\", \\\"STRING\\\"]\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]\n\nExample:\n```json\n{\n  \"type\": \"value\",\n  \"valueType\": \"NUMERIC\",\n  \"operator\": \"=\", \"value\": 176\n}\n```\n\n## Field\nEvaluate if a specific field of an observation is within the given parameters. it needs a `field`, `operator` and `value`.\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]\n\nExample:\n```json\n{\n  \"type\": \"field\",\n  \"field\": {\n      \"dimension\": \"patient\",\n      \"fieldName\": \"age\",\n      \"type\": \"NUMERIC\"\n      },\n  \"operator\": \"!=\",\n  \"value\": 100\n}\n```\n\n## Time\nEvaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.\nThe list must hold one date for the before(<-) and after(->) operator. It must hold two dates for the between(<-->) operator. If the given date field for an observation is empty, the observation will be ignored.\n`operator`: [\"&lt;-\", \"-&gt;\", \"&lt;--&gt;\"]\n\nExample:\n```json\n{\n  \"type\": \"time\",\n  \"field\": {\n      \"dimension\": \"start time\",\n      \"fieldName\": \"startDate\",\n      \"type\": \"DATE\"\n      },\n  \"operator\": \"->\",\n  \"values\": [\"2016-01-01T00:00:00Z\"]\n}\n```\n\n## PatientSet\nEvaluate if an observation is liked to a patient in the set. You have to provide one of three: a `patientSetId`, a list of `patientIds` or a list of `subjectIds`.\n\nExamples:\nBy specifying a patient set id.\n```json\n{\n    \"type\": \"patient_set\",\n    \"patientSetId\": 28820\n}\n```\nBy specifying a list of patient identifiers.\n```json\n{\n    \"type\": \"patient_set\",\n    \"patientIds\": [-62, -63]\n}\n```\nAnd by specifying a list of subject identifiers (aka external identifiers).\n```json\n{\n    \"type\": \"patient_set\",\n    \"subjectIds\": [\"4543AB\", \"4543AC\"]\n}\n```\n\n## SubSelection\nCreate a subselection of patients, visits, or another dimension element, and then select all observations for these dimension elements.\n\nExample: Select all observations for patients who have a certain diagnosis.\n```json\n{\n    \"type\": \"subselection\",\n    \"dimension\": \"patient\",\n    \"constraint\": {\n        \"type\": \"and\",\n        \"args\": [{\n                \"type\": \"concept\",\n                \"path\": \"\\\\Public Studies\\\\EHR\\\\Diagnosis\\\\\",\n                \"conceptCode\": \"DIAG\"\n            }, {\n                \"type\": \"value\",\n                \"valueType\": \"STRING\",\n                \"operator\": \"=\",\n                \"value\": \"My eye hurts\"\n            }]\n    }\n}\n```\n\n## Temporal\nEvaluate if an observation happened before or after an event. It needs an `operator` and an `event`. Any constraint can be used as an event. Most likely a combination.\n`operator`: [\"&lt;-\", \"-&gt;\", \"exists\"]\n\nExample:\n```json\n{\n    \"type\": \"temporal\",\n    \"operator\": \"exists\",\n    \"event\": {\n          \"type\": \"value\",\n          \"valueType\": \"NUMERIC\",\n          \"operator\": \"=\",\n          \"value\": 60\n          }\n}\n```\n\n## Null\nEvaluate if an specific field of an observation is null. It needs a field.\n\nExample:\n```json\n{\n    \"type\": \"null\",\n    \"field\":{\n        \"dimension\": \"end time\",\n        \"fieldName\": \"endDate\",\n        \"type\": \"DATE\"\n        }\n}\n```\n\n## Modifier\nEvaluate if an observation is linked to the specified modifier. Optionally if that modifier has the specific value. It must have a `path`, `dimensionName` or `modifierCode` and may have `values` in the form of a ValueConstraint.\n\nExample:\n```json\n{\n    \"type\": \"modifier\",\n    \"modifierCode\": \"TNS:SMPL\",\n    \"path\": \"\\\\Public Studies\\\\TUMOR_NORMAL_SAMPLES\\\\Sample Type\\\\\",\n    \"dimensionName\": \"sample_type\",\n    \"values\": {\n        \"type\": \"value\",\n        \"valueType\": \"STRING\",\n        \"operator\": \"=\",\n        \"value\": \"Tumor\"\n        }\n}\n```\n\n## Negation\nEvaluate if for an observation the given `arg` is false. `arg` is a constraint.\n\nExample:\n```json\n{\n    \"type\": \"negation\",\n    \"arg\": {\n        \"type\": \"patient_set\",\n        \"patientIds\": [-62,-52,-42]\n        }\n}\n```\nreturns all observations not linked to patient with id -62, -52 or -42\n\n## Biomarker\nUsed to filter high dimensional observations. It needs a 'biomarkerType' and a 'params' object. It can only be used\nwhen retrieving high dimensional data, and if so needs to be specified in a separate url parameter\n`biomarker_constraint`.\n`biomarkerType`: `[\"transcripts\", \"genes\"]`.\n\nExample:\n```json\n{\n    \"type\": \"biomarker\",\n    \"biomarkerType\": \"genes\",\n    \"params\": {\n        \"names\": [\"TP53\"]\n        }\n}\n```\n\n## True\n**!!WARNING!!** Use mainly for testing.  \nThe most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.\n\nExample:\n```json\n{\n    \"type\": \"true\"\n}\n```\n\n\n# Response types\n#### application/json\nAll calls support json. however this might not always be the best option. You will find schemas for the responses in this documentation.\n\n#### `application/hal+json`\nOnly the tree_node endpoint supports the application/hal+json format.\n\n#### `application/x-protobuf`\nCalls that return observations support protobuf as a more efficient binary format. The description of the protobuf object can be found in [observations.proto](../transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).\n"
   },
   "schemes": [
     "http",
@@ -730,9 +730,9 @@ var spec = {
         }
       }
     },
-    "/v2/observations/aggregate": {
+    "/v2/observations/aggregates_per_concept": {
       "get": {
-        "description": "Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and\n'values'. The first three require numeric variables, the last one categorical variables.\n",
+        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical.\n",
         "tags": [
           "v2"
         ],
@@ -743,13 +743,6 @@ var spec = {
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
             "type": "string"
-          },
-          {
-            "name": "type",
-            "required": true,
-            "in": "query",
-            "description": "'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve\nmultiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.\n",
-            "type": "string"
           }
         ],
         "responses": {
@@ -757,23 +750,9 @@ var spec = {
             "description": "return the result in a json object. Example: `{min: 56}`.",
             "schema": {
               "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
               "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
-                },
-                "values": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "description": "A list of the distinct values for categorical variables"
+                "aggregatesPerConcept": {
+                  "$ref": "#/definitions/AggregatesMap"
                 }
               }
             }
@@ -798,34 +777,22 @@ var spec = {
                 "constraint": {
                   "type": "string",
                   "description": "see GET parameters"
-                },
-                "type": {
-                  "type": "string",
-                  "description": "see GET parameters. Can be either a string or an array of strings."
                 }
               },
               "required": [
-                "constraint",
-                "type"
+                "constraint"
               ]
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "return the result in a json object. Example: `{min: 56}`.",
+            "description": "return the result in a json object. Example: `{\"aggregatesPerConcept\": \"GENDER\": { \"categoricalValueAggregatesPerConcept\": { \"valueCounts\": { \"Female\": 323, \"Male\": 312} } }}`.",
             "schema": {
               "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
               "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
+                "aggregatesPerConcept": {
+                  "$ref": "#/definitions/AggregatesMap"
                 }
               }
             }
@@ -835,7 +802,8 @@ var spec = {
     },
     "/v2/observations/count": {
       "get": {
-        "description": "Counts the number of observations that satisfy the given constraint.\n",
+        "description": "Counts the number of observations that satisfy the given constraint.\nDeprecated in favour of `/v2/observations/counts`.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -863,7 +831,8 @@ var spec = {
         }
       },
       "post": {
-        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "description": "Works the same as GET, but with support for longer constraints.\nUse this, if the total length of the URL may be longer than the maximum length.\nDeprecated in favour of `/v2/observations/counts`.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -899,6 +868,67 @@ var spec = {
                   "type": "integer"
                 }
               }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/counts": {
+      "get": {
+        "description": "Counts the number of observations that satisfy the given constraint and the number of associated patients.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.",
+            "schema": {
+              "$ref": "#/definitions/Counts"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.",
+            "schema": {
+              "$ref": "#/definitions/Counts"
             }
           }
         }
@@ -1365,6 +1395,12 @@ var spec = {
             "description": "The max node depth returned"
           },
           {
+            "name": "constraints",
+            "in": "query",
+            "type": "boolean",
+            "description": "Flag if the constraints should be included in the result (always true for hal, defaults to true for json)"
+          },
+          {
             "name": "counts",
             "in": "query",
             "type": "boolean",
@@ -1391,6 +1427,35 @@ var spec = {
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v2/tree_nodes/clear_cache": {
+      "get": {
+        "description": "Clears tree node and counts caches.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache has been cleared.\n"
+          }
+        }
+      }
+    },
+    "/v2/tree_nodes/rebuild_cache": {
+      "get": {
+        "description": "Clears tree node and counts caches and rebuilds the tree node cache per user.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Clearing and rebuilding the cache has been started.\n"
+          },
+          "503": {
+            "description": "A rebuild operation is already in progress.\n"
           }
         }
       }
@@ -1899,7 +1964,7 @@ var spec = {
         }
       }
     },
-    "/v2/dimensions/{$dimensionName}/elements": {
+    "/v2/dimensions/{dimensionName}/elements": {
       "get": {
         "description": "Gets all elements from a dimension of given name that satisfy the constaint if given.\n",
         "tags": [
@@ -1907,7 +1972,7 @@ var spec = {
         ],
         "parameters": [
           {
-            "name": "$dimensionName",
+            "name": "dimensionName",
             "in": "path",
             "required": true,
             "type": "string"
@@ -1990,7 +2055,7 @@ var spec = {
                 },
                 "elements": {
                   "type": "string",
-                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, tabular:<boolean>]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
+                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
                 }
               },
               "required": [
@@ -2083,22 +2148,18 @@ var spec = {
       }
     },
     "/v2/export/data_formats": {
-      "get": {
-        "description": "Gets data formats for specified sets, including `clinical` type and high dimensional types.\n",
+      "post": {
+        "description": "Analyses the constraint and gets result data formats, including `clinical` type and high dimensional types.\n",
         "tags": [
           "v2"
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "constraint",
             "required": true,
-            "in": "query",
-            "description": "Result instance ids. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`",
-            "type": "array",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "integer"
-            }
+            "in": "body",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\",\"studyId\":\"EHR\"}`.",
+            "type": "object"
           }
         ],
         "responses": {
@@ -2124,6 +2185,15 @@ var spec = {
         "description": "Gets supported export file formats.\n",
         "tags": [
           "v2"
+        ],
+        "parameters": [
+          {
+            "name": "dataView",
+            "required": false,
+            "in": "query",
+            "description": "Data view.",
+            "type": "string"
+          }
         ],
         "produces": [
           "application/json"
@@ -2642,6 +2712,26 @@ var spec = {
           "items": {
             "type": "string"
           }
+        },
+        "metadata": {
+          "$ref": "#/definitions/StudyMetadata"
+        }
+      }
+    },
+    "StudyMetadata": {
+      "type": "object",
+      "properties": {
+        "conceptToVariableName": {
+          "description": "a map from concept code to variable name in the study.",
+          "type": "object",
+          "properties": {
+            "<conceptCode>": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },
@@ -2722,6 +2812,52 @@ var spec = {
         },
         "name": {
           "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/VariableMetadata"
+        }
+      }
+    },
+    "VariableMetadata": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "NUMERIC, DATE, STRING",
+          "type": "string"
+        },
+        "measure": {
+          "description": "NOMINAL, ORDINAL, SCALE",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "decimals": {
+          "type": "integer"
+        },
+        "columns": {
+          "type": "integer"
+        },
+        "valueLabels": {
+          "description": "a map from value (of type integer) to label (of type string)",
+          "type": "object",
+          "properties": {
+            "<value>": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "missingValues": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
         }
       }
     },
@@ -2737,9 +2873,9 @@ var spec = {
       }
     },
     "CountsMap": {
-      "description": "a map from string to Counts. `default` is an example key.",
+      "description": "a map from string to Counts.",
       "properties": {
-        "default": {
+        "<key>": {
           "$ref": "#/definitions/Counts"
         }
       },
@@ -2748,9 +2884,9 @@ var spec = {
       }
     },
     "CountsMapMap": {
-      "description": "a map from string to a map from string to Counts. `default` is an example key.",
+      "description": "a map from string to a map from string to Counts.",
       "properties": {
-        "default": {
+        "<key>": {
           "$ref": "#/definitions/CountsMap"
         }
       },
@@ -2987,6 +3123,61 @@ var spec = {
         "updateDate": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "AggregatesMap": {
+      "type": "object",
+      "description": "Map from string to aggregates.",
+      "properties": {
+        "<conceptCode>": {
+          "$ref": "#/definitions/Aggregates"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/Aggregates"
+      }
+    },
+    "Aggregates": {
+      "description": "Object for numerical aggregates or categorical value counts. Only the value of the requested aggregate type will be present.",
+      "type": "object",
+      "properties": {
+        "numericalValueAggregatesPerConcept": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "average": {
+              "type": "number"
+            },
+            "count": {
+              "type": "number"
+            },
+            "std_dev": {
+              "type": "number"
+            }
+          }
+        },
+        "categoricalValueAggregatesPerConcept": {
+          "type": "object",
+          "properties": {
+            "valueCounts": {
+              "description": "map from value to count",
+              "type": "object",
+              "properties": {
+                "<value>": {
+                  "type": "number"
+                }
+              },
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          }
         }
       }
     }

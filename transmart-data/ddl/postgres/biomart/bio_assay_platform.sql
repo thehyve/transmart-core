@@ -11,11 +11,18 @@ CREATE TABLE bio_assay_platform (
     platform_organism character varying(200),
     platform_vendor character varying(200),
     platform_type character varying(200),
-    platform_technology character varying(200)
+    platform_technology character varying(200),
+    platform_imputed_algorithm character varying(500),
+    platform_imputed_panel character varying(200),
+    platform_imputed boolean,
+    created_by character varying(30),
+    created_date date,
+    modified_by character varying(30),
+    modified_date date
 );
 
 --
--- Name: bio_assay_platform_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_platform bio_assay_platform_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_platform
     ADD CONSTRAINT bio_assay_platform_pk PRIMARY KEY (bio_assay_platform_id);
@@ -35,7 +42,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_assay_platform_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_platform trg_bio_assay_platform_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_platform_id BEFORE INSERT ON bio_assay_platform FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_platform_id();
 

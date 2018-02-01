@@ -1,9 +1,7 @@
-<%@ page import="annotation.*; org.transmart.biomart.*; com.recomdata.util.*" %>
-  
 <g:form name="createStudyForm">
     <g:hiddenField name="id" value="${folder?.id}" />
     <g:hiddenField name="folderType" value="${folder?.folderType}" />
-    <g:hiddenField name="parentId" value="${folder?.parent.id}" />
+    <g:hiddenField name="parentId" value="${folder?.parent?.id}" />
     <g:set var="objectUid" value="${folder?.uniqueId}"/>
 
     <div id="displayStudyErrors">

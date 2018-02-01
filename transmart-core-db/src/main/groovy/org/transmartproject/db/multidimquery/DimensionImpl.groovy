@@ -3,7 +3,6 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import grails.util.Holders
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
@@ -34,7 +33,6 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
 
-import static org.transmartproject.core.multidimquery.Dimension.*
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
 import static org.transmartproject.core.multidimquery.Dimension.Density.*
 import static org.transmartproject.core.multidimquery.Dimension.Packable.*
@@ -108,7 +106,12 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static getBuiltinDimension(String name) { builtinDimensions.get(name) }
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
     @CompileDynamic
-    static DimensionImpl fromName(String name) { DimensionDescription.findByName(name)?.dimension }
+    static DimensionImpl fromName(String name) {
+        if (name == 'value') {
+            return VALUE
+        }
+        DimensionDescription.findByName(name)?.dimension
+    }
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
@@ -422,7 +425,7 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object> {
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
-    synchronized static ModifierDimension get(String name, String modifierCode, Class elementType,
+    synchronized static ModifierDimension get(String name, String modifierCode, String valueType,
                                               Size size, Density density, Packable packable) {
         if(name in byName) {
             ModifierDimension dim = byName[name]
@@ -438,9 +441,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         }
         assert !byCode.containsKey(modifierCode)
 
-        if(!isSerializableType(elementType)) throw new NotImplementedException(
-                "Support for non-serializable modifier dimensions is not implemented: $name")
-        ModifierDimension dim = new ModifierDimension(name, modifierCode, elementType, size, density, packable)
+        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable)
         dim.verify()
         byName[name] = dim
         byCode[modifierCode] = dim
@@ -448,15 +449,21 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         dim
     }
 
-    private ModifierDimension(String name, String modifierCode, Class elementType, Size size, Density density, Packable packable) {
+    private ModifierDimension(String name, String modifierCode, String valueType, Size size, Density density, Packable packable) {
         super(size, density, packable)
         this.name = name
         this.modifierCode = modifierCode
+        this.valueType = valueType
+        Class elementType = DimensionDescription.classForType(valueType)
+        if(!isSerializableType(elementType)) {
+            throw new NotImplementedException("Support for non-serializable modifier dimensions is not implemented: ${name}")
+        }
         this.elemType = elementType
     }
 
     static final String modifierCodeField = 'modifierCd'
 
+    final String valueType
     final Class elemType
     final String name
     final String modifierCode
@@ -486,7 +493,8 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     void addModifierValue(Map result, ProjectionMap modifierRow) {
         assert modifierRow[modifierCodeField] == modifierCode
         def modifierValue = ObservationFact.observationFactValue(
-                (String) modifierRow.valueType, (String) modifierRow.textValue, (BigDecimal) modifierRow.numberValue)
+                (String) modifierRow.valueType, (String) modifierRow.textValue, (BigDecimal) modifierRow.numberValue,
+                (String) modifierRow.rawValue)
         if(result.putIfAbsent(name, modifierValue) != null) {
             assert result && false, "$name already used as an alias or as a different modifier"
         }
@@ -494,28 +502,43 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
         criteria.add(Restrictions.eq('modifierCd', modifierCode))
-        if(elemType == String) {
-            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
-            criteria.setProjection(Projections.distinct(Projections.property('textValue')))
-        } else {
-            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
-            criteria.setProjection(Projections.distinct(Projections.property('numberValue')))
+        switch(valueType) {
+            case ObservationFact.TYPE_TEXT:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+                criteria.setProjection(Projections.distinct(Projections.property('textValue')))
+                return criteria
+            case ObservationFact.TYPE_NUMBER:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+                criteria.setProjection(Projections.distinct(Projections.property('numberValue')))
+                return criteria
+            case ObservationFact.TYPE_RAW_TEXT:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_RAW_TEXT))
+                criteria.setProjection(Projections.distinct(Projections.property('rawValue')))
+                return criteria
+            default:
+                throw new DataInconsistencyException("Unsupported value type: '${valueType}'.")
         }
-        criteria
     }
 
     @Override
     DetachedCriteria elementCount(DetachedCriteria criteria) {
         criteria.add(Restrictions.eq('modifierCd', modifierCode))
-        if(elemType == String) {
-            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
-            criteria.setProjection(Projections.countDistinct('textValue'))
-        } else {
-            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
-            criteria.setProjection(Projections.countDistinct('numberValue'))
+        switch(valueType) {
+            case ObservationFact.TYPE_TEXT:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+                criteria.setProjection(Projections.countDistinct('textValue'))
+                return criteria
+            case ObservationFact.TYPE_NUMBER:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+                criteria.setProjection(Projections.countDistinct('numberValue'))
+                return criteria
+            case ObservationFact.TYPE_RAW_TEXT:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_RAW_TEXT))
+                criteria.setProjection(Projections.countDistinct('rawValue'))
+                return criteria
+            default:
+                throw new DataInconsistencyException("Unsupported value type: '${valueType}'.")
         }
-
-        criteria
     }
 }
 
@@ -770,7 +793,8 @@ class ValueDimension extends DimensionImpl implements SerializableElemDim {
 
     def getElementKey(Map result) {
         ObservationFact.observationFactValue(
-                (String) result.valueType, (String) result.textValue, (BigDecimal) result.numberValue)
+                (String) result.valueType, (String) result.textValue, (BigDecimal) result.numberValue,
+                (String) result.rawValue)
     }
 
     @Override @CompileDynamic def selectIDs(Query query) {
@@ -783,6 +807,7 @@ class ValueDimension extends DimensionImpl implements SerializableElemDim {
         //        property 'valueType', 'valueType'
         //        property 'textValue', 'textValue'
         //        property 'numberValue', 'numberValue'
+        //        property 'rawValue', 'rawValue'
         //    }
         //}
     }

@@ -1,7 +1,7 @@
 <%-- Set up URLs for AJAX --%>
 <script type="text/javascript" charset="utf-8">
     var searchResultsURL = "${createLink([controller:'RWG', action:'loadSearchResults'])}";
-    var facetResultsURL = "${createLink([controller:'RWG', action:'getFacetResults'])}";
+    var renderRootURL = "${createLink([controller:'RWG', action:'renderRoot'])}";
     var clearSearchFilterURL = "${createLink([controller:'RWG', action:'clearSearchFilter'])}";
     var newSearchURL = "${createLink([controller:'RWG', action:'newSearch'])}";
     var visualizationURL = "${createLink([controller:'RWG', action:'newVisualization'])}";
@@ -59,7 +59,6 @@
     var saveProgramURL = "${createLink([controller:'fmFolder',action:'saveProgram'])}";
 
     var welcomeURL = "${createLink([controller:'RWG', action:'ajaxWelcome'])}";
-    var searchLogURL = "${createLink([controller:'RWG', action:'searchLog'])}";
 
     var deleteFileURL = "${createLink([controller:'fmFolder',action:'deleteFile'])}";
     var deleteFolderURL = "${createLink([controller:'fmFolder',action:'deleteFolder'])}";
@@ -75,9 +74,16 @@
     var resetNodesRwgURL = "${createLink([controller:'RWG', action:'resetOpenedNodes'])}";
 
     var addNodeDseURL = "${createLink([controller:'RWG', action:'addOpenedNodeDSE'])}";
-    var removeNodeDseURL = "${createLink([controller:'RWG', action:'removeOpenedNodeDSE'])}";
+    var removeNodeDseURL = "${createLink([controller:'RWG', action:'removeOpenedNodeDSE'])}"
 
-    var uploadFilesURL = "${createLink([controller:'uploadFiles',action:'displayUpload'])}";
-    var uploadActionURL = "${createLink([controller:'uploadFiles',action:'upload'])}"; 
+    //
+    window.searchURLs = {
+        autoComplete: "${createLink([controller:'facetsSearch', action:'autocomplete'])}",
+        getSearchCategories: "${createLink([controller: 'facetsSearch', action: 'getSearchCategories'])}",
+        getFilterCategories: "${createLink([controller: 'facetsSearch', action: 'getFilterCategories'])}",
+        getFacetResults: "${createLink([controller: 'facetsSearch', action: 'getFacetResults'])}",
+
+        crossImage: "${resource([dir:'images', file:'small_cross.png'])}",
+    };
 
 </script>

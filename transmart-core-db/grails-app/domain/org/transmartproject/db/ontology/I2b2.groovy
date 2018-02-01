@@ -35,7 +35,6 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
      * Do not use cComment to store study identifiers, use
      * it for comments instead.
      */
-    @Deprecated
     String       cComment
     String       mAppliedPath
     Date         updateDate
@@ -87,10 +86,21 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
      * Please do not use the comment field for storing study ids.
      */
     @Deprecated
-    String getStudyId() {
+    private String getStudyIdFromComment() {
         def matcher = cComment =~ /(?<=^trial:).+/
         if (matcher.find()) {
-            matcher.group 0
+            return matcher.group(0)
+        }
+    }
+
+    String getStudyId() {
+        String studyIdFromComment = getStudyIdFromComment()
+        if (studyIdFromComment) {
+            return studyIdFromComment
+        } else if (sourcesystemCd) {
+            return sourcesystemCd
+        } else {
+            throw new RuntimeException('No study id found in the i2b2 table.')
         }
     }
 

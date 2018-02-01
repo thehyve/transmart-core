@@ -55,23 +55,8 @@ Legacy Grails application for Transmart
 
     Closure doWithSpring() {
         { ->
-            sessionRegistry(SessionRegistryImpl)
-            sessionAuthenticationStrategy(ConcurrentSessionControlStrategy, sessionRegistry) {
-                if (grailsApplication.config.org.transmartproject.maxConcurrentUserSessions) {
-                    maximumSessions = grailsApplication.config.org.transmartproject.maxConcurrentUserSessions
-                } else {
-                    maximumSessions = 10
-                }
-            }
-            concurrentSessionFilter(ConcurrentSessionFilter) {
-                sessionRegistry = sessionRegistry
-                expiredUrl = '/login'
-            }
             xmlns context: "http://www.springframework.org/schema/context"
             xmlns aop: "http://www.springframework.org/schema/aop"
-
-            //overrides bean implementing GrailsUserDetailsService?
-            userDetailsService(AuthUserDetailsService)
 
             /* core-api authorization wrapped beans */
             queriesResourceAuthorizationDecorator(QueriesResourceAuthorizationDecorator) {

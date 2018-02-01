@@ -42,6 +42,11 @@ CREATE TABLE de_rc_snp_info (
 );
 
 --
+-- Name: de_r_s_i_ind4; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_r_s_i_ind4 ON de_rc_snp_info USING btree (snp_info_id);
+
+--
 -- Name: de_rc_snp_info_chrom_pos_idx; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX de_rc_snp_info_chrom_pos_idx ON de_rc_snp_info USING btree (chrom, pos);
@@ -55,4 +60,29 @@ CREATE INDEX de_rc_snp_info_entrez_id_idx ON de_rc_snp_info USING btree (entrez_
 -- Name: de_rc_snp_info_rs_id_idx; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX de_rc_snp_info_rs_id_idx ON de_rc_snp_info USING btree (rs_id);
+
+--
+-- Name: de_rsnp_chrom_comp_idx; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_rsnp_chrom_comp_idx ON de_rc_snp_info USING btree (chrom, hg_version, pos);
+
+--
+-- Name: de_rsnp_chrompos_ind; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_rsnp_chrompos_ind ON de_rc_snp_info USING btree (chrom, pos);
+
+--
+-- Name: de_rsnp_hgrs_ind; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE UNIQUE INDEX de_rsnp_hgrs_ind ON de_rc_snp_info USING btree (hg_version, rs_id);
+
+--
+-- Name: ind_vcf_pos; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX ind_vcf_pos ON de_rc_snp_info USING btree (pos);
+
+--
+-- Name: ind_vcf_rsid; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX ind_vcf_rsid ON de_rc_snp_info USING btree (rs_id);
 

@@ -10,3 +10,11 @@
 eclipse-target
 
 
+/*.zip
+/*.zip.sha1
+/plugin.xml
+
+
+/grails-app/i18n/
+
+/External Dep/

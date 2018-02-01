@@ -10,7 +10,7 @@ CREATE TABLE mesh_path (
 );
 
 --
--- Name: mesh_path_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: mesh_path mesh_path_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY mesh_path
     ADD CONSTRAINT mesh_path_pkey PRIMARY KEY (unique_id);

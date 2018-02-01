@@ -7,20 +7,19 @@ import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.NumericalValueAggregates
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
+import org.transmartproject.rest.serialization.Format
 
-import static org.transmartproject.rest.MultidimensionalDataService.Format
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 @Slf4j
 class QueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal', 'protobuf']
-
-    MultidimensionalDataService multidimensionalDataService
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -94,7 +93,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            multidimensionalDataService.writeClinical(format, constraint, user, out)
+            hypercubeDataSerializationService.writeClinical(format, constraint, user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -118,8 +117,11 @@ class QueryController extends AbstractQueryController {
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
+     * Deprecated in favour of {@link #counts()}.
+     *
      * @return a the number of observations that satisfy the constraint.
      */
+    @Deprecated
     def count() {
         def args = getGetOrPostParams()
         checkForUnsupportedParams(args, ['constraint'])
@@ -132,6 +134,27 @@ class QueryController extends AbstractQueryController {
         def count = multiDimService.count(constraint, user)
         def result = [count: count]
         render result as JSON
+    }
+
+    /**
+     * Count endpoint:
+     * <code>/v2/observations/counts?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a the number of observations that satisfy the constraint and the number of associated patients.
+     */
+    def counts() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.counts(constraint, user)
+        render counts as JSON
     }
 
     /**
@@ -206,47 +229,47 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Aggregate endpoint:
-     * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
+     * <code>/v2/observations/aggregates_per_concept?constraint=${constraint}</code>
      *
-     * Expects an {@link org.transmartproject.core.multidimquery.AggregateType} parameter <code>type</code> and {@link Constraint}
+     * Expects a {@link Constraint} parameter
      * parameter <code>constraint</code>.
      *
-     * Checks if the supplied constraint contains a concept constraint on top level, because
-     * aggregations is only valid for a single concept. If the concept is not found or
-     * no observations are found for the concept, an {@link org.transmartproject.db.multidimquery.query.InvalidQueryException}
-     * is thrown.
-     * Also, if the concept is not numerical, has null values or values with an operator
-     * other than 'E'.
-     *
-     * @return a map with the aggregate type as key and the result as value.
+     * @return a map with the aggregates.
      */
-    def aggregate() {
+    def aggregatesPerConcept() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['constraint', 'type'])
-        def type = args.type
+        checkForUnsupportedParams(args, ['constraint'])
 
-        if (!type) {
-            throw new InvalidArgumentsException("Type parameter is missing.")
-        }
-        if (!(type instanceof String || type instanceof List)) throw new InvalidArgumentsException(
-                "invalid type parameter (not a string or a list of strings)")
-
-        if (type instanceof String) {
-            type = [type]
-        }
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
-        def aggregateTypes
-        try {
-            aggregateTypes = type.collect { AggregateType.forName(it as String) }
-        } catch (IllegalArgumentException e) {
-            throw new InvalidQueryException(e)
-        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
-        render aggregateValues as JSON
+        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = multiDimService
+                .numericalValueAggregatesPerConcept(constraint, user)
+        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = multiDimService
+                .categoricalValueAggregatesPerConcept(constraint, user)
+
+        Map resultMap = buildResultMap(numericalValueAggregatesPerConcept, categoricalValueAggregatesPerConcept)
+        render resultMap as JSON
+    }
+
+    private static Map buildResultMap(Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept,
+                                      Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept) {
+        Set<String> foundConceptCodes = numericalValueAggregatesPerConcept.keySet() + categoricalValueAggregatesPerConcept.keySet()
+        def aggregatesPerConcept = foundConceptCodes.collectEntries { String conceptCode ->
+            Map<String, Object> valueAggregates = [:]
+            NumericalValueAggregates numericalValueAggregates = numericalValueAggregatesPerConcept[conceptCode]
+            if (numericalValueAggregates) {
+                valueAggregates.numericalValueAggregates = numericalValueAggregates
+            }
+            CategoricalValueAggregates categoricalValueAggregates = categoricalValueAggregatesPerConcept[conceptCode]
+            if (categoricalValueAggregates) {
+                valueAggregates.categoricalValueAggregates = categoricalValueAggregates
+            }
+            [conceptCode, valueAggregates]
+        }
+        [ aggregatesPerConcept: aggregatesPerConcept ]
     }
 
     /**
@@ -273,7 +296,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            multidimensionalDataService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
+            hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
         } finally {
             out.close()
         }

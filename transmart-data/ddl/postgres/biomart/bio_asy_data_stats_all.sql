@@ -19,7 +19,7 @@ CREATE TABLE bio_asy_data_stats_all (
 );
 
 --
--- Name: bio_asy_dt_stats_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_asy_data_stats_all bio_asy_dt_stats_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_asy_data_stats_all
     ADD CONSTRAINT bio_asy_dt_stats_pk PRIMARY KEY (bio_assay_data_stats_id);
@@ -55,12 +55,12 @@ END;
 $$;
 
 --
--- Name: trg_bio_asy_dt_stats_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_asy_data_stats_all trg_bio_asy_dt_stats_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_asy_dt_stats_id BEFORE INSERT ON bio_asy_data_stats_all FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_asy_dt_stats_id();
 
 --
--- Name: bio_asy_dt_stats_smp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_asy_data_stats_all bio_asy_dt_stats_smp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_asy_data_stats_all
     ADD CONSTRAINT bio_asy_dt_stats_smp_fk FOREIGN KEY (bio_sample_id) REFERENCES bio_sample(bio_sample_id);

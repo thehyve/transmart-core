@@ -151,24 +151,28 @@ class TreeNodesSpec extends RESTSpec {
     }
 
     /**
-     *  given: "Study SHARED_CONCEPTS is loaded"
+     *  given: "Study SURVEY1 is loaded"
      *  when: "I get the tree_nodes with tags=true"
-     *  then: "then concept nodes have observationCount and patientCount"
+     *  then: "then the node for concept Gender has metadata tags"
      */
-    @RequiresStudy(CELL_LINE_ID)
     def "nodes with tags true"() {
-        given: "Study SHARED_CONCEPTS is loaded"
+        given: 'Study SURVEY1 is loaded'
 
-        when: "I get the tree_nodes with tags=true"
+        when: 'I get the tree_nodes with tags=true'
         def responseData = get([
                 path      : PATH_TREE_NODES,
                 acceptType: JSON,
                 query     : ['tags': true]
         ])
 
-        then: "then concept nodes have observationCount and patientCount"
-        def jsonString = responseData.toString()
-        assert jsonString.contains("metadata")
+        then: 'then the node \\Projects\\Survey 1\\Demographics\\Gender has metadata tags'
+        def projectsRoot = getRootNodeByName(responseData, 'Projects')
+        def projectNode = getNodeByName(projectsRoot, 'Survey 1')
+        def demographicsNode = getNodeByName(projectNode, 'Demographics')
+        def conceptNode = getNodeByName(demographicsNode, 'Gender')
+        assert conceptNode.metadata != null
+        assert conceptNode.metadata.containsKey('item_name')
+        assert conceptNode.metadata.item_name == 'sex'
     }
 
     /**
@@ -201,8 +205,8 @@ class TreeNodesSpec extends RESTSpec {
                 acceptType: JSON,
                 user      : ADMIN_USER,
         ])
-        then: "a success code is returned"
-        assert responseData.httpStatus == 200
+        then: "an empty body is returned"
+        assert responseData == null
     }
 
     def "clear tree node cache"() {

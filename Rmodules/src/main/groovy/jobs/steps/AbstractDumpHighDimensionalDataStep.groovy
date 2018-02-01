@@ -1,6 +1,6 @@
 package jobs.steps
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import jobs.UserParameters
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult

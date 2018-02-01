@@ -1,12 +1,12 @@
 package org.transmartproject.db.concept
 
 import com.google.common.io.CountingOutputStream
-import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
 import org.grails.io.support.DevNullPrintStream
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.concept.ConceptsResource
@@ -100,7 +100,7 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
 
     @Override
     @Cacheable('org.transmartproject.db.concept.ConceptsService')
-    final String getConceptCodeByConceptPath(String conceptPath) throws NoSuchResourceException {
+    String getConceptCodeByConceptPath(String conceptPath) throws NoSuchResourceException {
         String code = null
         if (conceptPathToConceptCode) {
             code = conceptPathToConceptCode[conceptPath]

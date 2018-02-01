@@ -29,12 +29,17 @@ class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
     String regionChromosomeColumn
     String regionStartColumn
     String regionEndColumn
+    boolean forceBigDecimal
 
     String chromosome
     Long   start,
            end
 
     //after construction, chromosome || (start && end)
+
+    private n(v) {
+        forceBigDecimal ? BigDecimal.valueOf(v) : v
+    }
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
@@ -46,13 +51,18 @@ class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
                     eq regionPrefix + regionChromosomeColumn, chromosome
                 }
 
-                if (start  != null && end != null) {
+                if (start != null && end != null) {
+                    if (regionStartColumn == regionEndColumn) {
+                        // optimization
+                        between regionPrefix + regionStartColumn, n(start), n(end)
+                    }
+
                     or {
-                        between regionPrefix+regionStartColumn, start, end
-                        between regionPrefix+regionEndColumn,   start, end
+                        between regionPrefix + regionStartColumn, n(start), n(end)
+                        between regionPrefix + regionEndColumn,   n(start), n(end)
                         and {
-                            le regionPrefix + regionStartColumn, start
-                            ge regionPrefix + regionEndColumn,   end
+                            le regionPrefix + regionStartColumn, n(start)
+                            ge regionPrefix + regionEndColumn,   n(end)
                         }
                     }
                 }

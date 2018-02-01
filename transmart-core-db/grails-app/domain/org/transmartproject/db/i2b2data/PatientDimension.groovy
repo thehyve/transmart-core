@@ -121,4 +121,11 @@ class PatientDimension implements Patient {
         }
     }
 
+    @Override @CompileStatic
+    Map<String, String> getSubjectIds() {
+        (mappings?.collectEntries {
+            [(it.source): it.encryptedId]
+        } ?: [:]) as Map<String, String>
+    }
+
 }

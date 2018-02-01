@@ -29,6 +29,7 @@ class ObservationFact implements Serializable {
 
     public static String TYPE_TEXT   = 'T'
     public static String TYPE_NUMBER = 'N'
+    public static String TYPE_RAW_TEXT = 'B'
     public static String EMPTY_MODIFIER_CODE = '@'
 
     /* links to concept_dimension, but concept_code is not primary key in
@@ -38,6 +39,7 @@ class ObservationFact implements Serializable {
     String     valueType
     String     textValue
     BigDecimal numberValue
+    String     rawValue
     String     valueFlag
     String     sourcesystemCd
 
@@ -54,7 +56,6 @@ class ObservationFact implements Serializable {
     // unused for now
     //BigDecimal quantityNum
     //String     unitsCd
-    //String     observationBlob
     //BigDecimal confidenceNum
     //Date       updateDate
     //Date       downloadDate
@@ -79,6 +80,7 @@ class ObservationFact implements Serializable {
         valueType    column: 'valtype_cd'
         textValue    column: 'tval_char'
         numberValue  column: 'nval_num'
+        rawValue     column: 'observation_blob', sqlType: 'text'
         valueFlag    column: 'valueflag_cd'
         trialVisit   column: 'trial_visit_num', cascade: 'save-update'
 
@@ -92,6 +94,7 @@ class ObservationFact implements Serializable {
         valueType         nullable:   true,   maxSize:   50
         textValue         nullable:   true
         numberValue       nullable:   true,   scale:     5
+        rawValue          nullable:   true
         valueFlag         nullable:   true,   maxSize:   50
         sourcesystemCd    nullable:   true,   maxSize:   50
         endDate           nullable:   true
@@ -100,7 +103,6 @@ class ObservationFact implements Serializable {
         // unused for now
         //quantityNum       nullable:   true,   scale:     5
         //unitsCd           nullable:   true,   maxSize:   50
-        //observationBlob   nullable:   true
         //confidenceNum     nullable:   true,   scale:     5
         //updateDate        nullable:   true
         //downloadDate      nullable:   true
@@ -114,21 +116,23 @@ class ObservationFact implements Serializable {
 
     @CompileStatic
     def getValue() {
-        observationFactValue(valueType, textValue, numberValue)
+        observationFactValue(valueType, textValue, numberValue, rawValue)
     }
 
     // Separate static method so this can also be called from code that accesses the database without converting to
     // domain classes
     @CompileStatic
-    static final Object observationFactValue(String valueType, String textValue, BigDecimal numberValue) {
+    static final Object observationFactValue(String valueType, String textValue, BigDecimal numberValue, String rawValue) {
         switch(valueType) {
             case TYPE_TEXT:
                 return textValue
             case TYPE_NUMBER:
                 return numberValue
+            case TYPE_RAW_TEXT:
+                return rawValue
             default:
                 throw new DataInconsistencyException("Unsupported database value: ObservationFact.valueType " +
-                        "must be either '$TYPE_TEXT' or '$TYPE_NUMBER'. Found '${valueType}'")
+                        "must be either '${TYPE_TEXT}', '${TYPE_NUMBER}' or '${TYPE_RAW_TEXT}. Found '${valueType}'.")
         }
     }
 }

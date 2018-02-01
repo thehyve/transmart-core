@@ -1,6 +1,7 @@
 package org.transmart
 
 import com.recomdata.export.GenePatternFiles
+import grails.util.Holders
 import i2b2.SampleInfo
 import org.springframework.context.ApplicationContext
 
@@ -9,7 +10,7 @@ import java.sql.Statement
 
 public class ExperimentData {
 
-    ApplicationContext ctx = org.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
+    ApplicationContext ctx = Holders.grailsApplication.mainContext
     def dataSource = ctx.getBean('dataSource')
     def sessionFactory = ctx.getBean('sessionFactory');
     def sampleInfoService = ctx.getBean('sampleInfoService');

@@ -11,13 +11,13 @@ CREATE TABLE bio_data_literature (
 );
 
 --
--- Name: bio_data_literature_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_literature bio_data_literature_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_literature
     ADD CONSTRAINT bio_data_literature_pk PRIMARY KEY (bio_data_id);
 
 --
--- Name: bio_lit_curation_dataset_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_literature bio_lit_curation_dataset_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_literature
     ADD CONSTRAINT bio_lit_curation_dataset_fk FOREIGN KEY (bio_curation_dataset_id) REFERENCES bio_curation_dataset(bio_curation_dataset_id);

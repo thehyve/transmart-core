@@ -77,6 +77,11 @@ interface TreeNode {
     String getDimension()
 
     /**
+     * The concept code of the concept that this node represents, if it represents a concept; null otherwise.
+     */
+    String getConceptCode()
+
+    /**
      * The concept path of the concept that this node represents, if it represents a concept; null otherwise.
      */
     String getConceptPath()

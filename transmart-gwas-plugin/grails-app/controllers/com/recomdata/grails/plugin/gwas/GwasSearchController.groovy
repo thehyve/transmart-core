@@ -3,6 +3,7 @@ package com.recomdata.grails.plugin.gwas
 import com.opencsv.CSVWriter
 import com.recomdata.transmart.domain.searchapp.FormLayout
 import grails.converters.JSON
+import grails.util.Holders
 import grails.web.mapping.LinkGenerator
 import org.grails.web.json.JSONObject;
 import org.transmart.biomart.BioAssayAnalysis
@@ -14,19 +15,21 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import org.apache.commons.io.FileUtils;
 
 import static java.util.UUID.randomUUID
 
 class GwasSearchController {
 
-    LinkGenerator grailsLinkGenerator
     def regionSearchService
-	def gwasWebService
+    def gwasWebService
     def RModulesFileWritingService
     def RModulesJobProcessingService
     def RModulesOutputRenderService
     def springSecurityService
     def gwasSearchService
+    def inLimit = 1000
+    LinkGenerator grailsLinkGenerator
 
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.
@@ -46,27 +49,26 @@ class GwasSearchController {
         def jar = grailsApplication.config.com.recomdata.rwg.webstart.jar
         def mainClass = grailsApplication.config.com.recomdata.rwg.webstart.mainClass
         def gInstance = "-services="+grailsApplication.config.com.recomdata.rwg.webstart.gwavaInstance
-		def serverUrl = grailsApplication.config.com.recomdata.rwg.webstart.transmart.url
+        def serverUrl = grailsApplication.config.com.recomdata.rwg.webstart.transmart.url
         def analysisIds = params.analysisIds
         def geneSource = params.geneSource
         def snpSource = params.snpSource
         def pvalueCutoff = params.pvalueCutoff
         def searchRegions = getWebserviceCriteria(session['solrSearchFilter'])
-		def user=springSecurityService.getPrincipal().username
+        def user=springSecurityService.getPrincipal().username
         def regionStrings = []
         for (region in searchRegions) {
             regionStrings += region[0] + "," + region[1]
         }
-		
-		def sessionUserMap = new HashMap<String, String>()
-		sessionUserMap = servletContext['gwasSessionUserMap']
-		
-		if (sessionUserMap == null){
-			sessionUserMap = new HashMap<String, String>()
-		}
-		sessionUserMap.put(session.getId(), user)
-		servletContext['gwasSessionUserMap'] = sessionUserMap
-		
+        def sessionUserMap = new HashMap<String, String>()
+        sessionUserMap = servletContext['gwasSessionUserMap']
+
+        if (sessionUserMap == null){
+            sessionUserMap = new HashMap<String, String>()
+        }
+        sessionUserMap.put(session.getId(), user)
+        servletContext['gwasSessionUserMap'] = sessionUserMap
+
         def regions = regionStrings.join(";")
         //Set defaults - JNLP does not take blank arguments
         if (!regions) { regions = "0,0" }
@@ -77,11 +79,11 @@ class GwasSearchController {
 							  spec="1.0+"
 							  codebase="${codebase}">
 							  <information>
-							    <title>GWAVA Gene Wide Association Visual Analyzer with search set</title>
+							    <title>GWAVA Genome Wide Association Visual Analyzer with search set</title>
 							    <vendor>Pfizer Inc</vendor>
 							    <homepage href="./index.html"/>
 							    <description>Tool for Manhattan plot visualization of GWAS data.</description>
-							    <description kind="short">GWAVA gene wide association visual analysis</description>
+							    <description kind="short">GWAVA genome wide association visual analysis</description>
 							    <shortcut>
 							      <desktop/>
 							      <menu submenu="GWAVA Transmart"/>
@@ -97,7 +99,7 @@ class GwasSearchController {
 							  </security>
 							  <update check="always" policy="always"/>
 							  <resources>
-							    <j2se version="1.6+" java-vm-args="-Xmx800m"/>
+							    <j2se version="1.7+" java-vm-args="-Xmx800m"/>
 
 							    <jar href="./lib/commons-beanutils-1.8.3.jar"/>
 							    <jar href="./lib/commons-beanutils-bean-collections-1.8.3.jar"/>
@@ -108,11 +110,14 @@ class GwasSearchController {
 							    <jar href="./lib/commons-logging-1.1.1.jar"/>
 							    <jar href="./lib/httpclient-4.0.jar"/>
 							    <jar href="./lib/httpcore-4.2.1.jar"/>
+                                			    <jar href="./lib/itextpdf-5.3.4.jar"/>
+                                			    <jar href="./lib/jdom-2.0.6.jar"/>
 							    <jar href="./lib/jersey-client-1.4.jar"/>
 							    <jar href="./lib/jersey-core-1.4.jar"/>
 							    <jar href="./lib/jgoodies-common-1.3.1.jar"/>
 							    <jar href="./lib/jgoodies-looks-2.5.1.jar"/>
-							    <jar href="./lib/log4j-1.2.17.jar"/>
+							    <jar href="./lib/log4j-api-2.5.jar"/>
+							    <jar href="./lib/log4j-core-2.5.jar"/>
 							    <jar href="${jar}"/>
 
 							    <property name="jsessionid" value='""" + session.getId() + """'/>
@@ -127,7 +132,7 @@ class GwasSearchController {
 								<argument>""" + snpSource + """</argument>
 								<argument>""" + pvalueCutoff + """</argument>
 								<argument>""" + serverUrl + """</argument>
-                                <argument>""" + session.getId() + """</argument>
+                                <argument>""" + user + """</argument>
 							  </application-desc>
 
 							</jnlp>
@@ -228,6 +233,14 @@ class GwasSearchController {
             cutoff = getSearchCutoff(session['solrSearchFilter'])
         }
         def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
+
+        def result = new ArrayList();
+
+        if (analysisIds.size() >= inLimit) {
+            int intRes = (analysisIds.size() / inLimit)+1;
+            result = analysisIds.collate( analysisIds.size().intdiv( intRes ) )
+        }
+
         //Find out if we're querying for EQTL, GWAS, or both
         def hasGwas = BioAssayAnalysis.createCriteria().list([max: 1]) {
             or {
@@ -235,12 +248,31 @@ class GwasSearchController {
                 eq('assayDataType', 'Metabolic GWAS')
                 eq('assayDataType','GWAS Fail')
             }
-            'in'('id', analysisIds)
+
+            if (result.size() > 0) {
+                or {
+                    for(int resIt = 0; resIt < result.size(); resIt++){
+                        'in'('id', result.get(resIt));
+                    }
+                }
+            }
+            else {
+                'in'('id', analysisIds)
+            }
         }
 
         def hasEqtl = BioAssayAnalysis.createCriteria().list([max: 1]) {
             eq('assayDataType', 'EQTL')
-            'in'('id', analysisIds)
+            if (result.size() > 0) {
+                or {
+                    for(int resIt = 0; resIt < result.size(); resIt++){
+                        'in'('id', result.get(resIt));
+                    }
+                }
+            }
+            else {
+                'in'('id', analysisIds)
+            }
         }
 
         def gwasResult
@@ -269,6 +301,9 @@ class GwasSearchController {
         def analysisData = []
         def totalCount
 
+        def fieldsNameToIgnoreFromExt_Data = ['BETA', 'STANDARD_ERROR']
+        def fieldsToOmitDisplayIds = []
+
         def columnNames = []
 
         def wasShortcut = false
@@ -286,7 +321,7 @@ class GwasSearchController {
         }
         else {
             //Otherwise, run the query and recache the returned data
-			if (sortField.equals('null')) {sortField = 'data.log_p_value'; order='desc';}
+            if (sortField.equals('null')) {sortField = 'data.log_p_value'; order='desc';}
             queryResult = regionSearchService.getAnalysisData(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, transcriptGeneNames, true)
             analysisData = queryResult.results
             totalCount = queryResult.total
@@ -316,6 +351,7 @@ class GwasSearchController {
         columnNames.add(["sTitle":"RS Gene", "sortField":"gmap.gene_name"])
         columnNames.add(["sTitle":"Chromosome", "sortField":"info.chrom"])
         columnNames.add(["sTitle":"Position", "sortField":"info.pos"])
+	columnNames.add(["sTitle":"Strand", "sortField":"info.strand"])
         columnNames.add(["sTitle":"Exon/Intron", "sortField":"info.exon_intron"])
         columnNames.add(["sTitle":"Recombination Rate", "sortField":"info.recombination_rate"])
         columnNames.add(["sTitle":"Regulome Score", "sortField":"info.regulome_score"])
@@ -323,11 +359,23 @@ class GwasSearchController {
         if (type.equals("eqtl")) {
             columnNames.add(["sTitle":"Transcript Gene", "sortField":"data.gene"])
         }
+        else {	
+            columnNames.add(["sTitle":"Beta", "sortField":"data.beta"])
+            columnNames.add(["sTitle":"Standard Error", "sortField":"data.standard_error"])
+            columnNames.add(["sTitle":"Effect Allele", "sortField":"data.effect_allele"])
+            columnNames.add(["sTitle":"Other Allele", "sortField":"data.other_allele"])
+        }
 
         analysisIndexData.each()
                 {
                     //Put the index information into a map so we can look it up later.
                     indexMap[it.field_idx] = it.display_idx
+
+                    // Do not add these fields when found since they are already exising as additional fields.
+                    if (fieldsNameToIgnoreFromExt_Data.contains(it.field_name)) {
+                        fieldsToOmitDisplayIds.add(it.field_idx)
+                        return 
+                    }
 
                     //We need to take the data from the index table and extract the list of column names.
                     columnNames.add(["sTitle":it.field_name])
@@ -370,6 +418,13 @@ class GwasSearchController {
 
                         //Swap around the data types for easy array addition.
                         def finalFields = new ArrayList(Arrays.asList(newLargeTextField));
+                        def finalFieldsCleared = new ArrayList();
+                        //for (int a = 0; a < finalFields.si)
+                        finalFields.eachWithIndex { item, index ->
+                            if (item != null && !fieldsToOmitDisplayIds.contains(index+1)) {
+                                finalFieldsCleared.add(item)
+                            }
+                        }
 
                         //Add the non-dynamic meta data fields to the returned data.
                         temporaryList.add(it[4])
@@ -379,15 +434,29 @@ class GwasSearchController {
                         temporaryList.add(it[5])
                         temporaryList.add(it[6])
                         temporaryList.add(it[7])
+
+                        if (type.equals("eqtl")) {
+                            temporaryList.add(it[12])
+                        }
+                        else{
+                            temporaryList.add(it[15])
+                        }
+                        
                         temporaryList.add(it[8])
                         temporaryList.add(it[9])
                         temporaryList.add(it[10])
                         if (type.equals("eqtl")) {
                             temporaryList.add(it[11])
                         }
+                        else {
+                            temporaryList.add(it[11])
+                            temporaryList.add(it[12])
+                            temporaryList.add(it[13]) // remove effect allele from display
+                            temporaryList.add(it[14]) // remove standard allele from display
+                        }
 
                         //Add the dynamic fields to the returned data.
-                        temporaryList+=finalFields
+                        temporaryList+=finalFieldsCleared
 
                         returnedAnalysisData.add(temporaryList)
                     }
@@ -437,6 +506,30 @@ class GwasSearchController {
                 .toLowerCase()))
     }
 
+    def downloadManhattanPlotImage() {
+
+        def analysisId = params.getLong('analysisId')
+        def cachedImageDir = grailsApplication.config.com.recomdata.rwg.manhattanplots.cacheImages
+        def targetFile
+
+        if (!analysisId) {
+            log.warn "Request without analysisId"
+            render status: 404
+            return
+        }
+
+        targetFile = new File(new File(cachedImageDir, analysisId as String), 'manhattan.png')
+
+        if (!targetFile.isFile()) {
+            log.warn "Request for $targetFile, but such file does not exist"
+            render status: 404
+            return
+        }
+
+        render(file: targetFile, fileName: targetFile.name, contentType: servletContext.getMimeType(targetFile.name
+                .toLowerCase()))
+    }
+
     def getQQPlotImage = {
 
         def returnJSON = [:]
@@ -444,21 +537,21 @@ class GwasSearchController {
         try {
             //We need to determine the data type of this analysis so we know where to pull the data from.
             def currentAnalysis = BioAssayAnalysis.get(params.analysisId)
-			String explodedDeplDir = servletContext.getRealPath("/");
-			String tempImageFolder = grailsApplication.config.com.recomdata.plugins.tempFolderDirectory
+            String explodedDeplDir = servletContext.getRealPath("/");
+            String tempImageFolder = grailsApplication.config.com.recomdata.plugins.tempFolderDirectory
 
             //get rdc-modules plugin info
-			String pluginDir =  grailsApplication.config.RModules.pluginScriptDirectory;
+            String pluginDir =  grailsApplication.config.RModules.pluginScriptDirectory;
 
-			File cachedQqPlotFile = cachedImagePathFor(params.getLong('analysisId'))
-			
-			// use QQPlots cached images if they are available. QQPlots takes >10 minutes to run and only needs to be generated once per analysis.
-			if (cachedQqPlotFile.exists()) {
-				returnJSON['imageURL'] = imageUrlFor(params.getLong('analysisId'))
-				render returnJSON as JSON;
-				return;
-			}
-			
+            File cachedQqPlotFile = cachedImagePathFor(params.getLong('analysisId'))
+
+            // use QQPlots cached images if they are available. QQPlots takes >10 minutes to run and only needs to be generated once per analysis.
+            if (cachedQqPlotFile.exists()) {
+                returnJSON['imageURL'] = imageUrlFor(params.getLong('analysisId'))
+                render returnJSON as JSON;
+                return;
+            }
+
             def pvalueCutoff = params.double('pvalueCutoff')
             def search = params.search
 
@@ -586,13 +679,186 @@ class GwasSearchController {
             }
             else
             {
-				FileUtils.copyFile(new File(imagePath), cachedQqPlotFile);
-				returnJSON['imageURL'] = imageUrlFor(currentAnalysis.id)
-				render returnJSON as JSON;
-				return;
+                FileUtils.copyFile(new File(imagePath), cachedQqPlotFile);
+                returnJSON['imageURL'] = imageUrlFor(currentAnalysis.id)
+                render returnJSON as JSON;
+                return;
             }
         }
         catch (Exception e) {
+            response.status = 500
+            renderException(e)
+        }
+    }
+//added by hari
+    def getManhattanPlotImage = {
+		
+        def returnJSON = [:]
+
+        try {
+            //We need to determine the data type of this analysis so we know where to pull the data from.
+            def currentAnalysis = BioAssayAnalysis.get(params.analysisId)
+            String manhattanPlotDir = grailsApplication.config.com.recomdata.rwg.manhattanplots.cacheImages;
+            String explodedDeplDir = servletContext.getRealPath("/");
+            String tempImageFolder = explodedDeplDir + grailsApplication.config.com.recomdata.rwg.manhattanplots.temporaryImageFolder
+
+            //get rdc-modules plugin info
+            def pluginManager = Holders.pluginManager
+            def plugin = pluginManager.getGrailsPlugin("rdc-rmodules")
+            String pluginDir =  grailsApplication.config.RModules.pluginScriptDirectory;
+
+            def manhattanPlotExistingImage = manhattanPlotDir + File.separator + params.analysisId +  File.separator + "manhattan.png"
+
+            File manhattanPlotFile = new File(manhattanPlotExistingImage)
+
+            // use QQPlots cached images if they are available. QQPlots takes >10 minutes to run and only needs to be generated once per analysis.
+            if (manhattanPlotFile.exists()) {
+                returnJSON['imageURL'] =  grailsLinkGenerator.link(
+                        controller: 'gwasSearch',
+                        action: 'downloadManhattanPlotImage',
+                        absolute: true,
+                        params: [analysisId: params.analysisId])
+
+                render returnJSON as JSON
+                return
+            }
+
+
+            def pvalueCutoff = params.double('pvalueCutoff')
+            def search = params.search
+
+            if (!pvalueCutoff) {pvalueCutoff = 0}
+            if (!search) {search = ""}
+
+            //Throw an error if we don't find the analysis for some reason.
+            if(!currentAnalysis) {
+                throw new Exception("Analysis not found.")
+            }
+
+            //This will hold the index lookups for deciphering the large text meta-data field.
+            def indexMap = [:]
+
+            //Get the GWAS Data. Call a different class based on the data type.
+            def analysisData
+
+            //Get the data from the index table for GWAS.
+            def analysisIndexData
+
+            def returnedAnalysisData = []
+
+            //Get list of REGION restrictions from session and translate to regions
+            def regions = getSearchRegions(session['solrSearchFilter'])
+            def geneNames = getGeneNames(session['solrSearchFilter'])
+            def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
+            def analysisIds = [currentAnalysis.id]
+
+            switch(currentAnalysis.assayDataType)
+            {
+                case "GWAS" :
+                case "GWAS Fail" :
+                case "Metabolic GWAS" :
+                analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames, transcriptGeneNames, false).results
+                analysisIndexData = gwasSearchService.getGwasIndexData()
+                break;
+                case "EQTL" :
+                analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames, transcriptGeneNames, false).results
+                analysisIndexData = gwasSearchService.getEqtlIndexData()
+                break;
+                default :
+                throw new Exception("No applicable data type found.")
+            }
+
+            analysisIndexData.each()
+            {
+                //Put the index information into a map so we can look it up later. Only add the GOOD_CLUSTERING column.
+                if(it.field_name == "GOOD_CLUSTERING") {
+                    indexMap[it.field_idx] = it.display_idx
+                }
+            }
+
+            //Create an entry that represents the headers to print to the file.
+            def columnHeaderList = ["pvalue","chrom", "pos", "gene"]
+            returnedAnalysisData.add(columnHeaderList)
+
+            //The returned data needs to have the large text field broken out by delimiter.
+            analysisData.each()
+            {
+                //This temporary list is used so that we return a list of lists.
+                def temporaryList = []
+
+                //This will be used to fill in the data array.
+                def indexCount = 0;
+
+                //The third element is our large text field. Split it into an array.
+                def largeTextField = (it[3] as String)?.split(';', -1)
+
+                //This will be the array that is reordered according to the meta-data index table.
+                String[] newLargeTextField = new String[indexMap.size()]
+
+                //Loop over the elements in the index map.
+                indexMap.each()
+                {
+                    //Reorder the array based on the index table.
+                    newLargeTextField[indexCount] = largeTextField[it.key-1]
+                    indexCount++;
+                }
+
+                //Swap around the data types for easy array addition.
+                def finalFields = new ArrayList(Arrays.asList(newLargeTextField));
+                //manhattan data needed
+                temporaryList.add(it[1]) // pvalue
+                temporaryList.add(it[6]) // chrom
+                temporaryList.add(it[7]) // pos
+                if (it[5] == null || it[5].equalsIgnoreCase('null') || it[5].length() == 0) {
+                    temporaryList.add(it[0]) // gene
+                }
+                else {
+                    temporaryList.add(it[5]+" ("+it[0]+")") // gene
+                }
+                //Add the dynamic fields to the returned data.
+                //temporaryList+=finalFields
+                returnedAnalysisData.add(temporaryList)
+            }
+
+            println "ManhattanPlot row count = " + returnedAnalysisData.size()
+            //		for (int i = 0; i < returnedAnalysisData.size() && i < 10; i++) {
+            //			println returnedAnalysisData[i]
+            //		}
+
+            //Get a unique key for the image file.
+            def uniqueId = randomUUID() as String
+
+            //Create a unique name using the id.
+            def uniqueName = "ManhattanPlot-" + uniqueId
+
+            //Create the temporary directories for processing the image.
+            def currentTempDirectory = gwasWebService.createTemporaryDirectory(uniqueName)
+
+            def currentWorkingDirectory =  currentTempDirectory + File.separator + "workingDirectory" + File.separator
+
+            //Write the data file for generating the image.
+            def currentDataFile = gwasWebService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"ManhattanPlot.txt")
+
+            def plotTitle = currentAnalysis.etlId + ":" + currentAnalysis.name
+
+            //Run the R script to generate the image file.
+            RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/Manhattan/Manhattan.R","create.manhattan.plot('ManhattanPlot.txt', studyName='"+plotTitle+"')", pluginDir)
+
+            //Verify the image file exists.
+            def imagePath = currentWorkingDirectory + File.separator + "manhattan.png"
+
+            if(!new File(imagePath)) {
+                throw new Exception("Image file creation failed!")
+            } else {
+                FileUtils.copyFile(new File(imagePath), new File(manhattanPlotExistingImage))
+                returnJSON['imageURL'] = grailsLinkGenerator.link(
+                        controller: 'gwasSearch',
+                        action: 'downloadManhattanPlotImage',
+                        absolute: true,
+                        params: [analysisId: params.analysisId])
+                return
+            }
+        } catch (Exception e) {
             response.status = 500
             renderException(e)
         }
@@ -721,7 +987,7 @@ class GwasSearchController {
         def analysisIds = session['solrAnalysisIds']
 
         if (analysisIds[0] == -1) {
-            // in the case that no filter is selected - where we get no a "not a set" indicator from the session
+            // in the case that no filter is selected - where we get a "not a set" indicator from the session
             // which results in an empty set after the intersection with "allowed ids" below
             render(text: "<p>To use the table view, please select one of more filters from the filter browser in the left pane.</p>")
             return
@@ -732,20 +998,20 @@ class GwasSearchController {
         def secObjs=getExperimentSecureStudyList()
         def analyses = BioAssayAnalysis.executeQuery("select id, name, etlId from BioAssayAnalysis b order by b.name")
         analyses=analyses.findAll{!secObjs.containsKey(it[2]) || !gwasWebService.getGWASAccess(it[2], user).equals("Locked") }
-        analyses=analyses.findAll {analysisIds.contains(it[0])} // get intersection of all analyses id and allowed ids
+        analyses=analyses.findAll {analysisIds.contains(it[0])} // get intersection of all analysis ids and allowed ids
 
-        def allowedAnalysisIds = [] // will be used to his temporary list
+        def allowedAnalysisIds = [] // will be pushed to this temporary list
 
         analyses.each { allowedAnalysisIds.add(it[0])} // fill list with ids from analyses object
         analysisIds = allowedAnalysisIds // replace all analysis ids with intersection ids
 
         //session['filterTableView'] = filter
 
-/*		if (analysisIds.size() >= 100) {
-			render(text: "<p>The table view cannot be used with more than 100 analyses (${analysisIds.size()} analyses in current search results). Narrow down your results by adding filters.</p>")
-			return
-		}
-		else*/
+/*	if (analysisIds.size() >= 100) {
+            render(text: "<p>The table view cannot be used with more than 100 analyses (${analysisIds.size()} analyses in current search results). Narrow down your results by adding filters.</p>")
+            return
+        }
+	else */
         if (analysisIds.size() == 0) {
             render(text: "<p>No analyses were found for the current filter!</p>")
             return
@@ -862,9 +1128,9 @@ class GwasSearchController {
                             }
                             regions.push([gene: geneId, chromosome: chrom, low: low, high: high, ver: ver])
                         } else {
-                            log.error("regionSearchService, called from GwasSearchController.getSearchRegions, returned" +
-                                    "a null value for limit; most likely this is from a filter request that will fail" +
-                                    "as a consiquence of this error.")
+                            log.error("regionSearchService, called from GwasSearchController.getSearchRegions, returned " +
+                                    "a null value for limit; most likely this is from a filter request that will fail " +
+                                    "as a consequence of this error.")
                         }
                     }
                 }

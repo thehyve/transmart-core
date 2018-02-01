@@ -54,7 +54,8 @@ class I2b2Spec extends TransmartSpecification {
                 cComment: 'trial:STUDY_ID')
 
         addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\jar\\', name: 'jar')
-        addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\binks\\', name: 'binks')
+        addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\hd\\', name: 'hd',
+                cVisualattributes: 'LAH')
 
         addTableAccess(level: 0, fullName: '\\shared\\', name: 'shared',
                 tableCode: 'shared', tableName: 'i2b2')
@@ -102,14 +103,11 @@ class I2b2Spec extends TransmartSpecification {
         when:
         def children = xpto.children
         then:
-        children allOf(
-                hasSize(1),
-                contains(allOf(
-                        hasProperty('fullName', equalTo('\\foo\\xpto\\bar\\')),
-                        //table code is copied from parent:
-                        hasProperty('conceptKey', equalTo(new ConceptKey
-                                ('\\\\i2b2 table code OOOO\\foo\\xpto\\bar\\')))
-                )))
+        children.size == 1
+        children[0].fullName
+        children[0].fullName == '\\foo\\xpto\\bar\\'
+        children[0].conceptKey
+        children[0].conceptKey == new ConceptKey('\\\\i2b2 table code OOOO\\foo\\xpto\\bar\\')
     }
 
     void testGetAllDescendants() {
@@ -126,10 +124,24 @@ class I2b2Spec extends TransmartSpecification {
                 hasSize(3),
                 contains(
                         hasProperty('name', equalTo('bar')),
-                        hasProperty('name', equalTo('binks')),
+                        hasProperty('name', equalTo('hd')),
                         hasProperty('name', equalTo('jar')),
                 )
         )
+    }
+
+    void testGetHDForAllDescendants() {
+        setupData()
+        when:
+        I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto\\') }
+        then:
+        xpto
+
+        when:
+        def children = xpto.HDforAllDescendants
+        then:
+        children.size() == 1
+        children.first().name == 'hd'
     }
 
     void testGetStudy() {

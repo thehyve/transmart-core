@@ -4,22 +4,15 @@ import grails.core.GrailsApplication
 import grails.util.Environment
 import org.grails.core.exceptions.GrailsConfigurationException
 import org.slf4j.LoggerFactory
-import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.web.context.support.ServletContextResource
 
 class BootStrap {
 
     final static logger = LoggerFactory.getLogger(this)
 
-    SecurityContextPersistenceFilter securityContextPersistenceFilter
-
     GrailsApplication grailsApplication
 
-    def OAuth2SyncService
-
-    def init = { servletContext ->
-        securityContextPersistenceFilter.forceEagerSessionCreation = true
-
+    def init = {
         if (!grailsApplication.config.org.transmart.configFine.is(true)) {
             logger.error("Something wrong happened parsing the externalized " +
                     "Config.groovy, because we could not find the " +
@@ -36,20 +29,15 @@ class BootStrap {
         }
 
         fixupConfig()
-
-        if ('clientCredentialsAuthenticationProvider' in
-                grailsApplication.config.grails.plugin.springsecurity.providerNames) {
-            OAuth2SyncService.syncOAuth2Clients()
-        }
     }
 
     private boolean copyResources(String root, File targetDirectory) {
-        log.info "Copying resources from ${root} to ${targetDirectory.absolutePath} ..."
+        logger.info "Copying resources from ${root} to ${targetDirectory.absolutePath} ..."
         def ctx = grailsApplication.getMainContext()
         def resources = ctx.getResources("${root}/**")
         try {
             if (!targetDirectory.exists()) {
-                log.debug "Creating directory ${targetDirectory.absolutePath}"
+                logger.debug "Creating directory ${targetDirectory.absolutePath}"
                 targetDirectory.mkdir()
             }
             for (res in resources) {
@@ -57,18 +45,18 @@ class BootStrap {
                 def targetPath = resource.path - root
                 def target = new File(targetDirectory, targetPath)
                 if (target.exists()) {
-                    log.debug "Path already exists: ${target.absolutePath}"
+                    logger.debug "Path already exists: ${target.absolutePath}"
                 } else {
                     if (targetPath.endsWith('/')) {
-                        log.debug "Creating directory ${target.absolutePath}"
+                        logger.debug "Creating directory ${target.absolutePath}"
                         target.mkdir()
                     } else {
                         target.createNewFile()
                         if (!target.canWrite()) {
-                            log.error("File ${target.absolutePath} not writeable.")
+                            logger.error("File ${target.absolutePath} not writeable.")
                             return false
                         } else {
-                            log.debug "Copying resource: ${resource.path} to ${target.absolutePath}"
+                            logger.debug "Copying resource: ${resource.path} to ${target.absolutePath}"
                             target.withOutputStream { out_s ->
                                 out_s << resource.inputStream
                                 out_s.flush()
@@ -78,7 +66,7 @@ class BootStrap {
                 }
             }
         } catch(IOException e) {
-            log.error "Error while copying: ${e.message}"
+            logger.error "Error while copying: ${e.message}"
             return false
         }
         return true

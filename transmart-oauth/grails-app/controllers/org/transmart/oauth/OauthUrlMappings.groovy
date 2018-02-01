@@ -1,6 +1,6 @@
 package org.transmart.oauth
 
-class UrlMappings {
+class OauthUrlMappings {
 
     static mappings = {
         group("/v2") {

@@ -28,7 +28,7 @@ COMMENT ON COLUMN de_two_region_event.cga_type IS 'deletion, inversion, duplicat
 COMMENT ON COLUMN de_two_region_event.soap_class IS 'inter/intra chromosomal inversion/translocation: http://sourceforge.net/p/soapfuse/wiki/classification-of-fusions.for.SOAPfuse/';
 
 --
--- Name: two_region_event_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_two_region_event two_region_event_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_two_region_event
     ADD CONSTRAINT two_region_event_id_pk PRIMARY KEY (two_region_event_id);

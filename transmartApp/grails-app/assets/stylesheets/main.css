@@ -105,8 +105,19 @@ textarea {
 }
 */
 
+input, select, textarea {
+    border: 1px solid #adaeb6;
+    padding: 0 5px 0 5px;
+    margin: 2px;
+}
+
+.buttons {
+    display: table;
+}
+
 input:focus, select:focus, textarea:focus {
     border: 1px solid #b2d1ff;
+    box-shadow: 0 0 3px rgba(81, 203, 238, 1);
 }
 
 .body {
@@ -1059,3 +1070,6 @@ table.jobstatus {
     z-index:100;
 }
 
+.remark {
+    font-style: italic;
+}

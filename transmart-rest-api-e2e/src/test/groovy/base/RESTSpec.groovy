@@ -70,6 +70,7 @@ abstract class RESTSpec extends Specification {
     }
 
     static def parseHypercube(jsonHypercube) {
+        assert jsonHypercube.dimensionDeclarations : "Unexpectde json format: ${jsonHypercube}."
         def dimensionDeclarations = jsonHypercube.dimensionDeclarations
         def cells = jsonHypercube.cells
         def dimensionElements = jsonHypercube.dimensionElements

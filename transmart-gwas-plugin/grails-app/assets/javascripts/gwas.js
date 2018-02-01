@@ -1,11 +1,13 @@
 var REGION_DELIMITER = "^";
 
+console.log("defining gwas.js");
+
 //This function will kick off the webservice that generates the QQ plot.
-function loadQQPlot(analysisID) {
+function gwasLoadQQPlot(analysisID) {
 	jQuery('#qqplot_results_' + analysisID).empty().addClass('ajaxloading');
 	jQuery
 			.ajax({
-				"url" : getQQPlotURL,
+				"url" : gwasGetQQPlotURL,
 				bDestroy : true,
 				bServerSide : true,
 				data : {
@@ -34,16 +36,52 @@ function loadQQPlot(analysisID) {
 			});
 }
 
+//added by hari
+//This  function loads Manhattan Plot
+function gwasLoadManhattanPlot(analysisID) {
+	jQuery('#manhattanplot_results_' + analysisID).empty().addClass('ajaxloading');
+	jQuery
+			.ajax({
+				"url" : gwasGetManhattanPlotUrl,
+				bDestroy : true,
+				bServerSide : true,
+				data : {
+					analysisId : analysisID,
+					pvalueCutoff : jQuery(
+							'#analysis_results_table_' + analysisID + '_cutoff')
+							.val(),
+					search : jQuery(
+							'#analysis_results_table_' + analysisID + '_search')
+							.val()
+				},
+				"success" : function(json) {
+					jQuery('#analysis_holder_' + analysisID).unmask();
+					jQuery('#manhattanplot_results_' + analysisID).prepend(
+							"<img src='" + json.imageURL + "' style='width:800px; height:500px;' />").removeClass(
+							'ajaxloading');
+					jQuery('#manhattanplot_export_' + analysisID).attr('href',
+							json.imageURL);
+				},
+				"error" : function(xhr) {
+					jQuery('#manhattanplot_results_' + analysisID).append(
+							xhr.responseText).removeClass('ajaxloading');
+					jQuery('#analysis_holder_' + analysisID).unmask();
+				},
+				"dataType" : "json"
+			});
+}
+
 // This function will load the analysis data into a GRAILS template.
-function loadAnalysisResultsGrid(analysisID, paramMap) {
+function gwasLoadAnalysisResultsGrid(analysisID, paramMap) {
 	paramMap.analysisId = analysisID
 	jQuery('#analysis_results_table_' + analysisID + '_wrapper').empty()
 			.addClass('ajaxloading');
 	jQuery.ajax({
-		"url" : getAnalysisDataURL,
+		"url" : gwasGetAnalysisDataURL,
 		bDestroy : true,
 		bServerSide : true,
 		data : paramMap,
+		async: false,
 		"success" : function(jqXHR) {
 			jQuery('#analysis_holder_' + analysisID).unmask();
 			jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(
@@ -59,14 +97,15 @@ function loadAnalysisResultsGrid(analysisID, paramMap) {
 }
 
 //This function will load all filtered analysis data into a GRAILS template.
-function loadTableResultsGrid(paramMap) {
+function gwasLoadTableResultsGrid(paramMap) {
 	jQuery('#table-results-div').empty().addClass('ajaxloading');
 	jQuery
 			.ajax({
-				"url" : getTableDataURL,
+				"url" : gwasGetTableDataURL,
 				bDestroy : true,
 				bServerSide : true,
 				data : paramMap,
+				async: false,
 				"success" : function(jqXHR) {
 					jQuery('#table-results-div').html(jqXHR).removeClass(
 							'ajaxloading');
@@ -75,7 +114,9 @@ function loadTableResultsGrid(paramMap) {
 			});
 }
 
-function startPlotter() {
+var plotOptionsDialog;
+
+function gwasStartPlotter() {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length == 0) {
 		alert("No analyses are selected! Please select analyses to plot.");
@@ -90,35 +131,74 @@ function startPlotter() {
 		var geneSource = jQuery('#plotGeneSource').val();
 		var pvalueCutoff = jQuery('#plotPvalueCutoff').val();
 
-		window.location = webStartURL + "?analysisIds=" + analysisIds
+		window.location = gwasWebStartURL + "?analysisIds=" + analysisIds
 				+ "&snpSource=" + snpSource
 				+ "&geneSource=GRCh37&pvalueCutoff=" + pvalueCutoff;
 		jQuery('#divPlotOptions').dialog("destroy");
 	}
 }
 
-function openPlotOptions() {
+function gwasOpenPlotOptions() {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length == 0) {
 		alert("No analyses are selected! Please select analyses to plot.");
 	} else {
-		jQuery('#divPlotOptions').dialog("destroy");
-		jQuery('#divPlotOptions').dialog({
+		plotOptionsDialog && plotOptionsDialog.dialog("destroy");
+		plotOptionsDialog = jQuery('#divPlotOptions').dialog({
 			modal : false,
-			height : 300,
+			height : 250,
 			width : 400,
 			title : "Manhattan Plot Options",
 			show : 'fade',
 			hide : 'fade',
 			resizable : false,
 			buttons : {
-				"Plot" : startPlotter
+				"Plot" : gwasStartPlotter
 			}
 		});
 	}
 }
 
-function applyPopupFiltersRegions() {
+//After the user clicks select on the popup we need to add the search terms to the filter.
+function gwasApplyPopupFiltersStudy()
+{
+	//Loop through all the selected items.
+	jQuery("#multiselectbox :selected").each(function(i, selected){
+	
+		//Add each item to the search parameters object.
+		var searchParam={id:selected.value,
+		        display:'Study',
+		        keyword:selected.text,
+		        category:'STUDY_ID'};
+		
+		gwasAddSearchTerm(searchParam);
+		
+	})
+	
+	//This destroys our popup window.
+	jQuery(this).dialog("destroy")
+}
+
+function gwasApplyPopupFiltersAnalyses()
+{
+	//Loop through all the selected items.
+	jQuery("#multiselectbox :selected").each(function(i, selected){
+	
+		//Add each item to the search parameters object.
+		var searchParam={id:selected.value,
+		        display:'Analyses',
+		        keyword:selected.text,
+		        category:'ANALYSIS_ID'};
+		
+		gwasAddSearchTerm(searchParam);
+		
+	})
+	
+	//This destroys our popup window.
+	jQuery(this).dialog("destroy");
+}
+
+function gwasApplyPopupFiltersRegions() {
 	//Pick out the useful fields and generate search terms
 
 	var range = null;
@@ -145,7 +225,7 @@ function applyPopupFiltersRegions() {
 					searchString = "GENE" + REGION_DELIMITER + geneId
 
 					text = "HG" + use + " " + geneName + " "
-							+ getRangeSymbol(range) + " " + basePairs;
+							+ gwasGetRangeSymbol(range) + " " + basePairs;
 
 					searchString += REGION_DELIMITER + range + REGION_DELIMITER
 							+ basePairs + REGION_DELIMITER + use;
@@ -158,10 +238,10 @@ function applyPopupFiltersRegions() {
 						text : text
 					};
 
-					addSearchTerm(searchParam, true);
+					gwasAddSearchTerm(searchParam, true);
 				});
 		//This destroys our popup window.
-		updateSearch();
+		gwasUpdateSearch();
 		jQuery(this).dialog("destroy");
 	} else if (jQuery('[name=\'regionFilter\'][value=\'chromosome\']:checked')
 			.size() > 0) {
@@ -188,7 +268,7 @@ function applyPopupFiltersRegions() {
 
 			if (pos != 0 && range != 0) {
 				text = "HG" + use + " chromosome " + chromNum + " position "
-						+ pos + " " + getRangeSymbol(range) + " " + basePairs;
+						+ pos + " " + gwasGetRangeSymbol(range) + " " + basePairs;
 			} else {
 				text = "HG" + use + " chromosome " + chromNum;
 			}
@@ -204,7 +284,7 @@ function applyPopupFiltersRegions() {
 				text : text
 			};
 
-			addSearchTerm(searchParam);
+			gwasAddSearchTerm(searchParam);
 
 			//This destroys our popup window.
 			jQuery(this).dialog("destroy");
@@ -226,7 +306,7 @@ function applyPopupFiltersRegions() {
 				category : 'PVALUE',
 				text : pValue
 			};
-			addSearchTerm(searchParam);
+			gwasAddSearchTerm(searchParam);
 			jQuery(this).dialog("destroy");
 		}
 		//This destroys our popup window.
@@ -238,7 +318,7 @@ function applyPopupFiltersRegions() {
 
 }
 
-function applyPopupFiltersEqtlTranscriptGene() {
+function gwasApplyPopupFiltersEqtlTranscriptGene() {
 	jQuery("#filterEqtlTranscriptGeneId :selected").each(function(i, selected) {
 		var geneId = selected.value
 		var geneName = selected.text;
@@ -251,7 +331,7 @@ function applyPopupFiltersEqtlTranscriptGene() {
 			text : geneName
 		};
 
-		addSearchTerm(searchParam, true);
+		gwasAddSearchTerm(searchParam, true);
 
 	});
 	var searchParamEQTL = {
@@ -261,13 +341,32 @@ function applyPopupFiltersEqtlTranscriptGene() {
 		category : 'DATA_TYPE'
 	};
 
-	addSearchTerm(searchParamEQTL, true);
+	gwasAddSearchTerm(searchParamEQTL, true);
 
 	jQuery(this).dialog("destroy");
-	updateSearch();
+	gwasUpdateSearch();
 }
 
-function getRangeSymbol(string) {
+function gwasApplyPopupFiltersDataTypes()
+{
+	//Loop through all the selected items.
+	jQuery("#multiselectbox :selected").each(function(i, selected){
+	
+		//Add each item to the search parameters object.
+		var searchParam={id:selected.value,
+		        display:'Data Types',
+		        keyword:selected.text,
+		        category:'DATA_TYPE'};
+		
+		gwasAddSearchTerm(searchParam);
+		
+	})
+	
+	//This destroys our popup window.
+	jQuery(this).dialog("destroy")
+}
+
+function gwasGetRangeSymbol(string) {
 
 	if (string == 'both') {
 		return "+/-";
@@ -277,19 +376,6 @@ function getRangeSymbol(string) {
 		return "-";
 	}
 }
-
-jQuery(document).ready(function() {
-	popupWindowPropertiesMap['Region of Interest'] = {
-		'URLToUse' : regionBrowseWindow,
-		'filteringFunction' : applyPopupFiltersRegions,
-		'dialogHeight' : 450,
-		'dialogWidth' : 900
-	}
-	popupWindowPropertiesMap['eQTL Transcript Gene'] = {
-		'URLToUse' : eqtlTranscriptGeneWindow,
-		'filteringFunction' : applyPopupFiltersEqtlTranscriptGene
-	}
-});
 
 // Adding rwg.js script
 ////////////////////////////////////////////////////////////////////
@@ -364,7 +450,7 @@ var cohortBGColors = new Array(
 ////////////////////////////////////////////////////////////////////
 //Not in the July 2012 Release
 ////////////////////////////////////////////////////////////////////
-/*function updateAnalysisCount(checkedState)	{	
+/*function gwasUpdateAnalysisCount(checkedState)	{	
 	var currentCount = jQuery("#analysisCount").val();
 	if (checkedState)	{
 		currentCount++;
@@ -383,7 +469,7 @@ var cohortBGColors = new Array(
 }
 */
 ////////////////////////////////////////////////////////////////////
-function showDetailDialog(dataURL, dialogTitle, dialogHeight)	{
+function gwasShowDetailDialog(dataURL, dialogTitle, dialogHeight)	{
 	//var height = 'auto';
 	var wHeight = jQuery(window).height();
 	var height =wHeight *0.8;
@@ -410,7 +496,7 @@ function showDetailDialog(dataURL, dialogTitle, dialogHeight)	{
 }
 
 //Open and close the analysis for a given trial
-function toggleDetailDiv(trialNumber, dataURL)	{
+function gwasToggleDetailDiv(trialNumber, dataURL)	{
  var imgExpand = "#imgExpand_"  + trialNumber;
  var trialDetail = "#" + trialNumber + "_detail";
 
@@ -448,25 +534,25 @@ function toggleDetailDiv(trialNumber, dataURL)	{
 }
 
 //Method to add the toggle button to show/hide the search filters
-function addToggleButton()	{
+function gwasAddToggleButton()	{
 	jQuery("#toggle-btn").button({
 		text: false
 		}).click(function() {
-			toggleFilters();
-			jQuery("#main").css('left') == "0px" ? switchImage('toggle-icon-left', 'toggle-icon-right') : switchImage('toggle-icon-right', 'toggle-icon-left');
+			gwasToggleFilters();
+			jQuery("#main").css('left') == "0px" ? gwasSwitchImage('toggle-icon-left', 'toggle-icon-right') : gwasSwitchImage('toggle-icon-right', 'toggle-icon-left');
 		}
 	).addClass('toggle-icon-left');
 	return false;
 }
 
 //Add and remove the right/left image for the toggle button
-function switchImage(imgToRemove, imgToAdd)	{
+function gwasSwitchImage(imgToRemove, imgToAdd)	{
 	jQuery("#toggle-btn").removeClass(imgToRemove);
 	jQuery("#toggle-btn").addClass(imgToAdd);
 }
 
 //Method to show/hide the search/filters 
-function toggleFilters()	{
+function gwasToggleFilters()	{
 	if (jQuery("#main").css('left') == "0px"){		
 		jQuery("#search-categories").attr('style', 'visibility:visible; display:inline');
 		jQuery("#search-ac").attr('style', 'visibility:visible; display:inline');
@@ -498,27 +584,27 @@ function toggleFilters()	{
 }
 
 //Method to add the categories for the select box
-function addSelectCategories()	{
+function gwasAddSelectCategories()	{
 	jQuery("#search-categories").append(jQuery("<option></option>").attr("value", "ALL").text("All"));
-	jQuery.getJSON(getCategoriesURL, function(json) {
+	jQuery.getJSON(gwasGetCategoriesURL, function(json) {
 		for (var i=0; i<json.length; i++)	{
 			var category = json[i].category;
-			var catText = convertCategory(category);
+			var catText = gwasConvertCategory(category);
 			jQuery("#search-categories").append(jQuery("<option></option>").attr("value", category).text(catText));
 		}
  });
 }
 
 //Helper method to only capitalize the first letter of each word
-function convertCategory(valueToConvert)	{
+function gwasConvertCategory(valueToConvert)	{
 	var convertedValue = valueToConvert.toLowerCase();
 	return convertedValue.slice(0,1).toUpperCase() + convertedValue.slice(1);
 }
 
 //Method to add the autocomplete for the search keywords
-function addSearchAutoComplete()	{
+function gwasAddSearchAutoComplete()	{
 	jQuery("#search-ac").autocomplete({
-		source: sourceURL,
+		source: gwasSourceURL,
 		minLength:2,
 		select: function(event, ui) { 
 			if (ui.item.categoryId == 'DATA_TYPE') {
@@ -527,12 +613,12 @@ function addSearchAutoComplete()	{
 			else {
 				searchParam={id:ui.item.id,display:ui.item.category,keyword:ui.item.label,category:ui.item.categoryId};
 			}
-			addSearchTerm(searchParam);
+			gwasAddSearchTerm(searchParam);
 			return false;
 		}
-	}).data("autocomplete")._renderItem = function( ul, item ) {
+	}).data("uiAutocomplete")._renderItem = function( ul, item ) {
 		return jQuery('<li></li>')		
-		  .data("item.autocomplete", item )
+		  .data("item.uiAutocomplete", item )
 		  .append('<a><span class="category-' + item.category.toLowerCase() + '">' + item.category + '&gt;</span>&nbsp;<b>' + item.label + '</b>&nbsp;' + item.synonyms + '</a>')
 		  .appendTo(ul);
 	};	
@@ -540,7 +626,7 @@ function addSearchAutoComplete()	{
 	// Add an onchange event to the select so we can set the category in the URL for the autocomplete
 	var categorySelect = document.getElementById("search-categories"); 
 	categorySelect.onchange=function()	{
-		jQuery('#search-ac').autocomplete('option', 'source', sourceURL + "?category=" + this.options[this.selectedIndex].value);
+		jQuery('#search-ac').autocomplete('option', 'source', gwasSourceURL + "?category=" + this.options[this.selectedIndex].value);
 	};
 		
 	// Capture the enter key on the slider and fire off the search event on the autocomplete
@@ -551,37 +637,33 @@ function addSearchAutoComplete()	{
 	});
  jQuery("#search-ac").keypress(function(event)	{
      if (event.which == 13)	{
-         var content = sanitizeText(jQuery('#search-ac').val());
-         addSearchTerm({id:content,display:'Text',keyword:content,category:'text'});
+         var content = gwasSanitizeText(jQuery('#search-ac').val());
+         gwasAddSearchTerm({id:content,display:'Text',keyword:content,category:'text'});
          jQuery('#search-ac').val('');
      }
  });
 	return false;
 }
 
-function sanitizeText(text) {
+function gwasSanitizeText(text) {
  return (text.replace(/"/g, ''))
 }
 
 
 
-function showIEWarningMsg(){
+function gwasShowIEWarningMsg(){
 	
 	if (jQuery.browser.msie && jQuery.browser.version.substr(0,1)<9) {
 
-		var msg = "<div id='IEwarningBox'>Your browser is not supported. Please use the latest version of Chrome. <br /><br />";
-			msg = msg + "<a href='#' id='IEwarningOverlayLink'>More info</a> | <a href='#' onclick=\"javascript:jQuery('#IEwarningBox').slideUp('fast');\">Close</a> </div>";
-	
-		var overlayMsg = "<div style='padding:20px'><p>TranSMART Faceted Search uses certain web technologies that are not fully supported by older browsers. ";
-			overlayMsg = overlayMsg + "Google Chrome is the preferred browser within J&J to use with tranSMART. </p><br /><p>To request Chrome, send an SRM request " ;
-			overlayMsg = overlayMsg + "for software package #C01026EE. If you have questions, please email us at <a href='mailto:tranSMART@its.jnj.com'>tranSMART@jnj.com</a>.</p>";
-			overlayMsg = overlayMsg + "<br /><p><a href='#' onclick=\"jQuery('#IEwarningOverlayLink').colorbox.close()\">Close</a></p></div>";
-				
-		jQuery('#results-div').before(msg);
-		
-		jQuery("#IEwarningOverlayLink").colorbox({html:overlayMsg, width:"50%", height:"300px", opacity:"0.75"});
-		
-		
+	    var msg = "<div id='IEwarningBox'>Your browser is not supported. Please use the latest version of Chrome. <br /><br />";
+	    msg = msg + "<a href='#' id='IEwarningOverlayLink'>More info</a> | <a href='#' onclick=\"javascript:jQuery('#IEwarningBox').slideUp('fast');\">Close</a> </div>";
+
+	    var overlayMsg = "<div style='padding:20px'><p>TranSMART uses certain web technologies that are not fully supported by older browsers. ";
+	    overlayMsg = overlayMsg + "Google Chrome is the preferred browser within to use with tranSMART. </p>";
+
+	    jQuery('#results-div').before(msg);
+
+	    jQuery("#IEwarningOverlayLink").colorbox({html:overlayMsg, width:"50%", height:"300px", opacity:"0.75"});
 	}
 	
 }
@@ -590,7 +672,7 @@ function showIEWarningMsg(){
 	
 //Method to load the search results in the search results panel and facet counts into tree
 //This occurs whenever a user add/removes a search term
-function showSearchResults(tabToShow)	{
+function gwasShowSearchResults(tabToShow)	{
 
 	// clear stored probe Ids for each analysis
 	analysisProbeIds = new Array();  
@@ -615,16 +697,16 @@ function showSearchResults(tabToShow)	{
 		}
 	}
 	
+    console.log('gwas gwasShowSearchResults tab'+tabToShow);
 	// call method which retrieves facet counts and search results
-	showFacetResults(tabToShow);
-	
+	gwasShowFacetResults(tabToShow);
+
 	//all analyses will be closed when doing a new search, so clear this array
 	openAnalyses = [];
-
 }
 
 //update a node's count (not including children)
-function updateNodeIndividualFacetCount(node, count) {
+function gwasUpdateNodeIndividualFacetCount(node, count) {
 	// only add facet counts if not a category 
 	if (!node.data.isCategory)   {
 		// if count is passed in as -1, reset the facet count to the initial facet count
@@ -644,14 +726,15 @@ function updateNodeIndividualFacetCount(node, count) {
 
 
 //Method to clear the facet results in the search tree
-function clearFacetResults()	{
-	
-	var tree = jQuery("#filter-div").dynatree("getTree");
+function gwasClearFacetResults()	{
+    console.log('gwasClearFacetResults: getTree')
+	jQuery("#gwas-filter-div").dynatree();
+	var tree = jQuery("#gwas-filter-div").dynatree("getTree");
 	
 	// clear counts from tree
 	tree.visit(  function(node) {
 		           if (!node.data.isCategory)  {
-		        	   updateNodeIndividualFacetCount(node, -1);   		        	    
+		        	   gwasUpdateNodeIndividualFacetCount(node, -1);   		        	    
 		           }
 		           
 	             }
@@ -664,25 +747,23 @@ function clearFacetResults()	{
 
 
 //Method to load the facet results in the search tree and populate search results panel
-function showFacetResults(tabToShow)	{
-	
+function gwasShowFacetResults(tabToShow) {
+
+	console.log('gwas showFacetResults');
 	var savedSearchTermsArray;
 	var savedSearchTerms;
-	
-	if (currentSearchTerms.toString() == '')
-		{
-			savedSearchTermsArray = new Array();
-			savedSearchTerms = '';
-		
-		}
-	else
-		{
+
+	if (currentSearchTerms.toString() == '') {
+		savedSearchTermsArray = new Array();
+		savedSearchTerms = '';
+
+	}
+	else {
 		savedSearchTerms = currentSearchTerms.join(",,,");
 		savedSearchTermsArray = savedSearchTerms.split(",,,");
-		}
+	}
 
 
-	
 	// Generate list of categories/terms to send to facet search
 	// create a string to send into the facet search, in form Cat1:Term1,Term2&Cat2:Term3,Term4,Term5&...
 
@@ -691,152 +772,162 @@ function showFacetResults(tabToShow)	{
 	var terms = new Array();         // will be an array of strings "Term1|Term2", "Term3"
 
 	// first, loop through each term and add categories and terms to respective arrays 		
- for (var i=0; i<savedSearchTermsArray.length; i++)	{
+	for (var i = 0; i < savedSearchTermsArray.length; i++) {
 		var fields = savedSearchTermsArray[i].split(SEARCH_DELIMITER);
 		// search terms are in format <Category Display>|<Category>:<Search term display>:<Search term id>
-		var termId = fields[2]; 
+		var termId = fields[2];
 		var categoryFields = fields[0].split("|");
 		var category = categoryFields[1].replace(" ", "_");   // replace any spaces with underscores (these will then match the SOLR field names) 
-		
+
 		var categoryIndex = categories.indexOf(category);
 
 		// if category not in array yet, add category and term to their respective array, else just append term to proper spot in its array
-		if (categoryIndex == -1)  {
-		    categories.push(category);
-		    terms.push(termId);
+		if (categoryIndex == -1) {
+			categories.push(category);
+			terms.push(termId);
 		}
-		else  {
-		    terms[categoryIndex] = terms[categoryIndex] + "|" + termId; 			
+		else {
+			terms[categoryIndex] = terms[categoryIndex] + "|" + termId;
 		}
 	}
- 
-	var tree = jQuery("#filter-div").dynatree("getTree");
+
+    console.log('gwasShowFacetResults: getTree')
+	var tree = jQuery("#gwas-filter-div").dynatree("getTree");
 
 	// create an array of the categories that come from the tree
 	var treeCategories = new Array();
-	tree.visit(  function(node) {
-     if (node.data.isCategory)  {
-  	   var categoryName = node.data.categoryName.split("|");
-  	   var cat = categoryName[1].replace(/ /g, "_");
-  	   
-  	   treeCategories.push(cat);        	    
-     }
-   }
-   , false
- );
+    tree.visit(function (node) {
+            if (node.data.isCategory) {
+                var categoryName = node.data.categoryName.split("|");
+                var cat = categoryName[1].replace(/ /g, "_");
 
- // now construct the facetSearch array by concatenating the values from the cats and terms array
- for (var i=0; i<categories.length; i++)	{
- 	var queryType = "";
- 	
- 	// determine if category is part of the tree; differentiate these types of query categories
- 	// from others
- 	if (treeCategories.indexOf(categories[i])>-1) {
- 		queryType = "fq";
- 	}
- 	else  {
- 		queryType = "q";
- 	}
- 	facetSearch.push(queryType + "=" + categories[i] + SEARCH_DELIMITER + terms[i]);
- }
+                treeCategories.push(cat);
+            }
+        }
+        , false
+    );
 
- // now add all tree categories that aren't being searched on to the string
- for (var i=0; i<treeCategories.length; i++)  {
- 	if (categories.indexOf(treeCategories[i])==-1)  {
- 		queryType = "ff";
-     	facetSearch.push(queryType + "=" + treeCategories[i]);
- 	}
- }    
- 
- //display loading message. Note: because the contents of the 'results-div' is replaced,
- //there is no need to 'unmask' the loading message
-	jQuery("#results-div").mask("Loading..."); 
- 
- // add study id to list of fields to facet (so we can get count for show search results)
- facetSearch.push("ff=STUDY_ID");
- 
- var queryString = facetSearch.join("&");
- 
- //Show significant results is disabled
+	// now construct the facetSearch array by concatenating the values from the cats and terms array
+	for (var i = 0; i < categories.length; i++) {
+		var queryType = "";
+
+		// determine if category is part of the tree; differentiate these types of query categories
+		// from others
+		if (treeCategories.indexOf(categories[i]) > -1) {
+			queryType = "fq";
+		}
+		else {
+			queryType = "q";
+		}
+		facetSearch.push(queryType + "=" + categories[i] + SEARCH_DELIMITER + terms[i]);
+	}
+
+	// now add all tree categories that aren't being searched on to the string
+	for (var i = 0; i < treeCategories.length; i++) {
+		if (categories.indexOf(treeCategories[i]) == -1) {
+			queryType = "ff";
+			facetSearch.push(queryType + "=" + treeCategories[i]);
+		}
+	}
+
+	//display loading message. Note: because the contents of the 'results-div' is replaced,
+	//there is no need to 'unmask' the loading message
+	jQuery("#results-div").mask("Loading...");
+
+	// add study id to list of fields to facet (so we can get count for show search results)
+	facetSearch.push("ff=STUDY_ID");
+	var queryString = facetSearch.join("&");
+
+	//Show significant results is disabled
 	//queryString = queryString + "&showSignificantResults=" + document.getElementById('cbShowSignificantResults').checked
- 
 	//Only do one of these depending on the highlighted tab. If the table results div is hidden, do the tree view
- if (tabToShow == "analysis") {
- 	jQuery.ajax({
-			url:facetResultsURL,
-			data:queryString,
-			success: function(response) {
-				
+	if (tabToShow == "analysis") {
+		console.log("queryString"+queryString);
+		// setTimeout(function(){
+		jQuery.ajax({
+			url: gwasFacetResultsURL,
+			data: queryString,
+			success: function (response) {
+				var facetCounts = response['facetCounts'];
+				var html = response['html'];
 
-					var facetCounts = response['facetCounts'];
-					var html = response['html'];
-					
-					// set html for results panel
-					//document.getElementById('results-div').innerHTML = html;
-					
-					jQuery('#results-div').html(html);
+				// set html for results panel
+				//document.getElementById('results-div').innerHTML = html;
 
-					// assign counts that were returned in json object to the tree
-					tree.visit(  function(node) {
-						           if (!node.data.isCategory && node.data.id)  {
-						        	   var id = node.data.id.toString();
-						        	   var catFields = node.data.categoryName.split("|")
-						        	   var cat = catFields[1].replace(" ","_");
-						        	   //var catArray = response[cat];
-						        	   var catArray = facetCounts[cat];
-						        	   var count = catArray[id];
-						        	   
-						        	   // no count returned for this node means it isn't in solr index because no records exist
-						        	   if (!count)  {
-						        		   count = 0;
-						        	   }
-						        	   
-						        	   updateNodeIndividualFacetCount(node, count);   
-						           }
-					             }
-				                 , false
-				               );
-										
-					 // redraw entire tree after counts updated
-					 tree.redraw();
+				jQuery('#results-div').html(html);
+
+				// assign counts that were returned in json object to the tree
+				tree.visit(function (node) {
+						if (!node.data.isCategory && node.data.id) {
+							var id = node.data.id.toString();
+							var catFields = node.data.categoryName.split("|")
+							var cat = catFields[1].replace(" ", "_");
+							//var catArray = response[cat];
+							var catArray = facetCounts[cat];
+							var count = catArray[id];
+
+							// no count returned for this node means it isn't in solr index because no records exist
+							if (!count) {
+								count = 0;
+							}
+
+							gwasUpdateNodeIndividualFacetCount(node, count);
+						}
+					}
+					, false
+				);
+
+				// redraw entire tree after counts updated
+				tree.redraw();
 				//}
 
 			},
-			error: function(xhr) {
-                // this is a bit bogus - but the problem is that the Jquery request is returning the HTML for the display
-                // an uncomfortable mix of data and rendering - so rather then send an error as a JSON status return
-                // it is being signaled by a 500 error status and a Grails-generated error page.
-                // but if the error page contains the string 'solrConnection' (which is most likely the case)
-                // then the probablity is high that SORL is not running on the server.
-                var html = xhr['responseText'];
-                var userMessage = "Unknown server error - data loading failed"
-                if (html.indexOf("solrConnection") > -1) {
-                    userMessage = "Server error - cannot connect to SOLR on the tranSMART server - is it running?"
-                }
-                userMessage = 'Error!  Status = ' + xhr.status + "; " + userMessage
-                alert(userMessage)
-                console.log(userMessage);
-                jQuery('#results-div').html(userMessage)
-            }
-    });
- }
- else {
-	   	jQuery.ajax({
-			url:facetTableResultsURL,
-			data:queryString,
-			success: function(response) {
-				jQuery('#table-results-div').html(response);
-				loadTableResultsGrid({'max': 100, 'offset':0, 'cutoff': 0, 'search': "", 'sortField': "", "order": "asc"});
+			error: function (xhr) {
+
+				// this is a bit bogus - but the problem is that the Jquery request is returning the HTML for the display
+				// an uncomfortable mix of data and rendering - so rather then send an error as a JSON status return
+				// it is being signaled by a 500 error status and a Grails-generated error page.
+				// but if the error page contains the string 'solrConnection' (which is most likely the case)
+				// then the probablity is high that SOLR is not running on the server.
+
+				var html = xhr['responseText'];
+				var userMessage = "Unknown server error - data loading failed"
+				if (html.indexOf("solrConnection") > -1) {
+					userMessage = "Server error - cannot connect to SOLR on the tranSMART server - is it running?"
+				}
+				userMessage = 'Error!  Status = ' + xhr.status + "; " + userMessage
+				alert(userMessage)
+				console.log(userMessage);
+				jQuery('#results-div').html(userMessage)
 			},
-			error: function(xhr) {
+			async: false
+		});
+	}
+	else {
+		jQuery.ajax({
+			url: gwasFacetTableResultsURL,
+			data: queryString,
+			async: false,
+			success: function (response) {
+				jQuery('#table-results-div').html(response);
+				gwasLoadTableResultsGrid({
+					'max': 100,
+					'offset': 0,
+					'cutoff': 0,
+					'search': "",
+					'sortField': "",
+					"order": "asc"
+				});
+			},
+			error: function (xhr) {
 				console.log('Error!  Status = ' + xhr.status + xhr.statusText);
 			}
-	   	});
- }
+		});
+	}
 }
 
 //Add the search term to the array and show it in the panel.
-function addSearchTerm(searchTerm, noUpdate)	{
+function gwasAddSearchTerm(searchTerm, noUpdate)	{
 	var category = searchTerm.display == undefined ? "TEXT" : searchTerm.display;
 	
 	category = category + "|" + (searchTerm.category == undefined ? "TEXT" : searchTerm.category);
@@ -870,7 +961,9 @@ function addSearchTerm(searchTerm, noUpdate)	{
 	var treeUpdated = false
 	
 	// find all nodes in tree with this key, and select them
-	var tree = jQuery("#filter-div").dynatree("getTree");
+    console.log('gwasAddSearchTerm: getTree')
+	jQuery("#gwas-filter-div").dynatree();
+	var tree = jQuery("#gwas-filter-div").dynatree("getTree");
 	tree.visit(  function selectNode(node) {
 		             if (node.data.key == key)  {
 		            	 node.select(true);
@@ -882,18 +975,20 @@ function addSearchTerm(searchTerm, noUpdate)	{
 
 	// only refresh results if the tree was not updated (the onSelect also fires these event, so don't want to do 2x)
 	if (!treeUpdated && !noUpdate) {
-   showSearchTemplate();
-	  showSearchResults();
+	    gwasShowSearchTemplate();
+	    console.log('gwasAddSearchTerm calling gwasShowSearchResults');
+	    gwasShowSearchResults();
 	}
 }
 
-function updateSearch() {
- showSearchTemplate();
-	showSearchResults();
+function gwasUpdateSearch() {
+    gwasShowSearchTemplate();
+    console.log('gwasUpdateSearch calling gwasShowSearchResults');
+    gwasShowSearchResults();
 }
 
 //Remove the search term that the user has clicked.
-function removeSearchTerm(ctrl,isPvalue)	{
+function gwasRemoveSearchTerm(ctrl,isPvalue)	{
 	if(!isPvalue) {
 		var currentSearchTermID = ctrl.id.replace(/\%20/g, " ").replace(/\%44/g, ",");
 	}
@@ -907,21 +1002,23 @@ function removeSearchTerm(ctrl,isPvalue)	{
 		// check if there are any remaining terms for this category; remove category from list if none
 		var fields = currentSearchTermID.split(SEARCH_DELIMITER);
 		var category = fields[0];
-		clearCategoryIfNoTerms(category);
+		gwasClearCategoryIfNoTerms(category);
 
 	}
 	
 	// Call back to the server to clear the search filter (session scope)
 	jQuery.ajax({
 		type:"POST",
-		url:newSearchURL
+		url:gwasNewSearchURL
 	});
 
 	// create flag to track if tree was updated
 	var treeUpdated = false
 
 	// find all nodes in tree with this key and deSelect
-	var tree = jQuery("#filter-div").dynatree("getTree");
+    console.log('gwasRemoveSearchTerm: getTree')
+	jQuery("#gwas-filter-div").dynatree();
+	var tree = jQuery("#gwas-filter-div").dynatree("getTree");
 
 	tree.visit(  function deselectNode(node) {
                  if (node.data.key == currentSearchTermID)  {
@@ -933,13 +1030,14 @@ function removeSearchTerm(ctrl,isPvalue)	{
 	
 	// only refresh results if the tree was not updated (the onSelect also fires these event, so don't want to do 2x)
 	if (!treeUpdated) {
-   showSearchTemplate();
-	  showSearchResults();
+	    gwasShowSearchTemplate();
+	    console.log('gwasRemoveSearchTerm calling gwasShowSearchResults');
+	    gwasShowSearchResults();
 	}
 }
 
 //Add the search term to the array that the user has added to filter tree.
-function addFilterTreeSearchTerm(searchTerm)	{
+function gwasAddFilterTreeSearchTerm(searchTerm)	{
 	var category = searchTerm.display == undefined ? "TEXT" : searchTerm.display;
 	var text = searchTerm.keyword == undefined ? searchTerm : searchTerm.keyword;
 	var id = searchTerm.id == undefined ? -1 : searchTerm.id;
@@ -956,7 +1054,7 @@ function addFilterTreeSearchTerm(searchTerm)	{
 
 
 //export the current analysis data to a csv file
-function exportLinePlotData(analysisId, exportType)
+function gwasExportLinePlotData(analysisId, exportType)
 {
 	
 	jQuery('#lineplotExportOpts_'+analysisId).hide(); //hide the menu box
@@ -970,9 +1068,9 @@ function exportLinePlotData(analysisId, exportType)
 	    
 	    var probesList = jQuery('body').data("activeLineplot:" + analysisId); //get the stored probe
 	    
-		url=getHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +probesList	
+		url=gwasGetHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +probesList	
 		
-		downloadURL(url);
+		gwasDownloadURL(url);
 		
 	break;
 
@@ -983,13 +1081,13 @@ function exportLinePlotData(analysisId, exportType)
 		var data = jQuery('body').data("LineplotData:" + analysisId);
 
 		//redraw the plot with the legend so that it appears in the exported image
-		drawLinePlot('lineplotAnalysis_'+analysisId, data, analysisId, true);
+		gwasDrawLinePlot('lineplotAnalysis_'+analysisId, data, analysisId, true);
 
 		var svgID=  "#lineplotAnalysis_"+analysisId;
 		
-		exportCanvas(svgID);		
+		gwasExportCanvas(svgID);		
 		
-		drawLinePlot('lineplotAnalysis_'+analysisId, data, analysisId, false);
+		gwasDrawLinePlot('lineplotAnalysis_'+analysisId, data, analysisId, false);
 		
 		break;
 	default:
@@ -1000,7 +1098,7 @@ function exportLinePlotData(analysisId, exportType)
 
 
 //export the current analysis data to a csv file
-function exportBoxPlotData(analysisId, exportType)
+function gwasExportBoxPlotData(analysisId, exportType)
 {
 	var url='';
 	
@@ -1015,9 +1113,9 @@ function exportBoxPlotData(analysisId, exportType)
 	    
 	    jQuery('#boxplotExportOpts_'+analysisId).hide(); //hide the menu box
 	    		
-		url=getHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +probesList	
+		url=gwasGetHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +probesList	
 		
-		downloadURL(url);
+		gwasDownloadURL(url);
 		
 	break;
 
@@ -1027,13 +1125,13 @@ function exportBoxPlotData(analysisId, exportType)
 		
 		var data = jQuery('body').data("BoxplotData:" + analysisId);
 		
-		drawBoxPlot('boxplotAnalysis_'+analysisId, data, analysisId, true);
+		gwasDrawBoxPlot('boxplotAnalysis_'+analysisId, data, analysisId, true);
 		
 		var svgID=  "#boxplotAnalysis_"+analysisId;
 		
-		exportCanvas(svgID);		
+		gwasExportCanvas(svgID);		
 
-		drawBoxPlot('boxplotAnalysis_'+analysisId, data, analysisId, false);
+		gwasDrawBoxPlot('boxplotAnalysis_'+analysisId, data, analysisId, false);
 		
 		break;
 	default:
@@ -1043,7 +1141,7 @@ function exportBoxPlotData(analysisId, exportType)
 }
 
 
-function exportCanvas(svgID){
+function gwasExportCanvas(svgID){
 	
 	var svgData = jQuery(svgID).html();
 	
@@ -1077,7 +1175,7 @@ function exportCanvas(svgID){
 
 
 //export the current analysis data to a csv file
-function exportHeatmapData(analysisId, exportType)
+function gwasExportHeatmapData(analysisId, exportType)
 {
 	
 	
@@ -1100,7 +1198,7 @@ function exportHeatmapData(analysisId, exportType)
 	    
 	    var probesList = "";
 	    var maxProbeLength = 0;
-	    var analysisIndex = getAnalysisIndex(analysisId);
+	    var analysisIndex = gwasGetAnalysisIndex(analysisId);
 	    
 	    var page = jQuery('body').data("currentPage:" + analysisId); //current page is stored
 	    
@@ -1116,18 +1214,18 @@ function exportHeatmapData(analysisId, exportType)
 		}
 		
 		
-		url=getHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +probesList	
+		url=gwasGetHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +probesList	
 		
 	break;
 	/* Removed option	
 	case 'allPages':
-		url=getHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +'allPages';
+		url=gwasGetHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +'allPages';
 		break;
 	*/
 	case 'allProbes':
 	//Export all probes (ignore search on gene/pathway)
 		
-		url=getHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +'allProbes';
+		url=gwasGetHeatmapDataForExportURL+'?id='+analysisId +'&probesList=' +'allProbes';
 		break;
 	
 	case 'image':
@@ -1136,12 +1234,12 @@ function exportHeatmapData(analysisId, exportType)
 		var divID = "analysisDiv_" + analysisId;
 		
 		//redraw the heatmap with the legend
-		drawHeatmap(divID, jQuery('body').data(analysisId), analysisId, true);
+		gwasDrawHeatmap(divID, jQuery('body').data(analysisId), analysisId, true);
 		
-		exportCanvas(svgID);	
+		gwasExportCanvas(svgID);	
 		
 		//redraw the heatmap without the legend
-		drawHeatmap(divID, jQuery('body').data(analysisId), analysisId, false);
+		gwasDrawHeatmap(divID, jQuery('body').data(analysisId), analysisId, false);
 		
 		break;
 		
@@ -1150,7 +1248,7 @@ function exportHeatmapData(analysisId, exportType)
 	}
 	
 
-	downloadURL(url);
+	gwasDownloadURL(url);
 	
 
  jQuery("#analysis_holder_" + analysisId).unmask();
@@ -1158,7 +1256,7 @@ function exportHeatmapData(analysisId, exportType)
 }
 
 //this function is used to download a file without opening a new browser window
-var downloadURL = function(url)
+var gwasDownloadURL = function(url)
 {
  var iframe;
  iframe = document.getElementById("hiddenDownloader");
@@ -1174,7 +1272,7 @@ var downloadURL = function(url)
  
 }
 
-function analysisMenuEvent(id){
+function gwasAnalysisMenuEvent(id){
 	
 	var analysisID = id.substring(id.indexOf('_')+1,id.length);
 	var btnID = id.substring(0,id.indexOf('_'));
@@ -1228,7 +1326,7 @@ function analysisMenuEvent(id){
 
 
 //Remove the category from current categories list if there are no terms left that belong to it
-function clearCategoryIfNoTerms(category)  {
+function gwasClearCategoryIfNoTerms(category)  {
 	
 	var found = false;
 	for (var j=0; j<currentSearchTerms.length; j++)	{
@@ -1248,7 +1346,7 @@ function clearCategoryIfNoTerms(category)  {
 
 
 //Remove the search term that the user has de-selected from filter tree.
-function removeFilterTreeSearchTerm(termID)	{
+function gwasRemoveFilterTreeSearchTerm(termID)	{
 	var idx = currentSearchTerms.indexOf(termID);
 	if (idx > -1)	{
 		currentSearchTerms.splice(idx, 1);
@@ -1256,21 +1354,21 @@ function removeFilterTreeSearchTerm(termID)	{
 		// check if there are any remaining terms for this category; remove category from list if none
 		var fields = termID.split(SEARCH_DELIMITER);
 		var category = fields[0];
-		clearCategoryIfNoTerms(category);
+		gwasClearCategoryIfNoTerms(category);
 	}
 	
 }
 
-function updateHeatmap(analysisID){
+function gwasUpdateHeatmap(analysisID){
 	
 	var divID = "analysisDiv_" + analysisID;
-	drawHeatmap(divID, jQuery('body').data(analysisID), analysisID);
+	gwasDrawHeatmap(divID, jQuery('body').data(analysisID), analysisID);
 	
 }
 
 
 //set the heatmap controls
-function setHeatmapControls(analysisID){
+function gwasSetHeatmapControls(analysisID){
 	
 	//sets the slider used to resize the heatmap
 	var sliderID="#heatmapSlider_" +analysisID;
@@ -1281,7 +1379,7 @@ function setHeatmapControls(analysisID){
 		value:15,
 		step: 1,
 	 	stop: function(event, ui) {  
-	 		updateHeatmap(analysisID);	 		
+	 		gwasUpdateHeatmap(analysisID);	 		
 	}
 	});
 	
@@ -1303,7 +1401,7 @@ function setHeatmapControls(analysisID){
 */	 		
 	 	},
 	 	stop: function(event, ui) {  
-	 		updateHeatmap(analysisID);	 		
+	 		gwasUpdateHeatmap(analysisID);	 		
 	}
 	});
 	
@@ -1328,14 +1426,14 @@ function setHeatmapControls(analysisID){
 	
 }
 
-function setVisTabs(analysisID){
+function gwasSetVisTabs(analysisID){
 	var tabID = "#visTabs_" + analysisID;
 	jQuery(tabID).tabs();	
 	jQuery(tabID).bind( "tabsshow", function(event, ui) {
 	    if (ui.panel.id == "boxplot_" + analysisID) {
-	    	showBoxOrLinePlotVisualization(ui.panel, analysisID, true);
+	    	gwasShowBoxOrLinePlotVisualization(ui.panel, analysisID, true);
 	    } else if (ui.panel.id == "lineplot_" + analysisID)	{
-	    	showBoxOrLinePlotVisualization(ui.panel, analysisID, false);
+	    	gwasShowBoxOrLinePlotVisualization(ui.panel, analysisID, false);
 	    }
 	});
 }
@@ -1344,8 +1442,8 @@ function setVisTabs(analysisID){
 //Box or Line Plot Visualization Methods
 //Show, Load Data and Draw
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function showBoxOrLinePlotVisualization(panel, analysisID, isBoxplot)	{
-	var analysisIndex = getAnalysisIndex(analysisID);
+function gwasShowBoxOrLinePlotVisualization(panel, analysisID, isBoxplot)	{
+	var analysisIndex = gwasGetAnalysisIndex(analysisID);
 	var probeIds = analysisProbeIds[analysisIndex].probeIds;
 	var selectList = analysisProbeIds[analysisIndex].selectList;
 
@@ -1358,7 +1456,7 @@ function showBoxOrLinePlotVisualization(panel, analysisID, isBoxplot)	{
 	}
 	
 	// retrieve the active probe for the current analysis 
-	var activeProbe = getActiveProbe(analysisID);
+	var activeProbe = gwasGetActiveProbe(analysisID);
 	
 	// if the currently displayed plot is not the active probe then redraw
 	var redraw = false;
@@ -1374,7 +1472,7 @@ function showBoxOrLinePlotVisualization(panel, analysisID, isBoxplot)	{
 		jQuery("#analysis_holder_" + analysisID).mask("Loading...");
 	
 		if (isBoxplot)  {			
-			loadBoxPlotData(analysisID, activeProbe);
+			gwasLoadBoxPlotData(analysisID, activeProbe);
 
 		}
 		else  {
@@ -1386,19 +1484,19 @@ function showBoxOrLinePlotVisualization(panel, analysisID, isBoxplot)	{
 
 
 //Method to add the probes for the Line plot
-function setLineplotProbes(analysisID, probeID)	{
-	setProbesDropdown(analysisID, probeID, "#probeSelectionLineplot_" + analysisID);	
+function gwasSetLineplotProbes(analysisID, probeID)	{
+	gwasSetProbesDropdown(analysisID, probeID, "#probeSelectionLineplot_" + analysisID);	
 }
 
 
-function getActiveProbe(analysisId){
+function gwasGetActiveProbe(analysisId){
 	
 	// retreive the active probe for the current analysis, first retrieve from global data
 	var probeId = jQuery('body').data("activeAnalysisProbe:" + analysisId);
 	
 	// if not defined yet, set to the first one for the current page showing for the analysis
 	if (probeId == undefined)  {
-		var analysisIndex = getAnalysisIndex(analysisId);
+		var analysisIndex = gwasGetAnalysisIndex(analysisId);
 		probeId = analysisProbeIds[analysisIndex].probeIds[0];		
 	}
 	 
@@ -1406,7 +1504,7 @@ function getActiveProbe(analysisId){
 	
 }
 
-function setActiveProbe(analysisId, probeId){
+function gwasSetActiveProbe(analysisId, probeId){
 	//store the currently active probe for the analysis; i.e the last one drawn for the box or line plot
 	jQuery('body').data("activeAnalysisProbe:" + analysisId, probeId); 
 	
@@ -1415,9 +1513,9 @@ function setActiveProbe(analysisId, probeId){
 
 
 
-function getGeneforDisplay(analysisID, probeID){
+function gwasGetGeneforDisplay(analysisID, probeID){
 
-	var analysisIndex = getAnalysisIndex(analysisID);
+	var analysisIndex = gwasGetAnalysisIndex(analysisID);
 	var probeIds = analysisProbeIds[analysisIndex].probeIds ;
 
 	var maxProbeIndex = analysisProbeIds[analysisIndex].maxProbeIndex;
@@ -1433,7 +1531,7 @@ function getGeneforDisplay(analysisID, probeID){
 
 
 //Load the line plot data
-function loadLinePlotData(analysisID, probeID)	{
+function gwasLoadLinePlotData(analysisID, probeID)	{
 	
 	if (probeID === undefined)	{
 		// We are called from the user switching probes, throw up the mask and get the probeID
@@ -1443,13 +1541,13 @@ function loadLinePlotData(analysisID, probeID)	{
 	}
 	
 	// retrieve the corresponding display value for the probe Id 
- var analysisIndex = getAnalysisIndex(analysisID);
+ var analysisIndex = gwasGetAnalysisIndex(analysisID);
  var probeIds = analysisProbeIds[analysisIndex].probeIds ;
  var maxProbeIndex = analysisProbeIds[analysisIndex].maxProbeIndex; 
 
 	
 	gwasAJAXManager.add({
-		url:getLinePlotDataURL,									
+		url:gwasGetLinePlotDataURL,									
 		data: {id: analysisID, probeID: probeID},
 		timeout:60000,
 		success: function(response) {
@@ -1457,9 +1555,9 @@ function loadLinePlotData(analysisID, probeID)	{
 			//store the response
 			jQuery('body').data("LineplotData:" + analysisID, response); //store the response
 			
-			setActiveProbe(analysisID, probeID);
+			gwasSetActiveProbe(analysisID, probeID);
 			jQuery('#analysis_holder_' +analysisID).unmask(); //hide the loading msg, unblock the div 
-			drawLinePlot('lineplotAnalysis_'+analysisID, response, analysisID);
+			gwasDrawLinePlot('lineplotAnalysis_'+analysisID, response, analysisID);
 			jQuery('#lineplotAnalysis_'+analysisID).show();
 			jQuery('#lineplot_'+analysisID).show();
 
@@ -1471,7 +1569,7 @@ function loadLinePlotData(analysisID, probeID)	{
 			
 			jQuery('body').data("activeLineplot:" + analysisID, probeID); //store the analysis ID and probe ID of this lineplot;
 																		 //used to determine if the lineplot has already been drawn
-			setLineplotProbes(analysisID, probeID);
+			gwasSetLineplotProbes(analysisID, probeID);
 			jQuery("#analysis_holder_" + analysisID).unmask(); 
 			
 			
@@ -1483,7 +1581,7 @@ function loadLinePlotData(analysisID, probeID)	{
 }
 
 //Draw the line plot
-function drawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
+function gwasDrawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
 	
 	
 	var cohortArray = new Array();   // array of cohort ids
@@ -1569,8 +1667,8 @@ function drawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
 			
 		
 		//set the manual value textboxes with the current yMin and yMax
-		jQuery('#lineplotRangeMin_'+analysisID).val(roundNumber(yMin,2));
-		jQuery('#lineplotRangeMax_'+analysisID).val(roundNumber(yMax,2));
+		jQuery('#lineplotRangeMin_'+analysisID).val(gwasRoundNumber(yMin,2));
+		jQuery('#lineplotRangeMax_'+analysisID).val(gwasRoundNumber(yMax,2));
 		
 	}
 
@@ -1593,13 +1691,13 @@ function drawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
 	
 	var numCohorts = cohortArray.length;
 	
-	// need to add a blank entry at the beginning of the arrays for use by drawCohortLegend
+	// need to add a blank entry at the beginning of the arrays for use by gwasDrawCohortLegend
 	cohortArray = [''].concat(cohortArray);
 	cohortDesc = [''].concat(cohortDesc);
 	cohortDisplayStyles = [''].concat(cohortDisplayStyles);
 	
 	if(forExport){
-		cohortDesc=highlightCohortDescriptions(cohortDesc, true);
+		cohortDesc=gwasHighlightCohortDescriptions(cohortDesc, true);
 	}
 	
 	
@@ -1649,10 +1747,10 @@ function drawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
 	    .cursor("pointer")
 	    .event("mouseover", function(){ self.status = "Gene Information"})
 	    .event("mouseout", function(){ self.status = ""})
-	    .event("click", function(d) {self.location = "javascript:showGeneInfo('"+gene_id +"');"})
+	    .event("click", function(d) {self.location = "javascript:gwasShowGeneInfo('"+gene_id +"');"})
 		.events("all")
 	    .title("View gene information")
-	    .text(getGeneforDisplay(analysisID, getActiveProbe(analysisID)));
+	    .text(gwasGetGeneforDisplay(analysisID, gwasGetActiveProbe(analysisID)));
 	}
 	else  {
 		/* Add the title without link to gene info*/
@@ -1662,7 +1760,7 @@ function drawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
 	    .left(w/2)
 	    .bottom(300)
 	    .textAlign("center")
-	    .text(getGeneforDisplay(analysisID, getActiveProbe(analysisID)));		
+	    .text(gwasGetGeneforDisplay(analysisID, gwasGetActiveProbe(analysisID)));		
 	}
 	// create line
  var line = 	vis.add(pv.Line)
@@ -1734,7 +1832,7 @@ function drawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
 	
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////		
-	jQuery("#lineplotLegend_" + analysisID).html(drawCohortLegend(numCohorts, cohortArray, cohortDesc, cohortDisplayStyles));
+	jQuery("#lineplotLegend_" + analysisID).html(gwasDrawCohortLegend(numCohorts, cohortArray, cohortDesc, cohortDisplayStyles));
 	
 }
 
@@ -1742,7 +1840,7 @@ function drawLinePlot(divId, linePlotJSON, analysisID, forExport)	{
 //Box Plot Visualization Methods
 //Show, Load Data and Draw
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function openBoxPlotFromHeatmap(analysisID, probe){
+function gwasOpenBoxPlotFromHeatmap(analysisID, probe){
 	  var divID = "analysisDiv_" + analysisID;
 
 	  jQuery('#visTabs_' +analysisID).tabs('select', 'boxplot_'+analysisID); // switch to boxplot tab
@@ -1751,13 +1849,13 @@ function openBoxPlotFromHeatmap(analysisID, probe){
 	  
 	  if(currentBoxplot != probe){
 		  jQuery("#analysis_holder_" + analysisID).mask("Loading...");	
-		  loadBoxPlotData(analysisID, probe);		  
+		  gwasLoadBoxPlotData(analysisID, probe);		  
 	  }
 }
 
 //Method set the probes in a select list for current page
-function setProbesDropdown(analysisID, selectedProbeID, divId)	{
-	var analysisIndex = getAnalysisIndex(analysisID);
+function gwasSetProbesDropdown(analysisID, selectedProbeID, divId)	{
+	var analysisIndex = gwasGetAnalysisIndex(analysisID);
 	var probeIds = analysisProbeIds[analysisIndex].probeIds;
 	var selectList = analysisProbeIds[analysisIndex].selectList;
 
@@ -1774,12 +1872,12 @@ function setProbesDropdown(analysisID, selectedProbeID, divId)	{
 
 
 //Method to add the probes for the box plot
-function setBoxplotProbes(analysisID, selectedProbeID)	{
-	setProbesDropdown(analysisID, selectedProbeID, "#probeSelection_" + analysisID);
+function gwasSetBoxplotProbes(analysisID, selectedProbeID)	{
+	gwasSetProbesDropdown(analysisID, selectedProbeID, "#probeSelection_" + analysisID);
 }
 
 //Load the box plot data
-function loadBoxPlotData(analysisID, probeID)	{	
+function gwasLoadBoxPlotData(analysisID, probeID)	{	
 	jQuery('#boxplotEmpty_' +analysisID).hide(); //hide the message that tells the user to select a probe first
 	
 	if (probeID === undefined)	{
@@ -1792,7 +1890,7 @@ function loadBoxPlotData(analysisID, probeID)	{
 	// retrieve the corresponding display value for the probe Id 
 	
 	/*
- var analysisIndex = getAnalysisIndex(analysisID);
+ var analysisIndex = gwasGetAnalysisIndex(analysisID);
  var probeDisplay = ""
  var probeIds = analysisProbeIds[analysisIndex].probeIds ;
  var maxProbeIndex = analysisProbeIds[analysisIndex].maxProbeIndex; 
@@ -1805,12 +1903,12 @@ function loadBoxPlotData(analysisID, probeID)	{
      
      */
 	gwasAJAXManager.add({
-		url:getBoxPlotDataURL,
+		url:gwasGetBoxPlotDataURL,
 		data: {id: analysisID, probeID: probeID},
 		timeout:60000,
 		success: function(response) {
-			setActiveProbe(analysisID, probeID);
-			drawBoxPlot('boxplotAnalysis_'+analysisID, response, analysisID);
+			gwasSetActiveProbe(analysisID, probeID);
+			gwasDrawBoxPlot('boxplotAnalysis_'+analysisID, response, analysisID);
 			jQuery('#boxplotLegend_'+analysisID).show();
 			jQuery('#boxplotAnalysis_'+analysisID).show();	
 			
@@ -1819,7 +1917,7 @@ function loadBoxPlotData(analysisID, probeID)	{
 			jQuery('body').data("activeBoxplot:" + analysisID, probeID); //store the analysis ID and probe ID of this boxplot;
 																		 //used to determine if the boxplot has already been drawn
 		
-			setBoxplotProbes(analysisID, probeID);
+			gwasSetBoxplotProbes(analysisID, probeID);
 			jQuery("#analysis_holder_" + analysisID).unmask(); 
 			
 		},
@@ -1829,7 +1927,7 @@ function loadBoxPlotData(analysisID, probeID)	{
 	});
 }
 
-function changeRangeRadioBtn(graph, analysisID){
+function gwasChangeRangeRadioBtn(graph, analysisID){
 	
 	var radioID = '#' +graph +'RangeRadio_Manual_' +analysisID;
 	var rangeMinID = '#' +graph +'RangeMin_' +analysisID;
@@ -1850,18 +1948,18 @@ function changeRangeRadioBtn(graph, analysisID){
 		if(graph == 'boxplot'){
 			
 			//redrew the boxplot to set it back to default range
-			updateBoxPlot(analysisID)
+			gwasUpdateBoxPlot(analysisID)
 			
 		}else if(graph == 'lineplot') {
 			
-			updateLineplot(analysisID);
+			gwasUpdateLineplot(analysisID);
 			
 		}
 	}
 }
 
 
-function updateLineplot(analysisID){
+function gwasUpdateLineplot(analysisID){
 	
 	//data should be the same for both lineplot and boxplot
 	var data = jQuery('body').data("LineplotData:" + analysisID);
@@ -1870,35 +1968,35 @@ function updateLineplot(analysisID){
 		console.log("Error: Could not find data");
 	}else
 		{
-			drawLinePlot('lineplotAnalysis_'+analysisID, data, analysisID);
+			gwasDrawLinePlot('lineplotAnalysis_'+analysisID, data, analysisID);
 		}
 }
 
 //collapse all of the open analyses
-function collapseAllAnalyses(){
+function gwasCollapseAllAnalyses(){
 		
 	//while (openAnalyses.length>0){
 	for (var v = 0; v < openAnalyses.length; v++) {
-		//each time showVisualization is called, the current analysis is removed from openAnalyses
-		showVisualization(openAnalyses[v], false);
+		//each time gwasShowVisualization is called, the current analysis is removed from openAnalyses
+		gwasShowVisualization(openAnalyses[v], false);
 	}
 }
 
-function collapseAllStudies() {
-	collapseAllAnalyses();
-	//For each open study, toggleDetailDiv
+function gwasCollapseAllStudies() {
+	gwasCollapseAllAnalyses();
+	//For each open study, gwasToggleDetailDiv
 	var openstudyelements = jQuery(".analysesopen");
 	for (var i = 0; i < openstudyelements.length; i++) {
 		var studyelement = openstudyelements[i];
 		var studyId = jQuery(studyelement).attr('name');
 		var divId = jQuery(studyelement).attr('id');
 		if (divId.indexOf("detail")!=-1)
-			toggleDetailDiv(studyId, ''); //No URL needed when collapsing
+			gwasToggleDetailDiv(studyId, ''); //No URL needed when collapsing
 	}
 }
 
-function expandAllStudies() {
-	//For each closed study, toggleDetailDiv
+function gwasExpandAllStudies() {
+	//For each closed study, gwasToggleDetailDiv
 	var closedstudyelements = jQuery(".detailexpand").not(".analysesopen");
 	for (var i = 0; i < closedstudyelements.length; i++) {
 		var studyelement = jQuery(closedstudyelements[i]);
@@ -1906,11 +2004,11 @@ function expandAllStudies() {
 		var key = new Date().getTime(); //Key to prevent AJAX caching
 		var divId = jQuery(studyelement).attr('id');
 		if (divId.indexOf("detail")!=-1)
-			toggleDetailDiv(studyId, getStudyAnalysesUrl + "?id=" + studyId + "&trialNumber=" + studyId + "&unqKey=" + key);
+			gwasToggleDetailDiv(studyId, getStudyAnalysesUrl + "?id=" + studyId + "&trialNumber=" + studyId + "&unqKey=" + key);
 	}
 }
 
-function updateBoxPlot(analysisID){
+function gwasUpdateBoxPlot(analysisID){
 	
 	var data = jQuery('body').data("BoxplotData:" + analysisID);
 	
@@ -1918,17 +2016,17 @@ function updateBoxPlot(analysisID){
 		console.log("Error: Could not find data");
 	}else
 		{
-			drawBoxPlot('boxplotAnalysis_'+analysisID, data, analysisID);
+			gwasDrawBoxPlot('boxplotAnalysis_'+analysisID, data, analysisID);
 		}
 }
 
 //Helper function to provide the rank for the percentile calculation in the box plot
-function getRank(P, N)	{
+function gwasGetRank(P, N)	{
 	return Math.round(P/100 * N + 0.5);			// Use P/100 * N + 0.5 as denoted here: http://en.wikipedia.org/wiki/Percentile
 }
 
 //Draw the box plot
-function drawBoxPlot(divId, boxPlotJSON, analysisID, forExport)	{
+function gwasDrawBoxPlot(divId, boxPlotJSON, analysisID, forExport)	{
 	// boxPlotJSON should be a map of cohortID:[desc:cohort description, order:display order for the cohort, data:sorted log2 intensities]
 	
 	
@@ -1959,11 +2057,11 @@ function drawBoxPlot(divId, boxPlotJSON, analysisID, forExport)	{
 			cohortDisplayStyle:cohortDisplayStyle,
 			desc:desc,
 			sampleCount:sampleCount,
-			min:data[getRank(5, data.length)-1],
-			max:data[getRank(95, data.length)-1],			
-			median:data[getRank(50, data.length)-1],
-			lq:data[getRank(25, data.length)-1],
-			uq:data[getRank(75, data.length)-1]
+			min:data[gwasGetRank(5, data.length)-1],
+			max:data[gwasGetRank(95, data.length)-1],			
+			median:data[gwasGetRank(50, data.length)-1],
+			lq:data[gwasGetRank(25, data.length)-1],
+			uq:data[gwasGetRank(75, data.length)-1]
 		};		
 	});
 	
@@ -1998,12 +2096,12 @@ function drawBoxPlot(divId, boxPlotJSON, analysisID, forExport)	{
 		}
 		
 		//set the manual value textboxes with the current yMin and yMax
-		jQuery('#boxplotRangeMin_'+analysisID).val(roundNumber(yMin,2));
-		jQuery('#boxplotRangeMax_'+analysisID).val(roundNumber(yMax,2));
+		jQuery('#boxplotRangeMin_'+analysisID).val(gwasRoundNumber(yMin,2));
+		jQuery('#boxplotRangeMax_'+analysisID).val(gwasRoundNumber(yMax,2));
 		
 	}
 	
-	var title = getGeneforDisplay(analysisID, getActiveProbe(analysisID));
+	var title = gwasGetGeneforDisplay(analysisID, gwasGetActiveProbe(analysisID));
 	
 	var w = cohortArray.length * 140;//generate the width dynamically using the cohort count	
 	var  h = 300,  
@@ -2014,14 +2112,14 @@ function drawBoxPlot(divId, boxPlotJSON, analysisID, forExport)	{
 	
 	var numCohorts = cohortArray.length;
 	
-	// need to add a blank entry at the beginning of the arrays for use by drawCohortLegend
+	// need to add a blank entry at the beginning of the arrays for use by gwasDrawCohortLegend
 	cohortArray = [''].concat(cohortArray);
 	cohortDesc = [''].concat(cohortDesc);
 	cohortDisplayStyles = [''].concat(cohortDisplayStyles);
 	
 	if(forExport){
 		h=320 + 30 * (cohortArray.length);
-		cohortDesc=highlightCohortDescriptions(cohortDesc, true);
+		cohortDesc=gwasHighlightCohortDescriptions(cohortDesc, true);
 	}
 
 		var vis = new pv.Panel().canvas(document.getElementById(divId)) 	
@@ -2041,7 +2139,7 @@ function drawBoxPlot(divId, boxPlotJSON, analysisID, forExport)	{
 		    .cursor("pointer")
 		    .event("mouseover", function(){ self.status = "Gene Information"})
 		    .event("mouseout", function(){ self.status = ""})
-		    .event("click", function(d) {self.location = "javascript:showGeneInfo('"+gene_id +"');"})
+		    .event("click", function(d) {self.location = "javascript:gwasShowGeneInfo('"+gene_id +"');"})
 			.events("all")   
 			.title("View gene information")
 			.text(title);
@@ -2186,12 +2284,12 @@ function drawBoxPlot(divId, boxPlotJSON, analysisID, forExport)	{
 		vis.render();
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////		
-		jQuery("#boxplotLegend_" + analysisID).html(drawCohortLegend(numCohorts, cohortArray, cohortDesc, cohortDisplayStyles));
+		jQuery("#boxplotLegend_" + analysisID).html(gwasDrawCohortLegend(numCohorts, cohortArray, cohortDesc, cohortDisplayStyles));
 		
 }
 
 //Show the heatmap visualization 
-function showVisualization(analysisID, changedPaging)	{	
+function gwasShowVisualization(analysisID, changedPaging)	{	
 	
 	var analysisHeaderDiv = "#TrialDetail_" + analysisID + "_anchor"
 	var divID = "#analysis_results_" + analysisID;
@@ -2217,9 +2315,9 @@ function showVisualization(analysisID, changedPaging)	{
 		
 		if (hmFlag == "0")	{
 
-			setVisTabs(analysisID);
+			gwasSetVisTabs(analysisID);
 			jQuery(loadingDiv).mask("Loading...");
-			loadAnalysisResultsGrid(analysisID, {'max': 10, 'offset':0, 'cutoff': 0, 'search': "", 'sortField': "", "order": "asc"});
+			gwasLoadAnalysisResultsGrid(analysisID, {'max': 10, 'offset':0, 'cutoff': 0, 'search': "", 'sortField': "", "order": "asc"});
 		}
 		
 		jQuery(hmFlagDiv).val("1");
@@ -2232,32 +2330,32 @@ function showVisualization(analysisID, changedPaging)	{
 		
 		//remove the analysis from the array, while leaving all others
 		//openAnalyses = openAnalyses.splice( jQuery.inArray(analysisID, openAnalyses), 1 );
-		removeByValue(openAnalyses,analysisID);
+		gwasRemoveByValue(openAnalyses,analysisID);
 		
 	} 	
 	return false;
 }
 
 //Make a call to the server to load the heatmap data
-function loadHeatmapData(divID, analysisID, probesPage, probesPerPage)	{
+function gwasLoadHeatmapData(divID, analysisID, probesPage, probesPerPage)	{
 	
 	gwasAJAXManager.add({
-		url:getHeatmapDataURL,
+		url:gwasGetHeatmapDataURL,
 		data: {id: analysisID, probesPage: probesPage, probesPerPage:probesPerPage},
 		timeout:60000,
 		success: function(response) {
 			jQuery('body').data(analysisID, response); //store the result set in case the heatmap is updated 
 			jQuery('#analysis_holder_' +analysisID).unmask(); //hide the loading msg, unblock the div
-			drawHeatmap(divID, response, analysisID);		
+			gwasDrawHeatmap(divID, response, analysisID);		
 			jQuery('#heatmapLegend_'+analysisID).show();
 
 
-	        var analysisIndex = getAnalysisIndex(analysisID);
+	        var analysisIndex = gwasGetAnalysisIndex(analysisID);
 	        var probesList = analysisProbeIds[analysisIndex].probeIds;
 	        var maxProbeIndex = analysisProbeIds[analysisIndex].maxProbeIndex;
 			
 			if(maxProbeIndex == 1){ //only one probe returned
-				loadBoxPlotData(analysisID, probesList[0]);	//preload boxplot
+				gwasLoadBoxPlotData(analysisID, probesList[0]);	//preload boxplot
 			}	        
 	        
 		},
@@ -2268,15 +2366,14 @@ function loadHeatmapData(divID, analysisID, probesPage, probesPerPage)	{
 }
 
 //displays pop-up of gene with tabs to internal and external sources
-function showGeneInfo(geneID)
+function gwasShowGeneInfo(geneID)
 {
 	var w=window.open('/transmart/details/gene/?rwg=y&altId='+geneID , 'detailsWindow', 'width=900,height=800'); 
 	w.focus(); 
 }
 
 //Take the heatmap data in the second parameter and show it in the Protovis panel
-function drawHeatmap(divID, heatmapJSON, analysisID, forExport)	{
-	
+function gwasDrawHeatmap(divID, heatmapJSON, analysisID, forExport)	{
 	
 	// set up arrays to be used to populating drop down boxes for line/box plots
 	// do this first since we need this for determining max probe string length
@@ -2314,13 +2411,13 @@ function drawHeatmap(divID, heatmapJSON, analysisID, forExport)	{
 		
 	}
 	
- var analysisIndex = getAnalysisIndex(analysisID);
+ var analysisIndex = gwasGetAnalysisIndex(analysisID);
 
  analysisProbeIds[analysisIndex].probeIds = probesList;
  analysisProbeIds[analysisIndex].selectList = selectList;
 
  // reset the active probe for the other plots to be the first on this page
- setActiveProbe(analysisID, probesList[0]);
+ gwasSetActiveProbe(analysisID, probesList[0]);
  
 	//store the max probe length for this analysis
 	jQuery('body').data("maxProbeLength:" + analysisID, maxProbeLength);	    
@@ -2426,7 +2523,7 @@ fill = pv.dict(columns, function(f) { return pv.Scale.linear()
 	var numCohorts = cohorts.size()-1;   // there is no cohort at index 0
 
 	
-	// need to add a blank entry at the beginning of the arrays for use by drawCohortLegend
+	// need to add a blank entry at the beginning of the arrays for use by gwasDrawCohortLegend
 //	cohortArray = [''].concat(cohortArray);
 //	cohortDesc = [''].concat(cohortDesc);
 //	cohortDisplayStyles = [''].concat(cohortDisplayStyles);
@@ -2434,7 +2531,7 @@ fill = pv.dict(columns, function(f) { return pv.Scale.linear()
 	var height;
 	if(forExport){
 		height = 4*h +h_header + (heatmapJSON.length * h) + (cohorts.size()-1)*35;
-		cohortDescriptions=highlightCohortDescriptions(cohortDescriptions, true);
+		cohortDescriptions=gwasHighlightCohortDescriptions(cohortDescriptions, true);
 	}else{
 		height = 4*h +h_header + (heatmapJSON.length * h);
 	}
@@ -2663,7 +2760,7 @@ fill = pv.dict(columns, function(f) { return pv.Scale.linear()
 	    .cursor( function(d) {if (parseInt(d.GENE_ID)) {return "pointer"}})
 	    .event("mouseover", function(d){ if (parseInt(d.GENE_ID))  {self.status = "Gene Information"}})
 	    .event("mouseout", function(d){ self.status = ""})
-	    .event("click", function(d) {if (parseInt(d.GENE_ID))  {self.location = "javascript:showGeneInfo('"+d.GENE_ID +"');"}})
+	    .event("click", function(d) {if (parseInt(d.GENE_ID))  {self.location = "javascript:gwasShowGeneInfo('"+d.GENE_ID +"');"}})
 
 	    .textAlign("left")
 		.textBaseline("middle")
@@ -2687,7 +2784,7 @@ fill = pv.dict(columns, function(f) { return pv.Scale.linear()
      .cursor("pointer")
 	
 	    .event("mouseout", function(){ self.status = ""})
-	    .event("click", function(d) {self.location = "javascript:openBoxPlotFromHeatmap(" +analysisID +", '" +d.PROBE +"');"})
+	    .event("click", function(d) {self.location = "javascript:gwasOpenBoxPlotFromHeatmap(" +analysisID +", '" +d.PROBE +"');"})
 
 	    .events("all")
  	.textAlign("left")
@@ -2749,13 +2846,13 @@ fill = pv.dict(columns, function(f) { return pv.Scale.linear()
 
 
 	vis.root.render();					// Need root panel for the canvas call to work
-	jQuery("#heatmapLegend_" + analysisID).html(drawCohortLegend(numCohorts, cohorts, cohortDescriptions, cohortDisplayStyles));
+	jQuery("#heatmapLegend_" + analysisID).html(gwasDrawCohortLegend(numCohorts, cohorts, cohortDescriptions, cohortDisplayStyles));
 }
 
 //Helper function to draw the legend for the cohorts in the visualization panel
-function drawCohortLegend(numCohorts, cohorts, cohortDescriptions, cohortDisplayStyles)	{
+function gwasDrawCohortLegend(numCohorts, cohorts, cohortDescriptions, cohortDisplayStyles)	{
 	
-	cohortDescriptions = highlightCohortDescriptions(cohortDescriptions);
+	cohortDescriptions = gwasHighlightCohortDescriptions(cohortDescriptions);
 	
 	var pCohortAll = "<table class='cohort_table'>"
 	var classIndex = null;
@@ -2769,7 +2866,7 @@ function drawCohortLegend(numCohorts, cohorts, cohortDescriptions, cohortDisplay
 
 //Show diff between each cohort
 //returnOnlyDiff: if true, return only the different terms
-function highlightCohortDescriptions(cohortDesc, returnOnlyDiff){
+function gwasHighlightCohortDescriptions(cohortDesc, returnOnlyDiff){
 	
 	var arySplit = new Array();
 	var aryDif = new Array();
@@ -2786,7 +2883,7 @@ function highlightCohortDescriptions(cohortDesc, returnOnlyDiff){
 		
 			for(var x=0; x < arySplit[i].length; x++){
 				
-					if(trim(arySplit[i][x]).toUpperCase() == trim(arySplit[i+1][x]).toUpperCase()){
+					if(gwasTrim(arySplit[i][x]).toUpperCase() == gwasTrim(arySplit[i+1][x]).toUpperCase()){
 						
 							if(aryDif[x] != false){
 								aryDif[x] = true;
@@ -2838,21 +2935,21 @@ function highlightCohortDescriptions(cohortDesc, returnOnlyDiff){
 
 }
 //remove whitespace
-function trim(stringToTrim) {
+function gwasTrim(stringToTrim) {
 	return stringToTrim.replace(/^\s+|\s+$/g,"");
 }
 
 //convert a string to Title Case
-function toTitleCase(str)
+function gwasToTitleCase(str)
 {
  return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
-function goToByScroll(id){
+function gwasGoToByScroll(id){
 	jQuery('#main').animate({scrollTop: jQuery("#"+id).offset().top},'slow');
 }
 
-function isGeneCategory(catId)  {
+function gwasIsGeneCategory(catId)  {
 	if ((catId == 'GENE') || (catId == 'PATHWAY') || (catId == 'GENELIST') || (catId == 'GENESIG')) {
 		return true;
 	}
@@ -2861,7 +2958,7 @@ function isGeneCategory(catId)  {
 	}
 }
 
-function isDataCategory(catId) {
+function gwasIsDataCategory(catId) {
  if (jQuery.inArray(catId, dataCategoryNames) > -1) {
      return true;
  }
@@ -2880,18 +2977,18 @@ String.prototype.visualLength = function(fontFamily)
 
 
 //Round number to given decimal place
-function roundNumber(num, dec) {
+function gwasRoundNumber(num, dec) {
 	var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
 	return result;
 }
 
 //Main method to show the current array of search terms
 //TODO Convert this entire thing to jQuery instead of HTML string
-function showSearchTemplate()	{
+function gwasShowSearchTemplate()	{
 	var searchHTML = '';
 	var startATag = '&nbsp;<a id=\"';
-	var endATag = '\" class="term-remove" href="#" onclick="removeSearchTerm(this);">';
-	var imgTag = '<img alt="remove" src="../images/small_cross.png"/></a>&nbsp;'
+	var endATag = '\" class="term-remove" href="#" onclick="gwasRemoveSearchTerm(this);">';
+	var imgTag = '<asset:image src="small_cross.png"/>&nbsp;';
 	var firstItem = true;
 
 	// iterate through categories array and move all the "gene" categories together at the top 
@@ -2904,7 +3001,7 @@ function showSearchTemplate()	{
 		var catId = catFields[1];
 		
 		// when we find a "gene" category, add it and the rest of the "gene" categories to the new array
-		if (isGeneCategory(catId)) {
+		if (gwasIsGeneCategory(catId)) {
 			// first check if we've processed "gene" categories yet
 			if (!geneCategoriesProcessed)  {
 				
@@ -2915,7 +3012,7 @@ function showSearchTemplate()	{
 				for (var j=i+1; j<currentCategories.length; j++)	{
 					var catFields2 = currentCategories[j].split("|");
 					var catId2 = catFields2[1];
-					if (isGeneCategory(catId2)) {
+					if (gwasIsGeneCategory(catId2)) {
 						dataCategories.push(currentCategories[j]);
 					}				
 				}
@@ -2924,7 +3021,7 @@ function showSearchTemplate()	{
 			}
 		}
 		else  {    // not a gene category - add depending on category type
-		    if (isDataCategory(catId)) {
+		    if (gwasIsDataCategory(catId)) {
 			    dataCategories.push(currentCategories[i]);
          }
          else {
@@ -2966,16 +3063,16 @@ function showSearchTemplate()	{
 						var suppressAnd = false;
                      var newCategoryBox = false;
 						// if this is a "gene" category, check the previous category and see if it is also one
-		                if (isGeneCategory(catId))  {
+		                if (gwasIsGeneCategory(catId))  {
 							var catFieldsPrevious = currentCategories[i-1].split("|");
 							var catIdPrevious = catFieldsPrevious[1];
-		                	if (isGeneCategory(catIdPrevious))  {
+		                	if (gwasIsGeneCategory(catIdPrevious))  {
 		                		suppressAnd = true;	
 		                	}
 		                }
 
                      //Suppress the 'and' if this is the first data category type
-                     if (isDataCategory(catId) && !firstDataCategoryDrawn) {
+                     if (gwasIsDataCategory(catId) && !firstDataCategoryDrawn) {
                          searchHTML = searchHTML + "</div><div class='filtertypebox data'><div class='filtertypetitle'>Data filters</div>";
                          firstDataCategoryDrawn = true;
                          suppressAnd = true;
@@ -3004,12 +3101,12 @@ function showSearchTemplate()	{
 
  searchHTML += '</div>'
 	document.getElementById('active-search-div').innerHTML = searchHTML;
-	getSearchKeywordList();
+	gwasGetSearchKeywordList();
 }
 
 
 //retrieve the current list of search keyword ids
-function getSearchKeywordList()   {
+function gwasGetSearchKeywordList()   {
 
 	var keywords = new Array();
 	
@@ -3022,9 +3119,9 @@ function getSearchKeywordList()   {
 	return keywords;
 }
 
-function openSaveSearchDialog()  {
+function gwasOpenSaveSearchDialog()  {
 
-	var keywords = getSearchKeywordList();
+	var keywords = gwasGetSearchKeywordList();
 
 	if (keywords.length>0)  {
 		jQuery('#save-modal-content').modal();
@@ -3039,17 +3136,17 @@ function openSaveSearchDialog()  {
 }
 
 //save a faceted search to the database
-function saveSearch(keywords, name, desc)  {
+function gwasSaveSearch(keywords, name, desc)  {
 
 	var name = jQuery("#searchName").val();
 	var desc = jQuery("#searchDescription").val();
-	var keywords = getSearchKeywordList();
+	var keywords = gwasGetSearchKeywordList();
 
 	//  had no luck trying to use JSON libraries for creating/parsing JSON string so just save keywords as pipe delimited string 
 	if (keywords.length>0)  {
 		var criteriaString = keywords.join("|") 
 		gwasAJAXManager.add({
-			url:saveSearchURL,
+			url:gwasSaveSearchURL,
 			data: {criteria: criteriaString, name: name, description:desc},
 			timeout:60000,
 			success: function(response) {
@@ -3073,10 +3170,10 @@ function saveSearch(keywords, name, desc)  {
 }
 
 //delete a faceted search from the database
-function deleteSearch()  {
+function gwasDeleteSearch()  {
 	
 	gwasAJAXManager.add({
-		url:deleteSearchURL,
+		url:gwasDeleteSearchURL,
 		data: {name: "testname23"},
 		timeout:60000,
 		success: function(response) {
@@ -3090,15 +3187,15 @@ function deleteSearch()  {
 }
 
 
-function loadSearch()  {
+function gwasLoadSearch()  {
 
 	
 	gwasAJAXManager.add({
-		url:loadSearchURL,
+		url:gwasLoadSearchURL,
 		data: {id: 37},   //37
 		timeout:60000,
 		success: function(response) {
-			clearSearch();
+			gwasClearSearch();
 			
 			if (response['success'])  {
 				var searchTerms = response['searchTerms'] 
@@ -3111,7 +3208,7 @@ function loadSearch()  {
 							         display:searchTerms[i].displayDataCategory,
 							         keyword:searchTerms[i].keyword,
 							         category:searchTerms[i].dataCategory};
-					addSearchTerm(searchParam);
+					gwasAddSearchTerm(searchParam);
 
 				}
 					
@@ -3128,7 +3225,7 @@ function loadSearch()  {
 }
 
 //Clear the tree, results along with emptying the two arrays that store categories and search terms.
-function clearSearch()	{
+function gwasClearSearch()	{
 	
 	//remove all pending jobs from the ajax queue
 	//rwgAJAXManager.clear(true); (this was causing problems, so removing for now)
@@ -3144,28 +3241,31 @@ function clearSearch()	{
 	
 	// Change the category picker back to ALL and set autocomplete to not have a category (ALL by default)
 	document.getElementById("search-categories").selectedIndex = 0;
-	jQuery('#search-ac').autocomplete('option', 'source', sourceURL);
+	jQuery('#search-ac').autocomplete('option', 'source', gwasSourceURL);
 		
-	var tree = jQuery("#filter-div").dynatree("getTree");
+    console.log('gwasClearSearch: getTree')
+	jQuery("#gwas-filter-div").dynatree();
+	var tree = jQuery("#gwas-filter-div").dynatree("getTree");
 	
 	// Make sure the onSelect event doesn't fire for the nodes
 	// Otherwise, the main search query is going to fire after each item is deselected, as well as facet query
 	allowOnSelectEvent = false;
 	tree.visit(function clearNode(node) {
-										 updateNodeIndividualFacetCount(node, -1);
+	                                         gwasUpdateNodeIndividualFacetCount(node, -1);
 		                                 node.select(false);
 	                                    }, 
 	                                    false
 	           )
 	allowOnSelectEvent = true;
 	
-	showSearchTemplate();
-	showSearchResults(); //reload the full search results
+	gwasShowSearchTemplate();
+	    console.log('gwasClearSearch calling gwasShowSearchResults');
+	gwasShowSearchResults(); //reload the full search results
 	
 }
 
 //this function removes or adds to the filter search term array based on whether or not a node in the tree is selected
-function syncNode(node)  {
+function gwasSyncNode(node)  {
 	var param = new Object();  
 	var isCategory = node.data.isCategory;
 	
@@ -3185,11 +3285,11 @@ function syncNode(node)  {
 	//   in terms; this logic could be up for debate  - e.g. maybe it should never be in terms if any of the copies
 	//         say it shouldn't be - but making consistent for now, can reverse logic easily if needed )
 	node.tree.visit(
-			          function checkCopies (node) {
+			          function gwasCheckCopies (node) {
 			        	  if (outerNode.data.key == node.data.key)  {
 			        		  // found a key that matches (i.e. is the original one or a copy)
-     	        		  // a node will be in search terms if it is selected and it's parent is not
-			        		  // or if it's selected and it's parent is a category
+     	        		  // a node will be in search terms if it is selected and its parent is not
+			        		  // or if it is selected and its parent is a category
 			        		  if (node.isSelected() && (!node.parent.isSelected() || node.parent.data.isCategory))  {
 			        			  inSearchTerms = true;  
 			        		  }
@@ -3202,50 +3302,51 @@ function syncNode(node)  {
 	param.keyword = node.data.termName;  // term name
 	param.id = node.data.id;
 	if (inSearchTerms)  {
-	    addFilterTreeSearchTerm(param);
+	    gwasAddFilterTreeSearchTerm(param);
 	}
 	else {
 		// create string that remove fn recognizes as key
 		var termID = node.data.key;
-		removeFilterTreeSearchTerm(termID);
+		gwasRemoveFilterTreeSearchTerm(termID);
 	}
 	
 }
 
 //subtract node 2 from node 1;  return an array containing list nodes that are in node 1 but not node 2
-function subtractNodes(nodes1, nodes2)  {
+function gwasSubtractNodes(nodes1, nodes2)  {
 
-	var resultNodes = new Array();
+    var resultNodes = new Array();
 
-	for (var i = 0; i < nodes1.length; i++) {  // loop thru nodes1
-		  var n1 = nodes1[i];                
+    for (var i = 0; i < nodes1.length; i++) {  // loop thru nodes1
+	var n1 = nodes1[i];                
 		  
-		  var found = false;
+	var found = false;
 		  
-       for (var j = 0; j < nodes2.length; j++) {  // loop thru nodes2
-		      var n2 = nodes2[j];
+	for (var j = 0; j < nodes2.length; j++) {  // loop thru nodes2
+	    var n2 = nodes2[j];
 		      
-		      if (n2.data.uniqueTreeId == n1.data.uniqueTreeId)  {  // use uniqueTreeId to determine matches
-		    	  found = true;
-		    	  break;   // no need to continue with loop since we found match
-		      } 
-       }
-       
-       // if we didn't find the node in nodes2, add to result array
-       if (!found)  {
-     	  resultNodes.push(n1);
-       }        		  
+	    if (n2.data.uniqueTreeId == n1.data.uniqueTreeId)  {  // use uniqueTreeId to determine matches
+		found = true;
+		break;   // no need to continue with loop since we found match
+	    } 
 	}
-	return resultNodes;
+       
+	// if we didn't find the node in nodes2, add to result array
+	if (!found)  {
+     	    resultNodes.push(n1);
+	}        		  
+    }
+    return resultNodes;
 }
 
 jQuery.ui.dynatree.nodedatadefaults["icon"] = false;
-
+console.log("about to call jQuery dynatree using gwasTreeURL")
 
 jQuery(function(){
- jQuery("#filter-div").dynatree({
- 	initAjax: {  url: treeURL,
- 		data: { mode: "all" } 
+    jQuery("#gwas-filter-div").dynatree({
+	initAjax: {  url: gwasTreeURL,
+ 		data: { mode: "all" },
+        async: false
  	},
  	checkbox: true,
  	persist: false,
@@ -3260,7 +3361,8 @@ jQuery(function(){
      	} 
      	
      	// before selecting node, save a copy of which nodes were selected
-     	// (note that this only gets done when select is called outside of the onSelect event since we're using the global allowOnSelectEvent flag above) 
+     	// (note that this only gets done when select is called outside of the onSelect event
+	// since we're using the global allowOnSelectEvent flag above) 
      	nodesBeforeSelect = node.tree.getSelectedNodes(false);
 
      },
@@ -3302,7 +3404,7 @@ jQuery(function(){
      	
      	
      	// find nodes that are in After but were not in Before (i.e. Added)
-     	var nodesAdded = subtractNodes(nodesAfterSelect, nodesBeforeSelect);
+     	var nodesAdded = gwasSubtractNodes(nodesAfterSelect, nodesBeforeSelect);
 
      	for (var i = 0; i < nodesAdded.length; i++) {
      		var n = nodesAdded[i];
@@ -3322,12 +3424,12 @@ jQuery(function(){
      	}
 
      	// find nodes that are in Before but were not in After (i.e. Removed)
-     	var nodesRemoved = subtractNodes(nodesBeforeSelect, nodesAfterSelect);
+     	var nodesRemoved = gwasSubtractNodes(nodesBeforeSelect, nodesAfterSelect);
      	
      	// We need to remove partially selected nodes from removed list, since we don't want to call the select(false) method on these;
          //   if we did, then we would trigger all children to then be deselected in copies which isn't right;  instead the state of this
      	//   node will be controlled by actions on the children 
-     	var nodesFullyRemoved = subtractNodes(nodesRemoved, nodesPartiallySelected);
+     	var nodesFullyRemoved = gwasSubtractNodes(nodesRemoved, nodesPartiallySelected);
      	
      	for (var i = 0; i < nodesFullyRemoved.length; i++) {
      		var n = nodesFullyRemoved[i];         		
@@ -3352,10 +3454,11 @@ jQuery(function(){
      	// Resynchronize entire tree when something changes
      	// We need to do this because a select may affect other nodes than the one selected,
      	//  but that doesn't trigger the onSelect event
-     	// Following call executes the syncNode function on all nodes in tree, except for root
-     	node.tree.visit(syncNode, false); 
-     	showSearchTemplate();
-     	showSearchResults();        	
+     	// Following call executes the gwasSyncNode function on all nodes in tree, except for root
+     	node.tree.visit(gwasSyncNode, false); 
+     	gwasShowSearchTemplate();
+	 console.log('gwas ... calling gwasShowSearchResults');
+     	gwasShowSearchResults();        	
      },
      onClick: function(node, event) {
      	// if the user clicked outside the node, but in the tree, don't select/unselect the node
@@ -3368,7 +3471,7 @@ jQuery(function(){
          }
          
          //New code to generate popup because the categories don't have children.
-         generateBrowseWindow(node.data.title)
+		 gwasGenerateBrowseWindow(node.data.title)
          
          return true;
      },
@@ -3399,8 +3502,73 @@ jQuery(function(){
  });
 });
 
+function gwasGenerateBrowseWindow(nodeClicked)
+{
+	var URLtoUse = "";
+	var filteringFunction;
+
+	var dialogHeight = 350;
+	var dialogWidth = 800;
+
+	//Grab the URL from a JS variable. Different popups need different URLS. We declare these on the RWG Index page.
+	switch(nodeClicked)
+	{
+		case "Study":
+			URLtoUse = studyBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersStudy;
+			break;
+		case "Analyses":
+			URLtoUse = analysisBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersAnalyses;
+			break;
+		case "Region of Interest":
+			URLtoUse = regionBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersRegions;
+			dialogHeight = 340;
+			dialogWidth = 650;
+			break;
+		case "Data Type":
+			URLtoUse = dataTypeBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersDataTypes;
+			break;
+		case "eQTL Transcript Gene":
+			URLtoUse = eqtlTranscriptGeneWindow;
+			filteringFunction =  gwasApplyPopupFiltersEqtlTranscriptGene;
+			break;
+		default:
+			alert("Failed to find applicable popup! Please contact an administrator.");
+			return false;
+	}
+
+	//Load from the URL into a dialog window to capture the user input. We pass in a function that handles what happens after the user presses "Select".
+	if (jQuery('#divBrowsePopups').is(":visible")) {
+		jQuery('#divBrowsePopups').dialog("destroy");
+	}
+	jQuery('#divBrowsePopups').dialog(
+		{
+			modal: false,
+			open: function()
+			{
+				jQuery(this).empty().addClass('ajaxloading');
+				jQuery(this).load(URLtoUse, function() {
+					jQuery(this).removeClass('ajaxloading');
+				});
+			},
+			height: dialogHeight,
+			width: dialogWidth,
+			title: nodeClicked,
+			show: 'fade',
+			hide: 'fade',
+			resizable: false,
+			buttons: {"Select" : filteringFunction}
+		});
+}
+
+
+
+
 //find the analysis in the array with the given id
-function getAnalysisIndex(id)  {
+function gwasGetAnalysisIndex(id)  {
 	for (var i = 0; i < analysisProbeIds.length; i++)  {
 		if (analysisProbeIds[i].analysisId == id)  {
 			return i;
@@ -3411,7 +3579,7 @@ function getAnalysisIndex(id)  {
 }
 
 //remove an element from an array by value, keeping all others in place
-function removeByValue(arr, val) {
+function gwasRemoveByValue(arr, val) {
 	for(var i=0; i<arr.length; i++) {
 		if(arr[i] == val) {
 			arr.splice(i, 1);
@@ -3421,7 +3589,7 @@ function removeByValue(arr, val) {
 }
 
 
-function getHeatmapPaginator(divID, analysisId, analysisIndex, maxProbeIndex) {
+function gwasGetHeatmapPaginator(divID, analysisId, analysisIndex, maxProbeIndex) {
 	probesPerPageElement = document.getElementById("probesPerPage_" + analysisId);
 	numberOfProbesPerPage = probesPerPageElement.options[probesPerPageElement.selectedIndex].value;
 	
@@ -3463,13 +3631,13 @@ function getHeatmapPaginator(divID, analysisId, analysisIndex, maxProbeIndex) {
      	
 
      	jQuery("#analysis_holder_" + analysisId).mask("Loading...");
-         var analysisIndex = getAnalysisIndex(analysisId);
+         var analysisIndex = gwasGetAnalysisIndex(analysisId);
 
          // make sure we are getting number of probes per page for current element
          var probesPerPageElement = document.getElementById("probesPerPage_" + analysisId);
      	var numberOfProbesPerPage = probesPerPageElement.options[probesPerPageElement.selectedIndex].value;
          
-     	loadHeatmapData(divID, analysisId, page, numberOfProbesPerPage);
+     	gwasLoadHeatmapData(divID, analysisId, page, numberOfProbesPerPage);
 
      	jQuery('body').data("currentPage:" + analysisId, page);
                                  
@@ -3529,26 +3697,7 @@ function getHeatmapPaginator(divID, analysisId, analysisIndex, maxProbeIndex) {
 	
 }
 
-function loadHeatmapPaginator(divID, analysisId, page) {
-
-	var analysisIndex = getAnalysisIndex(analysisId);
-		
-	gwasAJAXManager.add({
-		url:getHeatmapNumberProbesURL,		
-		data: {id: analysisId, page:page},
-		success: function(response) {
-			var maxProbeIndex = response['maxProbeIndex']
-			
-			getHeatmapPaginator(divID, analysisId, analysisIndex, maxProbeIndex, page);
-	
-		},
-		error: function(xhr) {
-			console.log('Error!  Status = ' + xhr.status + xhr.statusText);
-		}
-	});
-}
-
-function updateSelectedAnalyses() {
+function gwasUpdateSelectedAnalyses() {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length > 0) {
 		jQuery('#selectedAnalyses').html("<b>" + selectedboxes.length + "</b> analyses selected");
@@ -3565,23 +3714,23 @@ jQuery.ajaxSetup({
 
 
 //Add selected analyses to active filters
-function filterSelectedAnalyses() {
+function gwasFilterSelectedAnalyses() {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length == 0) {
-		jQuery('#selectedAnalyses').html("<b>" + selectedboxes.length + "</b> analyses selected.Please select analyses to be filtered!");
+		jQuery('#selectedAnalyses').html("<b>" + selectedboxes.length + "</b> analyses selected. Please select analyses to be filtered!");
 	}
 	jQuery(".analysischeckbox:checked").each(function(i, selected){
 	var searchParam={id:selected.name,
 		        display:'Analyses',
 		        keyword:selected.value,
 		        category:'ANALYSIS_ID'};
-		addSearchTerm(searchParam);
+		gwasAddSearchTerm(searchParam);
 		
 		
 	})
 }
 
-function exportAnalysisandMail()
+function gwasExportAnalysisandMail()
 {
 	
 	var selectedboxes = jQuery(".analysischeckbox:checked");
@@ -3599,13 +3748,13 @@ function exportAnalysisandMail()
 				show: 'fade',
 				hide: 'fade',
 				resizable: false,
-				buttons: {"Submit" : sendMail}
+				buttons: {"Submit" : gwasSendMail}
 			});
 	}
 }
 
 
-function sendMail()
+function gwasSendMail()
 {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length == 0) {
@@ -3629,11 +3778,11 @@ function sendMail()
 			var data='';
 			if (radioMail == "link") {
 				data="analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false";
-				//window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false" ;
+				//window.location = gwasExportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false" ;
 				}
 			else {
 				data="analysisIds=" + analysisIds + "&toMailId=" + toMailId;
-				//window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId;
+				//window.location = gwasExportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId;
 				}
 			jQuery('#divMailStatus').html('Please wait mail is being sent...');
 			jQuery('#divMailStatus').dialog(
@@ -3651,7 +3800,7 @@ function sendMail()
 			jQuery.ajax(
 					{
 					// The link we are accessing.
-					url:exportAnalysisURL,
+					url:gwasExportAnalysisURL,
 					data:data,
 					// The type of request.
 					type: "post",
@@ -3700,13 +3849,13 @@ function sendMail()
 }
 
 //Remove P-value from active filters if P-value selected from inside the analysis results window
-function removepvalue(analysisId){
+function gwasRemovePvalue(analysisId){
 	var pvalue=jQuery('#analysis_results_table_' + analysisId + '_cutoff').val();
 	for (index = 0; index < currentSearchTerms.length; ++index) {
 		value = currentSearchTerms[index];
 		if (value.substring(0, 7) === "PVALUE|" ) {
 		alert("P-value cutoff will be removed from Active filters. Please enter the P-value cutoff again");
-		removeSearchTerm(this,value);
+		gwasRemoveSearchTerm(this,value);
 		}
 	}
 }

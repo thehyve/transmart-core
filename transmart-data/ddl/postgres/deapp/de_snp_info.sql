@@ -9,16 +9,21 @@ CREATE TABLE de_snp_info (
 );
 
 --
--- Name: de_snp_info_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_snp_info de_snp_info_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_snp_info
     ADD CONSTRAINT de_snp_info_id_pk PRIMARY KEY (snp_info_id);
 
 --
--- Name: u_snp_info_name; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_snp_info u_snp_info_name; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_snp_info
     ADD CONSTRAINT u_snp_info_name UNIQUE (name);
+
+--
+-- Name: de_snp_chrompos_ind; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_snp_chrompos_ind ON de_snp_info USING btree (chrom, chrom_pos);
 
 --
 -- Name: tf_trg_de_snp_info_id(); Type: FUNCTION; Schema: deapp; Owner: -
@@ -35,7 +40,7 @@ end;
 $$;
 
 --
--- Name: trg_de_snp_info_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_snp_info trg_de_snp_info_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_snp_info_id BEFORE INSERT ON de_snp_info FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_snp_info_id();
 

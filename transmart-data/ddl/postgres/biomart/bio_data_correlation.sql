@@ -9,7 +9,7 @@ CREATE TABLE bio_data_correlation (
 );
 
 --
--- Name: bio_data_correlation_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_correlation bio_data_correlation_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_correlation
     ADD CONSTRAINT bio_data_correlation_pk PRIMARY KEY (bio_data_correl_id);
@@ -34,12 +34,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_data_correl_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_data_correlation trg_bio_data_correl_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_data_correl_id BEFORE INSERT ON bio_data_correlation FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_data_correl_id();
 
 --
--- Name: bio_marker_link_bio_marker_rel; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_correlation bio_marker_link_bio_marker_rel; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_correlation
     ADD CONSTRAINT bio_marker_link_bio_marker_rel FOREIGN KEY (bio_data_correl_descr_id) REFERENCES bio_data_correl_descr(bio_data_correl_descr_id);

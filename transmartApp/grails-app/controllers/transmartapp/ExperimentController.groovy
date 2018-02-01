@@ -95,6 +95,22 @@ class ExperimentController {
         render(template: 'browseMulti', model: [experiments: experiments])
     }
 
+    def browseGWASExperimentsMultiSelect = {
+
+        def experiments
+
+        if (params.type) {
+            experiments = Experiment.findAllByType(params.type)
+            experiments = getSortedList(experiments)
+        }
+        else {
+            experiments = Experiment.findAllByType('Experiment')
+            experiments = getSortedList(experiments)
+        }
+
+        render(template:'browseMulti',model:[experiments:experiments])
+    }
+
     def getSortedList(experiments) {
 
         experiments.sort({ a, b ->

@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.multidimquery.query
 
+import grails.converters.JSON
 import grails.databinding.BindUsing
 import grails.validation.Validateable
 import grails.web.databinding.DataBinder
@@ -24,6 +25,7 @@ enum Type {
     NUMERIC,
     DATE,
     STRING,
+    TEXT,
     EVENT,
     OBJECT,
     COLLECTION,
@@ -37,7 +39,10 @@ enum Type {
         }
     }
 
-    public static Type forName(String name) {
+    static Type forName(String name) {
+        if (name == null) {
+            return NONE
+        }
         name = name.toLowerCase()
         if (mapping.containsKey(name)) {
             return mapping[name]
@@ -52,6 +57,7 @@ enum Type {
             (NUMERIC): Number.class,
             (DATE): Date.class,
             (STRING): CharSequence.class,
+            (TEXT): CharSequence.class,
             (EVENT): Constraint.class,
             (OBJECT): Object.class,
             (COLLECTION): Collection.class,
@@ -142,6 +148,13 @@ enum Operator {
                     CONTAINS,
                     IN
             ] as Set<Operator>,
+            (Type.TEXT): [
+                    EQUALS,
+                    NOT_EQUALS,
+                    LIKE,
+                    CONTAINS,
+                    IN
+            ] as Set<Operator>,
             (Type.EVENT): [
                     BEFORE,
                     AFTER,
@@ -192,7 +205,13 @@ class Field implements Validateable {
  * can be created using the constructors of the subclasses or by using the
  * {@link ConstraintFactory}.
  */
-abstract class Constraint implements Validateable, MultiDimConstraint { }
+abstract class Constraint implements Validateable, MultiDimConstraint {
+
+    String toJson() {
+        ConstraintSerialiser.toJson(this)
+    }
+
+}
 
 @Canonical
 class TrueConstraint extends Constraint {
@@ -698,6 +717,10 @@ class ConstraintFactory {
         String fieldName = values['fieldName'] as String
         try {
             Field field = DimensionMetadata.getField(dimensionName, fieldName)
+            Type fieldType = Type.forName(values['type'] as String)
+            if (fieldType != Type.NONE && field.type != fieldType) {
+                field = new Field(dimension: field.dimension, type: fieldType, fieldName: field.fieldName)
+            }
             log.debug "Field data: ${field}"
             object[name] = field
             log.debug "Object: ${object}"

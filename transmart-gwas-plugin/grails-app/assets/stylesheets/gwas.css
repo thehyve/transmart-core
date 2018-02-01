@@ -203,6 +203,7 @@ font-size: 11px;
     margin-top: 3px;
     position: fixed;
     width: 90px;
+    top:0;
 }
 
 #search-ac {
@@ -211,6 +212,7 @@ font-size: 11px;
     padding-top: 3px;
     position: fixed;
     width: 165px;
+    top:0;
 }
 
 #toggle-btn {
@@ -234,7 +236,7 @@ font-size: 11px;
 	background-image: url(../images/small_arrow_right.png) !important;	
 }
 
-#filter-div {
+#gwas-filter-div {
 	
 	height:100%;
 	overflow:auto;
@@ -708,6 +710,20 @@ p.legend_probe {
 		cursor:pointer; 
 		width:55px;
 }
+
+#feedBack{
+    position: fixed;
+    bottom: 20px;
+    right: 0px;
+    float: right;
+    background-color: #003366; 
+    display: block;
+    height:40px;
+    width:140px;
+    color: #ffffff;
+    border: 4px solid #2a66a2;
+}
+
 #searchResultOptions_btn a{
 	color:#000;
 	font-weight: normal;
@@ -862,8 +878,8 @@ border-top: 1px solid #CCC;
 .analysis-tabs .ui-widget-header { background: transparent; border: none; border-bottom: 1px solid #c0c0c0; border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px; }
 .analysis-tabs ul .ui-state-default { background: transparent; border: none; }
 .analysis-tabs ul .ui-state-active { background: transparent url(../images/uiTabsArrow.png) no-repeat bottom center; border: none; }
-.analysis-tabs ul .ui-state-default a { color: #1b74b3; }
-.analysis-tabs ul .ui-state-active a { color: #c0c0c0; }
+.analysis-tabs ul .ui-state-default a { color: #c0c0c0; }
+.analysis-tabs ul .ui-state-active a { color: #1b74b3; }
 /* End tab CSS */
 
 
@@ -937,8 +953,14 @@ border-top: 1px solid #CCC;
 }
 
 .dataTables_length {
-     float: left;
-     margin-right: 64px;   
+    float: left;
+    margin-right: 64px;
+    height: 30px;
+}
+
+.dataTables_filter {
+    width: 55%;
+    text-align: right;
 }
 
 a.paginate_disabled_previous, a.paginate_disabled_next {
@@ -954,6 +976,12 @@ a.paginate_disabled_previous, a.paginate_disabled_next {
     color: #000;
     margin: 0px 8px;
     cursor: pointer;
+    background: none;
+}
+
+.paginate_disabled_previous, .paginate_enabled_previous, .paginate_disabled_next, .paginate_enabled_next {
+    float: right;
+    background: none;
 }
 
 .linkbutton {
@@ -965,11 +993,13 @@ a.paginate_disabled_previous, a.paginate_disabled_next {
 }
 
 .dataTables_paginate {
-	min-height: 30px;	
+	min-height: 30px;
+    position: static;
 }
 
 .dataTables_wrapper {
 	font-size: 9pt;
+    position: relative;
 }
 
 /* VERY cheap fix for left/right selection box issue! */

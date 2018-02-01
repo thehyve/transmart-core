@@ -10,7 +10,7 @@ CREATE TABLE de_metabolite_annotation (
 );
 
 --
--- Name: de_metabolite_annotation_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_metabolite_annotation de_metabolite_annotation_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_metabolite_annotation
     ADD CONSTRAINT de_metabolite_annotation_pk PRIMARY KEY (id);

@@ -3,24 +3,18 @@
 package org.transmartproject.db.tree
 
 import groovy.transform.CompileStatic
+import groovy.transform.ToString
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
 import org.transmartproject.core.tree.TreeNode
-import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.query.Combination
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.FieldConstraint
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.ontology.I2b2Secure
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.*
 
 @CompileStatic
+@ToString(excludes = 'delegate,parent,children', includeNames = true, includePackage = false)
 class TreeNodeImpl implements TreeNode {
 
     I2b2Secure delegate
@@ -44,7 +38,9 @@ class TreeNodeImpl implements TreeNode {
     EnumSet<OntologyTerm.VisualAttributes> visualAttributes
 
     String dimension
-    
+
+    String conceptCode
+
     String conceptPath
 
     TreeNodeImpl(I2b2Secure term, List<TreeNode> children) {
@@ -152,6 +148,12 @@ class TreeNodeImpl implements TreeNode {
             OntologyTermType.CATEGORICAL_OPTION
         } else if (CATEGORICAL in visualAttributes) {
             OntologyTermType.CATEGORICAL
+        } else if (DATE in visualAttributes) {
+            OntologyTermType.DATE
+        } else if (TEXT in visualAttributes) {
+            OntologyTermType.TEXT
+        } else if (MODIFIER_LEAF in visualAttributes) {
+            OntologyTermType.MODIFIER
         } else {
             OntologyTermType.UNKNOWN
         }

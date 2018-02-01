@@ -11,6 +11,12 @@ CREATE TABLE bio_asy_analysis_data_idx (
 );
 
 --
+-- Name: bio_asy_analysis_data_idx pk_bio_asy_data_idx; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY bio_asy_analysis_data_idx
+    ADD CONSTRAINT pk_bio_asy_data_idx PRIMARY KEY (bio_asy_analysis_data_idx_id);
+
+--
 -- Name: tf_trg_bio_asy_adi_id(); Type: FUNCTION; Schema: biomart; Owner: -
 --
 CREATE FUNCTION tf_trg_bio_asy_adi_id() RETURNS trigger
@@ -25,17 +31,7 @@ begin
 $$;
 
 --
--- Name: trg_bio_asy_adi_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_asy_analysis_data_idx trg_bio_asy_adi_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_asy_adi_id BEFORE INSERT ON bio_asy_analysis_data_idx FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_asy_adi_id();
-
---
--- Name: seq_bio_data_id; Type: SEQUENCE; Schema: biomart; Owner: -
---
-CREATE SEQUENCE seq_bio_data_id
-    START WITH 391713417
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
 

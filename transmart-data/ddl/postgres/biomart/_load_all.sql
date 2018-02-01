@@ -37,6 +37,7 @@
 \i biomart/bio_assay_analysis_data_tea.sql
 \i biomart/bio_assay_analysis_eqtl.sql
 \i biomart/bio_assay_analysis_ext.sql
+\i biomart/bio_assay_geno_platform_probe.sql
 \i biomart/bio_assay_analysis_gwas.sql
 \i biomart/bio_assay_cohort.sql
 \i biomart/bio_assay_dataset.sql
@@ -52,12 +53,14 @@
 \i biomart/bio_assay_data_annotation.sql
 \i biomart/bio_assay_data_stats.sql
 \i biomart/bio_assay_sample.sql
-\i biomart/bio_asy_analysis_data_idx.sql
 \i biomart/bio_asy_analysis_data_ext.sql
+\i biomart/bio_asy_analysis_data_idx.sql
 \i biomart/bio_asy_analysis_dataset.sql
 \i biomart/bio_asy_analysis_eqtl_top50.sql
 \i biomart/bio_asy_analysis_gwas_top50.sql
 \i biomart/bio_asy_data_stats_all.sql
+\i biomart/genotype_probe_annotation.sql
+\i biomart/bio_asy_platform_probe_anno.sql
 \i biomart/bio_cgdcp_data.sql
 \i biomart/bio_clinc_trial_attr.sql
 \i biomart/bio_clinical_trial_design.sql
@@ -92,6 +95,7 @@
 \i biomart/views/bio_marker_correl_mv.sql
 \i biomart/views/bio_marker_correl_view.sql
 \i biomart/views/bio_marker_exp_analysis_mv.sql
+\i biomart/views/bio_marker_exp_analysis_mv_10.sql
 \i biomart/bio_patient_event_attr.sql
 \i biomart/bio_recombination_rates.sql
 \i biomart/bio_regulome_score.sql

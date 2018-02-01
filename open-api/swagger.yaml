@@ -788,11 +788,10 @@ paths:
                 Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
               schema:
                 $ref: '#/definitions/observations'
-  /v2/observations/aggregate:
+  /v2/observations/aggregates_per_concept:
     get:
       description: |
-        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and
-        'values'. The first three require numeric variables, the last one categorical variables.
+        Calculates and returns an aggregates for both types of concepts, categorical and numerical.
       tags:
         - v2
       parameters:
@@ -801,31 +800,14 @@ paths:
           in: query
           description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
           type: string
-        - name: type
-          required: true
-          in: query
-          description: |
-            'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve
-            multiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.
-          type: string
       responses:
         200:
           description: 'return the result in a json object. Example: `{min: 56}`.'
           schema:
             type: object
-            description: 'only the value of the requested aggregate type will be present.'
             properties:
-              min:
-                type: number
-              max:
-                type: number
-              average:
-                type: number
-              values:
-                type: array
-                items:
-                  type: string
-                description: A list of the distinct values for categorical variables
+              aggregatesPerConcept:
+                $ref: '#/definitions/AggregatesMap'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -842,27 +824,21 @@ paths:
               constraint:
                 type: string
                 description: see GET parameters
-              type:
-                type: string
-                description: see GET parameters. Can be either a string or an array of strings.
-            required: [ "constraint", "type" ]
+            required: [ "constraint" ]
       responses:
         200:
-          description: 'return the result in a json object. Example: `{min: 56}`.'
+          description: 'return the result in a json object. Example: `{"aggregatesPerConcept": "GENDER": { "categoricalValueAggregatesPerConcept": { "valueCounts": { "Female": 323, "Male": 312} } }}`.'
           schema:
             type: object
-            description: 'only the value of the requested aggregate type will be present.'
             properties:
-              min:
-                type: number
-              max:
-                type: number
-              average:
-                type: number
+              aggregatesPerConcept:
+                $ref: '#/definitions/AggregatesMap'
   /v2/observations/count:
     get:
       description: |
         Counts the number of observations that satisfy the given constraint.
+        Deprecated in favour of `/v2/observations/counts`.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -881,7 +857,10 @@ paths:
                 type: integer
     post:
           description: |
-            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+            Works the same as GET, but with support for longer constraints.
+            Use this, if the total length of the URL may be longer than the maximum length.
+            Deprecated in favour of `/v2/observations/counts`.
+          deprecated: true
           tags:
             - v2
           consumes:
@@ -905,6 +884,46 @@ paths:
                 properties:
                   count:
                     type: integer
+  /v2/observations/counts:
+    get:
+      description: |
+        Counts the number of observations that satisfy the given constraint and the number of associated patients.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          type: string
+      responses:
+        200:
+          description: 'Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.'
+          schema:
+            $ref: '#/definitions/Counts'
+    post:
+          description: |
+            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+          tags:
+            - v2
+          consumes:
+            - application/json
+          parameters:
+            - name: body
+              required: true
+              in: body
+              schema:
+                type: object
+                properties:
+                  constraint:
+                    type: string
+                    description: see GET parameters
+                required: [ "constraint" ]
+          responses:
+            200:
+              description: 'Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.'
+              schema:
+                $ref: '#/definitions/Counts'
   /v2/observations/counts_per_study:
     get:
       description: |
@@ -1226,6 +1245,10 @@ paths:
           in: query
           type: integer
           description: 'The max node depth returned'
+        - name: constraints
+          in: query
+          type: boolean
+          description: 'Flag if the constraints should be included in the result (always true for hal, defaults to true for json)'
         - name: counts
           in: query
           type: boolean
@@ -1245,6 +1268,31 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/treeNode'
+  /v2/tree_nodes/clear_cache:
+    get:
+      description: |
+        Clears tree node and counts caches.
+        Only for administrators.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            The cache has been cleared.
+  /v2/tree_nodes/rebuild_cache:
+    get:
+      description: |
+        Clears tree node and counts caches and rebuilds the tree node cache per user.
+        Only for administrators.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Clearing and rebuilding the cache has been started.
+        503:
+          description: |
+            A rebuild operation is already in progress.
   /v2/storage:
     get:
       description: |
@@ -1595,14 +1643,14 @@ paths:
       responses:
         204:
           description: 'returns null'
-  /v2/dimensions/{$dimensionName}/elements:
+  /v2/dimensions/{dimensionName}/elements:
     get:
       description: |
         Gets all elements from a dimension of given name that satisfy the constaint if given.
       tags:
         - v2
       parameters:
-        - name: $dimensionName
+        - name: dimensionName
           in: path
           required: true
           type: string
@@ -1666,7 +1714,7 @@ paths:
                 description: 'observations that meet this constraint get exported. Note: whether id or constraint has to be supplied, not both. Example: `constraint={"type": "study_name", "studyId": "EHR"}`.'
               elements:
                 type: string
-                description: 'json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, tabular:<boolean>]`,
+                description: 'json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,
                 where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,
                 or one of the supported high dimensional data types and `format` is one of the supported file formats
                 you want to export current data type to. The tabular flag (optional, false by default) specifies whether
@@ -1732,21 +1780,17 @@ paths:
             items:
               $ref: '#/definitions/export_job'
   /v2/export/data_formats:
-    get:
+    post:
       description: |
-        Gets data formats for specified sets, including `clinical` type and high dimensional types.
+        Analyses the constraint and gets result data formats, including `clinical` type and high dimensional types.
       tags:
         - v2
       parameters:
-        - name: id
+        - name: constraint
           required: true
-          in: query
-          description: 'Result instance ids. To specify more than one value, multiple parameter
-          instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`'
-          type: array
-          collectionFormat: multi
-          items:
-            type: integer
+          in: body
+          description: 'json that specifies the constraint. Example: `{"type":"study_name","studyId":"EHR"}`.'
+          type: object
       responses:
         200:
           description:  |
@@ -1765,6 +1809,12 @@ paths:
         Gets supported export file formats.
       tags:
         - v2
+      parameters:
+        - name: dataView
+          required: false
+          in: query
+          description: 'Data view.'
+          type: string
       produces:
         - application/json
       responses:
@@ -1879,6 +1929,7 @@ paths:
       responses:
         204:
           description: 'returns null'
+
 definitions:
   version:
     type: object
@@ -2110,7 +2161,22 @@ definitions:
         type: array
         items:
           type: string
-        
+      metadata:
+        $ref: '#/definitions/StudyMetadata'
+
+  StudyMetadata:
+    type: object
+    properties:
+      conceptToVariableName:
+        description: 'a map from concept code to variable name in the study.'
+        type: object
+        properties:
+          '<conceptCode>':
+            type: string
+        additionalProperties:
+          type: string
+
+
   patient:
     type: object
     properties:
@@ -2166,6 +2232,38 @@ definitions:
         type: string
       name:
         type: string
+      metadata:
+        $ref: '#/definitions/VariableMetadata'
+
+  VariableMetadata:
+    type: object
+    properties:
+      type:
+        description: NUMERIC, DATE, STRING
+        type: string
+      measure:
+        description: NOMINAL, ORDINAL, SCALE
+        type: string
+      description:
+        type: string
+      width:
+        type: integer
+      decimals:
+        type: integer
+      columns:
+        type: integer
+      valueLabels:
+        description: a map from value (of type integer) to label (of type string)
+        type: object
+        properties:
+          '<value>':
+            type: string
+        additionalProperties:
+          type: string
+      missingValues:
+        type: array
+        items:
+          type: integer
 
   Counts:
     type: object
@@ -2176,17 +2274,17 @@ definitions:
         type: integer
 
   CountsMap:
-    description: a map from string to Counts. `default` is an example key.
+    description: a map from string to Counts.
     properties:
-      default:
+      '<key>':
         $ref: '#/definitions/Counts'
     additionalProperties:
       $ref: '#/definitions/Counts'
 
   CountsMapMap:
-    description: a map from string to a map from string to Counts. `default` is an example key.
+    description: a map from string to a map from string to Counts.
     properties:
-      default:
+      '<key>':
         $ref: '#/definitions/CountsMap'
     additionalProperties:
       $ref: '#/definitions/CountsMap'
@@ -2354,3 +2452,41 @@ definitions:
       updateDate:
         type: string
         format: 'date-time'
+
+  AggregatesMap:
+    type: object
+    description: 'Map from string to aggregates.'
+    properties:
+      '<conceptCode>':
+        $ref: '#/definitions/Aggregates'
+    additionalProperties:
+      $ref: '#/definitions/Aggregates'
+
+  Aggregates:
+    description: Object for numerical aggregates or categorical value counts. Only the value of the requested aggregate type will be present.
+    type: object
+    properties:
+      numericalValueAggregatesPerConcept:
+        type: object
+        properties:
+          min:
+            type: number
+          max:
+            type: number
+          average:
+            type: number
+          count:
+            type: number
+          std_dev:
+            type: number
+      categoricalValueAggregatesPerConcept:
+        type: object
+        properties:
+          valueCounts:
+            description: map from value to count
+            type: object
+            properties:
+              '<value>':
+                type: number
+            additionalProperties:
+              type: number

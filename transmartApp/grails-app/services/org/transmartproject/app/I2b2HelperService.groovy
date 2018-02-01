@@ -536,7 +536,7 @@ class I2b2HelperService {
         ], { row ->
             log.trace("inrow of intersection")
             i = row.patcount;
-            log.trace(row.patcount);
+            log.trace(row.patcount.toString());
         })
         return i;
     }

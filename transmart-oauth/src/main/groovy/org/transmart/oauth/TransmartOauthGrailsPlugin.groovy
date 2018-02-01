@@ -6,10 +6,13 @@ import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugins.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.MapFactoryBean
+import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider
 import org.springframework.security.web.DefaultRedirectStrategy
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy
+import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.transaction.interceptor.TransactionInterceptor
 import org.springframework.web.util.IntrospectorCleanupListener
 import org.transmart.oauth.ActiveDirectoryLdapAuthenticationExtension
@@ -56,6 +59,23 @@ OAuth plugin for Transmart
         { ->
             xmlns context: "http://www.springframework.org/schema/context"
             xmlns aop: "http://www.springframework.org/schema/aop"
+
+            sessionRegistry(SessionRegistryImpl)
+            sessionAuthenticationStrategy(ConcurrentSessionControlAuthenticationStrategy, sessionRegistry) {
+                if (grailsApplication.config.org.transmartproject.maxConcurrentUserSessions) {
+                    maximumSessions = grailsApplication.config.org.transmartproject.maxConcurrentUserSessions
+                } else {
+                    maximumSessions = 10
+                }
+            }
+            concurrentSessionFilter(ConcurrentSessionFilter) {
+                sessionRegistry = sessionRegistry
+                expiredUrl = '/login'
+            }
+
+            //overrides bean implementing GrailsUserDetailsService?
+            userDetailsService(AuthUserDetailsService)
+
 
             redirectStrategy(DefaultRedirectStrategy)
             accessDeniedHandler(AccessDeniedHandlerImpl) {

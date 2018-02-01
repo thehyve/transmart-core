@@ -1,6 +1,6 @@
 package org.transmartproject.utils
 
-import au.com.bytecode.opencsv.CSVReader
+import com.opencsv.CSVReader
 
 /**
  * Created with IntelliJ IDEA.

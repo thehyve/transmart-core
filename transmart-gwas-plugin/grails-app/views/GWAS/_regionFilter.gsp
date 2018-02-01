@@ -6,7 +6,7 @@
 <br/>
 <div onclick="jQuery('[name=\'regionFilter\'][value=\'gene\']').attr('checked', true);">
 <g:radio name="regionFilter" value="gene"/> 
-Gene: <tmpl:/GWAS/extTagSearchField width="100" fieldName="filterGeneId" searchAction="searchAutoComplete" searchController="GWAS" />
+Gene/RSID: <tmpl:/GWAS/extTagSearchField width="100" fieldName="filterGeneId" searchAction="searchAutoComplete" searchController="GWAS" />
 <br/><br/> <br/>
 Use: <g:select name="filterGeneUse" from="${['19':'HG19','18':'HG18']}" optionKey="${{it.key}}" optionValue="${{it.value}}"/>
 <br/><br/>

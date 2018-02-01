@@ -12,13 +12,13 @@ CREATE TABLE bio_marker (
 );
 
 --
--- Name: biomarker_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_marker biomarker_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_marker
     ADD CONSTRAINT biomarker_pk PRIMARY KEY (bio_marker_id);
 
 --
--- Name: biomarker_uk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_marker biomarker_uk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_marker
     ADD CONSTRAINT biomarker_uk UNIQUE (organism, primary_external_id);
@@ -32,6 +32,11 @@ CREATE UNIQUE INDEX bio_marker_pk ON bio_marker USING btree (bio_marker_id);
 -- Name: bio_mkr_ext_id; Type: INDEX; Schema: biomart; Owner: -
 --
 CREATE INDEX bio_mkr_ext_id ON bio_marker USING btree (primary_external_id);
+
+--
+-- Name: bio_mkr_src_ext_id_idx; Type: INDEX; Schema: biomart; Owner: -
+--
+CREATE INDEX bio_mkr_src_ext_id_idx ON bio_marker USING btree (primary_source_code, primary_external_id);
 
 --
 -- Name: bio_mkr_type_idx; Type: INDEX; Schema: biomart; Owner: -
@@ -48,7 +53,7 @@ begin  if NEW.BIO_MARKER_ID is null then          select nextval('biomart.SEQ_BI
 $$;
 
 --
--- Name: trg_bio_marker_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_marker trg_bio_marker_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_marker_id BEFORE INSERT ON bio_marker FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_marker_id();
 

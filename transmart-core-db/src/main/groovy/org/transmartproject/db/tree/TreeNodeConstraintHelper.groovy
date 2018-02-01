@@ -32,9 +32,9 @@ class TreeNodeConstraintHelper {
         }
         switch (node.tableName) {
             case 'concept_dimension':
-                if (node.columnName == 'concept_path' && node.hasOperator(['=', 'like'])) {
+                if (node.columnName in ['concept_path', 'concept_code'] && node.hasOperator(['=', 'like'])) {
                     // constraint for the concept
-                    def conceptConstraint = new ConceptConstraint(path: node.dimensionCode)
+                    def conceptConstraint = new ConceptConstraint(conceptCode: node.conceptCode)
                     // lookup study for this node
                     def parentStudyId = node.study?.studyId
                     if (!parentStudyId) {

@@ -17,7 +17,7 @@ CREATE TABLE bio_assay_cohort (
 );
 
 --
--- Name: pk_bio_assay_cohort; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_cohort pk_bio_assay_cohort; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_cohort
     ADD CONSTRAINT pk_bio_assay_cohort PRIMARY KEY (bio_assay_cohort_id);
@@ -38,7 +38,7 @@ END;
 $$;
 
 --
--- Name: trg_bio_assay_cohort_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_cohort trg_bio_assay_cohort_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_cohort_id BEFORE INSERT ON bio_assay_cohort FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_cohort_id();
 

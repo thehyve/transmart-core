@@ -4,9 +4,11 @@ package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
-import grails.converters.JSON
 import grails.orm.HibernateCriteriaBuilder
+import grails.plugin.cache.CacheEvict
+import grails.plugin.cache.CachePut
 import grails.plugin.cache.Cacheable
+import grails.transaction.Transactional
 import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
@@ -19,6 +21,7 @@ import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
+import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
@@ -47,10 +50,10 @@ import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.Study
@@ -77,6 +80,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Autowired
     OntologyTermsResource conceptsResource
+
+    @Autowired
+    UsersResource usersResource
 
     @Override Dimension getDimension(String name) {
         DimensionDescription.findByName(name)?.dimension
@@ -158,6 +164,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 property 'valueType', 'valueType'
                 property 'textValue', 'textValue'
                 property 'numberValue', 'numberValue'
+                property 'rawValue', 'rawValue'
             }
         }
 
@@ -231,6 +238,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     private final Field valueTypeField = new Field(dimension: VALUE, fieldName: 'valueType', type: Type.STRING)
     private final Field textValueField = new Field(dimension: VALUE, fieldName: 'textValue', type: Type.STRING)
+    private final Field rawValueField = new Field(dimension: VALUE, fieldName: 'rawValue', type: Type.STRING)
     private final Field numberValueField = new Field(dimension: VALUE, fieldName: 'numberValue', type: Type.NUMERIC)
 
     @Lazy
@@ -243,6 +251,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
     }
 
+    @Transactional(readOnly = true)
     private void checkAccess(MultiDimConstraint constraint, User user) throws AccessDeniedException {
         assert user, 'user is required'
         assert constraint, 'constraint is required'
@@ -314,69 +323,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         )
     }
 
-    Class aggregateReturnType(AggregateType at) {
-        switch (at) {
-            case AggregateType.COUNT:
-                return Long
-            case AggregateType.VALUES:
-                return List
-            default:
-                return Number
-        }
-    }
-
-    private String aggregateFieldType(AggregateType at) {
-        switch (at) {
-            case AggregateType.VALUES:
-                return ObservationFact.TYPE_TEXT
-            case AggregateType.COUNT:
-                return null
-            default:
-                return ObservationFact.TYPE_NUMBER
-        }
-    }
-
-    private static org.hibernate.criterion.Projection projectionForAggregate(AggregateType at) {
-        switch (at) {
-            case AggregateType.MIN:
-                return Projections.min('numberValue')
-            case AggregateType.AVERAGE:
-                return Projections.avg('numberValue')
-            case AggregateType.MAX:
-                return Projections.max('numberValue')
-            case AggregateType.COUNT:
-                return Projections.rowCount()
-            case AggregateType.PATIENT_COUNT:
-                return Projections.countDistinct('patient')
-            case AggregateType.VALUES:
-                return Projections.distinct(Projections.property('textValue'))
-            default:
-                throw new QueryBuilderException("Query type not supported: ${at}")
-        }
-    }
-
-    private Map getAggregate(List<AggregateType> aggregateTypes, DetachedCriteria criteria) {
-        List<Class> rts = aggregateTypes.collect { aggregateReturnType(it) }
-
-        if(rts.any { List.isAssignableFrom(it) }) {
-            if (rts.size() != 1) throw new InvalidQueryException("aggregates that return a list of values cannot be " +
-                    "combined with other aggregates in the same call")
-
-            criteria = criteria.setProjection(projectionForAggregate(aggregateTypes[0]))
-            def res = getList(criteria)
-            return [(aggregateTypes[0].toString()): res]
-
-        } else {
-            def projections = Projections.projectionList()
-            aggregateTypes.each {
-                projections.add(projectionForAggregate(it), it.toString())
-            }
-            criteria = criteria.setProjection(projections).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-            def rv = get(criteria)
-            return rv
-        }
-    }
-
     private def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
@@ -426,24 +372,69 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         (Long) get(builder.buildCriteria((Constraint) constraint).setProjection(Projections.rowCount()))
     }
 
+    @Transactional(readOnly = true)
+    Counts freshCounts(MultiDimConstraint constraint, User user) {
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+        def row = get(criteria) as Map
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)
+    }
+
     @Override
-    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
+            key = '{ #constraint.toJson(), #user.username }')
+    Counts counts(MultiDimConstraint constraint, User user) {
+        freshCounts(constraint, user)
+    }
+
+    @CachePut(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Counts updateCountsCache(MultiDimConstraint constraint, User user) {
+        freshCounts(constraint, user)
+    }
+
+    @Override
+    void rebuildCountsCacheForUser(User user) {
+        MultidimensionalDataResourceService wrappedThis =
+                Holders.grailsApplication.mainContext.multidimensionalDataResourceService
+        wrappedThis.updateCountsCache(new TrueConstraint(), user)
+    }
+
+    @Transactional(readOnly = true)
+    Map<String, Counts> freshCountsPerConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per concept ..."
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
                 .add(Projections.groupProperty('conceptCode'), 'conceptCode')
-                .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        rows.collectEntries{ Map row ->
+        rows.collectEntries { Map row ->
             [(row.conceptCode as String):
                      new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
         }
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerConcept',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
+        freshCountsPerConcept(constraint, user)
     }
 
     @Override
@@ -455,8 +446,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                    .add(Projections.rowCount(), 'observationCount')
+                    .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -474,18 +465,18 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         Counts summary
     }
 
-    @Override
-    Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
+    @Transactional(readOnly = true)
+    Map<String, Map<String, Counts>> freshCountsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per study and concept..."
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
                 .setProjection(Projections.projectionList()
-                    .add(Projections.groupProperty('conceptCode'), 'conceptCode')
-                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .add(Projections.groupProperty('conceptCode'), 'conceptCode')
+                .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List result = getList(criteria)
         def t2 = new Date()
@@ -503,9 +494,50 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
-    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
-    Long cachedCount(MultiDimConstraint constraint, User user) {
-        count(constraint, user)
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> countsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Fetching counts per per study per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
+        freshCountsPerStudyAndConcept(constraint, user)
+    }
+
+    @CachePut(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint, User user, Map<String, Counts> newCounts) {
+        log.debug "Updating counts per study per concept cache for user: ${user.username}, constraint: ${constraint.toJson()}"
+        newCounts
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    void rebuildCountsPerStudyAndConceptCache() {
+        log.info "Rebuilding counts per study and concept cache ..."
+        def t1 = new Date()
+
+        Map<String, Map<String, Counts>> countsPerStudyAndConcept = [:]
+
+        MultidimensionalDataResourceService wrappedThis =
+                Holders.grailsApplication.mainContext.multidimensionalDataResourceService
+        //Sharing counts between users does not always work for other type of constraints
+        // e.g. In case when cross-study concepts involved and different users have different rights on them.
+        MultiDimConstraint constraintToPreCache = new TrueConstraint()
+        usersResource.getUsers().each { User user ->
+            log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
+            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+            def studyIds = studies*.studyId as Set
+            def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
+            if (notFetchedStudyIds) {
+                Map<String, Map<String, Counts>> freshCounts = freshCountsPerStudyAndConcept(constraintToPreCache, user)
+                countsPerStudyAndConcept.putAll(freshCounts)
+            }
+            def countsForUser = studyIds.collectEntries { String studyId -> [studyId, countsPerStudyAndConcept[studyId]] }
+            wrappedThis.updateCountsPerStudyAndConceptCache(constraintToPreCache, user, countsForUser)
+        }
+
+        def t2 = new Date()
+        log.info "Caching counts per study and concept took ${t2.time - t1.time} ms."
     }
 
     /**
@@ -665,15 +697,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override QueryResult createObservationSetQueryResult(String name, User user, String constraintText, String apiVersion) {
-        createQueryResult(
-                name,
-                user,
-                constraintText,
-                apiVersion,
-                QtQueryResultType.load(QueryResultType.GENERIC_QUERY_RESULT_ID)) { QtQueryResultInstance queryResult -> -1 }
-    }
-
     @Override QueryResult findQueryResult(Long queryResultId, User user) {
         QueryResult queryResult = QtQueryResultInstance.findById(queryResultId)
         if (queryResult == null) {
@@ -683,36 +706,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             throw new AccessDeniedException("Access denied to patient set with id ${queryResultId}.")
         }
         queryResult
-    }
-
-    @Override
-    MultiDimConstraint createQueryResultsDisjunctionConstraint(List<Long> queryResultIds, User user) {
-        List<QueryResult> queryResults = queryResultIds.collect { findQueryResult(it, user) }
-
-        Map<Long, List<QueryResult>> queryResultTypeByType = queryResults
-                .groupBy { it.queryResultType.id }
-                .withDefault { [] }
-
-        Set<Long> foundNotSupportedQueryTypeIds = queryResultTypeByType.keySet() -
-                [QueryResultType.PATIENT_SET_ID, QueryResultType.GENERIC_QUERY_RESULT_ID]
-        assert !foundNotSupportedQueryTypeIds:
-                "Query types with following ids are not supported: ${foundNotSupportedQueryTypeIds}"
-
-        List<Constraint> patientSetConstraints = queryResultTypeByType[QueryResultType.PATIENT_SET_ID]
-                .collect { QueryResult qr -> new PatientSetConstraint(patientSetId: qr.id) }
-        List<Constraint> observationSetConstraints = queryResultTypeByType[QueryResultType.GENERIC_QUERY_RESULT_ID]
-                .collect { QueryResult qr ->
-            String constraintString = qr.queryInstance.queryMaster.requestConstraints
-            ConstraintFactory.create(JSON.parse(constraintString) as Map)
-        }
-
-        List<Constraint> constraints = patientSetConstraints + observationSetConstraints
-
-        if (constraints.size() == 1) {
-            constraints.first()
-        } else {
-            new OrConstraint(args: constraints)
-        }
     }
 
     Iterable<QueryResult> findQueryResults(final User user, QueryResultType resultType) {
@@ -735,14 +728,11 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         findQueryResults(user, QtQueryResultType.load(QueryResultType.PATIENT_SET_ID))
     }
 
-    @Override Iterable<QueryResult> findObservationSetQueryResults(User user) {
-        findQueryResults(user, QtQueryResultType.load(QueryResultType.GENERIC_QUERY_RESULT_ID))
-    }
-
     @Override
-    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
+            key = '{ #constraint.toJson(), #user.username }')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
-        getDimensionElementsCount(DimensionImpl.PATIENT, constraint, user)
+        getDimensionElementsCount(PATIENT, constraint, user)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
@@ -785,113 +775,53 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    /**
-     * @description Function for getting a aggregate value of a single field.
-     * The allowed queryTypes are MIN, MAX and AVERAGE.
-     * The responsibility for checking the queryType is allocated to the controller.
-     * @param query
-     * @param user
-     */
-    @Override Map aggregate(List<AggregateType> types, MultiDimConstraint constraint_, User user) {
-        def constraint = (Constraint) constraint_
+    @Override Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(
+            MultiDimConstraint constraint, User user) {
+        assert constraint instanceof Constraint
         checkAccess(constraint, user)
 
         def builder = getCheckedQueryBuilder(user)
-
-        def fieldTypes = types.collect { aggregateFieldType(it) }.unique()
-        if(fieldTypes.findAll().size() > 1) throw new InvalidQueryException(
-                "aggregate queries on numeric and textual values can not be combined in a single call")
-
-        if(fieldTypes.size() == 0) return [:]
-
-        def typedConstraint = fieldTypes.size() != 1 ? constraint :
-                new AndConstraint(args: [constraint, new FieldConstraint(
-                    operator: Operator.EQUALS,
-                    field: valueTypeField,
-                    value: fieldTypes[0],
-                )])
-
-        // get aggregate value
-        DetachedCriteria queryCriteria = builder.buildCriteria(typedConstraint)
-        def result = getAggregate(types, queryCriteria)
-
-        if (result == null || result.values().any {it == null || (it instanceof List && ((List) it).empty)}) {
-            // results not found, do some diagnosis to discover why not so we can return a useful error message
-            diagnoseEmptyAggregate(types, constraint, builder)
-
-            // If diagnoseEmptyAggregate didn't throw any kind of exception, nothing left to do but to return the
-            // (empty) result
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
+        def projections = Projections.projectionList()
+        projections.add(Projections.groupProperty('conceptCode'), 'conceptCode')
+        projections.add(Projections.min('numberValue'), 'min')
+        projections.add(Projections.max('numberValue'), 'max')
+        projections.add(Projections.avg('numberValue'), 'avg')
+        projections.add(Projections.count('numberValue'), 'count')
+        projections.add(Projections.sqlProjection(
+                'STDDEV_SAMP(nval_num) as stdDev',
+                [ 'stdDev' ] as String[],
+                [ StandardBasicTypes.DOUBLE ] as org.hibernate.type.Type[]))
+        criteria
+                .setProjection(projections)
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+                .add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+        getList(criteria).collectEntries { Map rowMap ->
+            String conceptCode = rowMap.remove('conceptCode')
+            [conceptCode, new NumericalValueAggregates(rowMap)]
         }
-
-        return result
     }
 
-    private void diagnoseEmptyAggregate(List<AggregateType> at, Constraint constraint,
-                                        HibernateCriteriaQueryBuilder builder) {
+    @Override Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(
+            MultiDimConstraint constraint, User user) {
+        assert constraint instanceof Constraint
+        checkAccess(constraint, user)
 
-        // Find the concept
-        List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
-
-        // check if the concept exists
-        def foundConceptPaths = ConceptDimension.getAll(conceptConstraintList*.path)*.conceptPath as Set
-        def nonexistantConstraints = conceptConstraintList.findAll { !(it.path in foundConceptPaths) }
-        if (nonexistantConstraints) {
-            throw new InvalidQueryException("Concept path(s) not found. Supplied path(s): " + nonexistantConstraints*.path.join(', '))
-        }
-        // check if there are any observations for the concept
-        if (!exists(builder, constraint)) {
-            throw new InvalidQueryException("No observations found for query")
-        }
-
-        at.collect {aggregateFieldType(it)}.unique().findAll().each {
-            def wrongValueTypeConstraint = new FieldConstraint(
-                    operator: Operator.NOT_EQUALS,
-                    field: valueTypeField,
-                    value: it,
-            )
-            if(exists(builder, new AndConstraint(args: [(Constraint) constraint, wrongValueTypeConstraint]))) {
-                throw new InvalidQueryException('One of the concepts/observations has the wrong type for this aggregation')
-            }
-        }
-
-        // check if the concept is truly numerical (all textValue are E and all numberValue have a value) or textual
-
-        def textTypeConstraint = new FieldConstraint(
-                operator: Operator.EQUALS,
-                field: valueTypeField,
-                value: ObservationFact.TYPE_TEXT,
-        )
-
-        def numberTypeConstraint = new FieldConstraint(
-                operator: Operator.EQUALS,
-                field: valueTypeField,
-                value: ObservationFact.TYPE_NUMBER,
-        )
-
-        def textValueEConstraint = new FieldConstraint(
-                operator: Operator.EQUALS,
-                field: textValueField,
-                value: "E"
-        )
-
-        // Transmart currently does not allow null values in the ObservationFacts, but it could be extended to allow
-        // that.
-        def numberValueNotNullConstraint = new Negation(arg: new NullConstraint(field: numberValueField))
-        def textValueNotNullConstraint = new Negation(arg: new NullConstraint(field: textValueField))
-
-        def invalidObservationConstraint = new Negation(arg: new OrConstraint(args: [
-                new AndConstraint(args: [numberTypeConstraint, textValueEConstraint, numberValueNotNullConstraint]),
-                new AndConstraint(args: [textTypeConstraint, textValueNotNullConstraint])
-        ]))
-
-        def invalidObservations = getIterable(builder.buildCriteria(
-                new AndConstraint(args: [(Constraint) constraint, invalidObservationConstraint])))
-
-        invalidObservations.withCloseable {
-            for(ObservationFact o in invalidObservations) {
-                // Retrieving the value will throw an exception
-                o.value
-            }
+        def builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
+        def projections = Projections.projectionList()
+        projections.add(Projections.groupProperty('conceptCode'), 'conceptCode')
+        projections.add(Projections.groupProperty('textValue'), 'textValue')
+        projections.add(Projections.rowCount(), 'count')
+        criteria.setProjection(projections)
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+                .add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+        getList(criteria).groupBy { it.conceptCode }.collectEntries { String conceptCode, List<Map> rows ->
+            Map<String, Integer> valueCounts = rows.collectEntries { [ it.textValue, it.count ] }
+            [
+                    conceptCode,
+                    new CategoricalValueAggregates(valueCounts: valueCounts)
+            ]
         }
     }
 
@@ -977,12 +907,55 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         ]
     }
 
-    @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint_, User user, List<Dimension> orderByDimensions = []) {
-        Constraint constraint = (Constraint) constraint_
+    @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user, List<Dimension> orderByDimensions = []) {
+        assert constraint instanceof Constraint
         checkAccess(constraint, user)
         def dataType = 'clinical'
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(DbUser.load(user.id))
         retrieveData(dataType, accessibleStudies, constraint: constraint, sort: orderByDimensions)
+    }
+
+    /**
+     * Clears the counts cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @Override
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
+            allEntries = true)
+    void clearCountsCache() {
+        log.info 'Clearing counts cache ...'
+    }
+
+    /**
+     * Clears the patient count cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @Override
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
+            allEntries = true)
+    void clearPatientCountCache() {
+        log.info 'Clearing patient count cache ...'
+    }
+
+    /**
+     * Clears the counts per concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @Override
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerConcept',
+            allEntries = true)
+    void clearCountsPerConceptCache() {
+        log.info 'Clearing counts per concept count cache ...'
+    }
+
+    /**
+     * Clears the counts per study and concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
+            allEntries = true)
+    void clearCountsPerStudyAndConceptCache() {
+        log.info 'Clearing counts per study and concept count cache ...'
     }
 
 }

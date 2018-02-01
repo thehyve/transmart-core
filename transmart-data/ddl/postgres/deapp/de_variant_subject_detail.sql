@@ -21,13 +21,13 @@ CREATE TABLE de_variant_subject_detail (
     alt character varying(500),
     qual character varying(100),
     filter character varying(50),
-    info character varying(10000), --changed from text ... CLOB in oracle
+    info character varying(10000),
     format character varying(500),
     variant_value text
 );
 
 --
--- Name: variant_subject_detail_id; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_subject_detail variant_subject_detail_id; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_subject_detail
     ADD CONSTRAINT variant_subject_detail_id PRIMARY KEY (variant_subject_detail_id);
@@ -53,7 +53,7 @@ CREATE INDEX gen_variant_subj_det_chr_pos ON de_variant_subject_detail USING btr
 CREATE UNIQUE INDEX variant_subject_detail_uk ON de_variant_subject_detail USING btree (dataset_id, chr, pos, rs_id);
 
 --
--- Name: variant_subject_detail_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_subject_detail variant_subject_detail_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_subject_detail
     ADD CONSTRAINT variant_subject_detail_fk FOREIGN KEY (dataset_id) REFERENCES de_variant_dataset(dataset_id);

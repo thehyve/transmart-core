@@ -38,7 +38,7 @@ COMMENT ON COLUMN de_variant_subject_summary.reference IS 'This column contains 
 COMMENT ON COLUMN de_variant_subject_summary.assay_id IS 'Reference to de_subject_sample_mapping';
 
 --
--- Name: variant_subject_summary_id; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_subject_summary variant_subject_summary_id; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_subject_summary
     ADD CONSTRAINT variant_subject_summary_id PRIMARY KEY (variant_subject_summary_id);
@@ -54,7 +54,7 @@ CREATE INDEX gen_variant_subj_summ_chr_pos ON de_variant_subject_summary USING b
 CREATE UNIQUE INDEX variant_subject_summary_uk ON de_variant_subject_summary USING btree (dataset_id, chr, pos, rs_id, subject_id);
 
 --
--- Name: variant_subject_summary_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_subject_summary variant_subject_summary_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_subject_summary
     ADD CONSTRAINT variant_subject_summary_fk FOREIGN KEY (dataset_id) REFERENCES de_variant_dataset(dataset_id);

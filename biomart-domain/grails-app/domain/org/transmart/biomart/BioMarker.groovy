@@ -25,9 +25,7 @@
 
 package org.transmart.biomart
 
-import com.recomdata.util.IExcelProfile
-
-class BioMarker implements IExcelProfile {
+class BioMarker {
     Long id
     String name
     String description

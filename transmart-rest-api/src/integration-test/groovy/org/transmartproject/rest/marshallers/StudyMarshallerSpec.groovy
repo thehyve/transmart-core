@@ -46,6 +46,7 @@ class StudyMarshallerSpec extends MarshallerSpec {
         ResponseEntity<Resource> response = getJson(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
+        println(result.toString())
 
         then:
         response.statusCode.value() == 200

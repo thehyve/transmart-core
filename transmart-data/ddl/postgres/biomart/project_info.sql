@@ -48,25 +48,25 @@ CREATE TABLE project_info (
 );
 
 --
--- Name: project_info_file_name_key; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: project_info project_info_file_name_key; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY project_info
     ADD CONSTRAINT project_info_file_name_key UNIQUE (file_name);
 
 --
--- Name: project_info_id_key; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: project_info project_info_id_key; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY project_info
     ADD CONSTRAINT project_info_id_key UNIQUE (id);
 
 --
--- Name: project_info_name_key; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: project_info project_info_name_key; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY project_info
     ADD CONSTRAINT project_info_name_key UNIQUE (name);
 
 --
--- Name: project_info_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: project_info project_info_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY project_info
     ADD CONSTRAINT project_info_pkey PRIMARY KEY (file_id);

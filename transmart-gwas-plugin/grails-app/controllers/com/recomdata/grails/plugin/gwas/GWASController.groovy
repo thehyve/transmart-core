@@ -132,7 +132,7 @@ class GWASController {
         // retrieve the descriptions for each analysis
         def results = org.transmart.biomart.BioAssayAnalysis.executeQuery("select b.id AS bioAssayAnalysis, b.shortDescription, b.longDescription, b.name,c.sensitiveDesc, b.etlId " +
                 " from org.transmart.biomart.BioAssayAnalysis b LEFT JOIN b.ext c " +
-                " WHERE b.id in (" + analysisIds.join(',') + ") ORDER BY b.longDescription")
+                " WHERE b.id in (" + analysisIds.join(',') + ") ORDER BY lower(b.name)")
 
         // retrieve the analyses that are of type Time Course by checking the taxonomy
         def timeCourseAnalyses = org.transmart.searchapp.BioAnalysisAttributeLineage.executeQuery("select b1.bioAnalysisAttribute.bioAssayAnalysisID from org.transmart.searchapp.BioAnalysisAttributeLineage b1" +
@@ -861,6 +861,23 @@ class GWASController {
         response.outputStream << ret?.toString()
     }
 
+    def getExperimentSecureStudyList(){
+		
+        StringBuilder s = new StringBuilder();
+        s.append("SELECT so.bioDataUniqueId, so.bioDataId FROM SecureObject so Where so.dataType='Experiment'")
+        def t=[:];
+        //return access levels for the children of this path that have them
+        def results = SecureObject.executeQuery(s.toString());
+        for (row in results){
+            def token = row[0];
+            def dataid = row[1];
+            token=token.replaceFirst("EXP:","")
+            log.info(token+":"+dataid);
+            t.put(token,dataid);
+        }
+        return t;
+    }
+
     /**
      * Determine field to be used for genes within the SOLR queries and set session parameter
      * @param showSigGenesOnly boolean indicating whether analysis for all genes or only significant genes (default) will be shown
@@ -967,7 +984,8 @@ class GWASController {
                     log.warn "Unable to find an experiment for ${expNumber}"
                 } else {
                     if(secObjs.containsKey(experiment.accession)){
-                        if(!i2b2HelperService.getGWASAccess(experiment.accession, user).equals("Locked")){ // evaluate if user has access rights to this private study
+                        // evaluate if user has access rights to this private study
+                        if(!gwasWebService.getGWASAccess(experiment.accession, user).equals("Locked")){
                             exprimentAnalysis.put((experiment), c)
                             total += c
                         }
@@ -1004,33 +1022,11 @@ class GWASController {
         if (!studyWithResultsFound) {
             html = g.render(template: '/search/noResult', plugin: "biomartForGit").toString()
         } else {
-            html = g.render(template: '/GWAS/experiments', plugin: "transmartGwas", model: [experiments: exprimentAnalysis, analysisCount: total, duration: TimeCategory.minus(new Date(), startTime)]).toString()
+            html = g.render(template: '/GWAS/experiments', model: [experiments:
+                                                                                                     exprimentAnalysis, analysisCount: total, duration: TimeCategory.minus(new Date(), startTime)]).toString()
         }
 
         return html
-    }
-
-    /***
-     * 
-     * Returns list of secure Gwas analyses.
-     * 
-     */
-
-    def getExperimentSecureStudyList(){
-
-        StringBuilder s = new StringBuilder();
-        s.append("SELECT so.bioDataUniqueId, so.bioDataId FROM SecureObject so Where so.dataType='Experiment'")
-        def t=[:];
-        //return access levels for the children of this path that have them
-        def results = SecureObject.executeQuery(s.toString());
-        for (row in results){
-            def token = row[0];
-            def dataid = row[1];
-            token=token.replaceFirst("EXP:","")
-            log.info(token+":"+dataid);
-            t.put(token,dataid);
-        }
-        return t;
     }
 
     // Load the trial analysis for the given trial
@@ -1052,7 +1048,7 @@ class GWASController {
 				}
 		   }
 	   }*/
-        render(template: '/GWAS/analysis', model: [aList: analysisList], plugin: "transmartGwas")
+        render(template: '/GWAS/analysis', model: [aList: analysisList])
     }
 
 
