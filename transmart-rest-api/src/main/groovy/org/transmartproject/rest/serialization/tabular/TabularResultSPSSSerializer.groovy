@@ -117,10 +117,12 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
         List<DataColumn> columns = tabularResult.indicesList
         csvWriter.writeNext(columns.collect { toSpssLabel(it.label) } as String[])
-        tabularResult.rows.forEachRemaining({DataRow row ->
-            List<Object> valuesRow = columns.stream().map({DataColumn column -> row[column]}).collect(Collectors.toList())
+        Iterator<DataRow> rows = tabularResult.rows
+        while(rows.hasNext()) {
+            DataRow row = rows.next()
+            List<Object> valuesRow = columns.stream().map({ DataColumn column -> row[column] }).collect(Collectors.toList())
             csvWriter.writeNext(formatRowValues(valuesRow))
-        })
+        }
         csvWriter.flush()
     }
 
