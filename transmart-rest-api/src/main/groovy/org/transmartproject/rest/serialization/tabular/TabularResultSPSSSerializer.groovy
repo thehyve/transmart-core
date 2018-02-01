@@ -31,7 +31,13 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         }
 
         try {
-            writeSavFile(user, tabularResult, zipOutStream)
+            if (isPsppAvailable()) {
+                log.info('There is PSPP found. We are going to produce SAV file.')
+                writeSavFile(user, tabularResult, zipOutStream)
+            } else {
+                log.info('There is no PSPP found. We are going to produce SPSS + TSV files instead of SAV file.')
+                writeSpssAndTsvFiles(user, tabularResult, zipOutStream)
+            }
         } catch(Exception e) {
             zipOutStream.putNextEntry(new ZipEntry('spss/data.sav.err'))
             zipOutStream << e.message
@@ -42,66 +48,94 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     static writeSavFile(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
         def workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
 
-        // Write TSV file to disk and to the outputstream
-        def tsvDataFile = new File(workingDir, 'data.tsv')
-        tsvDataFile.withOutputStream { outputStream ->
-            writeValues(tabularResult, outputStream)
-        }
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
-        tsvDataFile.withInputStream { stream ->
-            zipOutStream << stream
-        }
-        zipOutStream.closeEntry()
-
-        // Write SPS file to disk and to the outputstream
-        def spsFile = new File(workingDir, 'data.sps')
-        spsFile.withOutputStream { outputStream ->
-            writeSpsFile(tabularResult, outputStream, tsvDataFile.path, 'data.sav')
-        }
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
-        spsFile.withInputStream { stream ->
-            zipOutStream << stream
-        }
-        zipOutStream.closeEntry()
-
         try {
-            try {
-                def command = 'pspp --version'
-                def process = command.execute()
-                process.waitForProcessOutput()
-                if (process.exitValue() != 0) {
-                    log.warn 'PSPP not available. Skip saving of spss/data.sav.'
-                    return
-                }
-            } catch(IOException e) {
-                log.warn 'PSPP not available. Skip saving of spss/data.sav.'
-                return
+            def tsvDataFile = new File(workingDir, 'data.tsv')
+            tsvDataFile.withOutputStream { outputStream ->
+                writeValues(tabularResult, outputStream)
             }
 
-            def command = 'pspp data.sps'
-            log.debug "Running PSPP in ${workingDir} ..."
-            def process = command.execute((String[])null, workingDir)
-            def outStream = new ByteArrayOutputStream()
-            def errStream = new ByteArrayOutputStream()
-            process.waitForProcessOutput(errStream, outStream)
-            log.debug "ERR: ${errStream}"
-            if (process.exitValue() != 0) {
-                log.error "PSPP error: ${errStream.toString()}"
-                throw new UnexpectedResultException("PSPP error: ${errStream.toString()}")
-            }
-            log.debug "PSPP completed."
+            def spsFile = new File(workingDir, 'data.sps')
             def savFile = new File(workingDir, 'data.sav')
+            spsFile.withOutputStream { outputStream ->
+                writeSpsFile(tabularResult, outputStream, tsvDataFile.path, savFile.path)
+            }
+
+            convertWithPspp(workingDir)
             zipOutStream.putNextEntry(new ZipEntry('spss/data.sav'))
             savFile.withInputStream { inputStream ->
                 zipOutStream << inputStream
             }
             zipOutStream.closeEntry()
         } catch(IOException e) {
-            log.error "PSPP error: ${e.message}", e
-            throw new UnexpectedResultException("PSPP error: ${e.message}", e)
+            String message = "Error while converting to sav file: ${e.message}"
+            log.error message, e
+            throw new UnexpectedResultException(message, e)
         } finally {
             workingDir.delete()
         }
+    }
+
+    static writeSpssAndTsvFiles(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
+        def workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-spss-', '-tmpdir')
+
+        try {
+            def tsvDataFile = new File(workingDir, 'data.tsv')
+            tsvDataFile.withOutputStream { outputStream ->
+                writeValues(tabularResult, outputStream)
+            }
+            zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
+            tsvDataFile.withInputStream { stream ->
+                zipOutStream << stream
+            }
+            zipOutStream.closeEntry()
+
+            def spsFile = new File(workingDir, 'data.sps')
+            spsFile.withOutputStream { outputStream ->
+                writeSpsFile(tabularResult, outputStream, 'data.sps')
+            }
+            zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
+            spsFile.withInputStream { stream ->
+                zipOutStream << stream
+            }
+            zipOutStream.closeEntry()
+        } catch(IOException e) {
+            String message = "Error while computin spss files: ${e.message}"
+            log.error message, e
+            throw new UnexpectedResultException(message, e)
+        } finally {
+            workingDir.delete()
+        }
+    }
+
+    private static void convertWithPspp(File workingDir) {
+        def command = 'pspp data.sps'
+        log.debug "Running PSPP in ${workingDir} ..."
+        def process = command.execute((String[])null, workingDir)
+        def outStream = new ByteArrayOutputStream()
+        def errStream = new ByteArrayOutputStream()
+        process.waitForProcessOutput(errStream, outStream)
+        log.debug "ERR: ${errStream}"
+        if (process.exitValue() != 0) {
+            log.error "PSPP error: ${errStream.toString()}"
+            throw new UnexpectedResultException("PSPP error: ${errStream.toString()}")
+        }
+        log.debug "PSPP completed."
+    }
+
+    private static boolean isPsppAvailable() {
+        try {
+            def command = 'pspp --version'
+            def process = command.execute()
+            process.waitForProcessOutput()
+            if (process.exitValue() != 0) {
+                log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+                return false
+            }
+        } catch(IOException e) {
+            log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+            return false
+        }
+        return true
     }
 
     private final static toSpssLabel(String label) {
