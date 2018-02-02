@@ -1,8 +1,8 @@
 package org.transmartproject.rest.marshallers
 
-import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.core.ontology.MDStudy
 
 class StudyWrapper {
     String apiVersion
-    Study study
+    MDStudy study
 }

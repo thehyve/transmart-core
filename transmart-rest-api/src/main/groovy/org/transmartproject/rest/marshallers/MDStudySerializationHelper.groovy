@@ -1,8 +1,8 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
-import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.ontology.MDStudy
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
@@ -19,15 +19,20 @@ class MDStudySerializationHelper extends AbstractHalOrJsonSerializationHelper<St
 
     @Override
     Map<String, Object> convertToMap(StudyWrapper object) {
-        Study study = object.study
-        [
+        MDStudy study = object.study
+        def result = [
                 id: study.id,
-                studyId: study.studyId,
+                studyId: study.name,
                 bioExperimentId: study.bioExperimentId,
-                dimensions: study.dimensionDescriptions.collect { DimensionDescription dim ->
+                dimensions: study.dimensions.collect { Dimension dim ->
                     dim.name
                 }
         ]
+        def studyMetadata = study.metadata
+        if (studyMetadata) {
+            result.metadata = studyMetadata
+        }
+        result
     }
 
 }

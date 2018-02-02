@@ -128,9 +128,10 @@ class ExportAsyncJobService {
                 .build()
         def randomDelay = Math.random()*10 as int
         def startTime = new Date(new Date().time + randomDelay)
+
         def trigger = TriggerBuilder.newTrigger()
                 .startAt(startTime)
-                .withIdentity('DataExport')
+                .withIdentity("${dataMap.jobId.toString()}-Trigger", 'DataExport')
                 .build()
 
         if(!quartzScheduler) {

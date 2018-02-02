@@ -48,7 +48,13 @@ interface MultiDimensionalDataResource {
      */
     Counts counts(MultiDimConstraint constraint, User user)
 
-    Counts cachedCounts(MultiDimConstraint constraint, User user)
+    /**
+     * Computes observations and patient counts for all data accessible by the user
+     * (applying the 'true' constraint) and puts the result in the counts cache.
+     *
+     * @param user the user to compute the counts for.
+     */
+    void rebuildCountsCacheForUser(User user)
 
     /**
      * Observation and patient counts per concept:
@@ -86,6 +92,12 @@ interface MultiDimensionalDataResource {
      */
     Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user)
 
+    /**
+     * Computes counts per study and concept for all data accessible for all users
+     * and puts the result in the counts cache.
+     */
+    void rebuildCountsPerStudyAndConceptCache()
+
     Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
 
     QueryResult createPatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion)
@@ -96,6 +108,17 @@ interface MultiDimensionalDataResource {
 
     Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user)
 
+    /**
+     * Patient count: counts the number of patients that satisfy the constraint and that
+     * the user has access to.
+     *
+     * Deprecated in favour of {@link #counts(MultiDimConstraint, User)}.
+     *
+     * @param constraint the constraint.
+     * @param user the current user.
+     * @return the number of patients.
+     */
+    @Deprecated
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
     /**
@@ -142,5 +165,17 @@ interface MultiDimensionalDataResource {
      * observations in the database.
      */
     void clearPatientCountCache()
+
+    /**
+     * Clears the counts per concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    void clearCountsPerConceptCache()
+
+    /**
+     * Clears the counts per study and concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    void clearCountsPerStudyAndConceptCache()
 
 }

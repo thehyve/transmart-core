@@ -1,9 +1,14 @@
-package org.transmartproject.core.dataquery
-
+package org.transmartproject.core.ontology
 /**
  * Metadata about the variable/column taken from SPSS.
  */
 class VariableMetadata {
+
+    /**
+     * Variable name (aka item name)
+     */
+    String name
+
     /**
      * Data type of the concept
      */
@@ -31,9 +36,10 @@ class VariableMetadata {
     /**
      * Values index. e.g. 1=Female, 2=Male -1=Not provided
      */
-    Map<Integer, String> valueLabels = [:]
+    Map<BigDecimal, String> valueLabels = [:]
     /**
      * Contains indexes that represent missing values. Usually negative values. e.g. -1
      */
-    List<Integer> missingValues = []
+    MissingValues missingValues
+
 }

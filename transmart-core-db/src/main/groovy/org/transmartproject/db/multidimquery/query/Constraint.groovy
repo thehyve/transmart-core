@@ -40,6 +40,9 @@ enum Type {
     }
 
     static Type forName(String name) {
+        if (name == null) {
+            return NONE
+        }
         name = name.toLowerCase()
         if (mapping.containsKey(name)) {
             return mapping[name]
@@ -204,9 +207,8 @@ class Field implements Validateable {
  */
 abstract class Constraint implements Validateable, MultiDimConstraint {
 
-    @Override
-    String toString() {
-        (this as JSON).toString()
+    String toJson() {
+        ConstraintSerialiser.toJson(this)
     }
 
 }
@@ -715,6 +717,10 @@ class ConstraintFactory {
         String fieldName = values['fieldName'] as String
         try {
             Field field = DimensionMetadata.getField(dimensionName, fieldName)
+            Type fieldType = Type.forName(values['type'] as String)
+            if (fieldType != Type.NONE && field.type != fieldType) {
+                field = new Field(dimension: field.dimension, type: fieldType, fieldName: field.fieldName)
+            }
             log.debug "Field data: ${field}"
             object[name] = field
             log.debug "Object: ${object}"

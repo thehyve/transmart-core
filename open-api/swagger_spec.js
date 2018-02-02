@@ -749,7 +749,12 @@ var spec = {
           "200": {
             "description": "return the result in a json object. Example: `{min: 56}`.",
             "schema": {
-              "$ref": "#/definitions/aggregates"
+              "type": "object",
+              "properties": {
+                "aggregatesPerConcept": {
+                  "$ref": "#/definitions/AggregatesMap"
+                }
+              }
             }
           }
         }
@@ -784,7 +789,12 @@ var spec = {
           "200": {
             "description": "return the result in a json object. Example: `{\"aggregatesPerConcept\": \"GENDER\": { \"categoricalValueAggregatesPerConcept\": { \"valueCounts\": { \"Female\": 323, \"Male\": 312} } }}`.",
             "schema": {
-              "$ref": "#/definitions/aggregates"
+              "type": "object",
+              "properties": {
+                "aggregatesPerConcept": {
+                  "$ref": "#/definitions/AggregatesMap"
+                }
+              }
             }
           }
         }
@@ -1385,6 +1395,12 @@ var spec = {
             "description": "The max node depth returned"
           },
           {
+            "name": "constraints",
+            "in": "query",
+            "type": "boolean",
+            "description": "Flag if the constraints should be included in the result (always true for hal, defaults to true for json)"
+          },
+          {
             "name": "counts",
             "in": "query",
             "type": "boolean",
@@ -1948,7 +1964,7 @@ var spec = {
         }
       }
     },
-    "/v2/dimensions/{$dimensionName}/elements": {
+    "/v2/dimensions/{dimensionName}/elements": {
       "get": {
         "description": "Gets all elements from a dimension of given name that satisfy the constaint if given.\n",
         "tags": [
@@ -1956,7 +1972,7 @@ var spec = {
         ],
         "parameters": [
           {
-            "name": "$dimensionName",
+            "name": "dimensionName",
             "in": "path",
             "required": true,
             "type": "string"
@@ -2039,7 +2055,7 @@ var spec = {
                 },
                 "elements": {
                   "type": "string",
-                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, tabular:<boolean>]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
+                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
                 }
               },
               "required": [
@@ -2169,6 +2185,15 @@ var spec = {
         "description": "Gets supported export file formats.\n",
         "tags": [
           "v2"
+        ],
+        "parameters": [
+          {
+            "name": "dataView",
+            "required": false,
+            "in": "query",
+            "description": "Data view.",
+            "type": "string"
+          }
         ],
         "produces": [
           "application/json"
@@ -2687,6 +2712,26 @@ var spec = {
           "items": {
             "type": "string"
           }
+        },
+        "metadata": {
+          "$ref": "#/definitions/StudyMetadata"
+        }
+      }
+    },
+    "StudyMetadata": {
+      "type": "object",
+      "properties": {
+        "conceptToVariableName": {
+          "description": "a map from concept code to variable name in the study.",
+          "type": "object",
+          "properties": {
+            "<conceptCode>": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },
@@ -2767,6 +2812,52 @@ var spec = {
         },
         "name": {
           "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/VariableMetadata"
+        }
+      }
+    },
+    "VariableMetadata": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "NUMERIC, DATE, STRING",
+          "type": "string"
+        },
+        "measure": {
+          "description": "NOMINAL, ORDINAL, SCALE",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "decimals": {
+          "type": "integer"
+        },
+        "columns": {
+          "type": "integer"
+        },
+        "valueLabels": {
+          "description": "a map from value (of type integer) to label (of type string)",
+          "type": "object",
+          "properties": {
+            "<value>": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "missingValues": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
         }
       }
     },
@@ -2782,9 +2873,9 @@ var spec = {
       }
     },
     "CountsMap": {
-      "description": "a map from string to Counts. `default` is an example key.",
+      "description": "a map from string to Counts.",
       "properties": {
-        "default": {
+        "<key>": {
           "$ref": "#/definitions/Counts"
         }
       },
@@ -2793,9 +2884,9 @@ var spec = {
       }
     },
     "CountsMapMap": {
-      "description": "a map from string to a map from string to Counts. `default` is an example key.",
+      "description": "a map from string to a map from string to Counts.",
       "properties": {
-        "default": {
+        "<key>": {
           "$ref": "#/definitions/CountsMap"
         }
       },
@@ -3035,45 +3126,55 @@ var spec = {
         }
       }
     },
-    "aggregates": {
+    "AggregatesMap": {
       "type": "object",
-      "description": "only the value of the requested aggregate type will be present.",
+      "description": "Map from string to aggregates.",
       "properties": {
-        "aggregatesPerConcept": {
+        "<conceptCode>": {
+          "$ref": "#/definitions/Aggregates"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/Aggregates"
+      }
+    },
+    "Aggregates": {
+      "description": "Object for numerical aggregates or categorical value counts. Only the value of the requested aggregate type will be present.",
+      "type": "object",
+      "properties": {
+        "numericalValueAggregatesPerConcept": {
           "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "properties": {
-              "numericalValueAggregatesPerConcept": {
-                "type": "object",
-                "properties": {
-                  "min": {
-                    "type": "number"
-                  },
-                  "max": {
-                    "type": "number"
-                  },
-                  "average": {
-                    "type": "number"
-                  },
-                  "count": {
-                    "type": "number"
-                  },
-                  "std_dev": {
-                    "type": "number"
-                  }
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "average": {
+              "type": "number"
+            },
+            "count": {
+              "type": "number"
+            },
+            "std_dev": {
+              "type": "number"
+            }
+          }
+        },
+        "categoricalValueAggregatesPerConcept": {
+          "type": "object",
+          "properties": {
+            "valueCounts": {
+              "description": "map from value to count",
+              "type": "object",
+              "properties": {
+                "<value>": {
+                  "type": "number"
                 }
               },
-              "categoricalValueAggregatesPerConcept": {
-                "type": "object",
-                "properties": {
-                  "valueCounts": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "number"
-                    }
-                  }
-                }
+              "additionalProperties": {
+                "type": "number"
               }
             }
           }

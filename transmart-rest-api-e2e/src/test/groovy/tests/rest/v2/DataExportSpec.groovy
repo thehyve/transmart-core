@@ -258,8 +258,6 @@ class DataExportSpec extends RESTSpec {
     }
 
     def "get supported file formats"() {
-        def supportedFormat = 'TSV'
-
         def request = [
                 path      : "$PATH_DATA_EXPORT/file_formats",
                 acceptType: JSON,
@@ -269,8 +267,10 @@ class DataExportSpec extends RESTSpec {
         def responseData = get(request)
 
         then:
-        "I get a list of fields containing $supportedFormat format"
-        assert supportedFormat in responseData.fileFormats
+        "I get a list of fields containing the supported formats"
+        'TSV' in responseData.fileFormats
+        'PROTOBUF' in responseData.fileFormats
+        'JSON' in responseData.fileFormats
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
@@ -331,7 +331,7 @@ class DataExportSpec extends RESTSpec {
                 elements  : [[
                                      dataType: 'clinical',
                                      format  : 'TSV',
-                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                                     dataView : 'surveyTable'
                              ]],
         ])
         then:
@@ -353,15 +353,19 @@ class DataExportSpec extends RESTSpec {
                 elements  : [[
                                      dataType: 'clinical',
                                      format  : 'SPSS',
-                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                                     dataView : 'surveyTable'
                              ]],
         ])
         then:
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
-        filesLineNumbers.size() == 2
-        filesLineNumbers['data.tsv'] == 3
-        filesLineNumbers['data.sps'] == 32
+        // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
+        filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
+        filesLineNumbers['spss/data.tsv'] == 3
+        filesLineNumbers['spss/data.sps'] == 58
+        if (filesLineNumbers.size() == 3) {
+            assert filesLineNumbers.containsKey('spss/data.sav')
+        }
     }
 
     @RequiresStudy(CATEGORICAL_VALUES_ID)
@@ -373,7 +377,7 @@ class DataExportSpec extends RESTSpec {
                 elements  : [[
                                      dataType: 'clinical',
                                      format  : 'TSV',
-                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                                     dataView : 'surveyTable'
                              ]],
         ])
         then:
@@ -393,15 +397,35 @@ class DataExportSpec extends RESTSpec {
                 elements  : [[
                                      dataType: 'clinical',
                                      format  : 'SPSS',
-                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                                     dataView : 'surveyTable'
                              ]],
         ])
         then:
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
-        filesLineNumbers.size() == 2
-        filesLineNumbers['data.tsv'] == 4
-        filesLineNumbers['data.sps'] == 29
+        // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
+        filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
+        filesLineNumbers['spss/data.tsv'] == 4
+        filesLineNumbers['spss/data.sps'] == 57
+        if (filesLineNumbers.size() == 3) {
+            assert filesLineNumbers.containsKey('spss/data.sav')
+        }
+    }
+
+    def "get supported file formats for survey table"() {
+        def request = [
+                path      : "$PATH_DATA_EXPORT/file_formats",
+                acceptType: JSON,
+                query     : [dataView : 'surveyTable']
+        ]
+
+        when: "I request all supported fields"
+        def responseData = get(request)
+
+        then:
+        "I get a list of fields containing the supported formats"
+        assert 'TSV' in responseData.fileFormats
+        assert 'SPSS' in responseData.fileFormats
     }
 
     def runTypicalExport(body) {

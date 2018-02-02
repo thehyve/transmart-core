@@ -11,16 +11,16 @@ import org.transmartproject.db.user.User
 import spock.lang.Specification
 
 import static org.hamcrest.CoreMatchers.containsString
-import static org.transmartproject.core.dataquery.VariableDataType.NUMERIC
-import static org.transmartproject.core.dataquery.VariableDataType.STRING
-import static org.transmartproject.core.dataquery.VariableDataType.DATE
-import static org.transmartproject.core.dataquery.Measure.NOMINAL
-import static org.transmartproject.core.dataquery.Measure.SCALE
+import static org.transmartproject.core.ontology.VariableDataType.NUMERIC
+import static org.transmartproject.core.ontology.VariableDataType.STRING
+import static org.transmartproject.core.ontology.VariableDataType.DATE
+import static org.transmartproject.core.ontology.Measure.NOMINAL
+import static org.transmartproject.core.ontology.Measure.SCALE
 import static spock.util.matcher.HamcrestSupport.that
 
 @Rollback
 @Integration
-class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
+class SurveyTableViewSpec extends Specification {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
@@ -34,12 +34,7 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new SubjectObservationsByStudyConceptsTableView(hypercube,
-                subjectIdColumnName: 'FISNumber',
-                subjectIdColumnDescription: 'FIS Number',
-                subjectIdSource: 'SUBJ_ID',
-                dateColDescription: 'Date of measurement',
-        )
+        def transformedView = new SurveyTableView(hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
         columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date', 'gender1', 'gender1.date']
@@ -52,8 +47,8 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         metadata*.decimals == [0, null, null, null, null, null, null]
         metadata*.columns == [12, 22, 22, 400, 22, 14, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
-        height1Metadata.valueLabels == [(1): 'Female', (2): 'Male', (-2): 'Not Specified']
-        height1Metadata.missingValues == [-2]
+        height1Metadata.valueLabels == [(new BigDecimal(1)): 'Female', (new BigDecimal(2)): 'Male', (new BigDecimal(-2)): 'Not Specified']
+        height1Metadata.missingValues.values == [new BigDecimal(-2)]
 
         when: 'get row'
         def rows = transformedView.rows.toList()
@@ -84,12 +79,7 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new SubjectObservationsByStudyConceptsTableView(hypercube,
-                subjectIdColumnName: 'FISNumber',
-                subjectIdColumnDescription: 'FIS Number',
-                subjectIdSource: 'SUBJ_ID',
-                dateColDescription: 'Date of measurement',
-        )
+        def transformedView = new SurveyTableView(hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
         columns*.label == ['FISNumber', 'description', 'description.date', 'height1', 'height1.date']
@@ -102,8 +92,8 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         metadata*.decimals == [0, null, null, 2, null]
         metadata*.columns == [12, 210, 22, 15, 22]
         def height1Metadata = columns.find { it.label == 'height1' }.metadata
-        height1Metadata.valueLabels == [(-1): 'Asked, but not answered']
-        height1Metadata.missingValues == [-1]
+        height1Metadata.valueLabels == [(new BigDecimal(-1)): 'Asked, but not answered']
+        height1Metadata.missingValues.values == [new BigDecimal(-1)]
 
         when: 'get row'
         def rows = transformedView.rows.toList()

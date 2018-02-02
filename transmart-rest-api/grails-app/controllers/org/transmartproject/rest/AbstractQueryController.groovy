@@ -28,7 +28,7 @@ abstract class AbstractQueryController implements Controller {
     UsersResource usersResource
 
     @Autowired
-    MultidimensionalDataService multidimensionalDataService
+    HypercubeDataSerializationService hypercubeDataSerializationService
 
     protected static Constraint getConstraintFromStringOrJson(constraintParam) {
         if (!constraintParam) {

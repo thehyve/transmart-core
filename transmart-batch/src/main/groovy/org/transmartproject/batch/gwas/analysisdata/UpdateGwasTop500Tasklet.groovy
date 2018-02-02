@@ -55,7 +55,11 @@ class UpdateGwasTop500Tasklet implements Tasklet {
                      rnum,
                      intronexon,
                      recombinationrate,
-                     regulome)
+                     regulome,
+                     effect_allele,
+                     other_allele,
+                     standard_error,
+                     beta)
                 SELECT * FROM (
                     SELECT DISTINCT
                         :baa_id,
@@ -70,7 +74,11 @@ class UpdateGwasTop500Tasklet implements Tasklet {
                         row_number() OVER(ORDER BY DATA.p_value ASC, DATA.rs_id ASC) AS rnum,
                         INFO.exon_intron AS intronexon,
                         INFO.recombination_rate AS recombinationrate,
-                        INFO.regulome_score AS regulome
+                        INFO.regulome_score AS regulome,
+                        DATA.effect_allele AS effect_allele,
+                        DATA.other_allele AS other_allele,
+                        DATA.standard_error AS standard_error,
+                        DATA.beta AS beta
                     FROM
                         ${Tables.BIO_ASSAY_ANALYSIS_GWAS} DATA
                         LEFT JOIN ${Tables.RC_SNP_INFO} INFO

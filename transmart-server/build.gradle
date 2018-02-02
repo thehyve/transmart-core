@@ -40,14 +40,45 @@ assets {
     packagePlugin = true
 }
 
-bootRun {
-    jvmArgs = ['-Xmx4096m']
+if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    task pathingJarTmServer(type: Jar) {
+        dependsOn configurations.runtime
+        appendix = 'pathing'
 
-    // In development mode, set the TRANSMART_DEBUG_PORT environment variable to a port number to enable debugging on that port
-    if(! (System.env.TRANSMART_DEBUG_PORT ?: '').empty) {
-        def port = System.env.TRANSMART_DEBUG_PORT
-        assert port.isInteger() && (port as int) in 0..<2**16, "TRANSMART_DEBUG_PORT environment variable is not a valid port number: '$port'"
-        jvmArgs += ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port"]
+        doFirst {
+            manifest {
+                attributes 'Class-Path': configurations.runtime.files.collect {
+                    it.toURL().toString().replaceFirst(/file:\/+/, '/').replaceAll(' ', '%20')
+                }.join(' ')
+            }
+        }
+    }
+
+    bootRun {
+        dependsOn pathingJarTmServer
+        doFirst {
+            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJarTmServer.archivePath)
+        }
+
+        jvmArgs = ['-Xmx4096m']
+
+        // In development mode, set the TRANSMART_DEBUG_PORT environment variable to a port number to enable debugging on that port
+        if(! (System.env.TRANSMART_DEBUG_PORT ?: '').empty) {
+            def port = System.env.TRANSMART_DEBUG_PORT
+            assert port.isInteger() && (port as int) in 0..<2**16, "TRANSMART_DEBUG_PORT environment variable is not a valid port number: '$port'"
+            jvmArgs += ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port"]
+        }
+    }
+} else {
+    bootRun {
+        jvmArgs = ['-Xmx4096m']
+
+        // In development mode, set the TRANSMART_DEBUG_PORT environment variable to a port number to enable debugging on that port
+        if(! (System.env.TRANSMART_DEBUG_PORT ?: '').empty) {
+            def port = System.env.TRANSMART_DEBUG_PORT
+            assert port.isInteger() && (port as int) in 0..<2**16, "TRANSMART_DEBUG_PORT environment variable is not a valid port number: '$port'"
+            jvmArgs += ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port"]
+        }
     }
 }
 
@@ -64,7 +95,7 @@ war {
             into 'Rscripts'
         })
         with copySpec({
-            from 'src/main/resources/dataExportRScripts'
+            from '../transmartApp/src/main/resources/dataExportRScripts'
             into 'dataExportRScripts'
         })
         with copySpec({

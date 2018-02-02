@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
@@ -48,7 +47,7 @@ class ExportController {
         checkJobNameUnique(name, user)
 
         def instance = exportAsyncJobService.createNewJob(user, name)
-        respond wrapExportJob(instance)
+        render wrapExportJob(instance) as JSON
     }
 
     /**
@@ -61,7 +60,7 @@ class ExportController {
      *      elements: {
      *          dataType: "<clinical/mrna/...>" //supported data type
      *          format: "<TSV/SPSS/...>" //supported file format
-     *          tabular: <true/false> //optional, false by default.
+     *          dataView: "<data view>" //optional
      *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
      *      }
      * }
@@ -94,7 +93,7 @@ class ExportController {
 
         def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId)
 
-        respond wrapExportJob(job)
+        render wrapExportJob(job) as JSON
     }
 
     /**
@@ -105,7 +104,6 @@ class ExportController {
      * @return zipOutputStream
      */
     def download(@PathVariable('jobId') Long jobId) {
-
         checkForUnsupportedParams(params, ['jobId'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
@@ -128,14 +126,14 @@ class ExportController {
      * @param jobId
      * @return current status of the job
      */
-   def jobStatus(@PathVariable('jobId') Long jobId) {
-       checkForUnsupportedParams(params, ['jobId'])
-       def job = exportAsyncJobService.getJobById(jobId)
-       if (!job) {
-           throw new InvalidArgumentsException("Job with id '$jobId' does not exist.")
-       }
-       respond wrapExportJob(job)
-   }
+    def jobStatus(@PathVariable('jobId') Long jobId) {
+        checkForUnsupportedParams(params, ['jobId'])
+        def job = exportAsyncJobService.getJobById(jobId)
+        if (!job) {
+            throw new InvalidArgumentsException("Job with id '$jobId' does not exist.")
+        }
+        render wrapExportJob(job) as JSON
+    }
 
     /**
      * List dataExport jobs created by the user:
@@ -147,7 +145,7 @@ class ExportController {
         checkForUnsupportedParams(params, [])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def results = exportAsyncJobService.getJobList(user)
-        respond wrapExportJobs(results)
+        render wrapExportJobs(results) as JSON
     }
 
     /**
@@ -173,23 +171,24 @@ class ExportController {
 
     /**
      * List supported file formats:
-     * <code>/v2/export/file_formats
+     * <code>/v2/export/file_formats?dataView=<data view>
      *
      * @return File format types
      */
-    def fileFormats() {
-        checkForUnsupportedParams(params, [])
-        def fileFormats = restExportService.supportedFileFormats
+    def fileFormats(@RequestParam('dataView') String dataView) {
+        checkForUnsupportedParams(params, ['dataView'])
+        def fileFormats = restExportService.getSupportedFormats(dataView)
         def results = [fileFormats: fileFormats]
         render results as JSON
     }
 
     private checkJobAccess(Long jobId, User user) {
         String jobUsername = exportAsyncJobService.getJobUser(jobId)
-        if (!jobUsername) throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
+        if (!jobUsername) {
+            throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
+        }
 
-        if (user.isAdmin()) return
-        else if (jobUsername != user.username) {
+        if (!user.isAdmin() && jobUsername != user.username) {
             log.warn("Denying access to job $jobId because the " +
                     "corresponding username ($jobUsername) does not match " +
                     "that of the current user")
@@ -200,8 +199,8 @@ class ExportController {
 
     private void checkJobNameUnique(String jobName, User user) {
         String name = jobName?.trim()
-        if(name && !exportAsyncJobService.isJobNameUniqueForUser(name, user)) {
-            throw new InvalidArgumentsException("Given job name: '$name' already exists for user '$user.")
+        if (name && !exportAsyncJobService.isJobNameUniqueForUser(name, user)) {
+            throw new InvalidArgumentsException("Given job name: '$name' already exists for user '$user'.")
         }
     }
 

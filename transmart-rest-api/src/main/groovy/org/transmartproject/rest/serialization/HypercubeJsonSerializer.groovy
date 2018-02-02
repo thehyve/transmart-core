@@ -142,18 +142,18 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         def cell = new Cell()
         if (value.value != null) {
             if (value.value instanceof Number) {
-                cell.numericValue = value.value as Double
+                cell.numericValue = (Double) value.value
             } else {
-                cell.stringValue = value.value as String
+                cell.stringValue = value.value.toString()
             }
         }
         for (Dimension dim : cube.dimensions) {
             if (!dim.density.isDense) {
                 // Add the value element inline
-                cell.inlineDimensions << buildDimensionElement(dim, value[dim])
+                cell.inlineDimensions.add(buildDimensionElement(dim, value[dim]))
             } else {
                 // Add index to footer element inline. This may be null.
-                cell.dimensionIndexes << value.getDimElementIndex(dim)
+                cell.dimensionIndexes.add(value.getDimElementIndex(dim))
             }
         }
         cell
@@ -163,18 +163,18 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         if (value == null) {
             writer.nullValue()
         } else if (value instanceof String) {
-            writer.value(value as String)
-        } else if (value instanceof Number) {
-            writer.value(value as Double)
+            writer.value((String) value)
         } else if (value instanceof Date) {
-            def time = Instant.ofEpochMilli((value as Date).time).toString()
+            def time = Instant.ofEpochMilli(((Date) value).time).toString()
             writer.value(time)
+        } else if (value instanceof Number) {
+            writer.value((Number) value)
         } else if (value instanceof Map) {
-            def obj = value as Map
+            Map obj = (Map) value
             writer.beginObject()
-            obj.each { k, v ->
-                writer.name(k as String)
-                writeValue(v)
+            for(Map.Entry e : obj) {
+                writer.name((String) e.key)
+                writeValue(e.value)
             }
             writer.endObject()
         } else {
@@ -186,23 +186,22 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         writer.beginObject()
         writer.name('inlineDimensions')
         writer.beginArray()
-        cell.inlineDimensions.each {
+        for(def it : cell.inlineDimensions) {
             writeValue(it)
         }
         writer.endArray()
         writer.name('dimensionIndexes')
         writer.beginArray()
-        cell.dimensionIndexes.each {
+        for(def it : cell.dimensionIndexes) {
             writer.value(it)
         }
         writer.endArray()
         if (cell.numericValue != null) {
             writer.name('numericValue').value(cell.numericValue)
-        } else if (cell.stringValue) {
+        } else if (cell.stringValue != null) {
             writer.name('stringValue').value(cell.stringValue)
         }
         writer.endObject()
-        writer.flush()
     }
 
     /**
@@ -258,8 +257,8 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         if (dimension.fields) {
             writer.name('fields')
             writer.beginArray()
-            dimension.fields.each {
-                writeField(it)
+            for(Field f : dimension.fields) {
+                writeField(f)
             }
             writer.endArray()
         }
@@ -277,8 +276,8 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
     protected void writeHeader() {
         writer.name('dimensionDeclarations')
         writer.beginArray()
-        buildDimensionDeclarations().each {
-            writeDimensionProperties(it)
+        for(DimensionProperties props : buildDimensionDeclarations()) {
+            writeDimensionProperties(props)
         }
         writer.endArray()
     }
@@ -294,7 +293,7 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         for(dim in cube.dimensions.findAll { it.density.isDense }) {
             writer.name(dim.name)
             writer.beginArray()
-            cube.dimensionElements(dim).each {
+            for(def it: cube.dimensionElements(dim)) {
                 writeValue(buildDimensionElement(dim, it))
             }
             writer.endArray()
@@ -313,7 +312,10 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      */
     void write(Map args, Hypercube cube, OutputStream out) {
         this.cube = cube
-        this.writer = new JsonWriter(new PrintWriter(new BufferedOutputStream(out)))
+        this.writer = new JsonWriter(new BufferedWriter(
+                new OutputStreamWriter(out),
+                // large 32k chars buffer to reduce overhead
+                32*1024))
         begin()
         writeHeader()
         writeCells()

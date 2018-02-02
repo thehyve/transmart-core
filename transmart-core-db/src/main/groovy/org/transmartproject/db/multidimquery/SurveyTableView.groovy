@@ -7,10 +7,11 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.ontology.VariableMetadata
 
-import static VariableDataType.*
-import static org.transmartproject.core.dataquery.Measure.NOMINAL
-import static org.transmartproject.core.dataquery.Measure.SCALE
+import static org.transmartproject.core.ontology.VariableDataType.*
+import static org.transmartproject.core.ontology.Measure.NOMINAL
+import static org.transmartproject.core.ontology.Measure.SCALE
 
 /**
  * Custom tabular view
@@ -22,58 +23,44 @@ import static org.transmartproject.core.dataquery.Measure.SCALE
  * - Returns back original codebook values
  */
 @Slf4j
-class SubjectObservationsByStudyConceptsTableView implements TabularResult<MetadataAwareDataColumn, DataRow> {
+class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow> {
 
     @Delegate
     final HypercubeTabularResultView hypercubeTabularResultView
 
     final Hypercube hypercube
 
-    public static final String DEFAULT_SUBJ_ID_COL_NAME = 'subject'
-    public static final String DEFAULT_SUBJ_ID_COL_DESCRIPTION = 'Subject Id'
-    public static final String DEFAULT_SUBJ_ID_SOURCE = 'SUBJ_ID'
-    public static final String DEFAULT_DATE_COL_DESCRIPTION = 'Date and time of observation'
-
-    final String subjectIdColumnName
-    final String subjectIdColumnDescription
-    final String subjectIdSource
-    final String dateColDescription
-
-    SubjectObservationsByStudyConceptsTableView(Map<String, String> customizations, Hypercube hypercube) {
+    SurveyTableView(Hypercube hypercube) {
         this.hypercube = hypercube
 
         def rowDimensions = [DimensionImpl.PATIENT]
         def columnDimensions = [DimensionImpl.STUDY, DimensionImpl.CONCEPT]
         hypercubeTabularResultView = new HypercubeTabularResultView(hypercube, rowDimensions, columnDimensions)
-
-        subjectIdColumnName = customizations?.subjectIdColumnName ?: DEFAULT_SUBJ_ID_COL_NAME
-        subjectIdColumnDescription = customizations?.subjectIdColumnDescription ?: DEFAULT_SUBJ_ID_COL_DESCRIPTION
-        subjectIdSource = customizations?.subjectIdSource ?: DEFAULT_SUBJ_ID_SOURCE
-        dateColDescription = customizations?.dateColDescription ?: DEFAULT_DATE_COL_DESCRIPTION
     }
 
     @Lazy
     List<MetadataAwareDataColumn> indicesList = {
         def originalColumns = hypercubeTabularResultView.indicesList
         def transformedColumns = []
-        transformedColumns << new SubjectIdColumn()
+        transformedColumns << new FisNumberColumn()
         transformedColumns.addAll(originalColumns.collect { originalColumn ->
             String varName = getVariableName(originalColumn)
             [
                     new VariableColumn(varName, originalColumn),
-                    new StartDateColumn("${varName}.date", originalColumn)
+                    new MeasurementDateColumn("${varName}.date", originalColumn)
             ]
         }.flatten().sort { DataColumn a, DataColumn b -> a.label <=> b.label })
         transformedColumns
     }()
 
-    class SubjectIdColumn implements ValueFetchingDataColumn<String, HypercubeDataRow>, MetadataAwareDataColumn {
-        String label = subjectIdColumnName
+    class FisNumberColumn implements ValueFetchingDataColumn<String, HypercubeDataRow>, MetadataAwareDataColumn {
+        String label = 'FISNumber'
+        static final String SUBJ_ID_SOURCE = 'SUBJ_ID'
 
         VariableMetadata metadata = new VariableMetadata(
                 type: NUMERIC,
                 measure: SCALE,
-                description: subjectIdColumnDescription,
+                description: 'FIS Number',
                 width: 12,
                 decimals: 0,
                 columns: 12,
@@ -83,13 +70,13 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         String getValue(HypercubeDataRow row) {
             def patient = row.getDimensionElement(DimensionImpl.PATIENT) as Patient
             if (patient) {
-                return patient.subjectIds[subjectIdSource]
+                return patient.subjectIds[SUBJ_ID_SOURCE]
             }
             null
         }
     }
 
-    class StartDateColumn implements ValueFetchingDataColumn<Date, HypercubeDataRow>, MetadataAwareDataColumn {
+    class MeasurementDateColumn implements ValueFetchingDataColumn<Date, HypercubeDataRow>, MetadataAwareDataColumn {
 
         final String label
         final HypercubeDataColumn originalColumn
@@ -97,12 +84,12 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         VariableMetadata metadata = new VariableMetadata(
                 type: DATE,
                 measure: SCALE,
-                description: dateColDescription,
+                description: 'Date of measurement',
                 width: 22,
                 columns: 22,
         )
 
-        StartDateColumn(String label, HypercubeDataColumn originalColumn) {
+        MeasurementDateColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
         }
@@ -122,14 +109,13 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         final String label
         final HypercubeDataColumn originalColumn
         final VariableMetadata metadata
-        private final Map<String, Integer> labelsToValues = [:]
+        private final Map<String, BigDecimal> labelsToValues
 
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
-            def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
-            metadata = concept.metadata ?: computeColumnMetadata()
-            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] }
+            metadata = getStudyVariableMetadata(originalColumn) ?: computeColumnMetadata()
+            labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] } as Map<String, BigDecimal>
         }
 
         Object getValue(HypercubeDataRow row) {
@@ -138,10 +124,16 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
             def value = hValue.value
             switch (metadata?.type) {
                 case NUMERIC:
-                    if (value instanceof Number) return value
+                    if (value instanceof Number) {
+                        return value
+                    }
                     String label = value == null ? getMissingValueLabel(hValue) : value
-                    if (labelsToValues.containsKey(label)) return labelsToValues[label]
-                    if (value == null) return null
+                    if (labelsToValues.containsKey(label)) {
+                        return labelsToValues[label]
+                    }
+                    if (value == null) {
+                        return null
+                    }
                     throw new UnexpectedResultException("${value} is not of a number type.")
                 case DATE:
                     if (value == null) return null
@@ -155,7 +147,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         }
 
         private Date toDate(Number value) {
-            new Date((value * 1000) as Long)
+            new Date(value as Long)
         }
 
         private VariableMetadata computeColumnMetadata() {
@@ -164,7 +156,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
                     measure: NOMINAL,
                     description: originalColumn.label,
                     width: 25,
-                    columns: 25,
+                    columns: 25
             )
         }
 
@@ -176,15 +168,19 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
     }
 
     private static String getVariableName(HypercubeDataColumn originalColumn) {
-        def study = originalColumn.getDimensionElement(DimensionImpl.STUDY) as MDStudy
-        def concept =
-                originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
-
-        def studyMetadata = study.metadata
-        if (studyMetadata?.conceptToVariableName?.containsKey(concept.conceptCode)) {
-            return studyMetadata.conceptToVariableName[concept.conceptCode]
+        VariableMetadata varMeta = getStudyVariableMetadata(originalColumn)
+        if (varMeta?.name) {
+            return varMeta?.name
         } else {
-            concept.conceptCode
+            def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+            return concept.conceptCode
         }
+    }
+
+    private static VariableMetadata getStudyVariableMetadata(HypercubeDataColumn originalColumn) {
+        def study = originalColumn.getDimensionElement(DimensionImpl.STUDY) as MDStudy
+        def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+
+        study.metadata?.conceptCodeToVariableMetadata?.get(concept.conceptCode)
     }
 }

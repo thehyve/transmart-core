@@ -5,6 +5,10 @@ package org.transmartproject.db.clinical
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
+import grails.plugin.cache.CacheEvict
+import grails.plugin.cache.CachePut
+import grails.plugin.cache.Cacheable
+import grails.transaction.Transactional
 import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
@@ -19,8 +23,6 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -48,6 +50,7 @@ import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
@@ -77,6 +80,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Autowired
     OntologyTermsResource conceptsResource
+
+    @Autowired
+    UsersResource usersResource
 
     @Override Dimension getDimension(String name) {
         DimensionDescription.findByName(name)?.dimension
@@ -245,6 +251,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
     }
 
+    @Transactional(readOnly = true)
     private void checkAccess(MultiDimConstraint constraint, User user) throws AccessDeniedException {
         assert user, 'user is required'
         assert constraint, 'constraint is required'
@@ -365,8 +372,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         (Long) get(builder.buildCriteria((Constraint) constraint).setProjection(Projections.rowCount()))
     }
 
-    @Override
-    Counts counts(MultiDimConstraint constraint, User user) {
+    @Transactional(readOnly = true)
+    Counts freshCounts(MultiDimConstraint constraint, User user) {
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
@@ -382,13 +389,27 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
-            key = '{ #constraint.toString(), #user.username }')
-    Counts cachedCounts(MultiDimConstraint constraint, User user) {
-        counts(constraint, user)
+            key = '{ #constraint.toJson(), #user.username }')
+    Counts counts(MultiDimConstraint constraint, User user) {
+        freshCounts(constraint, user)
+    }
+
+    @CachePut(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Counts updateCountsCache(MultiDimConstraint constraint, User user) {
+        freshCounts(constraint, user)
     }
 
     @Override
-    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
+    void rebuildCountsCacheForUser(User user) {
+        MultidimensionalDataResourceService wrappedThis =
+                Holders.grailsApplication.mainContext.multidimensionalDataResourceService
+        wrappedThis.updateCountsCache(new TrueConstraint(), user)
+    }
+
+    @Transactional(readOnly = true)
+    Map<String, Counts> freshCountsPerConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per concept ..."
         def t1 = new Date()
         checkAccess(constraint, user)
@@ -401,10 +422,19 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         List rows = getList(criteria)
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        rows.collectEntries{ Map row ->
+        rows.collectEntries { Map row ->
             [(row.conceptCode as String):
                      new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
         }
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerConcept',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
+        freshCountsPerConcept(constraint, user)
     }
 
     @Override
@@ -435,18 +465,18 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         Counts summary
     }
 
-    @Override
-    Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
+    @Transactional(readOnly = true)
+    Map<String, Map<String, Counts>> freshCountsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per study and concept..."
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
                 .setProjection(Projections.projectionList()
-                    .add(Projections.groupProperty('conceptCode'), 'conceptCode')
-                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(Projections.rowCount(), 'observationCount')
-                    .add(Projections.countDistinct('patient'), 'patientCount'))
+                .add(Projections.groupProperty('conceptCode'), 'conceptCode')
+                .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List result = getList(criteria)
         def t2 = new Date()
@@ -461,6 +491,53 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             } as Map<String, Counts>
             ]
         } as Map<String, Map<String, Counts>>
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> countsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Fetching counts per per study per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
+        freshCountsPerStudyAndConcept(constraint, user)
+    }
+
+    @CachePut(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint, User user, Map<String, Counts> newCounts) {
+        log.debug "Updating counts per study per concept cache for user: ${user.username}, constraint: ${constraint.toJson()}"
+        newCounts
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    void rebuildCountsPerStudyAndConceptCache() {
+        log.info "Rebuilding counts per study and concept cache ..."
+        def t1 = new Date()
+
+        Map<String, Map<String, Counts>> countsPerStudyAndConcept = [:]
+
+        MultidimensionalDataResourceService wrappedThis =
+                Holders.grailsApplication.mainContext.multidimensionalDataResourceService
+        //Sharing counts between users does not always work for other type of constraints
+        // e.g. In case when cross-study concepts involved and different users have different rights on them.
+        MultiDimConstraint constraintToPreCache = new TrueConstraint()
+        usersResource.getUsers().each { User user ->
+            log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
+            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+            def studyIds = studies*.studyId as Set
+            def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
+            if (notFetchedStudyIds) {
+                Map<String, Map<String, Counts>> freshCounts = freshCountsPerStudyAndConcept(constraintToPreCache, user)
+                countsPerStudyAndConcept.putAll(freshCounts)
+            }
+            def countsForUser = studyIds.collectEntries { String studyId -> [studyId, countsPerStudyAndConcept[studyId]] }
+            wrappedThis.updateCountsPerStudyAndConceptCache(constraintToPreCache, user, countsForUser)
+        }
+
+        def t2 = new Date()
+        log.info "Caching counts per study and concept took ${t2.time - t1.time} ms."
     }
 
     /**
@@ -653,7 +730,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
-            key = '{ #constraint.toString(), #user.username }')
+            key = '{ #constraint.toJson(), #user.username }')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
         getDimensionElementsCount(PATIENT, constraint, user)
     }
@@ -858,6 +935,27 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             allEntries = true)
     void clearPatientCountCache() {
         log.info 'Clearing patient count cache ...'
+    }
+
+    /**
+     * Clears the counts per concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @Override
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerConcept',
+            allEntries = true)
+    void clearCountsPerConceptCache() {
+        log.info 'Clearing counts per concept count cache ...'
+    }
+
+    /**
+     * Clears the counts per study and concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.countsPerStudyAndConcept',
+            allEntries = true)
+    void clearCountsPerStudyAndConceptCache() {
+        log.info 'Clearing counts per study and concept count cache ...'
     }
 
 }
