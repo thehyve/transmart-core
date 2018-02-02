@@ -1,0 +1,13 @@
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+ORAHOST=tm171-release.codn8dgye9yn.eu-central-1.rds.amazonaws.com
+ORAPORT=1521
+ORASID=ORCL
+ORAUSER='admin'
+ORAPASSWORD='Qh8p47VSfx'
+
+ORACLE_MANAGE_TABLESPACES=0
+KETTLE_JOBS_ORA=/home/transmart/transmart-ETL/Kettle-GPL/Kettle-ETL/
+ORACLE=1
+
+# vim: fdm=marker
