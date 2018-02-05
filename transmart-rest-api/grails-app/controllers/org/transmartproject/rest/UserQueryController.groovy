@@ -10,7 +10,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.userquery.UserQuerySetResource
-import org.transmartproject.db.userqueries.SubscriptionFrequency
+import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.rest.misc.CurrentUser
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -53,9 +53,6 @@ class UserQueryController {
 
         validateQuery(patientsQueryString)
         validateQuery(observationsQueryString)
-        if (requestJson.containsKey('subscriptionFreq')) {
-            validateSubscriptionFrequency(requestJson.subscriptionFreq)
-        }
 
         UserQuery query = userQueryResource.create(currentUser)
         query.apiVersion = versionController.currentVersion(apiVersion)
@@ -65,7 +62,11 @@ class UserQueryController {
             observationsQuery = observationsQueryString
             bookmarked = requestJson.bookmarked ?: false
             subscribed = requestJson.subscribed ?: false
-            subscriptionFreq = requestJson.subscriptionFreq
+        }
+
+        if (requestJson.containsKey('subscriptionFreq')) {
+            validateSubscriptionFrequency(requestJson.subscriptionFreq)
+            query.subscriptionFreq = SubscriptionFrequency.valueOf(requestJson.subscriptionFreq)
         }
 
         userQueryResource.save(query, currentUser)
@@ -91,7 +92,7 @@ class UserQueryController {
         }
         if (requestJson.containsKey('subscriptionFreq')) {
             validateSubscriptionFrequency(requestJson.subscriptionFreq)
-            query.subscriptionFreq = requestJson.subscriptionFreq
+            query.subscriptionFreq = SubscriptionFrequency.valueOf(requestJson.subscriptionFreq)
         }
         userQueryResource.save(query, currentUser)
         response.status = 204

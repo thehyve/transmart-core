@@ -59,9 +59,9 @@ interface UserQuery {
     /**
      * Frequency of the subscription: daily or weekly
      */
-    String getSubscriptionFreq()
+    SubscriptionFrequency getSubscriptionFreq()
 
-    void setSubscriptionFreq(String subscribed)
+    void setSubscriptionFreq(SubscriptionFrequency subscriptionFreq)
 
     /**
      * Creation date and time of this query.

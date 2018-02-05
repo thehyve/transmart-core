@@ -4,12 +4,12 @@ import grails.plugins.mail.MailService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.userquery.UserQuerySetDiff
-import org.transmartproject.db.userqueries.ChangeFlag
-import org.transmartproject.db.userqueries.SubscriptionFrequency
+import org.transmartproject.core.userquery.ChangeFlag
+import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.userqueries.SetTypes
+import org.transmartproject.core.userquery.SetType
 
 /**
  * Generates and sends a daily or weekly subscription email for each user
@@ -75,7 +75,7 @@ class QuerySetSubscriptionMailService {
         def currentDate = new Date()
 
         List<UserQuerySetDiff> queryDiffEntries = userQueryDiffResource
-                .getDiffEntriesByUsernameAndFrequency(frequency.toString(), username, firstResult, numResults)
+                .getDiffEntriesByUsernameAndFrequency(frequency, username, firstResult, numResults)
 
         if(queryDiffEntries.size() > 0) {
             def queryDiffsMap = queryDiffEntries.groupBy { it.querySet }
@@ -87,13 +87,16 @@ class QuerySetSubscriptionMailService {
             textStringBuilder.append("List of updated query results:")
             textStringBuilder.append(NEW_LINE)
 
-            def patientSetMap = queryDiffsMap.findAll{it.key.setType == SetTypes.PATIENT.toString()}
+            def patientSetMap = queryDiffsMap.findAll{it.key.setType == SetType.PATIENT}
+            if(patientSetMap.size() == 0) {
+                return null
+            }
             for (entry in patientSetMap) {
                 def addedIds = entry.value.findAll {
-                    it.changeFlag == ChangeFlag.ADDED.toString()
+                    it.changeFlag == ChangeFlag.ADDED
                 }?.objectId
                 def removedIds = entry.value.findAll {
-                    it.changeFlag == ChangeFlag.REMOVED.toString()
+                    it.changeFlag == ChangeFlag.REMOVED
                 }?.objectId
                 textStringBuilder.append(NEW_LINE)
                 textStringBuilder.append("For a query named: '$entry.key.query.name' (id='$entry.key.query.id') \n" +
