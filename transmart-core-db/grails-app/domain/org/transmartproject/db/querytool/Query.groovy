@@ -19,11 +19,8 @@
 
 package org.transmartproject.db.querytool
 
-import grails.converters.JSON
-import groovy.transform.CompileStatic
-import org.grails.web.converters.exceptions.ConverterException
-import org.grails.web.json.JSONElement
 import org.springframework.validation.Errors
+import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 
 class Query implements UserQuery {
@@ -36,7 +33,7 @@ class Query implements UserQuery {
     Boolean bookmarked = false
     Boolean deleted = false
     Boolean subscribed = false
-    String subscriptionFreq
+    SubscriptionFrequency subscriptionFreq
     Date createDate = new Date()
     Date updateDate = new Date()
 

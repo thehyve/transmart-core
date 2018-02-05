@@ -1,4 +1,4 @@
-package org.transmartproject.db.userqueries
+package org.transmartproject.core.userquery
 
 import groovy.transform.CompileStatic
 

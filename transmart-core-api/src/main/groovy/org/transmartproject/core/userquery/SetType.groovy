@@ -1,4 +1,4 @@
-package org.transmartproject.db.userqueries
+package org.transmartproject.core.userquery
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -8,17 +8,17 @@ import groovy.util.logging.Slf4j
  */
 @CompileStatic
 @Slf4j
-enum SetTypes {
+enum SetType {
     PATIENT ('PATIENT')
 
     private String type
 
-    SetTypes(String type) {
+    SetType(String type) {
         this.type = type
     }
 
-    static SetTypes from(String type) {
-        SetTypes t = values().find { it.type == type }
+    static SetType from(String type) {
+        SetType t = values().find { it.type == type }
         if (t == null) {
             log.warn "Unknown type of set: ${type}"
         }

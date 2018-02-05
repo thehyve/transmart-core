@@ -23,7 +23,7 @@ interface UserQuerySet {
     /**
      * The type of the set the query is related to
      */
-    String getSetType()
+    SetType getSetType()
 
     /**
      * When the set was created.

@@ -15,8 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.userquery.SetType
+import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
-import org.transmartproject.core.userquery.UserQuerySet
 import org.transmartproject.core.userquery.UserQuerySetDiff
 import org.transmartproject.core.userquery.UserQuerySetInstance
 import org.transmartproject.core.userquery.UserQuerySetResource
@@ -135,10 +136,10 @@ class UserQuerySetService implements UserQuerySetResource {
     }
 
     @Override
-    List<UserQuerySetDiff> getDiffEntriesByUsernameAndFrequency(String frequency, String username,
-                                                                    int firstResult, Integer numResults) {
+    List<UserQuerySetDiff> getDiffEntriesByUsernameAndFrequency(SubscriptionFrequency frequency, String username,
+                                                                int firstResult, Integer numResults) {
         Calendar calendar = Calendar.getInstance()
-        if (frequency == 'DAILY') {
+        if (frequency == SubscriptionFrequency.DAILY) {
             calendar.add(Calendar.DATE, -1)
         } else {
             calendar.add(Calendar.DATE, -7)
@@ -168,7 +169,7 @@ class UserQuerySetService implements UserQuerySetResource {
         ArrayList<Long> patientIds = getPatientsForQuery(query, dbUser)
         QuerySet querySet = new QuerySet(
                 query: (Query)query,
-                setType: SetTypes.PATIENT.toString(),
+                setType: SetType.PATIENT,
                 setSize: patientIds.size(),
         )
         querySet.save(flush: true, failOnError: true)
@@ -211,7 +212,7 @@ class UserQuerySetService implements UserQuerySetResource {
             QuerySet querySet = new QuerySet(
                     query: query,
                     setSize: newPatientIds.size(),
-                    setType: SetTypes.PATIENT.value()
+                    setType: SetType.PATIENT
             )
 
             List<QuerySetInstance> querySetInstances = []
