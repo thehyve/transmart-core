@@ -19,12 +19,13 @@
 
 package org.transmartproject.db.querytool
 
+import org.transmartproject.core.userquery.SetType
 import org.transmartproject.core.userquery.UserQuerySet
 
 class QuerySet implements UserQuerySet {
 
     Long id
-    String setType
+    SetType setType
     Long setSize
     Date createDate = new Date()
     Query query

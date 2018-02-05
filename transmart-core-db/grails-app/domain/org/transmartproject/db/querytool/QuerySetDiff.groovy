@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.querytool
 
+import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.UserQuerySetDiff
 
 
@@ -27,7 +28,7 @@ class QuerySetDiff implements UserQuerySetDiff {
     Long id
     Long objectId
     QuerySet querySet
-    String changeFlag
+    ChangeFlag changeFlag
 
     static belongsTo = QuerySet
 

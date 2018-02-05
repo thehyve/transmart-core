@@ -4,6 +4,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff

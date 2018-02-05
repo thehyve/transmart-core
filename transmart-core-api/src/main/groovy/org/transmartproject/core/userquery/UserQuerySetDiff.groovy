@@ -17,6 +17,6 @@ interface UserQuerySetDiff {
     /**
     *  Flag determining whether the object was added or removed
     */
-    String getChangeFlag()
+    ChangeFlag getChangeFlag()
 
 }

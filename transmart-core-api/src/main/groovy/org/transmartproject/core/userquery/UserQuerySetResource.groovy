@@ -63,6 +63,7 @@ interface UserQuerySetResource {
      * @param numResults - parameter required to support pagination
      * @return List of querySetInstances
      */
-    List<UserQuerySetDiff> getDiffEntriesByUsernameAndFrequency(String frequency, String username, int firstResult, Integer numResults)
+    List<UserQuerySetDiff> getDiffEntriesByUsernameAndFrequency(SubscriptionFrequency frequency, String username,
+                                                                int firstResult, Integer numResults)
 
 }
