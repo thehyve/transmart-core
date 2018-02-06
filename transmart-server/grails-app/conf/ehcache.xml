@@ -138,29 +138,33 @@
         timeToIdleSeconds="300"
         />
 
-    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount"
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.cachedCounts"
            maxElementsInMemory="100000"
            timeToIdleSeconds="0"
-           diskPersistent="true"
-           eternal="true"
     />
 
-    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts"
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.countsPerConcept"
            maxElementsInMemory="100000"
            timeToIdleSeconds="0"
-           diskPersistent="true"
-           eternal="true"
+    />
+
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept"
+           maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
     />
 
     <cache name="org.transmartproject.db.tree.TreeCacheService"
            maxElementsInMemory="10000"
            timeToIdleSeconds="0"
-           diskPersistent="true"
-           eternal="true"
     />
 
     <cache name="org.transmartproject.db.concept.ConceptsService"
            maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
+    />
+
+    <cache name="org.transmartproject.db.ontology.TrialVisitsService"
+           maxElementsInMemory="10000"
            timeToIdleSeconds="0"
     />
 

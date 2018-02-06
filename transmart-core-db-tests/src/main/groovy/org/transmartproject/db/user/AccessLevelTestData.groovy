@@ -261,20 +261,23 @@ class AccessLevelTestData {
     }()
 
 
-    void saveAll() {
-        conceptTestData.saveAll()
-
-        save i2b2Secures
-        save securedObjects
+    void saveAuthorities() {
         save accessLevels
         save roles
         save groups
         save users
         users[0].addToRoles(roles.find { it.authority == 'ROLE_ADMIN' })
         users[1].addToGroups(groups.find { it.category == 'group_-201' })
+    }
+
+    void saveAll() {
+        conceptTestData.saveAll()
+
+        save i2b2Secures
+        save securedObjects
+        saveAuthorities()
         save securedObjectAccesses
         save dimensionStudies
     }
-
 
 }

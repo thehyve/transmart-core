@@ -24,6 +24,7 @@ import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.*
 import org.transmartproject.core.users.User
+import org.transmartproject.db.TestData
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.TransmartSpecification
 
@@ -44,8 +45,11 @@ class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
     def sessionFactory
 
     void setupData() {
+        TestData.clearAllData()
+
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
+        sessionFactory.currentSession.flush()
     }
 
     void testUserAdmin() {

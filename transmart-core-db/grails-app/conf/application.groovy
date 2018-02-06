@@ -29,18 +29,14 @@ environments {
             driverClassName = 'org.postgresql.Driver'
             username = 'biomart_user'
             password = 'biomart_user'
-            logSql = true
+            logSql = false
             formatSql = true
-        }
-    }
-    test_postgresql {
-        dataSource {
-            url = 'jdbc:postgresql://localhost:5432/transmart'
-            driverClassName = 'org.postgresql.Driver'
-            username = 'biomart_user'
-            password = 'biomart_user'
-            logSql = true
-            formatSql = true
+            properties {
+                maxActive   = 10
+                maxIdle     = 5
+                minIdle     = 2
+                initialSize = 2
+            }
         }
     }
     test_oracle {

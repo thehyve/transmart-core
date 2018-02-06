@@ -20,7 +20,7 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
         }
         def combination = (Combination)constraint
         if (combination.getOperator() != Operator.OR) {
-            return combination
+            return constraint
         }
 
         def groups = combination.args.split {

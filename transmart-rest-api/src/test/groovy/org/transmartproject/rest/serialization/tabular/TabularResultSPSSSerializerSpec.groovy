@@ -19,6 +19,7 @@
 
 package org.transmartproject.rest.serialization.tabular
 
+import com.google.common.collect.ImmutableList
 import org.transmartproject.core.ontology.Measure
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.ontology.MissingValues
@@ -38,14 +39,9 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def table = Mock(TabularResult)
         table.indicesList >> []
 
-        when: 'producing sps syntax file for empty table'
-        writeSpsFile(table, Mock(OutputStream), 'data.tsv')
-        then: 'exception is thrown'
-        def e1 = thrown(IllegalArgumentException)
-        e1.message == "Can't write sps expression file for empty table."
-
         when: 'producing spss files for empty table'
-        new TabularResultSPSSSerializer().writeFilesToZip(Mock(User), table, Mock(ZipOutputStream))
+        new TabularResultSPSSSerializer(Mock(User), Mock(ZipOutputStream), Mock(ImmutableList))
+                .writeParallel(table, 1)
         then: 'exception is thrown'
         def e3 = thrown(IllegalArgumentException)
         e3.message == "Can't write spss files for empty table."
@@ -58,7 +54,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         table.indicesList >> [metadatalessColumn]
 
         when: 'producing sps syntax file for such table'
-        writeSpsFile(table, Mock(OutputStream), 'data.tsv')
+        writeSpsFile([metadatalessColumn], Mock(OutputStream), 'data.tsv')
         then: 'exception is thrown'
         def e1 = thrown(IllegalArgumentException)
         e1.message == "All table columns have to contain metadata."
@@ -71,7 +67,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         table.indicesList >> [typelessColumn]
 
         when: 'producing sps syntax file for such table'
-        writeSpsFile(table, Mock(OutputStream), 'data.tsv')
+        writeSpsFile(table.indicesList, Mock(OutputStream), 'data.tsv', 'data.sps')
         then: 'exception is thrown'
         def e = thrown(IllegalArgumentException)
         e.message == "Variable has to have a type specified."
@@ -88,10 +84,10 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 2
+        commands.size() == 3
         commands.first().startsWith('GET DATA ')
         def attributes = commands[0].split('/')*.trim()
         'FILE = "data.tsv"' in attributes
@@ -133,10 +129,10 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 6
+        commands.size() == 7
 
         commands.first().startsWith('GET DATA ')
         def getDataAttributes = commands[0].split('/')*.trim()
@@ -187,10 +183,10 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 4
+        commands.size() == 5
 
         def varLabelsCommand = commands.find { it.startsWith('VARIABLE LABELS') }
         varLabelsCommand
@@ -245,10 +241,10 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 3
+        commands.size() == 4
         def missingValuesCommand = commands.find { it.startsWith('MISSING VALUES') }
         missingValuesCommand
         def missingValuesDeclarations = (missingValuesCommand - 'MISSING VALUES ').split('/')*.trim()

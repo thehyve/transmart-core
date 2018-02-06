@@ -22,14 +22,16 @@ package org.transmartproject.db.dataquery.clinical
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
@@ -38,8 +40,6 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
-
-import java.text.SimpleDateFormat
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -50,11 +50,13 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 @Rollback
 class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
+    @Autowired
+    SessionFactory sessionFactory
+
+    @Autowired
+    ClinicalDataResource clinicalDataResource
+
     TestData testData
-
-    def clinicalDataResourceService
-
-    def sessionFactory
 
     TabularResult<ClinicalVariableColumn, PatientRow> results
 
@@ -99,6 +101,8 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     }
 
     void setupData() {
+        TestData.clearAllData()
+
         testData = createTestData()
         testData.saveAll()
     }
@@ -115,7 +119,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testColumnsLabel() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2')])
 
         /* label for the columns (concepts) is the concept path */
@@ -125,7 +129,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testColumnIsClinicalVariable() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2')])
 
         expect:
@@ -137,7 +141,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testRowsLabel() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2')])
         def expected = testData.i2b2Data.patients.sort {
             it.id
@@ -152,7 +156,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testMultipleQueryResultsVariant() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(
+        results = clinicalDataResource.retrieveData(
                 testData.i2b2Data.patients[0..1].collect {
                     QtQueryMaster result = createQueryResult([it])
                     result.save()
@@ -169,7 +173,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testPatientCanBeFoundInRow() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2')])
 
         List<PatientRow> rows = Lists.newArrayList results
@@ -189,7 +193,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testDataStringDataPoints() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2')])
 
         List<PatientRow> rows = Lists.newArrayList results
@@ -209,7 +213,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
         /* test for when no data whatsoever is returned */
 
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c4')])
 
         List<PatientRow> rows = Lists.newArrayList results
@@ -223,7 +227,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     void testMissingColumnValue() {
         setupData()
         /* test when a row has data for some but not all variables */
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c3')])
 
         List<PatientRow> rows = Lists.newArrayList results
@@ -238,7 +242,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testNumericDataIsInNumericForm() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        results = clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c3')])
         List<PatientRow> rows = Lists.newArrayList results
 
@@ -264,7 +268,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         }
 
         when: 'test when a row has data for some but not all variables'
-        def resultList = Lists.newArrayList(clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        def resultList = Lists.newArrayList(clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptPath: '\\foo\\concept 2\\')]))
         then:
         resultList.collect { it.collect() }.flatten() == expected
@@ -292,14 +296,14 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
 
         when:
-        def resultList = Lists.newArrayList(clinicalDataResourceService.retrieveData(
+        def resultList = Lists.newArrayList(clinicalDataResource.retrieveData(
                 testData.clinicalData.queryResult, conceptVariables))
         then:
         resultList.collect { it.collect() } == expected
 
         when: 'with variables reversed'
         conceptVariables = conceptVariables.reverse()
-        def resultListReversed = Lists.newArrayList(clinicalDataResourceService.retrieveData(
+        def resultListReversed = Lists.newArrayList(clinicalDataResource.retrieveData(
                 testData.clinicalData.queryResult, conceptVariables))
 
         then:
@@ -317,7 +321,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         sessionFactory.currentSession.flush()
 
         when:
-        results = clinicalDataResourceService.retrieveData(
+        results = clinicalDataResource.retrieveData(
                 testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2')])
         Lists.newArrayList results /* consume the data */
@@ -331,7 +335,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
 
         when:
-        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'non_existent')])
         then:
         def e = thrown(InvalidArgumentsException)
@@ -342,7 +346,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     void testRepeatedConceptCode() {
         setupData()
         when:
-        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2'),
                  new TerminalConceptVariable(conceptCode: 'c4'),
                  new TerminalConceptVariable(conceptCode: 'c2')])
@@ -355,7 +359,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
 
         when:
-        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2')),
                  new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
         then:
@@ -368,7 +372,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
 
         when:
-        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+        clinicalDataResource.retrieveData(testData.clinicalData.queryResult,
                 [new TerminalConceptVariable(conceptCode: 'c2'),
                  new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
         then:
@@ -384,7 +388,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
             it.id in patientIds
         }
 
-        results = clinicalDataResourceService.retrieveData(patients, [
+        results = clinicalDataResource.retrieveData(patients, [
                 new TerminalConceptVariable(conceptCode: conceptCode)])
         List<PatientRow> rows = Lists.newArrayList(results)
         def expected = testData.clinicalData.facts.sort {
@@ -403,7 +407,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
 
         when:
-        clinicalDataResourceService.retrieveData(
+        clinicalDataResource.retrieveData(
                 testData.i2b2Data.patients as Set, [])
         then:
         thrown(InvalidArgumentsException)
@@ -411,7 +415,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testRetrieveDataWithoutPatientsVariantQueryResult() {
         setupData()
-        results = clinicalDataResourceService.retrieveData(emptyQueryResult, [
+        results = clinicalDataResource.retrieveData(emptyQueryResult, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
         expect:
@@ -422,7 +426,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
 
         when:
-        clinicalDataResourceService.retrieveData((QueryResult) null, [
+        clinicalDataResource.retrieveData((QueryResult) null, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
         then:
         thrown(AssertionError)
@@ -430,7 +434,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testRetrieveDataWithoutPatientsVariantQueryResultList() {
         setupData()
-        results = clinicalDataResourceService.retrieveData([] as Set, [
+        results = clinicalDataResource.retrieveData([] as Set, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
         expect:
@@ -439,7 +443,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     void testRetrieveDataWithoutPatientsVariantSet() {
         setupData()
-        results = clinicalDataResourceService.retrieveData([] as Set, [
+        results = clinicalDataResource.retrieveData([] as Set, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
         expect:

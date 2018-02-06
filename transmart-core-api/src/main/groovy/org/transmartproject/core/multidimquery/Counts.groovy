@@ -1,9 +1,20 @@
 package org.transmartproject.core.multidimquery
 
-import groovy.transform.Immutable
+import groovy.transform.Canonical
+import groovy.transform.CompileStatic
 
-@Immutable
+@CompileStatic
+@Canonical
 class Counts {
-    Long observationCount
-    Long patientCount
+    long observationCount
+    long patientCount
+
+    Counts plus(Counts other) {
+        new Counts(observationCount + other.observationCount, patientCount + other.patientCount)
+    }
+
+    void merge(Counts other) {
+        observationCount += other.observationCount
+        patientCount += other.patientCount
+    }
 }

@@ -19,20 +19,26 @@
 package org.transmartproject.rest.serialization.tabular
 
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.users.User
-
-import java.util.zip.ZipOutputStream
 
 /**
  * Writes tabular data to an output.
  */
 interface TabularResultSerializer {
+
     /**
      * Writes a tabular file content to the output stream.
      * Does not close the output stream afterwards.
+     * Required to be thread-safe.
      *
      * @param tabularResult table which data to write.
-     * @param zipOutStream the stream to write to.
+     * @param task id of the task
      */
-    void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream)
+    void writeParallel(TabularResult tabularResult, int task)
+
+    /**
+     * Completes the writes, combines the data and writes it to the output stream.
+     * Does not close the output stream afterwards.
+     */
+    void combine()
+
 }

@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.rnaseq
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -34,6 +34,7 @@ import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.TransmartSpecification
@@ -50,6 +51,7 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
 
     private static final double DELTA = 0.0001
 
+    @Autowired
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource<RegionRow> rnaseqResource
@@ -58,13 +60,13 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
 
     Projection<RnaSeqValues> projection
 
-    SessionFactory sessionFactory
-
     RnaSeqTestData testData
 
     AssayConstraint trialNameConstraint
 
     void setupData() {
+        TestData.clearAllData()
+
         testData = new RnaSeqTestData()
         testData.saveAll()
 

@@ -1,8 +1,8 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.ImmutableMap
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -18,7 +18,7 @@ import org.transmartproject.db.util.AbstractGroupingIterator
  */
 @Slf4j
 @CompileStatic
-class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, HypercubeDataRow> {
+class HypercubeTabularResultView implements TabularResult<ValueFetchingDataColumn, HypercubeDataRow> {
 
     public static final String DIMENSION_ELEMENTS_DELIMITER = ', '
     public static final String NO_DIMENSIONS_LABEL = 'Values'
@@ -28,10 +28,11 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
     final Iterable<Dimension> cellDimensions
     final String columnsDimensionLabel
     final String rowsDimensionLabel
+    List<ValueFetchingDataColumn> indicesList
 
-    HypercubeTabularResultView(final Hypercube hypercube,
-                               final Iterable<Dimension> rowDimensions = [],
-                               final Iterable<Dimension> columnDimensions = []) {
+    private HypercubeTabularResultView(final Hypercube hypercube,
+                               final Iterable<Dimension> rowDimensions,
+                               final Iterable<Dimension> columnDimensions) {
         this.hypercube = hypercube
         this.rowDimensions = rowDimensions
         this.columnDimensions = columnDimensions
@@ -41,14 +42,17 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
         checkDimensionsConsistency()
     }
 
-    List<HypercubeDataColumn> getIndicesList() {
-        Set<Map<Dimension, Integer>> columnIndexes = []
-        rows.forEachRemaining({ HypercubeDataRow row ->
-            columnIndexes.addAll(row.presentColumnIndexes)
-        })
-        columnIndexes.collect { Map<Dimension, Integer> index ->
-            new HypercubeDataColumn(index, hypercube)
-        }
+    HypercubeTabularResultView(final Hypercube hypercube,
+                               final Iterable<Dimension> rowDimensions,
+                               final Iterable<Dimension> columnDimensions,
+                               final List<ValueFetchingDataColumn> indicesList) {
+        this(hypercube, rowDimensions, columnDimensions)
+        this.indicesList = indicesList
+    }
+
+    @Override
+    List<ValueFetchingDataColumn> getIndicesList() {
+        indicesList
     }
 
     @Override
@@ -70,12 +74,12 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
         dimensions.collect { Dimension dim -> dim.name }.join(DIMENSION_ELEMENTS_DELIMITER) ?: NO_DIMENSIONS_LABEL
     }
 
-    private static Map<Dimension, Integer> getIndex(Iterable<Dimension> dimensions, HypercubeValue hypercubeValue) {
-        Map<Dimension, Integer> result = [:]
+    private static ImmutableMap<Dimension, Object> getCoordinates(Iterable<Dimension> dimensions, HypercubeValue hypercubeValue) {
+        ImmutableMap.Builder<Dimension, Object> result = ImmutableMap.builder()
         for (Dimension dim: dimensions) {
-            result.put(dim, hypercubeValue.getDimElementIndex(dim))
+            result.put(dim, hypercubeValue.getDimKey(dim))
         }
-        result
+        result.build()
     }
 
     private checkDimensionsConsistency() {
@@ -89,25 +93,25 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
     }
 
     @CompileStatic
-    class HypercubeTabularResultIterator extends AbstractGroupingIterator<HypercubeDataRow, HypercubeValue, Map<Dimension, Integer>> {
+    class HypercubeTabularResultIterator extends AbstractGroupingIterator<HypercubeDataRow, HypercubeValue, ImmutableMap<Dimension, Object>> {
 
         HypercubeTabularResultIterator(Iterator<HypercubeValue> iterator) {
             super(iterator)
         }
 
         @Override
-        Map<Dimension, Integer> calculateGroupKey(HypercubeValue hValue) {
-            getIndex(rowDimensions, hValue)
+        ImmutableMap<Dimension, Object> calculateGroupKey(HypercubeValue hValue) {
+            getCoordinates(rowDimensions, hValue)
         }
 
         @Override
-        HypercubeDataRow computeResultItem(Map<Dimension, Integer> groupKey, Iterable<HypercubeValue> groupedHValues) {
-            def columnIndexToValue = [:]
+        HypercubeDataRow computeResultItem(ImmutableMap<Dimension, Object> groupKey, Iterable<HypercubeValue> groupedHValues) {
+            Map<ImmutableMap, HypercubeValue> columnIndexToValue = [:]
             for (HypercubeValue hValue: groupedHValues) {
-                def columnIndex = getIndex(columnDimensions, hValue)
-                assert !columnIndexToValue.containsKey(columnIndex) :
-                        "There is more then one hypercube value that falls to [${groupKey} : ${columnIndex}] table cell."
-                columnIndexToValue[columnIndex] = hValue
+                def columnCoordinates = getCoordinates(columnDimensions, hValue)
+                assert !columnIndexToValue.containsKey(columnCoordinates) :
+                        "There is more then one hypercube value that falls to [${groupKey} : ${columnCoordinates}] table cell."
+                columnIndexToValue[columnCoordinates] = hValue
             }
             new HypercubeDataRow(
                     groupKey,
@@ -116,51 +120,35 @@ class HypercubeTabularResultView implements TabularResult<HypercubeDataColumn, H
     }
 }
 
-@EqualsAndHashCode
-@ToString
+/**
+ * The hypercube data column represents
+ */
+@Canonical
 @CompileStatic
-class HypercubeDataColumn<T> implements ValueFetchingDataColumn<Object, HypercubeDataRow> {
-    final Map<Dimension, Integer> index
-    final Hypercube hypercube
-
-    HypercubeDataColumn(Map<Dimension, Integer> index, Hypercube hypercube) {
-        this.index = index
-        this.hypercube = hypercube
-    }
+class HypercubeDataColumn implements ValueFetchingDataColumn<Object, HypercubeDataRow> {
+    final ImmutableMap<Dimension, Object> coordinates
 
     @Override
     String getLabel() {
-        index.collect { dim, index ->  "${dim.name}: ${index}" }
+        coordinates.collect { dim, value ->  "${dim.name}: ${value}" }
                 .join(HypercubeTabularResultView.DIMENSION_ELEMENTS_DELIMITER)
-    }
-
-    Object getDimensionElement(Dimension dimension) {
-        assert index.containsKey(dimension)
-        hypercube.dimensionElement(dimension, index[dimension])
     }
 
     @Override
     Object getValue(HypercubeDataRow row) {
-        row.getHypercubeValue(index).value
+        row.getHypercubeValue(coordinates)?.value
     }
 }
 
-@EqualsAndHashCode
-@ToString
+@Canonical
 @CompileStatic
 class HypercubeDataRow<T> implements DataRow<ValueFetchingDataColumn, T> {
-    final Map<Dimension, Integer> index
-    private final Map<Map, HypercubeValue> columnIndexToHValue
-
-    HypercubeDataRow(final Map<Dimension, Integer> index,
-                     Map<Map, HypercubeValue> columnIndexToHValue) {
-        this.index = index
-        this.columnIndexToHValue = columnIndexToHValue
-    }
+    final ImmutableMap<Dimension, Object> index
+    final Map<ImmutableMap, HypercubeValue> columnIndexToHValue
 
     @Override
     String getLabel() {
-        index.collect { dim, index ->  "${dim.name}: ${index}" }
+        index.collect { dim, key ->  "${dim.name}: ${key}" }
                 .join(HypercubeTabularResultView.DIMENSION_ELEMENTS_DELIMITER)
     }
 
@@ -169,12 +157,8 @@ class HypercubeDataRow<T> implements DataRow<ValueFetchingDataColumn, T> {
         column.getValue(this)
     }
 
-    HypercubeValue getHypercubeValue(Map<Dimension, Integer> columnIndex) {
-        columnIndexToHValue[columnIndex]
-    }
-
-    Set<Map<Dimension, Integer>> getPresentColumnIndexes() {
-        columnIndexToHValue.keySet()
+    HypercubeValue getHypercubeValue(ImmutableMap<Dimension, Object> columnCoordinates) {
+        columnIndexToHValue[columnCoordinates]
     }
 
     Object getDimensionElement(Dimension dimension) {

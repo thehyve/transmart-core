@@ -7,12 +7,14 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
+import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
@@ -36,17 +38,28 @@ class ObservationsBuilderTests extends Specification {
 
     TestData testData
     ClinicalTestData clinicalData
-    //Map<String, DimensionImpl> dims
-
-    String tempDirectory = '/var/tmp/jobs/test'
+    AccessLevelTestData accessLevelTestData
+    User adminUser
 
     @Autowired
     MultidimensionalDataResourceService queryResource
 
+
+    void setupData() {
+        TestData.clearAllData()
+
+        testData = TestData.createHypercubeDefault()
+        clinicalData = testData.clinicalData
+        testData.saveAll()
+        accessLevelTestData = new AccessLevelTestData()
+        accessLevelTestData.saveAuthorities()
+        adminUser = accessLevelTestData.users[0]
+    }
+
     public void testJsonSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
+        def mockedCube = queryResource.retrieveData('clinical', adminUser, constraint: constraint)
         def builder = new HypercubeJsonSerializer()
 
         when:
@@ -74,7 +87,7 @@ class ObservationsBuilderTests extends Specification {
     public void testPackedDimsSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
+        def mockedCube = queryResource.retrieveData('clinical', adminUser, constraint: constraint)
         def patientDimension = DimensionImpl.PATIENT
         def builder = new HypercubeProtobufSerializer()
 
@@ -134,7 +147,7 @@ class ObservationsBuilderTests extends Specification {
     public void testProtobufSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
+        def mockedCube = queryResource.retrieveData('clinical', adminUser, constraint: constraint)
         def builder = new HypercubeProtobufSerializer()
 
         when:
@@ -170,6 +183,7 @@ class ObservationsBuilderTests extends Specification {
         }
         log.info "Reading footer..."
         def footer = ObservationsProto.Footer.parseDelimitedFrom(s_in)
+        println "PROTOBUF TEST: Clinical facts: ${clinicalData.longitudinalClinicalFacts.toListString()}"
 
         then:
         header != null
@@ -183,7 +197,7 @@ class ObservationsBuilderTests extends Specification {
         def dataType = 'clinical'
         def fileExtension = '.tsv'
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData(dataType, [clinicalData.longitudinalStudy], constraint: constraint)
+        def mockedCube = queryResource.retrieveData(dataType, adminUser, constraint: constraint)
         def builder = new HypercubeCSVSerializer()
 
         when:
@@ -208,7 +222,7 @@ class ObservationsBuilderTests extends Specification {
         def dataType = 'clinical'
         def fileExtension = '.tsv'
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData(dataType, [clinicalData.longitudinalStudy], constraint: constraint)
+        def mockedCube = queryResource.retrieveData(dataType, adminUser, constraint: constraint)
         def builder = new HypercubeCSVSerializer()
 
         when:
@@ -228,10 +242,4 @@ class ObservationsBuilderTests extends Specification {
         out.names.sort() == expectedEntries.sort()
     }
 
-    void setupData() {
-        testData = TestData.createHypercubeDefault()
-        clinicalData = testData.clinicalData
-        testData.saveAll()
-        //dims = DimensionImpl.dimensionsMap
-    }
 }

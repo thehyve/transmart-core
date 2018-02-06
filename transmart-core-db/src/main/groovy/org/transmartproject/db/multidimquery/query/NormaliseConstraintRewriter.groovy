@@ -83,8 +83,9 @@ class NormaliseConstraintRewriter extends ConstraintRewriter {
             if (constraint.conceptCodes.size() == 1) {
                 new ConceptConstraint(conceptCode: constraint.conceptCodes[0])
             } else {
-                constraint.conceptCodes?.sort()
-                new ConceptConstraint(conceptCodes: constraint.conceptCodes)
+                def result = new ConceptConstraint(conceptCodes: constraint.conceptCodes.toList())
+                result.conceptCodes?.sort()
+                result
             }
         } else {
             new ConceptConstraint(path: constraint.path)
@@ -94,7 +95,8 @@ class NormaliseConstraintRewriter extends ConstraintRewriter {
     @Override
     Constraint build(PatientSetConstraint constraint) {
         if (constraint.patientSetId) {
-            new PatientSetConstraint(patientSetId: constraint.patientSetId)
+            new PatientSetConstraint(patientSetId: constraint.patientSetId,
+                    offset: constraint.offset, limit: constraint.limit)
         } else if (constraint.patientIds) {
             List<Long> patientIds = constraint.patientIds.toList()
             patientIds.sort()

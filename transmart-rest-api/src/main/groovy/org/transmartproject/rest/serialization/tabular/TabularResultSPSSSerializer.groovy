@@ -1,6 +1,7 @@
 /* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest.serialization.tabular
 
+import com.google.common.collect.ImmutableList
 import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -25,32 +26,13 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     final static char COLUMN_SEPARATOR = '\t' as char
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy hh:mm")
 
-    @Override
-    void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
-        if (!tabularResult.indicesList) {
-            throw new IllegalArgumentException("Can't write spss files for empty table.")
-        }
-
-        try {
-            writeSavFile(user, tabularResult, zipOutStream)
-        } catch(Exception e) {
-            zipOutStream.putNextEntry(new ZipEntry('spss/data.sav.err'))
-            zipOutStream << e.message
-            zipOutStream.closeEntry()
-        }
+    private final static toSpssLabel(String label) {
+        label?.replaceAll(/[^a-zA-Z0-9_.]/, '_')
     }
 
-    static writeSavFile(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
-        def workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
-
-        def stopWatch = new StopWatch('Export to SPSS')
-
-        // Write TSV file to disk and to the outputstream
-        stopWatch.start('Write TSV')
-        def tsvDataFile = new File(workingDir, 'data.tsv')
-        tsvDataFile.withOutputStream { outputStream ->
-            writeValues(tabularResult, outputStream)
-        }
+    static writeSavFile(ImmutableList<DataColumn> columns, File workingDir, File tsvDataFile, ZipOutputStream zipOutStream) {
+        def stopWatch = new StopWatch('Converting to SAV')
+        stopWatch.start('Write TSV to zip')
         zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
         tsvDataFile.withInputStream { stream ->
             zipOutStream << stream
@@ -62,7 +44,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         stopWatch.start('Write SPS')
         def spsFile = new File(workingDir, 'data.sps')
         spsFile.withOutputStream { outputStream ->
-            writeSpsFile(tabularResult, outputStream, tsvDataFile.path, 'data.sav')
+            writeSpsFile(columns, outputStream, tsvDataFile.path, 'data.sav')
         }
         zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
         spsFile.withInputStream { stream ->
@@ -110,28 +92,32 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             log.error "PSPP error: ${e.message}", e
             throw new UnexpectedResultException("PSPP error: ${e.message}", e)
         } finally {
-            log.info "Export to SPSS completed.\n${stopWatch.prettyPrint()}"
-            workingDir.delete()
+            log.info "Conversion to SAV completed.\n${stopWatch.prettyPrint()}"
         }
     }
 
-    private final static toSpssLabel(String label) {
-        label?.replaceAll(/[^a-zA-Z0-9_.]/, '_')
-    }
-
-    static writeValues(TabularResult tabularResult, OutputStream outputStream) {
+    static writeHeader(ImmutableList<DataColumn> columns, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(
                 new BufferedWriter(
                         new OutputStreamWriter(outputStream, 'utf-8'),
                         // large 32k chars buffer to reduce overhead
                         32*1024),
                 COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
-        List<DataColumn> columns = tabularResult.indicesList
         csvWriter.writeNext(columns.collect { toSpssLabel(it.label) } as String[])
+        csvWriter.flush()
+    }
+
+    static writeValues(ImmutableList<DataColumn> columns, TabularResult tabularResult, OutputStream outputStream) {
+        CSVWriter csvWriter = new CSVWriter(
+                new BufferedWriter(
+                        new OutputStreamWriter(outputStream, 'utf-8'),
+                        // large 32k chars buffer to reduce overhead
+                        32*1024),
+                COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
         Iterator<DataRow> rows = tabularResult.rows
-        while(rows.hasNext()) {
+        while (rows.hasNext()) {
             DataRow row = rows.next()
-            List<Object> valuesRow = columns.stream().map({ DataColumn column -> row[column] }).collect(Collectors.toList())
+            List<Object> valuesRow = columns.stream().map({DataColumn column -> row[column]}).collect(Collectors.toList())
             csvWriter.writeNext(formatRowValues(valuesRow))
         }
         csvWriter.flush()
@@ -148,16 +134,15 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         }).toArray()
     }
 
-    static writeSpsFile(TabularResult<? extends MetadataAwareDataColumn ,? extends DataRow> tabularResult,
+    static writeSpsFile(List<DataColumn> columnList,
                         OutputStream outputStream,
                         String dataFile,
                         String outputFile = null) {
-        if (!tabularResult.indicesList) {
+        if (!columnList) {
             throw new IllegalArgumentException("Can't write sps expression file for empty table.")
         }
-        List<MetadataAwareDataColumn> columns = tabularResult.indicesList
-                .findAll { it instanceof MetadataAwareDataColumn && it.metadata }
-        if (columns.size() < tabularResult.indicesList.size()) {
+        def columns = columnList.findAll { it instanceof MetadataAwareDataColumn && it.metadata } as List<MetadataAwareDataColumn>
+        if (columns.size() < columnList.size()) {
             throw new IllegalArgumentException("All table columns have to contain metadata.")
         }
 
@@ -272,4 +257,89 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             default: throw new UnsupportedOperationException()
         }
     }
+
+
+    final User user
+    final ZipOutputStream zipOutputStream
+    final File workingDir
+    final ImmutableList<DataColumn> columns
+    final SortedMap<Integer, File> dataFiles = Collections.synchronizedSortedMap([:] as TreeMap)
+    final SortedMap<Integer, File> errorFiles = Collections.synchronizedSortedMap([:] as TreeMap)
+
+    /**
+     * Initialises the serializer with the output stream.
+     * Does not close the output stream afterwards.
+     *
+     * @param user the user to serialize for. The user specific working directory
+     * will be used for temporary files.
+     * @param zipOutStream the stream to write to.
+     */
+    TabularResultSPSSSerializer(User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
+        this.user = user
+        this.zipOutputStream = zipOutputStream
+        if (!columns) {
+            throw new IllegalArgumentException("Can't write spss files for empty table.")
+        }
+        this.columns = columns
+        this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
+    }
+
+    @Override
+    void writeParallel(TabularResult tabularResult, int task) {
+        if (!tabularResult.indicesList) {
+            throw new IllegalArgumentException("Can't write spss files for empty table.")
+        }
+
+        def taskUuid = UUID.randomUUID().toString()
+        try {
+            // Write TSV file to disk
+            def t1 = new Date()
+            def tsvDataFile = new File(workingDir, "data-${taskUuid}.tsv")
+            tsvDataFile.withOutputStream { outputStream ->
+                writeValues(columns, tabularResult, outputStream)
+            }
+            dataFiles[task] = tsvDataFile
+            def t2 = new Date()
+            log.info "Export task ${task} [${taskUuid}] completed in ${t2.time - t1.time} ms."
+        } catch(Exception e) {
+            log.error "Error in task ${task}: ${e.message}", e
+            def errorFile = new File(workingDir, "error-${taskUuid}.tsv")
+            errorFile.withOutputStream { outputStream ->
+                outputStream << e.message
+            }
+            errorFiles[task] = errorFile
+        }
+    }
+
+    @Override
+    void combine() {
+        log.info 'Combining parallel results to a single data file ...'
+        try {
+            def tsvDataFile = new File(workingDir, 'data.tsv')
+            tsvDataFile.withOutputStream { outputStream ->
+                writeHeader(columns, outputStream)
+                for (File dataFile: dataFiles.values()) {
+                    dataFile.withInputStream { inputStream ->
+                        outputStream << inputStream
+                    }
+                }
+            }
+            writeSavFile(columns, workingDir, tsvDataFile, zipOutputStream)
+        } catch(Exception e) {
+            zipOutputStream.putNextEntry(new ZipEntry('spss/data.sav.err'))
+            zipOutputStream << e.message
+            zipOutputStream.closeEntry()
+            for (File errorFile: errorFiles.values()) {
+                zipOutputStream.putNextEntry(new ZipEntry("spss/${errorFile.name}"))
+                errorFile.withInputStream { inputStream ->
+                    zipOutputStream << inputStream
+                }
+                zipOutputStream.closeEntry()
+            }
+        } finally {
+            log.info 'Writing to SPSS completed.'
+            workingDir.delete()
+        }
+    }
+
 }

@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.Memoized
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.StudyMetadata
@@ -23,6 +24,7 @@ import org.transmartproject.db.multidimquery.DimensionImpl
  * Metadata is available in the form of a label {@link Study#studyId} and a link to the <code>bio_experiment</code>
  * table in {@link Study#bioExperimentId}.
  */
+@EqualsAndHashCode(includes = ['id'])
 class Study implements MDStudy {
 
     static final String PUBLIC = 'PUBLIC'

@@ -4,18 +4,24 @@ package org.transmartproject.db.multidimquery.query
 
 import grails.util.Holders
 import groovy.transform.CompileStatic
+import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.SessionFactory
+import org.hibernate.StatelessSession
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
+import org.hibernate.criterion.Order
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
+import org.hibernate.type.IntegerType
+import org.hibernate.type.LongType
 import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -25,6 +31,7 @@ import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.VisitDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.ontology.TrialVisitsService
 import org.transmartproject.db.pedigree.Relation
 import org.transmartproject.db.pedigree.RelationType
 import org.transmartproject.db.querytool.QtPatientSetCollection
@@ -50,20 +57,8 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.*
 class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> implements QueryBuilder<DetachedCriteria> {
 
     public static final String SUBJECT_ID_SOURCE = 'SUBJ_ID'
-    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(VALUE)
-    final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
-    final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
-    final Field textValueField = valueMetadata.fields.find { it.fieldName == 'textValue' }
-    final Field rawValueField = valueMetadata.fields.find { it.fieldName == 'rawValue' }
-    final Field patientIdField = new Field(dimension: PATIENT.name, fieldName: 'id', type: Type.ID)
-    final Field startTimeField = new Field(dimension: START_TIME.name, fieldName: 'startDate', type: Type.DATE)
-
     public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
-
-    protected Map<String, Integer> aliasSuffixes = [:]
-    Map<String, String> aliases = [:]
-    final Collection<MDStudy> studies
-    final boolean accessToAllStudies
+    static final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
 
     static HibernateCriteriaQueryBuilder forStudies(Collection<MDStudy> studies) {
         new HibernateCriteriaQueryBuilder(false, studies)
@@ -72,6 +67,28 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
     static HibernateCriteriaQueryBuilder forAllStudies() {
         new HibernateCriteriaQueryBuilder(true, null)
     }
+
+    static MDStudiesResource getStudiesResource() {
+        ((MDStudiesResource)Holders.grailsApplication.mainContext['MDStudiesService'])
+    }
+
+    static TrialVisitsService getTrialVisitsService() {
+        ((TrialVisitsService)Holders.grailsApplication.mainContext['trialVisitsService'])
+    }
+
+    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(VALUE)
+    final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
+    final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
+    final Field textValueField = valueMetadata.fields.find { it.fieldName == 'textValue' }
+    final Field rawValueField = valueMetadata.fields.find { it.fieldName == 'rawValue' }
+    final Field patientIdField = new Field(dimension: PATIENT.name, fieldName: 'id', type: Type.ID)
+    final Field startTimeField = new Field(dimension: START_TIME.name, fieldName: 'startDate', type: Type.DATE)
+
+    protected Map<String, Integer> aliasSuffixes = [:]
+    Map<String, String> aliases = [:]
+    final Collection<MDStudy> studies
+    final boolean accessToAllStudies
+
 
     private HibernateCriteriaQueryBuilder(boolean accessToAllStudies, Collection<MDStudy> studies) {
         this.accessToAllStudies = accessToAllStudies
@@ -265,7 +282,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                 def fieldType = DimensionMetadata.forDimensionName(field?.dimension).fieldTypes[field.fieldName]
                 if (fieldType != null && !fieldType.isInstance(value)) {
                     if (Number.isAssignableFrom(fieldType) && value instanceof Date) {
-                        convertedValue = toNumber(value)
+                        convertedValue = toNumber((Date)value)
                     } else {
                         convertedValue = fieldType.newInstance(value)
                     }
@@ -454,13 +471,22 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
         } else if (constraint.patientSetId != null) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
-            subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))
-            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property("patient")))
+            log.info "Subquery on patient set with id ${constraint.patientSetId}"
+            if (constraint.offset != null && constraint.limit != null) {
+                log.info "Restrict subquery to offset ${constraint.offset}, limit ${constraint.limit}"
+                subCriteria.add(Restrictions.sqlRestriction(
+                        '{alias}.result_instance_id = ? order by {alias}.patient_num offset ? limit ?',
+                        [constraint.patientSetId, constraint.offset, constraint.limit].toArray(),
+                        [LongType.INSTANCE, IntegerType.INSTANCE, IntegerType.INSTANCE] as org.hibernate.type.Type[]))
+            } else {
+                subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))
+            }
+            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property('patient')))
         } else if (constraint.subjectIds) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(PatientMapping, 'patient_mapping')
             subCriteria.add(Restrictions.in('encryptedId', constraint.subjectIds))
             subCriteria.add(Restrictions.eq('source', SUBJECT_ID_SOURCE))
-            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property("patient")))
+            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property('patient')))
         } else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
         }
@@ -618,7 +644,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         if (constraint.studyId == null){
             throw new QueryBuilderException("Study constraint shouldn't have a null value for studyId")
         }
-        Study study = Study.find { studyId == constraint.studyId }
+        MDStudy study = studiesResource.getStudyByStudyId(constraint.studyId)
         return build(new StudyObjectConstraint(study: study))
     }
 
@@ -626,16 +652,15 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         if (constraint.study == null){
             throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
         }
-        def trialVisits = TrialVisit.findAll { study == constraint.study } as List<TrialVisit>
-        trialVisits.sort({a, b -> a.id <=> b.id})
+        def trialVisits = trialVisitsService.findTrialVisitsForStudy(constraint.study)
         return Restrictions.in('trialVisit', trialVisits)
     }
-
 
     Criterion build(NullConstraint constraint){
         String propertyName = getFieldPropertyName(constraint.field)
         Restrictions.isNull(propertyName)
     }
+
     /**
      * Creates a criteria object the represents the negation of <code>constraint.arg</code>.
      */
@@ -770,8 +795,6 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         Subqueries.propertyIn('patient', relationCriteria.setProjection(Projections.property("leftSubject")))
     }
 
-    static final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
-
     /**
      * Builds a DetachedCriteria object representing the query for observation facts that satisfy
      * the constraint.
@@ -786,7 +809,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         aliases.clear()
         propertiesToReserveAliases.each { String property -> getAlias(property) }
         def result = builder()
-        List restrictions = [ build(constraint) ]
+        List restrictions = [ build((Constraint)constraint) ]
         if (!accessToAllStudies) {
             restrictions << studiesCriterion
         }

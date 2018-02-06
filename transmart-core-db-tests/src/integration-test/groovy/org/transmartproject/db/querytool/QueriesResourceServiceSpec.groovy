@@ -25,6 +25,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.*
+import org.transmartproject.db.TestData
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
@@ -82,6 +83,8 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
     }
 
     void setupData() {
+        TestData.clearAllData()
+
         /* 1. Define concepts */
         def concepts = [ /* level, concept_path, concept_cd */
                          [0, "\\a\\", 'A'],

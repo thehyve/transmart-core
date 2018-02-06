@@ -32,4 +32,40 @@ interface MDStudiesResource {
      */
     MDStudy getStudyByStudyIdForUser(String studyId, User user) throws NoSuchResourceException
 
+    /**
+     * Returns the study with the given name.
+     *
+     * @param studyId the unique name of the study
+     * @return the study, if it exists.
+     * @throws NoSuchResourceException iff no study can be found with the name.
+     */
+    MDStudy getStudyByStudyId(String studyId) throws NoSuchResourceException
+
+    /**
+     * Returns the study with the given id.
+     *
+     * @param id the unique id of the study
+     * @return the study, if it exists.
+     * @throws NoSuchResourceException iff no study can be found with the id.
+     */
+    MDStudy getStudyById(Long id) throws NoSuchResourceException
+
+    /**
+     * Returns the study id for the study with the given id.
+     *
+     * @param id the unique id of the study
+     * @return the study name of the study, if it exists.
+     * @throws NoSuchResourceException iff no study can be found with the id.
+     */
+    String getStudyIdById(Long id) throws NoSuchResourceException
+
+    /**
+     * Returns the study for the trial visit with the given id.
+     *
+     * @param trialVisitId the unique id of the trial visit
+     * @return the study, if it exists.
+     * @throws NoSuchResourceException iff no trial visit can be found with the id.
+     */
+    MDStudy getStudyByTrialVisitId(Long trialVisitId) throws NoSuchResourceException
+
 }

@@ -26,15 +26,6 @@ interface TreeResource {
     List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, User currentUser)
 
     /**
-     * Clears the tree node cache. This function should be called after loading, removing or updating
-     * tree nodes in the database.
-     * Only available for administrators.
-     *
-     * @param currentUser the current user.
-     */
-    void clearCache(User currentUser)
-
-    /**
      * Checks if a cache rebuild task is active.
      * Only available for administrators.
      *

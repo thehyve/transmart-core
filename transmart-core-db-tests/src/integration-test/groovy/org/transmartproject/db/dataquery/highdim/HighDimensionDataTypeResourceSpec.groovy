@@ -21,11 +21,13 @@ package org.transmartproject.db.dataquery.highdim
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.TabularStudyTestData
@@ -39,16 +41,19 @@ import static org.hamcrest.Matchers.*
 @Rollback
 class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
 
+    @Autowired
+    QueriesResource queriesResourceService
+
     @Resource
     HighDimensionDataTypeModule mrnaModule
 
     HighDimensionDataTypeResource resource
-    QueriesResource queriesResourceService
-
 
     I2b2 i2b2Node
 
     void setupData() {
+        TestData.clearAllData()
+
         TabularStudyTestData studyTestData = new TabularStudyTestData()
         studyTestData.saveAll()
         i2b2Node = studyTestData.i2b2List[0]
