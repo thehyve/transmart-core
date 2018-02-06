@@ -2,6 +2,7 @@
 package org.transmartproject.rest.serialization.tabular
 
 import com.opencsv.CSVWriter
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -12,10 +13,12 @@ import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
 import java.text.SimpleDateFormat
+import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 @Slf4j
+@CompileStatic
 class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
@@ -26,13 +29,6 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         if (!tabularResult.indicesList) {
             throw new IllegalArgumentException("Can't write spss files for empty table.")
         }
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
-        writeValues(tabularResult, zipOutStream)
-        zipOutStream.closeEntry()
-
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
-        writeSpsFile(tabularResult, zipOutStream, 'data.tsv')
-        zipOutStream.closeEntry()
 
         try {
             writeSavFile(user, tabularResult, zipOutStream)
@@ -44,36 +40,44 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     }
 
     static writeSavFile(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
-        if (!tabularResult.indicesList) {
-            throw new IllegalArgumentException("Can't write sav file for empty table.")
-        }
-        try {
-            def command = 'pspp --version'
-            def process = command.execute()
-            process.waitForProcessOutput()
-            if (process.exitValue() != 0) {
-                log.warn 'PSPP not available. Skip saving of spss/data.sav.'
-                return
-            }
-        } catch(IOException e) {
-            log.warn 'PSPP not available. Skip saving of spss/data.sav.'
-            return
-        }
-
-        // FIXME: This leaks data to the /tmp dir.
         def workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
 
+        // Write TSV file to disk and to the outputstream
         def tsvDataFile = new File(workingDir, 'data.tsv')
         tsvDataFile.withOutputStream { outputStream ->
             writeValues(tabularResult, outputStream)
         }
+        zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
+        tsvDataFile.withInputStream { stream ->
+            zipOutStream << stream
+        }
+        zipOutStream.closeEntry()
 
+        // Write SPS file to disk and to the outputstream
         def spsFile = new File(workingDir, 'data.sps')
         spsFile.withOutputStream { outputStream ->
             writeSpsFile(tabularResult, outputStream, tsvDataFile.path, 'data.sav')
         }
+        zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
+        spsFile.withInputStream { stream ->
+            zipOutStream << stream
+        }
+        zipOutStream.closeEntry()
 
         try {
+            try {
+                def command = 'pspp --version'
+                def process = command.execute()
+                process.waitForProcessOutput()
+                if (process.exitValue() != 0) {
+                    log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+                    return
+                }
+            } catch(IOException e) {
+                log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+                return
+            }
+
             def command = 'pspp data.sps'
             log.debug "Running PSPP in ${workingDir} ..."
             def process = command.execute((String[])null, workingDir)
@@ -105,25 +109,30 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     }
 
     static writeValues(TabularResult tabularResult, OutputStream outputStream) {
-        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream, 'utf-8'), COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
+        CSVWriter csvWriter = new CSVWriter(
+                new BufferedWriter(
+                        new OutputStreamWriter(outputStream, 'utf-8'),
+                        // large 32k chars buffer to reduce overhead
+                        32*1024),
+                COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
         List<DataColumn> columns = tabularResult.indicesList
         csvWriter.writeNext(columns.collect { toSpssLabel(it.label) } as String[])
-        tabularResult.rows.each { DataRow row ->
-            List valuesRow = columns.collect { DataColumn column -> row[column] }
+        tabularResult.rows.forEachRemaining({DataRow row ->
+            List<Object> valuesRow = columns.stream().map({DataColumn column -> row[column]}).collect(Collectors.toList())
             csvWriter.writeNext(formatRowValues(valuesRow))
-        }
+        })
         csvWriter.flush()
     }
 
     private static String[] formatRowValues(List<Object> valuesRow) {
-        valuesRow.collect { value ->
+        valuesRow.stream().map({value ->
             if (value == null) return ''
             if (value instanceof Date) {
                 DATE_FORMAT.format(value)
             } else {
-                value as String
+                value.toString()
             }
-        } as String[]
+        }).toArray()
     }
 
     static writeSpsFile(TabularResult<? extends MetadataAwareDataColumn ,? extends DataRow> tabularResult,
@@ -169,7 +178,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             buffer << columns
                     .findAll { it.metadata.valueLabels }
                     .collect { column ->
-                ([toSpssLabel(column.label)]
+                (([toSpssLabel(column.label)] as List<String>)
                         + column.metadata.valueLabels
                         .collect { value, label -> quote(value as String) + ' ' + quote(label) }).join('\n')
             }.join('\n/')
@@ -246,7 +255,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 }
                 return 'DATETIME' + (width ?: '')
             case VariableDataType.STRING:
-                return 'A' + (metadata.width ?: '')
+                return 'A' + (metadata.width ?: '255')
             default: throw new UnsupportedOperationException()
         }
     }
