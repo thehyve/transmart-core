@@ -1,12 +1,12 @@
--1	-3000	gender	@	0001-01-01 00:00:00	@	1	-500	T	Male														1
--1	-3000	height	@	2005-05-24 13:40:00	@	1	-501	N	E														
--1	-3000	height	@	2005-05-24 13:40:00	MISSVAL	1	-501	T	Asked, but not answered														
--1	-3000	birthdate	@	2015-11-14 19:05:00	@	1	-500	N	E	334886400000						1980-08-12UTC							
--1	-3000	description	@	2016-03-21 10:36:01	@	1	-501	T	Description about subject 123456														
--1	-3001	gender	@	0001-01-01 00:00:00	@	1	-500	T															
--1	-3001	gender	@	0001-01-01 00:00:00	MISSVAL	1	-500	T	Not Specified														
--1	-3001	height	@	2004-08-27 10:45:32	@	1	-501	N	E	169													
--1	-3001	birthdate	@	2010-12-16 20:23:15	@	1	-500	N	E	530323200000						1986-10-22UTC							
--1	-3001	description	@	0001-01-01 00:00:00	@	1	-501	T	No description														
--1	-3000	favouritebook	@	2016-03-21 10:36:01	@	1	-500	B								The favourite book of the subject is Douglas Hofstadter (1979), Gödel, Escher, Bach: an Eternal Golden Braid (Metaphorical fugue on minds and machines in the spirit of Lewis Carroll). The book explains topics from mathematics, language, computer science and biology and contains enlightening and funny dialogues.							
--1	-3001	favouritebook	@	2016-03-21 10:36:01	@	1	-500	B								Fyodor Mikhailovich Dostoyevsky: The Brothers Karamazov (1880) and Crime and Punishment (1866).							
+-1	-3000	gender	@	0001-01-01 00:00:00	@	1	T	Male														1	-500
+-1	-3000	height	@	2005-05-24 13:40:00	@	1	N	E															-501
+-1	-3000	height	@	2005-05-24 13:40:00	MISSVAL	1	T	Asked, but not answered															-501
+-1	-3000	birthdate	@	2015-11-14 19:05:00	@	1	N	E	334886400000						1980-08-12UTC								-500
+-1	-3000	description	@	2016-03-21 10:36:01	@	1	T	Description about subject 123456															-501
+-1	-3001	gender	@	0001-01-01 00:00:00	@	1	T																-500
+-1	-3001	gender	@	0001-01-01 00:00:00	MISSVAL	1	T	Not Specified															-500
+-1	-3001	height	@	2004-08-27 10:45:32	@	1	N	E	169														-501
+-1	-3001	birthdate	@	2010-12-16 20:23:15	@	1	N	E	530323200000						1986-10-22UTC								-500
+-1	-3001	description	@	0001-01-01 00:00:00	@	1	T	No description															-501
+-1	-3000	favouritebook	@	2016-03-21 10:36:01	@	1	B								The favourite book of the subject is Douglas Hofstadter (1979), Gödel, Escher, Bach: an Eternal Golden Braid (Metaphorical fugue on minds and machines in the spirit of Lewis Carroll). The book explains topics from mathematics, language, computer science and biology and contains enlightening and funny dialogues.								-500
+-1	-3001	favouritebook	@	2016-03-21 10:36:01	@	1	B								Fyodor Mikhailovich Dostoyevsky: The Brothers Karamazov (1880) and Crime and Punishment (1866).								-500

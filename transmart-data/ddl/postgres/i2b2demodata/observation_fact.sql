@@ -9,7 +9,6 @@ CREATE TABLE observation_fact (
     start_date timestamp without time zone,
     modifier_cd character varying(100) NOT NULL,
     instance_num numeric(18,0),
-    trial_visit_num numeric(38,0),
     valtype_cd character varying(50),
     tval_char character varying(255),
     nval_num numeric(18,5),
@@ -25,7 +24,8 @@ CREATE TABLE observation_fact (
     import_date timestamp without time zone,
     sourcesystem_cd character varying(50),
     upload_id numeric(38,0),
-    sample_cd character varying(200)
+    sample_cd character varying(200),
+    trial_visit_num numeric(38,0)
 );
 
 --
