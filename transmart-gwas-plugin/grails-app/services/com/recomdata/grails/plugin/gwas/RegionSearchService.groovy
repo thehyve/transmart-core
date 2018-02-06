@@ -23,6 +23,7 @@ package com.recomdata.grails.plugin.gwas
 
 import de.DeSNPInfo;
 import grails.transaction.Transactional
+import java.sql.Connection
 
 @Transactional
 class RegionSearchService {
@@ -74,8 +75,9 @@ class RegionSearchService {
     def analysisNameSqlQuery = """
 	SELECT DATA.bio_assay_analysis_id as id, DATA.analysis_name as name
 	FROM BIOMART.bio_assay_analysis DATA WHERE 1=1 
-"""
-    //Query with mad Oracle pagination
+    """
+
+    //Query in Oracle SQL - GWAS
     def gwasSqlQuery = """
 		SELECT a.*
 		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
@@ -91,7 +93,22 @@ class RegionSearchService {
 		                 _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
 		                 WHERE 1=1
 	"""
-    //changed query
+
+    //Query in Postgres SQL - GWAS
+    def gwasPostgresSqlQuery = """
+		SELECT    _analysisSelect_ info.chrom AS chrom,
+		          info.pos AS pos, info.gene_name AS rsgene,
+		          DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
+		          DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata,
+		          info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome,
+		          DATA.beta as beta, DATA.standard_error as standard_error, DATA.EFFECT_ALLELE as effect_allele, DATA.OTHER_ALLELE as other_allele, info.strand as strand 
+		          FROM biomart.bio_assay_analysis_gwas DATA
+		          _analysisJoin_
+		          _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
+		                 WHERE 1=1
+	"""
+
+    //Query in Oracle SQL - GWAS HG19
     def gwasHg19SqlQuery = """
 				SELECT a.*
 	  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
@@ -106,8 +123,23 @@ class RegionSearchService {
 					 _analysisJoin_
 					 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and ( _regionlist_ )
 					 WHERE 1=1
-	
-"""
+	"""
+
+    //Query in Postgres SQL - GWAS HG19
+    def gwasHg19PostgresSqlQuery = """
+	   SELECT   _analysisSelect_ info.chrom AS chrom,
+					 info.pos AS pos, info.rsgene AS rsgene,
+					 DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
+					 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata,
+					 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome,
+					 DATA.beta as beta, DATA.standard_error as standard_error, DATA.EFFECT_ALLELE as effect_allele, DATA.OTHER_ALLELE as other_allele, info.strand as strand 
+					 FROM biomart.bio_assay_analysis_gwas DATA
+					 _analysisJoin_
+					 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and ( _regionlist_ )
+					 WHERE 1=1
+    """
+
+    //Query in Oracle SQL - EQTL
     def eqtlSqlQuery = """
 		SELECT a.*
 		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
@@ -123,6 +155,20 @@ class RegionSearchService {
 		                 WHERE 1=1
 	"""
 
+    //Query in Postgres SQL - EQTL
+    def eqtlPostgresSqlQuery = """
+		SELECT   _analysisSelect_ info.chrom AS chrom,
+		         info.pos AS pos, info.gene_name AS rsgene,
+		         DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
+		         DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata, DATA.gene as gene,
+		         info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome, info.strand as strand,
+		         FROM biomart.bio_assay_analysis_eqtl DATA
+		         _analysisJoin_
+		         _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
+		         WHERE 1=1
+	"""
+
+    //Query in Oracle SQL - EQTL HG19
     def eqtlHg19SqlQuery = """
 	SELECT a.*
 	  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
@@ -136,7 +182,20 @@ class RegionSearchService {
 					 _analysisJoin_
 					 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
 					 WHERE 1=1
-"""
+    """
+
+    //Query in Postgres SQL - EQTL HG19
+    def eqtlHg19PostgresSqlQuery = """
+	    SELECT   _analysisSelect_ info.chrom AS chrom,
+				 info.pos AS pos, info.rsgene AS rsgene,
+				 DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
+				 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata, DATA.gene as gene,
+				 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome, info.strand as strand,
+				 FROM biomart.bio_assay_analysis_eqtl DATA
+				 _analysisJoin_
+				 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
+				 WHERE 1=1
+    """
 
     def gwasSqlCountQuery = """
 		SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Gwas data 
@@ -148,17 +207,20 @@ class RegionSearchService {
 	SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Gwas data
 	 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	 WHERE 1=1
-"""
+    """
+
     def eqtlSqlCountQuery = """
 		SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Eqtl data
 	     _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	     WHERE 1=1
     """
+
     def eqtlHg19SqlCountQuery = """
 	SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Eqtl data
 	 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	 WHERE 1=1
-"""
+    """
+
     def getGeneLimits(Long searchId, String ver, Long flankingRegion) {
         //Create objects we use to form JDBC connection.
         def con, stmt, rs = null;
@@ -260,6 +322,10 @@ class RegionSearchService {
 
         def con, stmt, rs = null;
         con = dataSource.getConnection()
+
+        // Getting the DB type
+        def dbType = con.getMetaData().getDatabaseProductName()
+
         StringBuilder queryCriteria = new StringBuilder();
         def analysisQuery
         def countQuery
@@ -285,10 +351,23 @@ class RegionSearchService {
         }
 
         if (type.equals("gwas")) {
-            analysisQuery = gwasSqlQuery
+
+            // Insert branching logic on dbType
+            if (dbType.equals('PostgreSQL')) {
+                analysisQuery = gwasPostgresSqlQuery
+            } else {
+                analysisQuery = gwasSqlQuery
+            }
+
             countQuery = gwasSqlCountQuery
+
             if(hg19only){ // for hg19, special query
-                analysisQuery = gwasHg19SqlQuery;
+
+                if (dbType.equals('PostgreSQL')) {
+                    analysisQuery = gwasHg19PostgresSqlQuery
+                } else {
+                    analysisQuery = gwasHg19SqlQuery
+                }
                 countQuery = gwasHg19SqlCountQuery
             }
             if (!search && !ranges && !geneNames && !transcriptGeneNames ){
@@ -301,10 +380,23 @@ class RegionSearchService {
             }
         }
         else if (type.equals("eqtl")) {
-            analysisQuery = eqtlSqlQuery
+
+            if (dbType.equals('PostgreSQL')) {
+                analysisQuery = eqtlPostgresSqlQuery
+            } else {
+                analysisQuery = eqtlSqlQuery
+            }
+
             countQuery = eqtlSqlCountQuery
+
             if(hg19only){
-                analysisQuery = eqtlHg19SqlQuery
+
+                if (dbType.equals('PostgreSQL')) {
+                    analysisQuery = eqtlHg19PostgresSqlQuery
+                } else {
+                    analysisQuery = eqtlHg19SqlQuery
+                }
+
                 countQuery = eqtlHg19SqlCountQuery
             }
             if (!search && !ranges && !geneNames && !transcriptGeneNames ){
@@ -429,7 +521,12 @@ class RegionSearchService {
             }else{
                 queryCriteria.append(" OR info.gene_name LIKE '%${search}%'");
             }
-            queryCriteria.append(" OR info.pos LIKE '%${search}%'")
+
+            if (dbType.equals('PostgreSQL')) {
+                queryCriteria.append(" OR cast(info.pos as character(50)) LIKE '%${search}%'")
+            } else {
+                queryCriteria.append(" OR info.pos LIKE '%${search}%'")
+            }
             queryCriteria.append(" OR info.chrom LIKE '%${search}%'")
             if (type.equals("eqtl")) {
                 queryCriteria.append(" OR data.gene LIKE '%${search}%'")
@@ -463,32 +560,41 @@ class RegionSearchService {
 
         def results = []
         def total = 0
+        def finalQuery
         try {
             // analysis name query
-            def nameQuery = analysisNameQuery + analysisQCriteria.toString();
+            def nameQuery = analysisNameQuery + analysisQCriteria.toString()
             stmt = con.prepareStatement(nameQuery)
 
-            rs = stmt.executeQuery();
+            rs = stmt.executeQuery()
             while (rs.next()) {
-                analysisNameMap.put(rs.getLong("id"), rs.getString("name"));
+                analysisNameMap.put(rs.getLong("id"), rs.getString("name"))
             }
 
-            //println(analysisNameMap)
-            // data query
-            def finalQuery = analysisQuery + queryCriteria.toString() + "\n) a";
-            if (limit > 0) {
-                finalQuery += " where a.row_nbr between ${offset + 1} and ${offset + limit}";
+            // Modifying the final DB query based on DB type
+            if (dbType.equals('PostgreSQL')) {
+                finalQuery = analysisQuery + queryCriteria.toString() + "\n "
+
+                if (limit > 0) {
+                    finalQuery += " order by data.rs_id asc offset " + offset + " limit " + limit
+                }
+            } else {
+                finalQuery = analysisQuery + queryCriteria.toString() + "\n) a"
+
+                if (limit > 0) {
+                    finalQuery += " where a.row_nbr between ${offset + 1} and ${offset + limit}"
+                }
             }
 
-            stmt = con.prepareStatement(finalQuery);
+            stmt = con.prepareStatement(finalQuery)
 
             //stmt.setString(1, sortField)
             if (cutoff) {
-                stmt.setDouble(1, cutoff);
+                stmt.setDouble(1, cutoff)
             }
             log.debug("Executing: " + finalQuery)
 
-            rs = stmt.executeQuery();
+            rs = stmt.executeQuery()
             while (rs.next()) {
                 if ((type.equals("gwas"))) {
                     results.push([rs.getString("rsid"), rs.getString("pvalue_char"), rs.getDouble("logpvalue"), rs.getString("extdata"), analysisNameMap.get(rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("beta"), rs.getString("standard_error"), rs.getString("effect_allele"), rs.getString("other_allele"), rs.getString("strand")]);
@@ -547,6 +653,7 @@ class RegionSearchService {
 
         def con, stmt, rs = null;
         con = dataSource.getConnection()
+
         StringBuilder queryCriteria = new StringBuilder();
         def quickQuery
 
@@ -588,5 +695,4 @@ class RegionSearchService {
         return [results: results]
 
     }
-
 }
