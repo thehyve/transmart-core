@@ -4,6 +4,7 @@ import org.transmartproject.db.multidimquery.query.AndConstraint
 import org.transmartproject.db.multidimquery.query.CombinationConstraintRewriter
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.Negation
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.OrConstraint
@@ -11,10 +12,13 @@ import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.db.multidimquery.query.TemporalConstraint
+import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
 import spock.lang.Specification
+
+import java.time.Instant
 
 class QueryRewriterSpec extends Specification {
 
@@ -48,7 +52,7 @@ class QueryRewriterSpec extends Specification {
         ])
         Constraint expected = new AndConstraint([
                 new StudyNameConstraint('SURVEY0'),
-                new ConceptConstraint(conceptCodes:['height', 'birthdate'])
+                new ConceptConstraint(conceptCodes: ['birthdate', 'height'])
         ])
 
         when: 'rewriting the first constraint'
@@ -142,7 +146,7 @@ class QueryRewriterSpec extends Specification {
                 Operator.EXISTS,
                 new AndConstraint([
                         new StudyNameConstraint('SURVEY0'),
-                        new ConceptConstraint(conceptCodes:['height', 'birthdate'])
+                        new ConceptConstraint(conceptCodes: ['birthdate', 'height'])
                 ]))
 
         when: 'rewriting the first constraint'
@@ -262,6 +266,66 @@ class QueryRewriterSpec extends Specification {
 
         then: 'the rewrite result is equal to the preferred form'
         result.toJson() == expected.toJson()
+    }
+
+    void 'test canonising constraints'() {
+        given: 'two logically equivalent constraints'
+        Constraint constraint1 = new AndConstraint([
+                new SubSelectionConstraint('patient', new TrueConstraint()),
+                new ConceptConstraint('favouritebook')
+        ])
+        Constraint constraint2 = new AndConstraint([
+                new ConceptConstraint('favouritebook'),
+                new SubSelectionConstraint('patient', new TrueConstraint())
+        ])
+
+        when: 'canonising the constraings'
+        def canonical1 = constraint1.canonise()
+        def canonical2 = constraint2.canonise()
+
+        then: 'they are the same'
+        canonical1.toJson() == canonical2.toJson()
+    }
+
+    void 'test canonising nested constraints'() {
+        given: 'two logically equivalent constraints'
+        def t1 = Instant.parse('2000-01-01T13:37:01Z')
+        def t2 = Instant.parse('2017-12-01T13:37:05Z')
+        Constraint constraint1 = new AndConstraint([
+                new OrConstraint([
+                        new SubSelectionConstraint('patient', new AndConstraint([
+                                new PatientSetConstraint(patientIds: [8, 5, 3, 1]),
+                                new TimeConstraint(new Field('start time', Type.DATE, 'startDate'),
+                                        Operator.BETWEEN, [Date.from(t1), Date.from(t2)]),
+                        ])),
+                        new ConceptConstraint('favouritebook')
+                ]),
+                new OrConstraint([
+                        new StudyNameConstraint('SURVEY1'),
+                        new StudyNameConstraint('SURVEY2')
+                ])
+        ])
+        Constraint constraint2 = new AndConstraint([
+                new OrConstraint([
+                        new StudyNameConstraint('SURVEY2'),
+                        new StudyNameConstraint('SURVEY1')
+                ]),
+                new OrConstraint([
+                        new ConceptConstraint('favouritebook'),
+                        new SubSelectionConstraint('patient', new AndConstraint([
+                                new TimeConstraint(new Field('start time', Type.DATE, 'startDate'),
+                                Operator.BETWEEN, [Date.from(t1), Date.from(t2)]),
+                                new PatientSetConstraint(patientIds: [1, 3, 8, 5])
+                        ]))
+                ])
+        ])
+
+        when: 'canonising the constraings'
+        def canonical1 = constraint1.canonise()
+        def canonical2 = constraint2.canonise()
+
+        then: 'they are the same'
+        canonical1.toJson() == canonical2.toJson()
     }
 
 }
