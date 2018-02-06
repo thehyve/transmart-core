@@ -1,9 +1,6 @@
 include ../../../lib/makefile.inc
 
 FILES = \
-	../../../ddl/oracle/biomart_user/query
-	../../../ddl/oracle/i2b2metadata/i2b2_tag_types
-	../../../ddl/oracle/i2b2metadata/i2b2_tag_options
 	data_migration
 	../common/data_migration
 
