@@ -31,7 +31,7 @@ CREATE SEQUENCE "BIOMART_USER"."QUERY_ID_SEQ";
 -- Type: TRIGGER; Owner: BIOMART_USER; Name: TRG_QUERY_ID
 --
   CREATE OR REPLACE TRIGGER "BIOMART_USER"."TRG_QUERY_ID"
-	 before insert on "QUERY"
+	 before insert on "BIOMART_USER"."QUERY"
 	 for each row begin
 	 if inserting then
 	 if :NEW."ID" is null then
