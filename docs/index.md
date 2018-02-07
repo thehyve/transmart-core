@@ -2,7 +2,6 @@
 title: Home
 ---
 # Home
-{:.no_toc}
 
 transmart-core contains the core components of the [tranSMART data warehouse](../transmart/), including:
 

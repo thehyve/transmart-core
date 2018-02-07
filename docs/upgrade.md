@@ -2,12 +2,11 @@
 title: Upgrade
 ---
 # Upgrade
-{:.no_toc}
 
 This page describes how to upgrade to the latest version of tranSMART from an older version of tranSMART.
 
-* TOC
-{:toc}
+  * [Database](#database)
+  * [Web application](#web-application)
 
 ## Database
 ...

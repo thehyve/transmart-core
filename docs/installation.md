@@ -2,12 +2,14 @@
 title: Installation
 ---
 # Installation
-{:.no_toc}
 
 Below are the installation instructions for tranSMART version 17.1
 
-* TOC
-{:toc}
+  * [1. Prerequisites](#1-prerequisites)
+  * [2. Setup database](#2-setup-database)
+  * [3. Generate configuration files](#3-generate-configuration-files)
+  * [4. Setup web application](#4-setup-web-application)
+  * [5. Run tranSMART Server](#5-run-transmart-server)
 
 ## 1. Prerequisites
 
