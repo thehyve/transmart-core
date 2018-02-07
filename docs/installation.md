@@ -1,6 +1,9 @@
 ---
 title: Installation
 ---
+# Installation
+{:.no_toc}
+
 Below are the installation instructions for tranSMART version 17.1
 
 * TOC

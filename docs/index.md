@@ -1,6 +1,9 @@
 ---
 title: Home
 ---
+# Home
+{:.no_toc}
+
 transmart-core contains the core components of the [tranSMART data warehouse](../transmart/), including:
 
 * Tools to generate the Postgres or Oracle database
