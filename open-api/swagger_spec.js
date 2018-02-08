@@ -3176,6 +3176,10 @@ var spec = {
               "additionalProperties": {
                 "type": "number"
               }
+            },
+            "nullValueCounts": {
+              "description": "count of null values",
+              "type": "number"
             }
           }
         }

@@ -817,10 +817,15 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
                 .add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
         getList(criteria).groupBy { it.conceptCode }.collectEntries { String conceptCode, List<Map> rows ->
-            Map<String, Integer> valueCounts = rows.collectEntries { [ it.textValue ? it.textValue : "", it.count ] }
+            Map<String, Integer> valueCounts = rows.findAll { r -> r.textValue != null }.collectEntries {
+                [it.textValue, it.count]
+            }
+            Integer nullValueCounts = rows.findAll { r -> r.textValue == null }?.sum{it.count}
+
             [
                     conceptCode,
-                    new CategoricalValueAggregates(valueCounts: valueCounts)
+                    nullValueCounts ? new CategoricalValueAggregates(valueCounts: valueCounts, nullValueCounts: nullValueCounts)
+                                    : new CategoricalValueAggregates(valueCounts: valueCounts)
             ]
         }
     }
