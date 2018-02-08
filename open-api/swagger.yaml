@@ -2490,3 +2490,6 @@ definitions:
                 type: number
             additionalProperties:
               type: number
+          nullValueCounts:
+            description: count of null values
+            type: number
