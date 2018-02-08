@@ -1,4 +1,11 @@
 # transmart-rest-api-e2e
+
+## How to prepare a database
+
+The tests are expecting specific [test data](../transmart-data/test_data) to be loaded in a database. Having additional data loaded can affect the test results, that is why it is recommended to clean all data and load only the test data before running tests.
+
+Scripts and instructions of how to clean the database and load the test data, both for Oracle and Postgres, are a part of [transmart-data component](../transmart-data/test_data).
+
 ## How to run
 These tests are designed to run against a live environment. By default it is pointed at localhost:8080
 
