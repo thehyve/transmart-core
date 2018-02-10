@@ -2029,7 +2029,7 @@ var spec = {
     },
     "/v2/export/{jobId}/status": {
       "get": {
-        "description": "Gets a status of specified data export job.\n",
+        "description": "Gets a status of specified data export job. Deprecated. Use /v2/export/{jobId} instead.\n",
         "tags": [
           "v2"
         ],
@@ -2048,6 +2048,73 @@ var spec = {
             "schema": {
               "$ref": "#/definitions/export_job"
             }
+          }
+        }
+      }
+    },
+    "/v2/export/{jobId}": {
+      "get": {
+        "description": "Gets an export job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "description": "Id of the export job.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an object with the export job.\n",
+            "schema": {
+              "$ref": "#/definitions/export_job"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an export job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "description": "Id of the export job.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 http status when job has been deleted.\n"
+          }
+        }
+      }
+    },
+    "/v2/export/{jobId}/cancel": {
+      "post": {
+        "description": "Cancels an export job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "description": "Id of the export job.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 http status when job has been cancelled.\n"
           }
         }
       }
