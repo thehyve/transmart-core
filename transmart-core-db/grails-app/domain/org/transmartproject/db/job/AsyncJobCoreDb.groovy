@@ -68,9 +68,12 @@ class AsyncJobCoreDb {
         userId          nullable: true
     }
 
+    boolean isInTerminalStatus() {
+        return jobStatus in TERMINATION_STATES
+    }
+
     TimeDuration getRunTime() {
-        def lastTime = TERMINATION_STATES.contains(jobStatus) ?
-                jobStatusTime : new Date()
+        def lastTime = inTerminalStatus ? jobStatusTime : new Date()
         lastRunOn && lastTime ? TimeCategory.minus(lastTime, lastRunOn) : null
     }
 

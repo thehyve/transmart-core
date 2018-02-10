@@ -486,6 +486,109 @@ class DataExportSpec extends RESTSpec {
         return downloadResponse
     }
 
+    @RequiresStudy(CATEGORICAL_VALUES_ID)
+    def "cancel job"() {
+        def patientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'test_cancelation_job'],
+                body      : toJSON([type  : StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID]),
+                statusCode: 201
+        ]
+        def createPatientSetResponse = post(patientSetRequest)
+        def patientSetId = createPatientSetResponse.id
+
+        def newJobRequest = [
+                path      : "$PATH_DATA_EXPORT/job",
+                acceptType: JSON,
+        ]
+        def newJobResponse = post(newJobRequest)
+        def jobId = newJobResponse.exportJob.id
+
+        when: "I run a newly created job asynchronously"
+        def responseData = post([
+                path      : "$PATH_DATA_EXPORT/$jobId/run",
+                body      : toJSON([
+                        constraint: [type: PatientSetConstraint, patientSetId: patientSetId],
+                        elements  :
+                                [[
+                                         dataType: 'clinical',
+                                         format  : 'TSV'
+                                 ]],
+                ]),
+        ])
+        then: "Job instance with status: 'Started' is returned"
+        responseData != null
+        responseData.exportJob.id == jobId
+        responseData.exportJob.jobStatus == 'Started'
+
+        when:
+        post([
+                path      : "$PATH_DATA_EXPORT/$jobId/cancel",
+                statusCode: 200
+        ])
+
+        def statusRequest = [
+                path      : "$PATH_DATA_EXPORT/$jobId",
+                acceptType: JSON,
+        ]
+        def statusResponse = get(statusRequest)
+
+        then: "Returned status is 'Canceled'"
+        statusResponse != null
+        statusResponse.exportJob.jobStatus == 'Cancelled'
+    }
+
+    @RequiresStudy(CATEGORICAL_VALUES_ID)
+    def "delete job"() {
+        def patientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'test_cancelation_job'],
+                body      : toJSON([type  : StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID]),
+                statusCode: 201
+        ]
+        def createPatientSetResponse = post(patientSetRequest)
+        def patientSetId = createPatientSetResponse.id
+
+        def newJobRequest = [
+                path      : "$PATH_DATA_EXPORT/job",
+                acceptType: JSON,
+        ]
+        def newJobResponse = post(newJobRequest)
+        def jobId = newJobResponse.exportJob.id
+
+        when: "I run a newly created job asynchronously"
+        def responseData = post([
+                path      : "$PATH_DATA_EXPORT/$jobId/run",
+                body      : toJSON([
+                        constraint: [type: PatientSetConstraint, patientSetId: patientSetId],
+                        elements  :
+                                [[
+                                         dataType: 'clinical',
+                                         format  : 'TSV'
+                                 ]],
+                ]),
+        ])
+        then: "Job instance with status: 'Started' is returned"
+        responseData != null
+        responseData.exportJob.id == jobId
+        responseData.exportJob.jobStatus == 'Started'
+
+        when:
+        delete([
+                path      : "$PATH_DATA_EXPORT/$jobId",
+                statusCode: 200
+        ])
+
+        then:
+        get([
+                path      : "$PATH_DATA_EXPORT/$jobId",
+                acceptType: JSON,
+                statusCode: 404
+        ])
+    }
+
     private Map<String, Integer> getFilesLineNumbers(byte[] content) {
         Map<String, Integer> result = [:]
         def zipInputStream
