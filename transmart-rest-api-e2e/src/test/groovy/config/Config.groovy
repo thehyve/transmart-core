@@ -48,7 +48,6 @@ class Config {
 
     public static final String PATH_OBSERVATIONS = "/v2/observations"
     public static final String PATH_AGGREGATES_PER_CONCEPT = "/v2/observations/aggregates_per_concept"
-    public static final String PATH_COUNT = "/v2/observations/count"
     public static final String PATH_COUNTS = "/v2/observations/counts"
     public static final String PATH_COUNTS_PER_CONCEPT = "/v2/observations/counts_per_concept"
     public static final String PATH_COUNTS_PER_STUDY = "/v2/observations/counts_per_study"
@@ -60,6 +59,7 @@ class Config {
     public static final String PATH_TREE_NODES_CLEAR_CACHE = "/v2/tree_nodes/clear_cache"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
+    public static final String PATH_CONFIG = "/v2/config"
     public static final String PATH_STORAGE = "/v2/storage"
     public static final String PATH_FILES = "/v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
