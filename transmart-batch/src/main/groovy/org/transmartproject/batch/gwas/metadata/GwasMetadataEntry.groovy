@@ -53,7 +53,7 @@ class GwasMetadataEntry {
     @Size(max = 500)
     String tissue
 
-    @Pattern(regexp = '1[8-9]', message = '{supportedGenomeVersions}')
+    @Pattern(regexp = '1[8-9]|38', message = '{supportedGenomeVersions}')
     String genomeVersion
 
     @Size(max = 500)

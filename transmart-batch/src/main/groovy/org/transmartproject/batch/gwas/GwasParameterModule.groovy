@@ -21,7 +21,7 @@ class GwasParameterModule implements ExternalJobParametersModule {
 
     private static final String DEFAULT_HG_VERSION = '19'
     private static final List<String> ALLOWED_HG_VERSIONS =
-            ImmutableList.of('18', '19')
+            ImmutableList.of('18', '19', '38')
 
     final Set<String> supportedParameters = ImmutableSet.of(
             DATA_LOCATION,
