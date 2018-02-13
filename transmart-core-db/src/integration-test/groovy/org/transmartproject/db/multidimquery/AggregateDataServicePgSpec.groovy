@@ -170,9 +170,9 @@ class AggregateDataServicePgSpec extends Specification {
         then: 'answer contains count for the value and count for null value'
         withMissingValueResult.size() == 1
         'gender' in withMissingValueResult
-        withMissingValueResult['gender'].valueCounts[null] == 1
         withMissingValueResult['gender'].valueCounts['Male'] == 8
         withMissingValueResult['gender'].valueCounts['Female'] == 5
+        withMissingValueResult['gender'].nullValueCounts == 1
 
         when: 'categorical aggregates runs on crosstudy concept with user that have limite access'
         def placeOfBirth = new ConceptConstraint(path: '\\Demographics\\Place of birth\\')
@@ -182,6 +182,7 @@ class AggregateDataServicePgSpec extends Specification {
         'DEMO:POB' in excludingSecuredRecords
         excludingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 1
         excludingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 3
+        excludingSecuredRecords['DEMO:POB'].nullValueCounts == null
 
         when: 'now by user who has access to the private study'
         def includingSecuredRecords = aggregateDataService.categoricalValueAggregatesPerConcept(placeOfBirth,
@@ -191,6 +192,7 @@ class AggregateDataServicePgSpec extends Specification {
         'DEMO:POB' in includingSecuredRecords
         includingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 2
         includingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 4
+        includingSecuredRecords['DEMO:POB'].nullValueCounts == null
     }
 
 }

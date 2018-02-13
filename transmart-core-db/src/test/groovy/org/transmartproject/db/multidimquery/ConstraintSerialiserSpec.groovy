@@ -1,8 +1,6 @@
 package org.transmartproject.db.multidimquery
 
 import org.transmartproject.db.multidimquery.query.*
-import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.tree.TreeNodeImpl
 import spock.lang.Specification
 
 import java.time.Instant

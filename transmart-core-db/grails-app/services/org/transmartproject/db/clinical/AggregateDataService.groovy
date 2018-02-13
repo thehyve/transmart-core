@@ -378,10 +378,13 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
                 .add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
         getList(criteria).groupBy { Map it -> (String)it.conceptCode }.collectEntries { String conceptCode, List<Map> rows ->
-            Map<String, Integer> valueCounts = rows.collectEntries { [ it.textValue, it.count ] }
+            Map<String, Integer> valueCounts = rows.findAll { Map r -> r.textValue != null }.collectEntries { Map r ->
+                [r.textValue, r.count]
+            }
+            Integer nullValueCounts = (Integer)rows.findAll { Map r -> r.textValue == null }.sum{ Map r -> r.count as Long }
             [
                     conceptCode,
-                    new CategoricalValueAggregates(valueCounts: valueCounts)
+                    new CategoricalValueAggregates(valueCounts, nullValueCounts)
             ]
         } as Map<String, CategoricalValueAggregates>
     }
