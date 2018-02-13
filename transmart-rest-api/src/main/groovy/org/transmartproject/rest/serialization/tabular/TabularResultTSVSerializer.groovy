@@ -22,14 +22,16 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
     final static char COLUMN_SEPARATOR = '\t' as char
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
 
-    static writeValues(TabularResult tabularResult, OutputStream outputStream) {
+    static <C extends DataColumn, R extends DataRow> void writeValues(
+            TabularResult<C, R> tabularResult,
+            OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
         List<DataColumn> columns = tabularResult.indicesList
         csvWriter.writeNext(columns*.label as String[])
-        tabularResult.rows.forEachRemaining({ DataRow row ->
+        for (R row in tabularResult) {
             List valuesRow = columns.collect { DataColumn column -> row[column] }
             csvWriter.writeNext(formatRowValues(valuesRow))
-        })
+        }
         csvWriter.flush()
     }
 
