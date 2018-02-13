@@ -161,6 +161,14 @@ class ConstraintComparator implements Comparator<Constraint> {
                 if (res != 0) {
                     return res
                 }
+                res = compareNullable(p1.offset, p2.offset)
+                if (res != 0) {
+                    return res
+                }
+                res = compareNullable(p1.limit, p2.limit)
+                if (res != 0) {
+                    return res
+                }
                 res = compareValueList(p1.patientIds.toList(), p2.patientIds.toList())
                 if (res != 0) {
                     return res

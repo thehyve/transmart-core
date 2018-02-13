@@ -6,7 +6,7 @@ import org.transmartproject.core.users.User
 
 class WorkingDirectory {
 
-    static final String tempFolderDirectory = Holders.config.com.recomdata.plugins.tempFolderDirectory
+    static final String tempFolderDirectory = Holders.config ? Holders.config.com.recomdata.plugins.tempFolderDirectory : null
 
     static File forUser(User user) {
         String jobTmpDirectory

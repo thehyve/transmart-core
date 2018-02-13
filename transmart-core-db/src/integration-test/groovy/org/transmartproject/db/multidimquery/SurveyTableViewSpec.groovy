@@ -1,10 +1,15 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.ImmutableList
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.concept.ConceptsResource
+import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.db.clinical.SurveyTableColumnService
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.User
@@ -25,6 +30,15 @@ class SurveyTableViewSpec extends Specification {
     @Autowired
     MultiDimensionalDataResource multiDimService
 
+    @Autowired
+    MDStudiesResource studiesResource
+
+    @Autowired
+    ConceptsResource conceptsResource
+
+    @Autowired
+    SurveyTableColumnService surveyTableColumnService
+
     private final UTC = TimeZone.getTimeZone('UTC')
 
     def 'survey 1'() {
@@ -34,7 +48,10 @@ class SurveyTableViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new SurveyTableView(hypercube)
+        List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(constraint, user)
+        List<MetadataAwareDataColumn> columnList = ImmutableList.copyOf(surveyTableColumnService.getMetadataAwareColumns(
+                hypercubeColumns))
+        def transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
         columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date',
@@ -90,7 +107,10 @@ class SurveyTableViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new SurveyTableView(hypercube)
+        List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(constraint, user)
+        List<MetadataAwareDataColumn> columnList = ImmutableList.copyOf(
+                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns))
+        def transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
         columns*.label == ['FISNumber', 'description', 'description.date', 'height1', 'height1.date']
@@ -108,7 +128,7 @@ class SurveyTableViewSpec extends Specification {
 
         when: 'get row'
         def rows = transformedView.rows.toList()
-        then: 'content matches expactations'
+        then: 'content matches expectations'
         rows[0][columns[0]] == '2'
         rows[0][columns[1]] == 'No description'
         rows[0][columns[2]] == null

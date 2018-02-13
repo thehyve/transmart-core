@@ -21,11 +21,12 @@ package org.transmartproject.db.dataquery.highdim
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.junit.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.metabolite.MetaboliteTestData
 import org.transmartproject.db.dataquery.highdim.mirna.MirnaQpcrTestData
@@ -38,22 +39,28 @@ import org.transmartproject.db.dataquery.highdim.rnaseq.transcript.RnaSeqTranscr
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
 import org.transmartproject.db.dataquery.highdim.tworegion.TwoRegionTestData
 import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
+import spock.lang.Specification
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class HighDimensionAllDataTests {
+class HighDimensionAllDataTests extends Specification {
 
+    @Autowired
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource type
     Map<String, Class> dataProperties
     Map<String, Class> rowProperties
 
-    @Test
+    void setupData() {
+        TestData.clearAllData()
+    }
+
     void testMetaboliteRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('metabolite')
         dataProperties = [rawIntensity: double, logIntensity: double, zscore: double]
         rowProperties = [hmdbId: String, biochemicalName: String]
@@ -62,8 +69,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testMirnaQpcrRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('mirnaqpcr')
         dataProperties = [rawIntensity: BigDecimal, logIntensity: BigDecimal, zscore: BigDecimal]
         rowProperties = [probeId: String, mirnaId: String]
@@ -72,8 +79,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testMirnaSeqRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('mirnaseq')
         dataProperties = [rawIntensity: BigDecimal, logIntensity: BigDecimal, zscore: BigDecimal]
         rowProperties = [probeId: String, mirnaId: String]
@@ -82,8 +89,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testMrnaRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('mrna')
         dataProperties = [trialName: String, rawIntensity: BigDecimal, logIntensity: BigDecimal, zscore: BigDecimal]
         rowProperties = [probe: String, geneId: String, geneSymbol: String]
@@ -92,8 +99,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testProteinRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('protein')
         dataProperties = [intensity: BigDecimal, logIntensity: BigDecimal, zscore: BigDecimal]
         rowProperties = [uniprotName: String, peptide: String]
@@ -102,8 +109,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testRbmRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('rbm')
         dataProperties = [value: BigDecimal, logIntensity: BigDecimal, zscore: BigDecimal]
         rowProperties = [antigenName: String, unit: String, uniprotName: String]
@@ -112,8 +119,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testRnaSeqCogRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('rnaseq_cog')
         dataProperties = [rawIntensity: BigDecimal, logIntensity: BigDecimal, zscore: BigDecimal]
         rowProperties = [annotationId: String, geneSymbol: String, geneId: String]
@@ -122,8 +129,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testTwoRegionRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('two_region')
         dataProperties = [downChromosome: String, upChromosome: String, id: Long, upEnd: Long, upPos: Long,
                           upStrand      : Character, downEnd: Long, downPos: Long, downStrand: Character, isInFrame: Boolean]
@@ -133,8 +140,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testVcfRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('vcf')
         dataProperties = [reference: Boolean, variant: String, variantType: String]
         rowProperties = [chromosome: String, position: Long, rsId: String, referenceAllele: String]
@@ -143,8 +150,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testAcghRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('acgh')
         dataProperties = [chipCopyNumberValue       : Double, segmentCopyNumberValue: Double, flag: Short,
                           probabilityOfLoss         : Double, probabilityOfNormal: Double, probabilityOfGain: Double,
@@ -156,8 +163,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testRnaSeqRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('rnaseq')
         dataProperties = [readcount: Integer, normalizedReadcount: Double, logNormalizedReadcount: Double, zscore: Double]
         rowProperties = [id            : Long, name: String, cytoband: String, chromosome: String, start: Long, end: Long,
@@ -167,8 +174,8 @@ class HighDimensionAllDataTests {
         testRetrieval()
     }
 
-    @Test
     void testRnaSeqTranscriptRetrieval() {
+        setupData()
         type = highDimensionResourceService.getSubResourceForType('rnaseq_transcript')
         dataProperties = [readcount: Integer, normalizedReadcount: Double, logNormalizedReadcount: Double, zscore: Double]
         rowProperties = [id: Long, chromosome: String, start: Long, end: Long, bioMarker: String]

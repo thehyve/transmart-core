@@ -3,7 +3,7 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false">
 
-<diskStore path="java.io.tmpdir"/>
+    <diskStore path="java.io.tmpdir"/>
 
     <cacheManagerEventListenerFactory class="" properties=""/>
 
@@ -138,12 +138,17 @@
         timeToIdleSeconds="300"
         />
 
-    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount"
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.cachedCounts"
            maxElementsInMemory="100000"
            timeToIdleSeconds="0"
     />
 
-    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts"
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.countsPerConcept"
+           maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
+    />
+
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept"
            maxElementsInMemory="100000"
            timeToIdleSeconds="0"
     />
@@ -155,6 +160,11 @@
 
     <cache name="org.transmartproject.db.concept.ConceptsService"
            maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
+    />
+
+    <cache name="org.transmartproject.db.ontology.TrialVisitsService"
+           maxElementsInMemory="10000"
            timeToIdleSeconds="0"
     />
 

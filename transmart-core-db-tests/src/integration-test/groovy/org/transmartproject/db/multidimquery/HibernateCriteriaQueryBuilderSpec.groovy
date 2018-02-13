@@ -9,10 +9,10 @@ import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.query.*
 
 @Slf4j
@@ -20,12 +20,13 @@ import org.transmartproject.db.multidimquery.query.*
 @Integration
 class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
+    @Autowired
+    SessionFactory sessionFactory
+
     Field patientAgeField
     Field conceptCodeField
     TestData testData
     TestData hypercubeTestData
-
-    SessionFactory sessionFactory
 
     Object get(DetachedCriteria criteria) {
         criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
@@ -40,6 +41,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     }
 
     void setupData() {
+        TestData.clearAllData()
+
         patientAgeField = new Field(dimension: DimensionImpl.PATIENT.name, fieldName: 'age', type: Type.NUMERIC)
         conceptCodeField = new Field(dimension: DimensionImpl.CONCEPT.name, fieldName: 'conceptCode', type: Type.STRING)
 
@@ -50,6 +53,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     }
 
     void setupHypercubeData(){
+        TestData.clearAllData()
+
         hypercubeTestData = TestData.createHypercubeDefault()
         hypercubeTestData.saveAll()
     }

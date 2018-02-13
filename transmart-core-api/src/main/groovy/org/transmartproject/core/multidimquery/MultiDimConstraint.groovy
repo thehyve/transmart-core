@@ -11,4 +11,6 @@ interface MultiDimConstraint {
     String toJson()
 
     MultiDimConstraint normalise()
+
+    MultiDimConstraint canonise()
 }

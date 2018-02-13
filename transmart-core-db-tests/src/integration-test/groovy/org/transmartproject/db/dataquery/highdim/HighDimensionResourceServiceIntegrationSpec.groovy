@@ -21,12 +21,14 @@ package org.transmartproject.db.dataquery.highdim
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.TestData
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.TransmartSpecification
@@ -45,10 +47,11 @@ class HighDimensionResourceServiceIntegrationSpec extends TransmartSpecification
 
     private static final String TEST_DATA_TYPE = 'foobar'
 
+    @Autowired
+    HighDimensionResourceService highDimensionResourceService
+
     HighDimensionResourceServiceTestData testData =
             new HighDimensionResourceServiceTestData()
-
-    HighDimensionResourceService highDimensionResourceService
 
     private AssayConstraint getAllPatientsPatientSetConstraint() {
         highDimensionResourceService.createAssayConstraint(
@@ -57,6 +60,8 @@ class HighDimensionResourceServiceIntegrationSpec extends TransmartSpecification
     }
 
     void setupData() {
+        TestData.clearAllData()
+
         testData.saveAll()
 
         def bogusDataTypeResource = [

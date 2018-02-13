@@ -1,5 +1,6 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.ImmutableMap
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -26,25 +27,25 @@ class HypercubeTabularResultViewSpec extends Specification {
         var.name >> 'var'
 
         val1.value >> 'val 1'
-        val1.getDimElementIndex(dim1) >> 1
-        val1.getDimElementIndex(dim2) >> 1
-        val1.getDimElementIndex(dim3) >> 1
-        val1.getDimElementIndex(var) >> 1
+        val1.getDimKey(dim1) >> 'code1'
+        val1.getDimKey(dim2) >> 'x1'
+        val1.getDimKey(dim3) >> new Integer(1)
+        val1.getDimKey(var) >> 'var1'
         val2.value >> 2.0
-        val2.getDimElementIndex(dim1) >> 2
-        val2.getDimElementIndex(dim2) >> 2
-        val2.getDimElementIndex(dim3) >> 2
-        val2.getDimElementIndex(var) >> 1
+        val2.getDimKey(dim1) >> 'code2'
+        val2.getDimKey(dim2) >> 'x2'
+        val2.getDimKey(dim3) >> new Integer(2)
+        val2.getDimKey(var) >> 'var1'
         val3.value >> 'val 3'
-        val3.getDimElementIndex(dim1) >> 2
-        val3.getDimElementIndex(dim2) >> 2
-        val3.getDimElementIndex(dim3) >> 2
-        val3.getDimElementIndex(var) >> 2
+        val3.getDimKey(dim1) >> 'code2'
+        val3.getDimKey(dim2) >> 'x2'
+        val3.getDimKey(dim3) >> new Integer(2)
+        val3.getDimKey(var) >> 'var2'
         val4.value >> 4.0
-        val4.getDimElementIndex(dim1) >> 3
-        val4.getDimElementIndex(dim2) >> 3
-        val4.getDimElementIndex(dim3) >> 2
-        val4.getDimElementIndex(var) >> 2
+        val4.getDimKey(dim1) >> 'code3'
+        val4.getDimKey(dim2) >> 'x3'
+        val4.getDimKey(dim3) >> new Integer(2)
+        val4.getDimKey(var) >> 'var2'
 
         hypercube.dimensions >> dimensions
         hypercube.iterator() >> { hypercubeValues.iterator() }
@@ -52,7 +53,8 @@ class HypercubeTabularResultViewSpec extends Specification {
 
     def 'no column dimensions'() {
         when: 'no column dimensions provided'
-        def view = new HypercubeTabularResultView(hypercube, dimensions)
+        List<HypercubeDataColumn> indicesList = [new HypercubeDataColumn(ImmutableMap.builder().build())]
+        def view = new HypercubeTabularResultView(hypercube, dimensions, [], indicesList)
         then: 'all dimensions are row dimensions'
         view.columnsDimensionLabel == HypercubeTabularResultView.NO_DIMENSIONS_LABEL
         view.columnDimensions.size() == 0
@@ -67,12 +69,19 @@ class HypercubeTabularResultViewSpec extends Specification {
         when: 'rows are read'
         def rows = view.rows.toList()
         then: 'rows content matches hypercube values respecting order'
-        rows.collect { row -> row[columns[0]] } == hypercubeValues*.value
+        rows.collect { HypercubeDataRow row -> row[indicesList[0]] } == hypercubeValues*.value
     }
 
     def 'no row dimensions'() {
         when: 'all dimensions provided as column dimensions'
-        def view = new HypercubeTabularResultView(hypercube, [], dimensions)
+        List<HypercubeDataColumn> indicesList = hypercubeValues.collect { HypercubeValue value ->
+            def coordinates = ImmutableMap.builder()
+            for (Dimension dim: dimensions) {
+                coordinates.put(dim, value.getDimKey(dim))
+            }
+            new HypercubeDataColumn(coordinates.build())
+        }
+        def view = new HypercubeTabularResultView(hypercube, [], dimensions, indicesList)
         then: 'there are no row dimensions'
         view.columnsDimensionLabel == dimensions*.name.join(HypercubeTabularResultView.DIMENSION_ELEMENTS_DELIMITER)
         view.columnDimensions == dimensions
@@ -97,7 +106,14 @@ class HypercubeTabularResultViewSpec extends Specification {
         def columnDimensions = [var, dim2]
 
         when: 'column dimensions provided'
-        def view = new HypercubeTabularResultView(hypercube, rowDimensions, columnDimensions)
+        List<HypercubeDataColumn> indicesList = hypercubeValues.collect { HypercubeValue value ->
+            def coordinates = ImmutableMap.builder()
+            for (Dimension dim: columnDimensions) {
+                coordinates.put(dim, value.getDimKey(dim))
+            }
+            new HypercubeDataColumn(coordinates.build())
+        }
+        def view = new HypercubeTabularResultView(hypercube, rowDimensions, columnDimensions, indicesList)
         then: 'column dimensions and row dimensions slitted with respect to the their order'
         view.columnDimensions == columnDimensions
         view.columnsDimensionLabel == columnDimensions*.name.join(HypercubeTabularResultView.DIMENSION_ELEMENTS_DELIMITER)
@@ -109,14 +125,15 @@ class HypercubeTabularResultViewSpec extends Specification {
 
     def 'not existing column dimension'() {
         when: 'not existing row dimension provided'
-        new HypercubeTabularResultView(hypercube, [Mock(Dimension, name: 'non-existent')])
+        List<HypercubeDataColumn> indicesList = [new HypercubeDataColumn(ImmutableMap.builder().build())]
+        new HypercubeTabularResultView(hypercube, [Mock(Dimension, name: 'non-existent')], [], indicesList)
         then: 'assert exception is thrown'
         def errorMessage = thrown(AssertionError)
         errorMessage.message.startsWith 'Following row dimensions are not supported by the hypercube:'
         errorMessage.message.contains('non-existent')
 
         when: 'not existing row dimension provided'
-        new HypercubeTabularResultView(hypercube, [], [Mock(Dimension, name: 'non-existent')])
+        new HypercubeTabularResultView(hypercube, [], [Mock(Dimension, name: 'non-existent')], indicesList)
         then: 'assert exception is thrown'
         def errorMessage2 = thrown(AssertionError)
         errorMessage2.message.startsWith 'Following column dimensions are not supported by the hypercube:'
@@ -125,7 +142,7 @@ class HypercubeTabularResultViewSpec extends Specification {
 
     def 'hypercube is closed'() {
         when: 'view is closed'
-        new HypercubeTabularResultView(hypercube).close()
+        new HypercubeTabularResultView(hypercube, [], [], []).close()
         then: 'hypercube is closed'
         with(hypercube) {
             1 * close()
@@ -143,14 +160,15 @@ class HypercubeTabularResultViewSpec extends Specification {
         dim1.name >> 'dim1'
 
         val1.value >> 'val 1'
-        val1.getDimElementIndex(dim1) >> 1
+        val1.getDimKey(dim1) >> 'code1'
         val2.value >> 'val 2'
-        val2.getDimElementIndex(dim1) >> 1
+        val2.getDimKey(dim1) >> 'code1'
 
         hypercube.dimensions >> dimensions
         hypercube.iterator() >> { hypercubeValues.iterator() }
 
-        def view = new HypercubeTabularResultView(hypercube, dimensions)
+        List<HypercubeDataColumn> indicesList = [new HypercubeDataColumn(ImmutableMap.builder().build())]
+        def view = new HypercubeTabularResultView(hypercube, dimensions, [], indicesList)
 
         when:
         view.rows.each {}

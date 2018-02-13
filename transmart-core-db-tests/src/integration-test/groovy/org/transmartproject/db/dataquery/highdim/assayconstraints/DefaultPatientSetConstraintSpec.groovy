@@ -23,6 +23,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.querytool.QtQueryMaster
@@ -41,6 +42,8 @@ class DefaultPatientSetConstraintSpec extends TransmartSpecification {
     AssayTestData testData = new AssayTestData()
 
     void setupData() {
+        TestData.clearAllData()
+
         testData.saveAll()
 
         QtQueryMaster master = QueryResultData.createQueryResult([

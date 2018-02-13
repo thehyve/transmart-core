@@ -58,10 +58,6 @@ class RestApiUrlMappings {
                 action = [GET: 'aggregatesPerConcept', POST: 'aggregatesPerConcept']
                 apiVersion = 'v2'
             }
-            "/observations/count"(controller: 'query') {
-                action = [GET: 'count', POST: 'count']
-                apiVersion = 'v2'
-            }
             "/observations/counts"(controller: 'query') {
                 action = [GET: 'counts', POST: 'counts']
                 apiVersion = 'v2'
@@ -195,6 +191,9 @@ class RestApiUrlMappings {
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
             "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
+            "/config"(controller: 'config') {
+                action = [GET: 'index', PUT: 'update']
+            }
         }
 
         group "/v1", {

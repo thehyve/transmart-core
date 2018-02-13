@@ -10,6 +10,7 @@ import java.util.zip.ZipInputStream
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.ZIP
 import static config.Config.*
+import static tests.rest.Operator.AND
 import static tests.rest.Operator.EQUALS
 import static tests.rest.ValueType.STRING
 import static tests.rest.constraints.*
@@ -339,8 +340,8 @@ class DataExportSpec extends RESTSpec {
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 3
         filesLineNumbers['data.tsv'] == 15
-        filesLineNumbers['variables.tsv'] == 14
-        filesLineNumbers['value_labels.tsv'] == 4
+        filesLineNumbers['variables.tsv'] == 16
+        filesLineNumbers['value_labels.tsv'] == 6
 
     }
 
@@ -362,7 +363,59 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers['spss/data.tsv'] == 15
-        filesLineNumbers['spss/data.sps'] == 80
+        filesLineNumbers['spss/data.sps'] == 92
+        if (filesLineNumbers.size() == 3) {
+            assert filesLineNumbers.containsKey('spss/data.sav')
+        }
+    }
+
+    @RequiresStudy(SURVEY1_ID)
+    def 'parallel export survey to spss file format'() {
+        when: 'I make a patientset with everyone included in SURVEY1'
+        def request = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'test_set'],
+                body      : [type   : StudyNameConstraint,
+                             studyId: SURVEY1_ID],
+                statusCode: 201
+        ]
+        def responseData = post(request)
+
+        then: 'I get a patientset with 14 patients'
+        responseData.id != null
+        responseData.setSize == 14
+
+        when: 'I export data for the patient set for data from the study with multiple workers'
+        put([
+                path      : PATH_CONFIG,
+                acceptType: JSON,
+                body      : [numberOfWorkers: 2, patientSetChunkSize: 5],
+                user      : ADMIN_USER,
+                statusCode: 200
+        ])
+        def downloadResponse = runTypicalExport([
+                constraint: [type: AND,
+                             args: [
+                                 [type   : PatientSetConstraint,
+                                  patientSetId: responseData.id as Long],
+                                 [type   : StudyNameConstraint,
+                                  studyId: SURVEY1_ID]
+                            ]],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'SPSS',
+                                     dataView : 'surveyTable'
+                             ]],
+        ])
+
+        then: 'the result contains the expected files with expected number of rows'
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
+        filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
+        filesLineNumbers['spss/data.tsv'] == 15
+        filesLineNumbers['spss/data.sps'] == 111
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers.containsKey('spss/data.sav')
         }
@@ -385,7 +438,7 @@ class DataExportSpec extends RESTSpec {
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 2
         filesLineNumbers['data.tsv'] == 4
-        filesLineNumbers['variables.tsv'] == 10
+        filesLineNumbers['variables.tsv'] == 6
     }
 
     @RequiresStudy(CATEGORICAL_VALUES_ID)
@@ -406,7 +459,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers['spss/data.tsv'] == 4
-        filesLineNumbers['spss/data.sps'] == 55
+        filesLineNumbers['spss/data.sps'] == 41
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers.containsKey('spss/data.sav')
         }
@@ -506,4 +559,5 @@ class DataExportSpec extends RESTSpec {
 
         result
     }
+
 }

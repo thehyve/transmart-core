@@ -11,8 +11,6 @@ import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.ServiceNotAvailableException
-import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
@@ -20,8 +18,8 @@ import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.clinical.AggregateDataService
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.core.users.User
@@ -29,8 +27,6 @@ import org.transmartproject.db.util.SharedLock
 import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 
 import static grails.async.Promises.task
 
@@ -44,15 +40,16 @@ class TreeService implements TreeResource {
     @Autowired
     AccessControlChecks accessControlChecks
 
-    @Autowired
-    MultiDimensionalDataResource multiDimensionalDataResource
-
     @Resource
     OntologyTermTagsResource tagsResource
 
     @Autowired
     TreeCacheService treeCacheService
 
+    @Autowired
+    AggregateDataService aggregateDataService
+
+    @Autowired
     SessionFactory sessionFactory
 
     /**
@@ -66,13 +63,13 @@ class TreeService implements TreeResource {
             def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    def counts = multiDimensionalDataResource.counts(node.constraint, user)
+                    def counts = aggregateDataService.counts(node.constraint, user)
                     node.observationCount = counts.observationCount
                     node.patientCount = counts.patientCount
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
-                    def counts = multiDimensionalDataResource.counts(node.constraint, user)
+                    def counts = aggregateDataService.counts(node.constraint, user)
                     node.observationCount = counts.observationCount
                     node.patientCount = counts.patientCount
                 }
@@ -101,7 +98,7 @@ class TreeService implements TreeResource {
         List<String> studyTokens = []
         if (!user.admin) {
             Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user) as Collection<Study>
-            studyTokens = studies*.secureObjectToken
+            studyTokens = studies.collect { it.secureObjectToken }
         }
         studyTokens.sort().unique()
     }
@@ -169,27 +166,6 @@ class TreeService implements TreeResource {
         forest
     }
 
-    /**
-     * Clears the tree node cache and the counts caches.
-     * This function should be called after loading, removing or updating
-     * tree nodes or observations in the database.
-     * Only available for administrators.
-     *
-     * @param currentUser the current user.
-     *
-     */
-    void clearCache(User currentUser) {
-        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
-        treeCacheService.clearAllCacheEntries()
-        multiDimensionalDataResource.clearCountsCache()
-        multiDimensionalDataResource.clearPatientCountCache()
-        multiDimensionalDataResource.clearCountsPerConceptCache()
-        multiDimensionalDataResource.clearCountsPerStudyAndConceptCache()
-    }
-
     static final private SharedLock lock = new SharedLock()
 
     /**
@@ -247,12 +223,12 @@ class TreeService implements TreeResource {
                     stopWatch.stop()
                     stopWatch.start("Rebuild the counts cache for ${user.username}")
                     // Update observations, patients counts
-                    multiDimensionalDataResource.rebuildCountsCacheForUser(user)
+                    aggregateDataService.rebuildCountsCacheForUser(user)
                     stopWatch.stop()
                 }
                 stopWatch.start('Rebuild the counts per study and concept cache')
                 // Rebuild cache of counts per study and concept for the given user
-                multiDimensionalDataResource.rebuildCountsPerStudyAndConceptCache()
+                aggregateDataService.rebuildCountsPerStudyAndConceptCache()
                 stopWatch.stop()
                 log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
             } catch (Exception e) {

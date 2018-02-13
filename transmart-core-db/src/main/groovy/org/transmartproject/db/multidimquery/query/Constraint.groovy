@@ -194,7 +194,7 @@ enum Operator {
  */
 @Canonical
 @Sortable
-class Field implements Validateable, Comparable<Field> {
+class Field implements Validateable {
     String dimension
     @BindUsing({ obj, source -> Type.forName((String)source['type']) })
     Type type = Type.NONE
@@ -539,6 +539,8 @@ class PatientSetConstraint extends Constraint {
     Long patientSetId
     Set<Long> patientIds
     Set<String> subjectIds
+    Integer offset
+    Integer limit
 
     static constraints = {
         patientIds nullable: true, validator: { val, obj, Errors errors ->
@@ -570,6 +572,8 @@ class PatientSetConstraint extends Constraint {
                         "Patient set constraint has empty subjectIds parameter.")
             }
         }
+        offset nullable: true
+        limit nullable: true
     }
 }
 

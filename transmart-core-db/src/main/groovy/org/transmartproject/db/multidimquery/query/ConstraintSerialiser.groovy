@@ -208,6 +208,12 @@ class ConstraintSerialiser extends ConstraintBuilder<Void> {
         writer.name('type').value(PatientSetConstraint.constraintName)
         if (constraint.patientSetId) {
             writer.name('patientSetId').value(constraint.patientSetId)
+            if (constraint.offset) {
+                writer.name('offset').value(constraint.offset)
+            }
+            if (constraint.limit) {
+                writer.name('limit').value(constraint.limit)
+            }
         } else if (constraint.patientIds) {
             writer.name('patientIds')
             buildValues(constraint.patientIds)

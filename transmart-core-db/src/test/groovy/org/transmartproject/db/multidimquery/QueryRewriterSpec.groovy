@@ -328,4 +328,24 @@ class QueryRewriterSpec extends Specification {
         canonical1.toJson() == canonical2.toJson()
     }
 
+    void 'test rewriting does not mutate constraints'() {
+        given: 'a disjunction of conjunctions in the wrong order'
+        Constraint constraint = new OrConstraint([
+                new AndConstraint([
+                        new StudyNameConstraint('SURVEY1'),
+                        new ConceptConstraint('weight')
+                ]),
+                new AndConstraint([
+                        new StudyNameConstraint('SURVEY1'),
+                        new ConceptConstraint('height')
+                ])
+        ])
+
+        when: 'rewriting the constraint'
+        def normalisedConstraint = constraint.normalise()
+
+        then: 'the rewrite result is different from the original'
+        constraint.toJson() != normalisedConstraint.toJson()
+    }
+
 }
