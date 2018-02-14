@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
@@ -97,6 +98,40 @@ class ExportController {
     }
 
     /**
+     * Cancels a job
+     * <code>POST /v2/export/${jobId}/cancel
+     * @param jobId
+     */
+    def cancel(@PathVariable('jobId') Long jobId) {
+        checkForUnsupportedParams(params, ['jobId'])
+        exportAsyncJobService.cancelJob(jobId)
+        return true
+    }
+
+    /**
+     * Deletes a job
+     * <code>DELETE /v2/export/${jobId}
+     * @param jobId
+     */
+    def delete(@PathVariable('jobId') Long jobId) {
+        checkForUnsupportedParams(params, ['jobId'])
+        exportAsyncJobService.deleteJob(jobId)
+        return true
+    }
+
+    /**
+     * Gets a job:
+     * <code>GET /v2/export/${jobId}
+     * @param jobId
+     * @return the job json
+     */
+    def get(@PathVariable('jobId') Long jobId) {
+        checkForUnsupportedParams(params, ['jobId'])
+        def job = exportAsyncJobService.getJobById(jobId)
+        render wrapExportJob(job) as JSON
+    }
+
+    /**
      * Download saved .zip file with exported data:
      * <code>/v2/export/${jobId}/download
      *
@@ -122,17 +157,13 @@ class ExportController {
     /**
      * Check a status of specified job:
      * <code>/v2/export/${jobId}/status
-     *
+     * @use get instead
      * @param jobId
      * @return current status of the job
      */
+    @Deprecated
     def jobStatus(@PathVariable('jobId') Long jobId) {
-        checkForUnsupportedParams(params, ['jobId'])
-        def job = exportAsyncJobService.getJobById(jobId)
-        if (!job) {
-            throw new InvalidArgumentsException("Job with id '$jobId' does not exist.")
-        }
-        render wrapExportJob(job) as JSON
+        get(jobId)
     }
 
     /**
