@@ -692,6 +692,21 @@ class QueryServicePgSpec extends Specification {
         includingSecuredRecords['DEMO:POB'].nullValueCounts == null
     }
 
+    void 'test missing values aggregates'() {
+        def user = User.findByUsername('test-public-user-1')
+
+        when: 'querying for null values for concept gender'
+        Constraint constraint = new AndConstraint(
+                args: [
+                        new ConceptConstraint(conceptCode: 'gender'),
+                        new ValueConstraint(Type.STRING, Operator.EQUALS, null)
+                ])
+        def result = multiDimService.counts(constraint, user)
+
+        then: 'one observation is found'
+        result.patientCount == 1
+        result.observationCount == 1
+    }
 
     void "test time values constraint"() {
         def user = User.findByUsername('test-public-user-1')
