@@ -284,7 +284,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                     if (Number.isAssignableFrom(fieldType) && value instanceof Date) {
                         convertedValue = toNumber((Date)value)
                     } else {
-                        convertedValue = fieldType.newInstance(value)
+                        convertedValue = value == null ? null : fieldType.newInstance(value)
                     }
                 }
             }
@@ -321,11 +321,22 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      * @return a {@link Criterion} object representing the operation.
      */
     static Criterion criterionForOperator(Operator operator, String propertyName, Type type, Object value) {
+        if(!operator.supportsNullValue() && (value == null || (value instanceof Collection && value.contains(null)))) {
+            throw new QueryBuilderException("Null value not supported for '${operator.symbol}' operator.")
+        }
         switch(operator) {
             case Operator.EQUALS:
-                return Restrictions.eq(propertyName, value)
+                if (value == null){
+                    return Restrictions.isNull(propertyName)
+                } else {
+                    return Restrictions.eq(propertyName, value)
+                }
             case Operator.NOT_EQUALS:
-                return Restrictions.ne(propertyName, value)
+                if (value == null){
+                    return Restrictions.isNotNull(propertyName)
+                } else {
+                    return Restrictions.ne(propertyName, value)
+                }
             case Operator.GREATER_THAN:
             case Operator.AFTER:
                 return Restrictions.gt(propertyName, value)

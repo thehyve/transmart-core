@@ -70,7 +70,11 @@ enum Type {
     }
 
     boolean supportsValue(Object obj) {
-        obj != null && this != NONE && (classForType[this].isInstance(obj) || (this == NUMERIC && obj instanceof Date))
+        this != NONE && (classForType[this].isInstance(obj) || (this == NUMERIC && obj instanceof Date) || (obj == null && supportsNullValue()))
+    }
+
+    boolean supportsNullValue() {
+        this in [STRING, TEXT, DATE]
     }
 }
 
@@ -183,6 +187,10 @@ enum Operator {
 
     boolean supportsType(Type type) {
         type != null && this != NONE && this in operatorsForType[type]
+    }
+
+    boolean supportsNullValue() {
+        this in [EQUALS, NOT_EQUALS]
     }
 }
 
@@ -477,7 +485,7 @@ class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
                         [val, obj.valueType] as String[],
                         "Invalid value type ${t}")
             } }
-        value validator: { Object val, obj, Errors errors ->
+        value nullable: true, validator: { Object val, obj, Errors errors ->
             if (!obj.valueType.supportsValue(val)) {
                 errors.rejectValue(
                         'value',

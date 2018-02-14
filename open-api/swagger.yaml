@@ -1717,7 +1717,7 @@ paths:
   /v2/export/{jobId}/status:
     get:
       description: |
-        Gets a status of specified data export job.
+        Gets a status of specified data export job. Deprecated. Use /v2/export/{jobId} instead.
       tags:
         - v2
       parameters:
@@ -1732,6 +1732,55 @@ paths:
             an object with the export job, including its status.
           schema:
             $ref: '#/definitions/export_job'
+  /v2/export/{jobId}:
+      get:
+        description: |
+          Gets an export job.
+        tags:
+          - v2
+        parameters:
+          - name: jobId
+            required: true
+            in: path
+            description: 'Id of the export job.'
+            type: string
+        responses:
+          200:
+            description: |
+              an object with the export job.
+            schema:
+              $ref: '#/definitions/export_job'
+      delete:
+        description: |
+          Deletes an export job.
+        tags:
+          - v2
+        parameters:
+          - name: jobId
+            required: true
+            in: path
+            description: 'Id of the export job.'
+            type: string
+        responses:
+          200:
+            description: |
+              200 http status when job has been deleted.
+  /v2/export/{jobId}/cancel:
+    post:
+      description: |
+        Cancels an export job.
+      tags:
+        - v2
+      parameters:
+        - name: jobId
+          required: true
+          in: path
+          description: 'Id of the export job.'
+          type: string
+      responses:
+        200:
+          description: |
+            200 http status when job has been cancelled.
   /v2/export/jobs:
     get:
       description: |
@@ -2472,6 +2521,10 @@ definitions:
                 type: number
             additionalProperties:
               type: number
+          nullValueCounts:
+            description: count of null values
+            type: number
+
   relation_type:
       type: object
       properties:
