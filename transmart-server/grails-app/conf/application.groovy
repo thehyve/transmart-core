@@ -70,6 +70,10 @@ grails.databinding.trimStrings = false
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 
+// Runtime configuration for the parallel export and counting implementations.
+org.transmartproject.system.numberOfWorkers = Runtime.getRuntime().availableProcessors()
+org.transmartproject.system.patientSetChunkSize = 10000
+
 com.recomdata.skipdisclaimer = true
 
 //core-db settings

@@ -1,5 +1,6 @@
 package org.transmartproject.db.support
 
+import grails.util.Holders
 import groovy.transform.CompileStatic
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,8 +21,8 @@ class SystemService implements SystemResource {
     private final int DEFAULT_PATIENT_SET_CHUNK_SIZE = 10000
 
     private final RuntimeConfigImpl runtimeConfig = new RuntimeConfigImpl(
-            Runtime.getRuntime().availableProcessors(),
-            DEFAULT_PATIENT_SET_CHUNK_SIZE
+            Holders.config.getProperty('org.transmartproject.system.numberOfWorkers', Integer.class, Runtime.getRuntime().availableProcessors()),
+            Holders.config.getProperty('org.transmartproject.system.patientSetChunkSize', Integer.class, DEFAULT_PATIENT_SET_CHUNK_SIZE)
     )
 
     private final ModelMapper modelMapper = new ModelMapper()
