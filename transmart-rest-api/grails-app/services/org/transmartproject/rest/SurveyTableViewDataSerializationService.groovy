@@ -103,17 +103,19 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
      * @param constraint
      * @param user
      * @param out
+     * @param includeMeasurementDateColumns
      */
     @Override
     void writeClinical(Format format,
                        MultiDimConstraint constraint,
                        User user,
-                       OutputStream out) {
+                       OutputStream out,
+                       boolean includeMeasurementDateColumns = true) {
         log.info "Start parallel export ..."
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
                 (Constraint)constraint, user)
         final ImmutableList<MetadataAwareDataColumn> columns = ImmutableList.copyOf(
-                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns))
+                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns))
         final TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
                 ImmutableList.copyOf(columns as List<DataColumn>))
         final patientDimension = multiDimService.getDimension('patient')

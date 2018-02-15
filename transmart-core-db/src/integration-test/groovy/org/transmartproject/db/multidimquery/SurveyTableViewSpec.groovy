@@ -46,11 +46,12 @@ class SurveyTableViewSpec extends Specification {
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY1")
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
+        boolean includeMeasurementDateColumns = true
 
         when:
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(constraint, user)
         List<MetadataAwareDataColumn> columnList = ImmutableList.copyOf(surveyTableColumnService.getMetadataAwareColumns(
-                hypercubeColumns))
+                hypercubeColumns, includeMeasurementDateColumns))
         def transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
@@ -96,6 +97,22 @@ class SurveyTableViewSpec extends Specification {
         firstSubjRow[columns[6]] == null
         firstSubjRow[columns[11]] == 10
 
+        when: 'do not include MeasurementDateColumn'
+        includeMeasurementDateColumns = false
+        if(transformedView) transformedView.close()
+        columnList = ImmutableList.copyOf(surveyTableColumnService.getMetadataAwareColumns(
+                hypercubeColumns, includeMeasurementDateColumns))
+        transformedView = new SurveyTableView(columnList, hypercube)
+        then: 'header matches expectations'
+        def columns2 = transformedView.indicesList
+        columns2*.label == ['FISNumber', 'birthdate1', 'favouritebook', 'gender1', 'nmultbab', 'nmultfam', 'sport', 'twin']
+        then: 'columns metadata matches expectations'
+        def metadata2 = columns2*.metadata
+        metadata2*.type == [NUMERIC, DATE, STRING, NUMERIC, STRING, STRING, STRING, STRING]
+        metadata2*.measure == [SCALE, SCALE, NOMINAL, NOMINAL, NOMINAL, NOMINAL, NOMINAL, NOMINAL]
+        metadata2*.description == ['FIS Number', 'Birth Date', 'Favourite Book', 'Gender', 'Number of children that are multiplet',
+                                  'Numbers of multiples in family', 'How often do you do sport activities?', 'Is a Twin']
+
         cleanup:
         if(transformedView) transformedView.close()
     }
@@ -105,11 +122,12 @@ class SurveyTableViewSpec extends Specification {
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY2")
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
+        boolean includeMeasurementDateColumns = true
 
         when:
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(constraint, user)
         List<MetadataAwareDataColumn> columnList = ImmutableList.copyOf(
-                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns))
+                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns))
         def transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
@@ -139,6 +157,21 @@ class SurveyTableViewSpec extends Specification {
         rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
         rows[1][columns[3]] == -1
         rows[1][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2005-05-24 13:40:00')
+
+        when: 'do not include MeasurementDateColumn'
+        includeMeasurementDateColumns = false
+        if(transformedView) transformedView.close()
+        columnList = ImmutableList.copyOf(
+                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns))
+        transformedView = new SurveyTableView(columnList, hypercube)
+        then: 'header matches expectations'
+        def columns2 = transformedView.indicesList
+        columns2*.label == ['FISNumber', 'description', 'height1']
+        then: 'columns metadata matches expectations'
+        def metadata2 = columns2*.metadata
+        metadata2*.type == [NUMERIC, STRING, NUMERIC]
+        metadata2*.measure == [SCALE, NOMINAL, SCALE]
+        metadata2*.description == ['FIS Number', 'Description', 'Height']
 
         cleanup:
         if(transformedView) transformedView.close()

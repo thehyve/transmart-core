@@ -96,16 +96,18 @@ class SurveyTableColumnService {
         study.metadata?.conceptCodeToVariableMetadata?.get(conceptCode)
     }
 
-    List<MetadataAwareDataColumn> getMetadataAwareColumns(List<HypercubeDataColumn> columns) {
+    List<MetadataAwareDataColumn> getMetadataAwareColumns(List<HypercubeDataColumn> columns, boolean includeMeasurementDateColumns) {
         // check if any column contains a study with the start time dimension
-        boolean exportStartDates = columns.any {
+        boolean exportStartDates = includeMeasurementDateColumns ? columns.any {
             Long studyId = (Long)it.coordinates[DimensionImpl.STUDY]
             if (!studyId) {
                 return false
             }
             MDStudy study = studiesResource.getStudyById(studyId)
             DimensionImpl.START_TIME in study.dimensions
-        }
+        } : false
+        log.debug "Include measurement columns: ${exportStartDates}"
+
         List<MetadataAwareDataColumn> transformedColumns = []
         transformedColumns.add(new SurveyTableView.FisNumberColumn())
         for (HypercubeDataColumn originalColumn: columns) {
