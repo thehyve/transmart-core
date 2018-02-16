@@ -10,6 +10,7 @@ import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
 import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.startsWith
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.Operator.*
 import static tests.rest.ValueType.*
@@ -433,7 +434,7 @@ class HighDimSpec extends RESTSpec {
         then:
         that responseData.httpStatus, is(400)
         that responseData.type, is('ConstraintBindingException')
-        that responseData.message, is('Constraint not supported: invalidConstraint.')
+        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'invalidConstraint\' into a subtype of [simple type, class org.transmartproject.db.multidimquery.query.Constraint]: known type ids =')
 
         where:
         acceptType | newSelector

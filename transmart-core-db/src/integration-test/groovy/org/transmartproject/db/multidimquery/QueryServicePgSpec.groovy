@@ -60,13 +60,7 @@ class QueryServicePgSpec extends Specification {
             sourcesystemCd == 'CLINICAL_TRIAL_HIGHDIM:1'
         }
         Constraint assayConstraint = new PatientSetConstraint(patientIds: malesIn26*.id)
-        Constraint combinationConstraint = new Combination(
-                operator: Operator.AND,
-                args: [
-                        conceptConstraint,
-                        assayConstraint
-                ]
-        )
+        Constraint combinationConstraint = new AndConstraint([conceptConstraint, assayConstraint])
 
         when:
         Hypercube hypercube = multiDimService.highDimension(combinationConstraint, user, 'autodetect')
@@ -123,7 +117,7 @@ class QueryServicePgSpec extends Specification {
 
         when:
         trialVisitConstraint.value = 'Baseline'
-        combination = new Combination(Operator.AND, [conceptConstraint, trialVisitConstraint])
+        combination = new AndConstraint([conceptConstraint, trialVisitConstraint])
         Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -184,7 +178,7 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(ASSAY).size() == 3
 
         when:
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
+        combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeConstraint])
         hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -222,10 +216,7 @@ class QueryServicePgSpec extends Specification {
         def studyNameConstraint = new StudyNameConstraint(
                 studyId: 'EHR'
         )
-        def combination = new Combination(
-                args: [visitStartConstraint, studyNameConstraint],
-                operator: Operator.AND
-        )
+        def combination = new Combination(Operator.AND, [visitStartConstraint, studyNameConstraint])
         when:
         Hypercube hypercube = multiDimService.retrieveClinicalData(combination, user)
         def observations = hypercube.toList()

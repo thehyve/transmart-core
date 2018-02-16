@@ -36,6 +36,7 @@ ext {
     gradleWrapperVersion = '2.13'
     grailsVersion = '3.2.3'
     guavaVersion = '19.0'
+    jacksonVersion = '2.9.1'
     modelMapperVersion = '1.1.0'
     ojdb7Version = '12.1.0.1'
     openCsvVersion = '4.0'
@@ -58,6 +59,7 @@ allprojects {
     ext {
         assetPipelineVersion = assetPipelineVersion
         guavaVersion = guavaVersion
+        jacksonVersion = jacksonVersion
         modelMapperVersion = modelMapperVersion
         ojdb7Version = ojdb7Version
         openCsvVersion = openCsvVersion

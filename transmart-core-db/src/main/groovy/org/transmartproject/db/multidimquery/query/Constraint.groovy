@@ -2,29 +2,24 @@
 
 package org.transmartproject.db.multidimquery.query
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import groovy.transform.*
-import groovy.util.logging.Slf4j
-import org.hibernate.validator.constraints.NotBlank
-import org.springframework.util.ReflectionUtils
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.db.multidimquery.query.Field
 
-import javax.validation.ConstraintViolation
 import javax.validation.Valid
-import javax.validation.Validation
-import javax.validation.Validator
 import javax.validation.constraints.AssertTrue
 import javax.validation.constraints.NotNull
-import java.lang.reflect.ParameterizedType
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+import javax.validation.constraints.Size
 
 /**
  * The data type of a field.
  */
 @CompileStatic
-@Slf4j
 enum Type {
     ID,
     NUMERIC,
@@ -36,6 +31,23 @@ enum Type {
     COLLECTION,
     CONSTRAINT,
     NONE
+
+    private static final Map<String, Type> mapping = new HashMap<>()
+    static {
+        for (Type type: values()) {
+            mapping.put(type.name().toLowerCase(), type)
+        }
+    }
+
+    @JsonCreator
+    static Type forName(String name) {
+        name = name.toLowerCase()
+        if (mapping.containsKey(name)) {
+            return mapping[name]
+        } else {
+            return NONE
+        }
+    }
 
     static final Map<Type, Class> classForType = [
             (ID)        : Object.class,
@@ -66,7 +78,6 @@ enum Type {
  * Operator types supported by the query builder.
  */
 @CompileStatic
-@Slf4j
 enum Operator {
 
     LESS_THAN('<'),
@@ -92,22 +103,22 @@ enum Operator {
 
     String symbol
 
-    Operator(String symbol) {
+    private Operator(String symbol) {
         this.symbol = symbol
     }
 
     private static final Map<String, Operator> mapping = new HashMap<>()
     static {
-        for (Operator op : Operator.values()) {
+        for (Operator op : values()) {
             mapping.put(op.symbol, op)
         }
     }
 
+    @JsonCreator
     static Operator forSymbol(String symbol) {
         if (mapping.containsKey(symbol)) {
             return mapping[symbol]
         } else {
-            log.error "Unknown operator: ${symbol}"
             return NONE
         }
     }
@@ -184,13 +195,14 @@ enum Operator {
  * The data type ({@link Type}) of the field is also included to allow for
  * early validation (assuming that clients know the data type of a field).
  */
+@CompileStatic
 @Canonical
 @Sortable
 class Field {
     String dimension
     @NotNull
     Type type = Type.NONE
-    @NotBlank
+    @Size(min = 1)
     String fieldName
 
     @AssertTrue(message = 'NONE type is not allowed')
@@ -204,6 +216,31 @@ class Field {
  * can be created using the constructors of the subclasses or by using the
  * {@link ConstraintFactory}.
  */
+@CompileStatic
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type"
+)
+@JsonSubTypes([
+    @JsonSubTypes.Type(value = TrueConstraint.class, name = 'true'),
+    @JsonSubTypes.Type(value = BiomarkerConstraint.class, name = 'biomarker'),
+    @JsonSubTypes.Type(value = ModifierConstraint.class, name = 'modifier'),
+    @JsonSubTypes.Type(value = FieldConstraint.class, name = 'field'),
+    @JsonSubTypes.Type(value = ValueConstraint.class, name = 'value'),
+    @JsonSubTypes.Type(value = TimeConstraint.class, name = 'time'),
+    @JsonSubTypes.Type(value = PatientSetConstraint.class, name = 'patient_set'),
+    @JsonSubTypes.Type(value = Negation.class, name = 'negation'),
+    @JsonSubTypes.Type(value = Combination.class, name = 'combination'),
+    @JsonSubTypes.Type(value = AndConstraint.class, name = 'and'),
+    @JsonSubTypes.Type(value = OrConstraint.class, name = 'or'),
+    @JsonSubTypes.Type(value = TemporalConstraint.class, name = 'temporal'),
+    @JsonSubTypes.Type(value = ConceptConstraint.class, name = 'concept'),
+    @JsonSubTypes.Type(value = StudyNameConstraint.class, name = 'study_name'),
+    @JsonSubTypes.Type(value = StudyObjectConstraint.class, name = 'study'),
+    @JsonSubTypes.Type(value = NullConstraint.class, name = 'null'),
+    @JsonSubTypes.Type(value = SubSelectionConstraint.class, name = 'subselection'),
+    @JsonSubTypes.Type(value = RelationConstraint.class, name = 'relation')
+])
 abstract class Constraint implements MultiDimConstraint {
 
     String toJson() {
@@ -226,17 +263,22 @@ abstract class Constraint implements MultiDimConstraint {
     Constraint canonise() {
         new CanonicalConstraintRewriter().build(this)
     }
+
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('true')
 class TrueConstraint extends Constraint {
     static String constraintName = "true"
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('biomarker')
 class BiomarkerConstraint extends Constraint {
     static String constraintName = "biomarker"
-    @NotBlank
+    @Size(min = 1)
     String biomarkerType
     // this is the constraint type, see org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
     Map<String, Object> params
@@ -246,8 +288,10 @@ class BiomarkerConstraint extends Constraint {
  * Selects observations for which the value for a certain modifier code <code>modifierCode</code> conforms
  * to <code>operator</code> and <code>value</code>.
  */
+@CompileStatic
 @Canonical
 @Sortable
+@JsonTypeName('modifier')
 class ModifierConstraint extends Constraint {
     static String constraintName = "modifier"
 
@@ -278,7 +322,9 @@ class ModifierConstraint extends Constraint {
  * def constraint = new FieldConstraint(field: patientAgeField, operator: Operator.GREATER_THAN, value: 40)
  * </code>
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('field')
 class FieldConstraint extends Constraint implements Comparable<FieldConstraint> {
     static String constraintName = "field"
     @NotNull
@@ -314,7 +360,10 @@ class FieldConstraint extends Constraint implements Comparable<FieldConstraint> 
     }
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('concept')
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ConceptConstraint extends Constraint {
     static String constraintName = "concept"
 
@@ -332,23 +381,35 @@ class ConceptConstraint extends Constraint {
     }
 }
 
+@CompileStatic
 @Canonical
 @Sortable
+@JsonTypeName('study_name')
 class StudyNameConstraint extends Constraint {
     static String constraintName = "study_name"
-    @NotBlank
+
     String studyId
+
+    @NotNull
+    @Size(min = 1)
+    String getStudyId() {
+        studyId?.trim()
+    }
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('study')
 class StudyObjectConstraint extends Constraint {
     static String constraintName = "study"
     @NotNull
     MDStudy study
 }
 
+@CompileStatic
 @Canonical
 @Sortable
+@JsonTypeName('null')
 class NullConstraint extends Constraint {
     static String constraintName = "null"
     @Valid
@@ -356,6 +417,7 @@ class NullConstraint extends Constraint {
     Field field
 }
 
+@CompileStatic
 @Canonical
 class RowValueConstraint extends Constraint {
     static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
@@ -374,7 +436,9 @@ class RowValueConstraint extends Constraint {
  * def constraint = new ValueConstraint(valueType: NUMERIC, operator: Operator.LESS_THAN, value: 1000)
  * </code>
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('value')
 class ValueConstraint extends Constraint implements Comparable<ValueConstraint> {
     static String constraintName = "value"
 
@@ -408,7 +472,9 @@ class ValueConstraint extends Constraint implements Comparable<ValueConstraint> 
  * before, after or between (depends on <code>operator</code>) the date(s)
  * in <code>values</code>.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('time')
 class TimeConstraint extends Constraint implements Comparable<TimeConstraint> {
     static String constraintName = "time"
 
@@ -445,7 +511,9 @@ class TimeConstraint extends Constraint implements Comparable<TimeConstraint> {
 /**
  * Selects observations based on a set of patient identifiers.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('patient_set')
 class PatientSetConstraint extends Constraint {
     static String constraintName = "patient_set"
 
@@ -468,7 +536,9 @@ class PatientSetConstraint extends Constraint {
  * Inverts a constraint. Specifies all observations for which
  * constraint <code>arg</code> does not hold.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('negation')
 class Negation extends Constraint {
     static String constraintName = "negation"
 
@@ -483,17 +553,23 @@ class Negation extends Constraint {
  * Combines a list of constraints conjunctively (if <code>operator</code> is 'and')
  * or disjunctively (if <code>operator</code> is 'or').
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('combination')
 class Combination extends Constraint {
     static String constraintName = "combination"
 
-    Operator operator = Operator.NONE
+    Operator operator
     @Valid
     @NotNull
     List<Constraint> args
 
     Combination() {
-        super()
+
+    }
+
+    Combination(Operator operator) {
+        this.operator = operator
     }
 
     Combination(Operator operator, List<Constraint> args) {
@@ -515,50 +591,38 @@ class Combination extends Constraint {
 /**
  * Subclass of Combination that implements a conjunction
  */
+@CompileStatic
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
+@JsonTypeName('and')
 class AndConstraint extends Combination {
     static String constraintName = "and"
 
-    Operator getOperator() { Operator.AND }
-
-    void setOperator() {
-        throw new UnsupportedOperationException()
-    }
-
     AndConstraint() {
-        super()
-        this.operator = Operator.AND
+        super(Operator.AND)
     }
 
     AndConstraint(List<Constraint> args) {
-        this()
-        this.args = args
+        super(Operator.AND, args)
     }
 }
 
 /**
  * Subclass of Combination that implements a disjunction
  */
+@CompileStatic
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
+@JsonTypeName('or')
 class OrConstraint extends Combination {
     static String constraintName = "or"
 
-    Operator getOperator() { Operator.OR }
-
-    void setOperator() {
-        throw new UnsupportedOperationException()
-    }
-
     OrConstraint() {
-        super()
-        this.operator = Operator.OR
+        super(Operator.OR)
     }
 
     OrConstraint(List<Constraint> args) {
-        this()
-        this.args = args
+        super(Operator.OR, args)
     }
 }
 
@@ -574,7 +638,9 @@ class OrConstraint extends Combination {
  * - EXISTS: selects observations for patients that have some observations
  * selected by <code>eventConstraint</code>.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('temporal')
 class TemporalConstraint extends Constraint {
     static String constraintName = "temporal"
 
@@ -589,7 +655,9 @@ class TemporalConstraint extends Constraint {
     }
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('subselection')
 class SubSelectionConstraint extends Constraint {
     static String constraintName = 'subselection'
 
@@ -600,6 +668,7 @@ class SubSelectionConstraint extends Constraint {
     Constraint constraint
 }
 
+@CompileStatic
 @Canonical
 class MultipleSubSelectionsConstraint extends Constraint {
     static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
@@ -615,11 +684,13 @@ class MultipleSubSelectionsConstraint extends Constraint {
     List<Constraint> args
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('relation')
 class RelationConstraint extends Constraint {
     static String constraintName = 'relation'
 
-    @NotBlank
+    @Size(min = 1)
     String relationTypeLabel
 
     @Valid
@@ -628,235 +699,4 @@ class RelationConstraint extends Constraint {
     Boolean biological
 
     Boolean shareHousehold
-
-}
-
-/**
- * A Constraint factory that creates {@link Constraint} objects from a map using
- * the Grails data binder.
- * Produces constraints for the classes:
- * - {@link TrueConstraint}
- * - {@link BiomarkerConstraint}
- * - {@link ModifierConstraint}
- * - {@link FieldConstraint}
- * - {@link ValueConstraint}
- * - {@link TimeConstraint}
- * - {@link PatientSetConstraint}
- * - {@link Negation}
- * - {@link Combination}
- * - {@link TemporalConstraint}
- * - {@link ConceptConstraint}
- * - {@link StudyNameConstraint}
- * - {@link NullConstraint}
- */
-@Slf4j
-class ConstraintFactory {
-
-    private static final Set<String> IGNORE_PROPERTIES = ['class'] as Set
-    //FIXME Currently we ignore the timezone
-    private static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator()
-
-    static final Map<String, Class<? extends Constraint>> constraintClasses = [
-            TrueConstraint,
-            BiomarkerConstraint,
-            ModifierConstraint,
-            FieldConstraint,
-            ValueConstraint,
-            TimeConstraint,
-            PatientSetConstraint,
-            Negation,
-            Combination,
-            AndConstraint,
-            OrConstraint,
-            TemporalConstraint,
-            ConceptConstraint,
-            StudyNameConstraint,
-            StudyObjectConstraint,
-            NullConstraint,
-            SubSelectionConstraint,
-            RelationConstraint,
-    ].collectEntries { Class type ->
-        [(type.constraintName): type]
-    } as Map<String, Class>
-
-    /**
-     * Create a constraint object from a map of values
-     * using the custom data binder and validates the constraint.
-     *
-     * @param constraintMap
-     * @return a validated constraint
-     */
-    static Constraint create(Map constraintMap) {
-        Constraint constraint = createConstraint(constraintMap)
-        throwExceptionIfInvalid(constraint)
-        constraint
-    }
-
-    private static Constraint createConstraint(Map constraintMap) {
-        String constraintType = getMaybeConstraintType(constraintMap)
-        if (!constraintType) {
-            throw new ConstraintBindingException('Cannot detect type of the constraint')
-        }
-
-        Class<? extends Constraint> type = getConstraintClass(constraintType)
-        log.debug "Creating constraint of type ${type.simpleName}"
-        Constraint constraint = type.newInstance()
-        Map propertyToValue = new HashMap(constraintMap)
-        propertyToValue.remove('type')
-        bind(constraint, propertyToValue)
-
-        return constraint
-    }
-
-    private static throwExceptionIfInvalid(Constraint constraint) {
-        Set<ConstraintViolation<Constraint>> errors = validator.validate(constraint)
-        if (errors) {
-            String sErrors = errors.collect { "${it.propertyPath.toString()}: ${it.message}" }.join('; ')
-            throw new ConstraintBindingException("${errors.size()} error(s): ${sErrors}", errors)
-        }
-    }
-
-    /**
-     * Set object properties from the map
-     * @param object
-     * @param propertyToValue
-     */
-    private static void bind(GroovyObject object, Map propertyToValue) {
-        HashMap mutablePropertyToValue = new HashMap(propertyToValue)
-        for (MetaProperty metaProperty in object.metaClass.properties) {
-            if (!mutablePropertyToValue.containsKey(metaProperty.name)) {
-                log.trace "The input map does not have value for ${metaProperty}."
-                continue
-            }
-            Object value = mutablePropertyToValue.remove(metaProperty.name)
-            if (metaProperty.name in IGNORE_PROPERTIES) {
-                log.trace "${metaProperty.name} is in ignore list. Skip it."
-                continue
-            }
-            log.trace "Set value for ${metaProperty.name} depending on it's type."
-            //TODO Remove dependency on spring library
-            java.lang.reflect.Field clsField = ReflectionUtils.findField(object.getClass(), metaProperty.name)
-            object.setProperty(metaProperty.name, convertValueToPropertyType(clsField, value))
-        }
-        if (mutablePropertyToValue) {
-            throw new ConstraintBindingException(
-                    "Input map for ${object.getClass()} type has extra field(s) that were not set:"
-                            + mutablePropertyToValue.keySet())
-        }
-    }
-
-    /**
-     * Converts the value to set to the field.
-     * Compared with @see convertValueToPropertyType(Class, Object) it does one more extra thing:
-     * it tries to get type of the collection elements from the generics. e.g. List<Date> => Date
-     * @param field
-     * @param value
-     * @return
-     */
-    static Object convertValueToPropertyType(final java.lang.reflect.Field field, final Object value) {
-        boolean collectionWithDeclaredGenericType = (Collection.isAssignableFrom(field.type)
-                && (field.genericType instanceof ParameterizedType)
-                && ((ParameterizedType) field.genericType).actualTypeArguments)
-
-        if (collectionWithDeclaredGenericType) {
-            java.lang.reflect.Type declaredGenericType = ((ParameterizedType) field.genericType).actualTypeArguments[0]
-            Collection result = new ArrayList()
-            for (Object element in (Collection) value) {
-                result.add(convertValueToPropertyType((Class) declaredGenericType, element))
-            }
-            return convertValueToPropertyType(field.type, result)
-        }
-        return convertValueToPropertyType(field.type, value)
-    }
-
-    /**
-     * Converts the value to the property type
-     * @param propertyType
-     * @param value
-     * @return converted value
-     */
-    static Object convertValueToPropertyType(final Class propertyType, final Object value) {
-        if (value == null) {
-            return null
-        }
-        try {
-            if (Collection.isAssignableFrom(propertyType) && value instanceof Collection) {
-                Collection result = new ArrayList()
-                for (Object element in value) {
-                    Class elementType = element?.getClass()
-                    String constraintType = getMaybeConstraintType(element)
-                    if (constraintType) {
-                        elementType = getConstraintClass(constraintType)
-                    }
-                    result.add(convertValueToPropertyType(elementType, element))
-                }
-                return Set.isAssignableFrom(propertyType) ? toSetWithCheck(result) : result
-            }
-            if (propertyType.isAssignableFrom(value.getClass())) {
-                return value
-            }
-            if (Number.isAssignableFrom(propertyType) && value instanceof Number) {
-                if (propertyType.isAssignableFrom(Long)) {
-                    return value.longValue()
-                }
-                if (propertyType.isAssignableFrom(Integer)) {
-                    return value.intValue()
-                }
-            }
-            if (Date.isAssignableFrom(propertyType) && value instanceof String) {
-                return DATE_TIME_FORMAT.parse(value)
-            }
-            if (propertyType.isEnum()) {
-                if (Operator.isAssignableFrom(propertyType)) {
-                    Operator op = Operator.forSymbol(value as String)
-                    if (op != Operator.NONE) {
-                        return op
-                    }
-                }
-                String enumStrVal = (value as String).toUpperCase()
-                return Enum.valueOf(propertyType, enumStrVal)
-            }
-            if (Constraint.isAssignableFrom(propertyType) && value instanceof Map) {
-                return createConstraint(value)
-            }
-            if (Field.isAssignableFrom(propertyType) && value instanceof Map) {
-                return createField(value)
-            }
-            throw new ConstraintBindingException(
-                    "Conversion from ${value.getClass()} to ${propertyType} is not supported.")
-        } catch (Exception e) {
-            throw new ConstraintBindingException(
-                    "Converting ${value} of ${value.getClass()} class to ${propertyType} has failed: ${e.message}")
-        }
-    }
-
-    private static Field createField(Map map) {
-        Field resultField = new Field()
-        bind(resultField, map)
-        return resultField
-    }
-
-    private static Collection toSetWithCheck(Collection result) {
-        Set setResult = new LinkedHashSet(result)
-        if (setResult.size() < result.size()) {
-            log.warn("Some duplicate elements were removed during conversion to set.")
-        }
-        return setResult
-    }
-
-    private static Class<? extends Constraint> getConstraintClass(String name) {
-        Class type = constraintClasses[name]
-        if (type == null) {
-            throw new ConstraintBindingException("Constraint not supported: ${name}.")
-        }
-        type
-    }
-
-    private static String getMaybeConstraintType(Object object) {
-        if (object instanceof Map) {
-            return object?.get('type')
-        }
-        return null
-    }
 }

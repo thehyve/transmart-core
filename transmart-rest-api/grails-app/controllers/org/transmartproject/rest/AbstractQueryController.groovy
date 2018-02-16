@@ -29,28 +29,22 @@ abstract class AbstractQueryController implements Controller {
     @Autowired
     HypercubeDataSerializationService hypercubeDataSerializationService
 
-    protected static Constraint getConstraintFromStringOrJson(constraintParam) {
-        if (!constraintParam) {
+    protected static Constraint getConstraintFromString(String constraintText) {
+        if (!constraintText) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
 
-        if (constraintParam instanceof String) {
-            try {
-                def constraintData = JSON.parse(constraintParam) as Map
-                def constraint =  ConstraintFactory.create(constraintData)
-                return constraint?.normalise()
-            } catch (ConverterException c) {
-                throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
-            }
-        } else {
-            def constraint =  ConstraintFactory.create(constraintParam)
+        try {
+            def constraint =  ConstraintFactory.read(constraintText)
             return constraint?.normalise()
+        } catch (ConverterException c) {
+            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintText")
         }
     }
 
-    protected Constraint bindConstraint(constraintParam) {
+    protected Constraint bindConstraint(String constraintText) {
         try {
-            return getConstraintFromStringOrJson(constraintParam)
+            return getConstraintFromString(constraintText)
         } catch (ConstraintBindingException e) {
             Map error = [
                     httpStatus: 400,
