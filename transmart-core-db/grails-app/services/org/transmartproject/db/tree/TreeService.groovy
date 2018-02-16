@@ -225,6 +225,9 @@ class TreeService implements TreeResource {
                     // Update observations, patients counts
                     aggregateDataService.rebuildCountsCacheForUser(user)
                     stopWatch.stop()
+                    stopWatch.start("Rebuild the counts cache for bookmarked queries of ${user.username}")
+                    aggregateDataService.rebuildCountsCacheForBookmarkedUserQueries(user)
+                    stopWatch.stop()
                 }
                 stopWatch.start('Rebuild the counts per study and concept cache')
                 // Rebuild cache of counts per study and concept for the given user

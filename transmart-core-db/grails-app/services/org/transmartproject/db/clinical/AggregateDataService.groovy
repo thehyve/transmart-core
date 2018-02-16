@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.clinical
 
+import grails.converters.JSON
 import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.CachePut
@@ -11,14 +12,18 @@ import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
+import org.grails.web.converters.exceptions.ConverterException
 import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.core.userquery.UserQuery
+import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -46,6 +51,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Autowired
     ParallelPatientSetTaskService parallelPatientSetTaskService
 
+    @Autowired
+    UserQueryResource userQueryResource
+
+    /**
+     * Instance of this object wrapped with the cache proxy.
+     */
+    @Lazy
+    private AggregateDataService wrappedThis = { Holders.grailsApplication.mainContext.aggregateDataService }()
 
     @Transactional(readOnly = true)
     Counts freshCounts(MultiDimConstraint constraint, User user) {
@@ -83,9 +96,34 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * @param user the user to compute the counts for.
      */
     void rebuildCountsCacheForUser(User user) {
-        AggregateDataService wrappedThis =
-                Holders.grailsApplication.mainContext.aggregateDataService
         wrappedThis.updateCountsCache(new TrueConstraint(), user)
+    }
+
+    /**
+     * Updates counts for bookmarked user queries.
+     *
+     * @param user the user for .
+     */
+    void rebuildCountsCacheForBookmarkedUserQueries(User user) {
+        List<UserQuery> bookmarkedUserQueries = userQueryResource.list(user).findAll { it.bookmarked }
+        if (!bookmarkedUserQueries) {
+            log.info("No bookmarked queries for  ${user.username} user. Nothing to cache.")
+            return
+        }
+        log.info("Updating counts cache for ${bookmarkedUserQueries.size()} bookmarked queries of ${user.username} user.")
+        bookmarkedUserQueries.eachWithIndex{ UserQuery userQuery, int index ->
+            long timePoint = System.currentTimeMillis()
+            log.debug("Updating counts for ${user.username} query with ${userQuery.id} (${index}/${bookmarkedUserQueries.size()}).")
+            Constraint patientConstraint = createConstraints(userQuery.patientsQuery)
+            multiDimensionalDataResource.createOrReusePatientSetQueryResult('Automatically generated set',
+                    patientConstraint, user, 'v2')
+            wrappedThis.updateCountsCache(patientConstraint, user)
+            wrappedThis.updateCountsPerStudyCache(patientConstraint, user)
+            wrappedThis.updateCountsPerStudyAndConceptCache(patientConstraint, user)
+            long cachingTookInMsek = System.currentTimeMillis() - timePoint
+            log.debug("Updating counts for ${user.username} query with ${userQuery.id} took ${cachingTookInMsek} ms.")
+        }
+        log.info("Done with updating counts cache for bookmarked queries of ${user.username} user.")
     }
 
     @Transactional(readOnly = true)
@@ -117,9 +155,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         freshCountsPerConcept(constraint, user)
     }
 
-    @Override
     @Transactional(readOnly = true)
-    Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> freshCountsPerStudy(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per study ..."
         def t1 = new Date()
         checkAccess(constraint, user)
@@ -139,6 +176,21 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             [((row.study as Study).studyId):
                      new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
         } as Map<String, Counts>
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user) {
+        freshCountsPerStudy(constraint, user)
+    }
+
+    @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
+            key = '{ #constraint.toJson(), #user.username }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> updateCountsPerStudyCache(MultiDimConstraint constraint, User user) {
+        freshCountsPerStudy(constraint, user)
     }
 
     @CompileStatic
@@ -224,8 +276,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         def parameters = new TaskParameters((Constraint)constraint, user)
         parallelPatientSetTaskService.run(parameters,
                 {SubtaskParameters params -> countsPerStudyAndConceptTask(params)},
-                {List<ConceptStudyCountRow> taskResults -> mergeSummaryTaskResults(taskResults)}
-                )
+                {List<ConceptStudyCountRow> taskResults -> mergeSummaryTaskResults(taskResults)})
     }
 
     @Override
@@ -240,9 +291,16 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Map<String, Counts> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint, User user, Map<String, Counts> newCounts) {
+    Map<String, Map<String, Counts>> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint,
+                                                            User user,
+                                                            Map<String, Map<String, Counts>> newCounts) {
         log.debug "Updating counts per study per concept cache for user: ${user.username}, constraint: ${constraint.toJson()}"
         newCounts
+    }
+
+    Map<String, Map<String, Counts>> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint,
+                                                            User user) {
+        wrappedThis.updateCountsPerStudyAndConceptCache(constraint, user, parallelCountsPerStudyAndConcept(constraint, user))
     }
 
     /**
@@ -256,8 +314,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
         Map<String, Map<String, Counts>> countsPerStudyAndConcept = [:]
 
-        AggregateDataService wrappedThis =
-                Holders.grailsApplication.mainContext.aggregateDataService
         //Sharing counts between users does not always work for other type of constraints
         // e.g. In case when cross-study concepts involved and different users have different rights on them.
         MultiDimConstraint constraintToPreCache = new TrueConstraint()
@@ -270,12 +326,22 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                 Map<String, Map<String, Counts>> freshCounts = parallelCountsPerStudyAndConcept(constraintToPreCache, user)
                 countsPerStudyAndConcept.putAll(freshCounts)
             }
-            def countsForUser = studyIds.collectEntries { String studyId -> [studyId, countsPerStudyAndConcept[studyId]] }
+            Map<String, Map<String, Counts>> countsForUser = studyIds
+                    .collectEntries { String studyId -> [studyId, countsPerStudyAndConcept[studyId]] }
             wrappedThis.updateCountsPerStudyAndConceptCache(constraintToPreCache, user, countsForUser)
         }
 
         def t2 = new Date()
         log.info "Caching counts per study and concept took ${t2.time - t1.time} ms."
+    }
+
+    private static Constraint createConstraints(String constraintParam) {
+        try {
+            def constraintData = JSON.parse(constraintParam) as Map
+            return ConstraintFactory.create(constraintData)
+        } catch (ConverterException c) {
+            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
+        }
     }
 
     /**
@@ -427,6 +493,16 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             allEntries = true)
     void clearCountsPerStudyAndConceptCache() {
         log.info 'Clearing counts per study and concept count cache ...'
+    }
+
+    /**
+     * Clears the counts per study cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
+            allEntries = true)
+    void clearCountsPerStudyCache() {
+        log.info 'Clearing counts per study count cache ...'
     }
 
 }
