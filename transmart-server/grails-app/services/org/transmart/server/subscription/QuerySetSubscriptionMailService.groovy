@@ -3,8 +3,7 @@ package org.transmart.server.subscription
 import grails.plugins.mail.MailService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.userquery.UserQuerySetDiff
-import org.transmartproject.core.userquery.ChangeFlag
+import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
 import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.core.users.User
@@ -33,6 +32,8 @@ class QuerySetSubscriptionMailService {
     @Autowired
     UserQuerySetResource userQueryDiffResource
 
+    Integer maxNumberOfSets = grailsApplication.config.org.transmart.server.subscription.maxNumberOfSets
+
     private final static String NEW_LINE = "\n"
 
     /**
@@ -44,11 +45,14 @@ class QuerySetSubscriptionMailService {
      *
      */
     def run(SubscriptionFrequency frequency) {
-        List<User> users = getUsers()
+        List<User> users = usersResource.getUsersWithEmailSpecified()
         for (user in users) {
-            String title = "Test email for query subscription"
-            String emailBody = generateEmail(user.username, frequency)
-            if(emailBody) {
+            List<UserQuerySetChangesRepresentation> patientSetChanges =
+                    getPatientSetChangesRepresentation(frequency, user.username)
+
+            if (patientSetChanges.size() > 0) {
+                String emailBody = generateEmail(patientSetChanges)
+                String title = "Test email for query subscription"
                 sendEmail(user.email, title, emailBody)
             }
         }
@@ -67,61 +71,48 @@ class QuerySetSubscriptionMailService {
      * @return The body of the email
      *
      */
-    private String generateEmail(String username, SubscriptionFrequency frequency) {
-
-        int firstResult = 0
-        Integer numResults = grailsApplication.config.org.transmart.server.subscription.numResults
+    private static String generateEmail(List<UserQuerySetChangesRepresentation> patientSetsChanges) {
 
         def currentDate = new Date()
 
-        List<UserQuerySetDiff> queryDiffEntries = userQueryDiffResource
-                .getDiffEntriesByUsernameAndFrequency(frequency, username, firstResult, numResults)
+        StringBuilder textStringBuilder = new StringBuilder()
+        textStringBuilder.append("Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}")
+        textStringBuilder.append(NEW_LINE)
+        textStringBuilder.append("List of updated query results:")
+        textStringBuilder.append(NEW_LINE)
 
-        if(queryDiffEntries.size() > 0) {
-            def queryDiffsMap = queryDiffEntries.groupBy { it.querySet }
+        int i = 0
+        for (setChange in patientSetsChanges) {
 
-            StringBuilder textStringBuilder = new StringBuilder()
-
-            textStringBuilder.append("Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}")
-            textStringBuilder.append(NEW_LINE)
-            textStringBuilder.append("List of updated query results:")
-            textStringBuilder.append(NEW_LINE)
-
-            def patientSetMap = queryDiffsMap.findAll{it.key.setType == SetType.PATIENT}
-            if(patientSetMap.size() == 0) {
-                return null
-            }
-            for (entry in patientSetMap) {
-                def addedIds = entry.value.findAll {
-                    it.changeFlag == ChangeFlag.ADDED
-                }?.objectId
-                def removedIds = entry.value.findAll {
-                    it.changeFlag == ChangeFlag.REMOVED
-                }?.objectId
+            if (i == 0 || setChange.queryId == patientSetsChanges.get(i - 1).queryId) {
                 textStringBuilder.append(NEW_LINE)
-                textStringBuilder.append("For a query named: '$entry.key.query.name' (id='$entry.key.query.id') \n" +
-                        "date of the change: $entry.key.createDate \n")
-                if(addedIds.size() > 0) {
-                    textStringBuilder.append("added patients with ids: $addedIds \n")
-                }
-                if(removedIds.size() > 0) {
-                    textStringBuilder.append("removed patients with ids: $removedIds \n")
-                }
+                textStringBuilder.append("For a query named: '$setChange.queryName' (id='$setChange.queryId') \n")
             }
-            textStringBuilder.append(NEW_LINE)
-            return textStringBuilder.toString()
+            textStringBuilder.append("date of the change: $setChange.createDate \n")
+            if (setChange.objectsAdded.size() > 0) {
+                textStringBuilder.append("added patients with ids: $setChange.objectsAdded \n")
+            }
+            if (setChange.objectsRemoved.size() > 0) {
+                textStringBuilder.append("removed patients with ids: $setChange.objectsRemoved \n")
+            }
+            i++
         }
-        return null
+        textStringBuilder.append(NEW_LINE)
+        return textStringBuilder.toString()
     }
 
     /**
-     * Collects the list of all users with specified email address
+     * Fetches a list of patient sets with changes made comparing to a previous set related to the same query
      *
-     * @return List of users
-     *
+     * @param frequency
+     * @param username
+     * @return A list of patient sets with changes
      */
-    private List<User> getUsers(){
-        usersResource.getUsersWithEmailSpecified()
+    private List<UserQuerySetChangesRepresentation> getPatientSetChangesRepresentation(SubscriptionFrequency frequency,
+                                                                                       String username) {
+        List<UserQuerySetChangesRepresentation> querySetsChanges =
+                userQueryDiffResource.getQueryChangeHistoryByUsernameAndFrequency(frequency, username, maxNumberOfSets)
+        return querySetsChanges.findAll { it.setType == SetType.PATIENT }?.sort { it.queryId }
     }
 
     /**

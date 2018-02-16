@@ -190,8 +190,12 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
-            "/queries"(method: 'GET', controller: 'userQuery', action: 'index')
-            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get')
+            "/queries"(method: 'GET', controller: 'userQuery', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get') {
+                apiVersion = "v2"
+            }
             "/queries"(method: 'POST', controller: 'userQuery', action: 'save') {
                 apiVersion = "v2"
             }
@@ -201,13 +205,10 @@ class RestApiUrlMappings {
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete') {
                 apiVersion = "v2"
             }
-            "/query_sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan') {
+            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan') {
                 apiVersion = "v2"
             }
-            "/query_sets/$queryId"(method: 'GET', controller: 'userQuerySet', action: 'getSetsByQueryId') {
-                apiVersion = "v2"
-            }
-            "/query_sets/$queryId/diffs"(method: 'GET', controller: 'userQuerySet', action: 'getDiffsByQueryId') {
+            "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId') {
                 apiVersion = "v2"
             }
         }
