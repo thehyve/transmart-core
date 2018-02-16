@@ -27,7 +27,6 @@ class QuerySetSubscriptionDailyJob {
      **/
     static triggers = {
         cron name: 'dailySubscriptionTrigger', cronExpression: " 0 0 0 1/1 * ?"
-        // cron name: 'dailySubscriptionTestTrigger', cronExpression: "0 0/1 * 1/1 * ?"
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.transmartproject.core.userquery
 
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.User
 
@@ -33,22 +32,10 @@ interface UserQuerySetResource {
      * Gets a list of changes of query results for the queries based on query id.
      *
      * @param queryId - id of the query
-     * @param firstResult - parameter required to support pagination
-     * @param numResults - parameter required to support pagination
-     * @return List of querySets with querySetDiffs
+     * @param maxNumberOfSets - max number of returned sets
+     * @return List of querySets with added or removed object ids
      */
-    List<UserQuerySetDiff> getDiffEntriesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults)
-            throws AccessDeniedException, NoSuchResourceException
-
-    /**
-     * Gets a list of sets with set entries based on related query id.
-     *
-     * @param queryId - id of the query
-     * @param firstResult - parameter required to support pagination
-     * @param numResults - parameter required to support pagination
-     * @return List of querySets with querySetEntries
-     */
-    List<UserQuerySetInstance> getSetInstancesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults)
+    List<UserQuerySetChangesRepresentation> getQueryChangeHistory(Long queryId, User currentUser, Integer maxNumberOfSets)
             throws AccessDeniedException, NoSuchResourceException
 
     /**
@@ -59,11 +46,11 @@ interface UserQuerySetResource {
      *
      * @param frequency - daily or weekly
      * @param user - user whose queries to fetch
-     * @param firstResult - parameter required to support pagination
-     * @param numResults - parameter required to support pagination
-     * @return List of querySetInstances
+     * @param maxNumberOfSets - max number of returned sets
+     * @return List of querySets with added or removed object ids
      */
-    List<UserQuerySetDiff> getDiffEntriesByUsernameAndFrequency(SubscriptionFrequency frequency, String username,
-                                                                int firstResult, Integer numResults)
+    List<UserQuerySetChangesRepresentation> getQueryChangeHistoryByUsernameAndFrequency(SubscriptionFrequency frequency,
+                                                                                        String username,
+                                                                                        Integer maxNumberOfSets)
 
 }

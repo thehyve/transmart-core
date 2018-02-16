@@ -51,8 +51,8 @@ class UserQueryController {
         def patientsQueryString = requestJson.patientsQuery?.toString()
         def observationsQueryString = requestJson.observationsQuery?.toString()
 
-        validateQuery(patientsQueryString)
-        validateQuery(observationsQueryString)
+        validateJson(patientsQueryString)
+        validateJson(observationsQueryString)
 
         UserQuery query = userQueryResource.create(currentUser)
         query.apiVersion = versionController.currentVersion(apiVersion)
@@ -120,7 +120,7 @@ class UserQueryController {
         }
     }
 
-    private static void validateQuery(String query) {
+    private static void validateJson(String query) {
         if (query) {
             try {
                 JSON.parse(query)

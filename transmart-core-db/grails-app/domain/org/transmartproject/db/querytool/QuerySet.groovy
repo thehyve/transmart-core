@@ -44,6 +44,8 @@ class QuerySet implements UserQuerySet {
     static constraints = {
         id generator: 'sequence', params: [sequence: 'query_set_id_seq', schema: 'biomart_user']
         query column: 'query_id'
+        querySetInstances batchSize: 1000
+        querySetDiffs batchSize: 1000
     }
 
 }
