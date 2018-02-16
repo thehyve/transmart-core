@@ -64,7 +64,7 @@ class UserQueryTestData {
             entries.add(
                     new QuerySetInstance(
                             querySet: querySets[i],
-                            objectId: -2
+                            objectId: testData.i2b2Data.patients[1].id
                     )
             )
         }

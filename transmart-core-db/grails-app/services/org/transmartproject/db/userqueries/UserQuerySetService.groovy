@@ -13,13 +13,16 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SetType
 import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
+import org.transmartproject.core.userquery.UserQuerySet
+import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
 import org.transmartproject.core.userquery.UserQuerySetDiff
-import org.transmartproject.core.userquery.UserQuerySetInstance
 import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
@@ -42,6 +45,9 @@ class UserQuerySetService implements UserQuerySetResource {
     UsersResource usersResource
 
     @Autowired
+    PatientsResource patientsResource
+
+    @Autowired
     UserQueryService userQueryService
 
     @Autowired
@@ -51,6 +57,8 @@ class UserQuerySetService implements UserQuerySetResource {
     AccessControlChecks accessControlChecks
 
     SessionFactory sessionFactory
+
+    static final String SUBJ_ID_SOURCE = 'SUBJ_ID'
 
     @Override
     Integer scan(User currentUser) {
@@ -74,70 +82,49 @@ class UserQuerySetService implements UserQuerySetResource {
             if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
                 numberOfResults++
             }
-
         }
         return numberOfResults
     }
 
     @Override
-    List<UserQuerySetInstance> getSetInstancesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults) {
+    List<UserQuerySetChangesRepresentation> getQueryChangeHistory(Long queryId, User currentUser, Integer maxNumberOfSets) {
+        def querySets = getQuerySets(queryId, currentUser, maxNumberOfSets)
+        querySets.collect { mapToSetChangesRepresentation(it) }
+    }
 
+    @Override
+    List<UserQuerySetChangesRepresentation> getQueryChangeHistoryByUsernameAndFrequency(SubscriptionFrequency frequency,
+                                                                                        String username,
+                                                                                        Integer maxNumberOfSets) {
+        def querySets = getQuerySetsByUsernameAndFrequency(frequency, username, maxNumberOfSets)
+        querySets.collect { mapToSetChangesRepresentation(it) }
+    }
+
+    private List<UserQuerySet> getQuerySets(Long queryId, User currentUser, Integer maxNumberOfSets) {
         def session = sessionFactory.currentSession
-        Criteria criteria = session.createCriteria(UserQuerySetInstance, "querySetInstances")
-                .createAlias("querySetInstances.querySet", "querySet", JoinType.INNER_JOIN)
+        Criteria criteria = session.createCriteria(QuerySet, "querySet")
                 .createAlias("querySet.query", "query", JoinType.INNER_JOIN)
                 .add(Restrictions.eq('query.id', queryId))
                 .add(Restrictions.eq('query.deleted', false))
                 .addOrder(Order.desc('querySet.createDate'))
                 .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
-                .setFirstResult(firstResult)
-        if(numResults) {
-            criteria.setMaxResults(numResults)
+        if(maxNumberOfSets) {
+            criteria.setMaxResults(maxNumberOfSets)
         }
         def result = criteria.list()
         if (!result) {
             return []
         }
 
-        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin && result.query.first().username != currentUser.username) {
+        if (result.query.first().username != currentUser.username) {
             throw new AccessDeniedException("Query does not belong to the current user.")
         }
-        List<UserQuerySetInstance> querySetInstances = result.querySetInstances
-        return querySetInstances
+        List<UserQuerySet> querySets = result.querySet
+        return querySets
     }
 
-    @Override
-    List<UserQuerySetDiff> getDiffEntriesByQueryId(Long queryId, User currentUser, int firstResult, Integer numResults) {
-
-        def session = sessionFactory.currentSession
-        Criteria criteria = session.createCriteria(QuerySetDiff, "querySetDiffs")
-                .createAlias("querySetDiffs.querySet", "querySet", JoinType.INNER_JOIN)
-                .createAlias("querySet.query", "query", JoinType.INNER_JOIN)
-                .add(Restrictions.eq('query.id', queryId))
-                .add(Restrictions.eq('query.deleted', false))
-                .addOrder(Order.desc('querySet.createDate'))
-                .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
-                .setFirstResult(firstResult)
-        if(numResults) {
-            criteria.setMaxResults(numResults)
-        }
-        def result = criteria.list()
-        if (!result) {
-            return []
-        }
-
-        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin && result.query.first().username != currentUser.username) {
-            throw new AccessDeniedException("Query does not belong to the current user.")
-        }
-        List<UserQuerySetDiff> querySetDiffs = result.querySetDiffs
-        return querySetDiffs
-    }
-
-    @Override
-    List<UserQuerySetDiff> getDiffEntriesByUsernameAndFrequency(SubscriptionFrequency frequency, String username,
-                                                                int firstResult, Integer numResults) {
+    private List<UserQuerySet> getQuerySetsByUsernameAndFrequency(SubscriptionFrequency frequency,
+                                                                  String username, Integer maxNumberOfSets) {
         Calendar calendar = Calendar.getInstance()
         if (frequency == SubscriptionFrequency.DAILY) {
             calendar.add(Calendar.DATE, -1)
@@ -145,8 +132,7 @@ class UserQuerySetService implements UserQuerySetResource {
             calendar.add(Calendar.DATE, -7)
         }
         def session = sessionFactory.currentSession
-        Criteria criteria = session.createCriteria(QuerySetDiff, "querySetDiffs")
-                .createAlias("querySetDiffs.querySet", "querySet", JoinType.INNER_JOIN)
+        Criteria criteria = session.createCriteria(QuerySet, "querySet")
                 .createAlias("querySet.query", "query", JoinType.INNER_JOIN)
                 .add(Restrictions.eq('query.username', username))
                 .add(Restrictions.eq('query.deleted', false))
@@ -155,13 +141,12 @@ class UserQuerySetService implements UserQuerySetResource {
                 .add(Restrictions.ge("querySet.createDate", calendar.getTime()))
                 .addOrder(Order.desc('querySet.createDate'))
                 .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
-                .setFirstResult(firstResult)
-        if(numResults) {
-            criteria.setMaxResults(numResults)
+        if (maxNumberOfSets) {
+            criteria.setMaxResults(maxNumberOfSets)
         }
         def result = criteria.list()
-        List<UserQuerySetDiff> queryDiffEntries = result.querySetDiffs
-        return queryDiffEntries
+        List<UserQuerySet> querySets = result.querySet
+        return querySets
     }
 
     @Override
@@ -262,6 +247,37 @@ class UserQuerySetService implements UserQuerySetResource {
         } catch (ConverterException c) {
             throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
         }
+    }
+
+    private UserQuerySetChangesRepresentation mapToSetChangesRepresentation(UserQuerySet set){
+        List<String> objectsAdded = []
+        List<String> objectsRemoved = []
+        for(diff in set.querySetDiffs) {
+            if(diff.changeFlag == ChangeFlag.ADDED){
+                objectsAdded.add(getPatientRepresentationByPatientNum(diff.objectId))
+            } else {
+                objectsRemoved.add(getPatientRepresentationByPatientNum(diff.objectId))
+            }
+        }
+
+        new UserQuerySetChangesRepresentation(
+                id            : set.id,
+                setSize       : set.setSize,
+                setType       : set.setType,
+                createDate    : set.createDate,
+                queryId       : set.query.id,
+                queryName     : set.query.name,
+                objectsAdded  : objectsAdded,
+                objectsRemoved: objectsRemoved
+        )
+    }
+
+    private String getPatientRepresentationByPatientNum(Long id){
+        def patient = patientsResource.getPatientById(id)
+        String patientMappingId = patient.subjectIds[SUBJ_ID_SOURCE]
+        String patientRepId = patientMappingId != null && patientMappingId != '' ? patientMappingId :
+                patient.trial + ":" + patient.inTrialId
+        return patientRepId
     }
 
 }

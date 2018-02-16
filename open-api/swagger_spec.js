@@ -2374,40 +2374,7 @@ var spec = {
         }
       }
     },
-    "/v2/query_sets/{queryId}": {
-      "get": {
-        "description": "Gets a list of sets created for the query and dependent on a data by query id.\n",
-        "tags": [
-          "v2"
-        ],
-        "parameters": [
-          {
-            "name": "queryId",
-            "required": true,
-            "in": "path",
-            "description": "Id of a user query.",
-            "type": "integer"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "an object that contains an array with all querySetInstances related to the query.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "querySetInstances": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/userQuerySet"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/query_sets/{queryId}/diffs": {
+    "/v2/queries/{queryId}/sets": {
       "get": {
         "description": "Gets a list of query result change entries by query id.\nHistory of data changes for specific query.\n",
         "tags": [
@@ -2424,14 +2391,14 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "description": "an object that contains an array with all querySetDiffs related to the query.\n",
+            "description": "an object that contains an array of all querySets related to the query with a set change history.\n",
             "schema": {
               "type": "object",
               "properties": {
-                "querySetDiffs": {
+                "querySets": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/userQuerySetDiffs"
+                    "$ref": "#/definitions/userQuerySet"
                   }
                 }
               }
@@ -2440,7 +2407,7 @@ var spec = {
         }
       }
     },
-    "/v2/query_sets/scan": {
+    "/v2/queries/sets/scan": {
       "post": {
         "description": "Scans for changes in results of the stored user queries and updates stored sets.\nOnly for administrators.\n",
         "tags": [
@@ -2842,11 +2809,11 @@ var spec = {
         },
         "birthDate": {
           "type": "string",
-          "format": "createDate"
+          "format": "date"
         },
         "deathDate": {
           "type": "string",
-          "format": "createDate"
+          "format": "date"
         },
         "id": {
           "type": "integer"
@@ -3243,88 +3210,27 @@ var spec = {
         "queryName": {
           "type": "string"
         },
-        "queryUsername": {
-          "type": "string"
-        },
-        "setSize": {
-          "type": "integer"
-        },
-        "setType": {
-          "type": "string"
-        },
-        "createDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "instances": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/userQuerySetInstance"
-          }
-        }
-      }
-    },
-    "userQuerySetDiffs": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "queryId": {
-          "type": "integer"
-        },
-        "queryName": {
-          "type": "string"
-        },
-        "queryUsername": {
-          "type": "string"
-        },
         "setSize": {
           "type": "integer"
         },
         "setTyp": {
           "type": "string"
         },
-        "date": {
+        "createDate": {
           "type": "string",
           "format": "date-time"
         },
-        "diffs": {
+        "objectsAdded": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/userQuerySetDiff"
+            "type": "integer"
           }
-        }
-      }
-    },
-    "userQuerySetInstance": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
         },
-        "querySetId": {
-          "type": "integer"
-        },
-        "objectId": {
-          "type": "integer"
-        }
-      }
-    },
-    "userQuerySetDiff": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "querySetId": {
-          "type": "integer"
-        },
-        "objectId": {
-          "type": "integer"
-        },
-        "changeFlag": {
-          "type": "string"
+        "objectsRemoved": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
         }
       }
     },

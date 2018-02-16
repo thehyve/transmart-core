@@ -3,6 +3,7 @@ package org.transmart.server.subscription
 import grails.plugins.mail.MailService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
 import org.transmartproject.core.userquery.UserQuerySetDiff
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SubscriptionFrequency
@@ -69,44 +70,39 @@ class QuerySetSubscriptionMailService {
      */
     private String generateEmail(String username, SubscriptionFrequency frequency) {
 
-        int firstResult = 0
-        Integer numResults = grailsApplication.config.org.transmart.server.subscription.numResults
-
+        Integer maxNumberOfSets = grailsApplication.config.org.transmart.server.subscription.maxNumberOfSets
         def currentDate = new Date()
 
-        List<UserQuerySetDiff> queryDiffEntries = userQueryDiffResource
-                .getDiffEntriesByUsernameAndFrequency(frequency, username, firstResult, numResults)
+        List<UserQuerySetChangesRepresentation> querySetChanges = userQueryDiffResource
+                .getQueryChangeHistoryByUsernameAndFrequency(frequency, username, maxNumberOfSets)
 
-        if(queryDiffEntries.size() > 0) {
-            def queryDiffsMap = queryDiffEntries.groupBy { it.querySet }
+        if (querySetChanges.size() > 0) {
 
             StringBuilder textStringBuilder = new StringBuilder()
-
             textStringBuilder.append("Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}")
             textStringBuilder.append(NEW_LINE)
             textStringBuilder.append("List of updated query results:")
             textStringBuilder.append(NEW_LINE)
 
-            def patientSetMap = queryDiffsMap.findAll{it.key.setType == SetType.PATIENT}
-            if(patientSetMap.size() == 0) {
+            def patientSets = querySetChanges.findAll { it.setType == SetType.PATIENT }?.sort { it.queryId }
+            if (patientSets.size() == 0) {
                 return null
             }
-            for (entry in patientSetMap) {
-                def addedIds = entry.value.findAll {
-                    it.changeFlag == ChangeFlag.ADDED
-                }?.objectId
-                def removedIds = entry.value.findAll {
-                    it.changeFlag == ChangeFlag.REMOVED
-                }?.objectId
-                textStringBuilder.append(NEW_LINE)
-                textStringBuilder.append("For a query named: '$entry.key.query.name' (id='$entry.key.query.id') \n" +
-                        "date of the change: $entry.key.createDate \n")
-                if(addedIds.size() > 0) {
-                    textStringBuilder.append("added patients with ids: $addedIds \n")
+            int i = 0
+            for (set in patientSets) {
+
+                if (i == 0 || set.queryId == patientSets.get(i - 1).queryId) {
+                    textStringBuilder.append(NEW_LINE)
+                    textStringBuilder.append("For a query named: '$set.queryName' (id='$set.queryId') \n")
                 }
-                if(removedIds.size() > 0) {
-                    textStringBuilder.append("removed patients with ids: $removedIds \n")
+                textStringBuilder.append("date of the change: $set.createDate \n")
+                if (set.objectsAdded.size() > 0) {
+                    textStringBuilder.append("added patients with ids: $set.objectsAdded \n")
                 }
+                if (set.objectsRemoved.size() > 0) {
+                    textStringBuilder.append("removed patients with ids: $set.objectsRemoved \n")
+                }
+                i++
             }
             textStringBuilder.append(NEW_LINE)
             return textStringBuilder.toString()

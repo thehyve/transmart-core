@@ -8,6 +8,7 @@ import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
+import org.transmartproject.db.querytool.QuerySetInstance
 
 @Integration
 @Rollback
@@ -26,30 +27,6 @@ class UserQuerySetServiceSpec extends TransmartSpecification {
         sessionFactory.currentSession.flush()
     }
 
-    void "test fetching querySetInstances by a query id"() {
-        setupData()
-
-        when:
-        def user = userQueryTestData.user
-        def result = userQuerySetService.getSetInstancesByQueryId(userQueryTestData.queries[0].id, user, 0, 999)
-
-        then:
-        result != null
-
-        // check querySetInstances
-        result.size() == 2
-        result.containsAll(userQueryTestData.querySetInstances[0], userQueryTestData.querySetInstances[1])
-
-        // check querySets
-        (result.querySet as Set).size() == 1
-        result.querySet.containsAll(userQueryTestData.querySets[0])
-
-        // check query
-        (result.querySet.query as Set).size() == 1
-        result.querySet.query.contains(userQueryTestData.queries[0])
-
-    }
-
     void "test scanning for query set changes"() {
         setupData()
 
@@ -64,22 +41,32 @@ class UserQuerySetServiceSpec extends TransmartSpecification {
 
         when:
         // user is not admin
-        user = userQueryTestData.adminUser
-        result = userQuerySetService.scan(user)
-        def createdDiffsForFirstQuery = userQuerySetService.getDiffEntriesByQueryId(userQueryTestData.queries[0].id,
-                user, 0, 999)
+        def adminUser = userQueryTestData.adminUser
+        result = userQuerySetService.scan(adminUser)
+        def querySetChanges = userQuerySetService.getQueryChangeHistory(userQueryTestData.queries[0].id,
+                user, 999)
 
         then:
+        // check number of updated queries (number of created sets)
         result != null
-        //check query_set_diffs entries
         result == 2
-        createdDiffsForFirstQuery.size() == 4
-        createdDiffsForFirstQuery.findAll{it.changeFlag == ChangeFlag.ADDED.toString()}.size() == 3
-        createdDiffsForFirstQuery.findAll{it.changeFlag == ChangeFlag.REMOVED.toString()}.size() == 1
+        // check query history
+        querySetChanges.size() == 2
 
-        //check number of added entries in total
-        QuerySet.list().size() == userQueryTestData.querySets.size() + result //old set entries + entries created by scan
-        QuerySetDiff.list().size() == 2 * createdDiffsForFirstQuery.size()    //both sets are the same
+        //check number of added query_set and query_diff entries
+        QuerySet.list().size() == userQueryTestData.querySets.size() + result //old sets + sets created by scan,
+
+        def setInstances = QuerySetInstance.list()
+        setInstances.size() == 12
+        setInstances.count {it.querySet.id == 1} == 2
+        setInstances.count {it.querySet.id == 2} == 2
+        setInstances.count {it.querySet.id == 3} == 4 // 1. new set: two patients added
+        setInstances.count {it.querySet.id == 4} == 4 // 2. new set: two patients added
+
+        def setDiffs = QuerySetDiff.list()
+        setDiffs.size() == 4
+        setDiffs.count { it.changeFlag == ChangeFlag.ADDED } == 4 // 4 patients added in total
+        setDiffs.count { it.changeFlag == ChangeFlag.REMOVED } == 0
     }
 
 }
