@@ -2,19 +2,23 @@
 
 package org.transmartproject.db.multidimquery.query
 
-import grails.databinding.BindUsing
-import grails.validation.Validateable
-import grails.web.databinding.DataBinder
-import groovy.transform.Canonical
-import groovy.transform.CompileStatic
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.Sortable
-import groovy.transform.ToString
-import groovy.transform.TupleConstructor
+import groovy.transform.*
 import groovy.util.logging.Slf4j
-import org.springframework.validation.Errors
+import org.hibernate.validator.constraints.NotBlank
+import org.springframework.util.ReflectionUtils
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.db.multidimquery.query.Field
+
+import javax.validation.ConstraintViolation
+import javax.validation.Valid
+import javax.validation.Validation
+import javax.validation.Validator
+import javax.validation.constraints.AssertTrue
+import javax.validation.constraints.NotNull
+import java.lang.reflect.ParameterizedType
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 /**
  * The data type of a field.
@@ -33,34 +37,14 @@ enum Type {
     CONSTRAINT,
     NONE
 
-    private static final Map<String, Type> mapping = new HashMap<>()
-    static {
-        for (Type type: values()) {
-            mapping.put(type.name().toLowerCase(), type)
-        }
-    }
-
-    static Type forName(String name) {
-        if (name == null) {
-            return NONE
-        }
-        name = name.toLowerCase()
-        if (mapping.containsKey(name)) {
-            return mapping[name]
-        } else {
-            log.error "Unknown type: ${name}"
-            return NONE
-        }
-    }
-
     static final Map<Type, Class> classForType = [
-            (ID): Object.class,
-            (NUMERIC): Number.class,
-            (DATE): Date.class,
-            (STRING): CharSequence.class,
-            (TEXT): CharSequence.class,
-            (EVENT): Constraint.class,
-            (OBJECT): Object.class,
+            (ID)        : Object.class,
+            (NUMERIC)   : Number.class,
+            (DATE)      : Date.class,
+            (STRING)    : CharSequence.class,
+            (TEXT)      : CharSequence.class,
+            (EVENT)     : Constraint.class,
+            (OBJECT)    : Object.class,
             (COLLECTION): Collection.class,
             (CONSTRAINT): Constraint.class,
     ] as EnumMap<Type, Class>
@@ -114,7 +98,7 @@ enum Operator {
 
     private static final Map<String, Operator> mapping = new HashMap<>()
     static {
-        for (Operator op: Operator.values()) {
+        for (Operator op : Operator.values()) {
             mapping.put(op.symbol, op)
         }
     }
@@ -129,12 +113,12 @@ enum Operator {
     }
 
     static final Map<Type, Set> operatorsForType = [
-            (Type.ID): [
+            (Type.ID)        : [
                     EQUALS,
                     NOT_EQUALS,
                     IN
             ] as Set<Operator>,
-            (Type.NUMERIC): [
+            (Type.NUMERIC)   : [
                     LESS_THAN,
                     GREATER_THAN,
                     EQUALS,
@@ -146,31 +130,31 @@ enum Operator {
                     AFTER,
                     BETWEEN
             ] as Set<Operator>,
-            (Type.DATE): [
+            (Type.DATE)      : [
                     BEFORE,
                     AFTER,
                     BETWEEN
             ] as Set<Operator>,
-            (Type.STRING): [
+            (Type.STRING)    : [
                     EQUALS,
                     NOT_EQUALS,
                     LIKE,
                     CONTAINS,
                     IN
             ] as Set<Operator>,
-            (Type.TEXT): [
+            (Type.TEXT)      : [
                     EQUALS,
                     NOT_EQUALS,
                     LIKE,
                     CONTAINS,
                     IN
             ] as Set<Operator>,
-            (Type.EVENT): [
+            (Type.EVENT)     : [
                     BEFORE,
                     AFTER,
                     EXISTS
             ] as Set<Operator>,
-            (Type.OBJECT): [
+            (Type.OBJECT)    : [
                     EQUALS,
                     NOT_EQUALS,
                     IN
@@ -202,17 +186,17 @@ enum Operator {
  */
 @Canonical
 @Sortable
-class Field implements Validateable {
+class Field {
     String dimension
-    @BindUsing({ obj, source -> Type.forName((String)source['type']) })
+    @NotNull
     Type type = Type.NONE
+    @NotBlank
     String fieldName
 
-    static constraints = {
-        type validator: { Object type, obj -> type != Type.NONE }
-        fieldName blank: false
+    @AssertTrue(message = 'NONE type is not allowed')
+    boolean hasType() {
+        type != Type.NONE
     }
-
 }
 
 /**
@@ -220,7 +204,7 @@ class Field implements Validateable {
  * can be created using the constructors of the subclasses or by using the
  * {@link ConstraintFactory}.
  */
-abstract class Constraint implements Validateable, MultiDimConstraint {
+abstract class Constraint implements MultiDimConstraint {
 
     String toJson() {
         ConstraintSerialiser.toJson(this)
@@ -252,12 +236,10 @@ class TrueConstraint extends Constraint {
 @Canonical
 class BiomarkerConstraint extends Constraint {
     static String constraintName = "biomarker"
-    String biomarkerType   // this is the constraint type, see org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+    @NotBlank
+    String biomarkerType
+    // this is the constraint type, see org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
     Map<String, Object> params
-
-    static constraints = {
-        biomarkerType blank: false
-    }
 }
 
 /**
@@ -268,47 +250,21 @@ class BiomarkerConstraint extends Constraint {
 @Sortable
 class ModifierConstraint extends Constraint {
     static String constraintName = "modifier"
+
     String modifierCode
     String path
     String dimensionName
+    @Valid
     ValueConstraint values
 
-    static constraints = {
-        values nullable: true
-        path nullable: true, blank: false
-        dimensionName nullable: true, blank: false
-        modifierCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
-            def message = "Modifier constraint requires path, dimensionName or modifierCode."
-            if (!val && !obj.path && !obj.dimensionName) {
-                    errors.rejectValue(
-                            'modifierCode',
-                            'org.transmartproject.query.invalid.arg.message',
-                            "$message Got none.")
-            } else if (val && obj.path && obj.dimensionName) {
-                errors.rejectValue(
-                        'modifierCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got all.")
-            }
-            else if (!val && obj.path && obj.dimensionName) {
-                errors.rejectValue(
-                        'path',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got both path and dimensionName.")
-            }
-            else if (val && !obj.path && obj.dimensionName) {
-                errors.rejectValue(
-                        'modifierCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got both dimensionName and modifierCode.")
-            }
-            else if (val && obj.path && !obj.dimensionName) {
-                errors.rejectValue(
-                        'modifierCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got both path and modifierCode.")
-            }
-        }
+    @AssertTrue(message = 'Only one of three has to be specified')
+    boolean hasOnlyOneFieldSpecified() {
+        boolean modifierCodeProvided = modifierCode?.trim() as Boolean
+        boolean pathProvided = path?.trim() as Boolean
+        boolean dimensionNameProvided = dimensionName?.trim() as Boolean
+        (modifierCodeProvided && !pathProvided && !dimensionNameProvided
+                || pathProvided && !modifierCodeProvided && !dimensionNameProvided
+                || dimensionNameProvided && !pathProvided && !modifierCodeProvided)
     }
 }
 
@@ -318,67 +274,43 @@ class ModifierConstraint extends Constraint {
  *
  * E.g., selecting observations for patients older than 40, is achieved with:
  * <code>
- * def patientDimension = DimensionResource.dimensions.find { it.name == 'patient' }
- * def patientAgeField = new Field(dimension: patientDimension, fieldName: 'age', type: Type.NUMERIC)
+ * def patientDimension = DimensionResource.dimensions.find { it.name == 'patient' }* def patientAgeField = new Field(dimension: patientDimension, fieldName: 'age', type: Type.NUMERIC)
  * def constraint = new FieldConstraint(field: patientAgeField, operator: Operator.GREATER_THAN, value: 40)
  * </code>
  */
 @Canonical
 class FieldConstraint extends Constraint implements Comparable<FieldConstraint> {
     static String constraintName = "field"
-
-    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
+    @NotNull
+    @Valid
     Field field
-    @BindUsing({ obj, source -> Operator.forSymbol((String)source['operator']) })
+    @NotNull
     Operator operator = Operator.NONE
+    @NotNull
     Object value
 
     int compareTo(FieldConstraint other) {
         field <=> other.field ?: operator <=> other.operator ?: value.toString() <=> other.value.toString()
     }
 
-    static constraints = {
-        field validator: { val, obj, Errors errors ->
-            // FIXME: For some reason this validator is not called :(
-            if(val == null) errors.rejectValue('field',
-                    'org.transmartproject.query.invalid.value.null.message',
-                    'field is not set')
-        }
-        value validator: { Object val, obj, Errors errors ->
-            if (obj.field) {
-                if (obj.operator in [Operator.IN, Operator.BETWEEN]) {
-                    if (val instanceof Collection) {
-                        val.each {
-                            if (obj.field.type != Type.NONE && !obj.field.type.supportsValue(it)) {
-                                errors.rejectValue(
-                                        'value',
-                                        'org.transmartproject.query.invalid.value.operator.message',
-                                        [it, obj.field.type, obj.operator] as String[],
-                                        "Value '$it' not compatible with type $obj.field.type")
-                            }
-                        }
-                    } else {
-                        errors.rejectValue(
-                                'value',
-                                'org.transmartproject.query.value.not.collection.message',
-                                [obj.operator, val] as String[],
-                                "Collection expected for operator [$obj.operator.symbol], got '$val'")
-                    }
-                } else if (obj.field.type != Type.NONE && !obj.field.type.supportsValue(val)) {
-                    errors.rejectValue(
-                            'value',
-                            'org.transmartproject.query.invalid.value.operator.message',
-                            [val, obj.field.type, obj.operator] as String[],
-                            "Value '$val' not compatible with type $obj.field.type")
-                }
-            } }
-        operator validator: { Operator op, obj, Errors errors ->
-            if (obj.field && obj.field.type != Type.NONE && !op.supportsType(obj.field.type)) {
-                errors.rejectValue(
-                        'operator',
-                        'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.field.type] as String[],
-                        "Operator [$op.symbol] not valid for type $obj.field.type")
-            } }
+    @AssertTrue(message = 'Operator has to be specified')
+    boolean hasOperator() {
+        operator != Operator.NONE
+    }
+
+    @AssertTrue(message = 'The field type does not support the value')
+    boolean hasValueOfRightType() {
+        field.type.supportsValue(value)
+    }
+
+    @AssertTrue(message = 'The field type is not compatible with the operator')
+    boolean hasTypeThatMatchesOperator() {
+        operator.supportsType(field.type)
+    }
+
+    @AssertTrue(message = 'List of values expected')
+    boolean hasNotListOperatorOrListValue() {
+        !(operator in [Operator.IN, Operator.BETWEEN]) || value instanceof Collection
     }
 }
 
@@ -390,29 +322,13 @@ class ConceptConstraint extends Constraint {
     List<String> conceptCodes
     String path
 
-    static constraints = {
-        conceptCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
-            if (!val && !obj.conceptCodes && !obj.path) {
-                errors.rejectValue(
-                        'conceptCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode(s). Got none.")
-            } else if (val && obj.path || val && obj.conceptCodes) {
-                errors.rejectValue(
-                        'conceptCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode(s). Got multiple.")
-            }
-        }
-        conceptCodes nullable: true, minSize: 1, validator: {val, obj, Errors errors ->
-            if (val && obj.path) {
-                errors.rejectValue(
-                        'conceptCodes',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode(s). Got multiple.")
-            }
-        }
-        path nullable: true, blank: false
+    @AssertTrue(message = 'Only one of three has to be specified')
+    boolean hasOnlyOneFieldSpecified() {
+        boolean conceptCodeProvided = conceptCode?.trim() as Boolean
+        boolean pathProvided = path?.trim() as Boolean
+        (conceptCodeProvided && !conceptCodes && !pathProvided
+                || !conceptCodeProvided && conceptCodes && !pathProvided
+                || !conceptCodeProvided && !conceptCodes && pathProvided)
     }
 }
 
@@ -420,17 +336,14 @@ class ConceptConstraint extends Constraint {
 @Sortable
 class StudyNameConstraint extends Constraint {
     static String constraintName = "study_name"
-
+    @NotBlank
     String studyId
-    static constraints = {
-        studyId blank: false
-    }
 }
 
 @Canonical
 class StudyObjectConstraint extends Constraint {
     static String constraintName = "study"
-
+    @NotNull
     MDStudy study
 }
 
@@ -438,8 +351,8 @@ class StudyObjectConstraint extends Constraint {
 @Sortable
 class NullConstraint extends Constraint {
     static String constraintName = "null"
-
-    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
+    @Valid
+    @NotNull
     Field field
 }
 
@@ -462,12 +375,10 @@ class RowValueConstraint extends Constraint {
  * </code>
  */
 @Canonical
-class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
+class ValueConstraint extends Constraint implements Comparable<ValueConstraint> {
     static String constraintName = "value"
 
-    @BindUsing({ obj, source -> Type.forName(source['valueType']) })
     Type valueType = Type.NONE
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     Object value
 
@@ -475,32 +386,21 @@ class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
         valueType <=> other.valueType ?: operator <=> other.operator ?: value.toString() <=> other.value.toString()
     }
 
-    static constraints = {
-        valueType validator: { Object val, obj, Errors errors ->
-            def t = val as Type
-            if (!(t in [Type.NUMERIC, Type.STRING])) {
-                errors.rejectValue(
-                        'valueType',
-                        'org.transmartproject.query.invalid.valueType.message',
-                        [val, obj.valueType] as String[],
-                        "Invalid value type ${t}")
-            } }
-        value nullable: true, validator: { Object val, obj, Errors errors ->
-            if (!obj.valueType.supportsValue(val)) {
-                errors.rejectValue(
-                        'value',
-                        'org.transmartproject.query.invalid.value.message',
-                        [val, obj.valueType] as String[],
-                        "Value [${val}] not valid for type ${obj.valueType}")
-            } }
-        operator validator: { Operator op, obj, Errors errors ->
-            if (!op.supportsType(obj.valueType)) {
-                errors.rejectValue(
-                        'operator',
-                        'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.valueType] as String[],
-                        "Operator [${op.symbol}] not valid for type ${obj.valueType}")
-            } }
+    @AssertTrue(message = 'Only string or numerical value type is allowed')
+    boolean hasOrStringOrNumericValueType() {
+        valueType == Type.STRING || valueType == Type.NUMERIC
     }
+
+    @AssertTrue(message = 'The type does not support the value')
+    boolean hasValueOfRightType() {
+        valueType.supportsValue(value)
+    }
+
+    @AssertTrue(message = 'The value type is not compatible with the operator')
+    boolean hasValidOperatorForGivenValueType() {
+        operator.supportsType(valueType)
+    }
+
 }
 
 /**
@@ -512,9 +412,8 @@ class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
 class TimeConstraint extends Constraint implements Comparable<TimeConstraint> {
     static String constraintName = "time"
 
-    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
+    @Valid
     Field field
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     List<Date> values
 
@@ -522,18 +421,24 @@ class TimeConstraint extends Constraint implements Comparable<TimeConstraint> {
         field <=> other.field ?: operator <=> other.operator ?: values.toListString() <=> other.values.toListString()
     }
 
-    static constraints = {
-        values nullable: false, validator: { List values, obj ->
-            switch (obj.operator) {
-                case Operator.BEFORE:
-                case Operator.AFTER:
-                    return (values.size() == 1)
-                case Operator.BETWEEN:
-                    return (values.size() == 2)
-            }
-        }
-        operator validator: { Operator op -> op != Operator.NONE && op.supportsType(Type.DATE) }
-        field validator: { Field field -> field.type == Type.DATE }
+    @AssertTrue(message = 'Only DATE type is allowed for this constraint')
+    boolean hasDateType() {
+        field.type == Type.DATE
+    }
+
+    @AssertTrue(message = 'Value is not of date type')
+    boolean hasValuesOfRightType() {
+        values.every { field.type.supportsValue(it) }
+    }
+
+    @AssertTrue(message = 'The field type is not compatible with the operator')
+    boolean hasValidOperatorForGivenFieldType() {
+        operator.supportsType(field.type)
+    }
+
+    @AssertTrue(message = 'Dates list contains null')
+    boolean hasNoNullDates() {
+        !values.any { it == null }
     }
 }
 
@@ -547,41 +452,15 @@ class PatientSetConstraint extends Constraint {
     Long patientSetId
     Set<Long> patientIds
     Set<String> subjectIds
+
     Integer offset
     Integer limit
 
-    static constraints = {
-        patientIds nullable: true, validator: { val, obj, Errors errors ->
-            if (val != null && val.empty) {
-                errors.rejectValue(
-                        'patientIds',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint has empty patientIds parameter.")
-            }
-        }
-        patientSetId nullable: true, validator: { val, obj, Errors errors ->
-            if (!val && obj.patientIds == null && obj.subjectIds == null) {
-                errors.rejectValue(
-                        'patientSetId',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId, patientIds or subjectIds. Got none.")
-            } else if (val && (obj.patientIds != null || obj.subjectIds != null)) {
-                errors.rejectValue(
-                        'patientSetId',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId or patientIds or subjectIds. Got more than one specified.")
-            }
-        }
-        subjectIds nullable: true, validator: { val, obj, Errors errors ->
-            if (val != null && val.empty) {
-                errors.rejectValue(
-                        'subjectIds',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint has empty subjectIds parameter.")
-            }
-        }
-        offset nullable: true
-        limit nullable: true
+    @AssertTrue(message = 'Only one of three has to be specified')
+    boolean hasOnlyOneFieldSpecified() {
+        (patientSetId && !patientIds && !subjectIds
+                || !patientSetId && patientIds && !subjectIds
+                || !patientSetId && !patientIds && subjectIds)
     }
 }
 
@@ -595,12 +474,9 @@ class Negation extends Constraint {
 
     Operator getOperator() { Operator.NOT }
 
-    @BindUsing({ obj, source -> ConstraintFactory.create(source['arg']) })
+    @Valid
+    @NotNull
     Constraint arg
-
-    static constraints = {
-        arg validator: { it?.validate() }
-    }
 }
 
 /**
@@ -611,13 +487,13 @@ class Negation extends Constraint {
 class Combination extends Constraint {
     static String constraintName = "combination"
 
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
-    private Operator operator = Operator.NONE
-    @BindUsing({ obj, source -> source['args'].collect { ConstraintFactory.create(it) } })
+    Operator operator = Operator.NONE
+    @Valid
+    @NotNull
     List<Constraint> args
 
     Combination() {
-
+        super()
     }
 
     Combination(Operator operator, List<Constraint> args) {
@@ -625,27 +501,14 @@ class Combination extends Constraint {
         this.args = args
     }
 
-    Operator getOperator() {
-        operator
+    @AssertTrue(message = 'The operator is not applicable to the constraints')
+    boolean hasConstraintOperator() {
+        operator.supportsType(Type.CONSTRAINT)
     }
 
-    static constraints = {
-        operator validator: { Operator op -> op.supportsType(Type.CONSTRAINT) }
-        args validator: { List args, obj, Errors errors ->
-            if (!args || args.empty) {
-                errors.rejectValue(
-                        'args',
-                        'org.transmartproject.query.empty.args.message',
-                        'Empty arguments.')
-            } else {
-                if (!args.findAll({ !it.validate() }).empty) {
-                    errors.rejectValue(
-                            'args',
-                            'org.transmartproject.query.invalid.arg.message',
-                            "Combination contains invalid constraints.")
-                }
-            }
-        }
+    @AssertTrue(message = 'Argumenent list contains null')
+    boolean hasNoNullArguments() {
+        !args.any { it == null }
     }
 }
 
@@ -654,10 +517,24 @@ class Combination extends Constraint {
  */
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
-@TupleConstructor(includeSuperProperties = true)
 class AndConstraint extends Combination {
     static String constraintName = "and"
+
     Operator getOperator() { Operator.AND }
+
+    void setOperator() {
+        throw new UnsupportedOperationException()
+    }
+
+    AndConstraint() {
+        super()
+        this.operator = Operator.AND
+    }
+
+    AndConstraint(List<Constraint> args) {
+        this()
+        this.args = args
+    }
 }
 
 /**
@@ -665,10 +542,24 @@ class AndConstraint extends Combination {
  */
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
-@TupleConstructor(includeSuperProperties = true)
 class OrConstraint extends Combination {
     static String constraintName = "or"
+
     Operator getOperator() { Operator.OR }
+
+    void setOperator() {
+        throw new UnsupportedOperationException()
+    }
+
+    OrConstraint() {
+        super()
+        this.operator = Operator.OR
+    }
+
+    OrConstraint(List<Constraint> args) {
+        this()
+        this.args = args
+    }
 }
 
 /**
@@ -687,15 +578,14 @@ class OrConstraint extends Combination {
 class TemporalConstraint extends Constraint {
     static String constraintName = "temporal"
 
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
-
-    @BindUsing({ obj, source -> ConstraintFactory.create(source['eventConstraint']) })
+    @Valid
+    @NotNull
     Constraint eventConstraint
 
-    static constraints = {
-        operator validator: { Operator op -> op.supportsType(Type.EVENT) }
-        eventConstraint validator: { it?.validate() }
+    @AssertTrue(message = 'This operator does not support event type')
+    boolean hasEventOperator() {
+        operator.supportsType(Type.EVENT)
     }
 }
 
@@ -703,17 +593,11 @@ class TemporalConstraint extends Constraint {
 class SubSelectionConstraint extends Constraint {
     static String constraintName = 'subselection'
 
+    @NotNull
     String dimension
-
-    @BindUsing({ obj, source ->
-        ConstraintFactory.create(source['constraint'])
-    })
+    @NotNull
+    @Valid
     Constraint constraint
-
-    static constraints = {
-        dimension   nullable: false
-        constraint  nullable: false
-    }
 }
 
 @Canonical
@@ -727,6 +611,7 @@ class MultipleSubSelectionsConstraint extends Constraint {
      */
     Operator operator
 
+    @Valid
     List<Constraint> args
 }
 
@@ -734,23 +619,16 @@ class MultipleSubSelectionsConstraint extends Constraint {
 class RelationConstraint extends Constraint {
     static String constraintName = 'relation'
 
+    @NotBlank
     String relationTypeLabel
 
-    @BindUsing({ obj, source ->
-        ConstraintFactory.create(source['relatedSubjectsConstraint'])
-    })
+    @Valid
     Constraint relatedSubjectsConstraint
 
     Boolean biological
 
     Boolean shareHousehold
 
-    static constraints = {
-        relationTypeLabel nullable: false
-        relatedSubjectsConstraint nullable: true
-        biological nullable: true
-        shareHousehold nullable: true
-    }
 }
 
 /**
@@ -773,9 +651,11 @@ class RelationConstraint extends Constraint {
  */
 @Slf4j
 class ConstraintFactory {
-    static class ConstraintDataBinder implements DataBinder {}
 
-    static final constraintDataBinder = new ConstraintDataBinder()
+    private static final Set<String> IGNORE_PROPERTIES = ['class'] as Set
+    //FIXME Currently we ignore the timezone
+    private static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator()
 
     static final Map<String, Class<? extends Constraint>> constraintClasses = [
             TrueConstraint,
@@ -796,45 +676,187 @@ class ConstraintFactory {
             NullConstraint,
             SubSelectionConstraint,
             RelationConstraint,
-        ].collectEntries { Class type ->
-            [(type.constraintName): type]
-        } as Map<String, Class>
+    ].collectEntries { Class type ->
+        [(type.constraintName): type]
+    } as Map<String, Class>
 
     /**
      * Create a constraint object from a map of values
-     * using the data binder of Grails.
+     * using the custom data binder and validates the constraint.
      *
-     * @param values
+     * @param constraintMap
+     * @return a validated constraint
+     */
+    static Constraint create(Map constraintMap) {
+        Constraint constraint = createConstraint(constraintMap)
+        throwExceptionIfInvalid(constraint)
+        constraint
+    }
+
+    private static Constraint createConstraint(Map constraintMap) {
+        String constraintType = getMaybeConstraintType(constraintMap)
+        if (!constraintType) {
+            throw new ConstraintBindingException('Cannot detect type of the constraint')
+        }
+
+        Class<? extends Constraint> type = getConstraintClass(constraintType)
+        log.debug "Creating constraint of type ${type.simpleName}"
+        Constraint constraint = type.newInstance()
+        Map propertyToValue = new HashMap(constraintMap)
+        propertyToValue.remove('type')
+        bind(constraint, propertyToValue)
+
+        return constraint
+    }
+
+    private static throwExceptionIfInvalid(Constraint constraint) {
+        Set<ConstraintViolation<Constraint>> errors = validator.validate(constraint)
+        if (errors) {
+            String sErrors = errors.collect { "${it.propertyPath.toString()}: ${it.message}" }.join('; ')
+            throw new ConstraintBindingException("${errors.size()} error(s): ${sErrors}", errors)
+        }
+    }
+
+    /**
+     * Set object properties from the map
+     * @param object
+     * @param propertyToValue
+     */
+    private static void bind(GroovyObject object, Map propertyToValue) {
+        HashMap mutablePropertyToValue = new HashMap(propertyToValue)
+        for (MetaProperty metaProperty in object.metaClass.properties) {
+            if (!mutablePropertyToValue.containsKey(metaProperty.name)) {
+                log.trace "The input map does not have value for ${metaProperty}."
+                continue
+            }
+            Object value = mutablePropertyToValue.remove(metaProperty.name)
+            if (metaProperty.name in IGNORE_PROPERTIES) {
+                log.trace "${metaProperty.name} is in ignore list. Skip it."
+                continue
+            }
+            log.trace "Set value for ${metaProperty.name} depending on it's type."
+            //TODO Remove dependency on spring library
+            java.lang.reflect.Field clsField = ReflectionUtils.findField(object.getClass(), metaProperty.name)
+            object.setProperty(metaProperty.name, convertValueToPropertyType(clsField, value))
+        }
+        if (mutablePropertyToValue) {
+            throw new ConstraintBindingException(
+                    "Input map for ${object.getClass()} type has extra field(s) that were not set:"
+                            + mutablePropertyToValue.keySet())
+        }
+    }
+
+    /**
+     * Converts the value to set to the field.
+     * Compared with @see convertValueToPropertyType(Class, Object) it does one more extra thing:
+     * it tries to get type of the collection elements from the generics. e.g. List<Date> => Date
+     * @param field
+     * @param value
      * @return
      */
-    static Constraint create(Map values) {
-        if (values == null || values['type'] == null) {
-            throw new ConstraintBindingException('Cannot create constraint for null type.')
+    static Object convertValueToPropertyType(final java.lang.reflect.Field field, final Object value) {
+        boolean collectionWithDeclaredGenericType = (Collection.isAssignableFrom(field.type)
+                && (field.genericType instanceof ParameterizedType)
+                && ((ParameterizedType) field.genericType).actualTypeArguments)
+
+        if (collectionWithDeclaredGenericType) {
+            java.lang.reflect.Type declaredGenericType = ((ParameterizedType) field.genericType).actualTypeArguments[0]
+            Collection result = new ArrayList()
+            for (Object element in (Collection) value) {
+                result.add(convertValueToPropertyType((Class) declaredGenericType, element))
+            }
+            return convertValueToPropertyType(field.type, result)
         }
-        String name = values['type'] as String
+        return convertValueToPropertyType(field.type, value)
+    }
+
+    /**
+     * Converts the value to the property type
+     * @param propertyType
+     * @param value
+     * @return converted value
+     */
+    static Object convertValueToPropertyType(final Class propertyType, final Object value) {
+        if (value == null) {
+            return null
+        }
+        try {
+            if (Collection.isAssignableFrom(propertyType) && value instanceof Collection) {
+                Collection result = new ArrayList()
+                for (Object element in value) {
+                    Class elementType = element?.getClass()
+                    String constraintType = getMaybeConstraintType(element)
+                    if (constraintType) {
+                        elementType = getConstraintClass(constraintType)
+                    }
+                    result.add(convertValueToPropertyType(elementType, element))
+                }
+                return Set.isAssignableFrom(propertyType) ? toSetWithCheck(result) : result
+            }
+            if (propertyType.isAssignableFrom(value.getClass())) {
+                return value
+            }
+            if (Number.isAssignableFrom(propertyType) && value instanceof Number) {
+                if (propertyType.isAssignableFrom(Long)) {
+                    return value.longValue()
+                }
+                if (propertyType.isAssignableFrom(Integer)) {
+                    return value.intValue()
+                }
+            }
+            if (Date.isAssignableFrom(propertyType) && value instanceof String) {
+                return DATE_TIME_FORMAT.parse(value)
+            }
+            if (propertyType.isEnum()) {
+                if (Operator.isAssignableFrom(propertyType)) {
+                    Operator op = Operator.forSymbol(value as String)
+                    if (op != Operator.NONE) {
+                        return op
+                    }
+                }
+                String enumStrVal = (value as String).toUpperCase()
+                return Enum.valueOf(propertyType, enumStrVal)
+            }
+            if (Constraint.isAssignableFrom(propertyType) && value instanceof Map) {
+                return createConstraint(value)
+            }
+            if (Field.isAssignableFrom(propertyType) && value instanceof Map) {
+                return createField(value)
+            }
+            throw new ConstraintBindingException(
+                    "Conversion from ${value.getClass()} to ${propertyType} is not supported.")
+        } catch (Exception e) {
+            throw new ConstraintBindingException(
+                    "Converting ${value} of ${value.getClass()} class to ${propertyType} has failed: ${e.message}")
+        }
+    }
+
+    private static Field createField(Map map) {
+        Field resultField = new Field()
+        bind(resultField, map)
+        return resultField
+    }
+
+    private static Collection toSetWithCheck(Collection result) {
+        Set setResult = new LinkedHashSet(result)
+        if (setResult.size() < result.size()) {
+            log.warn("Some duplicate elements were removed during conversion to set.")
+        }
+        return setResult
+    }
+
+    private static Class<? extends Constraint> getConstraintClass(String name) {
         Class type = constraintClasses[name]
         if (type == null) {
             throw new ConstraintBindingException("Constraint not supported: ${name}.")
         }
-        log.debug "Creating constraint of type ${type.simpleName}"
-        Constraint result = type.newInstance()
-        constraintDataBinder.bindData(result, values, [exclude: ['type', 'errors']])
-        if(result.errors?.hasErrors() || !result.validate()) {
-            throw new ConstraintBindingException(
-                    "${result.errors.errorCount} error(s): " + result.errors.allErrors*.defaultMessage.join('; '),
-                    result.errors)
-        }
-        return result
+        type
     }
 
-    static Field bindField(Object object, String name, Map values) {
-        log.debug "Find field for ${values.toMapString()}"
-        if (values == null) {
-            throw new ConstraintBindingException('Cannot create field for null values.')
+    private static String getMaybeConstraintType(Object object) {
+        if (object instanceof Map) {
+            return object?.get('type')
         }
-        String dimensionName = values['dimension'] as String
-        String fieldName = values['fieldName'] as String
-        Type fieldType = Type.forName(values['type'] as String)
-        new Field(dimension: dimensionName, type: fieldType, fieldName: fieldName)
+        return null
     }
 }

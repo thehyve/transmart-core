@@ -63,7 +63,7 @@ class QueryControllerSpec extends MarshallerSpec {
 
         then:
         response.statusCode.value() == 400
-        result.errors[0].message == "Operator [<] not valid for type STRING"
+        result.errors[0].message == "The value type is not compatible with the operator"
     }
 
     void 'test invalid JSON'() {
