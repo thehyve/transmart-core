@@ -151,6 +151,7 @@ class UserQuerySetService implements UserQuerySetResource {
                 .add(Restrictions.eq('query.username', username))
                 .add(Restrictions.eq('query.deleted', false))
                 .add(Restrictions.eq('query.subscribed', true))
+                .add(Restrictions.eq('query.subscriptionFreq', frequency))
                 .add(Restrictions.ge("querySet.createDate", calendar.getTime()))
                 .addOrder(Order.desc('querySet.createDate'))
                 .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
