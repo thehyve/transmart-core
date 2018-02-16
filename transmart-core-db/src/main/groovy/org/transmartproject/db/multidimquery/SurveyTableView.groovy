@@ -64,6 +64,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
     @CompileStatic
     static class MeasurementDateColumn implements ValueFetchingDataColumn<Date, HypercubeDataRow>, MetadataAwareDataColumn {
 
+        final Dimension startTimeDimension = (Dimension)DimensionImpl.START_TIME
         final String label
         final HypercubeDataColumn originalColumn
 
@@ -83,8 +84,10 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         Date getValue(HypercubeDataRow row) {
             def hValue = row.getHypercubeValue(originalColumn.coordinates)
             if (hValue) {
-                Object value = hValue[(Dimension)DimensionImpl.START_TIME]
-                return (Date)value
+                if (startTimeDimension in hValue.availableDimensions) {
+                    Object value = hValue[startTimeDimension]
+                    return (Date) value
+                }
             }
             null
         }
@@ -130,7 +133,11 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
         }
 
         private String getMissingValueLabel(HypercubeValue hValue) {
-            hValue[this.missingValueDimension]
+            if (this.missingValueDimension in hValue.availableDimensions) {
+                hValue[this.missingValueDimension]
+            } else {
+                null
+            }
         }
     }
 

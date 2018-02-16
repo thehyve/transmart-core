@@ -4,6 +4,7 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.query.AndConstraint
@@ -13,6 +14,8 @@ import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.TrueConstraint
 
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Function
 
 import static groovyx.gpars.GParsPool.withPool
@@ -105,29 +108,40 @@ class ParallelPatientSetTaskService {
 
         final results = [] as List<SubtaskResultEntry>
         final syncResults = Collections.synchronizedList(results)
+        final error = new AtomicBoolean(false)
+        final numCompleted = new AtomicInteger(0)
         if (numTasks) {
             withPool(workers) {
                 (1..numTasks).eachParallel { int i ->
-                    int offset = chunkSize * (i - 1)
-                    log.debug "Starting subtask ${i} (offset: ${offset}) ..."
-                    def patientSubsetConstraint = new PatientSetConstraint(
-                            patientSetId: constraintParts.patientSetConstraint.patientSetId,
-                            offset: offset,
-                            limit: chunkSize
-                    )
-                    def taskConstraint = new AndConstraint([patientSubsetConstraint, constraintParts.otherConstraint]).normalise()
-                    def subtaskParameters = new SubtaskParameters(i, taskConstraint, parameters.user)
-                    List<SubtaskResultEntry> taskResult = subTask.apply(subtaskParameters)
-                    log.debug "Task ${i} done."
-                    if (taskResult != null && !taskResult.empty) {
-                        syncResults.addAll(taskResult)
+                    try {
+                        int offset = chunkSize * (i - 1)
+                        log.debug "Starting subtask ${i} (offset: ${offset}) ..."
+                        def patientSubsetConstraint = new PatientSetConstraint(
+                                patientSetId: constraintParts.patientSetConstraint.patientSetId,
+                                offset: offset,
+                                limit: chunkSize
+                        )
+                        def taskConstraint = new AndConstraint([patientSubsetConstraint, constraintParts.otherConstraint]).normalise()
+                        def subtaskParameters = new SubtaskParameters(i, taskConstraint, parameters.user)
+                        List<SubtaskResultEntry> taskResult = subTask.apply(subtaskParameters)
+                        log.debug "Task ${i} done. (${syncResults.size()}"
+                        if (taskResult != null && !taskResult.empty) {
+                            syncResults.addAll(taskResult)
+                        }
+                        log.debug "Task ${i}: results added."
+                    } catch (Throwable e) {
+                        error.set(true)
+                        log.error "Error in task ${i}: ${e.message}", e
                     }
-                    log.debug "Task ${i}: results added."
+                    log.info "${numCompleted.incrementAndGet()} / ${numTasks} tasks completed."
                 }
             }
         }
-
         def t2 = new Date()
+        if (error.get()) {
+            log.error "Task failed after ${t2.time - t1.time} ms."
+            throw new UnexpectedResultException('Task failed.')
+        }
         log.info "All ${numTasks} tasks completed. (took ${t2.time - t1.time} ms.)"
         log.info "Combining subtask results ..."
         combine.apply(results)

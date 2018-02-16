@@ -159,7 +159,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @CompileStatic
     private List<ConceptStudyCountRow> countsPerStudyAndConceptTask(SubtaskParameters parameters) {
         def t1 = new Date()
-        log.info "Start task ${parameters.task} ..."
+        log.debug "Start task ${parameters.task} ..."
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
         try {
             session.connection().autoCommit = false
