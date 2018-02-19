@@ -6,7 +6,6 @@ import com.google.common.base.Function
 import com.google.common.collect.Iterators
 import grails.converters.JSON
 import grails.web.mime.MimeType
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.dataquery.Patient
@@ -168,11 +167,9 @@ class PatientQueryController extends AbstractQueryController {
                     "${MimeType.JSON.name}; got ${mimeType}.")
         }
 
-        def bodyJson = request.JSON
-
         // FIXME: we now expect a plain constraint in the body, this should be wrapped in a {"constraint": ...} wrapper
         // for consistency with other calls
-        Constraint constraint = getConstraintFromStringOrJson(bodyJson)
+        Constraint constraint = getConstraintFromString(request.reader.text)
         if (constraint == null) {
             throw new InvalidArgumentsException("No valid constraint in the body.")
         }
