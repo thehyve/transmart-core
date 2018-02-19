@@ -101,8 +101,8 @@ class CopySpec extends Specification {
         Map expectedCounts = fileRowCounts
                 .collectEntries { Table table, Number rows -> [table, beforeCounts[table] - rows] }
 
-        then: 'Expect the study to be loaded'
-        !getTestStudyDbIdentifier()
+        then: 'Expect the study has been removed'
+        noTestStudyInDb()
         expectedCounts == afterCounts
     }
 
@@ -145,7 +145,7 @@ class CopySpec extends Specification {
         when:
         copy.deleteStudy(STUDY_FOLDER, false)
         then:
-        !getTestStudyDbIdentifier()
+        noTestStudyInDb()
 
         when:
         copy.deleteStudy(STUDY_FOLDER, true)
@@ -161,7 +161,7 @@ class CopySpec extends Specification {
         when:
         copy.deleteStudy(STUDY_FOLDER)
         then:
-        !getTestStudyDbIdentifier()
+        noTestStudyInDb()
     }
 
     def 'delete exclude default upload'() {
@@ -175,7 +175,7 @@ class CopySpec extends Specification {
                 .parse(options, ['--delete', TEST_STUDY] as String[])
         Copy.runCopy(cli1, DATABASE_CREDENTIALS)
         then: 'study has been deleted'
-        !getTestStudyDbIdentifier()
+        noTestStudyInDb()
     }
 
     def 'test re-upload in single transaction'() {
@@ -221,7 +221,7 @@ class CopySpec extends Specification {
     }
 
     void ensureTestStudyLoaded() {
-        if (!getTestStudyDbIdentifier()) {
+        if (noTestStudyInDb()) {
             copy.uploadStudy(STUDY_FOLDER, defaultConfig)
             assert getTestStudyDbIdentifier()
         }
@@ -230,8 +230,12 @@ class CopySpec extends Specification {
     void ensureTestStudyUnloaded() {
         if (getTestStudyDbIdentifier()) {
             copy.deleteStudyById(TEST_STUDY)
-            assert !getTestStudyDbIdentifier()
+            assert noTestStudyInDb()
         }
+    }
+
+    boolean noTestStudyInDb() {
+        getTestStudyDbIdentifier() == null
     }
 
     Map<Table, Number> count(Iterable<Table> tables) {

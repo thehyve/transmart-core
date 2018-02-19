@@ -116,6 +116,7 @@ class TreeNodes {
     void load(String rootPath) {
         def treeNodesFile = new File(rootPath, table.fileName)
         def tx = database.beginTransaction()
+        updateTreeNodePaths(concepts.oldToNewConceptPath)
         treeNodesFile.withReader { reader ->
             log.info "Reading tree nodes from file ..."
             def insertCount = 0
@@ -141,7 +142,7 @@ class TreeNodes {
                         database.insertEntry(table, header, treeNodeData)
                         paths.add(path)
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
                     throw e
                 }
@@ -149,6 +150,38 @@ class TreeNodes {
             database.commit(tx)
             log.info "${existingCount} existing tree nodes found."
             log.info "${insertCount} tree nodes inserted."
+        }
+    }
+
+    /**
+     * Workaround solution to update tree nodes when concept path has been changed
+     * @param oldToNewConceptPath
+     */
+    private updateTreeNodePaths(Map<String, String> oldToNewConceptPath) {
+        if (oldToNewConceptPath) {
+            log.info("Updating ${oldToNewConceptPath.size()} path(s).")
+            Map<String, ?>[] params = oldToNewConceptPath.collect { String oldPath, String newPath ->
+                [newPath: newPath,
+                 oldPath: oldPath]
+            } as Map<String, ?>[]
+            int[] removedRowsBatch = database.namedParameterJdbcTemplate.batchUpdate(
+                    """delete from ${
+                        table
+                    } where c_fullname = :oldPath and c_dimcode = :oldPath and c_columnname ilike 'concept_path' and c_tablename ilike 'concept_dimension'""".toString(),
+                    params)
+            for (int i = 0; i < removedRowsBatch.length; i++) {
+                log.info("${removedRowsBatch[i]} node with '${params[i].oldPath}' path was removed.")
+                paths.remove(params[i].oldPath)
+            }
+            int[] updatedRowsBatch = database.namedParameterJdbcTemplate.batchUpdate(
+                    """update ${table} set c_dimcode = :newPath
+                       where c_dimcode = :oldPath and c_columnname ilike 'concept_path' and c_tablename ilike 'concept_dimension'""".toString(),
+                    params)
+            for (int i = 0; i < updatedRowsBatch.length; i++) {
+                log.info("${updatedRowsBatch[i]} nodes with reference to '${params[i].oldPath}' concept path were updated to point to '${params[i].newPath}'.")
+            }
+        } else {
+            log.debug("No paths to update. Exit.")
         }
     }
 

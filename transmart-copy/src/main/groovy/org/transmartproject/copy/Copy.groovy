@@ -28,6 +28,7 @@ class Copy implements AutoCloseable {
         String outputFile
         int batchSize
         int flushSize
+        boolean updateConceptPaths
     }
 
     static Options options = new Options()
@@ -44,6 +45,7 @@ class Copy implements AutoCloseable {
         options.addOption('w', 'write', true, 'Write observations to TSV file.')
         options.addOption('d', 'directory', true, 'Specifies a data directory.')
         options.addOption('m', 'mode', true, 'Load mode (e.g. \'study\' or \'pedigree\').')
+        options.addOption('U', 'update-concept-paths', false, 'Updates concept paths and tree nodes when there is concept code collision.')
     }
 
     static printHelp() {
@@ -94,7 +96,7 @@ class Copy implements AutoCloseable {
         patients.fetch()
         patients.load(rootPath)
 
-        def concepts = new Concepts(database)
+        def concepts = new Concepts(database, config.updateConceptPaths)
         concepts.fetch()
         concepts.load(rootPath)
 
@@ -196,7 +198,8 @@ class Copy implements AutoCloseable {
                         batchSize: batchSize,
                         flushSize: flushSize,
                         write: cl.hasOption('write'),
-                        outputFile: cl.getOptionValue('write')
+                        outputFile: cl.getOptionValue('write'),
+                        updateConceptPaths: cl.hasOption('update-concept-paths')
                 )
                 def modes = cl.getOptionValues('mode')
                 log.debug("Load modes specified: ${modes}")
