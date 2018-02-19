@@ -482,9 +482,9 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
         } else if (constraint.patientSetId != null) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
-            log.info "Subquery on patient set with id ${constraint.patientSetId}"
+            log.debug "Subquery on patient set with id ${constraint.patientSetId}"
             if (constraint.offset != null && constraint.limit != null) {
-                log.info "Restrict subquery to offset ${constraint.offset}, limit ${constraint.limit}"
+                log.debug "Restrict subquery to offset ${constraint.offset}, limit ${constraint.limit}"
                 subCriteria.add(Restrictions.sqlRestriction(
                         '{alias}.result_instance_id = ? order by {alias}.patient_num offset ? limit ?',
                         [constraint.patientSetId, constraint.offset, constraint.limit].toArray(),
