@@ -119,31 +119,6 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Count endpoint:
-     * <code>/v2/observations/count?constraint=${constraint}</code>
-     *
-     * Expects a {@link Constraint} parameter <code>constraint</code>.
-     *
-     * Deprecated in favour of {@link #counts()}.
-     *
-     * @return a the number of observations that satisfy the constraint.
-     */
-    @Deprecated
-    def count() {
-        def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['constraint'])
-
-        Constraint constraint = bindConstraint(args.constraint)
-        if (constraint == null) {
-            return
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def count = aggregateDataResource.count(constraint, user)
-        def result = [count: count]
-        render result as JSON
-    }
-
-    /**
-     * Count endpoint:
      * <code>/v2/observations/counts?constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
@@ -289,14 +264,14 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, assay_constraint, biomarker_constraint, projection) {
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        Constraint assayConstraint = getConstraintFromStringOrJson(assay_constraint)
+        Constraint assayConstraint = getConstraintFromString(assay_constraint)
 
         BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
-                (BiomarkerConstraint) getConstraintFromStringOrJson(biomarker_constraint) : new BiomarkerConstraint()
+                (BiomarkerConstraint) getConstraintFromString(biomarker_constraint) : new BiomarkerConstraint()
 
         Format format = contentFormat
         OutputStream out = getLazyOutputStream(format)

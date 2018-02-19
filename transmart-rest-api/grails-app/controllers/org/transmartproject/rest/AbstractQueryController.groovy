@@ -4,7 +4,6 @@ package org.transmartproject.rest
 
 import grails.artefact.Controller
 import grails.converters.JSON
-import groovy.json.JsonSlurper
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -30,47 +29,38 @@ abstract class AbstractQueryController implements Controller {
     @Autowired
     HypercubeDataSerializationService hypercubeDataSerializationService
 
-    protected static Constraint getConstraintFromStringOrJson(constraintParam) {
-        if (!constraintParam) {
+    protected static Constraint getConstraintFromString(String constraintText) {
+        if (!constraintText) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
 
-        if (constraintParam instanceof String) {
-            try {
-                def constraintData = JSON.parse(constraintParam) as Map
-                def constraint =  ConstraintFactory.create(constraintData)
-                return constraint?.normalise()
-            } catch (ConverterException c) {
-                throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
-            }
-        } else {
-            def constraint =  ConstraintFactory.create(constraintParam)
+        try {
+            def constraint =  ConstraintFactory.read(constraintText)
             return constraint?.normalise()
+        } catch (ConverterException c) {
+            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintText")
         }
     }
 
-    protected Constraint bindConstraint(constraintParam) {
+    protected Constraint bindConstraint(String constraintText) {
         try {
-            return getConstraintFromStringOrJson(constraintParam)
+            return getConstraintFromString(constraintText)
         } catch (ConstraintBindingException e) {
-            if(e.errors?.hasErrors()) {
+            Map error = [
+                    httpStatus: 400,
+                    message   : e.message,
+                    type      : e.class.simpleName,
+            ]
 
-                // This representation is compatible with what is returned when an exception is not caught.
-                //
-                // I want to add properties to the `e.errors as JSON`, but getting at a map representation of e.errors
-                // is not so easy. This is an ugly workaround, but this only happens for error conditions.
-                Map error = new JsonSlurper().parseText((e.errors as JSON).toString())
-                error = [
-                        httpStatus: 400,
-                        message: e.message,
-                        type: e.class.simpleName,
-                ] + error
+            if (e.errors) {
+                error.errors = e.errors
+                        .collect { [propertyPath: it.propertyPath.toString(), message: it.message] }
 
-                response.status = 400
-                render error as JSON
-                return null
             }
-            throw e
+
+            response.status = 400
+            render error as JSON
+            return null
         }
     }
 

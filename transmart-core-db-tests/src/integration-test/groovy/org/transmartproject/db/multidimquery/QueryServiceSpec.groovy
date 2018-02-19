@@ -139,7 +139,7 @@ class QueryServiceSpec extends TransmartSpecification {
                         ],
                         [
                                 type    : 'field',
-                                field   : [dimension: 'patient', fieldName: 'sourcesystemCd'],
+                                field   : [dimension: 'patient', type: 'STRING', fieldName: 'sourcesystemCd'],
                                 operator: 'contains',
                                 value   : 'SUBJ_ID_2'
                         ],

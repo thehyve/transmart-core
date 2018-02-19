@@ -60,6 +60,7 @@ class SystemService implements SystemResource {
         aggregateDataService.clearCountsCache()
         aggregateDataService.clearPatientCountCache()
         aggregateDataService.clearCountsPerConceptCache()
+        aggregateDataService.clearCountsPerStudyCache()
         aggregateDataService.clearCountsPerStudyAndConceptCache()
         studiesService.clearCaches()
         trialVisitsService.clearCache()

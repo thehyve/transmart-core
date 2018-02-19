@@ -64,7 +64,7 @@ class UsersResourceService implements UsersResource {
     List<CoreUser> getUsers() {
         User.withSession { session ->
             session.createQuery('FROM User u LEFT JOIN FETCH u.roles').list()
-        } as List<CoreUser>
+        }.unique()
     }
 
 }

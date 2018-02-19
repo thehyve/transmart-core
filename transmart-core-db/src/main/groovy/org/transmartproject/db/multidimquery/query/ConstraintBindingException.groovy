@@ -3,14 +3,15 @@
 package org.transmartproject.db.multidimquery.query
 
 import groovy.transform.InheritConstructors
-import org.springframework.validation.Errors
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+
+import javax.validation.ConstraintViolation
 
 @InheritConstructors
 class ConstraintBindingException extends InvalidArgumentsException {
-    Errors errors
+    final Set<ConstraintViolation<Constraint>> errors
 
-    ConstraintBindingException(String message, Errors errors) {
+    ConstraintBindingException(String message, Set<ConstraintViolation<Constraint>> errors) {
         super(message)
         this.errors = errors
     }

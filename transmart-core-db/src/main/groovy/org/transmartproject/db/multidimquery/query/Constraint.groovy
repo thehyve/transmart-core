@@ -2,25 +2,24 @@
 
 package org.transmartproject.db.multidimquery.query
 
-import grails.databinding.BindUsing
-import grails.validation.Validateable
-import grails.web.databinding.DataBinder
-import groovy.transform.Canonical
-import groovy.transform.CompileStatic
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.Sortable
-import groovy.transform.ToString
-import groovy.transform.TupleConstructor
-import groovy.util.logging.Slf4j
-import org.springframework.validation.Errors
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
+import groovy.transform.*
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.MDStudy
+
+import javax.validation.Valid
+import javax.validation.constraints.AssertTrue
+import javax.validation.constraints.NotNull
+import javax.validation.constraints.Size
 
 /**
  * The data type of a field.
  */
 @CompileStatic
-@Slf4j
 enum Type {
     ID,
     NUMERIC,
@@ -40,27 +39,24 @@ enum Type {
         }
     }
 
+    @JsonCreator
     static Type forName(String name) {
-        if (name == null) {
-            return NONE
-        }
         name = name.toLowerCase()
         if (mapping.containsKey(name)) {
             return mapping[name]
         } else {
-            log.error "Unknown type: ${name}"
             return NONE
         }
     }
 
     static final Map<Type, Class> classForType = [
-            (ID): Object.class,
-            (NUMERIC): Number.class,
-            (DATE): Date.class,
-            (STRING): CharSequence.class,
-            (TEXT): CharSequence.class,
-            (EVENT): Constraint.class,
-            (OBJECT): Object.class,
+            (ID)        : Object.class,
+            (NUMERIC)   : Number.class,
+            (DATE)      : Date.class,
+            (STRING)    : CharSequence.class,
+            (TEXT)      : CharSequence.class,
+            (EVENT)     : Constraint.class,
+            (OBJECT)    : Object.class,
             (COLLECTION): Collection.class,
             (CONSTRAINT): Constraint.class,
     ] as EnumMap<Type, Class>
@@ -82,7 +78,6 @@ enum Type {
  * Operator types supported by the query builder.
  */
 @CompileStatic
-@Slf4j
 enum Operator {
 
     LESS_THAN('<'),
@@ -108,33 +103,33 @@ enum Operator {
 
     String symbol
 
-    Operator(String symbol) {
+    private Operator(String symbol) {
         this.symbol = symbol
     }
 
     private static final Map<String, Operator> mapping = new HashMap<>()
     static {
-        for (Operator op: Operator.values()) {
+        for (Operator op : values()) {
             mapping.put(op.symbol, op)
         }
     }
 
+    @JsonCreator
     static Operator forSymbol(String symbol) {
         if (mapping.containsKey(symbol)) {
             return mapping[symbol]
         } else {
-            log.error "Unknown operator: ${symbol}"
             return NONE
         }
     }
 
     static final Map<Type, Set> operatorsForType = [
-            (Type.ID): [
+            (Type.ID)        : [
                     EQUALS,
                     NOT_EQUALS,
                     IN
             ] as Set<Operator>,
-            (Type.NUMERIC): [
+            (Type.NUMERIC)   : [
                     LESS_THAN,
                     GREATER_THAN,
                     EQUALS,
@@ -146,31 +141,31 @@ enum Operator {
                     AFTER,
                     BETWEEN
             ] as Set<Operator>,
-            (Type.DATE): [
+            (Type.DATE)      : [
                     BEFORE,
                     AFTER,
                     BETWEEN
             ] as Set<Operator>,
-            (Type.STRING): [
+            (Type.STRING)    : [
                     EQUALS,
                     NOT_EQUALS,
                     LIKE,
                     CONTAINS,
                     IN
             ] as Set<Operator>,
-            (Type.TEXT): [
+            (Type.TEXT)      : [
                     EQUALS,
                     NOT_EQUALS,
                     LIKE,
                     CONTAINS,
                     IN
             ] as Set<Operator>,
-            (Type.EVENT): [
+            (Type.EVENT)     : [
                     BEFORE,
                     AFTER,
                     EXISTS
             ] as Set<Operator>,
-            (Type.OBJECT): [
+            (Type.OBJECT)    : [
                     EQUALS,
                     NOT_EQUALS,
                     IN
@@ -200,19 +195,20 @@ enum Operator {
  * The data type ({@link Type}) of the field is also included to allow for
  * early validation (assuming that clients know the data type of a field).
  */
+@CompileStatic
 @Canonical
 @Sortable
-class Field implements Validateable {
+class Field {
     String dimension
-    @BindUsing({ obj, source -> Type.forName((String)source['type']) })
+    @NotNull
     Type type = Type.NONE
+    @Size(min = 1)
     String fieldName
 
-    static constraints = {
-        type validator: { Object type, obj -> type != Type.NONE }
-        fieldName blank: false
+    @AssertTrue(message = 'NONE type is not allowed')
+    boolean hasType() {
+        type != Type.NONE
     }
-
 }
 
 /**
@@ -220,7 +216,32 @@ class Field implements Validateable {
  * can be created using the constructors of the subclasses or by using the
  * {@link ConstraintFactory}.
  */
-abstract class Constraint implements Validateable, MultiDimConstraint {
+@CompileStatic
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type"
+)
+@JsonSubTypes([
+    @JsonSubTypes.Type(value = TrueConstraint.class, name = 'true'),
+    @JsonSubTypes.Type(value = BiomarkerConstraint.class, name = 'biomarker'),
+    @JsonSubTypes.Type(value = ModifierConstraint.class, name = 'modifier'),
+    @JsonSubTypes.Type(value = FieldConstraint.class, name = 'field'),
+    @JsonSubTypes.Type(value = ValueConstraint.class, name = 'value'),
+    @JsonSubTypes.Type(value = TimeConstraint.class, name = 'time'),
+    @JsonSubTypes.Type(value = PatientSetConstraint.class, name = 'patient_set'),
+    @JsonSubTypes.Type(value = Negation.class, name = 'negation'),
+    @JsonSubTypes.Type(value = Combination.class, name = 'combination'),
+    @JsonSubTypes.Type(value = AndConstraint.class, name = 'and'),
+    @JsonSubTypes.Type(value = OrConstraint.class, name = 'or'),
+    @JsonSubTypes.Type(value = TemporalConstraint.class, name = 'temporal'),
+    @JsonSubTypes.Type(value = ConceptConstraint.class, name = 'concept'),
+    @JsonSubTypes.Type(value = StudyNameConstraint.class, name = 'study_name'),
+    @JsonSubTypes.Type(value = StudyObjectConstraint.class, name = 'study'),
+    @JsonSubTypes.Type(value = NullConstraint.class, name = 'null'),
+    @JsonSubTypes.Type(value = SubSelectionConstraint.class, name = 'subselection'),
+    @JsonSubTypes.Type(value = RelationConstraint.class, name = 'relation')
+])
+abstract class Constraint implements MultiDimConstraint {
 
     String toJson() {
         ConstraintSerialiser.toJson(this)
@@ -242,73 +263,52 @@ abstract class Constraint implements Validateable, MultiDimConstraint {
     Constraint canonise() {
         new CanonicalConstraintRewriter().build(this)
     }
+
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('true')
 class TrueConstraint extends Constraint {
     static String constraintName = "true"
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('biomarker')
 class BiomarkerConstraint extends Constraint {
     static String constraintName = "biomarker"
-    String biomarkerType   // this is the constraint type, see org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+    @Size(min = 1)
+    String biomarkerType
+    // this is the constraint type, see org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
     Map<String, Object> params
-
-    static constraints = {
-        biomarkerType blank: false
-    }
 }
 
 /**
  * Selects observations for which the value for a certain modifier code <code>modifierCode</code> conforms
  * to <code>operator</code> and <code>value</code>.
  */
+@CompileStatic
 @Canonical
 @Sortable
+@JsonTypeName('modifier')
 class ModifierConstraint extends Constraint {
     static String constraintName = "modifier"
+
     String modifierCode
     String path
     String dimensionName
+    @Valid
     ValueConstraint values
 
-    static constraints = {
-        values nullable: true
-        path nullable: true, blank: false
-        dimensionName nullable: true, blank: false
-        modifierCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
-            def message = "Modifier constraint requires path, dimensionName or modifierCode."
-            if (!val && !obj.path && !obj.dimensionName) {
-                    errors.rejectValue(
-                            'modifierCode',
-                            'org.transmartproject.query.invalid.arg.message',
-                            "$message Got none.")
-            } else if (val && obj.path && obj.dimensionName) {
-                errors.rejectValue(
-                        'modifierCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got all.")
-            }
-            else if (!val && obj.path && obj.dimensionName) {
-                errors.rejectValue(
-                        'path',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got both path and dimensionName.")
-            }
-            else if (val && !obj.path && obj.dimensionName) {
-                errors.rejectValue(
-                        'modifierCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got both dimensionName and modifierCode.")
-            }
-            else if (val && obj.path && !obj.dimensionName) {
-                errors.rejectValue(
-                        'modifierCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "$message Got both path and modifierCode.")
-            }
-        }
+    @AssertTrue(message = 'Only one of three has to be specified')
+    boolean hasOnlyOneFieldSpecified() {
+        boolean modifierCodeProvided = modifierCode?.trim() as Boolean
+        boolean pathProvided = path?.trim() as Boolean
+        boolean dimensionNameProvided = dimensionName?.trim() as Boolean
+        (modifierCodeProvided && !pathProvided && !dimensionNameProvided
+                || pathProvided && !modifierCodeProvided && !dimensionNameProvided
+                || dimensionNameProvided && !pathProvided && !modifierCodeProvided)
     }
 }
 
@@ -318,71 +318,52 @@ class ModifierConstraint extends Constraint {
  *
  * E.g., selecting observations for patients older than 40, is achieved with:
  * <code>
- * def patientDimension = DimensionResource.dimensions.find { it.name == 'patient' }
- * def patientAgeField = new Field(dimension: patientDimension, fieldName: 'age', type: Type.NUMERIC)
+ * def patientDimension = DimensionResource.dimensions.find { it.name == 'patient' }* def patientAgeField = new Field(dimension: patientDimension, fieldName: 'age', type: Type.NUMERIC)
  * def constraint = new FieldConstraint(field: patientAgeField, operator: Operator.GREATER_THAN, value: 40)
  * </code>
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('field')
 class FieldConstraint extends Constraint implements Comparable<FieldConstraint> {
     static String constraintName = "field"
-
-    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
+    @NotNull
+    @Valid
     Field field
-    @BindUsing({ obj, source -> Operator.forSymbol((String)source['operator']) })
+    @NotNull
     Operator operator = Operator.NONE
+    @NotNull
     Object value
 
     int compareTo(FieldConstraint other) {
         field <=> other.field ?: operator <=> other.operator ?: value.toString() <=> other.value.toString()
     }
 
-    static constraints = {
-        field validator: { val, obj, Errors errors ->
-            // FIXME: For some reason this validator is not called :(
-            if(val == null) errors.rejectValue('field',
-                    'org.transmartproject.query.invalid.value.null.message',
-                    'field is not set')
-        }
-        value validator: { Object val, obj, Errors errors ->
-            if (obj.field) {
-                if (obj.operator in [Operator.IN, Operator.BETWEEN]) {
-                    if (val instanceof Collection) {
-                        val.each {
-                            if (obj.field.type != Type.NONE && !obj.field.type.supportsValue(it)) {
-                                errors.rejectValue(
-                                        'value',
-                                        'org.transmartproject.query.invalid.value.operator.message',
-                                        [it, obj.field.type, obj.operator] as String[],
-                                        "Value '$it' not compatible with type $obj.field.type")
-                            }
-                        }
-                    } else {
-                        errors.rejectValue(
-                                'value',
-                                'org.transmartproject.query.value.not.collection.message',
-                                [obj.operator, val] as String[],
-                                "Collection expected for operator [$obj.operator.symbol], got '$val'")
-                    }
-                } else if (obj.field.type != Type.NONE && !obj.field.type.supportsValue(val)) {
-                    errors.rejectValue(
-                            'value',
-                            'org.transmartproject.query.invalid.value.operator.message',
-                            [val, obj.field.type, obj.operator] as String[],
-                            "Value '$val' not compatible with type $obj.field.type")
-                }
-            } }
-        operator validator: { Operator op, obj, Errors errors ->
-            if (obj.field && obj.field.type != Type.NONE && !op.supportsType(obj.field.type)) {
-                errors.rejectValue(
-                        'operator',
-                        'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.field.type] as String[],
-                        "Operator [$op.symbol] not valid for type $obj.field.type")
-            } }
+    @AssertTrue(message = 'Operator has to be specified')
+    boolean hasOperator() {
+        operator != Operator.NONE
+    }
+
+    @AssertTrue(message = 'The field type does not support the value')
+    boolean hasValueOfRightType() {
+        field.type.supportsValue(value)
+    }
+
+    @AssertTrue(message = 'The field type is not compatible with the operator')
+    boolean hasTypeThatMatchesOperator() {
+        operator.supportsType(field.type)
+    }
+
+    @AssertTrue(message = 'List of values expected')
+    boolean hasNotListOperatorOrListValue() {
+        !(operator in [Operator.IN, Operator.BETWEEN]) || value instanceof Collection
     }
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('concept')
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ConceptConstraint extends Constraint {
     static String constraintName = "concept"
 
@@ -390,59 +371,53 @@ class ConceptConstraint extends Constraint {
     List<String> conceptCodes
     String path
 
-    static constraints = {
-        conceptCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
-            if (!val && !obj.conceptCodes && !obj.path) {
-                errors.rejectValue(
-                        'conceptCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode(s). Got none.")
-            } else if (val && obj.path || val && obj.conceptCodes) {
-                errors.rejectValue(
-                        'conceptCode',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode(s). Got multiple.")
-            }
-        }
-        conceptCodes nullable: true, minSize: 1, validator: {val, obj, Errors errors ->
-            if (val && obj.path) {
-                errors.rejectValue(
-                        'conceptCodes',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Concept constraint requires path or conceptCode(s). Got multiple.")
-            }
-        }
-        path nullable: true, blank: false
+    @AssertTrue(message = 'Only one of three has to be specified')
+    boolean hasOnlyOneFieldSpecified() {
+        boolean conceptCodeProvided = conceptCode?.trim() as Boolean
+        boolean pathProvided = path?.trim() as Boolean
+        (conceptCodeProvided && !conceptCodes && !pathProvided
+                || !conceptCodeProvided && conceptCodes && !pathProvided
+                || !conceptCodeProvided && !conceptCodes && pathProvided)
     }
 }
 
+@CompileStatic
 @Canonical
 @Sortable
+@JsonTypeName('study_name')
 class StudyNameConstraint extends Constraint {
     static String constraintName = "study_name"
 
     String studyId
-    static constraints = {
-        studyId blank: false
+
+    @NotNull
+    @Size(min = 1)
+    String getStudyId() {
+        studyId?.trim()
     }
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('study')
 class StudyObjectConstraint extends Constraint {
     static String constraintName = "study"
-
+    @NotNull
     MDStudy study
 }
 
+@CompileStatic
 @Canonical
 @Sortable
+@JsonTypeName('null')
 class NullConstraint extends Constraint {
     static String constraintName = "null"
-
-    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
+    @Valid
+    @NotNull
     Field field
 }
 
+@CompileStatic
 @Canonical
 class RowValueConstraint extends Constraint {
     static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
@@ -461,13 +436,13 @@ class RowValueConstraint extends Constraint {
  * def constraint = new ValueConstraint(valueType: NUMERIC, operator: Operator.LESS_THAN, value: 1000)
  * </code>
  */
+@CompileStatic
 @Canonical
-class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
+@JsonTypeName('value')
+class ValueConstraint extends Constraint implements Comparable<ValueConstraint> {
     static String constraintName = "value"
 
-    @BindUsing({ obj, source -> Type.forName(source['valueType']) })
     Type valueType = Type.NONE
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     Object value
 
@@ -475,32 +450,21 @@ class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
         valueType <=> other.valueType ?: operator <=> other.operator ?: value.toString() <=> other.value.toString()
     }
 
-    static constraints = {
-        valueType validator: { Object val, obj, Errors errors ->
-            def t = val as Type
-            if (!(t in [Type.NUMERIC, Type.STRING])) {
-                errors.rejectValue(
-                        'valueType',
-                        'org.transmartproject.query.invalid.valueType.message',
-                        [val, obj.valueType] as String[],
-                        "Invalid value type ${t}")
-            } }
-        value nullable: true, validator: { Object val, obj, Errors errors ->
-            if (!obj.valueType.supportsValue(val)) {
-                errors.rejectValue(
-                        'value',
-                        'org.transmartproject.query.invalid.value.message',
-                        [val, obj.valueType] as String[],
-                        "Value [${val}] not valid for type ${obj.valueType}")
-            } }
-        operator validator: { Operator op, obj, Errors errors ->
-            if (!op.supportsType(obj.valueType)) {
-                errors.rejectValue(
-                        'operator',
-                        'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.valueType] as String[],
-                        "Operator [${op.symbol}] not valid for type ${obj.valueType}")
-            } }
+    @AssertTrue(message = 'Only string or numerical value type is allowed')
+    boolean hasOrStringOrNumericValueType() {
+        valueType == Type.STRING || valueType == Type.NUMERIC
     }
+
+    @AssertTrue(message = 'The type does not support the value')
+    boolean hasValueOfRightType() {
+        valueType.supportsValue(value)
+    }
+
+    @AssertTrue(message = 'The value type is not compatible with the operator')
+    boolean hasValidOperatorForGivenValueType() {
+        operator.supportsType(valueType)
+    }
+
 }
 
 /**
@@ -508,13 +472,14 @@ class ValueConstraint extends Constraint implements Comparable<ValueConstraint>{
  * before, after or between (depends on <code>operator</code>) the date(s)
  * in <code>values</code>.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('time')
 class TimeConstraint extends Constraint implements Comparable<TimeConstraint> {
     static String constraintName = "time"
 
-    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
+    @Valid
     Field field
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     List<Date> values
 
@@ -522,66 +487,48 @@ class TimeConstraint extends Constraint implements Comparable<TimeConstraint> {
         field <=> other.field ?: operator <=> other.operator ?: values.toListString() <=> other.values.toListString()
     }
 
-    static constraints = {
-        values nullable: false, validator: { List values, obj ->
-            switch (obj.operator) {
-                case Operator.BEFORE:
-                case Operator.AFTER:
-                    return (values.size() == 1)
-                case Operator.BETWEEN:
-                    return (values.size() == 2)
-            }
-        }
-        operator validator: { Operator op -> op != Operator.NONE && op.supportsType(Type.DATE) }
-        field validator: { Field field -> field.type == Type.DATE }
+    @AssertTrue(message = 'Only DATE type is allowed for this constraint')
+    boolean hasDateType() {
+        field.type == Type.DATE
+    }
+
+    @AssertTrue(message = 'Value is not of date type')
+    boolean hasValuesOfRightType() {
+        values.every { field.type.supportsValue(it) }
+    }
+
+    @AssertTrue(message = 'The field type is not compatible with the operator')
+    boolean hasValidOperatorForGivenFieldType() {
+        operator.supportsType(field.type)
+    }
+
+    @AssertTrue(message = 'Dates list contains null')
+    boolean hasNoNullDates() {
+        !values.any { it == null }
     }
 }
 
 /**
  * Selects observations based on a set of patient identifiers.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('patient_set')
 class PatientSetConstraint extends Constraint {
     static String constraintName = "patient_set"
 
     Long patientSetId
     Set<Long> patientIds
     Set<String> subjectIds
+
     Integer offset
     Integer limit
 
-    static constraints = {
-        patientIds nullable: true, validator: { val, obj, Errors errors ->
-            if (val != null && val.empty) {
-                errors.rejectValue(
-                        'patientIds',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint has empty patientIds parameter.")
-            }
-        }
-        patientSetId nullable: true, validator: { val, obj, Errors errors ->
-            if (!val && obj.patientIds == null && obj.subjectIds == null) {
-                errors.rejectValue(
-                        'patientSetId',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId, patientIds or subjectIds. Got none.")
-            } else if (val && (obj.patientIds != null || obj.subjectIds != null)) {
-                errors.rejectValue(
-                        'patientSetId',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId or patientIds or subjectIds. Got more than one specified.")
-            }
-        }
-        subjectIds nullable: true, validator: { val, obj, Errors errors ->
-            if (val != null && val.empty) {
-                errors.rejectValue(
-                        'subjectIds',
-                        'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint has empty subjectIds parameter.")
-            }
-        }
-        offset nullable: true
-        limit nullable: true
+    @AssertTrue(message = 'Only one of three has to be specified')
+    boolean hasOnlyOneFieldSpecified() {
+        (patientSetId && !patientIds && !subjectIds
+                || !patientSetId && patientIds && !subjectIds
+                || !patientSetId && !patientIds && subjectIds)
     }
 }
 
@@ -589,35 +536,40 @@ class PatientSetConstraint extends Constraint {
  * Inverts a constraint. Specifies all observations for which
  * constraint <code>arg</code> does not hold.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('negation')
 class Negation extends Constraint {
     static String constraintName = "negation"
 
     Operator getOperator() { Operator.NOT }
 
-    @BindUsing({ obj, source -> ConstraintFactory.create(source['arg']) })
+    @Valid
+    @NotNull
     Constraint arg
-
-    static constraints = {
-        arg validator: { it?.validate() }
-    }
 }
 
 /**
  * Combines a list of constraints conjunctively (if <code>operator</code> is 'and')
  * or disjunctively (if <code>operator</code> is 'or').
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('combination')
 class Combination extends Constraint {
     static String constraintName = "combination"
 
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
-    private Operator operator = Operator.NONE
-    @BindUsing({ obj, source -> source['args'].collect { ConstraintFactory.create(it) } })
+    Operator operator
+    @Valid
+    @NotNull
     List<Constraint> args
 
     Combination() {
 
+    }
+
+    Combination(Operator operator) {
+        this.operator = operator
     }
 
     Combination(Operator operator, List<Constraint> args) {
@@ -625,50 +577,53 @@ class Combination extends Constraint {
         this.args = args
     }
 
-    Operator getOperator() {
-        operator
+    @AssertTrue(message = 'The operator is not applicable to the constraints')
+    boolean hasConstraintOperator() {
+        operator.supportsType(Type.CONSTRAINT)
     }
 
-    static constraints = {
-        operator validator: { Operator op -> op.supportsType(Type.CONSTRAINT) }
-        args validator: { List args, obj, Errors errors ->
-            if (!args || args.empty) {
-                errors.rejectValue(
-                        'args',
-                        'org.transmartproject.query.empty.args.message',
-                        'Empty arguments.')
-            } else {
-                if (!args.findAll({ !it.validate() }).empty) {
-                    errors.rejectValue(
-                            'args',
-                            'org.transmartproject.query.invalid.arg.message',
-                            "Combination contains invalid constraints.")
-                }
-            }
-        }
+    @AssertTrue(message = 'Argumenent list contains null')
+    boolean hasNoNullArguments() {
+        !args.any { it == null }
     }
 }
 
 /**
  * Subclass of Combination that implements a conjunction
  */
+@CompileStatic
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
-@TupleConstructor(includeSuperProperties = true)
+@JsonTypeName('and')
 class AndConstraint extends Combination {
     static String constraintName = "and"
-    Operator getOperator() { Operator.AND }
+
+    AndConstraint() {
+        super(Operator.AND)
+    }
+
+    AndConstraint(List<Constraint> args) {
+        super(Operator.AND, args)
+    }
 }
 
 /**
  * Subclass of Combination that implements a disjunction
  */
+@CompileStatic
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
-@TupleConstructor(includeSuperProperties = true)
+@JsonTypeName('or')
 class OrConstraint extends Combination {
     static String constraintName = "or"
-    Operator getOperator() { Operator.OR }
+
+    OrConstraint() {
+        super(Operator.OR)
+    }
+
+    OrConstraint(List<Constraint> args) {
+        super(Operator.OR, args)
+    }
 }
 
 /**
@@ -683,39 +638,37 @@ class OrConstraint extends Combination {
  * - EXISTS: selects observations for patients that have some observations
  * selected by <code>eventConstraint</code>.
  */
+@CompileStatic
 @Canonical
+@JsonTypeName('temporal')
 class TemporalConstraint extends Constraint {
     static String constraintName = "temporal"
 
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
-
-    @BindUsing({ obj, source -> ConstraintFactory.create(source['eventConstraint']) })
+    @Valid
+    @NotNull
     Constraint eventConstraint
 
-    static constraints = {
-        operator validator: { Operator op -> op.supportsType(Type.EVENT) }
-        eventConstraint validator: { it?.validate() }
+    @AssertTrue(message = 'This operator does not support event type')
+    boolean hasEventOperator() {
+        operator.supportsType(Type.EVENT)
     }
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('subselection')
 class SubSelectionConstraint extends Constraint {
     static String constraintName = 'subselection'
 
+    @NotNull
     String dimension
-
-    @BindUsing({ obj, source ->
-        ConstraintFactory.create(source['constraint'])
-    })
+    @NotNull
+    @Valid
     Constraint constraint
-
-    static constraints = {
-        dimension   nullable: false
-        constraint  nullable: false
-    }
 }
 
+@CompileStatic
 @Canonical
 class MultipleSubSelectionsConstraint extends Constraint {
     static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
@@ -727,114 +680,23 @@ class MultipleSubSelectionsConstraint extends Constraint {
      */
     Operator operator
 
+    @Valid
     List<Constraint> args
 }
 
+@CompileStatic
 @Canonical
+@JsonTypeName('relation')
 class RelationConstraint extends Constraint {
     static String constraintName = 'relation'
 
+    @Size(min = 1)
     String relationTypeLabel
 
-    @BindUsing({ obj, source ->
-        ConstraintFactory.create(source['relatedSubjectsConstraint'])
-    })
+    @Valid
     Constraint relatedSubjectsConstraint
 
     Boolean biological
 
     Boolean shareHousehold
-
-    static constraints = {
-        relationTypeLabel nullable: false
-        relatedSubjectsConstraint nullable: true
-        biological nullable: true
-        shareHousehold nullable: true
-    }
-}
-
-/**
- * A Constraint factory that creates {@link Constraint} objects from a map using
- * the Grails data binder.
- * Produces constraints for the classes:
- * - {@link TrueConstraint}
- * - {@link BiomarkerConstraint}
- * - {@link ModifierConstraint}
- * - {@link FieldConstraint}
- * - {@link ValueConstraint}
- * - {@link TimeConstraint}
- * - {@link PatientSetConstraint}
- * - {@link Negation}
- * - {@link Combination}
- * - {@link TemporalConstraint}
- * - {@link ConceptConstraint}
- * - {@link StudyNameConstraint}
- * - {@link NullConstraint}
- */
-@Slf4j
-class ConstraintFactory {
-    static class ConstraintDataBinder implements DataBinder {}
-
-    static final constraintDataBinder = new ConstraintDataBinder()
-
-    static final Map<String, Class<? extends Constraint>> constraintClasses = [
-            TrueConstraint,
-            BiomarkerConstraint,
-            ModifierConstraint,
-            FieldConstraint,
-            ValueConstraint,
-            TimeConstraint,
-            PatientSetConstraint,
-            Negation,
-            Combination,
-            AndConstraint,
-            OrConstraint,
-            TemporalConstraint,
-            ConceptConstraint,
-            StudyNameConstraint,
-            StudyObjectConstraint,
-            NullConstraint,
-            SubSelectionConstraint,
-            RelationConstraint,
-        ].collectEntries { Class type ->
-            [(type.constraintName): type]
-        } as Map<String, Class>
-
-    /**
-     * Create a constraint object from a map of values
-     * using the data binder of Grails.
-     *
-     * @param values
-     * @return
-     */
-    static Constraint create(Map values) {
-        if (values == null || values['type'] == null) {
-            throw new ConstraintBindingException('Cannot create constraint for null type.')
-        }
-        String name = values['type'] as String
-        Class type = constraintClasses[name]
-        if (type == null) {
-            throw new ConstraintBindingException("Constraint not supported: ${name}.")
-        }
-        log.debug "Creating constraint of type ${type.simpleName}"
-        Constraint result = type.newInstance()
-        constraintDataBinder.bindData(result, values, [exclude: ['type', 'errors']])
-        if(result.errors?.hasErrors() || !result.validate()) {
-            throw new ConstraintBindingException(
-                    "${result.errors.errorCount} error(s): " + result.errors.allErrors*.defaultMessage.join('; '),
-                    result.errors)
-        }
-        return result
-    }
-
-    static Field bindField(Object object, String name, Map values) {
-        log.debug "Find field for ${values.toMapString()}"
-        if (values == null) {
-            throw new ConstraintBindingException('Cannot create field for null values.')
-        }
-        String dimensionName = values['dimension'] as String
-        String fieldName = values['fieldName'] as String
-        Type fieldType = Type.forName(values['type'] as String)
-        new Field(dimension: dimensionName, type: fieldType, fieldName: fieldName)
-    }
 }

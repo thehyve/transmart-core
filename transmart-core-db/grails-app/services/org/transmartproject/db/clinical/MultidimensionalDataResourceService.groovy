@@ -24,13 +24,19 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.*
-import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.User
+import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -267,24 +273,21 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         // 1. Populate or reuse qt_query_master
         Object queryMaster = createOrReuseQueryMaster(user, constraint, name, apiVersion)
         // 2. Populate qt_query_instance
-        def queryInstance = new QtQueryInstance(
-                userId       : user.username,
-                groupId      : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
-                startDate    : new Date(),
-                statusTypeId : QueryStatus.PROCESSING.id,
-                queryMaster  : queryMaster,
-        )
+        def queryInstance = new QtQueryInstance()
+        queryInstance.userId = user.username
+        queryInstance.groupId = Holders.grailsApplication.config.org.transmartproject.i2b2.group_id
+        queryInstance.startDate = new Date()
+        queryInstance.statusTypeId = QueryStatus.PROCESSING.id
+        queryInstance.queryMaster = queryMaster
         queryMaster.addToQueryInstances(queryInstance)
         queryInstance.save(failOnError: true)
         // 3. Populate qt_query_result_instance
-        def resultInstance = new QtQueryResultInstance(
-                name            : name,
-                statusTypeId    : QueryStatus.PROCESSING.id,
-                startDate       : new Date(),
-                queryInstance   : queryInstance,
-                queryResultType : queryResultType,
-                description     : name
-        )
+        def resultInstance = new QtQueryResultInstance()
+        resultInstance.statusTypeId = QueryStatus.PROCESSING.id
+        resultInstance.startDate = new Date()
+        resultInstance.queryInstance = queryInstance
+        resultInstance.queryResultType = queryResultType
+        resultInstance.description = name
         resultInstance.save(failOnError: true, flush: true)
         try {
             // 4. Execute the query
@@ -314,17 +317,18 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 .add(Restrictions.eq('qm.requestConstraints', constraintText))
                 .addOrder(Order.desc('qm.createDate'))
 
-        (QtQueryMaster)getFirst(queryMasterCriteria) ?: new QtQueryMaster(
-                name: name,
-                userId: user.username,
-                groupId: Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
-                createDate: new Date(),
-                generatedSql: null,
-                requestXml: "",
-                requestConstraints: constraintText,
-                i2b2RequestXml: null,
-                apiVersion: apiVersion
-        ).save(failOnError: true)
+        QtQueryMaster queryMaster = getFirst(queryMasterCriteria)
+        if (queryMaster == null) {
+            queryMaster = new QtQueryMaster()
+            queryMaster.name = name
+            queryMaster.userId = user.username
+            queryMaster.groupId = Holders.grailsApplication.config.org.transmartproject.i2b2.group_id
+            queryMaster.createDate = new Date()
+            queryMaster.requestConstraints = constraintText
+            queryMaster.apiVersion = apiVersion
+            queryMaster.save(failOnError: true)
+        }
+        return queryMaster
     }
 
     /**

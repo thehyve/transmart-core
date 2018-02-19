@@ -28,7 +28,10 @@ class QuerySpec extends Specification {
         constraint.value = -101
 
         then:
-        constraint.validate()
+        constraint.hasOperator()
+        constraint.hasTypeThatMatchesOperator()
+        constraint.hasValueOfRightType()
+        constraint.hasNotListOperatorOrListValue()
     }
 
     void 'test invalid value constraint'() {
@@ -40,10 +43,7 @@ class QuerySpec extends Specification {
         constraint.value = "Invalid patient id"
 
         then:
-        !constraint.validate()
-        constraint.errors.fieldErrorCount == 1
-        constraint.errors.fieldErrors[0].field == 'value'
-        constraint.errors.fieldErrors[0].code == 'org.transmartproject.query.invalid.value.operator.message'
+        !constraint.hasValueOfRightType()
     }
 
     void 'test constraint equality'() {
