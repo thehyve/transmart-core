@@ -1980,6 +1980,10 @@ var spec = {
                   "type": "string",
                   "description": "observations that meet this constraint get exported. Note: whether id or constraint has to be supplied, not both. Example: `constraint={\"type\": \"study_name\", \"studyId\": \"EHR\"}`."
                 },
+                "includeMeasurementDateColumns": {
+                  "type": "boolean",
+                  "description": "Flag specifies whether to include measurement date columns."
+                },
                 "elements": {
                   "type": "string",
                   "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."

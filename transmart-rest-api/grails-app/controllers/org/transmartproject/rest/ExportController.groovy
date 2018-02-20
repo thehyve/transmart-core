@@ -77,7 +77,7 @@ class ExportController {
     def run(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
         def requestBody = request.JSON as Map
-        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint']
+        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint', 'includeMeasurementDateColumns']
         if (notSupportedFields) {
             throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
         }
@@ -90,9 +90,18 @@ class ExportController {
             throw new InvalidArgumentsException('Empty elements map.')
         }
 
+        def includeMeasurementDateColumns = requestBody.includeMeasurementDateColumns
+        if (includeMeasurementDateColumns != null && includeMeasurementDateColumns != true
+                && includeMeasurementDateColumns != false) {
+            throw new InvalidArgumentsException("includeMeasurementDateColumns parameter has to be of boolean type.")
+        }
+        boolean includeMeasurementDateColumnsBoolean = requestBody.includeMeasurementDateColumns == null ?
+                false : includeMeasurementDateColumns.toBoolean()
+
         Constraint constraint = ConstraintFactory.create(requestBody.constraint).normalise()
 
-        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId)
+        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId,
+                includeMeasurementDateColumnsBoolean)
 
         render wrapExportJob(job) as JSON
     }

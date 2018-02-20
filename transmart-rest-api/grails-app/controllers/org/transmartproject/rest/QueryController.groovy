@@ -99,7 +99,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeClinical(format, constraint, user, out)
+            hypercubeDataSerializationService.writeClinical(format, constraint, user, out, [:])
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {

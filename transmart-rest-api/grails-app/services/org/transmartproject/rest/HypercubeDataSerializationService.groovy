@@ -43,7 +43,8 @@ class HypercubeDataSerializationService implements DataSerializer {
     void writeClinical(Format format,
                        MultiDimConstraint constraint,
                        User user,
-                       OutputStream out) {
+                       OutputStream out,
+                       Map options = [:]) {
 
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
 
