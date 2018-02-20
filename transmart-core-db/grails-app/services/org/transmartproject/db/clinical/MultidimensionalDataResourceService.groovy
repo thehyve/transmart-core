@@ -27,6 +27,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
@@ -36,7 +37,6 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.User
-import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -45,6 +45,7 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.*
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.querytool.*
+import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
 
@@ -58,6 +59,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Autowired
     MDStudiesResource studiesResource
 
+    @Autowired
+    ParallelPatientSetTaskService parallelPatientSetTaskService
 
     @Override Dimension getDimension(String name) {
         def dimension = getBuiltinDimension(name)
@@ -332,6 +335,27 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     /**
+     * Find a query result based on a constraint.
+     * @param user the creator of the query result.
+     * @param constraint the constraint used in the lookup.
+     * @param queryResultType
+     * @return the query result if it exists; null otherwise.
+     */
+    QueryResult findQueryResultByConstraint(User user,
+                                            MultiDimConstraint constraint,
+                                            QtQueryResultType queryResultType) {
+        def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
+                .createCriteria('qri.queryInstance', 'qi')
+                .createCriteria('qi.queryMaster', 'qm')
+                .add(Restrictions.eq('qri.queryResultType', queryResultType))
+                .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
+                .add(Restrictions.eq('qi.userId', user.username))
+                .add(Restrictions.eq('qm.requestConstraints', constraint.toJson()))
+                .addOrder(Order.desc('qri.endDate'))
+        (QueryResult)getFirst(criteria)
+    }
+
+    /**
      * Tries to reuse query result that satisfy provided constraint for the user before creating it.
      * @return A new one or reused query result.
      */
@@ -342,16 +366,12 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                                              QtQueryResultType queryResultType,
                                              Closure<Long> queryExecutor) {
 
-        def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
-                .createCriteria('qri.queryInstance', 'qi')
-                .createCriteria('qi.queryMaster', 'qm')
-                .add(Restrictions.eq('qri.queryResultType', queryResultType))
-                .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
-                .add(Restrictions.eq('qi.userId', user.username))
-                .add(Restrictions.eq('qm.requestConstraints', constraint.toJson()))
-                .addOrder(Order.desc('qri.endDate'))
-
-        (QueryResult)getFirst(criteria) ?: createQueryResult(name, user, constraint, apiVersion, queryResultType, queryExecutor)
+        QueryResult result = findQueryResultByConstraint(user, constraint, queryResultType) ?:
+                createQueryResult(name, user, constraint, apiVersion, queryResultType, queryExecutor)
+        if (result.status != QueryStatus.FINISHED) {
+            throw new UnexpectedResultException('Query not finished.')
+        }
+        result
     }
 
     /**
@@ -406,12 +426,13 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     /**
-     * Populates given query result with patient set that satisfy provided constaints with regards with user access rights.
+     * Populates given query result with patient set that satisfy provided constraints with regards with user access rights.
      * @param queryResult query result to populate with patients
      * @param constraint constraint to get results that satisfy it
      * @param user user for whom to execute the patient set query. Result will depend on the user access rights.
      * @return Number of patients inserted in the patient set
      */
+    @CompileStatic
     private Integer populatePatientSetQueryResult(QtQueryResultInstance queryResult, MultiDimConstraint constraint, User user) {
         assert queryResult
         assert queryResult.id
