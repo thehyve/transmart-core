@@ -5,10 +5,13 @@ package org.transmartproject.db.multidimquery
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.Counts
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.AggregateDataService
-import org.transmartproject.db.multidimquery.query.*
 import spock.lang.Specification
 
 @Rollback

@@ -20,14 +20,14 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HypercubeDataColumn
 import org.transmartproject.db.multidimquery.SurveyTableView
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.Combination
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.OrConstraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.Combination
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 
 import static org.transmartproject.core.ontology.Measure.NOMINAL

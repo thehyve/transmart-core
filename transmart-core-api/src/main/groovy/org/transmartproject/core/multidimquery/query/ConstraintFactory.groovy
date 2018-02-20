@@ -1,4 +1,4 @@
-package org.transmartproject.db.multidimquery.query
+package org.transmartproject.core.multidimquery.query
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper

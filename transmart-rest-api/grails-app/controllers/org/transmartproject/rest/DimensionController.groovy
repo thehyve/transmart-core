@@ -9,8 +9,8 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.DimensionElementSerializer

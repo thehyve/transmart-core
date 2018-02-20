@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.tree.TreeNode
-import org.transmartproject.db.multidimquery.query.ConstraintSerialiser
+import org.transmartproject.core.multidimquery.query.ConstraintSerialiser
 
 @CompileStatic
 class TreeJsonSerializer {

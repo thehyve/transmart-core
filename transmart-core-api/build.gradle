@@ -13,6 +13,11 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.23'
 
     compile "com.google.guava:guava:$guavaVersion"
+    compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+    compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    //TODO Replace it with jackson
+    compile group: 'com.google.code.gson', name: 'gson', version: '1.7.1'
 }
 
 publishing {

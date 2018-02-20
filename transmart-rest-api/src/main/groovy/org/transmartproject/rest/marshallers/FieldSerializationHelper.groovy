@@ -1,7 +1,7 @@
 package org.transmartproject.rest.marshallers
 
 import groovy.transform.CompileStatic
-import org.transmartproject.db.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.Field
 
 @CompileStatic
 class FieldSerializationHelper extends AbstractHalOrJsonSerializationHelper<Field> {

@@ -2,10 +2,10 @@ package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
-import org.transmartproject.db.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.Type
-import org.transmartproject.db.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.FieldConstraint
 import spock.lang.Specification
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*

@@ -1,7 +1,6 @@
 package org.transmartproject.rest.dataExport
 
 import grails.transaction.Transactional
-import org.grails.web.json.JSONObject
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
@@ -11,7 +10,7 @@ import org.quartz.TriggerBuilder
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.user.User
 

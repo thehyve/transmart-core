@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.rest.HypercubeDataSerializationService
 import org.transmartproject.rest.SurveyTableViewDataSerializationService
 import org.transmartproject.rest.serialization.DataSerializer

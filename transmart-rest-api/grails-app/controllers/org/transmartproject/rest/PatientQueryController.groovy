@@ -13,8 +13,8 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.PatientWrapper
@@ -30,7 +30,7 @@ class PatientQueryController extends AbstractQueryController {
      * Patients endpoint:
      * <code>/v2/patients?constraint=${constraint}</code>
      *
-     * Expects a {@link org.transmartproject.db.multidimquery.query.Constraint} parameter <code>constraint</code>.
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
      * @return a list of {@link org.transmartproject.db.i2b2data.PatientDimension} objects for
      * which there are observations that satisfy the constraint.

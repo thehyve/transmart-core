@@ -32,7 +32,7 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.SurveyTableColumnService
 import org.transmartproject.db.multidimquery.HypercubeDataColumn
 import org.transmartproject.db.multidimquery.SurveyTableView
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.rest.serialization.DataSerializer
 import org.transmartproject.rest.serialization.Format

@@ -1,21 +1,21 @@
 package org.transmartproject.db.multidimquery
 
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.CombinationConstraintRewriter
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.Negation
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.OrConstraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.db.multidimquery.query.TemporalConstraint
-import org.transmartproject.db.multidimquery.query.TimeConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
-import org.transmartproject.db.multidimquery.query.Type
-import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.CombinationConstraintRewriter
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.Negation
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.TemporalConstraint
+import org.transmartproject.core.multidimquery.query.TimeConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.ValueConstraint
 import spock.lang.Specification
 
 import java.time.Instant

@@ -1,8 +1,7 @@
-package org.transmartproject.db.multidimquery.query
+package org.transmartproject.core.multidimquery.query
 
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
-import org.grails.buffer.FastStringWriter
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 
 import java.time.Instant
@@ -12,7 +11,7 @@ import java.time.temporal.TemporalAccessor
 class ConstraintSerialiser extends ConstraintBuilder<Void> {
 
     static String toJson(Constraint constraint) {
-        FastStringWriter stringWriter = new FastStringWriter()
+        StringWriter stringWriter = new StringWriter()
         def serialiser = new ConstraintSerialiser(stringWriter)
         serialiser.build(constraint)
         stringWriter.toString()

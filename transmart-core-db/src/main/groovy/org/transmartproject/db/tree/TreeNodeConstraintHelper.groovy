@@ -2,15 +2,15 @@ package org.transmartproject.db.tree
 
 import groovy.transform.CompileStatic
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
-import org.transmartproject.db.multidimquery.query.FieldConstraint
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.ModifierConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.MODIFIER_LEAF

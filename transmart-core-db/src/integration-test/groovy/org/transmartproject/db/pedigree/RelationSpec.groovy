@@ -5,10 +5,18 @@ package org.transmartproject.db.pedigree
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.QueryBuilderException
+import org.transmartproject.core.multidimquery.query.RelationConstraint
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
