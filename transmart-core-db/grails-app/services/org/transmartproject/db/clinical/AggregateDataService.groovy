@@ -44,7 +44,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     MDStudiesResource studiesResource
 
     @Autowired
-    MultiDimensionalDataResource multiDimensionalDataResource
+    MultidimensionalDataResourceService multidimensionalDataResourceService
 
     @Autowired
     ParallelPatientSetTaskService parallelPatientSetTaskService
@@ -58,19 +58,64 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Lazy
     private AggregateDataService wrappedThis = { Holders.grailsApplication.mainContext.aggregateDataService }()
 
-    @Transactional(readOnly = true)
-    Counts freshCounts(MultiDimConstraint constraint, User user) {
+
+    @CompileStatic
+    private List<Counts> countsTask(SubtaskParameters parameters) {
         def t1 = new Date()
+        log.debug "Start task ${parameters.task} ..."
+        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
+        try {
+            session.connection().autoCommit = false
+            HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
+            CriteriaImpl criteria = (CriteriaImpl) q.instance
+
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user)
+
+            criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+            criteria.setProjection(Projections.projectionList()
+                    .add(Projections.rowCount(), 'observationCount')
+                    .add(Projections.countDistinct('patient'), 'patientCount')
+            )
+            builder.applyToCriteria(criteria, [parameters.constraint])
+            criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+
+            def row = criteria.uniqueResult() as Map
+            def t2 = new Date()
+            log.info "Task ${parameters.task} done (took ${t2.time - t1.time} ms.)"
+            [new Counts((Long) row.observationCount, (Long) row.patientCount)]
+        } finally {
+            session.close()
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @CompileStatic
+    Counts freshCounts(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
-        QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria(constraint).setProjection(Projections.projectionList()
-                .add(Projections.rowCount(), 'observationCount')
-                .add(Projections.countDistinct('patient'), 'patientCount'))
-                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-        def row = get(criteria) as Map
-        def t2 = new Date()
-        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)
+        Constraint countsConstraint = (Constraint)constraint
+        if (!(countsConstraint instanceof TrueConstraint)) {
+            def constraintParts = ParallelPatientSetTaskService.getConstraintParts(countsConstraint)
+            if (!constraintParts.patientSetConstraint || !constraintParts.patientSetConstraint.patientSetId) {
+                // Try to combine the constraint a patient set for all accessible patients
+                def allPatientsSet = multidimensionalDataResourceService.findQueryResultByConstraint(
+                        user, new TrueConstraint(), multidimensionalDataResourceService.patientSetResultType)
+                if (allPatientsSet) {
+                    // add patient set constraint
+                    countsConstraint = new AndConstraint([new PatientSetConstraint(allPatientsSet.id), (Constraint)constraint])
+                }
+            }
+        }
+        def parameters = new TaskParameters(countsConstraint, user)
+        parallelPatientSetTaskService.run(parameters,
+                {SubtaskParameters params -> countsTask(params)},
+                {List<Counts> taskResults ->
+                    def result = new Counts(0L, 0L)
+                    for (Counts counts: taskResults) {
+                        result.merge(counts)
+                    }
+                    result
+                }
+        )
     }
 
     @Override
