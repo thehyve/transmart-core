@@ -29,13 +29,13 @@ interface DataSerializer {
      * @param constraint
      * @param user The user accessing the data
      * @param out
-     * @param includeMeasurementDateColumns
+     * @param options
      */
     void writeClinical(Format format,
                        MultiDimConstraint constraint,
                        User user,
                        OutputStream out,
-                       boolean includeMeasurementDateColumns)
+                       Map options)
 
     /**
      * Write high dimensional data to the output stream

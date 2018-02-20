@@ -44,7 +44,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                        MultiDimConstraint constraint,
                        User user,
                        OutputStream out,
-                       boolean includeMeasurementDateColumns = false) {
+                       Map options = [:]) {
 
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
 

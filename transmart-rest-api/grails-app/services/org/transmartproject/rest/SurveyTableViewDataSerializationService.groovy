@@ -103,15 +103,17 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
      * @param constraint
      * @param user
      * @param out
-     * @param includeMeasurementDateColumns
+     * @param options
      */
     @Override
     void writeClinical(Format format,
                        MultiDimConstraint constraint,
                        User user,
                        OutputStream out,
-                       boolean includeMeasurementDateColumns = true) {
+                       Map options = [:]) {
         log.info "Start parallel export ..."
+        boolean includeMeasurementDateColumns = options.includeMeasurementDateColumns != null ?
+                options.includeMeasurementDateColumns: true
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
                 (Constraint)constraint, user)
         final ImmutableList<MetadataAwareDataColumn> columns = ImmutableList.copyOf(
