@@ -87,6 +87,16 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         freshCounts(constraint, user)
     }
 
+    void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
+        QueryResult queryResult = multiDimensionalDataResource.createPatientSetQueryResult(
+                'Automatically generated set',
+                constraint, user, 'v2')
+        PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
+        wrappedThis.updateCountsCache(patientSetConstraint, user)
+        wrappedThis.updateCountsPerStudyCache(patientSetConstraint, user)
+        wrappedThis.updateCountsPerStudyAndConceptCache(patientSetConstraint, user)
+    }
+
     /**
      * Computes observations and patient counts for all data accessible by the user
      * (applying the 'true' constraint) and puts the result in the counts cache.
@@ -94,7 +104,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * @param user the user to compute the counts for.
      */
     void rebuildCountsCacheForUser(User user) {
-        wrappedThis.updateCountsCache(new TrueConstraint(), user)
+        rebuildCountsCacheForConstraint(new TrueConstraint(), user)
     }
 
     /**
@@ -113,13 +123,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             long timePoint = System.currentTimeMillis()
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} (${index}/${bookmarkedUserQueries.size()}).")
             Constraint patientQueryConstraint = ConstraintFactory.read(userQuery.patientsQuery)
-            QueryResult queryResult = multiDimensionalDataResource.createPatientSetQueryResult(
-                    'Automatically generated set',
-                    patientQueryConstraint, user, 'v2')
-            PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
-            wrappedThis.updateCountsCache(patientSetConstraint, user)
-            wrappedThis.updateCountsPerStudyCache(patientSetConstraint, user)
-            wrappedThis.updateCountsPerStudyAndConceptCache(patientSetConstraint, user)
+            rebuildCountsCacheForConstraint(patientQueryConstraint, user)
             long cachingTookInMsek = System.currentTimeMillis() - timePoint
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} took ${cachingTookInMsek} ms.")
         }
