@@ -317,6 +317,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         def constraintText = constraint.toJson()
         def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
                 .add(Restrictions.eq('qm.userId', user.username))
+                .add(Restrictions.eq('qm.deleteFlag', 'N'))
                 .add(Restrictions.eq('qm.requestConstraints', constraintText))
                 .addOrder(Order.desc('qm.createDate'))
 
@@ -348,9 +349,12 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 .createCriteria('qri.queryInstance', 'qi')
                 .createCriteria('qi.queryMaster', 'qm')
                 .add(Restrictions.eq('qri.queryResultType', queryResultType))
+                .add(Restrictions.eq('qri.deleteFlag', 'N'))
                 .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
                 .add(Restrictions.eq('qi.userId', user.username))
+                .add(Restrictions.eq('qi.deleteFlag', 'N'))
                 .add(Restrictions.eq('qm.requestConstraints', constraint.toJson()))
+                .add(Restrictions.eq('qm.deleteFlag', 'N'))
                 .addOrder(Order.desc('qri.endDate'))
         (QueryResult)getFirst(criteria)
     }
@@ -455,8 +459,11 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 .createCriteria('qri.queryInstance', 'qi')
                 .createCriteria('qi.queryMaster', 'qm')
                 .add(Restrictions.eq('qri.queryResultType.id', QueryResultType.PATIENT_SET_ID))
+                .add(Restrictions.eq('qri.deleteFlag', 'N'))
                 .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
                 .add(Restrictions.eq('qi.userId', user.username))
+                .add(Restrictions.eq('qi.deleteFlag', 'N'))
+                .add(Restrictions.eq('qm.deleteFlag', 'N'))
                 .add(Restrictions.eq('qri.id', queryResultId))
         def queryResult = getFirst(criteria) as QtQueryResultInstance
         if (queryResult == null) {
@@ -471,8 +478,11 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 .createCriteria('qri.queryInstance', 'qi')
                 .createCriteria('qi.queryMaster', 'qm')
                 .add(Restrictions.eq('qri.queryResultType.id', QueryResultType.PATIENT_SET_ID))
+                .add(Restrictions.eq('qri.deleteFlag', 'N'))
                 .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
                 .add(Restrictions.eq('qi.userId', user.username))
+                .add(Restrictions.eq('qi.deleteFlag', 'N'))
+                .add(Restrictions.eq('qm.deleteFlag', 'N'))
         return getIterable(criteria)
     }
 
