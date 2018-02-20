@@ -126,7 +126,7 @@ class ConstraintSerialiser extends ConstraintBuilder<Void> {
 
     @Override
     Void build(MultipleSubSelectionsConstraint constraint) {
-        writer.name('type').value(MultipleSubSelectionsConstraint.constraintName)
+        writer.name('type').value('multiple_subselections')
         writer.name('dimension').value(constraint.dimension)
         writer.name('operator').value(constraint.operator.symbol)
         writer.name('args')
