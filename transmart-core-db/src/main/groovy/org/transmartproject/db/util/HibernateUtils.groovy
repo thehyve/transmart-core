@@ -149,7 +149,7 @@ class HibernateUtils {
         )
     }
 
-    static insertResultToTable(final Class entityClass, final List<String> properties, final Criteria resultCriteria) {
+    static int insertResultToTable(final Class entityClass, final List<String> properties, final Criteria resultCriteria) {
         assert resultCriteria instanceof CriteriaImpl
         SessionImplementor session = resultCriteria.session
         SessionFactoryImplementor factory = session.factory
