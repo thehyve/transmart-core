@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import grails.transaction.Transactional
 import grails.util.Holders
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
@@ -15,7 +16,9 @@ import org.hibernate.Criteria
 import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
+import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
+import org.hibernate.type.Type
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.TabularResult
@@ -27,6 +30,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
@@ -35,9 +39,17 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.MultipleSubSelectionsConstraint
+import org.transmartproject.core.multidimquery.query.Negation
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.QueryBuilder
+import org.transmartproject.core.multidimquery.query.QueryBuilderException
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
@@ -55,7 +67,10 @@ import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
 
+import java.util.function.Function
+
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
+import static org.transmartproject.db.support.ParallelPatientSetTaskService.*
 
 class MultidimensionalDataResourceService extends AbstractDataResourceService implements MultiDimensionalDataResource {
 
@@ -277,8 +292,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                                             User user,
                                             Constraint constraint,
                                             String apiVersion,
-                                            QtQueryResultType queryResultType,
-                                            Closure<Long> queryExecutor) {
+                                            Function<PatientSetDefinition, Long> queryExecutor) {
         // 1. Populate or reuse qt_query_master
         Object queryMaster = createOrReuseQueryMaster(user, constraint, name, apiVersion)
         // 2. Populate qt_query_instance
@@ -292,19 +306,20 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         queryInstance.save(failOnError: true)
         // 3. Populate qt_query_result_instance
         def resultInstance = new QtQueryResultInstance()
-        resultInstance.statusTypeId = QueryStatus.PROCESSING.id
+        resultInstance.statusTypeId = (short)QueryStatus.PROCESSING.id
         resultInstance.startDate = new Date()
         resultInstance.queryInstance = queryInstance
-        resultInstance.queryResultType = queryResultType
+        resultInstance.queryResultType = patientSetResultType
         resultInstance.description = name
         resultInstance.save(failOnError: true, flush: true)
         try {
             // 4. Execute the query
-            resultInstance.setSize = queryExecutor(resultInstance)
+            resultInstance.setSize = queryExecutor.apply(
+                    new PatientSetDefinition(resultInstance, constraint, user, apiVersion))
 
             // 5a. Update the result
             resultInstance.endDate = new Date()
-            resultInstance.statusTypeId = QueryStatus.FINISHED.id
+            resultInstance.statusTypeId = (short)QueryStatus.FINISHED.id
             queryInstance.endDate = new Date()
             queryInstance.statusTypeId = QueryStatus.FINISHED.id
         } catch (Throwable t) {
@@ -312,7 +327,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             resultInstance.setSize = resultInstance.realSetSize = -1
             resultInstance.errorMessage = t.message
             resultInstance.endDate = new Date()
-            resultInstance.statusTypeId = QueryStatus.ERROR.id
+            resultInstance.statusTypeId = (short)QueryStatus.ERROR.id
             queryInstance.endDate = new Date()
             queryInstance.statusTypeId = QueryStatus.ERROR.id
         }
@@ -327,7 +342,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 .add(Restrictions.eq('qm.requestConstraints', constraintText))
                 .addOrder(Order.desc('qm.createDate'))
 
-        QtQueryMaster queryMaster = getFirst(queryMasterCriteria)
+        QtQueryMaster queryMaster = (QtQueryMaster)getFirst(queryMasterCriteria)
         if (queryMaster == null) {
             queryMaster = new QtQueryMaster()
             queryMaster.name = name
@@ -349,12 +364,11 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      * @return the query result if it exists; null otherwise.
      */
     QueryResult findQueryResultByConstraint(User user,
-                                            Constraint constraint,
-                                            QtQueryResultType queryResultType) {
+                                            Constraint constraint) {
         def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
                 .createCriteria('qri.queryInstance', 'qi')
                 .createCriteria('qi.queryMaster', 'qm')
-                .add(Restrictions.eq('qri.queryResultType', queryResultType))
+                .add(Restrictions.eq('qri.queryResultType', patientSetResultType))
                 .add(Restrictions.eq('qri.deleteFlag', 'N'))
                 .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
                 .add(Restrictions.eq('qi.userId', user.username))
@@ -373,11 +387,19 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                                              User user,
                                              Constraint constraint,
                                              String apiVersion,
-                                             QtQueryResultType queryResultType,
-                                             Closure<Long> queryExecutor) {
+                                             Function<PatientSetDefinition, Long> queryExecutor) {
+        log.info "Create or reuse patient set for query ${constraint.toJson()} ..."
+        if (constraint instanceof SubSelectionConstraint && constraint.dimension == 'patient') {
+            log.info "Flattening subselection constraint."
+            return createOrReuseQueryResult(name, user, constraint.constraint, apiVersion, queryExecutor)
+        } else if (constraint instanceof MultipleSubSelectionsConstraint
+                && constraint.dimension == 'patient' && constraint.args.size() == 1) {
+            log.info "Flattening singleton multiple subselections constraint."
+            return createOrReuseQueryResult(name, user, constraint.args[0], apiVersion, queryExecutor)
+        }
 
-        QueryResult result = findQueryResultByConstraint(user, constraint, queryResultType) ?:
-                createQueryResult(name, user, constraint, apiVersion, queryResultType, queryExecutor)
+        QueryResult result = findQueryResultByConstraint(user, constraint) ?:
+                createQueryResult(name, user, constraint, apiVersion, queryExecutor)
         if (result.status != QueryStatus.FINISHED) {
             throw new UnexpectedResultException('Query not finished.')
         }
@@ -407,8 +429,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 user,
                 constraint,
                 apiVersion,
-                patientSetResultType,
-                { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
+                this.&populatePatientSetQueryResult
         )
     }
 
@@ -430,9 +451,261 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 user,
                 constraint,
                 apiVersion,
-                patientSetResultType,
-                { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
+                this.&populatePatientSetQueryResult
         )
+    }
+
+    @Canonical
+    @CompileStatic
+    static class PatientIdListWrapper {
+        List<Long> patientIds
+    }
+
+    @CompileStatic
+    private List<PatientIdListWrapper> getPatientIdsTask(SubtaskParameters parameters) {
+        log.info "Task ${parameters.task}, constraint: ${parameters.constraint.toJson()}"
+        def session = (StatelessSessionImpl)sessionFactory.openStatelessSession()
+        try {
+            session.connection().autoCommit = false
+            HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
+            CriteriaImpl criteria = (CriteriaImpl) q.instance
+
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user)
+
+            criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+            criteria.setProjection(Projections.projectionList().add(
+                    Projections.distinct(Projections.property('patient.id')), 'patientId'))
+            criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+            builder.applyToCriteria(criteria, [parameters.constraint])
+
+            def t1 = new Date()
+
+            def result = criteria.list().collect { it -> (Long)((Map)it).patientId } as List<Long>
+
+            def t2 = new Date()
+            log.info "Task ${parameters.task}: fetched ${result.size()} patients. (took ${t2.time - t1.time} ms.)"
+            return [new PatientIdListWrapper(result)]
+        } finally {
+            session.close()
+        }
+    }
+
+    @CompileStatic
+    private Integer insertPatientsToQueryResult(QueryResult queryResult, Collection<Long> patientIds) {
+        def t1 = new Date()
+        def session = (StatelessSessionImpl)sessionFactory.openStatelessSession()
+        try {
+            session.connection().autoCommit = false
+            def tx = session.beginTransaction()
+            int insertCount = 0
+            int i = 0
+            def statement = session.connection().prepareStatement(
+                    'insert into i2b2demodata.qt_patient_set_collection (patient_num, result_instance_id) values (?, ?)')
+            for (Long patientId : patientIds) {
+                statement.setLong(1, patientId)
+                statement.setLong(2, queryResult.id)
+                statement.addBatch()
+                i++
+                if ((i % 500) == 0) {
+                    log.debug 'Inserting batch ...'
+                    int[] insertCounts = statement.executeBatch()
+                    insertCount += insertCounts.sum()
+                }
+            }
+            log.debug 'Inserting final batch ...'
+            int[] insertCounts = statement.executeBatch()
+            insertCount += insertCounts.sum()
+            tx.commit()
+            def t2 = new Date()
+            log.info "Patient set inserted. (took ${t2.time - t1.time} ms.)"
+            insertCount
+        } finally {
+            session.close()
+        }
+    }
+
+    @CompileStatic
+    private Constraint findAndPersistSubquery(Constraint constraint, User user, String apiVersion) {
+        if (constraint instanceof SubSelectionConstraint) {
+            def subSelect = ((SubSelectionConstraint)constraint)
+            if (subSelect.dimension == 'patient') {
+                log.info "Creating new patient set for constraint: ${subSelect.constraint.toJson()}"
+                QueryResult subQueryResult = createOrReusePatientSetQueryResult('temp',
+                        subSelect.constraint, user, apiVersion)
+                def result = new PatientSetConstraint(subQueryResult.id)
+                log.info "Result: ${result.toJson()}"
+                return result
+            }
+        } else if (constraint instanceof Negation) {
+            def arg = ((Negation)constraint).arg
+            if (arg instanceof SubSelectionConstraint) {
+                def subSelect = ((SubSelectionConstraint)arg)
+                if (subSelect.dimension == 'patient') {
+                    log.info "Creating new patient set for constraint: ${subSelect.constraint.toJson()}"
+                    QueryResult subQueryResult = createOrReusePatientSetQueryResult('temp',
+                            subSelect.constraint, user, apiVersion)
+                    def result = new Negation(new PatientSetConstraint(subQueryResult.id))
+                    log.info "Result: ${result.toJson()}"
+                    return result
+                }
+            }
+        }
+        null
+    }
+
+    @CompileStatic
+    private Constraint persistPatientSubqueries(Constraint constraint, User user, String apiVersion) {
+        List<Constraint> subQueries = []
+        List<Constraint> topQueryParts = []
+
+        def query = findAndPersistSubquery(constraint, user, apiVersion)
+        if (query) {
+            log.info "Query is a subquery."
+            return new MultipleSubSelectionsConstraint('patient', Operator.OR, [query])
+        }
+
+        if (!(constraint instanceof Combination)) {
+            log.info "Query is not a combination."
+            return constraint
+        }
+        def combination = (Combination)constraint
+        def operator = combination.operator
+        log.info "Query with operator ${operator.symbol} and ${combination.args.size()} arguments."
+        for (Constraint part: combination.args) {
+            def subQuery = findAndPersistSubquery(part, user, apiVersion)
+            if (subQuery) {
+                // subquery or negated subquery found, replaced with patient set
+                subQueries.add(subQuery)
+                log.info "Argument is a subquery and has been persisted: ${part.toJson()}"
+            } else if (operator == Operator.OR && part instanceof StudyNameConstraint) {
+                // study constraint found in a (patient query level) disjunction, create patient set for study
+                log.info "Creating new patient set for constraint: ${part.toJson()}"
+                QueryResult studySubset = createOrReusePatientSetQueryResult('temp',
+                        part, user, apiVersion)
+                def studySubsetConstraint = new PatientSetConstraint(studySubset.id)
+                subQueries.add(studySubsetConstraint)
+            } else {
+                // recursive call, to support nested subqueries
+                def partResult = persistPatientSubqueries(part, user, apiVersion)
+                if (partResult instanceof MultipleSubSelectionsConstraint) {
+                    log.info "Argument is a nested subquery: ${partResult.toJson()}"
+                    subQueries.add((Constraint)partResult)
+                } else {
+                    log.info "Argument is not a subquery: ${partResult.toJson()}"
+                    topQueryParts.add(partResult)
+                }
+            }
+        }
+        Constraint topQuery
+        Operator setOperator
+        switch (operator) {
+            case Operator.AND:
+                topQuery = new AndConstraint(topQueryParts)
+                setOperator = Operator.INTERSECT
+                break
+            case Operator.OR:
+                topQuery = new OrConstraint(topQueryParts)
+                setOperator = Operator.UNION
+                break
+            default:
+                throw new InvalidQueryException("Unexpected operator ${operator.symbol}.")
+        }
+        if (!subQueries.empty) {
+            if (!topQueryParts.empty) {
+                QueryResult topQueryResult = createOrReusePatientSetQueryResult('temp',
+                        topQuery, user, apiVersion)
+                subQueries.add(new PatientSetConstraint(topQueryResult.id))
+            }
+            def result = new MultipleSubSelectionsConstraint('patient', setOperator, subQueries)
+            log.info "Subqueries replaced by patient sets. Result: ${result.toJson()}"
+            return result
+        }
+        log.info "No subqueries found, returning constraint."
+        return constraint
+    }
+
+    @CompileStatic
+    private Criterion buildSubselectCriterion(String property, Constraint constraint) {
+        if (constraint instanceof PatientSetConstraint) {
+            log.info "Build patient set constraint for patientSetId ${((PatientSetConstraint)constraint).patientSetId}"
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
+            subCriteria.add(Restrictions.eq('resultInstance.id', ((PatientSetConstraint)constraint).patientSetId))
+            Subqueries.propertyIn(property, subCriteria.setProjection(Projections.property('patient')))
+        } else if (constraint instanceof Negation) {
+            log.info "Build negation constraint"
+            return Restrictions.not(buildSubselectCriterion(property, ((Negation)constraint).arg))
+        } else if (constraint instanceof MultipleSubSelectionsConstraint) {
+            def subSelections = (MultipleSubSelectionsConstraint)constraint
+            assert subSelections.dimension == 'patient': "Dimension not supported: ${subSelections.dimension}"
+            if (subSelections.args.empty) {
+                throw new QueryBuilderException('Empty list of subselection constraints.')
+            }
+            log.info "Build subselection constraints (${constraint.operator}, ${constraint.args.size()})"
+            Criterion criterion = buildSubselectCriterion(property, constraint.args.head())
+            List<Constraint> tail = constraint.args.tail()
+            if (!tail.empty) {
+                def tailConstraint = new MultipleSubSelectionsConstraint('patient', constraint.operator, tail)
+                def tailCriterion = buildSubselectCriterion(property, tailConstraint)
+                switch(constraint.operator) {
+                    case Operator.INTERSECT:
+                        criterion = Restrictions.and(criterion, tailCriterion)
+                        break
+                    case Operator.UNION:
+                        criterion = Restrictions.or(criterion, tailCriterion)
+                        break
+                    default:
+                        throw new QueryBuilderException("Operator not supported: ${constraint.operator.name()}")
+                }
+            }
+            return criterion
+        } else {
+            throw new InvalidQueryException("Query type not supported: ${constraint.class.simpleName}.")
+        }
+    }
+
+
+    /**
+     * Create a query for the combination using union, intersect:
+     * using {@link HibernateCriteriaQueryBuilder#build(MultipleSubSelectionsConstraint)}.
+     */
+    @CompileStatic
+    private List<Long> getPatientIdsFromSubselections(MultipleSubSelectionsConstraint constraint) {
+        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
+        try {
+            session.connection().autoCommit = false
+            HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(
+                    org.transmartproject.db.i2b2data.PatientDimension, 'patient_dimension', session)
+            CriteriaImpl criteria = (CriteriaImpl) q.instance
+
+            // Criterion of the form 'patient' in (select ...)
+            // Can be used to e.g., get all from patient dimension that satisfy this criterion.
+            Criterion subselectCriterion = buildSubselectCriterion('id', constraint)
+
+            criteria.add(subselectCriterion)
+            criteria.setProjection(Projections.projectionList().add(
+                    Projections.id()))
+
+            def t1 = new Date()
+            log.info "Querying patient ids for: ${constraint.toJson()} ..."
+
+            def result = criteria.list() as List<Long>
+
+            def t2 = new Date()
+            log.info "Found ${result.size()} patients (took ${t2.time - t1.time} ms.)"
+
+            result
+        } finally {
+            session.close()
+        }
+    }
+
+    @CompileStatic
+    @Canonical
+    static class PatientSetDefinition {
+        QueryResult queryResult
+        Constraint constraint
+        User user
+        String apiVersion
     }
 
     /**
@@ -440,26 +713,82 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      * @param queryResult query result to populate with patients
      * @param constraint constraint to get results that satisfy it
      * @param user user for whom to execute the patient set query. Result will depend on the user access rights.
+     * @param apiVersion the API version
      * @return Number of patients inserted in the patient set
      */
     @CompileStatic
-    private Integer populatePatientSetQueryResult(QtQueryResultInstance queryResult, Constraint constraint, User user) {
+    private Integer populatePatientSetQueryResult(PatientSetDefinition patientSetDefinition) {
+        def queryResult = patientSetDefinition.queryResult
+        def constraint = patientSetDefinition.constraint
+        def user = patientSetDefinition.user
+        def apiVersion = patientSetDefinition.apiVersion
+
         assert queryResult
         assert queryResult.id
 
-        DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user).buildCriteria(constraint)
-                .setProjection(
-                Projections.projectionList()
-                        .add(Projections.distinct(Projections.property('patient.id')), 'pid')
-                        .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
-                        [StandardBasicTypes.LONG] as org.hibernate.type.Type[])))
+        if (constraint instanceof TrueConstraint) {
+            // Creating patient set for all patients, execute single query
+            log.info "Saving patient set for the True constraint."
+            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user).buildCriteria(constraint)
+                    .setProjection(
+                    Projections.projectionList()
+                            .add(Projections.distinct(Projections.property('patient.id')), 'pid')
+                            .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
+                            [StandardBasicTypes.LONG] as Type[])))
 
-        Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
-        return HibernateUtils
-                .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
+            Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
+            return HibernateUtils
+                    .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
+        } else {
+            /**
+             * - First split into multiple subselects if of the form (subselect() op subselect()) with op in {'or', 'and'}
+             * - Create patient sets for each of the subselects
+             */
+            log.info "Check if the query can be split into subqueries: ${constraint.toJson()}"
+            def transformedQuery = persistPatientSubqueries(constraint, user, apiVersion)
+            // NOTE: This is a bit of a hack, we know that a MultipleSubSelectionsConstraint is only returned
+            // if all subqueries have been replaced by patient set constraints.
+            if (transformedQuery instanceof MultipleSubSelectionsConstraint) {
+                // Create a patient set as a combination of patient subsets.
+                log.info "Fetch patients based on patient subsets: ${transformedQuery.toJson()}"
+                def patientIds = getPatientIdsFromSubselections((MultipleSubSelectionsConstraint)transformedQuery)
+                insertPatientsToQueryResult(queryResult, patientIds)
+            } else {
+                // Base case: executing the leaf query on observation_fact.
+                log.info "Executing query on observation_fact: ${constraint.toJson()}"
+                def taskConstraint = constraint
+
+                boolean parallelise = false
+                if (parallelise) {
+                    // Find or create the set of all patients
+                    QueryResult allPatientsResult = createOrReusePatientSetQueryResult('All subjects',
+                            new TrueConstraint(), user, apiVersion)
+                    log.info "Using set of all subjects for parallelisation: ${allPatientsResult.id}"
+                    // Enable parallelisation based on allPatientsResult
+                    taskConstraint = new AndConstraint([new PatientSetConstraint(allPatientsResult.id), constraint])
+                }
+
+                def t1 = new Date()
+                log.info "Start patient set creation ..."
+                def taskParameters = new TaskParameters(taskConstraint, user)
+                List<Long> patientIds = parallelPatientSetTaskService.run(
+                        taskParameters,
+                        { SubtaskParameters params ->
+                            getPatientIdsTask(params)
+                        },
+                        { List<PatientIdListWrapper> patientIdLists ->
+                            patientIdLists.collectMany { it.patientIds } as List<Long>
+                        }
+                )
+                def t2 = new Date()
+                log.info "Fetched ${patientIds.size()} patients (took ${t2.time - t1.time} ms.)."
+                insertPatientsToQueryResult(queryResult, patientIds)
+            }
+        }
     }
 
     @Override
+    @Transactional(readOnly = true)
     QueryResult findQueryResult(Long queryResultId, User user) {
         def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
                 .createCriteria('qri.queryInstance', 'qi')
