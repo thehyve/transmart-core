@@ -84,7 +84,7 @@ class QueryController extends AbstractQueryController {
     /**
      * Helper function for retrieving clinical hypercube data
      */
-    private def clinicalObservations(constraint_text) {
+    private def clinicalObservations(String constraint_text) {
 
         def format = contentFormat
         if (format == Format.NONE) {
