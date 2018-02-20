@@ -19,6 +19,7 @@ import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.users.User
@@ -111,12 +112,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         bookmarkedUserQueries.eachWithIndex{ UserQuery userQuery, int index ->
             long timePoint = System.currentTimeMillis()
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} (${index}/${bookmarkedUserQueries.size()}).")
-            Constraint patientConstraint = ConstraintFactory.read(userQuery.patientsQuery)
-            multiDimensionalDataResource.createOrReusePatientSetQueryResult('Automatically generated set',
-                    patientConstraint, user, 'v2')
-            wrappedThis.updateCountsCache(patientConstraint, user)
-            wrappedThis.updateCountsPerStudyCache(patientConstraint, user)
-            wrappedThis.updateCountsPerStudyAndConceptCache(patientConstraint, user)
+            Constraint patientQueryConstraint = ConstraintFactory.read(userQuery.patientsQuery)
+            QueryResult queryResult = multiDimensionalDataResource.createPatientSetQueryResult(
+                    'Automatically generated set',
+                    patientQueryConstraint, user, 'v2')
+            PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
+            wrappedThis.updateCountsCache(patientSetConstraint, user)
+            wrappedThis.updateCountsPerStudyCache(patientSetConstraint, user)
+            wrappedThis.updateCountsPerStudyAndConceptCache(patientSetConstraint, user)
             long cachingTookInMsek = System.currentTimeMillis() - timePoint
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} took ${cachingTookInMsek} ms.")
         }
