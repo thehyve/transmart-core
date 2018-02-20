@@ -1,9 +1,9 @@
 package org.transmartproject.db.multidimquery
 
-import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
+import org.hibernate.internal.SessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
@@ -16,11 +16,16 @@ import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.Negation
 import org.transmartproject.core.multidimquery.query.Operator
 import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
@@ -29,6 +34,7 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
+import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.AccessLevelTestData
 import spock.lang.Ignore
 
@@ -86,6 +92,7 @@ class QueryServiceSpec extends TransmartSpecification {
         accessLevelTestData.saveAuthorities()
 
         sessionFactory.currentSession.flush()
+        ((SessionImpl)sessionFactory.currentSession).connection().commit()
     }
 
     Constraint createQueryForConcept(String conceptCode) {
@@ -134,35 +141,17 @@ class QueryServiceSpec extends TransmartSpecification {
         result.size() == hypercubeTestData.clinicalData.allHypercubeFacts.findAll { it.modifierCd == '@' }.size()
     }
 
-    void "test query for values > 1 and subject id 2"() {
+    void "test query for patients with values > 1 and subject id 2"() {
         setupHypercubeData()
 
-        Constraint constraint = ConstraintFactory.create([
-                type    : 'combination',
-                operator: 'and',
-                args    : [
-                        [
-                                type     : 'value',
-                                valueType: 'NUMERIC',
-                                operator : '>',
-                                value    : 1
-                        ],
-                        [
-                                type    : 'field',
-                                field   : [dimension: 'patient', type: 'STRING', fieldName: 'sourcesystemCd'],
-                                operator: 'contains',
-                                value   : 'SUBJ_ID_2'
-                        ],
-                        [
-                                type    : 'or',
-                                args    : hypercubeTestData.clinicalData.allHypercubeStudies.collect {
-                                    [
-                                            type:   'study_name',
-                                            studyId:  it.studyId
-                                    ]
-                                }
-                        ]
-                ]
+        Constraint constraint = new AndConstraint([
+                new ValueConstraint(Type.NUMERIC, Operator.GREATER_THAN, 1),
+                new FieldConstraint(
+                        new Field('patient', Type.STRING, 'sourcesystemCd'),
+                        Operator.CONTAINS, 'SUBJ_ID_2'),
+                new OrConstraint(hypercubeTestData.clinicalData.allHypercubeStudies.collect {
+                    new StudyNameConstraint(it.studyId)
+                })
         ])
 
         when:
@@ -224,7 +213,7 @@ class QueryServiceSpec extends TransmartSpecification {
         observations*.getAt(DimensionImpl.PATIENT) as Set == patients as Set
 
         when: "I build a patient set based on the constraint"
-        def patientSet = multiDimService.createPatientSetQueryResult("Test set",
+        def patientSet = (QtQueryResultInstance)multiDimService.createPatientSetQueryResult("Test set",
                                                        constraint,
                                                        accessLevelTestData.users[0],
                                                        apiVersion)
@@ -234,25 +223,98 @@ class QueryServiceSpec extends TransmartSpecification {
         patientSet.queryResultType.id == QueryResultType.PATIENT_SET_ID
 
         when: "I query for patients based on the patient set id"
-        Constraint patientSetConstraint = ConstraintFactory.create(
-                [ type: 'patient_set', patientSetId: patientSet.id ]
-        )
-        def patients2 = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
-                patientSetConstraint, accessLevelTestData.users[0]).toList()
+        Constraint patientSetConstraint = new PatientSetConstraint(patientSet.id)
+        def patients2 = getPatients(patientSetConstraint)
 
         then: "I get the same set of patient as before"
+        patientSet.setSize.intValue() == patients.size()
         patients as Set == patients2 as Set
 
         when: "I query for patients based on saved constraints"
-        def setConstraint = patientSet.queryInstance.queryMaster.requestConstraints
+        def setConstraint = patientSet.queryInstance.queryMaster.requestConstraints as String
         def setVersion = patientSet.queryInstance.queryMaster.apiVersion
-        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(setConstraint) as Map)
-        def patients3 = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
-                savedPatientSetConstraint, accessLevelTestData.users[0]).toList()
+        def savedPatientSetConstraint = ConstraintFactory.read(setConstraint)
+        def patients3 = getPatients(savedPatientSetConstraint)
 
         then: "I get the same set of patient as before"
         patients as Set == patients3 as Set
         setVersion == apiVersion
+    }
+
+    void "test patient set creation reusing subquery sets"() {
+        setupHypercubeData()
+        Constraint constraint = new AndConstraint([
+                new SubSelectionConstraint('patient',
+                        new StudyNameConstraint(hypercubeTestData.clinicalData.longitudinalStudy.studyId)),
+                new SubSelectionConstraint('patient',
+                        new OrConstraint([
+                                new ConceptConstraint(conceptCode: 'c5'),
+                                new ConceptConstraint(conceptCode: 'c6')
+                        ])
+                )
+        ])
+        String apiVersion = "2.1-tests"
+
+        when: "I query for all patients for the constraint"
+        def patients = getPatients(constraint)
+
+        then: "I get the expected number of patients"
+        patients.size() == 3
+
+        when: "I build a patient set based on the constraint"
+        def patientSet = (QtQueryResultInstance)multiDimService.createPatientSetQueryResult("Test set",
+                constraint,
+                accessLevelTestData.users[0],
+                apiVersion)
+
+        then: "I get a patient set id"
+        patientSet != null
+        patientSet.id != null
+        patientSet.queryResultType.id == QueryResultType.PATIENT_SET_ID
+
+        when: "I query for patients based on the patient set id"
+        Constraint patientSetConstraint = new PatientSetConstraint(patientSet.id)
+        def patients2 = getPatients(patientSetConstraint)
+
+        then: "I get the same set of patient as before"
+        patientSet.setSize.intValue() == patients.size()
+        patients as Set == patients2 as Set
+    }
+
+    void "test negation support in patient set creation reusing subquery sets"() {
+        setupHypercubeData()
+        Constraint constraint = new AndConstraint([
+                new SubSelectionConstraint('patient',
+                        new StudyNameConstraint(hypercubeTestData.clinicalData.longitudinalStudy.studyId)),
+                new Negation(
+                        new SubSelectionConstraint('patient', new ConceptConstraint(conceptCode: 'c5')))
+        ])
+        String apiVersion = "2.1-tests"
+
+        when: "I query for all patients for the constraint"
+        def patients = getPatients(constraint)
+
+        then: "I get the expected number of patients"
+        patients.size() == 0
+
+        when: "I build a patient set based on the constraint"
+        def patientSet = (QtQueryResultInstance)multiDimService.createPatientSetQueryResult("Test set",
+                constraint,
+                accessLevelTestData.users[0],
+                apiVersion)
+
+        then: "I get a patient set id"
+        patientSet != null
+        patientSet.id != null
+        patientSet.queryResultType.id == QueryResultType.PATIENT_SET_ID
+
+        when: "I query for patients based on the patient set id"
+        Constraint patientSetConstraint = new PatientSetConstraint(patientSet.id)
+        def patients2 = getPatients(patientSetConstraint)
+
+        then: "I get the same set of patient as before"
+        patientSet.setSize.intValue() == patients.size()
+        patients as Set == patients2 as Set
     }
 
     void "test query for all patient sets"() {

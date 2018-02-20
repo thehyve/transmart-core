@@ -37,7 +37,7 @@ class AggregateDataServicePgSpec extends Specification {
         def countsPerConcept = aggregateDataService.countsPerConcept(studyConstraint, user)
 
         then: "the result should contain entries for both concepts in the study"
-        !countsPerConcept.empty
+        !countsPerConcept.isEmpty()
         countsPerConcept.keySet() == ['EHR:DEM:AGE', 'EHR:VSIGN:HR'] as Set
 
         then: "the result should contain the correct counts for both concepts"
@@ -50,7 +50,7 @@ class AggregateDataServicePgSpec extends Specification {
         def countsPerStudy = aggregateDataService.countsPerStudy(new TrueConstraint(), user)
 
         then: "the result should contain all study ids as key"
-        !countsPerStudy.empty
+        !countsPerStudy.isEmpty()
         countsPerStudy.keySet() == [
                 'CATEGORICAL_VALUES',
                 'CLINICAL_TRIAL',
@@ -78,7 +78,7 @@ class AggregateDataServicePgSpec extends Specification {
         def counts = aggregateDataService.counts(new TrueConstraint(), user)
 
         then: "the result should contain the counts for study EHR and concept EHR:VSIGN:HR"
-        !countsPerStudyAndConcept.empty
+        !countsPerStudyAndConcept.isEmpty()
         countsPerStudyAndConcept.keySet() == countsPerStudy.keySet()
         countsPerStudyAndConcept['EHR']['EHR:VSIGN:HR'].patientCount == 3
         countsPerStudyAndConcept['EHR']['EHR:VSIGN:HR'].observationCount == 9

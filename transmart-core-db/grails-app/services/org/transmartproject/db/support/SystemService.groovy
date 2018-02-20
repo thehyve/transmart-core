@@ -58,9 +58,6 @@ class SystemService implements SystemResource {
     void clearCaches() {
         treeCacheService.clearAllCacheEntries()
         aggregateDataService.clearCountsCache()
-        aggregateDataService.clearPatientCountCache()
-        aggregateDataService.clearCountsPerConceptCache()
-        aggregateDataService.clearCountsPerStudyCache()
         aggregateDataService.clearCountsPerStudyAndConceptCache()
         studiesService.clearCaches()
         trialVisitsService.clearCache()
