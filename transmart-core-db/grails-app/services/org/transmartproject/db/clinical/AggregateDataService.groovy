@@ -133,7 +133,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
-        QueryResult queryResult = multiDimensionalDataResource.createPatientSetQueryResult(
+        QueryResult queryResult = multidimensionalDataResourceService.createPatientSetQueryResult(
                 'Automatically generated set',
                 constraint, user, 'v2')
         PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
