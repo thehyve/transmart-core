@@ -2,7 +2,6 @@
 
 package org.transmartproject.db.clinical
 
-import grails.converters.JSON
 import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.CachePut
@@ -12,16 +11,15 @@ import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import org.grails.web.converters.exceptions.ConverterException
 import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.users.User
@@ -89,6 +87,16 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         freshCounts(constraint, user)
     }
 
+    void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
+        QueryResult queryResult = multiDimensionalDataResource.createPatientSetQueryResult(
+                'Automatically generated set',
+                constraint, user, 'v2')
+        PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
+        wrappedThis.updateCountsCache(patientSetConstraint, user)
+        wrappedThis.updateCountsPerStudyCache(patientSetConstraint, user)
+        wrappedThis.updateCountsPerStudyAndConceptCache(patientSetConstraint, user)
+    }
+
     /**
      * Computes observations and patient counts for all data accessible by the user
      * (applying the 'true' constraint) and puts the result in the counts cache.
@@ -96,7 +104,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * @param user the user to compute the counts for.
      */
     void rebuildCountsCacheForUser(User user) {
-        wrappedThis.updateCountsCache(new TrueConstraint(), user)
+        rebuildCountsCacheForConstraint(new TrueConstraint(), user)
     }
 
     /**
@@ -114,12 +122,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         bookmarkedUserQueries.eachWithIndex{ UserQuery userQuery, int index ->
             long timePoint = System.currentTimeMillis()
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} (${index}/${bookmarkedUserQueries.size()}).")
-            Constraint patientConstraint = createConstraints(userQuery.patientsQuery)
-            multiDimensionalDataResource.createOrReusePatientSetQueryResult('Automatically generated set',
-                    patientConstraint, user, 'v2')
-            wrappedThis.updateCountsCache(patientConstraint, user)
-            wrappedThis.updateCountsPerStudyCache(patientConstraint, user)
-            wrappedThis.updateCountsPerStudyAndConceptCache(patientConstraint, user)
+            Constraint patientQueryConstraint = ConstraintFactory.read(userQuery.patientsQuery)
+            rebuildCountsCacheForConstraint(patientQueryConstraint, user)
             long cachingTookInMsek = System.currentTimeMillis() - timePoint
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} took ${cachingTookInMsek} ms.")
         }
@@ -333,15 +337,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
         def t2 = new Date()
         log.info "Caching counts per study and concept took ${t2.time - t1.time} ms."
-    }
-
-    private static Constraint createConstraints(String constraintParam) {
-        try {
-            def constraintData = JSON.parse(constraintParam) as Map
-            return ConstraintFactory.create(constraintData)
-        } catch (ConverterException c) {
-            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
-        }
     }
 
     /**
