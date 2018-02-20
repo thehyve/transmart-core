@@ -73,7 +73,14 @@ abstract class AbstractQueryController implements Controller {
      */
     protected Map getGetOrPostParams() {
         if(request.method == "POST") {
-            return request.JSON as Map
+            def parameters = request.JSON as Map
+            return parameters.collectEntries { String k, v ->
+                if(v instanceof Object[] || v instanceof List) {
+                    [k, v.collect { (it as JSON).toString(false) }]
+                } else {
+                    [k, (v as JSON).toString(false)]
+                }
+            }
         }
         return params.collectEntries { String k, v ->
             if (!RequestUtils.GLOBAL_PARAMS.contains(k)) {

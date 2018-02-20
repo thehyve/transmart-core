@@ -9,7 +9,7 @@ class ExportAuditInterceptor {
     User currentUserBean
 
     ExportAuditInterceptor(){
-        match(controller: ~/export/)
+        match(controller: ~/export/).excludes(action: ~/listJobs/)
     }
 
     boolean after(){
