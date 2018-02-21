@@ -8,7 +8,7 @@ import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.User
@@ -47,7 +47,7 @@ class AbstractDataResourceService {
     AccessControlChecks accessControlChecks
 
     @Transactional(readOnly = true)
-    protected void checkAccess(MultiDimConstraint constraint, User user) throws AccessDeniedException {
+    protected void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert user, 'user is required'
         assert constraint, 'constraint is required'
 

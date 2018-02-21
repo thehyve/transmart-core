@@ -2,6 +2,7 @@
 
 package org.transmartproject.core.multidimquery
 
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 
 interface AggregateDataResource {
@@ -14,7 +15,7 @@ interface AggregateDataResource {
      * @param user the current user.
      * @return the number of observations and patients.
      */
-    Counts counts(MultiDimConstraint constraint, User user)
+    Counts counts(Constraint constraint, User user)
 
     /**
      * Observation and patient counts per concept:
@@ -26,7 +27,7 @@ interface AggregateDataResource {
      * @param user the current user.
      * @return a map from concept code to the counts.
      */
-    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user)
+    Map<String, Counts> countsPerConcept(Constraint constraint, User user)
 
     /**
      * Observation and patient counts per study:
@@ -38,7 +39,7 @@ interface AggregateDataResource {
      * @param user the current user.
      * @return a map from study id to the counts.
      */
-    Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user)
+    Map<String, Counts> countsPerStudy(Constraint constraint, User user)
 
     /**
      * Observation and patient counts per study and concept:
@@ -50,9 +51,9 @@ interface AggregateDataResource {
      * @param user the current user.
      * @return a map from study id to maps from concept code to the counts.
      */
-    Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user)
+    Map<String, Map<String, Counts>> countsPerStudyAndConcept(Constraint constraint, User user)
 
-    Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user)
+    Long getDimensionElementsCount(Dimension dimension, Constraint constraint, User user)
 
     /**
      * Calculate numerical values aggregates
@@ -61,7 +62,7 @@ interface AggregateDataResource {
      * @param user The user whose access rights to consider
      * @return a map where keys are concept keys and values are aggregates
      */
-    Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(MultiDimConstraint constraint, User user)
+    Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(Constraint constraint, User user)
 
     /**
      * Calculate categorical values aggregates
@@ -70,6 +71,6 @@ interface AggregateDataResource {
      * @param user The user whose access rights to consider
      * @return a map where keys are concept keys and values are aggregates
      */
-    Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(MultiDimConstraint constraint, User user)
+    Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(Constraint constraint, User user)
 
 }

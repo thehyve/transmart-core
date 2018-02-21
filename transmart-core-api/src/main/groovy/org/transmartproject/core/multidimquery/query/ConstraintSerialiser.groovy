@@ -2,7 +2,6 @@ package org.transmartproject.core.multidimquery.query
 
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
-import org.transmartproject.core.multidimquery.MultiDimConstraint
 
 import java.time.Instant
 import java.time.temporal.TemporalAccessor
@@ -287,7 +286,7 @@ class ConstraintSerialiser extends ConstraintBuilder<Void> {
         return
     }
 
-    void writeConstraint(MultiDimConstraint constraint) {
-        build((Constraint)constraint)
+    void writeConstraint(Constraint constraint) {
+        build(constraint)
     }
 }

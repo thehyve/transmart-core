@@ -63,7 +63,7 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
         log.debug "Rewriting combination constraint ..."
         Constraint normalisedConstraint = super.build(constraint)
         if (!(normalisedConstraint instanceof Combination)) {
-            return this.build((Constraint)normalisedConstraint)
+            return this.build((Constraint) normalisedConstraint)
         }
         def combination = (Combination)normalisedConstraint
         if (combination.getOperator() != Operator.OR) {

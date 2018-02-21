@@ -2,7 +2,6 @@ package org.transmartproject.core.dataquery.clinical
 
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.doc.Experimental
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult

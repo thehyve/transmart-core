@@ -2,6 +2,8 @@
 
 package org.transmartproject.core.multidimquery
 
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
 
@@ -24,38 +26,38 @@ interface MultiDimensionalDataResource {
 
     Dimension getDimension(String name)
 
-    Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
+    Iterable getDimensionElements(Dimension dimension, Constraint constraint, User user)
 
     /**
      * @description Function for creating a patient set consisting of patients for which there are observations
      * that are specified by <code>query</code>.
      */
-    QueryResult createPatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String apiVersion)
+    QueryResult createPatientSetQueryResult(String name, Constraint constraint, User user, String apiVersion)
 
     /**
      * The same as {@link this.createPatientSetQueryResult}, but first ties to reuse existing patient set that satisfies
      * provided constraints
      * @return A new ore reused patient set.
      */
-    QueryResult createOrReusePatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String apiVersion)
+    QueryResult createOrReusePatientSetQueryResult(String name, Constraint constraint, User user, String apiVersion)
 
     QueryResult findQueryResult(Long queryResultId, User user)
 
     Iterable<QueryResult> findPatientSetQueryResults(User user)
 
     Hypercube highDimension(
-            MultiDimConstraint assayConstraint_,
-            MultiDimConstraint biomarkerConstraint,
+            Constraint assayConstraint_,
+            BiomarkerConstraint biomarkerConstraint,
             String projectionName,
             User user,
             String type)
 
-    Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
+    Hypercube retrieveClinicalData(Constraint constraint, User user)
 
-    Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user, List<Dimension> orderByDimensions)
+    Hypercube retrieveClinicalData(Constraint constraint, User user, List<Dimension> orderByDimensions)
 
-    List<String> retrieveHighDimDataTypes(MultiDimConstraint assayConstraint, User user)
+    List<String> retrieveHighDimDataTypes(Constraint assayConstraint, User user)
 
-    Iterable<Dimension> getSupportedDimensions(MultiDimConstraint constraint)
+    Iterable<Dimension> getSupportedDimensions(Constraint constraint)
 
 }

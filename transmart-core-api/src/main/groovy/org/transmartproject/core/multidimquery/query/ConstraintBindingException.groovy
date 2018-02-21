@@ -4,7 +4,6 @@ package org.transmartproject.core.multidimquery.query
 
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.query.Constraint
 
 import javax.validation.ConstraintViolation
 

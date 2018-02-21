@@ -11,7 +11,7 @@ import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
@@ -303,7 +303,7 @@ class SurveyTableColumnService {
      * @param user the current user.
      * @return the list of all unique study-concept pairs for the data set.
      */
-    private List<StudyConceptPair> getStudyAndConceptListFromCounts(MultiDimConstraint constraint, User user) {
+    private List<StudyConceptPair> getStudyAndConceptListFromCounts(Constraint constraint, User user) {
         // possible workaround: fetch all available study-concept pairs from the counts_per_study_and_concept call.
         log.info "Retrieving column definition from study and concept count ..."
         List<StudyConceptPair> studyConceptPairs = []

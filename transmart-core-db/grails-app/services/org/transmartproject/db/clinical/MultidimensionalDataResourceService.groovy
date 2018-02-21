@@ -34,7 +34,7 @@ import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.QueryBuilder
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
@@ -128,7 +128,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         DimensionDescription.allDimensions
     }
 
-    Set<? extends Dimension> getSupportedDimensions(MultiDimConstraint constraint) {
+    Set<? extends Dimension> getSupportedDimensions(Constraint constraint) {
         // Add any studies that are being selected on
         def studyIds = findStudyNameConstraints(constraint)*.studyId
         Set studies = (studyIds.empty ? [] : studyIds.collect { studiesResource.getStudyByStudyId(it) }) +
@@ -252,7 +252,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      * @param constraint
      */
     @Override
-    IterableResult getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user) {
+    IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
         if(constraint) checkAccess(constraint, user)
         HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
@@ -276,7 +276,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      */
     QtQueryResultInstance createQueryResult(String name,
                                             User user,
-                                            MultiDimConstraint constraint,
+                                            Constraint constraint,
                                             String apiVersion,
                                             QtQueryResultType queryResultType,
                                             Closure<Long> queryExecutor) {
@@ -320,7 +320,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         resultInstance
     }
 
-    private QtQueryMaster createOrReuseQueryMaster(User user, MultiDimConstraint constraint, name, apiVersion) {
+    private QtQueryMaster createOrReuseQueryMaster(User user, Constraint constraint, name, apiVersion) {
         def constraintText = constraint.toJson()
         def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
                 .add(Restrictions.eq('qm.userId', user.username))
@@ -350,7 +350,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      * @return the query result if it exists; null otherwise.
      */
     QueryResult findQueryResultByConstraint(User user,
-                                            MultiDimConstraint constraint,
+                                            Constraint constraint,
                                             QtQueryResultType queryResultType) {
         def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
                 .createCriteria('qri.queryInstance', 'qi')
@@ -372,7 +372,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      */
     QueryResult createOrReuseQueryResult(String name,
                                              User user,
-                                             MultiDimConstraint constraint,
+                                             Constraint constraint,
                                              String apiVersion,
                                              QtQueryResultType queryResultType,
                                              Closure<Long> queryExecutor) {
@@ -398,7 +398,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Override
     @Transactional
     QueryResult createPatientSetQueryResult(String name,
-                                            MultiDimConstraint constraint,
+                                            Constraint constraint,
                                             User user,
                                             String apiVersion) {
         checkAccess(constraint, user)
@@ -421,7 +421,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Override
     @Transactional
     QueryResult createOrReusePatientSetQueryResult(String name,
-                                            MultiDimConstraint constraint,
+                                            Constraint constraint,
                                             User user,
                                             String apiVersion) {
         checkAccess(constraint, user)
@@ -444,7 +444,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      * @return Number of patients inserted in the patient set
      */
     @CompileStatic
-    private Integer populatePatientSetQueryResult(QtQueryResultInstance queryResult, MultiDimConstraint constraint, User user) {
+    private Integer populatePatientSetQueryResult(QtQueryResultInstance queryResult, Constraint constraint, User user) {
         assert queryResult
         assert queryResult.id
 
@@ -493,7 +493,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         return getIterable(criteria)
     }
 
-    static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
+    static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
         if (constraint instanceof StudyNameConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -503,7 +503,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
-    static List<StudyObjectConstraint> findStudyObjectConstraints(MultiDimConstraint constraint) {
+    static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint) {
         if (constraint instanceof StudyObjectConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -513,7 +513,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
-    static List<ConceptConstraint> findConceptConstraints(MultiDimConstraint constraint) {
+    static List<ConceptConstraint> findConceptConstraints(Constraint constraint) {
         if (constraint instanceof ConceptConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -523,7 +523,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
-    private static List<BiomarkerConstraint> findAllBiomarkerConstraints(MultiDimConstraint constraint) {
+    private static List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint) {
         if (constraint instanceof BiomarkerConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -536,14 +536,12 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @CompileStatic
     @Override
     Hypercube highDimension(
-            MultiDimConstraint assayConstraint_,
-            MultiDimConstraint biomarkerConstraint_ = new BiomarkerConstraint(),
+            Constraint assayConstraint,
+            BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(),
             String projectionName = Projection.ALL_DATA_PROJECTION,
             User user,
             String type) {
         projectionName = projectionName ?: Projection.ALL_DATA_PROJECTION
-        Constraint assayConstraint = (Constraint) assayConstraint_
-        BiomarkerConstraint biomarkerConstraint = (BiomarkerConstraint) biomarkerConstraint_
         checkAccess(assayConstraint, user)
 
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
@@ -585,7 +583,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    List retrieveHighDimDataTypes(MultiDimConstraint assayConstraint, User user){
+    List retrieveHighDimDataTypes(Constraint assayConstraint, User user){
         assert assayConstraint instanceof Constraint
         checkAccess(assayConstraint, user)
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
@@ -639,7 +637,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user, List<Dimension> orderByDimensions = []) {
+    Hypercube retrieveClinicalData(Constraint constraint, User user, List<Dimension> orderByDimensions = []) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
         def dataType = 'clinical'

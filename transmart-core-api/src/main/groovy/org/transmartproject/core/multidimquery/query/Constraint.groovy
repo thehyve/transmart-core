@@ -2,19 +2,70 @@
 
 package org.transmartproject.core.multidimquery.query
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeName
+import com.fasterxml.jackson.annotation.*
 import groovy.transform.*
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.ontology.MDStudy
 
 import javax.validation.Valid
 import javax.validation.constraints.AssertTrue
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
+
+/**
+ * Superclass of all constraint types supported by {@link QueryBuilder}. Constraints
+ * can be created using the constructors of the subclasses or by using the
+ * {@link ConstraintFactory}.
+ */
+@CompileStatic
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type"
+)
+@JsonSubTypes([
+        @JsonSubTypes.Type(value = TrueConstraint.class, name = 'true'),
+        @JsonSubTypes.Type(value = BiomarkerConstraint.class, name = 'biomarker'),
+        @JsonSubTypes.Type(value = ModifierConstraint.class, name = 'modifier'),
+        @JsonSubTypes.Type(value = FieldConstraint.class, name = 'field'),
+        @JsonSubTypes.Type(value = ValueConstraint.class, name = 'value'),
+        @JsonSubTypes.Type(value = TimeConstraint.class, name = 'time'),
+        @JsonSubTypes.Type(value = PatientSetConstraint.class, name = 'patient_set'),
+        @JsonSubTypes.Type(value = Negation.class, name = 'negation'),
+        @JsonSubTypes.Type(value = Combination.class, name = 'combination'),
+        @JsonSubTypes.Type(value = AndConstraint.class, name = 'and'),
+        @JsonSubTypes.Type(value = OrConstraint.class, name = 'or'),
+        @JsonSubTypes.Type(value = TemporalConstraint.class, name = 'temporal'),
+        @JsonSubTypes.Type(value = ConceptConstraint.class, name = 'concept'),
+        @JsonSubTypes.Type(value = StudyNameConstraint.class, name = 'study_name'),
+        @JsonSubTypes.Type(value = StudyObjectConstraint.class, name = 'study'),
+        @JsonSubTypes.Type(value = NullConstraint.class, name = 'null'),
+        @JsonSubTypes.Type(value = SubSelectionConstraint.class, name = 'subselection'),
+        @JsonSubTypes.Type(value = RelationConstraint.class, name = 'relation')
+])
+abstract class Constraint {
+
+    String toJson() {
+        ConstraintSerialiser.toJson(this)
+    }
+
+    /**
+     * Normalise the constraint. E.g., eliminate double negation, merge nested
+     * boolean operators, apply rewrite rules such as
+     *  - a && (b && c) -> a && b && c
+     *  - !!a -> a
+     *  - a && true -> a
+     *  - a || true -> true
+     * @return the normalised constraint.
+     */
+    Constraint normalise() {
+        new CombinationConstraintRewriter().build(this)
+    }
+
+    Constraint canonise() {
+        new CanonicalConstraintRewriter().build(this)
+    }
+
+}
 
 /**
  * The data type of a field.
@@ -209,61 +260,6 @@ class Field {
     boolean hasType() {
         type != Type.NONE
     }
-}
-
-/**
- * Superclass of all constraint types supported by {@link QueryBuilder}. Constraints
- * can be created using the constructors of the subclasses or by using the
- * {@link ConstraintFactory}.
- */
-@CompileStatic
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        property = "type"
-)
-@JsonSubTypes([
-        @JsonSubTypes.Type(value = TrueConstraint.class, name = 'true'),
-        @JsonSubTypes.Type(value = BiomarkerConstraint.class, name = 'biomarker'),
-        @JsonSubTypes.Type(value = ModifierConstraint.class, name = 'modifier'),
-        @JsonSubTypes.Type(value = FieldConstraint.class, name = 'field'),
-        @JsonSubTypes.Type(value = ValueConstraint.class, name = 'value'),
-        @JsonSubTypes.Type(value = TimeConstraint.class, name = 'time'),
-        @JsonSubTypes.Type(value = PatientSetConstraint.class, name = 'patient_set'),
-        @JsonSubTypes.Type(value = Negation.class, name = 'negation'),
-        @JsonSubTypes.Type(value = Combination.class, name = 'combination'),
-        @JsonSubTypes.Type(value = AndConstraint.class, name = 'and'),
-        @JsonSubTypes.Type(value = OrConstraint.class, name = 'or'),
-        @JsonSubTypes.Type(value = TemporalConstraint.class, name = 'temporal'),
-        @JsonSubTypes.Type(value = ConceptConstraint.class, name = 'concept'),
-        @JsonSubTypes.Type(value = StudyNameConstraint.class, name = 'study_name'),
-        @JsonSubTypes.Type(value = StudyObjectConstraint.class, name = 'study'),
-        @JsonSubTypes.Type(value = NullConstraint.class, name = 'null'),
-        @JsonSubTypes.Type(value = SubSelectionConstraint.class, name = 'subselection'),
-        @JsonSubTypes.Type(value = RelationConstraint.class, name = 'relation')
-])
-abstract class Constraint implements MultiDimConstraint {
-
-    String toJson() {
-        ConstraintSerialiser.toJson(this)
-    }
-
-    /**
-     * Normalise the constraint. E.g., eliminate double negation, merge nested
-     * boolean operators, apply rewrite rules such as
-     *  - a && (b && c) -> a && b && c
-     *  - !!a -> a
-     *  - a && true -> a
-     *  - a || true -> true
-     * @return the normalised constraint.
-     */
-    Constraint normalise() {
-        new CombinationConstraintRewriter().build(this)
-    }
-
-    Constraint canonise() {
-        new CanonicalConstraintRewriter().build(this)
-    }
-
 }
 
 @CompileStatic

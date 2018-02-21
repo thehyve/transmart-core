@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.SurveyTableColumnService
@@ -107,13 +106,13 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
      */
     @Override
     void writeClinical(Format format,
-                       MultiDimConstraint constraint,
+                       Constraint constraint,
                        User user,
                        OutputStream out,
                        Map options = [:]) {
         log.info "Start parallel export ..."
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
-                (Constraint)constraint, user)
+                constraint, user)
         Boolean includeMeasurementDateColumns = options.includeMeasurementDateColumns
         final ImmutableList<MetadataAwareDataColumn> columns
         if (includeMeasurementDateColumns == null) {
@@ -127,7 +126,7 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
                 ImmutableList.copyOf(columns as List<DataColumn>))
         final patientDimension = multiDimService.getDimension('patient')
 
-        def parameters = new TaskParameters((Constraint)constraint, user)
+        def parameters = new TaskParameters(constraint, user)
         parallelPatientSetTaskService.run(
                 parameters,
                 {SubtaskParameters params -> writeClinicalSubtask(params, serializer, columns, patientDimension)},
@@ -138,8 +137,8 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
     @Override
     void writeHighdim(Format format,
                       String type,
-                      MultiDimConstraint assayConstraint,
-                      MultiDimConstraint biomarkerConstraint,
+                      Constraint assayConstraint,
+                      Constraint biomarkerConstraint,
                       String projection,
                       User user,
                       OutputStream out) {

@@ -22,7 +22,7 @@ import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.ConstraintBuilder
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.multidimquery.query.FieldConstraint
@@ -836,14 +836,14 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      * @param constraint
      * @return
      */
-    DetachedCriteria buildCriteria(MultiDimConstraint constraint,
+    DetachedCriteria buildCriteria(Constraint constraint,
                                    Criterion modifierCriterion = defaultModifierCriterion,
                                    Set<String> propertiesToReserveAliases = [] as Set) {
         assert constraint instanceof Constraint
         aliases.clear()
         propertiesToReserveAliases.each { String property -> getAlias(property) }
         def result = builder()
-        List restrictions = [ build((Constraint)constraint) ]
+        List restrictions = [ build(constraint) ]
         if (!accessToAllStudies) {
             restrictions << studiesCriterion
         }
@@ -866,14 +866,14 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      * @param constraint
      * @return
      */
-    DetachedCriteria buildElementsCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
-        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
+    DetachedCriteria buildElementsCriteria(DimensionImpl dimension, Constraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria(constraint, null)
 
         dimension.selectDimensionElements(constraintCriteria)
     }
 
-    DetachedCriteria buildElementCountCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
-        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
+    DetachedCriteria buildElementCountCriteria(DimensionImpl dimension, Constraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria(constraint, null)
 
         dimension.elementCount(constraintCriteria)
     }
