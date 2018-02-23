@@ -112,12 +112,17 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
                        OutputStream out,
                        Map options = [:]) {
         log.info "Start parallel export ..."
-        boolean includeMeasurementDateColumns = options.includeMeasurementDateColumns != null ?
-                options.includeMeasurementDateColumns: true
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
                 (Constraint)constraint, user)
-        final ImmutableList<MetadataAwareDataColumn> columns = ImmutableList.copyOf(
-                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns))
+        Boolean includeMeasurementDateColumns = options.includeMeasurementDateColumns
+        final ImmutableList<MetadataAwareDataColumn> columns
+        if (includeMeasurementDateColumns == null) {
+            columns = surveyTableColumnService
+                    .getMetadataAwareColumns(hypercubeColumns)
+        } else {
+            columns = surveyTableColumnService
+                    .getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
+        }
         final TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
                 ImmutableList.copyOf(columns as List<DataColumn>))
         final patientDimension = multiDimService.getDimension('patient')

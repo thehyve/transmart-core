@@ -96,17 +96,21 @@ class SurveyTableColumnService {
         study.metadata?.conceptCodeToVariableMetadata?.get(conceptCode)
     }
 
-    List<MetadataAwareDataColumn> getMetadataAwareColumns(List<HypercubeDataColumn> columns, boolean includeMeasurementDateColumns) {
-        // check if any column contains a study with the start time dimension
-        boolean exportStartDates = includeMeasurementDateColumns ? columns.any {
-            Long studyId = (Long)it.coordinates[DimensionImpl.STUDY]
+    ImmutableList<MetadataAwareDataColumn> getMetadataAwareColumns(List<HypercubeDataColumn> columns) {
+        boolean includeMeasurementDateColumns = columns.any {
+            Long studyId = (Long) it.coordinates[DimensionImpl.STUDY]
             if (!studyId) {
                 return false
             }
             MDStudy study = studiesResource.getStudyById(studyId)
             DimensionImpl.START_TIME in study.dimensions
-        } : false
-        log.debug "Include measurement columns: ${exportStartDates}"
+        }
+        getMetadataAwareColumns(columns, includeMeasurementDateColumns)
+    }
+
+    ImmutableList<MetadataAwareDataColumn> getMetadataAwareColumns(List<HypercubeDataColumn> columns, boolean includeMeasurementDateColumns) {
+        // check if any column contains a study with the start time dimension
+        log.debug "Include measurement columns: ${includeMeasurementDateColumns}"
 
         List<MetadataAwareDataColumn> transformedColumns = []
         transformedColumns.add(new SurveyTableView.FisNumberColumn())
@@ -116,12 +120,12 @@ class SurveyTableColumnService {
             def metadata = this.getStudyVariableMetadata(originalColumn) ?:
                     this.computeColumnMetadata(conceptCode)
             transformedColumns.add(new SurveyTableView.VariableColumn(varName, originalColumn, metadata, findMissingValueDimension()))
-            if (exportStartDates) {
+            if (includeMeasurementDateColumns) {
                 transformedColumns.add(new SurveyTableView.MeasurementDateColumn("${varName}.date", originalColumn))
             }
         }
         transformedColumns.sort(dataColumnComparator)
-        transformedColumns
+        ImmutableList.copyOf(transformedColumns)
     }
 
     /**

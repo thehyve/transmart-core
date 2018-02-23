@@ -50,8 +50,7 @@ class SurveyTableViewSpec extends Specification {
 
         when:
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(constraint, user)
-        List<MetadataAwareDataColumn> columnList = ImmutableList.copyOf(surveyTableColumnService.getMetadataAwareColumns(
-                hypercubeColumns, includeMeasurementDateColumns))
+        List<MetadataAwareDataColumn> columnList = surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
         def transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
@@ -100,8 +99,7 @@ class SurveyTableViewSpec extends Specification {
         when: 'do not include MeasurementDateColumn'
         includeMeasurementDateColumns = false
         if(transformedView) transformedView.close()
-        columnList = ImmutableList.copyOf(surveyTableColumnService.getMetadataAwareColumns(
-                hypercubeColumns, includeMeasurementDateColumns))
+        columnList = surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
         transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns2 = transformedView.indicesList
@@ -126,8 +124,7 @@ class SurveyTableViewSpec extends Specification {
 
         when:
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(constraint, user)
-        List<MetadataAwareDataColumn> columnList = ImmutableList.copyOf(
-                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns))
+        List<MetadataAwareDataColumn> columnList = surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
         def transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
@@ -161,8 +158,7 @@ class SurveyTableViewSpec extends Specification {
         when: 'do not include MeasurementDateColumn'
         includeMeasurementDateColumns = false
         if(transformedView) transformedView.close()
-        columnList = ImmutableList.copyOf(
-                surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns))
+        columnList = surveyTableColumnService.getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
         transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns2 = transformedView.indicesList
