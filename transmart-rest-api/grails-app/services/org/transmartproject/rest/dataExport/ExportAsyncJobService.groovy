@@ -134,18 +134,6 @@ class ExportAsyncJobService {
         return job
     }
 
-    private static Map createJobDataMap(Constraint constraint, List types, User user, Long jobId, String jobName,
-                                        boolean includeMeasurementDateColumns) {
-        [
-                user                         : user,
-                jobName                      : jobName,
-                jobId                        : jobId,
-                constraint                   : constraint,
-                dataTypeAndFormatList        : types,
-                includeMeasurementDateColumns: includeMeasurementDateColumns
-        ]
-    }
-
     private static JobKey getJobKeyForId(Long jobId) {
         new JobKey(jobId.toString(), 'DataExport')
     }
@@ -177,15 +165,20 @@ class ExportAsyncJobService {
         return job
     }
 
-    def exportData(Constraint constraint, List types, User user, Long jobId, boolean includeMeasurementDateColumns) {
+    def exportData(Map params, Constraint constraint, List dataTypeAndFormatList, User user, Long jobId) {
         def job = getJobById(jobId)
         if (job.jobStatus != JobStatus.CREATED.value) {
             throw new InvalidRequestException("Job with id $jobId has invalid status. " +
                     "Expected: $JobStatus.CREATED.value, actual: $job.jobStatus")
         }
 
-        def dataMap = createJobDataMap(constraint, types, user, jobId, job.jobName, includeMeasurementDateColumns)
-        executeExportJob(dataMap)
+        executeExportJob(params + [
+                user                         : user,
+                jobName                      : job.jobName,
+                jobId                        : jobId,
+                constraint                   : constraint,
+                dataTypeAndFormatList        : dataTypeAndFormatList,
+        ])
     }
 
 }

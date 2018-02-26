@@ -55,8 +55,7 @@ class ExportService {
 
             if (dataType == 'clinical') {
                 try {
-                    Map options = [includeMeasurementDateColumns : jobDataMap.includeMeasurementDateColumns]
-                    dataSerializer.writeClinical(outFormat, constraint, user, output, options)
+                    dataSerializer.writeClinical(outFormat, constraint, user, output, jobDataMap)
                 } catch (LegacyStudyException e) {
                     throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
                 }

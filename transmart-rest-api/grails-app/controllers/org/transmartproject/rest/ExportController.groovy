@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
@@ -84,24 +83,23 @@ class ExportController {
         if (!requestBody.constraint) {
             throw new InvalidArgumentsException("No constraint provided.")
         }
+        if (!requestBody.elements) {
+            throw new InvalidArgumentsException("No elements provided.")
+        }
+        if ('includeMeasurementDateColumns' in requestBody
+                && !(requestBody.includeMeasurementDateColumns instanceof Boolean)) {
+            throw new InvalidArgumentsException("includeMeasurementDateColumns parameter has to be of boolean type.")
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
         if (!requestBody.elements) {
             throw new InvalidArgumentsException('Empty elements map.')
         }
 
-        def includeMeasurementDateColumns = requestBody.includeMeasurementDateColumns
-        if (includeMeasurementDateColumns != null && includeMeasurementDateColumns != true
-                && includeMeasurementDateColumns != false) {
-            throw new InvalidArgumentsException("includeMeasurementDateColumns parameter has to be of boolean type.")
-        }
-        boolean includeMeasurementDateColumnsBoolean = requestBody.includeMeasurementDateColumns == null ?
-                false : includeMeasurementDateColumns.toBoolean()
-
         Constraint constraint = ConstraintFactory.create(requestBody.constraint).normalise()
 
         def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId,
-                includeMeasurementDateColumnsBoolean)
+                includeMeasurementDateColumns: requestBody.includeMeasurementDateColumns)
 
         render wrapExportJob(job) as JSON
     }

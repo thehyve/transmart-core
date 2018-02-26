@@ -334,6 +334,7 @@ class DataExportSpec extends RESTSpec {
                                      format  : 'TSV',
                                      dataView : 'surveyTable'
                              ]],
+                includeMeasurementDateColumns: true,
         ])
         then:
         assert downloadResponse != null
@@ -341,6 +342,29 @@ class DataExportSpec extends RESTSpec {
         filesLineNumbers.size() == 3
         filesLineNumbers['data.tsv'] == 15
         filesLineNumbers['variables.tsv'] == 16
+        filesLineNumbers['value_labels.tsv'] == 6
+
+    }
+
+    @RequiresStudy(SURVEY1_ID)
+    def "export survey to tsv file format without dates"() {
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type   : StudyNameConstraint,
+                             studyId: SURVEY1_ID],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'TSV',
+                                     dataView : 'surveyTable'
+                             ]],
+                includeMeasurementDateColumns: false,
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 3
+        filesLineNumbers['data.tsv'] == 15
+        filesLineNumbers['variables.tsv'] == 9
         filesLineNumbers['value_labels.tsv'] == 6
 
     }
@@ -356,6 +380,7 @@ class DataExportSpec extends RESTSpec {
                                      format  : 'SPSS',
                                      dataView : 'surveyTable'
                              ]],
+                includeMeasurementDateColumns: true,
         ])
         then:
         assert downloadResponse != null
@@ -407,6 +432,7 @@ class DataExportSpec extends RESTSpec {
                                      format  : 'SPSS',
                                      dataView : 'surveyTable'
                              ]],
+                includeMeasurementDateColumns: true,
         ])
 
         then: 'the result contains the expected files with expected number of rows'
