@@ -1,4 +1,4 @@
-package org.transmartproject.db.multidimquery.query
+package org.transmartproject.core.multidimquery.query
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -63,7 +63,7 @@ class CombinationConstraintRewriter extends NormaliseConstraintRewriter {
         log.debug "Rewriting combination constraint ..."
         Constraint normalisedConstraint = super.build(constraint)
         if (!(normalisedConstraint instanceof Combination)) {
-            return this.build((Constraint)normalisedConstraint)
+            return this.build((Constraint) normalisedConstraint)
         }
         def combination = (Combination)normalisedConstraint
         if (combination.getOperator() != Operator.OR) {

@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintBindingException
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.RequestUtils
 

@@ -10,7 +10,10 @@ import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.NumericalValueAggregates
+import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -288,7 +291,7 @@ class QueryController extends AbstractQueryController {
      * Supported fields endpoint:
      * <code>/v2/supportedFields</code>
      *
-     * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
+     * @return the list of fields supported by {@link org.transmartproject.core.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
         checkForUnsupportedParams(params, [])

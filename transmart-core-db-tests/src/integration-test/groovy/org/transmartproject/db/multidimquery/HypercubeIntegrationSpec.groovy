@@ -12,7 +12,7 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.db.user.User
 

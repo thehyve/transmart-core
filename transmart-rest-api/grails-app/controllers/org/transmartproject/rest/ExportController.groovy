@@ -9,8 +9,8 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService

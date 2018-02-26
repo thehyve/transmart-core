@@ -10,8 +10,8 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.db.clinical.SurveyTableColumnService
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 

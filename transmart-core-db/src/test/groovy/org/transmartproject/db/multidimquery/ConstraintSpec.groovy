@@ -1,6 +1,12 @@
 package org.transmartproject.db.multidimquery
 
-import org.transmartproject.db.multidimquery.query.*
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.Type
 import spock.lang.Specification
 
 import java.text.SimpleDateFormat

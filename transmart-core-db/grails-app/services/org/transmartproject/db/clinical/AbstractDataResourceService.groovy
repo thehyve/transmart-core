@@ -8,30 +8,30 @@ import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.BioMarkerDimension
-import org.transmartproject.db.multidimquery.query.Combination
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.Combination
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Negation
-import org.transmartproject.db.multidimquery.query.NullConstraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.RelationConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.multidimquery.query.StudyObjectConstraint
-import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.db.multidimquery.query.TemporalConstraint
-import org.transmartproject.db.multidimquery.query.TimeConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
-import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.core.multidimquery.query.ModifierConstraint
+import org.transmartproject.core.multidimquery.query.Negation
+import org.transmartproject.core.multidimquery.query.NullConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.RelationConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.TemporalConstraint
+import org.transmartproject.core.multidimquery.query.TimeConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
@@ -47,7 +47,7 @@ class AbstractDataResourceService {
     AccessControlChecks accessControlChecks
 
     @Transactional(readOnly = true)
-    protected void checkAccess(MultiDimConstraint constraint, User user) throws AccessDeniedException {
+    protected void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert user, 'user is required'
         assert constraint, 'constraint is required'
 

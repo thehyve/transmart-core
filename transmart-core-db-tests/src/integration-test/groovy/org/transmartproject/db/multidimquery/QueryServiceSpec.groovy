@@ -8,8 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.multidimquery.AggregateDataResource
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
@@ -17,7 +27,6 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
-import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.AccessLevelTestData
 import spock.lang.Ignore
 

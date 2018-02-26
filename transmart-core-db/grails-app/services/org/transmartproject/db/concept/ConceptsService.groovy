@@ -15,8 +15,8 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 
 import java.util.concurrent.ConcurrentHashMap
 

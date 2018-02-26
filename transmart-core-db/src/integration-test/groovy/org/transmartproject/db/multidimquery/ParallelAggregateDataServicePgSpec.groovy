@@ -6,12 +6,14 @@ import grails.test.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.core.config.SystemResource
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.AggregateDataService
-import org.transmartproject.db.multidimquery.query.*
 import spock.lang.Specification
 
 @Integration

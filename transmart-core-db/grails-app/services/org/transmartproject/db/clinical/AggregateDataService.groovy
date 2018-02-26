@@ -18,6 +18,18 @@ import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Combination
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.QueryBuilder
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
@@ -90,22 +102,21 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     @Transactional(readOnly = true)
     @CompileStatic
-    Counts freshCounts(MultiDimConstraint constraint, User user) {
+    Counts freshCounts(Constraint constraint, User user) {
         checkAccess(constraint, user)
-        Constraint countsConstraint = (Constraint)constraint
-        if (!(countsConstraint instanceof TrueConstraint)) {
-            def constraintParts = ParallelPatientSetTaskService.getConstraintParts(countsConstraint)
+        if (!(constraint instanceof TrueConstraint)) {
+            def constraintParts = ParallelPatientSetTaskService.getConstraintParts(constraint)
             if (!constraintParts.patientSetConstraint || !constraintParts.patientSetConstraint.patientSetId) {
                 // Try to combine the constraint a patient set for all accessible patients
                 def allPatientsSet = multidimensionalDataResourceService.findQueryResultByConstraint(
                         user, new TrueConstraint(), multidimensionalDataResourceService.patientSetResultType)
                 if (allPatientsSet) {
                     // add patient set constraint
-                    countsConstraint = new AndConstraint([new PatientSetConstraint(allPatientsSet.id), (Constraint)constraint])
+                    constraint = new AndConstraint([new PatientSetConstraint(allPatientsSet.id), constraint])
                 }
             }
         }
-        def parameters = new TaskParameters(countsConstraint, user)
+        def parameters = new TaskParameters(constraint, user)
         parallelPatientSetTaskService.run(parameters,
                 {SubtaskParameters params -> countsTask(params)},
                 {List<Counts> taskResults ->
@@ -121,14 +132,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.cachedCounts',
             key = '{ #constraint.toJson(), #user.username }')
-    Counts counts(MultiDimConstraint constraint, User user) {
+    Counts counts(Constraint constraint, User user) {
         freshCounts(constraint, user)
     }
 
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.cachedCounts',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Counts updateCountsCache(MultiDimConstraint constraint, User user) {
+    Counts updateCountsCache(Constraint constraint, User user) {
         freshCounts(constraint, user)
     }
 
@@ -176,7 +187,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     @Transactional(readOnly = true)
-    Map<String, Counts> freshCountsPerConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> freshCountsPerConcept(Constraint constraint, User user) {
         log.debug "Computing counts per concept ..."
         def t1 = new Date()
         checkAccess(constraint, user)
@@ -199,13 +210,13 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
         freshCountsPerConcept(constraint, user)
     }
 
     @Transactional(readOnly = true)
-    Map<String, Counts> freshCountsPerStudy(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> freshCountsPerStudy(Constraint constraint, User user) {
         log.debug "Computing counts per study ..."
         def t1 = new Date()
         checkAccess(constraint, user)
@@ -231,14 +242,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> countsPerStudy(Constraint constraint, User user) {
         freshCountsPerStudy(constraint, user)
     }
 
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Map<String, Counts> updateCountsPerStudyCache(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> updateCountsPerStudyCache(Constraint constraint, User user) {
         freshCountsPerStudy(constraint, user)
     }
 
@@ -320,9 +331,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     @CompileStatic
     @Transactional(readOnly = true)
-    Map<String, Map<String, Counts>> parallelCountsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Map<String, Counts>> parallelCountsPerStudyAndConcept(Constraint constraint, User user) {
         checkAccess(constraint, user)
-        def parameters = new TaskParameters((Constraint)constraint, user)
+        def parameters = new TaskParameters(constraint, user)
         parallelPatientSetTaskService.run(parameters,
                 {SubtaskParameters params -> countsPerStudyAndConceptTask(params)},
                 {List<ConceptStudyCountRow> taskResults -> mergeSummaryTaskResults(taskResults)})
@@ -332,7 +343,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Map<String, Counts>> countsPerStudyAndConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per per study per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
         parallelCountsPerStudyAndConcept(constraint, user)
     }
@@ -340,14 +351,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
-    Map<String, Map<String, Counts>> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint,
+    Map<String, Map<String, Counts>> updateCountsPerStudyAndConceptCache(Constraint constraint,
                                                             User user,
                                                             Map<String, Map<String, Counts>> newCounts) {
         log.debug "Updating counts per study per concept cache for user: ${user.username}, constraint: ${constraint.toJson()}"
         newCounts
     }
 
-    Map<String, Map<String, Counts>> updateCountsPerStudyAndConceptCache(MultiDimConstraint constraint,
+    Map<String, Map<String, Counts>> updateCountsPerStudyAndConceptCache(Constraint constraint,
                                                             User user) {
         wrappedThis.updateCountsPerStudyAndConceptCache(constraint, user, parallelCountsPerStudyAndConcept(constraint, user))
     }
@@ -365,7 +376,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
         //Sharing counts between users does not always work for other type of constraints
         // e.g. In case when cross-study concepts involved and different users have different rights on them.
-        MultiDimConstraint constraintToPreCache = new TrueConstraint()
+        Constraint constraintToPreCache = new TrueConstraint()
         usersResource.getUsers().each { User user ->
             log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
             Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
@@ -391,14 +402,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * @param user
      */
     @Override
-    Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user) {
+    Long getDimensionElementsCount(Dimension dimension, Constraint constraint, User user) {
         if(constraint) checkAccess(constraint, user)
         def builder = getCheckedQueryBuilder(user)
         DetachedCriteria dimensionCriteria = builder.buildElementCountCriteria((DimensionImpl) dimension, constraint)
         (Long) get(dimensionCriteria)
     }
 
-    static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
+    static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
         if (constraint instanceof StudyNameConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -408,7 +419,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         }
     }
 
-    static List<StudyObjectConstraint> findStudyObjectConstraints(MultiDimConstraint constraint) {
+    static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint) {
         if (constraint instanceof StudyObjectConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -418,7 +429,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         }
     }
 
-    static List<ConceptConstraint> findConceptConstraints(MultiDimConstraint constraint) {
+    static List<ConceptConstraint> findConceptConstraints(Constraint constraint) {
         if (constraint instanceof ConceptConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -428,7 +439,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         }
     }
 
-    private static List<BiomarkerConstraint> findAllBiomarkerConstraints(MultiDimConstraint constraint) {
+    private static List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint) {
         if (constraint instanceof BiomarkerConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -441,7 +452,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Override
     @Transactional(readOnly = true)
     Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(
-            MultiDimConstraint constraint, User user) {
+            Constraint constraint, User user) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
 
@@ -470,7 +481,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Override
     @Transactional(readOnly = true)
     Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(
-            MultiDimConstraint constraint, User user) {
+            Constraint constraint, User user) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
 

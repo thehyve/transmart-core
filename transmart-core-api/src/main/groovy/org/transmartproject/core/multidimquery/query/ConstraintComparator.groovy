@@ -1,4 +1,4 @@
-package org.transmartproject.db.multidimquery.query
+package org.transmartproject.core.multidimquery.query
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope

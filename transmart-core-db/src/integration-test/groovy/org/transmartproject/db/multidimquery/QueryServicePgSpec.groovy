@@ -2,16 +2,30 @@
 
 package org.transmartproject.db.multidimquery
 
-import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Combination
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.ModifierConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.TimeConstraint
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
-import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User

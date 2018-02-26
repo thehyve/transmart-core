@@ -4,15 +4,12 @@ package org.transmartproject.db.multidimquery.query
 
 import grails.util.Holders
 import groovy.transform.CompileStatic
-import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.SessionFactory
-import org.hibernate.StatelessSession
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
-import org.hibernate.criterion.Order
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
@@ -20,13 +17,39 @@ import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.type.IntegerType
 import org.hibernate.type.LongType
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Combination
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.ConstraintBuilder
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.ModifierConstraint
+import org.transmartproject.core.multidimquery.query.MultipleSubSelectionsConstraint
+import org.transmartproject.core.multidimquery.query.Negation
+import org.transmartproject.core.multidimquery.query.NullConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.QueryBuilder
+import org.transmartproject.core.multidimquery.query.QueryBuilderException
+import org.transmartproject.core.multidimquery.query.RelationConstraint
+import org.transmartproject.core.multidimquery.query.RowValueConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.TemporalConstraint
+import org.transmartproject.core.multidimquery.query.TimeConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientMapping
-import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.VisitDimension
 import org.transmartproject.db.metadata.DimensionDescription
@@ -171,7 +194,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
 
     /**
      * Creates a criteria for matching value type and value of a {@link ObservationFact} row with
-     * the type and value in the {@link RowValueConstraint}.
+     * the type and value in the {@link org.transmartproject.core.multidimquery.query.RowValueConstraint}.
      */
     Criterion build(RowValueConstraint constraint) {
         String valueTypeCode
@@ -256,7 +279,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
     /**
      * Creates a subquery to find observations with the same primary key
      * with observation modifier code '@' and matching the constraint specified by
-     * type, operator and value in the {@link ValueConstraint}.
+     * type, operator and value in the {@link org.transmartproject.core.multidimquery.query.ValueConstraint}.
      */
     Criterion build(ValueConstraint constraint) {
         build(new ModifierConstraint(
@@ -813,14 +836,14 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      * @param constraint
      * @return
      */
-    DetachedCriteria buildCriteria(MultiDimConstraint constraint,
+    DetachedCriteria buildCriteria(Constraint constraint,
                                    Criterion modifierCriterion = defaultModifierCriterion,
                                    Set<String> propertiesToReserveAliases = [] as Set) {
         assert constraint instanceof Constraint
         aliases.clear()
         propertiesToReserveAliases.each { String property -> getAlias(property) }
         def result = builder()
-        List restrictions = [ build((Constraint)constraint) ]
+        List restrictions = [ build(constraint) ]
         if (!accessToAllStudies) {
             restrictions << studiesCriterion
         }
@@ -843,14 +866,14 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      * @param constraint
      * @return
      */
-    DetachedCriteria buildElementsCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
-        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
+    DetachedCriteria buildElementsCriteria(DimensionImpl dimension, Constraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria(constraint, null)
 
         dimension.selectDimensionElements(constraintCriteria)
     }
 
-    DetachedCriteria buildElementCountCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
-        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
+    DetachedCriteria buildElementCountCriteria(DimensionImpl dimension, Constraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria(constraint, null)
 
         dimension.elementCount(constraintCriteria)
     }
