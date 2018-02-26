@@ -443,6 +443,9 @@ class RegionSearchService {
             if (hg19only) {
                 regionList.append("1=1")
             }
+            else if (grailsApplication.config.com.recomdata.gwas.usehg38table) {
+                regionList.append("info.hg_version = '38'")
+            }
             else {
                 regionList.append("info.hg_version = '19'")
             }
