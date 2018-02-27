@@ -29,10 +29,16 @@ class Concepts {
     final Set<String> conceptCodes = []
     final Set<String> conceptPaths = []
     final Map<String, String> conceptCodeToConceptPath = [:]
+    /**
+     * Workaround. Stores old to new concept path mapping to be able to update tree nodes on later step.
+     */
+    final Map<String, String> oldToNewConceptPath = [:]
+    final boolean updateConceptPath
 
-    Concepts(Database database) {
+    Concepts(Database database, updateConceptPath = false) {
         this.database = database
         this.columns = this.database.getColumnMetadata(table)
+        this.updateConceptPath = updateConceptPath
     }
 
     @CompileStatic
@@ -79,6 +85,7 @@ class Concepts {
         conceptsFile.withReader { reader ->
             log.info "Reading concepts from file ..."
             def insertCount = 0
+            def updatedCount = 0
             def existingCount = 0
             def tsvReader = Util.tsvReader(reader)
             LinkedHashMap<String, Class> header = columns
@@ -93,12 +100,28 @@ class Concepts {
                     def conceptPath = conceptData['concept_path'] as String
                     if (conceptCode in conceptCodes) {
                         if (conceptPath != conceptCodeToConceptPath[conceptCode]) {
-                            log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
-                            log.error "but concept with that code already exists with path ${conceptCodeToConceptPath[conceptCode]}."
-                            throw new IllegalStateException("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
+                            if (updateConceptPath) {
+                                log.info("Updating concept path from '${conceptCodeToConceptPath[conceptCode]}' to '${conceptPath}'.")
+                                int records = database.namedParameterJdbcTemplate.update(
+                                        "delete from ${table} where concept_cd = :conceptCode and concept_path = :conceptPath",
+                                        [conceptPath: conceptCodeToConceptPath[conceptCode],
+                                         conceptCode: conceptCode])
+                                conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
+                                log.debug("${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path were removed. Inserting '${conceptPath}' instead.")
+                                database.insertEntry(table, header, conceptData)
+                                conceptPaths.add(conceptPath)
+                                oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
+                                conceptCodeToConceptPath[conceptCode] = conceptPath
+                                updatedCount++
+                            } else {
+                                log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
+                                log.error "but concept with that code already exists with path ${conceptCodeToConceptPath[conceptCode]}."
+                                throw new IllegalStateException("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
+                            }
+                        } else {
+                            existingCount++
+                            log.debug "Found existing concept: ${conceptCode}."
                         }
-                        existingCount++
-                        log.debug "Found existing concept: ${conceptCode}."
                     } else if (conceptPath in conceptPaths) {
                         log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
                         log.error "but concept with that path already exists with another code."
@@ -111,7 +134,7 @@ class Concepts {
                         conceptPaths.add(conceptPath)
                         conceptCodeToConceptPath[conceptCode] = conceptPath
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     log.error "Error on line ${i} of ${table.fileName}: ${e.message}"
                     throw e
                 }
@@ -119,6 +142,7 @@ class Concepts {
             database.commit(tx)
             log.info "${existingCount} existing concepts found."
             log.info "${insertCount} concepts inserted."
+            log.info "${updatedCount} concepts updated."
         }
     }
 

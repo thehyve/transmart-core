@@ -29,6 +29,7 @@ _Parameters:_
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
 - `-v`, `--vacuum-analyze`: Vacuum analyze the `observation_fact` table.
 - `-d`, `--directory`: Specifies a data directory.
+- `-U`, `--update-concept-paths`: **Workaround.** Updates concept paths and tree nodes when there is concept code collision.
 - `-m`, `--mode <study|pedigree>`: Load mode. What type of data to load. Data loading does not happen if you skip the mode.
 
 
