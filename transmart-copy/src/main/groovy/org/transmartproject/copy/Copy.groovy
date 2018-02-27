@@ -9,22 +9,8 @@ package org.transmartproject.copy
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.util.logging.Slf4j
-import org.apache.commons.cli.CommandLine
-import org.apache.commons.cli.DefaultParser
-import org.apache.commons.cli.HelpFormatter
-import org.apache.commons.cli.Options
-import org.apache.commons.cli.ParseException
-import org.transmartproject.copy.table.Concepts
-import org.transmartproject.copy.table.Dimensions
-import org.transmartproject.copy.table.Modifiers
-import org.transmartproject.copy.table.Observations
-import org.transmartproject.copy.table.Patients
-import org.transmartproject.copy.table.Relations
-import org.transmartproject.copy.table.Studies
-import org.transmartproject.copy.table.Tags
-import org.transmartproject.copy.table.TreeNodes
-
-import static java.lang.System.getenv
+import org.apache.commons.cli.*
+import org.transmartproject.copy.table.*
 
 /**
  * Command-line utility to copy tab delimited files to the TranSMART database.
@@ -33,7 +19,7 @@ import static java.lang.System.getenv
  */
 @Slf4j
 @CompileStatic
-class Copy {
+class Copy implements AutoCloseable {
 
     @Immutable
     static class Config {
@@ -72,8 +58,8 @@ class Copy {
     Patients patients
     Studies studies
 
-    Copy(Map<String, String> params = [:]) {
-        database = new Database(params.withDefault { String key -> getenv(key) })
+    Copy(Map<String, String> params) {
+        database = new Database(params)
     }
 
     void restoreIndexes() {
@@ -140,72 +126,31 @@ class Copy {
         relations.load(rootPath)
     }
 
-    void deleteStudy(String studyId) {
+    void deleteStudyById(String studyId, boolean failOnNoStudy = true) {
         log.info "Deleting study ${studyId} ..."
         def dimensions = new Dimensions(database)
         studies = new Studies(database, dimensions)
-        studies.delete(studyId)
+        studies.deleteById(studyId, failOnNoStudy)
         log.info "Study ${studyId} deleted."
+    }
+
+    void deleteStudy(String rootPath, boolean failOnNoStudy = true) {
+        log.info "Deleting studies found in ${rootPath} ..."
+        def dimensions = new Dimensions(database)
+        studies = new Studies(database, dimensions)
+        studies.delete(rootPath, failOnNoStudy)
+        log.info "Study found in ${rootPath} deleted."
     }
 
     static void main(String[] args) {
         def parser = new DefaultParser()
         try {
             CommandLine cl = parser.parse(options, args)
-            if (cl.hasOption('help')) {
+            if (cl.hasOption('help') || !cl.options) {
                 printHelp()
                 return
             }
-            def copy = new Copy()
-            if (cl.hasOption('delete')) {
-                def studyId = cl.getOptionValue('delete')
-                try {
-                    copy.deleteStudy(studyId)
-                } catch(Exception e) {
-                    log.error "Error deleting study ${studyId}."
-                    throw e
-                }
-            }
-            if (cl.hasOption('drop-indexes')) {
-                copy.dropIndexes()
-            }
-            if (cl.hasOption('mode')) {
-                if (cl.hasOption('unlogged')) {
-                    copy.setLoggedMode(false)
-                }
-                try {
-                    int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
-                    int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
-                    def config = new Config(
-                            temporaryTable: cl.hasOption('temporary-table'),
-                            batchSize: batchSize,
-                            flushSize: flushSize,
-                            write: cl.hasOption('write'),
-                            outputFile: cl.getOptionValue('write')
-                    )
-                    String directory = cl.hasOption('directory') ? cl.getOptionValue('directory') : '.'
-                    def modes = cl.getOptionValues('mode')
-                    log.debug("Load modes specified: ${modes}")
-                    if ('pedigree' in modes) {
-                        copy.uploadPedigree(directory, config)
-                    }
-                    if ('study' in modes) {
-                        copy.uploadStudy(directory, config)
-                    }
-                } catch (Exception e) {
-                    log.error('Loading data has failed.', e)
-                    System.exit(1)
-                }
-                if (cl.hasOption('unlogged')) {
-                    copy.setLoggedMode(true)
-                }
-            }
-            if (cl.hasOption('restore-indexes')) {
-                copy.restoreIndexes()
-            }
-            if (cl.hasOption('vacuum-analyze')) {
-                copy.database.vacuumAnalyze()
-            }
+            runCopy(cl, [:].withDefault { Object key -> System.getenv((String) key) })
         } catch (ParseException e) {
             log.error e.message
             println()
@@ -215,6 +160,72 @@ class Copy {
             log.error e.message, e
             System.exit(1)
         }
+    }
+
+    public final static Set<String> INDEPENDENT_OPERATION_OPTIONS = ['help', 'delete', 'drop-indexes',
+                                                                     'restore-indexes', 'vacuum-analyze'] as Set
+
+    static void runCopy(CommandLine cl, Map<String, String> params) {
+        def copy = new Copy(params)
+        def tx = copy.database.beginTransaction()
+        try {
+            if (cl.hasOption('delete')) {
+                def studyId = cl.getOptionValue('delete')
+                copy.deleteStudyById(studyId)
+            }
+            if (cl.hasOption('drop-indexes')) {
+                copy.dropIndexes()
+            }
+            boolean independentOperationOptionSpecified = INDEPENDENT_OPERATION_OPTIONS
+                    .any { String longOpt -> cl.hasOption(longOpt) }
+            if (cl.hasOption('directory') || !independentOperationOptionSpecified) {
+                String directory
+                if (cl.hasOption('directory')) {
+                    directory = cl.getOptionValue('directory')
+                } else {
+                    directory = '.'
+                }
+                copy.deleteStudy(directory, false)
+                if (cl.hasOption('unlogged')) {
+                    copy.setLoggedMode(false)
+                }
+                int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
+                int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
+                def config = new Config(
+                        temporaryTable: cl.hasOption('temporary-table'),
+                        batchSize: batchSize,
+                        flushSize: flushSize,
+                        write: cl.hasOption('write'),
+                        outputFile: cl.getOptionValue('write')
+                )
+                def modes = cl.getOptionValues('mode')
+                log.debug("Load modes specified: ${modes}")
+                if ('pedigree' in modes) {
+                    copy.uploadPedigree(directory, config)
+                }
+                if (!modes || 'study' in modes) {
+                    copy.uploadStudy(directory, config)
+                }
+                if (cl.hasOption('unlogged')) {
+                    copy.setLoggedMode(true)
+                }
+            }
+            if (cl.hasOption('restore-indexes')) {
+                copy.restoreIndexes()
+            }
+            copy.database.commit(tx)
+            if (cl.hasOption('vacuum-analyze')) {
+                copy.database.vacuumAnalyze()
+            }
+        } catch (Exception e) {
+            copy.database.rollback(tx)
+            throw e
+        }
+    }
+
+    @Override
+    void close() throws Exception {
+        database.close()
     }
 
 }

@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
 
@@ -24,7 +25,7 @@ import java.time.Instant
 
 @Slf4j
 @CompileStatic
-class Database {
+class Database implements AutoCloseable {
 
     static final Class getClassForType(String dataTypeName) {
         if (dataTypeName == null) {
@@ -57,7 +58,8 @@ class Database {
 
     static final int defaultBatchSize = 500
     static final int defaultFlushSize = 1000
-    static final DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition()
+    static final DefaultTransactionDefinition transactionDefinition =
+            new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED)
 
     final HikariConfig config = new HikariConfig()
     final HikariDataSource dataSource
@@ -107,6 +109,10 @@ class Database {
 
     void commit(TransactionStatus tx) {
         transactionManager.commit(tx)
+    }
+
+    void rollback(TransactionStatus tx) {
+        transactionManager.rollback(tx)
     }
 
     boolean tableExists(Table table) {
@@ -179,6 +185,11 @@ class Database {
         log.info 'Running VACUUM ANALYZE ...'
         executeCommand('vacuum analyze')
         log.info 'Done.'
+    }
+
+    @Override
+    void close() throws Exception {
+        dataSource.close()
     }
 
 }

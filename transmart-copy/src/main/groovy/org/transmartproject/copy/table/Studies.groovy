@@ -101,11 +101,16 @@ class Studies {
         trialVisitHandler.trialVisitNums
     }
 
-    void delete(String studyId) {
+    void deleteById(String studyId, boolean failOnNoStudy = true) {
         def tx = database.beginTransaction()
         def study = findStudy(studyId)
         if (!study) {
-            throw new IllegalStateException("Study not found: ${studyId}.")
+            if (failOnNoStudy) {
+                throw new IllegalStateException("Study not found: ${studyId}.")
+            } else {
+                log.info("No ${studyId} found.")
+                return
+            }
         }
         log.info "Deleting observations for study ${studyId} ..."
         int observationCount = database.namedParameterJdbcTemplate.update(
@@ -184,9 +189,9 @@ class Studies {
         }
     }
 
-    void clean() {
+    void delete(String rootPath, boolean failOnNoStudy = true) {
         LinkedHashMap<String, Class> header = study_columns
-        def studiesFile = new File(study_table.fileName)
+        def studiesFile = new File(rootPath, study_table.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
@@ -196,10 +201,7 @@ class Studies {
                 }
                 def studyData = Util.asMap(header, data)
                 def studyId = studyData['study_id'] as String
-                def study = findStudy(studyId)
-                if (study) {
-                    delete(studyId)
-                }
+                deleteById(studyId, failOnNoStudy)
             }
         }
     }
