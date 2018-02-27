@@ -366,12 +366,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         getList(criteria)
     }
 
-    @Override Long count(MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
-        QueryBuilder builder = getCheckedQueryBuilder(user)
-        (Long) get(builder.buildCriteria((Constraint) constraint).setProjection(Projections.rowCount()))
-    }
-
     @Transactional(readOnly = true)
     Counts freshCounts(MultiDimConstraint constraint, User user) {
         def t1 = new Date()
@@ -728,13 +722,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         findQueryResults(user, QtQueryResultType.load(QueryResultType.PATIENT_SET_ID))
     }
 
-    @Override
-    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
-            key = '{ #constraint.toJson(), #user.username }')
-    Long cachedPatientCount(MultiDimConstraint constraint, User user) {
-        getDimensionElementsCount(PATIENT, constraint, user)
-    }
-
     static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
         if (constraint instanceof StudyNameConstraint) {
             return [constraint]
@@ -924,17 +911,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             allEntries = true)
     void clearCountsCache() {
         log.info 'Clearing counts cache ...'
-    }
-
-    /**
-     * Clears the patient count cache. This function should be called after loading, removing or updating
-     * observations in the database.
-     */
-    @Override
-    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
-            allEntries = true)
-    void clearPatientCountCache() {
-        log.info 'Clearing patient count cache ...'
     }
 
     /**

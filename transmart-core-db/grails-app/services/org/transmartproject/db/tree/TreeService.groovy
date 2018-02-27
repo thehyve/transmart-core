@@ -185,7 +185,6 @@ class TreeService implements TreeResource {
         }
         treeCacheService.clearAllCacheEntries()
         multiDimensionalDataResource.clearCountsCache()
-        multiDimensionalDataResource.clearPatientCountCache()
         multiDimensionalDataResource.clearCountsPerConceptCache()
         multiDimensionalDataResource.clearCountsPerStudyAndConceptCache()
     }

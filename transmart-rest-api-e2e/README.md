@@ -70,7 +70,6 @@ It also contains tests for constraints.
 - `GET /studies`
 - `GET /studies/$id`
 - `GET /studies/studyId/$studyId`
-- `GET /observations/count`
 - `GET /patients/$id`
 - `GET /observation_list`
 - `GET /supported_fields`
