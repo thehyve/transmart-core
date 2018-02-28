@@ -32,8 +32,6 @@ class QuerySetSubscriptionMailService {
     @Autowired
     UserQuerySetResource userQueryDiffResource
 
-    Integer maxNumberOfSets = grailsApplication.config.org.transmart.server.subscription.maxNumberOfSets
-
     private final static String NEW_LINE = "\n"
 
     /**
@@ -75,30 +73,31 @@ class QuerySetSubscriptionMailService {
 
         def currentDate = new Date()
 
-        StringBuilder textStringBuilder = new StringBuilder()
-        textStringBuilder.append("Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}")
-        textStringBuilder.append(NEW_LINE)
-        textStringBuilder.append("List of updated query results:")
-        textStringBuilder.append(NEW_LINE)
-
+        List<GString> queryResultsList = new ArrayList<>()
         int i = 0
         for (setChange in patientSetsChanges) {
-
-            if (i == 0 || setChange.queryId == patientSetsChanges.get(i - 1).queryId) {
-                textStringBuilder.append(NEW_LINE)
-                textStringBuilder.append("For a query named: '$setChange.queryName' (id='$setChange.queryId') \n")
-            }
-            textStringBuilder.append("date of the change: $setChange.createDate \n")
-            if (setChange.objectsAdded.size() > 0) {
-                textStringBuilder.append("added patients with ids: $setChange.objectsAdded \n")
-            }
-            if (setChange.objectsRemoved.size() > 0) {
-                textStringBuilder.append("removed patients with ids: $setChange.objectsRemoved \n")
-            }
+            queryResultsList.add("""
+                ${ i == 0 || setChange.queryId == patientSetsChanges.get(i - 1).queryId ?
+                    "For a query named: '$setChange.queryName' (id='$setChange.queryId')" : ""
+                }
+                date of the change: $setChange.createDate
+                ${ setChange.objectsAdded.size() > 0 ?
+                    "added patients with ids: $setChange.objectsAdded" : ""
+                }
+                ${ setChange.objectsRemoved.size() > 0 ?
+                    "removed patients with ids: $setChange.objectsRemoved" : ""
+                }
+            """)
             i++
         }
-        textStringBuilder.append(NEW_LINE)
-        return textStringBuilder.toString()
+        def emailBody = """
+            Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}
+            
+            List of updated query results:
+            $queryResultsList
+            
+        """
+        return emailBody
     }
 
     /**
@@ -110,6 +109,7 @@ class QuerySetSubscriptionMailService {
      */
     private List<UserQuerySetChangesRepresentation> getPatientSetChangesRepresentation(SubscriptionFrequency frequency,
                                                                                        String username) {
+        Integer maxNumberOfSets = grailsApplication.config.org.transmart.server.subscription.maxNumberOfSets
         List<UserQuerySetChangesRepresentation> querySetsChanges =
                 userQueryDiffResource.getQueryChangeHistoryByUsernameAndFrequency(frequency, username, maxNumberOfSets)
         return querySetsChanges.findAll { it.setType == SetType.PATIENT }?.sort { it.queryId }
