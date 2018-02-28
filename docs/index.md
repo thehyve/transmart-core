@@ -16,3 +16,13 @@ Start by [installing the latest version of the tranSMART Server](installation.ht
 # Further reading
 
 * [tranSMART Foundation Wiki](https://wiki.transmartfoundation.org/)
+
+## Releases
+* [tranSMART 16.2](https://wiki.transmartfoundation.org/pages/viewpage.action?pageId=10126184&src=contextnavpagetreemode)
+* [tranSMART 17.1](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+2017+Server+release)
+* [tranSMART 2018](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+2018+Full+Platform+Release?src=contextnavpagetreemode)
+
+## Installation Instructions
+* [tranSMART 17.1 generic installation instructions](installation.html)
+* [tranSMART 17.1 and Glowing Bear on CentOS installation instructions](https://wiki.transmartfoundation.org/pages/viewpage.action?pageId=17006983&src=contextnavpagetreemode)
+* [tranSMART 16.2 generic installation instructions](https://wiki.transmartfoundation.org/display/transmartwiki/Installing+tranSMART)
