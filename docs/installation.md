@@ -64,7 +64,8 @@ tranSMART requires a configuration file to be generated in `~/.grails/transmartC
 Scripts to generate the configuration are shipped with
 `transmart-data`.
 
-Fetch `transmart-data`:
+Either use the sources in this repository (`transmart-core/transmart-data`),
+or fetch `transmart-data` from a Nexus repository:
 ```
 mvn dependency:get -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/
 mvn dependency:unpack -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DoutputDirectory=.
@@ -116,9 +117,11 @@ java -jar transmart-server-17.1-SNAPSHOT.war
 
 ## 5. Start services
 
-`Rserve` and `Solr` services can be run using `transmart-server` (to fetch `transmart-data`, 
-see [Generate configuration files](#3-generate-configuration-files)). They are
-not necessarily needed for a development installation.
+`Rserve` and `Solr` services can be run using `transmart-data`, see [Generate configuration files](#3-generate-configuration-files)
+to fetch it from a Nexus repository. 
+These instructions are using downloaded binaries, see the documentation of [transmart-data](transmart-data) if you want 
+to use the sources. 
+Note that `Rserve` and `Solr` are not necessarily needed for a development installation.
 
 Start `Solr`:
 ```bash
