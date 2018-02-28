@@ -279,6 +279,9 @@ buildInfo { properties {
 
 /* }}} */
 
+// Enable this when glowing bear frontend runs on separate host.
+//grails.cors.enabled = false
+
 /* {{{ Spring Security configuration */
 
 grails { plugin { springsecurity {
@@ -288,8 +291,8 @@ grails { plugin { springsecurity {
         def glowingBearRedirectUris = [
                 org.transmartproject.app.transmartURL - ~/transmart\/?$/ + 'connections',
         ]
-        // for dev, node reverse proxy runs on 8001
-        glowingBearRedirectUris << 'http://localhost:8001/connections'
+        // The glowing bear runs on port 4200 by default
+        glowingBearRedirectUris << 'http://localhost:4200/connections'
 
         oauthProvider {
             authorization.requireRegisteredRedirectUri = true
