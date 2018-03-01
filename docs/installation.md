@@ -46,16 +46,16 @@ as well.
 
 ## 2. Setup database
 
-Database definitions and installation instructions are in [transmart-data](transmart-data). 
+Database definitions and installation instructions are in [transmart-data](../transmart-data). 
 To set up a test database for tranSMART, you can follow these steps:
-* [Drop the database](transmart-data#drop-the-database)
-* [Create the database and load test data](transmart-data#create-the-database-and-load-test-data)
+* [Drop the database](../transmart-data#drop-the-database)
+* [Create the database and load test data](../transmart-data#create-the-database-and-load-test-data)
  
 Or to set up an empty tranSMART database follow those:
-* [Drop the database](transmart-data#drop-the-database)
-* [Create the database and load everything](transmart-data#create-the-database-and-load-everything)
+* [Drop the database](../transmart-data#drop-the-database)
+* [Create the database and load everything](../transmart-data#create-the-database-and-load-everything)
  
-And then a data loading tool based on Spring Batch is available as [transmart-batch](transmart-batch).
+And then a data loading tool based on Spring Batch is available as [transmart-batch](../transmart-batch).
 
 
 ## 3. Generate configuration files
@@ -70,7 +70,7 @@ or fetch `transmart-data` from a Nexus repository:
 mvn dependency:get -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/
 mvn dependency:unpack -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DoutputDirectory=.
 ```
-To generate the configuration, please consult the documentation of [transmart-data](transmart-data).
+To generate the configuration, please consult the documentation of [transmart-data](../transmart-data).
 Once a correct `vars` file has been created, the configuration can be generated and installed
 with these commands (requires `php`):
 ```bash
@@ -119,7 +119,7 @@ java -jar transmart-server-17.1-SNAPSHOT.war
 
 `Rserve` and `Solr` services can be run using `transmart-data`, see [Generate configuration files](#3-generate-configuration-files)
 to fetch it from a Nexus repository. 
-These instructions are using downloaded binaries, see the documentation of [transmart-data](transmart-data) if you want 
+These instructions are using downloaded binaries, see the documentation of [transmart-data](../transmart-data) if you want 
 to use the sources. 
 Note that `Rserve` and `Solr` are not necessarily needed for a development installation.
 
