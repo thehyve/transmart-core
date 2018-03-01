@@ -248,6 +248,13 @@ For instance:
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.
 
+### Refreshing Oracle Materialized Views
+After loading new data you might need to update materialized views. e.g. `BIOMART.BIO_MARKER_CORREL_MV`
+You could do this with help of the following command:
+```
+make -C data/oracle refresh_mvs
+```
+
 ### For MacOSX
 The loading scripts use the -e option from the  function readlink. This is a function that is not in the readlink that is installed on Mac OSX, to bypass this problem you are required to install greadlink (stands for GNU readlink). After installing greadlink edit ~/transmart-data/samples/postgres/process_params.inc and on change readlink to greadlink (line 20). Save the changes and the upload should work.
 
