@@ -7,6 +7,7 @@ is maintained by the [tranSMART Foundation](http://transmartfoundation.org). Off
 can be found on the tranSMART Foundation website, and the tranSMART Foundation's development repositories
 can be found at <https://github.com/transmart/>.
 
+All the instructions on how to install, build and run a private instance of tranSMART, get set up for developing or upgrade to the latest version of tranSMART from an older version are available [in the documentation.](https://USERNAME.github.io/transmart-core/.)  For details on contributing code changes via pull requests, [see the Contributing document.](CONTRIBUTING.md)
 
 ## Overview
 
@@ -34,76 +35,6 @@ The master branch can locally be connected to the history with `git replace`.
 # replace the master-base object with transmart-history
 git replace 58a48ff dd57ce1
 ```
-
-
-## Build and run
-
-The project is built using [gradle](https://gradle.org/). Any version `> 2.12` and `< 2.3` should suffice (version `2.13` is recommended). Other versions may cause some build issues.
-To build the project, run:
-```
-gradle :transmart-server:bootRepackage
-```
-This should create the file `transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war`.
-Run it with:
-```
-java -jar transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war
-```
-
-The application expects configuration in `~/.grails/transmartConfig`. Check [transmart-data](transmart-data) on how to set up the database and generate the required configuration files.
-
-
-## Deployment
-
-Deployment artefacts are published to [the Nexus repository of The Hyve](https://repo.thehyve.nl/).
-
-### Fetch and run `transmart-server`: 
-```bash
-# Fetch artefacts using Maven 
-mvn dependency:get -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/,https://repo.grails.org/grails/core
-mvn dependency:copy -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DoutputDirectory=.
-# Start the web application
-java -jar transmart-server-17.1-SNAPSHOT.war
-```
-
-### Fetch `transmart-data`, configure, start services
-tranSMART also requires a configuration file to be generated in `~/.grails/transmartConfig`
-and `Rserve` and `Solr` to run.
-Scripts to generate the configuration and to start `Rserve` and `Solr` are shipped with
-`transmart-data`.
-
-Fetch `transmart-data`:
-```
-mvn dependency:get -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/
-mvn dependency:unpack -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DoutputDirectory=.
-```
-To generate the configuration, please consult the documentation of [transmart-data](transmart-data).
-Once a correct `vars` file has been created, the configuration can be generated and installed
-with these commands (requires `php`):
-```bash
-pushd transmart-data-17.1-SNAPSHOT
-source vars
-make -C config install
-popd
-```
-
-Start `Solr`:
-```bash
-pushd transmart-data-17.1-SNAPSHOT/solr
-java -jar start.jar &
-popd
-```
-
-`Rserve` can be fetched and installed using `apt` (for `debian` or `ubuntu`) or `yum` (for `redhat` or `centos`).
-For `apt`, use:
-```bash
-# Using apt
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 79cbff36340878cfb6a09bbecf5b7bd93375da21
-sudo add-apt-repository "deb http://apt.thehyve.net/internal/ xenial main"
-sudo apt-get update
-sudo apt-get install transmart-r
-```
-For `yum`, use the following repository url with `gpgcheck=0`: `https://repo.thehyve.nl/content/repositories/releases`.
-
 
 ## License
 

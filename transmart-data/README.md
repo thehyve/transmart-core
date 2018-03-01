@@ -34,8 +34,9 @@ Requirements
 
 The following are required:
 
+* PostgreSQL (9.5 recommended, 10.2 is known to not work currently) or Oracle database server
 * GNU make
-* PostgreSQL client utilities (`psql`, `psql_dump`, etc.)
+* PostgreSQL client utilities (`psql`, `psql_dump`, version matching your database), if you use PostgreSQL
 * curl
 * php (>= 5.4)
 * tar with support for the -J switch (GNU tar only?)
@@ -45,7 +46,7 @@ The following are required:
   `PATH` (Oracle and some secondary functionality only)
 * [Kettle][kettle] (ETL only)
 * rsync (Solr only)
-* Java environment (JDK 7)
+* Java environment (JDK 7 or 8)
 * build-essentials tools and gcc-fortran (building R from source only)
 
 If you are using Ubuntu and you intend to use PostgreSQL, you should be able to
@@ -55,7 +56,7 @@ install all these dependencies by running
 	make -C env ubuntu_deps_regular
 
 which will also prepare some directories for the tablespaces and assign them the
-correct ownership .
+correct ownership.
 
 Usage
 -----
@@ -75,6 +76,9 @@ created for you. You can skip the previous step and do only:
 The several options are fairly self-explanatory.
 
 ### PostgreSQL-specific notes
+
+These scripts were tested with PostgreSQL version 9.5. PostgreSQL version 10.2 
+is known to not work.
 
 The configured PostgreSQL user must be a database superuser. You can connect to
 PostgreSQL with UNIX sockets by specifying the parent directory of the socket
