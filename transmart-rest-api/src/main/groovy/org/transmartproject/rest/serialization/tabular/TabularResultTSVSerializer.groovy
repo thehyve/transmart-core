@@ -20,14 +20,13 @@ import java.util.zip.ZipOutputStream
 class TabularResultTSVSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
+    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
 
-    static <C extends DataColumn, R extends DataRow> void writeValues(
+    private <C extends DataColumn, R extends DataRow> void writeValues(
             TabularResult<C, R> tabularResult,
             OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
         List<DataColumn> columns = tabularResult.indicesList
-        csvWriter.writeNext(columns*.label as String[])
         for (R row in tabularResult) {
             List valuesRow = columns.collect { DataColumn column -> row[column] }
             csvWriter.writeNext(formatRowValues(valuesRow))
@@ -35,11 +34,21 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
         csvWriter.flush()
     }
 
-    private static String[] formatRowValues(List<? extends Object> valuesRow) {
+    static <C extends DataColumn, R extends DataRow> void writeHeader(
+            List<DataColumn> columns,
+            OutputStream outputStream) {
+        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
+        csvWriter.writeNext(columns*.label as String[])
+        csvWriter.flush()
+    }
+
+    private String[] formatRowValues(List<? extends Object> valuesRow) {
         valuesRow.collect { value ->
             if (value == null) return ''
             if (value instanceof Date) {
-                DATE_FORMAT.format(value)
+                synchronized (DATE_FORMAT) {
+                    DATE_FORMAT.format(value)
+                }
             } else {
                 value as String
             }
@@ -115,6 +124,7 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
         log.info 'Combining parallel results to a single TSV file ...'
         try {
             zipOutStream.putNextEntry(new ZipEntry('data.tsv'))
+            writeHeader(columns, zipOutStream)
             for (File dataFile: dataFiles.values()) {
                 dataFile.withInputStream { inputStream ->
                     zipOutStream << inputStream

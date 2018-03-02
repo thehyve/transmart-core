@@ -33,8 +33,6 @@ class Config {
         }
     }).setAuthAdapter(new OauthAdapter())
 
-    public static final String TEMP_DIRECTORY = '/tmp'
-
     public static final String DEFAULT_USER = 'test-public-user-1'
     public static final String UNRESTRICTED_USER = 'test-public-user-2'
     public static final String ADMIN_USER = 'admin'
