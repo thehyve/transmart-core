@@ -24,7 +24,7 @@ import java.util.zip.ZipOutputStream
 class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy hh:mm")
+    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy hh:mm")
 
     private final static toSpssLabel(String label) {
         label?.replaceAll(/[^a-zA-Z0-9_.]/, '_')
@@ -107,7 +107,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         csvWriter.flush()
     }
 
-    static writeValues(ImmutableList<DataColumn> columns, TabularResult tabularResult, OutputStream outputStream) {
+    void writeValues(ImmutableList<DataColumn> columns, TabularResult tabularResult, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(
                 new BufferedWriter(
                         new OutputStreamWriter(outputStream, 'utf-8'),
@@ -123,11 +123,13 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         csvWriter.flush()
     }
 
-    private static String[] formatRowValues(List<Object> valuesRow) {
+    private String[] formatRowValues(List<Object> valuesRow) {
         valuesRow.stream().map({value ->
             if (value == null) return ''
             if (value instanceof Date) {
-                DATE_FORMAT.format(value)
+                synchronized (DATE_FORMAT) {
+                    DATE_FORMAT.format(value)
+                }
             } else {
                 value.toString()
             }

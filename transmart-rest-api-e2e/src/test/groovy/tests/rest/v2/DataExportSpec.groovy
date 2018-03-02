@@ -187,7 +187,6 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.viewerUrl == null
 
         when: "Check the status of the job"
-        String fileName = "$TEMP_DIRECTORY/$ADMIN_USER/$jobName" + ".zip"
         int maxAttemptNumber = 10 // max number of status check attempts
         def statusRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/status",
@@ -208,7 +207,6 @@ class DataExportSpec extends RESTSpec {
         }
 
         assert status == 'Completed'
-        assert statusResponse.exportJob.viewerUrl == fileName
 
         when: "Try to download the file"
         def downloadRequest = [
@@ -220,7 +218,6 @@ class DataExportSpec extends RESTSpec {
 
         then: "ZipStream is returned"
         assert downloadResponse != null
-        assert new File(fileName).isFile()
 
         when: "Try to download the file"
         def downloadRequest2 = [
@@ -234,10 +231,6 @@ class DataExportSpec extends RESTSpec {
         then: "error is returned"
         downloadResponse2.message == "Job ${jobId} was not created by this user"
 
-        cleanup: "Remove created file"
-        if (fileName) {
-            new File(fileName).delete()
-        }
     }
 
     def "list all dataExport jobs for user"() {
@@ -529,8 +522,7 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.exportJob.userId == DEFAULT_USER
         assert runResponse.viewerUrl == null
 
-        String fileName = "$TEMP_DIRECTORY/$DEFAULT_USER/$jobName" + ".zip"
-        int maxAttemptNumber = 10 // max number of status check attempts
+        int maxAttemptNumber = 50 // max number of status check attempts
         def statusRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/status",
                 acceptType: JSON,
@@ -548,19 +540,12 @@ class DataExportSpec extends RESTSpec {
         }
 
         assert status == 'Completed'
-        assert statusResponse.exportJob.viewerUrl == fileName
 
         def downloadRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/download",
                 acceptType: ZIP,
         ]
         def downloadResponse = get(downloadRequest)
-
-        assert new File(fileName).isFile()
-
-        if (fileName) {
-            new File(fileName).delete()
-        }
 
         return downloadResponse
     }
@@ -666,6 +651,36 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
                 statusCode: 404
         ])
+    }
+
+    @RequiresStudy(ORACLE_1000_PATIENT_ID)
+    def "export big study"() {
+        def patientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'all_patients'],
+                body      : toJSON([type: StudyNameConstraint, studyId: ORACLE_1000_PATIENT_ID]),
+                statusCode: 201
+        ]
+        def createPatientSetResponse = post(patientSetRequest)
+        def patientSet = createPatientSetResponse
+
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type      : PatientSetConstraint,
+                             patientSetId: patientSet.id ],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'TSV',
+                                     dataView: 'surveyTable'
+                             ]],
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 2
+        filesLineNumbers['data.tsv'] == patientSet.setSize + 1
+        filesLineNumbers['variables.tsv'] == 100 + 1 /*header*/ + 1 //subj id
     }
 
     private Map<String, Integer> getFilesLineNumbers(byte[] content) {
