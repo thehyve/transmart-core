@@ -66,11 +66,8 @@ class QueryServiceSpec extends TransmartSpecification {
         sessionFactory.currentSession.flush()
     }
 
-    Constraint createQueryForConcept(ObservationFact observationFact) {
-        def conceptCode = observationFact.conceptCode
-        def conceptDimension = ConceptDimension.find {
-            conceptCode == conceptCode
-        }
+    Constraint createQueryForConcept(String conceptCode) {
+        def conceptDimension = ConceptDimension.findByConceptCode(conceptCode)
         new ConceptConstraint(path: conceptDimension.conceptPath)
     }
 
@@ -278,15 +275,16 @@ class QueryServiceSpec extends TransmartSpecification {
         of1.numberValue = 50
         testData.clinicalData.facts << of1
         testData.saveAll()
-        def query = createQueryForConcept(of1)
+        def query = createQueryForConcept(of1.conceptCode)
 
         when:
-        def count1 = multiDimService.count(query, accessLevelTestData.users[0])
+        def counts = multiDimService.counts(query, accessLevelTestData.users[0])
         def patientCount1 = multiDimService.getDimensionElementsCount(DimensionImpl.PATIENT, query, accessLevelTestData.users[0])
 
         then:
-        count1 == 2L
-        patientCount1 == 2L
+        counts.observationCount == 2L
+        counts.patientCount == 2L
+        counts.patientCount == patientCount1
 
         when:
         ObservationFact of2 = createObservationWithSameConcept()
@@ -294,11 +292,12 @@ class QueryServiceSpec extends TransmartSpecification {
         of2.patient = of1.patient
         testData.clinicalData.facts << of2
         testData.saveAll()
-        def count2 = multiDimService.count(query, accessLevelTestData.users[0])
+        multiDimService.clearCountsCache()
+        def counts2 = multiDimService.counts(query, accessLevelTestData.users[0])
         def patientCount2 = multiDimService.getDimensionElementsCount(DimensionImpl.PATIENT, query, accessLevelTestData.users[0])
 
         then:
-        count2 == count1 + 1
+        counts2.observationCount == counts.observationCount + 1
         patientCount2 == patientCount1
     }
 

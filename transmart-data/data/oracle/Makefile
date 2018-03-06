@@ -10,6 +10,9 @@ start_pool: $(NETTY_JAR_PATH) $(JDBC_DRIVER_ORA_PATH)
 		groovy -cp '$(CP_ORA):$(NETTY_JAR_PATH)' start_conn_pool.groovy \
 		-f pool-lock
 
+refresh_mvs: $(JDBC_DRIVER_ORA_PATH) $(JDBC_XDB_ORA_PATH)
+	groovy -cp '$(CP_ORA):' refresh_materialized_views.groovy
+
 .PHONY: start_pool $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 
 # vim: set filetype=make:

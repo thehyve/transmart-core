@@ -496,7 +496,7 @@ class QueryServicePgSpec extends Specification {
         ConceptConstraint constraint = new ConceptConstraint(conceptCode: 'favouritebook')
 
         when:
-        Long observationCount = multiDimService.count(constraint, user)
+        Long observationCount = multiDimService.counts(constraint, user).observationCount
         Hypercube data = multiDimService.retrieveClinicalData(constraint, user)
         def values = data.collect { HypercubeValue value -> value.value as String }
 
@@ -515,7 +515,7 @@ class QueryServicePgSpec extends Specification {
         ])
 
         when:
-        Long observationCount = multiDimService.count(constraint, user)
+        Long observationCount = multiDimService.counts(constraint, user).observationCount
         Hypercube data = multiDimService.retrieveClinicalData(constraint, user)
         def values = data.collect { HypercubeValue value -> value.value as String }
 
@@ -575,7 +575,7 @@ class QueryServicePgSpec extends Specification {
 
         when: "fetching all counts per study and concept"
         def countsPerStudyAndConcept = multiDimService.countsPerStudyAndConcept(new TrueConstraint(), user)
-        def observationCount = multiDimService.count(new TrueConstraint(), user)
+        def observationCount = multiDimService.counts(new TrueConstraint(), user).observationCount
 
         then: "the result should contain the counts for study EHR and concept EHR:VSIGN:HR"
         !countsPerStudyAndConcept.empty

@@ -4,11 +4,11 @@ ifndef TSUSER_HOME
 	TSUSER_HOME = $(HOME)/
 endif
 
-FINAL_FILES = Config.groovy DataSource.groovy BuildConfig.groovy
+FINAL_FILES = Config.groovy DataSource.groovy
 
 all: $(FINAL_FILES)
 
-Config-extra.php BuildConfig.groovy:
+Config-extra.php:
 	cp $@.sample $@
 
 Config.groovy: Config-template.groovy Config-extra.php build-config.php

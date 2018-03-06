@@ -139,7 +139,6 @@ environments { development {
 // Whether to enable guest auto login.
 // If it's enabled no login is required to access tranSMART.
 com.recomdata.guestAutoLogin = false
-environments { development { com.recomdata.guestAutoLogin = true } }
 
 // Guest account user name - if guestAutoLogin is true, this is the username of
 // the account that tranSMART will automatically authenticate users as. This will
@@ -279,6 +278,9 @@ buildInfo { properties {
 
 /* }}} */
 
+// Enable cross origin for glowing bear frontend.
+grails.cors.enabled = true
+
 /* {{{ Spring Security configuration */
 
 grails { plugin { springsecurity {
@@ -288,8 +290,8 @@ grails { plugin { springsecurity {
         def glowingBearRedirectUris = [
                 org.transmartproject.app.transmartURL - ~/transmart\/?$/ + 'connections',
         ]
-        // for dev, node reverse proxy runs on 8001
-        glowingBearRedirectUris << 'http://localhost:8001/connections'
+        // The glowing bear runs on port 4200 by default
+        glowingBearRedirectUris << 'http://localhost:4200'
 
         oauthProvider {
             authorization.requireRegisteredRedirectUri = true
