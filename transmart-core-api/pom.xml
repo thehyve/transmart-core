@@ -6,7 +6,7 @@
     <groupId>org.transmartproject</groupId>
     <artifactId>transmart-core-api</artifactId>
     <name>tranSMART Core API</name>
-    <version>16.2-SNAPSHOT</version>
+    <version>17.12-SNAPSHOT</version>
 
     <build>
         <pluginManagement>
