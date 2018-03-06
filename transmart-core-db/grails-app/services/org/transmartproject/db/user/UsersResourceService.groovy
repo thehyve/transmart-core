@@ -66,4 +66,11 @@ class UsersResourceService implements UsersResource {
         } as List<CoreUser>
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    List<CoreUser> getUsersWithEmailSpecified() {
+        User.withSession { session ->
+            session.createQuery('FROM User u LEFT JOIN FETCH u.roles WHERE email IS NOT NULL').list()
+        } as List<CoreUser>
+    }
 }

@@ -190,15 +190,30 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
-            "/queries"(method: 'GET', controller: 'userQuery', action: 'index')
-            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get')
+            "/queries"(method: 'GET', controller: 'userQuery', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get') {
+                apiVersion = "v2"
+            }
             "/queries"(method: 'POST', controller: 'userQuery', action: 'save') {
                 apiVersion = "v2"
             }
             "/queries/$id"(method: 'PUT', controller: 'userQuery', action: 'update') {
                 apiVersion = "v2"
             }
-            "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
+            "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete') {
+                apiVersion = "v2"
+            }
+            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan') {
+                apiVersion = "v2"
+            }
+            "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetsByQueryId') {
+                apiVersion = "v2"
+            }
+            "/queries/$queryId/sets/diffs"(method: 'GET', controller: 'userQuerySet', action: 'getDiffsByQueryId') {
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {

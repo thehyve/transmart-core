@@ -55,7 +55,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification{
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 rnaseqTranscriptResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = []
         def projection = rnaseqTranscriptResource.createProjection([:], RNASEQ_VALUES_PROJECTION)
@@ -177,7 +177,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification{
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 rnaseqTranscriptResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 rnaseqTranscriptResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
@@ -209,7 +209,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification{
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 rnaseqTranscriptResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 rnaseqTranscriptResource.createDataConstraint([ids: testData.bioMarkerTestData.geneBioMarkers.
@@ -242,7 +242,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification{
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 rnaseqTranscriptResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 rnaseqTranscriptResource.createDataConstraint([ids: testData.bioMarkerTestData.geneBioMarkers.
@@ -274,7 +274,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification{
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 rnaseqTranscriptResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 rnaseqTranscriptResource.createDataConstraint([ids: testData.bioMarkerTestData.geneBioMarkers.

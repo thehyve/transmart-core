@@ -68,6 +68,11 @@ class CurrentUser implements User {
     }
 
     @Override
+    String getEmail() {
+        delegate.email
+    }
+
+    @Override
     boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource) {
         delegate.canPerform(operation, protectedResource)
     }
@@ -91,6 +96,7 @@ class CurrentUser implements User {
         final Long id = 1
         final String username = 'user_-301'
         final String realName = 'Sys Admin'
+        final String email = ''
 
         @Override
         boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource) {
@@ -105,6 +111,7 @@ class CurrentUser implements User {
         final Long id = 1
         final String username = 'admin'
         final String realName = 'Sys Admin'
+        final String email = ''
 
         @Override
         boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource) {
