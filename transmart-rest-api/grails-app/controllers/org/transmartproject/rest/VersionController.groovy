@@ -42,7 +42,7 @@ class VersionController {
      *     {
      *       'id': 'v2',
      *       'prefix': '/v2',
-     *       'version': '2.1-dev',
+     *       'version': '2.0',
      *       'major': 2,
      *       'minor': 1,
      *       'tag': 'dev',
@@ -62,7 +62,7 @@ class VersionController {
                 version: '1.1'
             ],[
                 id: 'v2',
-                version: '2.1-dev',
+                version: '2.0',
                 features: [
                         'versioning',
                         'and-or-constraints',
