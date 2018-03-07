@@ -92,7 +92,6 @@ subprojects { project ->
             apply plugin: 'org.grails.grails-web'
         } else {
             apply plugin: 'org.grails.grails-plugin'
-            apply plugin: 'org.grails.grails-plugin-publish'
         }
         apply plugin: 'org.grails.grails-gsp'
         apply plugin: 'asset-pipeline'
@@ -103,21 +102,6 @@ subprojects { project ->
             }
             applyMavenExclusions false
         }
-
-        if (!(project.name =~ /^(transmart-server|transmartApp|mock-ontology-server|transmart-solr-indexing)$/)) {
-            grailsPublish {
-                websiteUrl = 'http://transmartfoundation.org/'
-                license {
-                    name = 'GPL-3.0'
-                }
-                issueTrackerUrl = 'https://github.com/thehyve/transmart-core/issues'
-                vcsUrl = 'https://github.com/thehyve/transmart-core'
-                title = project.name
-                desc = project.description
-                developers = [johndoe: "John Doe"]
-            }
-        }
-
     }
     if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch)$/) {
         apply plugin: 'net.linguica.maven-settings'
