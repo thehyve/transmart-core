@@ -366,8 +366,6 @@ dataSources {
         username = 'sa'
         password = ''
         dbCreate = 'update'
-        logSql = true
-        formatSql = true
     }
 }
 hibernate {
@@ -400,7 +398,7 @@ environments {
                 username = 'sa'
                 password = ''
                 dbCreate = 'update'
-                logSql = true
+                logSql = false
                 formatSql = true
             }
         }
