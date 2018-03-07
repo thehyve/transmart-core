@@ -84,11 +84,8 @@ class QueryServiceSpec extends TransmartSpecification {
         sessionFactory.currentSession.flush()
     }
 
-    Constraint createQueryForConcept(ObservationFact observationFact) {
-        def conceptCode = observationFact.conceptCode
-        def concept = ConceptDimension.find {
-            conceptCode == conceptCode
-        }
+    Constraint createQueryForConcept(String conceptCode) {
+        def concept = ConceptDimension.findByConceptCode(conceptCode)
         new ConceptConstraint(path: concept.conceptPath)
     }
 
