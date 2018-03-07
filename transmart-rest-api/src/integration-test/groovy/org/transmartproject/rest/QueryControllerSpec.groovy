@@ -106,4 +106,32 @@ class QueryControllerSpec extends MarshallerSpec {
         result instanceof List
     }
 
+    void 'test pack parameter'() {
+        when:
+        def constraintTxt = URLEncoder.encode(([
+                type: 'negation',
+                arg: [
+                        type: 'true'
+                ]
+        ] as JSON).toString(), 'UTF-8')
+        def response = getProtobuf("$baseURL/$VERSION/observations?type=clinical&constraint=$constraintTxt")
+
+        then:
+        response.statusCode.value() == 400
+        new JsonSlurper().parse(response.body.byteArray).message ==
+                "Parameter 'pack' is required for protobuf output, currently only the value 'f' is supported."
+
+        when:
+        // Only as long as packing is not implemented
+        response = getProtobuf("$baseURL/$VERSION/observations?type=clinical&pack=t&constraint=$constraintTxt")
+        then:
+        response.statusCode.value() == 400
+        new JsonSlurper().parse(response.body.byteArray).message ==
+                "Parameter 'pack' is required for protobuf output, currently only the value 'f' is supported."
+
+        when:
+        response = getProtobuf("$baseURL/$VERSION/observations?type=clinical&pack=f&constraint=$constraintTxt")
+        then:
+        response.statusCode.value() == 200
+    }
 }

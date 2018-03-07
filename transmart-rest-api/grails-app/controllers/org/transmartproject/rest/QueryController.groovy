@@ -60,9 +60,13 @@ class QueryController extends AbstractQueryController {
      */
     def observations() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint',
+                                         'projection', 'pack'])
 
         if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
+
+        if (args.pack != 'f' && contentFormat == Format.PROTOBUF) throw new InvalidArgumentsException(
+                "Parameter 'pack' is required for protobuf output, currently only the value 'f' is supported.")
 
         if (args.type == 'clinical') {
             clinicalObservations(args.constraint)

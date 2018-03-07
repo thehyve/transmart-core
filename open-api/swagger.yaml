@@ -745,6 +745,14 @@ paths:
           description: 'The projection. Only used with high dimensional data Example: `all_data`, `zscore`,
           `log_intensity`. Default: `all_data`.'
           type: string
+        - name: pack
+          required: false
+          in: query
+          description: |
+            Required for protobuf output. This parameter indicates if the protobuf is packed into a
+            smaller format. Values: 't', 'f'. Packing is not yet fully implemented so currently the value must be 'f'.
+            This parameter may become optional for protobuf output in the future.
+          type: string
       responses:
         200:
           description: |

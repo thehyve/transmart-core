@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
+import org.transmartproject.rest.serialization.Format
 import spock.lang.Specification
 
 @FreshRuntime
@@ -71,4 +72,13 @@ class MarshallerSpec extends Specification {
         response
     }
 
+    ResponseEntity<Resource> getProtobuf(url) {
+        HttpHeaders headers = new HttpHeaders()
+        headers.set(HttpHeaders.ACCEPT, Format.PROTOBUF as String)
+        HttpEntity requestEntity = new HttpEntity(headers)
+        ResponseEntity<Resource> response = restTemplate.exchange(
+                url, HttpMethod.GET, requestEntity,
+                new ParameterizedTypeReference<Resource>() {});
+        response
+    }
 }
