@@ -37,8 +37,6 @@ dataSource {
         username = 'sa'
         password = ''
         dbCreate = 'update'
-        logSql = true
-        formatSql = true
     }
 }
 
