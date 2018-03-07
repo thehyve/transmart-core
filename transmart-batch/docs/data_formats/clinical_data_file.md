@@ -47,8 +47,20 @@ Observations derived from electronic health records can be uploaded as part of a
 | patient2   | 1             |        |               | 20.9 | 82         |          |
 | patient2   | 2             |        |               |      | 69         | 142      |
 
+### Sample-specific data (not yet implemented)
+In case some of your clinical data is specific to a subject's sample (used in a high-dimensional data set), the   
+`Sample CD` modifier can be used. When applied, all observations in that row will be linked to the sample.
+
+| Subject_id | Sample CD     | Gender | Treatment arm | Hypermutated  | MVD        |
+|------------|---------------|--------|---------------|---------------|------------|
+| patient1   |               | Male   | A             |               |            |
+| patient1   | GSM210005     |        |               | No            | 51.26      |
+| patient2   |               | Female | B             |               |            |
+| patient2   | GSM210043     |        |               | No            | 27.91      | 
+| patient2   | GSM210047     |        |               | Yes           | 77.03      |
+
 ### Replicate observations
-By default, tranSMART expects unique combinations of subject ID, patient visit, trial visit, observation start date and variable. In case there are repeated measurements (i.e. not distinguishable by aforementioned aspects) that you wish to upload, this has to be made explicit by using the `instance number` column (see also [column mapping file](column-mapping.md)).
+By default, tranSMART expects unique combinations of subject ID, patient visit, observation start date and variable. In case there are repeated measurements (i.e. not distinguishable by aforementioned aspects) that you wish to upload, this has to be made explicit by using the `instance number` column (see also [column mapping file](column-mapping.md)).
 
 | Subject_id | Start date | Instance num | Gender | Treatment arm | Heart rate | Hb level |
 |------------|------------|--------------|--------|---------------|------------|----------|
