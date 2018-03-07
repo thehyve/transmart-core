@@ -2323,12 +2323,6 @@ var spec = {
                 "name": {
                   "type": "string"
                 },
-                "patientsQuery": {
-                  "type": "object"
-                },
-                "observationsQuery": {
-                  "type": "object"
-                },
                 "bookmarked": {
                   "type": "boolean"
                 },

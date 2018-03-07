@@ -84,6 +84,21 @@ class UserQuerySpec extends RESTSpec {
         Long id = createQuery(DEFAULT_USER).id
 
         when:
+        def errorJson = put([
+                path      : "${PATH_QUERY}/${id}",
+                acceptType: JSON,
+                user      : DEFAULT_USER,
+                statusCode: 400,
+                body      : toJSON([
+                        patientsQuery    : [type: Negation, arg: [type: TrueConstraint]],
+                        observationsQuery: null,
+                ]),
+        ])
+        then:
+        errorJson.message.contains('observationsQuery')
+        errorJson.message.contains('patientsQuery')
+
+        when:
         def updateResponseData = put([
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
@@ -91,8 +106,6 @@ class UserQuerySpec extends RESTSpec {
                 statusCode: 204,
                 body      : toJSON([
                         name             : 'test query 2',
-                        patientsQuery    : [type: Negation, arg: [type: TrueConstraint]],
-                        observationsQuery: null,
                         bookmarked       : false,
                         subscribed       : false,
                         subscriptionFreq : 'WEEKLY'
@@ -103,11 +116,9 @@ class UserQuerySpec extends RESTSpec {
         updateResponseData == null
         def updatedQuery = getQuery(id)
         updatedQuery.name == 'test query 2'
-        updatedQuery.patientsQuery.type == 'negation'
-        updatedQuery.observationsQuery == null
         updatedQuery.bookmarked == false
-        responseData.subscribed == false
-        responseData.subscriptionFreq == 'WEEKLY'
+        updatedQuery.subscribed == false
+        updatedQuery.subscriptionFreq == 'WEEKLY'
 
         when: 'try to update query by a different user'
         def updateResponseData1 = put([
