@@ -1,7 +1,7 @@
 var spec = {
   "swagger": "2.0",
   "info": {
-    "version": "17.1.0",
+    "version": 2,
     "title": "Transmart",
     "license": {
       "name": "Apache 2.0",

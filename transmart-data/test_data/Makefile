@@ -10,3 +10,6 @@ oracle_test_data: $(JDBC_DRIVER_ORA_PATH) $(JDBC_XDB_ORA_PATH)
 	find . -name *.tsv | groovy parse_and_reorder.groovy | NLS_DATE_FORMAT='yyyy-mm-dd hh24:mi:ss' \
     NLS_TIMESTAMP_FORMAT='yyyy-mm-dd hh24:mi:ss.ff' \
     groovy -cp '$(CP_ORA)' load_to_oracle.groovy
+
+oracle_clean_all_data: $(JDBC_DRIVER_ORA_PATH) $(JDBC_XDB_ORA_PATH)
+	find . -name *.tsv | groovy parse_and_reorder.groovy | groovy -cp '$(CP_ORA)' clean_oracle_tables.groovy

@@ -20,11 +20,13 @@ postgres_test:
 oracle:
 	$(MAKE) -C ddl/oracle load
 	$(MAKE) -C data/oracle load
+	$(MAKE) -C data/oracle refresh_mvs
 
 oracle_test:
 	$(MAKE) -C ddl/oracle load
 	$(MAKE) -C data/oracle load_schema_amapp
 	$(MAKE) -C test_data/ oracle_test_data
+	$(MAKE) -C data/oracle refresh_mvs
 
 oracle_drop:
 	$(MAKE) -C ddl/oracle drop

@@ -296,3 +296,30 @@ UPDATE I2B2DEMODATA.OBSERVATION_FACT SET TRIAL_VISIT_NUM = (
 WHERE concept_cd in (select concept_cd from concept_specific_trials);
 
 DROP TABLE concept_specific_trials;
+
+-- Update visual attributes of leaf nodes to include variable type
+
+update i2b2metadata.i2b2_secure set c_visualattributes = 'LAC'
+where (c_visualattributes = 'LA ' or c_visualattributes = 'LA') and
+(c_metadataxml is null or not c_metadataxml like '%<Oktousevalues>Y</Oktousevalues>%');
+
+update i2b2metadata.i2b2_secure set c_visualattributes = 'LAN'
+where (c_visualattributes = 'LA ' or c_visualattributes = 'LA') and
+c_metadataxml like '%<Oktousevalues>Y</Oktousevalues>%';
+
+-- Add study blob column
+alter table i2b2demodata.study add column study_blob text;
+
+-- Add reference to tag options in the tags table
+alter table i2b2metadata.i2b2_tags add column tag_option_id integer;
+
+ALTER TABLE ONLY i2b2metadata.i2b2_tags
+    ADD CONSTRAINT i2b2_tags_tag_option_fk FOREIGN KEY (tag_option_id)
+    REFERENCES i2b2metadata.i2b2_tag_options(tag_option_id);
+
+set search_path = biomart_user, pg_catalog;
+\i ../../../ddl/postgres/biomart_user/query.sql
+
+set search_path = i2b2metadata, pg_catalog;
+\i ../../../ddl/postgres/i2b2metadata/i2b2_tag_types.sql
+\i ../../../ddl/postgres/i2b2metadata/i2b2_tag_options.sql

@@ -299,7 +299,7 @@ class QueryServiceSpec extends TransmartSpecification {
         of1.numberValue = 50
         testData.clinicalData.facts << of1
         testData.saveAll()
-        def query = createQueryForConcept(of1)
+        def query = createQueryForConcept(of1.conceptCode)
 
         when:
         def counts1 = aggregateDataResource.counts(query, accessLevelTestData.users[0])
