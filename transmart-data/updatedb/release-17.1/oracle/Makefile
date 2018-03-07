@@ -11,6 +11,9 @@ FILES = \
 	supported_workflow \
 	storage_system \
 	linked_file_collection \
+	query \
+	i2b2_tag_types \
+	i2b2_tag_options \
 	data_migration \
 	qt_query_master \
 	async_job \

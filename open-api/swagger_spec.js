@@ -1,7 +1,7 @@
 var spec = {
   "swagger": "2.0",
   "info": {
-    "version": "17.1.0",
+    "version": 2,
     "title": "Transmart",
     "license": {
       "name": "Apache 2.0",
@@ -793,79 +793,6 @@ var spec = {
               "properties": {
                 "aggregatesPerConcept": {
                   "$ref": "#/definitions/AggregatesMap"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/observations/count": {
-      "get": {
-        "description": "Counts the number of observations that satisfy the given constraint.\nDeprecated in favour of `/v2/observations/counts`.\n",
-        "deprecated": true,
-        "tags": [
-          "v2"
-        ],
-        "parameters": [
-          {
-            "name": "constraint",
-            "required": true,
-            "in": "query",
-            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Return the result as a json object. Example: `{count: 56}`.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "count": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Works the same as GET, but with support for longer constraints.\nUse this, if the total length of the URL may be longer than the maximum length.\nDeprecated in favour of `/v2/observations/counts`.\n",
-        "deprecated": true,
-        "tags": [
-          "v2"
-        ],
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                }
-              },
-              "required": [
-                "constraint"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Return the result as a json object. Example: `{count: 56}`.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "count": {
-                  "type": "integer"
                 }
               }
             }

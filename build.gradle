@@ -30,7 +30,7 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 ext {
-    transmartVersion = '17.1-SNAPSHOT'
+    transmartVersion = '17.1-RC8'
 
     assetPipelineVersion = '2.11.6'
     gradleWrapperVersion = '2.13'
@@ -126,7 +126,7 @@ subprojects { project ->
             repositories {
                 maven {
                     name "nl.thehyve.nexus"
-                    url "https://repo.thehyve.nl/content/repositories/snapshots/"
+                    url "https://repo.thehyve.nl/content/repositories/releases/"
                 }
             }
         }

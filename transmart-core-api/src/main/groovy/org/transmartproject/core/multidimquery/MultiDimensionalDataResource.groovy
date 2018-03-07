@@ -26,19 +26,6 @@ interface MultiDimensionalDataResource {
     Dimension getDimension(String name)
 
     /**
-     * Observation count: counts the number of observations that satisfy the constraint and that
-     * the user has access to.
-     *
-     * Deprecated in favour of {@link #counts(MultiDimConstraint, User)}.
-     *
-     * @param constraint the constraint.
-     * @param user the current user.
-     * @return the number of observations.
-     */
-    @Deprecated
-    Long count(MultiDimConstraint constraint, User user)
-
-    /**
      * Observation and patient counts: counts the number of observations that satisfy the constraint and that
      * the user has access to, and the number of associated patients.
      *
@@ -109,19 +96,6 @@ interface MultiDimensionalDataResource {
     Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user)
 
     /**
-     * Patient count: counts the number of patients that satisfy the constraint and that
-     * the user has access to.
-     *
-     * Deprecated in favour of {@link #counts(MultiDimConstraint, User)}.
-     *
-     * @param constraint the constraint.
-     * @param user the current user.
-     * @return the number of patients.
-     */
-    @Deprecated
-    Long cachedPatientCount(MultiDimConstraint constraint, User user)
-
-    /**
      * Calculate numerical values aggregates
      *
      * @param constraint specifies from which observations you want to collect values statistics
@@ -159,12 +133,6 @@ interface MultiDimensionalDataResource {
      * observations in the database.
      */
     void clearCountsCache()
-
-    /**
-     * Clears the patient count cache. This function should be called after loading, removing or updating
-     * observations in the database.
-     */
-    void clearPatientCountCache()
 
     /**
      * Clears the counts per concept cache. This function should be called after loading, removing or updating
