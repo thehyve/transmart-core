@@ -27,6 +27,13 @@ public interface User {
     String getRealName()
 
     /**
+     * The email for the user
+     *
+     * @return the user email
+     */
+    String getEmail()
+
+    /**
      * Returns true iif this user is authorized to perform the given operation
      * on the given object.
      *

@@ -53,6 +53,9 @@ class UserQuerySpec extends RESTSpec {
         responseData.observationsQuery.type == 'negation'
         responseData.apiVersion != null
         responseData.bookmarked == true
+        responseData.subscribed == true
+        responseData.subscriptionFreq == 'DAILY'
+
         responseData.createDate.endsWith('Z')
         responseData.updateDate.endsWith('Z')
     }
@@ -68,7 +71,9 @@ class UserQuerySpec extends RESTSpec {
                         name             : 'test query',
                         patientsQuery    : null,
                         observationsQuery: null,
-                        bookmarked       : true
+                        bookmarked       : true,
+                        subscribed       : true,
+                        subscriptionFreq : 'DAILY'
                 ]),
         ])
         then:
@@ -88,7 +93,9 @@ class UserQuerySpec extends RESTSpec {
                         name             : 'test query 2',
                         patientsQuery    : [type: Negation, arg: [type: TrueConstraint]],
                         observationsQuery: null,
-                        bookmarked       : false
+                        bookmarked       : false,
+                        subscribed       : false,
+                        subscriptionFreq : 'WEEKLY'
                 ]),
         ])
 
@@ -99,6 +106,8 @@ class UserQuerySpec extends RESTSpec {
         updatedQuery.patientsQuery.type == 'negation'
         updatedQuery.observationsQuery == null
         updatedQuery.bookmarked == false
+        responseData.subscribed == false
+        responseData.subscriptionFreq == 'WEEKLY'
 
         when: 'try to update query by a different user'
         def updateResponseData1 = put([
@@ -152,7 +161,9 @@ class UserQuerySpec extends RESTSpec {
                         name             : 'test query',
                         patientsQuery    : [type: TrueConstraint],
                         observationsQuery: [type: Negation, arg: [type: TrueConstraint]],
-                        bookmarked       : true
+                        bookmarked       : true,
+                        subscribed       : true,
+                        subscriptionFreq : 'DAILY'
                 ]),
         ])
     }

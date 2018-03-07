@@ -323,6 +323,37 @@ grails { plugin { springsecurity {
 } } }
 /* }}} */
 
+/* {{{ GlowingBear query subscription configuration */
+grails {
+    mail {
+        host = "localhost:25"
+        'default' {
+            from = "<default_email>"
+        }
+        port = 465
+        username = "<username>"
+        password = "<password>"
+        props = ["mail.smtp.auth":"true",
+                 "mail.smtp.ssl.enable": "true",
+                 "mail.smtp.socketFactory.port":"465",
+                 "mail.smtp.socketFactory.class":"javax.net.ssl.SSLSocketFactory",
+                 "mail.smtp.socketFactory.fallback":"false"]
+    }
+}
+// max number of query sets returned in a subscription email
+org.transmart.server.subscription.maxNumberOfSets = 20
+/* }}} */
+
+/* {{{ Query subscription configuration */
+// Quartz plugin configuration - job for query subscription
+// To disable the email sending job, change this to false
+quartz {
+    jobEnabled = false
+}
+/* }}} */
+
+
+
 
 /* {{{ DATASOURCES configuration */
 // OAuth2 dataSource settings are a part of transmart-oauth config
