@@ -23,16 +23,17 @@ Table, tab separated, txt file. The header is mandatory, but is not interpreted.
 
 Reserved keywords for Data Label:
 - `SUBJ_ID` **(Mandatory)** Used to indicate the column that contains the subject IDs. Use exactly once per data file.
-- `START_DATE` Observation level start date(s).
-- `END_DATE` Observation level end date(s).
-- `TRIAL_VISIT_LABEL` Name(s) of the trial visit(s) that observations belong to.
-- `INSTANCE_NUM` Integer column used to distinguish repeated observations (i.e. identical time series data).
+- `START_DATE` Observation level start date(s). See [clinical data](clinical_data_file.md#observation-dates).
+- `END_DATE` Observation level end date(s). See [clinical data](clinical_data_file.md#observation-dates).
+- `TRIAL_VISIT_LABEL` Name(s) of the trial visit(s) that observations belong to. See [clinical data](clinical_data_file.md#trial-visits).
+- `INSTANCE_NUM` Integer column used to distinguish repeated observations (i.e. identical time series data). See [clinical data](clinical_data_file.md#replicate-observations).
 - `DATA_LABEL` Only used as Category Code placeholders. See [templates](templates.md) documentation.
 - `VISIT_NAME` Only used as Category Code placeholders (max. 1 per Filename). See [templates](templates.md) documentation.
 - `SITE_ID` Only used as Category Code placeholders (max. 1 per Filename). See [templates](templates.md) documentation.
 - `\` Only used for variables containing placeholders in their Category Code. See [templates](templates.md) documentation.
 - `OMIT` Used to indicate this variable should not be uploaded to tranSMART.
-- `PATIENT_VISIT` **(Not yet implemented)** Integer variable used to link a subject's observations to a patient visit.
+- `PATIENT_VISIT` **(Not yet implemented)** Integer variable used to link a subject's observations to a patient visit. See [clinical data](clinical_data_file.md#patient-visits-not-yet-implemented).
+- `SAMPLE_CD` **(Not yet implemented)** Modifier used to load clinical data for samples used in high-dimensional data. See [clinical data](clinical_data_file.md#sample-specific-data-not-yet-implemented).
 
 Allowed values for Concept type:
 - `NUMERICAL` For numerical variables.
