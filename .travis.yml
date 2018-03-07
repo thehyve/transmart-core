@@ -16,7 +16,7 @@ env:
     - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
     - DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
     - DIR=transmart-solr-indexing; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-batch:travisProperties :transmart-batch:loadPublicTestStudy"; TEST="check"; START_SOLR=true
-    - DIR=.; TEST=":transmart-core-api:publishToMavenLocal :transmart-data:publishToMavenLocal :transmart-server:publishToMavenLocal :transmart-batch:publishToMavenLocal"
+    - DIR=.; TEST="publishToMavenLocal"
 
 addons:
   postgresql: 9.4
