@@ -3,7 +3,7 @@
 swagger: '2.0'
 
 info:
-  version: 2.0
+  version: 2.1
   title: Transmart
   license:
     name: Apache 2.0
@@ -1864,6 +1864,10 @@ paths:
                   type: object
                 bookmarked:
                   type: boolean
+                subscribed:
+                  type: boolean
+                subscriptionFreq:
+                  type: string
         responses:
           201:
             description: |
@@ -1905,12 +1909,12 @@ paths:
             properties:
               name:
                 type: string
-              patientsQuery:
-                type: object
-              observationsQuery:
-                type: object
               bookmarked:
                 type: boolean
+              subscribed:
+                type: boolean
+              subscriptionFreq:
+                type: string
       responses:
         204:
           description: 'replies with the 204 http status if the update finished successfully.'
@@ -1927,6 +1931,45 @@ paths:
       responses:
         204:
           description: 'returns null'
+  /v2/queries/{queryId}/sets:
+      get:
+        description: |
+          Gets a list of query result change entries by query id.
+          History of data changes for specific query.
+        tags:
+          - v2
+        parameters:
+          - name: queryId
+            required: true
+            in: path
+            description: 'Id of a user query.'
+            type: integer
+        responses:
+          200:
+            description: |
+              an object that contains an array of all querySets related to the query with a set change history.
+            schema:
+              type: object
+              properties:
+                querySets:
+                  type: array
+                  items:
+                    $ref: '#/definitions/userQuerySet'
+  /v2/queries/sets/scan:
+      post:
+        description: |
+          Scans for changes in results of the stored user queries and updates stored sets.
+          Only for administrators.
+        tags:
+          - v2
+        responses:
+          201:
+            description: Successful response
+            schema:
+              type: object
+              properties:
+                numberOfUpdatedSets:
+                  type: integer
 
 definitions:
   version:
@@ -2444,12 +2487,41 @@ definitions:
         type: string
       bookmarked:
         type: boolean
+      subscribed:
+        type: boolean
+      subscriptionFreq:
+        type: string
       createDate:
         type: string
         format: 'date-time'
       updateDate:
         type: string
         format: 'date-time'
+
+  userQuerySet:
+    type: object
+    properties:
+      id:
+        type: integer
+      queryId:
+        type: integer
+      queryName:
+        type: string
+      setSize:
+        type: integer
+      setTyp:
+        type: string
+      createDate:
+        type: string
+        format: 'date-time'
+      objectsAdded:
+        type: array
+        items:
+          type: integer
+      objectsRemoved:
+        type: array
+        items:
+          type: integer
 
   AggregatesMap:
     type: object

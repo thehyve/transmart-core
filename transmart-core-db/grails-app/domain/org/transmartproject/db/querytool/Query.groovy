@@ -20,6 +20,7 @@
 package org.transmartproject.db.querytool
 
 import org.springframework.validation.Errors
+import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 
 class Query implements UserQuery {
@@ -31,6 +32,8 @@ class Query implements UserQuery {
     String apiVersion
     Boolean bookmarked = false
     Boolean deleted = false
+    Boolean subscribed = false
+    SubscriptionFrequency subscriptionFreq
     Date createDate = new Date()
     Date updateDate = new Date()
 
@@ -53,8 +56,11 @@ class Query implements UserQuery {
         }
         apiVersion nullable: true, maxSize: 25
         bookmarked nullable: true
+        subscribed nullable: true
+        subscriptionFreq nullable: true
         deleted nullable: true
         createDate nullable: true
         updateDate nullable: true
     }
+
 }

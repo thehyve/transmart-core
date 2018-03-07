@@ -439,9 +439,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
                 .setProjection(Projections.projectionList()
-                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(Projections.rowCount(), 'observationCount')
-                    .add(Projections.countDistinct('patient'), 'patientCount'))
+                .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -679,11 +679,11 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             List<Patient> patients = getDimensionElements(PATIENT, constraint, user).toList()
             patients.eachWithIndex { Patient patient, Integer index ->
                 queryResult.addToPatientSet(
-                    new QtPatientSetCollection(
-                            resultInstance: queryResult,
-                            patient: PatientDimension.load(patient.id),
-                            setIndex: index + 1
-                    )
+                        new QtPatientSetCollection(
+                                resultInstance: queryResult,
+                                patient: PatientDimension.load(patient.id),
+                                setIndex: index + 1
+                        )
                 )
             }
 

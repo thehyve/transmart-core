@@ -21,4 +21,9 @@ interface UsersResource {
      */
     List<User> getUsers()
 
+    /**
+     * Retrieves the list of all users that have an email specified.
+     * @return the list of users.
+     */
+    List<User> getUsersWithEmailSpecified()
 }

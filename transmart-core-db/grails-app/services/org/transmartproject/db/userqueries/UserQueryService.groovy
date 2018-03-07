@@ -18,6 +18,11 @@ class UserQueryService implements UserQueryResource {
     }
 
     @Override
+    List<UserQuery> listSubscribed() {
+        Query.findAllByDeletedAndSubscribed(false, true)
+    }
+
+    @Override
     UserQuery get(Long id, User currentUser) {
         Query query = Query.findByIdAndDeleted(id, false)
         if (!query) {
