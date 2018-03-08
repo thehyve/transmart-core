@@ -1,4 +1,4 @@
-package org.transmart.server.subscription
+package org.transmart.notifications
 
 import grails.plugins.mail.MailService
 import groovy.util.logging.Slf4j
@@ -109,7 +109,7 @@ class QuerySetSubscriptionMailService {
      */
     private List<UserQuerySetChangesRepresentation> getPatientSetChangesRepresentation(SubscriptionFrequency frequency,
                                                                                        String username) {
-        Integer maxNumberOfSets = grailsApplication.config.org.transmart.server.subscription.maxNumberOfSets
+        Integer maxNumberOfSets = grailsApplication.config.org.transmart.notifications.maxNumberOfSets
         List<UserQuerySetChangesRepresentation> querySetsChanges =
                 userQueryDiffResource.getQueryChangeHistoryByUsernameAndFrequency(frequency, username, maxNumberOfSets)
         return querySetsChanges.findAll { it.setType == SetType.PATIENT }?.sort { it.queryId }

@@ -1,6 +1,7 @@
-package org.transmart.server.subscription
+package org.transmart.notifications
 
 import groovy.util.logging.Slf4j
+import org.transmart.notifications.QuerySetSubscriptionMailService
 import org.transmartproject.core.userquery.SubscriptionFrequency
 
 /**
