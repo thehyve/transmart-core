@@ -93,8 +93,8 @@ class UserQueryTestData {
         queries.add(
                 new Query(
                         name: 'test query 1',
-                        patientsQuery: '{type: "true"}',
-                        observationsQuery: '{type: "true"}',
+                        patientsQuery: '{"type": "true"}',
+                        observationsQuery: '{"type": "true"}',
                         bookmarked: true,
                         subscribed: true,
                         subscriptionFreq: 'DAILY',
@@ -105,7 +105,7 @@ class UserQueryTestData {
         queries.add(
                 new Query(
                         name: 'test query 2',
-                        patientsQuery: '{type: "true"}',
+                        patientsQuery: '{"type": "true"}',
                         observationsQuery: null,
                         bookmarked: false,
                         subscribed: true,
