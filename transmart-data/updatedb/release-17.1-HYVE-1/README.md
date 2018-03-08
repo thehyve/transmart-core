@@ -1,5 +1,5 @@
-Database update scripts for release 17.12
-=========================================
+Database update scripts for release 17.1-HYVE-1
+===============================================
 
 Overview
 --------
