@@ -8,4 +8,5 @@ include 'transmartApp', 'transmart-core-db', 'transmart-core-db-tests', 'transma
         'ontology-service',
         'transmart-server',
         'transmart-oauth',
-        'transmart-solr-indexing'
+        'transmart-solr-indexing',
+        'transmart-notifications'

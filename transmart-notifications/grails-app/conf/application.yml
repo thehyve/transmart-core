@@ -1,0 +1,24 @@
+grails:
+    profile: plugin
+    codegen:
+        defaultPackage: transmart.notifications
+    spring:
+        transactionManagement:
+            proxies: false
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    main:
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+
+# Spring Actuator Endpoints are Disabled by Default
+endpoints:
+    enabled: false
+    jmx:
+        enabled: true

@@ -341,7 +341,7 @@ grails {
     }
 }
 // max number of query sets returned in a subscription email
-org.transmart.server.subscription.maxNumberOfSets = 20
+org.transmart.notifications.maxNumberOfSets = 20
 /* }}} */
 
 /* {{{ Query subscription configuration */
@@ -351,8 +351,6 @@ quartz {
     jobEnabled = false
 }
 /* }}} */
-
-
 
 
 /* {{{ DATASOURCES configuration */
