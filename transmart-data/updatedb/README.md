@@ -8,7 +8,7 @@ This directory contains a set of scripts to update the database for:
 - release 1.2.4 installation to release 16.1
 - release 16.1 to release 16.2
 - release 16.1 to release 17.1
-- release 17.1 to current version of 17.12
+- release 17.1 to current version of 17.1-HYVE-1
 - latest release to current development version
 
 Each release folder contains the scripts to update from the previous release.
