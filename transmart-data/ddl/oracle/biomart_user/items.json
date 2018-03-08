@@ -3191,6 +3191,27 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET_INSTANCE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET_DIFF"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
       "name" : "GENE_SYNONYM_TEST"
@@ -5456,6 +5477,27 @@
       "name" : "QUERY"
     },
     "file" : "biomart_user/query.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET"
+    },
+    "file" : "biomart_user/QUERY_SET.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET_INSTANCE"
+    },
+    "file" : "biomart_user/QUERY_SET_INSTANCE.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_SET_DIFF"
+    },
+    "file" : "biomart_user/QUERY_SET_DIFF.sql"
   }, {
     "item" : {
       "type" : "INDEX",

@@ -71,7 +71,7 @@ class AcghDataTypeResourceSpec extends TransmartSpecification {
         def assayConstraints = [
                 resource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
 
         List<ChromosomalSegment> result =

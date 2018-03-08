@@ -190,8 +190,12 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
-            "/queries"(method: 'GET', controller: 'userQuery', action: 'index')
-            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get')
+            "/queries"(method: 'GET', controller: 'userQuery', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get') {
+                apiVersion = "v2"
+            }
             "/queries"(method: 'POST', controller: 'userQuery', action: 'save') {
                 apiVersion = "v2"
             }
@@ -199,6 +203,8 @@ class RestApiUrlMappings {
                 apiVersion = "v2"
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
+            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
+            "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId')
             "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
             "/config"(controller: 'config') {
                 action = [GET: 'index', PUT: 'update']

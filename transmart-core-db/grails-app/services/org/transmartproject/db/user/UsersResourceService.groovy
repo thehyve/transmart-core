@@ -67,4 +67,11 @@ class UsersResourceService implements UsersResource {
         }.unique()
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    List<CoreUser> getUsersWithEmailSpecified() {
+        User.withSession { session ->
+            session.createQuery('FROM User u WHERE u.email IS NOT NULL').list()
+        } as List<CoreUser>
+    }
 }
