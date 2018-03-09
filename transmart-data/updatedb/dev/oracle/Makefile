@@ -1,6 +1,8 @@
 include ../../../lib/makefile.inc
 
 FILES = \
+	../../../ddl/oracle/i2b2demodata/relation_type
+	../../../ddl/oracle/i2b2demodata/relation
 	data_migration
 	../common/data_migration
 

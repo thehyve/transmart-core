@@ -64,9 +64,6 @@ class MarshallersRegistrar implements FactoryBean {
     @Lazy
     TreeNodeMarshaller treeNodeMarshaller
 
-    @Autowired
-    ConstraintMarshaller constraintMarshaller
-
     String packageName
 
     void scanForClasses() {
@@ -122,7 +119,6 @@ class MarshallersRegistrar implements FactoryBean {
         JSON.registerObjectMarshaller iteratorMarshaller, DEFAULT_PRIORITY - 10
         JSON.registerObjectMarshaller enumMarshaller
         JSON.registerObjectMarshaller treeNodeMarshaller
-        JSON.registerObjectMarshaller constraintMarshaller
     }
 
     @Override

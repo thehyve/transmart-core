@@ -231,25 +231,34 @@ class AccessControlChecks {
         }
     }
 
+    boolean hasUnlimitedStudiesAccess(User user) {
+        user.admin
+    }
+
+    List<String> findSecureObjectTokens(User user) {
+        def secureObjectTokens = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT] as List<String>
+        def criteria = org.hibernate.criterion.DetachedCriteria.forClass(SecuredObject, 'so')
+            .add(Restrictions.eq('dataType', 'BIO_CLINICAL_TRIAL'))
+            .add(Subqueries.exists(
+                org.hibernate.criterion.DetachedCriteria.forClass(SecuredObjectAccessView, 'soav')
+                    .add(Restrictions.eq('user', user))
+                    .add(Restrictions.eqProperty('securedObject.id', 'so.id'))
+                    .setProjection(Projections.id())
+            ))
+            .setProjection(Projections.property('bioDataUniqueId'))
+        secureObjectTokens += (criteria.getExecutableCriteria(sessionFactory.currentSession).list() as List<String>)
+        secureObjectTokens
+    }
+
     /* Study is included if the user has ANY kind of access */
     @Transactional(readOnly = true)
     Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
-        if (user.admin) {
+        if (hasUnlimitedStudiesAccess(user)) {
             return org.transmartproject.db.i2b2data.Study.findAll()
         }
 
-        DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
-            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT]) ||
-                    (secureObjectToken in SecuredObject.where {
-                        def so = SecuredObject
-                        dataType == 'BIO_CLINICAL_TRIAL'
-                        exists SecuredObjectAccessView.where {
-                            user == user
-                            securedObject.id == so.id
-                        }.id()
-                    }.bioDataUniqueId)
-        }
-        query.list()
+        def secureObjectTokens = findSecureObjectTokens(user)
+        org.transmartproject.db.i2b2data.Study.findAllBySecureObjectTokenInList(secureObjectTokens)
     }
 
     /* Study is included if the user has ANY kind of access */
@@ -262,17 +271,10 @@ class AccessControlChecks {
             return org.transmartproject.db.i2b2data.Study.findByStudyId(studyIdString) != null
         }
 
+        def secureObjectTokens = findSecureObjectTokens(user)
         DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
             studyId == studyIdString
-            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT]) ||
-                    (secureObjectToken in SecuredObject.where {
-                        def so = SecuredObject
-                        dataType == 'BIO_CLINICAL_TRIAL'
-                        exists SecuredObjectAccessView.where {
-                            user == user
-                            securedObject.id == so.id
-                        }.id()
-                    }.bioDataUniqueId)
+            secureObjectToken in secureObjectTokens
         }
         query.find() != null
     }

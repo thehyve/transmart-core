@@ -202,14 +202,12 @@ class RestApiUrlMappings {
             "/queries/$id"(method: 'PUT', controller: 'userQuery', action: 'update') {
                 apiVersion = "v2"
             }
-            "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete') {
-                apiVersion = "v2"
-            }
-            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan') {
-                apiVersion = "v2"
-            }
-            "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId') {
-                apiVersion = "v2"
+            "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
+            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
+            "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId')
+            "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
+            "/config"(controller: 'config') {
+                action = [GET: 'index', PUT: 'update']
             }
         }
 

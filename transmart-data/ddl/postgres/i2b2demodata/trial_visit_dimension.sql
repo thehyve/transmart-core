@@ -31,11 +31,6 @@ ALTER TABLE ONLY trial_visit_dimension
     ADD CONSTRAINT trial_visit_dimension_pk PRIMARY KEY (trial_visit_num);
 
 --
--- Name: idx_trial_visit_pk; Type: INDEX; Schema: i2b2metadata; Owner: -
---
-CREATE UNIQUE INDEX idx_trial_visit_pk ON trial_visit_dimension USING btree (trial_visit_num);
-
---
 -- Name: trial_visit_dimension_study_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
 --
 ALTER TABLE ONLY trial_visit_dimension

@@ -39,6 +39,8 @@ class PatientQuerySpec extends TransmartSpecification {
     TestData testData
 
     void setupData() {
+        TestData.clearAllData()
+
         testData = TestData.createDefault()
         testData.saveAll()
     }

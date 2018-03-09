@@ -1,8 +1,6 @@
 package org.transmartproject.db.userqueries
 
-import grails.converters.JSON
 import grails.transaction.Transactional
-import org.grails.web.converters.exceptions.ConverterException
 import org.hibernate.Criteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
@@ -16,18 +14,18 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SetType
 import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQuerySet
 import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
-import org.transmartproject.core.userquery.UserQuerySetDiff
 import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.querytool.Query
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
@@ -242,10 +240,9 @@ class UserQuerySetService implements UserQuerySetResource {
 
     private static Constraint createConstraints(String constraintParam) {
         try {
-            def constraintData = JSON.parse(constraintParam) as Map
-            return ConstraintFactory.create(constraintData)
-        } catch (ConverterException c) {
-            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
+            ConstraintFactory.read(constraintParam)
+        } catch (ConstraintBindingException c) {
+            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam", c)
         }
     }
 

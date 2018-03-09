@@ -27,6 +27,7 @@ import org.transmartproject.core.users.UsersResource
 
 class UsersResourceService implements UsersResource {
 
+    @Transactional(readOnly = true)
     @Override
     CoreUser getUserFromUsername(String username)
             throws NoSuchResourceException {
@@ -63,7 +64,7 @@ class UsersResourceService implements UsersResource {
     List<CoreUser> getUsers() {
         User.withSession { session ->
             session.createQuery('FROM User u LEFT JOIN FETCH u.roles').list()
-        } as List<CoreUser>
+        }.unique()
     }
 
     @Transactional(readOnly = true)

@@ -1598,6 +1598,24 @@
       "name" : "VISIT_DIMENSION"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "RELATION_TYPE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "RELATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "RELATION_TYPE"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -2824,5 +2842,19 @@
       "name" : "STORAGE_SYSTEM"
     },
     "file" : "i2b2demodata/storage_system.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "RELATION_TYPE"
+    },
+    "file" : "i2b2demodata/relation_type.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "RELATION"
+    },
+    "file" : "i2b2demodata/relation.sql"
   } ]
 }

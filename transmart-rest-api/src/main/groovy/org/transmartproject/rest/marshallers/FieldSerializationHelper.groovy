@@ -1,7 +1,9 @@
 package org.transmartproject.rest.marshallers
 
-import org.transmartproject.db.multidimquery.query.Field
+import groovy.transform.CompileStatic
+import org.transmartproject.core.multidimquery.query.Field
 
+@CompileStatic
 class FieldSerializationHelper extends AbstractHalOrJsonSerializationHelper<Field> {
 
     final Class targetType = Field
@@ -10,7 +12,7 @@ class FieldSerializationHelper extends AbstractHalOrJsonSerializationHelper<Fiel
 
     @Override
     Map<String, Object> convertToMap(Field field) {
-        [dimension: field.dimension?.name, fieldName: field.fieldName, type: field.type]
+        (Map<String, Object>)[dimension: field.dimension, fieldName: field.fieldName, type: field.type.name()]
     }
 
 }

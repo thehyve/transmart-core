@@ -10,6 +10,7 @@ import java.util.zip.ZipInputStream
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.ZIP
 import static config.Config.*
+import static tests.rest.Operator.AND
 import static tests.rest.Operator.EQUALS
 import static tests.rest.ValueType.STRING
 import static tests.rest.constraints.*
@@ -186,7 +187,6 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.viewerUrl == null
 
         when: "Check the status of the job"
-        String fileName = "$TEMP_DIRECTORY/$ADMIN_USER/$jobName" + ".zip"
         int maxAttemptNumber = 10 // max number of status check attempts
         def statusRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/status",
@@ -207,7 +207,6 @@ class DataExportSpec extends RESTSpec {
         }
 
         assert status == 'Completed'
-        assert statusResponse.exportJob.viewerUrl == fileName
 
         when: "Try to download the file"
         def downloadRequest = [
@@ -219,7 +218,6 @@ class DataExportSpec extends RESTSpec {
 
         then: "ZipStream is returned"
         assert downloadResponse != null
-        assert new File(fileName).isFile()
 
         when: "Try to download the file"
         def downloadRequest2 = [
@@ -233,10 +231,6 @@ class DataExportSpec extends RESTSpec {
         then: "error is returned"
         downloadResponse2.message == "Job ${jobId} was not created by this user"
 
-        cleanup: "Remove created file"
-        if (fileName) {
-            new File(fileName).delete()
-        }
     }
 
     def "list all dataExport jobs for user"() {
@@ -333,14 +327,38 @@ class DataExportSpec extends RESTSpec {
                                      format  : 'TSV',
                                      dataView : 'surveyTable'
                              ]],
+                includeMeasurementDateColumns: true,
         ])
         then:
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 3
-        filesLineNumbers['data.tsv'] == 3
-        filesLineNumbers['variables.tsv'] == 8
-        filesLineNumbers['value_labels.tsv'] == 4
+        filesLineNumbers['data.tsv'] == 15
+        filesLineNumbers['variables.tsv'] == 16
+        filesLineNumbers['value_labels.tsv'] == 6
+
+    }
+
+    @RequiresStudy(SURVEY1_ID)
+    def "export survey to tsv file format without dates"() {
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type   : StudyNameConstraint,
+                             studyId: SURVEY1_ID],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'TSV',
+                                     dataView : 'surveyTable'
+                             ]],
+                includeMeasurementDateColumns: false,
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 3
+        filesLineNumbers['data.tsv'] == 15
+        filesLineNumbers['variables.tsv'] == 9
+        filesLineNumbers['value_labels.tsv'] == 6
 
     }
 
@@ -355,14 +373,68 @@ class DataExportSpec extends RESTSpec {
                                      format  : 'SPSS',
                                      dataView : 'surveyTable'
                              ]],
+                includeMeasurementDateColumns: true,
         ])
         then:
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
-        filesLineNumbers['spss/data.tsv'] == 3
-        filesLineNumbers['spss/data.sps'] == 58
+        filesLineNumbers['spss/data.tsv'] == 15
+        filesLineNumbers['spss/data.sps'] == 92
+        if (filesLineNumbers.size() == 3) {
+            assert filesLineNumbers.containsKey('spss/data.sav')
+        }
+    }
+
+    @RequiresStudy(SURVEY1_ID)
+    def 'parallel export survey to spss file format'() {
+        when: 'I make a patientset with everyone included in SURVEY1'
+        def request = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'test_set'],
+                body      : [type   : StudyNameConstraint,
+                             studyId: SURVEY1_ID],
+                statusCode: 201
+        ]
+        def responseData = post(request)
+
+        then: 'I get a patientset with 14 patients'
+        responseData.id != null
+        responseData.setSize == 14
+
+        when: 'I export data for the patient set for data from the study with multiple workers'
+        put([
+                path      : PATH_CONFIG,
+                acceptType: JSON,
+                body      : [numberOfWorkers: 2, patientSetChunkSize: 5],
+                user      : ADMIN_USER,
+                statusCode: 200
+        ])
+        def downloadResponse = runTypicalExport([
+                constraint: [type: AND,
+                             args: [
+                                 [type   : PatientSetConstraint,
+                                  patientSetId: responseData.id as Long],
+                                 [type   : StudyNameConstraint,
+                                  studyId: SURVEY1_ID]
+                            ]],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'SPSS',
+                                     dataView : 'surveyTable'
+                             ]],
+                includeMeasurementDateColumns: true,
+        ])
+
+        then: 'the result contains the expected files with expected number of rows'
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
+        filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
+        filesLineNumbers['spss/data.tsv'] == 15
+        filesLineNumbers['spss/data.sps'] == 111
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers.containsKey('spss/data.sav')
         }
@@ -385,7 +457,7 @@ class DataExportSpec extends RESTSpec {
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 2
         filesLineNumbers['data.tsv'] == 4
-        filesLineNumbers['variables.tsv'] == 10
+        filesLineNumbers['variables.tsv'] == 6
     }
 
     @RequiresStudy(CATEGORICAL_VALUES_ID)
@@ -406,7 +478,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers['spss/data.tsv'] == 4
-        filesLineNumbers['spss/data.sps'] == 57
+        filesLineNumbers['spss/data.sps'] == 41
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers.containsKey('spss/data.sav')
         }
@@ -450,8 +522,7 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.exportJob.userId == DEFAULT_USER
         assert runResponse.viewerUrl == null
 
-        String fileName = "$TEMP_DIRECTORY/$DEFAULT_USER/$jobName" + ".zip"
-        int maxAttemptNumber = 10 // max number of status check attempts
+        int maxAttemptNumber = 50 // max number of status check attempts
         def statusRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/status",
                 acceptType: JSON,
@@ -469,19 +540,12 @@ class DataExportSpec extends RESTSpec {
         }
 
         assert status == 'Completed'
-        assert statusResponse.exportJob.viewerUrl == fileName
 
         def downloadRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/download",
                 acceptType: ZIP,
         ]
         def downloadResponse = get(downloadRequest)
-
-        assert new File(fileName).isFile()
-
-        if (fileName) {
-            new File(fileName).delete()
-        }
 
         return downloadResponse
     }
@@ -589,6 +653,36 @@ class DataExportSpec extends RESTSpec {
         ])
     }
 
+    @RequiresStudy(ORACLE_1000_PATIENT_ID)
+    def "export big study"() {
+        def patientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'all_patients'],
+                body      : toJSON([type: StudyNameConstraint, studyId: ORACLE_1000_PATIENT_ID]),
+                statusCode: 201
+        ]
+        def createPatientSetResponse = post(patientSetRequest)
+        def patientSet = createPatientSetResponse
+
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type      : PatientSetConstraint,
+                             patientSetId: patientSet.id ],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'TSV',
+                                     dataView: 'surveyTable'
+                             ]],
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 2
+        filesLineNumbers['data.tsv'] == patientSet.setSize + 1
+        filesLineNumbers['variables.tsv'] == 100 + 1 /*header*/ + 1 //subj id
+    }
+
     private Map<String, Integer> getFilesLineNumbers(byte[] content) {
         Map<String, Integer> result = [:]
         def zipInputStream
@@ -609,4 +703,5 @@ class DataExportSpec extends RESTSpec {
 
         result
     }
+
 }

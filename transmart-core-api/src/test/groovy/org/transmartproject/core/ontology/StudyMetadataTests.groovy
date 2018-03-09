@@ -155,4 +155,26 @@ class StudyMetadataTests {
                 )))
     }
 
+    @Test
+    void testLabelKeysWithSpaces() {
+        def jsonText = """
+            {
+                "conceptCodeToVariableMetadata": {
+                    "test": {  
+                       "valueLabels":{  
+                          "-1.0            ":"Minus One"
+                       }
+                    }
+                }
+            }
+        """
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+
+        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'), allOf(
+                hasProperty('valueLabels',
+                        equalTo([(new BigDecimal('-1.0')): 'Minus One'])),
+        )))
+    }
+
 }

@@ -33,8 +33,6 @@ class Config {
         }
     }).setAuthAdapter(new OauthAdapter())
 
-    public static final String TEMP_DIRECTORY = '/tmp'
-
     public static final String DEFAULT_USER = 'test-public-user-1'
     public static final String UNRESTRICTED_USER = 'test-public-user-2'
     public static final String ADMIN_USER = 'admin'
@@ -59,12 +57,14 @@ class Config {
     public static final String PATH_TREE_NODES_CLEAR_CACHE = "/v2/tree_nodes/clear_cache"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
+    public static final String PATH_CONFIG = "/v2/config"
     public static final String PATH_STORAGE = "/v2/storage"
     public static final String PATH_FILES = "/v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
     public static final String PATH_DIMENSION = "/v2/dimensions"
     public static final String PATH_DATA_EXPORT = "/v2/export"
     public static final String PATH_QUERY = "/v2/queries"
+    public static final String PATH_RELATION_TYPES = "/v2/pedigree/relation_types"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'

@@ -4,11 +4,16 @@ package org.transmartproject.rest
 
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
+import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.NumericalValueAggregates
+import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -20,6 +25,10 @@ import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedPar
 class QueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal', 'protobuf']
+
+    @Autowired
+    AggregateDataResource aggregateDataResource
+
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -78,7 +87,7 @@ class QueryController extends AbstractQueryController {
     /**
      * Helper function for retrieving clinical hypercube data
      */
-    private def clinicalObservations(constraint_text) {
+    private def clinicalObservations(String constraint_text) {
 
         def format = contentFormat
         if (format == Format.NONE) {
@@ -93,7 +102,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeClinical(format, constraint, user, out)
+            hypercubeDataSerializationService.writeClinical(format, constraint, user, out, [:])
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -128,7 +137,7 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.counts(constraint, user)
+        def counts = aggregateDataResource.counts(constraint, user)
         render counts as JSON
     }
 
@@ -149,7 +158,7 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countsPerConcept(constraint, user)
+        def counts = aggregateDataResource.countsPerConcept(constraint, user)
         def result = [countsPerConcept: counts]
         render result as JSON
     }
@@ -171,7 +180,7 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countsPerStudy(constraint, user)
+        def counts = aggregateDataResource.countsPerStudy(constraint, user)
         def result = [countsPerStudy: counts]
         render result as JSON
     }
@@ -194,7 +203,7 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countsPerStudyAndConcept(constraint, user)
+        def counts = aggregateDataResource.countsPerStudyAndConcept(constraint, user)
         counts.collectEntries { studyId, countsPerConcept ->
             [(studyId): [countsPerConcept: countsPerConcept]]
         }
@@ -220,9 +229,9 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = multiDimService
+        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = aggregateDataResource
                 .numericalValueAggregatesPerConcept(constraint, user)
-        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = multiDimService
+        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = aggregateDataResource
                 .categoricalValueAggregatesPerConcept(constraint, user)
 
         Map resultMap = buildResultMap(numericalValueAggregatesPerConcept, categoricalValueAggregatesPerConcept)
@@ -258,14 +267,14 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, assay_constraint, biomarker_constraint, projection) {
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        Constraint assayConstraint = getConstraintFromStringOrJson(assay_constraint)
+        Constraint assayConstraint = getConstraintFromString(assay_constraint)
 
         BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
-                (BiomarkerConstraint) getConstraintFromStringOrJson(biomarker_constraint) : new BiomarkerConstraint()
+                (BiomarkerConstraint) getConstraintFromString(biomarker_constraint) : new BiomarkerConstraint()
 
         Format format = contentFormat
         OutputStream out = getLazyOutputStream(format)
@@ -282,7 +291,7 @@ class QueryController extends AbstractQueryController {
      * Supported fields endpoint:
      * <code>/v2/supportedFields</code>
      *
-     * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
+     * @return the list of fields supported by {@link org.transmartproject.core.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
         checkForUnsupportedParams(params, [])

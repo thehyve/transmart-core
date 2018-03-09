@@ -103,7 +103,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         builtinDimensions.values().each { it.verify() }
     }
 
-    static getBuiltinDimension(String name) { builtinDimensions.get(name) }
+    static DimensionImpl getBuiltinDimension(String name) { builtinDimensions.get(name) }
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
     @CompileDynamic
     static DimensionImpl fromName(String name) {

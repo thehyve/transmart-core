@@ -38,12 +38,8 @@ class TreeNodeMarshaller implements ObjectMarshaller<JSON> {
                 type:     obj.ontologyTermType.name(),
                 visualAttributes: obj.visualAttributes
         ] as Map<String, Object>
-        def constraint = obj.constraint
         if (obj.dimension) {
             result.dimension = obj.dimension
-        }
-        if (constraint) {
-            result.constraint = constraint
         }
         if (obj.study?.studyId) {
             result.studyId = obj.study?.studyId

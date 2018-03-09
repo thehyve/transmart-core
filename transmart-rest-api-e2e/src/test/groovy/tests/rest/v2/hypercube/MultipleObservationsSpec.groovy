@@ -29,7 +29,7 @@ class MultipleObservationsSpec extends RESTSpec {
                         type    : Combination,
                         operator: AND,
                         args    : [
-                                [type: PatientSetConstraint, patientIds: -62],
+                                [type: PatientSetConstraint, patientIds: [-62]],
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                         ]
                 ])

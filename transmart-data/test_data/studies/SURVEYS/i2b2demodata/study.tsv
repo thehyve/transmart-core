@@ -33,6 +33,16 @@
          ""width"":400,
          ""columns"":400,
          ""measure"":""Nominal""
+      },
+      ""sport"": {  
+         ""name"": ""sport"",
+         ""description"": ""How often do you do sport activities?"",
+         ""type"":""String"",
+         ""measure"":""Nominal"",
+         ""valueLabels"":{  
+            ""1"":""Not at all"",
+            ""10"":""Very much""
+         }
       }
    }
 }"

@@ -36,6 +36,8 @@ ext {
     gradleWrapperVersion = '2.13'
     grailsVersion = '3.2.3'
     guavaVersion = '19.0'
+    jacksonVersion = '2.9.1'
+    modelMapperVersion = '1.1.0'
     ojdb7Version = '12.1.0.1'
     openCsvVersion = '4.0'
     postgresqlVersion = '42.1.4'
@@ -57,6 +59,8 @@ allprojects {
     ext {
         assetPipelineVersion = assetPipelineVersion
         guavaVersion = guavaVersion
+        jacksonVersion = jacksonVersion
+        modelMapperVersion = modelMapperVersion
         ojdb7Version = ojdb7Version
         openCsvVersion = openCsvVersion
         postgresqlVersion = postgresqlVersion
@@ -103,7 +107,7 @@ subprojects { project ->
             applyMavenExclusions false
         }
     }
-    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch)$/) {
+    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch|transmart-copy)$/) {
         apply plugin: 'net.linguica.maven-settings'
         apply plugin: 'maven-publish'
         publishing {

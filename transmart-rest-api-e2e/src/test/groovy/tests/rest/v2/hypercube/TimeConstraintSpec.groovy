@@ -121,7 +121,7 @@ class TimeConstraintSpec extends RESTSpec {
                                 [type    : TimeConstraint,
                                  field   : [dimension: 'start time', fieldName: 'startDate', type: 'DATE'],
                                  operator: BEFORE,
-                                 values  : toDateString("01-01-2016Z")]
+                                 values  : [toDateString("01-01-2016Z")]]
                         ]
                 ])
         ]
@@ -162,11 +162,11 @@ class TimeConstraintSpec extends RESTSpec {
                                 [type    : TimeConstraint,
                                  field   : [dimension: 'start time', fieldName: 'startDate', type: 'DATE'],
                                  operator: AFTER,
-                                 values  : date1],
+                                 values  : [date1]],
                                 [type    : TimeConstraint,
                                  field   : [dimension: 'end time', fieldName: 'endDate', type: 'DATE'],
                                  operator: BEFORE,
-                                 values  : date2]
+                                 values  : [date2]]
                         ]
                 ])
         ]

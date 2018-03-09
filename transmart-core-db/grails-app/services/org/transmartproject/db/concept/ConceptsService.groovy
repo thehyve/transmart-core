@@ -2,6 +2,7 @@ package org.transmartproject.db.concept
 
 import com.google.common.io.CountingOutputStream
 import grails.transaction.Transactional
+import groovy.transform.Memoized
 import org.grails.io.support.DevNullPrintStream
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
@@ -14,8 +15,10 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
+
+import java.util.concurrent.ConcurrentHashMap
 
 @Transactional
 class ConceptsService implements ConceptsResource, ApplicationRunner {
@@ -32,15 +35,24 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
      * i2b2 data model: that the concept path is the primary key, but the concept
      * code is used as reference in the observation_fact table instead.
      */
-    HashMap<String, String> conceptPathToConceptCode
+    final Map<String, String> conceptPathToConceptCode = new ConcurrentHashMap<>()
+
+    /**
+     * This map is populated with a mapping from concept paths to concept codes
+     * at application startup, as an effective way to work around a curiosity in the
+     * i2b2 data model: that the concept path is the primary key, but the concept
+     * code is used as reference in the observation_fact table instead.
+     */
+    final Map<String, Concept> conceptCodeToConcept = new ConcurrentHashMap<>()
 
     @Override
     void run(ApplicationArguments args) throws Exception {
         log.info "Loading concept codes ..."
         def t1 = new Date()
-        conceptPathToConceptCode = ConceptDimension.findAll().collectEntries {
-            [(it.conceptPath): it.conceptCode]
-        } as HashMap
+        ConceptDimension.findAll().each { ConceptDimension it ->
+            conceptPathToConceptCode[it.conceptPath] = it.conceptCode
+            conceptCodeToConcept[it.conceptCode] = it
+        }
         OutputStream counter = new CountingOutputStream(new DevNullPrintStream())
         counter.withObjectOutputStream { s ->
             s.writeObject(conceptPathToConceptCode)
@@ -80,13 +92,17 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
         concept
     }
 
-    @Override
+    @Memoized
     Concept getConceptByConceptCode(String conceptCode) throws NoSuchResourceException {
-        Concept result = ConceptDimension.findByConceptCode(conceptCode)
-        if (!result) {
-            throw new NoSuchResourceException("No concept with code '${conceptCode}' could be found.")
+        Concept concept = conceptCodeToConcept[conceptCode]
+        if (!concept) {
+            concept = ConceptDimension.findByConceptCode(conceptCode)
+            if (!concept) {
+                throw new NoSuchResourceException("No concept with code '${conceptCode}' could be found.")
+            }
+            conceptCodeToConcept[conceptCode] = concept
         }
-        result
+        concept
     }
 
     @Override
@@ -101,12 +117,13 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
     @Override
     @Cacheable('org.transmartproject.db.concept.ConceptsService')
     String getConceptCodeByConceptPath(String conceptPath) throws NoSuchResourceException {
-        String code = null
-        if (conceptPathToConceptCode) {
-            code = conceptPathToConceptCode[conceptPath]
-        }
+        String code = conceptPathToConceptCode[conceptPath]
         if (!code) {
             code = getConceptByConceptPath(conceptPath).conceptCode
+            if (!code) {
+                throw new NoSuchResourceException("No concept with path '${conceptPath}' could be found.")
+            }
+            conceptPathToConceptCode[conceptPath] = code
         }
         code
     }

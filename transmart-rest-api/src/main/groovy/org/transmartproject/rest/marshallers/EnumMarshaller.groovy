@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 import org.grails.web.converters.exceptions.ConverterException
 import org.grails.web.converters.marshaller.ObjectMarshaller
 import org.springframework.stereotype.Component
-import org.transmartproject.db.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.Operator
 
 @Component
 @CompileStatic

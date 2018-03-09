@@ -9,7 +9,8 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.DimensionElementSerializer
@@ -39,7 +40,7 @@ class DimensionController extends AbstractQueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def dimension = getDimension(dimensionName, user)
 
-        Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? null : bindConstraint(params.constraint)
+        Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? new TrueConstraint() : bindConstraint(params.constraint)
 
         def results = multiDimService.getDimensionElements(dimension, constraint, user)
         render wrapElements(dimension, results) as JSON

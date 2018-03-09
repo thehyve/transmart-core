@@ -1,7 +1,6 @@
 package org.transmartproject.rest.dataExport
 
 import grails.transaction.Transactional
-import org.grails.web.json.JSONObject
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
@@ -11,7 +10,7 @@ import org.quartz.TriggerBuilder
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.user.User
 
@@ -134,16 +133,6 @@ class ExportAsyncJobService {
         return job
     }
 
-    private static Map createJobDataMap(Constraint constraint, List types, User user, Long jobId, String jobName) {
-        [
-                user                 : user,
-                jobName              : jobName,
-                jobId                : jobId,
-                constraint           : constraint,
-                dataTypeAndFormatList: types
-        ]
-    }
-
     private static JobKey getJobKeyForId(Long jobId) {
         new JobKey(jobId.toString(), 'DataExport')
     }
@@ -175,15 +164,20 @@ class ExportAsyncJobService {
         return job
     }
 
-    def exportData(Constraint constraint, List types, User user, Long jobId) {
+    def exportData(Map params, Constraint constraint, List dataTypeAndFormatList, User user, Long jobId) {
         def job = getJobById(jobId)
         if (job.jobStatus != JobStatus.CREATED.value) {
             throw new InvalidRequestException("Job with id $jobId has invalid status. " +
                     "Expected: $JobStatus.CREATED.value, actual: $job.jobStatus")
         }
 
-        def dataMap = createJobDataMap(constraint, types, user, jobId, job.jobName)
-        executeExportJob(dataMap)
+        executeExportJob(params + [
+                user                         : user,
+                jobName                      : job.jobName,
+                jobId                        : jobId,
+                constraint                   : constraint,
+                dataTypeAndFormatList        : dataTypeAndFormatList,
+        ])
     }
 
 }

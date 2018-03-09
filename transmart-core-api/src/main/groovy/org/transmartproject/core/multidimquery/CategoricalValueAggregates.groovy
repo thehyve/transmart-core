@@ -1,8 +1,11 @@
 package org.transmartproject.core.multidimquery
 
+import groovy.transform.Canonical
+
 /**
  * Categorical value aggregates
  */
+@Canonical
 class CategoricalValueAggregates {
     /**
      * Keys are values and values are counts. e.g. {Female: 345, Male 321}

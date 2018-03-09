@@ -69,6 +69,7 @@ class VersionController {
                         'values_aggregate',
                         'inline-selections',
                         'observation-sets',
+                        'pedigree',
                         'survey-table-view',
                         'query-subscription',
                 ]
