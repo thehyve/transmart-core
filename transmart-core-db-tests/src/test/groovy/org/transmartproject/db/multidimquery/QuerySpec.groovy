@@ -2,10 +2,10 @@ package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
-import org.transmartproject.db.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.Type
-import org.transmartproject.db.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.FieldConstraint
 import spock.lang.Specification
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -28,7 +28,10 @@ class QuerySpec extends Specification {
         constraint.value = -101
 
         then:
-        constraint.validate()
+        constraint.hasOperator()
+        constraint.hasTypeThatMatchesOperator()
+        constraint.hasValueOfRightType()
+        constraint.hasNotListOperatorOrListValue()
     }
 
     void 'test invalid value constraint'() {
@@ -40,10 +43,7 @@ class QuerySpec extends Specification {
         constraint.value = "Invalid patient id"
 
         then:
-        !constraint.validate()
-        constraint.errors.fieldErrorCount == 1
-        constraint.errors.fieldErrors[0].field == 'value'
-        constraint.errors.fieldErrors[0].code == 'org.transmartproject.query.invalid.value.operator.message'
+        !constraint.hasValueOfRightType()
     }
 
     void 'test constraint equality'() {

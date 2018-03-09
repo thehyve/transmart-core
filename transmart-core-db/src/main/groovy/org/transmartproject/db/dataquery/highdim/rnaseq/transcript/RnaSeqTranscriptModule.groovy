@@ -23,8 +23,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedPara
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqValuesProjection
 
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
-
 /**
  * Created by olafmeuwese on 14/10/16.
  */

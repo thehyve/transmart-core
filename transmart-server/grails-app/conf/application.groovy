@@ -70,6 +70,10 @@ grails.databinding.trimStrings = false
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 
+// Runtime configuration for the parallel export and counting implementations.
+org.transmartproject.system.numberOfWorkers = Runtime.getRuntime().availableProcessors()
+org.transmartproject.system.patientSetChunkSize = 10000
+
 com.recomdata.skipdisclaimer = true
 
 //core-db settings
@@ -322,37 +326,6 @@ grails { plugin { springsecurity {
 
 } } }
 /* }}} */
-
-/* {{{ GlowingBear query subscription configuration */
-grails {
-    mail {
-        host = "localhost:25"
-        'default' {
-            from = "<default_email>"
-        }
-        port = 465
-        username = "<username>"
-        password = "<password>"
-        props = ["mail.smtp.auth":"true",
-                 "mail.smtp.ssl.enable": "true",
-                 "mail.smtp.socketFactory.port":"465",
-                 "mail.smtp.socketFactory.class":"javax.net.ssl.SSLSocketFactory",
-                 "mail.smtp.socketFactory.fallback":"false"]
-    }
-}
-// max number of query sets returned in a subscription email
-org.transmart.server.subscription.maxNumberOfSets = 20
-/* }}} */
-
-/* {{{ Query subscription configuration */
-// Quartz plugin configuration - job for query subscription
-// To disable the email sending job, change this to false
-quartz {
-    jobEnabled = false
-}
-/* }}} */
-
-
 
 
 /* {{{ DATASOURCES configuration */

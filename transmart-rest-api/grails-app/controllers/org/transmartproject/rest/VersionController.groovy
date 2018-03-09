@@ -62,13 +62,14 @@ class VersionController {
                 version: '1.1'
             ],[
                 id: 'v2',
-                version: '2.1',
+                version: '2.2-dev',
                 features: [
                         'versioning',
                         'and-or-constraints',
                         'values_aggregate',
                         'inline-selections',
                         'observation-sets',
+                        'pedigree',
                         'survey-table-view',
                         'query-subscription',
                 ]

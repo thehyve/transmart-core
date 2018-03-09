@@ -21,7 +21,7 @@ package org.transmartproject.rest
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.serialization.*
@@ -41,9 +41,10 @@ class HypercubeDataSerializationService implements DataSerializer {
 
     @Override
     void writeClinical(Format format,
-                       MultiDimConstraint constraint,
+                       Constraint constraint,
                        User user,
-                       OutputStream out) {
+                       OutputStream out,
+                       Map options = [:]) {
 
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
 
@@ -58,8 +59,8 @@ class HypercubeDataSerializationService implements DataSerializer {
     @Override
     void writeHighdim(Format format,
                       String type,
-                      MultiDimConstraint assayConstraint,
-                      MultiDimConstraint biomarkerConstraint,
+                      Constraint assayConstraint,
+                      Constraint biomarkerConstraint,
                       String projection,
                       User user,
                       OutputStream out) {

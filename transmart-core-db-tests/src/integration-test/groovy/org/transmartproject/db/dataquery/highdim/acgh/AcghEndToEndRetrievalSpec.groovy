@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.acgh
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -34,6 +34,7 @@ import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.TransmartSpecification
@@ -48,6 +49,7 @@ import static spock.util.matcher.HamcrestSupport.that
 @Rollback
 class AcghEndToEndRetrievalSpec extends TransmartSpecification {
 
+    @Autowired
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource<RegionRow> acghResource
@@ -56,11 +58,11 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
 
     Projection<AcghValues> projection
 
-    SessionFactory sessionFactory
-
     AcghTestData testData
 
     void setupData() {
+        TestData.clearAllData()
+
         testData = new AcghTestData()
         testData.saveAll()
 

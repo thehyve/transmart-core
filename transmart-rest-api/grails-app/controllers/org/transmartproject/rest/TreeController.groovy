@@ -7,8 +7,12 @@ import grails.rest.render.util.AbstractLinkingRenderer
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.config.SystemResource
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
+import org.transmartproject.core.users.UsersResource
+import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.serialization.TreeJsonSerializer
@@ -24,7 +28,13 @@ class TreeController {
     CurrentUser currentUser
 
     @Autowired
+    UsersResource usersResource
+
+    @Autowired
     TreeResource treeResource
+
+    @Autowired
+    SystemResource systemResource
 
     /**
      * Tree nodes endpoint:
@@ -36,7 +46,7 @@ class TreeController {
      * @param root (Optional) the root element from which to fetch.
      * @param depth (Optional) the maximum number of levels to fetch.
      * @param constraints flag if the constraints should be included in the result
-     *   (always true for hal, defaults to true for json)
+     *   (always false for hal, defaults to true for json)
      * @param counts flag if counts should be included in the result (default: false)
      * @param tags flag if tags should be included in the result (default: false)
      *
@@ -85,7 +95,11 @@ class TreeController {
      */
     def clearCache() {
         checkForUnsupportedParams(params, [])
-        treeResource.clearCache(currentUser)
+        User dbUser = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!dbUser.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        systemResource.clearCaches()
         response.status = 200
     }
 

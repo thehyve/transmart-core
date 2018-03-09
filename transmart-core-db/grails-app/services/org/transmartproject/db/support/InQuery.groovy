@@ -4,8 +4,10 @@ package org.transmartproject.db.support
 
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
+import groovy.transform.CompileStatic
 import org.grails.datastore.mapping.query.api.Criteria
 import org.hibernate.Criteria as HibernateCriteria
+import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.Disjunction
 import org.hibernate.criterion.Restrictions
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -25,18 +27,23 @@ class InQuery {
 
     public static final int MAX_LIST_SIZE = 1000
 
-    public static HibernateCriteria addIn(HibernateCriteriaBuilder criteriaBuilder, String property, Iterable listOfItems) {
+    @CompileStatic
+    static Criterion inValues(String property, Iterable values) {
         if (databaseTypeIsOracle) {
-            def choppedItems = chopParametersValues(listOfItems)
-            addConstraintsToCriteriaByFieldName(criteriaBuilder, property, choppedItems)
+            def collatedValues = collateValues(values)
+            return inCollatedValues(property, collatedValues)
         } else {
-            criteriaBuilder.add(Restrictions.in(property, listOfItems))
+            return Restrictions.in(property, values.collect().toArray())
         }
     }
 
-    public static Criteria addIn(Criteria criteria, String property, Iterable listOfItems) {
+    static HibernateCriteria addIn(HibernateCriteriaBuilder criteriaBuilder, String property, Iterable values) {
+        return criteriaBuilder.add(inValues(property, values))
+    }
+
+    static Criteria addIn(Criteria criteria, String property, Iterable listOfItems) {
         if (databaseTypeIsOracle) {
-            def choppedItems = chopParametersValues(listOfItems)
+            def choppedItems = collateValues(listOfItems)
             addConstraintsToCriteriaByFieldName(criteria, property, choppedItems)
         } else {
             criteria.in(property, listOfItems)
@@ -48,25 +55,24 @@ class InQuery {
         dataSource.databaseType == ORACLE
     }
 
-    private static List<List> chopParametersValues(Iterable inItems) {
+    @CompileStatic
+    static List<List> collateValues(Iterable inItems) {
         if (!inItems) return [[]]
         inItems.collate(MAX_LIST_SIZE)
     }
 
-    private static HibernateCriteria addConstraintsToCriteriaByFieldName(HibernateCriteriaBuilder builder, String fieldName, List parameterValues)
-            throws InvalidRequestException {
-        builder.with {
-            if (parameterValues.size() > 1) {
-                Disjunction disjunction = Restrictions.disjunction()
-                parameterValues.each { parVal ->
-                    disjunction.add(Restrictions.in(fieldName, parVal))
-                }
-                builder.add(disjunction)
-            } else {
-                builder.add(Restrictions.in(fieldName, parameterValues[0] ?: []))
+    @CompileStatic
+    private static Criterion inCollatedValues(String property, List<List> values)
+        throws InvalidRequestException {
+        if (values.size() > 1) {
+            Disjunction disjunction = Restrictions.disjunction()
+            values.each { parVal ->
+                disjunction.add(Restrictions.in(property, parVal))
             }
+            return disjunction
+        } else {
+            return Restrictions.in(property, values[0] ?: [])
         }
-        builder.instance
     }
 
     private static Criteria addConstraintsToCriteriaByFieldName(Criteria criteria, String fieldName, List parameterValues)
@@ -82,4 +88,6 @@ class InQuery {
         }
         criteria
     }
+
 }
+

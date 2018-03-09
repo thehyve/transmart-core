@@ -9,6 +9,7 @@ import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
 import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.startsWith
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.Operator.*
 import static tests.rest.ValueType.*
@@ -37,7 +38,7 @@ class ConstraintSpec extends RESTSpec {
 
     /**
      *  when:" I do a Get query/observations with a wrong type."
-     *  then: "then I get a 400 with 'Constraint not supported: BadType.'"
+     *  then: "then I get a 400 with 'Cannot parse constraint parameter: {"type":"BadType"}'"
      */
     def "Get /query/observations malformed query"() {
         when: " I do a Get query/observations with a wrong type."
@@ -50,10 +51,10 @@ class ConstraintSpec extends RESTSpec {
 
         def responseData = get(request)
 
-        then: "then I get a 400 with 'Constraint not supported: BadType.'"
+        then: "then I get a 400 with 'Cannot parse constraint parameter'"
         that responseData.httpStatus, is(400)
         that responseData.type, is(CONSTRAINTBINDINGEXCEPTION)
-        that responseData.message, is('Constraint not supported: BadType.')
+        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'BadType\' into a subtype of [simple type, class org.transmartproject.db.multidimquery.query.Constraint]: known type ids =')
 
         where:
         acceptType | _
@@ -213,7 +214,7 @@ class ConstraintSpec extends RESTSpec {
                 acceptType    : JSON,
                 'Content-Type': JSON,
                 query         : [name: 'test_PatientSetConstraint'],
-                body          : toJSON([type: PatientSetConstraint, patientIds: -62]),
+                body          : toJSON([type: PatientSetConstraint, patientIds: [-62]]),
                 statusCode    : 201
 
         ]
@@ -238,7 +239,7 @@ class ConstraintSpec extends RESTSpec {
         request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: PatientSetConstraint, patientIds: -62])
+                query     : toQuery([type: PatientSetConstraint, patientIds: [-62]])
         ]
         responseData = get(request)
         selector = newSelector(responseData)
@@ -288,7 +289,7 @@ class ConstraintSpec extends RESTSpec {
                         type    : Combination,
                         operator: AND,
                         args    : [
-                                [type: PatientSetConstraint, patientSetId: 0, patientIds: -62],
+                                [type: PatientSetConstraint, patientSetId: 0, patientIds: [-62]],
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                         ]
                 ])

@@ -1,0 +1,47 @@
+grails:
+    mail:
+        host: "localhost:25"
+        'default':
+            from: "<default_email>"
+        port: 465
+        username: "<username>"
+        password: "<password>"
+        props:
+          "mail.smtp.auth":"true"
+          "mail.smtp.ssl.enable": "true"
+          "mail.smtp.socketFactory.port":"465"
+          "mail.smtp.socketFactory.class":"javax.net.ssl.SSLSocketFactory"
+          "mail.smtp.socketFactory.fallback":"false"
+
+# max number of query sets returned in a subscription email
+org.transmart.notifications.maxNumberOfSets: 20
+
+# Quartz plugin configuration - job for query subscription
+# To disable the email sending job, change this to false
+quartz:
+    jobEnabled: false
+
+grails:
+    profile: plugin
+    codegen:
+        defaultPackage: transmart.notifications
+    spring:
+        transactionManagement:
+            proxies: false
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    main:
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+
+# Spring Actuator Endpoints are Disabled by Default
+endpoints:
+    enabled: false
+    jmx:
+        enabled: true

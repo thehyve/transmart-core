@@ -21,19 +21,9 @@ ALTER TABLE ONLY patient_mapping
     ADD CONSTRAINT patient_mapping_pk PRIMARY KEY (patient_ide, patient_ide_source);
 
 --
--- Name: pm_encpnum_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
---
-CREATE INDEX pm_encpnum_idx ON patient_mapping USING btree (patient_ide, patient_ide_source, patient_num);
-
---
 -- Name: pm_patnum_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX pm_patnum_idx ON patient_mapping USING btree (patient_num);
-
---
--- Name: pm_uploadid_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
---
-CREATE INDEX pm_uploadid_idx ON patient_mapping USING btree (upload_id);
 
 --
 -- Table documentation

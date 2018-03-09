@@ -21,9 +21,9 @@ ALTER TABLE ONLY concept_dimension
     ADD CONSTRAINT concept_dimension_pk PRIMARY KEY (concept_path);
 
 --
--- Name: cd_uploadid_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
+-- Name: concept_dimension_concept_cd_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
-CREATE INDEX cd_uploadid_idx ON concept_dimension USING btree (upload_id);
+CREATE INDEX concept_dimension_concept_cd_idx ON concept_dimension USING btree (concept_cd);
 
 --
 -- Name: concept_id; Type: SEQUENCE; Schema: i2b2demodata; Owner: -

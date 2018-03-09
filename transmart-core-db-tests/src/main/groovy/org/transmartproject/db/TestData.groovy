@@ -25,6 +25,7 @@ import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.exception.GenericJDBCException
 import org.springframework.context.ApplicationContext
+import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.arvados.ArvadosTestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
@@ -35,6 +36,7 @@ import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.storage.StorageTestData
+import org.transmartproject.db.test.H2DatabaseCreator
 
 class TestData {
 
@@ -172,5 +174,12 @@ class TestData {
         }
         session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate()
         session.clear()
+        //session.flush()
+
+        SystemResource systemResource = Holders.applicationContext.getBean(SystemResource)
+        systemResource.clearCaches()
+        H2DatabaseCreator h2DatabaseCreator = Holders.applicationContext.getBean(H2DatabaseCreator)
+        h2DatabaseCreator.fillDictionaries()
     }
+
 }

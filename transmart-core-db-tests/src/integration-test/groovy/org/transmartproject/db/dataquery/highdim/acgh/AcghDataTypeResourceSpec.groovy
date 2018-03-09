@@ -21,15 +21,16 @@ package org.transmartproject.db.dataquery.highdim.acgh
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.TransmartSpecification
 
-import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 /**
@@ -40,6 +41,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 @Rollback
 class AcghDataTypeResourceSpec extends TransmartSpecification {
 
+    @Autowired
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource acghResource
@@ -47,6 +49,8 @@ class AcghDataTypeResourceSpec extends TransmartSpecification {
     AcghTestData testData
 
     void setupData() {
+        TestData.clearAllData()
+
         testData = new AcghTestData()
         acghResource = highDimensionResourceService.getSubResourceForType 'acgh'
     }

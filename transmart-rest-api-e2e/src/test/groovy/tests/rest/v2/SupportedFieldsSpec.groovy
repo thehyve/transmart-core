@@ -33,6 +33,7 @@ class SupportedFieldsSpec extends RESTSpec {
     }
 
     def supportedFields = [[dimension: 'patient', fieldName: 'id', type: 'ID'], [dimension: 'patient', fieldName: 'age', type: 'NUMERIC'],
+                           [dimension: 'patient', fieldName: 'mappings', type: 'OBJECT'],
                            [dimension: 'patient', fieldName: 'race', type: 'STRING'], [dimension: 'patient', fieldName: 'maritalStatus', type: 'STRING'],
                            [dimension: 'patient', fieldName: 'religion', type: 'STRING'], [dimension: 'patient', fieldName: 'patientBlob', type: 'STRING'],
                            [dimension: 'patient', fieldName: 'vitalStatusCd', type: 'STRING'], [dimension: 'patient', fieldName: 'birthDate', type: 'DATE'],

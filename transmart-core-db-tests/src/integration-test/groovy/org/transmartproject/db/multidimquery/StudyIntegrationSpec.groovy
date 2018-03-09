@@ -14,6 +14,8 @@ class StudyIntegrationSpec extends TransmartSpecification {
     ClinicalTestData clinicalData
 
     void setupData() {
+        TestData.clearAllData()
+
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         clinicalData.saveAll()

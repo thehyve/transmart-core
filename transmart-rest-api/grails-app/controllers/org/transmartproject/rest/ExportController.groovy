@@ -6,12 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
@@ -77,12 +76,19 @@ class ExportController {
     def run(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
         def requestBody = request.JSON as Map
-        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint']
+        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint', 'includeMeasurementDateColumns']
         if (notSupportedFields) {
             throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
         }
         if (!requestBody.constraint) {
             throw new InvalidArgumentsException("No constraint provided.")
+        }
+        if (!requestBody.elements) {
+            throw new InvalidArgumentsException("No elements provided.")
+        }
+        if ('includeMeasurementDateColumns' in requestBody
+                && !(requestBody.includeMeasurementDateColumns instanceof Boolean)) {
+            throw new InvalidArgumentsException("includeMeasurementDateColumns parameter has to be of boolean type.")
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
@@ -90,9 +96,10 @@ class ExportController {
             throw new InvalidArgumentsException('Empty elements map.')
         }
 
-        Constraint constraint = ConstraintFactory.create(requestBody.constraint)
+        Constraint constraint = ConstraintFactory.create(requestBody.constraint).normalise()
 
-        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId)
+        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId,
+                includeMeasurementDateColumns: requestBody.includeMeasurementDateColumns)
 
         render wrapExportJob(job) as JSON
     }

@@ -18,7 +18,7 @@
  */
 package org.transmartproject.rest.serialization
 
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 
 interface DataSerializer {
@@ -29,11 +29,13 @@ interface DataSerializer {
      * @param constraint
      * @param user The user accessing the data
      * @param out
+     * @param options
      */
     void writeClinical(Format format,
-                       MultiDimConstraint constraint,
+                       Constraint constraint,
                        User user,
-                       OutputStream out)
+                       OutputStream out,
+                       Map options)
 
     /**
      * Write high dimensional data to the output stream
@@ -48,8 +50,8 @@ interface DataSerializer {
      */
     void writeHighdim(Format format,
                       String type,
-                      MultiDimConstraint assayConstraint,
-                      MultiDimConstraint biomarkerConstraint,
+                      Constraint assayConstraint,
+                      Constraint biomarkerConstraint,
                       String projection,
                       User user,
                       OutputStream out)

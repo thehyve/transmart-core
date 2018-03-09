@@ -1,6 +1,6 @@
 package org.transmartproject.core.tree
 
-import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
@@ -111,6 +111,6 @@ interface TreeNode {
      *
      * @return the constraint map for this node.
      */
-    MultiDimConstraint getConstraint()
+    Constraint getConstraint()
 
 }

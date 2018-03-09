@@ -1,0 +1,55 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'codenarc'
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.7'
+    compile "com.opencsv:opencsv:${openCsvVersion}"
+    compile 'commons-cli:commons-cli:1.4'
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'ch.qos.logback:logback-classic:1.2.2'
+    compile "org.postgresql:postgresql:${postgresqlVersion}"
+    compile 'me.tongfei:progressbar:0.5.5'
+    compile 'com.zaxxer:HikariCP:2.6.1'
+    compile 'org.springframework:spring-jdbc:4.3.12.RELEASE'
+
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+}
+
+def mainClass = 'org.transmartproject.copy.Copy'
+
+run {
+    mainClassName = mainClass
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+}
+
+shadowJar {
+    classifier = null
+}
+
+task createVersionFile << {
+    def file = new File("$projectDir/VERSION")
+    file.createNewFile()
+    file.text = "${version}"
+}
+shadowJar.dependsOn 'createVersionFile'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact shadowJar
+        }
+    }
+}
+test.testLogging.exceptionFormat = 'full'

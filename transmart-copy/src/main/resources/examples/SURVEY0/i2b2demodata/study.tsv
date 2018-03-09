@@ -1,0 +1,5 @@
+study_num	bio_experiment_id	study_id	secure_obj_token	study_blob
+0		SURVEY0	PUBLIC	"{
+	""conceptToVariableName"": { ""gender"": ""gender1"", ""birthdate"": ""birthdate1"" },
+	""privateVariableNames"" : [""birthdate1""]
+}"

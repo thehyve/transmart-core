@@ -19,10 +19,12 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.transmartproject.core.concept.Concept
 
 @ToString
+@EqualsAndHashCode(includes = ['conceptCode'])
 class ConceptDimension implements Concept {
 
     String       conceptPath

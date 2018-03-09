@@ -118,23 +118,23 @@ class InvalidConstraintSpec extends RESTSpec {
                                      field   : [dimension: 'start time', fieldName: 'startDate', type: DATE],
                                      operator: AFTER,
                                      values  : [badValue]]),
-                statusCode: status
+                statusCode: 400
         ]
 
         when:
         def responseData = get(request)
 
         then:
-        assert responseData.httpStatus == status
+        assert responseData.httpStatus == 400
 
         where:
-        acceptType | badValue | status
-        JSON       | null     | 500
-        JSON       | ""       | 500
-        JSON       | "  "     | 400
-        PROTOBUF   | null     | 500
-        PROTOBUF   | ""       | 500
-        PROTOBUF   | "  "     | 400
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "Negation.class"() {
