@@ -40,6 +40,9 @@ class HypercubeImpl implements Hypercube {
     // ImmutableList<Entry>.
     protected final ImmutableMap<Dimension, Integer> dimensionsIndex
     final ImmutableList<DimensionImpl> dimensions
+    protected final ImmutableMap<String, Integer> aliases
+    protected final ImmutableList<ModifierDimension> modifierDimensions
+    protected final ImmutableList<DimensionImpl> denseDimensions
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
@@ -53,24 +56,23 @@ class HypercubeImpl implements Hypercube {
     HypercubeImpl(Collection<DimensionImpl> dimensions, CriteriaImpl criteria) {
         this.dimensions = ImmutableList.copyOf(dimensions)
         this.dimensionsIndex = ImmutableMap.copyOf(this.dimensions.withIndex().collectEntries())
+        this.modifierDimensions = ImmutableList.copyOf((Collection) dimensions.findAll { it instanceof ModifierDimension })
+        this.denseDimensions = ImmutableList.copyOf(dimensions.findAll { it.density.isDense })
+
         this.criteria = criteria
         //to run the query in the same transaction all the time. e.g. for dimensions elements loading and data receiving.
         this.criteria.session.connection().autoCommit = false
+        this.aliases = ImmutableMap.copyOf(criteria.projection.aliases.toList().withIndex().collectEntries())
         this.dimensionElementKeys = new ConcurrentHashMap()
+    }
+
+    private void scanCompleted() {
+        completeScanNumber += 1
     }
 
     @Override
     PeekingIterator<HypercubeValueImpl> iterator() {
-        new ResultIterator(dimensions, criteria, { Map<String, Object> row ->
-            def value = ObservationFact.observationFactValue(
-                    (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue, (String) row.rawValue)
-
-            Object[] dimensionElementIdexes = getDimensionElementIndexes(row)
-
-            new HypercubeValueImpl(this, dimensionElementIdexes, value)
-        }, {
-            completeScanNumber += 1
-        })
+        new ResultIterator()
     }
 
     @Override
@@ -126,10 +128,6 @@ class HypercubeImpl implements Hypercube {
         return dimElementIdx
     }
 
-    int getCompleteScanNumber() {
-        completeScanNumber
-    }
-
     private Object[] getDimensionElementIndexes(Map<String, Object> result) {
         // actually this array only contains indexes for dense dimensions, for sparse ones it contains the
         // element keys directly
@@ -150,31 +148,16 @@ class HypercubeImpl implements Hypercube {
         dimensionElementIdxes
     }
 
-    class ResultIterator<T> extends AbstractIterator<T> implements PeekingIterator<T> {
+    class ResultIterator extends AbstractIterator<HypercubeValueImpl> implements PeekingIterator<HypercubeValueImpl> {
 
         private final ScrollableResults results
-        private final ImmutableMap<String, Integer> aliases
-        private final ImmutableList<ModifierDimension> modifierDimensions
         private final Iterator<? extends Map<String, Object>> resultIterator
-        private final Closure<T> onNext
-        private final Closure onClose
 
-        ResultIterator(
-                final Collection<DimensionImpl> dimensions,
-                final CriteriaImpl criteria,
-                final Closure<T> onNext,
-                final Closure onClose = Closure.IDENTITY) {
-
-            this.onNext = onNext
-            this.onClose = onClose
+        ResultIterator() {
             this.results = criteria.with {
                 setFetchSize(FETCH_SIZE)
                 scroll(ScrollMode.FORWARD_ONLY)
             }
-            this.aliases = ImmutableMap.copyOf(criteria.projection.aliases.toList().withIndex().collectEntries())
-            this.modifierDimensions = ImmutableList.copyOf((List) dimensions.findAll {
-                it instanceof ModifierDimension
-            })
             this.resultIterator = (modifierDimensions
                     ? new ModifierResultIterator(modifierDimensions, aliases, results)
                     : new ProjectionMapIterator(aliases, results)
@@ -182,15 +165,24 @@ class HypercubeImpl implements Hypercube {
         }
 
         @Override
-        T computeNext() {
+        HypercubeValueImpl computeNext() {
             if (!resultIterator.hasNext()) {
-                onClose()
+                scanCompleted()
                 results.close()
-                return super.endOfData()
+                return (HypercubeValueImpl) super.endOfData()
             }
 
             Map<String, Object> row = resultIterator.next()
-            onNext(row)
+            transformRow(row)
+        }
+
+        HypercubeValueImpl transformRow(Map<String, Object> row) {
+            def value = ObservationFact.observationFactValue(
+                    (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue, (String) row.rawValue)
+
+            Object[] dimensionElementIdexes = getDimensionElementIndexes(row)
+
+            new HypercubeValueImpl(HypercubeImpl.this, dimensionElementIdexes, value)
         }
     }
 
@@ -211,18 +203,23 @@ class HypercubeImpl implements Hypercube {
         i
     }
 
-    private fetchAllDimensionsElementKeys() {
-        final List<DimensionImpl> denseDimensions = dimensions.findAll { it.density.isDense }
-        new ResultIterator(dimensions, criteria, { Map<String, Object> row ->
-            denseDimensions.collect { DimensionImpl dimension ->
+    private void fetchAllDimensionsElementKeys() {
+        Iterators.getLast(new DimensionsLoaderIterator())
+    }
+
+    class DimensionsLoaderIterator extends ResultIterator {
+
+        DimensionsLoaderIterator() { super() }
+
+        HypercubeValueImpl transformRow(Map<String, Object> row) {
+            for(DimensionImpl dimension : denseDimensions) {
                 def key = dimension.getElementKey(row)
                 if (key) {
                     indexDimensionElement(dimension, key)
                 }
             }
-        }, {
-            completeScanNumber += 1
-        }).collect()
+            null
+        }
     }
 
     void close() {
@@ -284,7 +281,7 @@ class HypercubeImpl implements Hypercube {
                 }
             }
 
-            result
+            (Map) result
         }
 
         /**
