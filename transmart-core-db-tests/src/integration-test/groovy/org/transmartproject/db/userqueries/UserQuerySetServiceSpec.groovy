@@ -5,6 +5,7 @@ import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.userquery.ChangeFlag
+import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
@@ -22,6 +23,8 @@ class UserQuerySetServiceSpec extends TransmartSpecification {
     UserQueryTestData userQueryTestData
 
     void setupData() {
+        TestData.clearAllData()
+
         userQueryTestData = UserQueryTestData.createDefault()
         userQueryTestData.saveAll()
         sessionFactory.currentSession.flush()
