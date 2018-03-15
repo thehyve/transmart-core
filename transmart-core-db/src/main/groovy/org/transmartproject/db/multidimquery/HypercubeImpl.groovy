@@ -146,7 +146,11 @@ class HypercubeImpl implements Hypercube {
         dimensionElementIdxes
     }
 
-    class ResultIterator extends AbstractIterator<HypercubeValueImpl> implements PeekingIterator<HypercubeValueImpl> {
+    /**
+     * ResultIterator (and the derived DimensionsLoaderIterator) make intimate use of private HypercubeImpl data and
+     * private methods.
+     */
+    private class ResultIterator extends AbstractIterator<HypercubeValueImpl> implements PeekingIterator<HypercubeValueImpl> {
 
         private final ScrollableResults results
         private final Iterator<? extends Map<String, Object>> resultIterator
@@ -165,9 +169,10 @@ class HypercubeImpl implements Hypercube {
         @Override
         HypercubeValueImpl computeNext() {
             if (!resultIterator.hasNext()) {
-                scanCompleted()
                 results.close()
-                return (HypercubeValueImpl) super.endOfData()
+                endOfData()
+                scanCompleted()
+                return (null)
             }
 
             Map<String, Object> row = resultIterator.next()
@@ -202,10 +207,11 @@ class HypercubeImpl implements Hypercube {
     }
 
     private void fetchAllDimensionsElementKeys() {
+        // exhaust the iterator for side effect
         Iterators.getLast(new DimensionsLoaderIterator())
     }
 
-    class DimensionsLoaderIterator extends ResultIterator {
+    private class DimensionsLoaderIterator extends ResultIterator {
 
         DimensionsLoaderIterator() { super() }
 
@@ -234,9 +240,17 @@ class HypercubeImpl implements Hypercube {
      * Group modifiers together. Assumes the query is sorted on the primary key columns with modifierCd last.
      * The returned values are result maps that have the modifiers added in.
      *
-     * Todo: if we stick with this solution, this iterator and ProjectionMapIterator should be refactored to extend
-     * ResultIterator and there are probably some other optimizations to make. For now this is a temporary
-     * implementation until modifiers can be joined in the database using the hibernate 5 JPA api.
+     * Todo: This solution was meant as a temporary solution, with a better solution involving a database side join
+     * of the modifier ObservationFacts to the non-modifier ObservationFacts. However Hibernate 4 criteria queries do
+     * not support such joins, and it also won't be added to the api because the api is deprecated. The functionality
+     * is available in the replacement JPA api, but the Grails ORM does not use that. There does not seem to be an
+     * easy way to convert a data model or a query from the hibernate api representation to hibernates JPA
+     * representation, so for now there is no upgrade path that does not involve a lot of work or some very ugly
+     * hacks. Let's hope Grails switches to the JPA api at some point, but that is probably a lot of work for them.
+     *
+     * If we decide to take on this work, a better alternative might be to bypass hibernate and JPA altogether for
+     * queries, and build SQL directly. When streaming large datasets the CPU overhead of hibernate can become quite
+     * significant, so using raw SQL avoids that.
      */
     // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
     // ResultIterator constructor. (Groovy 3.1.10)
