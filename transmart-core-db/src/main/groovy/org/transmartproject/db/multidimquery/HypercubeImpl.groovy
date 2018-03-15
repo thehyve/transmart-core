@@ -14,8 +14,6 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.IndexedArraySet
 
-import java.util.concurrent.ConcurrentHashMap
-
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
 
@@ -51,7 +49,7 @@ class HypercubeImpl implements Hypercube {
     private int completeScanNumber = 0
 
     // A map that stores the actual dimension elements once they are loaded
-    private Map<Dimension, ImmutableList<Object>> dimensionElements = new ConcurrentHashMap()
+    private Map<Dimension, ImmutableList<Object>> dimensionElements = new HashMap()
 
     HypercubeImpl(Collection<DimensionImpl> dimensions, CriteriaImpl criteria) {
         this.dimensions = ImmutableList.copyOf(dimensions)
@@ -63,7 +61,7 @@ class HypercubeImpl implements Hypercube {
         //to run the query in the same transaction all the time. e.g. for dimensions elements loading and data receiving.
         this.criteria.session.connection().autoCommit = false
         this.aliases = ImmutableMap.copyOf(criteria.projection.aliases.toList().withIndex().collectEntries())
-        this.dimensionElementKeys = new ConcurrentHashMap()
+        this.dimensionElementKeys = new HashMap()
     }
 
     private void scanCompleted() {
