@@ -62,3 +62,13 @@ interface constraints {
            RelationConstraint = 'relation'
 }
 
+interface dimensions {
+    String Study = 'study',
+           Concept = 'concept',
+           Patient = "patient",
+           TrialVisit = 'trial visit',
+           Visit = 'visit',
+           StartTime = 'start time',
+           EndTime = 'end time'
+}
+

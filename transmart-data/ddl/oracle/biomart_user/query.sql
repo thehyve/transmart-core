@@ -15,6 +15,7 @@ CREATE TABLE "BIOMART_USER"."QUERY"
     "DELETED" CHAR(1 BYTE),
     "CREATE_DATE" TIMESTAMP (6),
     "UPDATE_DATE" TIMESTAMP (6),
+    "QUERY_BLOB" CLOB,
     PRIMARY KEY ("ID")
 );
 
@@ -64,3 +65,4 @@ COMMENT ON COLUMN biomart_user.query.bookmarked IS 'Flag to indicate if the user
 COMMENT ON COLUMN biomart_user.query.deleted IS 'Flag to indicate if the query has been deleted.';
 COMMENT ON COLUMN biomart_user.query.subscribed IS 'Flag to indicate if the user has subscribed to the query.';
 COMMENT ON COLUMN biomart_user.query.subscription_freq IS 'Frequency of query notifications: "DAILY" or "WEEKLY".';
+COMMENT ON COLUMN biomart_user.query.query_blob IS 'Additional information with user preferences e.g. data table state';

@@ -8,6 +8,7 @@ import static base.ContentTypeFor.JSON
 import static config.Config.*
 import static tests.rest.constraints.Negation
 import static tests.rest.constraints.TrueConstraint
+import static tests.rest.dimensions.*
 
 /**
  *  CRUD endpoint for user queries.
@@ -55,6 +56,10 @@ class UserQuerySpec extends RESTSpec {
         responseData.bookmarked == true
         responseData.subscribed == true
         responseData.subscriptionFreq == 'DAILY'
+        responseData.queryBlob.dataTableState.rowDimensions == [Patient, Study]
+        responseData.queryBlob.dataTableState.columnDimensions == [TrialVisit, Concept]
+        responseData.queryBlob.dataTableState.sorting.dimensionName == Study
+        responseData.queryBlob.dataTableState.sorting.order == "asc"
 
         responseData.createDate.endsWith('Z')
         responseData.updateDate.endsWith('Z')
@@ -174,7 +179,17 @@ class UserQuerySpec extends RESTSpec {
                         observationsQuery: [type: Negation, arg: [type: TrueConstraint]],
                         bookmarked       : true,
                         subscribed       : true,
-                        subscriptionFreq : 'DAILY'
+                        subscriptionFreq : 'DAILY',
+                        queryBlob        : [
+                                dataTableState: [
+                                        rowDimensions   : [Patient, Study],
+                                        columnDimensions: [TrialVisit, Concept],
+                                        sorting         : [
+                                                dimensionName: Study,
+                                                order        : 'asc'
+                                        ]
+                                ]
+                        ]
                 ]),
         ])
     }

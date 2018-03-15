@@ -72,4 +72,11 @@ interface UserQuery {
      * When this query was updated.
      */
     Date getUpdateDate()
+
+    /**
+     * Additional information about the query, e.g. a state of the data table
+     */
+    String getQueryBlob()
+
+    void setQueryBlob(String queryBlob)
 }
