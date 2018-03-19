@@ -329,7 +329,7 @@ trait CompositeElemDim<ELT,ELKey> {
     }
 }
 
-interface AliasAwareDimension {
+interface AliasAwareDimension extends Dimension {
     String getAlias()
 }
 
