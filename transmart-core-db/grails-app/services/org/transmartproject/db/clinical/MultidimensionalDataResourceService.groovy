@@ -19,6 +19,7 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -27,6 +28,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
@@ -71,11 +73,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Autowired
     ParallelPatientSetTaskService parallelPatientSetTaskService
 
-    enum SortOrder {
-        ASC,
-        DESC,
-    }
-
     @Override Dimension getDimension(String name) {
         def dimension = getBuiltinDimension(name)
         if (!dimension) {
@@ -119,7 +116,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         ImmutableMap<DimensionImpl,SortOrder> orderByDimensions = ImmutableMap.copyOf(
                 args.sort == null ? [] :
                 (args.sort instanceof Map ?
-                    args.sort.collectEntries { [toDimensionImpl(it.key), SortOrder.valueOf(it.value)] } :
+                    args.sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] } :
                     args.sort.collectEntries { [toDimensionImpl(it), SortOrder.ASC]}
                 ))
         def orphanSortDims = (orderByDimensions.keySet() - dimensions)
@@ -218,7 +215,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
                 orderByDimensions
                 orderByDimensions.each { AliasAwareDimension aaDim, SortOrder so ->
-                    order(aaDim.alias, so.name().toLowerCase())
+                    order(aaDim.alias, so.string())
                     actualSortOrder[aaDim] = so
                     neededPrimaryKeyDimensions.remove(aaDim)
                 }
@@ -233,7 +230,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         } else {
             q.with {
                 orderByDimensions.each { AliasAwareDimension aaDim, SortOrder so ->
-                    order(aaDim.alias, so.name().toLowerCase())
+                    order(aaDim.alias, so.string())
                     actualSortOrder[aaDim] = so
                 }
             }
@@ -252,10 +249,11 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME)
 
     static final List<Dimension> modifierSortableDimensions = ImmutableList.of(
-            // same as primaryKeyDimensions + STUDY. Study is not part of the primary key, but (assuming it is loaded
-            // correctly) it does not interfere with the sorting required for modifiers. This requires that each
-            // modifier ObservationFact has the same trial visit as its non-modifier ObservationFact.
-            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME, TRIAL_VISIT, STUDY)
+            // Primary key dimensions plus those on which sorting is compatible with modifiers. This compatibility is
+            // determined at data load time: to be compatible the values in the ObservationFact columns for these
+            // dimensions must be identical for all rows that have the same primary key excluding modifier_cd, in
+            // other words for an ObservationFact value row and its associated modifier rows.
+            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME, /*TRIAL_VISIT, STUDY, END_TIME*/)
 
     private static DimensionImpl toDimensionImpl(dimOrDimName) {
         if(dimOrDimName instanceof DimensionImpl) {
@@ -267,6 +265,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             return dim
         }
         throw new InvalidArgumentsException("dimension $dimOrDimName is not a valid dimension or dimension name")
+    }
+
+    private static SortOrder toSortOrder(it) {
+        if (it instanceof SortOrder) return it
+        try {
+            return SortOrder.valueOf(((String) it).toLowerCase())
+        } catch (IllegalArgumentException e) {
+            throw new InvalidArgumentsException("$it is not a valid sort order")
+        }
     }
 
     /*
@@ -683,11 +690,16 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    Hypercube retrieveClinicalData(Constraint constraint, User user, List<Dimension> orderByDimensions = []) {
+    Hypercube retrieveClinicalData(Constraint constraint, User user) {
+        retrieveClinicalData([:], constraint, user)
+    }
+
+    @Override
+    Hypercube retrieveClinicalData(Map args, Constraint constraint, User user) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
         def dataType = 'clinical'
-        retrieveData(dataType, user, constraint: constraint, sort: orderByDimensions)
+        retrieveData([*:args, constraint: constraint, sort: args.orderByDimensions], dataType, user)
     }
 
 }
@@ -696,7 +708,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 class Query {
     HibernateCriteriaBuilder criteria
     Map params
-    ImmutableMap<DimensionImpl,MultidimensionalDataResourceService.SortOrder> actualSortOrder
+    ImmutableMap<DimensionImpl,SortOrder> actualSortOrder
 
     CriteriaImpl getCriteriaImpl() { (CriteriaImpl) criteria.instance }
 }
