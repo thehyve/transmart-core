@@ -535,7 +535,7 @@ class QueryServiceSpec extends TransmartSpecification {
         result*.getDimKey(PATIENT) == result*.getDimKey(PATIENT).sort(false).reverse()
 
         when:
-        result = getObservationsList(constraint, sort: [(PATIENT): 'desc', (CONCEPT): 'asc'])
+        result = getObservationsList(constraint, sort: [[PATIENT, 'desc'], [CONCEPT, 'asc']])
 
         then:
         result == result.sort(false) { a, b ->

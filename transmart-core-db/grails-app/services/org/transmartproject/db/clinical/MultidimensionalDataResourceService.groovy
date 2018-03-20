@@ -111,12 +111,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         // only allow valid dimensions
         dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in supportedDimensions } ?: supportedDimensions
 
-        ImmutableMap<DimensionImpl,SortOrder> orderByDimensions = ImmutableMap.copyOf(
-                args.sort == null ? [] :
-                (args.sort instanceof Map ?
-                    args.sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] } :
-                    args.sort.collectEntries { [toDimensionImpl(it), SortOrder.ASC]}
-                ))
+        ImmutableMap<DimensionImpl,SortOrder> orderByDimensions = ImmutableMap.copyOf(parseSort(args.sort))
         def orphanSortDims = (orderByDimensions.keySet() - dimensions)
         if (orphanSortDims) throw new InvalidArgumentsException("Requested ordering on dimension(s) " +
                 "${orphanSortDims.collect {it.name}.join(', ')}, which are not part of this query")
@@ -129,6 +124,20 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
         // session will be closed by the Hypercube
         new HypercubeImpl(dimensions, query)
+    }
+
+    private static Map parseSort(sort) {
+        if (sort == null) {
+            null
+        } else if (sort instanceof Map) {
+            sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] }
+        } else if (sort instanceof List) {
+            sort.collectEntries {
+                it instanceof List ?
+                        [toDimensionImpl(it[0]), toSortOrder(it[1])] :
+                        [toDimensionImpl(it), SortOrder.ASC]
+            }
+        }
     }
 
     @Memoized
