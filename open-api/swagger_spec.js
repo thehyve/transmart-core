@@ -2267,6 +2267,9 @@ var spec = {
                 },
                 "subscriptionFreq": {
                   "type": "string"
+                },
+                "queryBlob": {
+                  "type": "object"
                 }
               }
             }
@@ -3206,6 +3209,9 @@ var spec = {
         "updateDate": {
           "type": "string",
           "format": "date-time"
+        },
+        "queryBlob": {
+          "type": "object"
         }
       }
     },

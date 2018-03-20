@@ -13,7 +13,8 @@ CREATE TABLE biomart_user.query (
     subscribed boolean,
     subscription_freq character varying(25),
     create_date timestamp without time zone,
-    update_date timestamp without time zone
+    update_date timestamp without time zone,
+    query_blob text
 );
 
 --
@@ -39,3 +40,4 @@ COMMENT ON COLUMN biomart_user.query.bookmarked IS 'Flag to indicate if the user
 COMMENT ON COLUMN biomart_user.query.deleted IS 'Flag to indicate if the query has been deleted.';
 COMMENT ON COLUMN biomart_user.query.subscribed IS 'Flag to indicate if the user has subscribed to the query.';
 COMMENT ON COLUMN biomart_user.query.subscription_freq IS 'Frequency of query notifications: "DAILY" or "WEEKLY".';
+COMMENT ON COLUMN biomart_user.query.query_blob IS 'Additional user preferences e.g. data table state';
