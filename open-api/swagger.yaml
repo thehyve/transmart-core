@@ -1913,6 +1913,8 @@ paths:
                   type: boolean
                 subscriptionFreq:
                   type: string
+                queryBlob:
+                  type: object
         responses:
           201:
             description: |
@@ -2556,6 +2558,8 @@ definitions:
       updateDate:
         type: string
         format: 'date-time'
+      queryBlob:
+        type: object
 
   userQuerySet:
     type: object

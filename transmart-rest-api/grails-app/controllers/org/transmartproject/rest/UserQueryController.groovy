@@ -5,6 +5,7 @@ import groovy.json.JsonSlurper
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.userquery.UserQuery
@@ -47,12 +48,14 @@ class UserQueryController {
     def save(@RequestParam('api_version') String apiVersion) {
         def requestJson = request.JSON as Map
         checkForUnsupportedParams(requestJson, ['name', 'patientsQuery', 'observationsQuery', 'bookmarked',
-                                                'subscribed', 'subscriptionFreq'])
+                                                'subscribed', 'subscriptionFreq', 'queryBlob'])
         def patientsQueryString = requestJson.patientsQuery?.toString()
         def observationsQueryString = requestJson.observationsQuery?.toString()
+        def queryBlobString = requestJson.queryBlob?.toString()
 
         validateJson(patientsQueryString)
         validateJson(observationsQueryString)
+        validateJson(queryBlobString)
 
         UserQuery query = userQueryResource.create(currentUser)
         query.apiVersion = versionController.currentVersion(apiVersion)
@@ -62,6 +65,7 @@ class UserQueryController {
             observationsQuery = observationsQueryString
             bookmarked = requestJson.bookmarked ?: false
             subscribed = requestJson.subscribed ?: false
+            queryBlob = queryBlobString
         }
 
         if (requestJson.containsKey('subscriptionFreq')) {
@@ -116,6 +120,7 @@ class UserQueryController {
                     subscriptionFreq : subscriptionFreq,
                     createDate       : createDate,
                     updateDate       : updateDate,
+                    queryBlob        : queryBlob ? JSON_SLURPER.parseText(queryBlob) : null,
             ]
         }
     }

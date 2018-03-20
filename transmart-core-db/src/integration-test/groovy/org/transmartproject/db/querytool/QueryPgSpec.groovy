@@ -21,7 +21,10 @@ class QueryPgSpec extends Specification {
                 bookmarked: true,
                 deleted: true,
                 createDate: now,
-                updateDate: now
+                updateDate: now,
+                subscribed: true,
+                subscriptionFreq: 'DAILY',
+                queryBlob: 'additional information'
         )
 
         when:
