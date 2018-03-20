@@ -1,5 +1,7 @@
 package org.transmartproject.rest.misc
 
+import groovy.json.JsonException
+import groovy.json.JsonSlurper
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 /**
@@ -32,6 +34,21 @@ class RequestUtils {
             } else {
                 throw new InvalidArgumentsException("Parameters not supported: ${unacceptableParams.join(', ')}.")
             }
+        }
+    }
+
+    /**
+     * Parse a string as JSON. If that fails, throw an InvalidArgumentsException
+     * @param str The JSON string or null
+     * @return A JSON datastructure of maps and lists, or null if the input was null
+     * @throws InvalidArgumentsException if parsing as JSON failed
+     */
+    static def parseJson(String str) {
+        if (str == null) return null
+        try {
+            return new JsonSlurper().parseText(str)
+        } catch (JsonException | IllegalArgumentException e) {
+            throw new InvalidArgumentsException("Invalid JSON: '$str'", e)
         }
     }
 
