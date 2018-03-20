@@ -45,7 +45,7 @@ class SurveyTableViewSpec extends Specification {
         setup:
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY1")
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
+        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, sort: [DimensionImpl.PATIENT])
         boolean includeMeasurementDateColumns = true
 
         when:
@@ -119,7 +119,7 @@ class SurveyTableViewSpec extends Specification {
         setup:
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY2")
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
+        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, sort: [DimensionImpl.PATIENT])
         boolean includeMeasurementDateColumns = true
 
         when:

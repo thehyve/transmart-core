@@ -7,6 +7,8 @@ import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
@@ -31,6 +33,8 @@ import org.transmartproject.db.user.AccessLevelTestData
 import spock.lang.Ignore
 
 import java.sql.Timestamp
+
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Rollback
 @Integration
@@ -178,8 +182,9 @@ class QueryServiceSpec extends TransmartSpecification {
         result[0][DimensionImpl.PATIENT].sourcesystemCd.contains('SUBJ_ID_2')
     }
 
-    private List<HypercubeValue> getObservationsList(Constraint constraint) {
-        multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+    private List<HypercubeValue> getObservationsList(Constraint constraint) { getObservationsList([:], constraint) }
+    private List<HypercubeValue> getObservationsList(Map args, Constraint constraint) {
+        multiDimService.retrieveClinicalData(args, constraint, accessLevelTestData.users[0]).asList()
     }
 
     private List<Patient> getPatients(Constraint constraint) {
@@ -508,6 +513,62 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then: "Number of locations matching the constraints is returned"
         locationsCount == Long.valueOf(expectedResults.grep().size())
+    }
+
+    void 'test_sorting'() {
+        setupHypercubeData()
+
+        def studies = modifiers ? hypercubeTestData.clinicalData.allHypercubeStudies :
+                hypercubeTestData.clinicalData.with { [longitudinalStudy, ehrStudy, multidimsStudy] }
+        Constraint constraint = new OrConstraint(studies.collect { new StudyObjectConstraint(it) })
+
+        when:
+        def result = getObservationsList(constraint, sort: [PATIENT])
+
+        then:
+        result*.getDimKey(PATIENT) == result*.getDimKey(PATIENT).sort(false)
+
+        when:
+        result = getObservationsList(constraint, sort: [(PATIENT): 'desc'])
+
+        then:
+        result*.getDimKey(PATIENT) == result*.getDimKey(PATIENT).sort(false).reverse()
+
+        when:
+        result = getObservationsList(constraint, sort: [(PATIENT): 'desc', (CONCEPT): 'asc'])
+
+        then:
+        result == result.sort(false) { a, b ->
+                b.getDimKey(PATIENT) <=> a.getDimKey(PATIENT) ?:
+                a.getDimKey(CONCEPT) <=> b.getDimKey(CONCEPT) }
+
+        where:
+        modifiers | _
+        false     | _
+        true      | _
+    }
+
+    void 'test_failing_sort'() {
+        setupHypercubeData()
+
+        Constraint constraint = new OrConstraint(hypercubeTestData.clinicalData.allHypercubeStudies.collect {
+            new StudyObjectConstraint(it) })
+
+        when:
+        getObservationsList(constraint, sort: [hypercubeTestData.clinicalData.doseDimension])
+
+        then:
+        thrown InvalidArgumentsException
+
+        when:
+        // END_TIME can be made sortable, if it is loaded in a sort-compatible way. If we decide to support that, this
+        // test can be removed or test another dimension that cannot be sorted with modifiers present.
+        getObservationsList(constraint, sort: [END_TIME])
+
+        then:
+        thrown UnsupportedByDataTypeException
+
+
     }
 
 }

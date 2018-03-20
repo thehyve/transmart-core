@@ -28,8 +28,8 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
@@ -57,8 +57,6 @@ import org.transmartproject.db.querytool.*
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
-
-import java.lang.reflect.Modifier
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
@@ -122,8 +120,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         def orphanSortDims = (orderByDimensions.keySet() - dimensions)
         if (orphanSortDims) throw new InvalidArgumentsException("Requested ordering on dimension(s) " +
                 "${orphanSortDims.collect {it.name}.join(', ')}, which are not part of this query")
-        assert (orderByDimensions.keySet() - dimensions).empty :
-                'Some dimensions were not found in this result set to sort by'
 
         Query query = buildCriteria(dimensions, orderByDimensions)
         HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user)
@@ -162,7 +158,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     private Query buildCriteria(Set<DimensionImpl> dimensions,
                                        ImmutableMap<DimensionImpl,SortOrder> orderDims) {
         def nonSortableDimensions = orderDims.keySet().findAll { !(it instanceof AliasAwareDimension) }
-        if (nonSortableDimensions) throw new UnsupportedOperationException("Sorting over these dimensions is not " +
+        if (nonSortableDimensions) throw new InvalidArgumentsException("Sorting over these dimensions is not " +
                 "supported: " + nonSortableDimensions.collect {it.name}.join(','))
         ImmutableMap<AliasAwareDimension, SortOrder> orderByDimensions = (ImmutableMap) orderDims
 
@@ -197,7 +193,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 (it in modifierSortableDimensions) ? [] : [it.name] }
             if (nonModifierSortableDimensions) {
                 def modifier = dimensions.findAll {it instanceof ModifierDimension }.collect { it.name }.join(", ")
-                throw new UnsupportedOperationException("Sorting over these dimensions is not supported when querying" +
+                throw new UnsupportedByDataTypeException("Sorting over these dimensions is not supported when querying" +
                         " $modifier dimensions:" + nonModifierSortableDimensions.join(", "))
             }
 
@@ -213,7 +209,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 // instanceNum is not a dimension
                 property 'instanceNum', 'instanceNum'
 
-                orderByDimensions
                 orderByDimensions.each { AliasAwareDimension aaDim, SortOrder so ->
                     order(aaDim.alias, so.string())
                     actualSortOrder[aaDim] = so
@@ -224,7 +219,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                     actualSortOrder[it] = SortOrder.ASC
                 }
 
-                order 'trialVisit'
                 order 'instanceNum'
             }
         } else {
@@ -270,9 +264,9 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     private static SortOrder toSortOrder(it) {
         if (it instanceof SortOrder) return it
         try {
-            return SortOrder.valueOf(((String) it).toLowerCase())
+            return SortOrder.valueOf(((String) it).toUpperCase())
         } catch (IllegalArgumentException e) {
-            throw new InvalidArgumentsException("$it is not a valid sort order")
+            throw new InvalidArgumentsException("'$it' is not a valid sort order")
         }
     }
 
@@ -699,7 +693,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
         def dataType = 'clinical'
-        retrieveData([*:args, constraint: constraint, sort: args.orderByDimensions], dataType, user)
+        retrieveData([*:args, constraint: constraint], dataType, user)
     }
 
 }
