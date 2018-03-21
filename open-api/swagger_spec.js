@@ -3058,6 +3058,27 @@ var spec = {
               "items": {
                 "$ref": "#/definitions/dimensionDeclaration"
               }
+            },
+            "sort": {
+              "type": "object",
+              "properties": {
+                "dimensionIndex": {
+                  "type": "number",
+                  "description": "An index into the dimensionDeclarations list, indicating the dimension on which the result is sorted.\n"
+                },
+                "sortOrder": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "description": "'asc' or 'desc', indicating the sort order."
+                },
+                "field": {
+                  "type": "number",
+                  "description": "always 0. A non-zero value indicates that a different sorting is used that this version of the api does not know about. This only applies to the protobuf representation, in JSON this property is omitted.\n"
+                }
+              }
             }
           }
         },
