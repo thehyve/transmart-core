@@ -4,6 +4,7 @@ package org.transmartproject.rest.serialization
 
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -278,6 +279,16 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         writer.beginArray()
         for(DimensionProperties props : buildDimensionDeclarations()) {
             writeDimensionProperties(props)
+        }
+        writer.endArray()
+
+        writer.name('sort')
+        writer.beginArray()
+        for(Map.Entry<Dimension,SortOrder> entry : cube.sortOrder) {
+            writer.beginObject()
+            writer.name('dimension').value(entry.key.name)
+            writer.name('sortOrder').value(entry.value.string())
+            writer.endObject()
         }
         writer.endArray()
     }

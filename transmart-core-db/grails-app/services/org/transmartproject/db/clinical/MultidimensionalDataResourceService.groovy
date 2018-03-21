@@ -128,7 +128,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     private static Map parseSort(sort) {
         if (sort == null) {
-            null
+            [:]
         } else if (sort instanceof Map) {
             sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] }
         } else if (sort instanceof List) {
@@ -164,8 +164,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
-    private Query buildCriteria(Set<DimensionImpl> dimensions,
-                                       ImmutableMap<DimensionImpl,SortOrder> orderDims) {
+    private Query buildCriteria(Set<DimensionImpl> dimensions, ImmutableMap<DimensionImpl,SortOrder> orderDims) {
         def nonSortableDimensions = orderDims.keySet().findAll { !(it instanceof AliasAwareDimension) }
         if (nonSortableDimensions) throw new InvalidArgumentsException("Sorting over these dimensions is not " +
                 "supported: " + nonSortableDimensions.collect {it.name}.join(','))
