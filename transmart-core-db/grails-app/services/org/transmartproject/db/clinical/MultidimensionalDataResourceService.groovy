@@ -128,7 +128,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     private static Map parseSort(sort) {
         if (sort == null) {
-            null
+            [:]
         } else if (sort instanceof Map) {
             sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] }
         } else if (sort instanceof List) {
