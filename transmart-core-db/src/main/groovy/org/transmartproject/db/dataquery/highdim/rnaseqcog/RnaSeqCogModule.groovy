@@ -95,42 +95,42 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
         Map assayIndexMap = createAssayIndexMap assays
 
         def preliminaryResult = new DefaultHighDimensionTabularResult(
-                rowsDimensionLabel:    'Transcripts',
+                rowsDimensionLabel: 'Transcripts',
                 columnsDimensionLabel: 'Sample codes',
-                indicesList:           assays,
-                results:               results,
-                allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
+                indicesList: assays,
+                results: results,
+                allowMissingAssays: true,
+                assayIdFromRow: { it[0].assayId },
+                inSameGroup: { a, b -> a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol },
+                finalizeGroup: { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()
                     new RnaSeqCogDataRow(
-                            annotationId:  firstNonNullCell[0].annotationId,
-                            geneSymbol:    firstNonNullCell[0].geneSymbol,
-                            geneId:        firstNonNullCell[0].geneId,
+                            annotationId: firstNonNullCell[0].annotationId,
+                            geneSymbol: firstNonNullCell[0].geneSymbol,
+                            geneId: firstNonNullCell[0].geneId,
                             assayIndexMap: assayIndexMap,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
+                            data: list.collect { projection.doWithResult it?.getAt(0) }
                     )
                 }
         )
 
-        new RepeatedEntriesCollectingTabularResult(
-                tabularResult: preliminaryResult,
-                collectBy: { it.annotationId },
-                resultItem: { collectedList ->
-                    if (collectedList) {
-                        new RnaSeqCogDataRow(
-                                annotationId:  collectedList[0].annotationId,
-                                geneSymbol:    RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneSymbol, '/'),
-                                geneId:        RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneId, '/'),
-                                assayIndexMap: collectedList[0].assayIndexMap,
-                                data:          collectedList[0].data
-                        )
+        new RepeatedEntriesCollectingTabularResult<RnaSeqCogDataRow>(preliminaryResult) {
+            @Override
+            def collectBy(RnaSeqCogDataRow it) { it.annotationId }
+
+            @Override
+            RnaSeqCogDataRow resultItem(List<RnaSeqCogDataRow> collectedList) {
+                if (collectedList) {
+                    new RnaSeqCogDataRow(
+                            annotationId: collectedList[0].annotationId,
+                            geneSymbol: safeJoin(collectedList*.geneSymbol, '/'),
+                            geneId: safeJoin(collectedList*.geneId, '/'),
+                            assayIndexMap: collectedList[0].assayIndexMap,
+                            data: collectedList[0].data
+                    )
+                }
             }
-            }
-        )
+        }
     }
 
     @Override

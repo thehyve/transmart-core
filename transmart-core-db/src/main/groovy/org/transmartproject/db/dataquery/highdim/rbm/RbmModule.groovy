@@ -134,23 +134,24 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 }
         )
 
-        new RepeatedEntriesCollectingTabularResult(
-                tabularResult: preliminaryResult,
-                collectBy: { it.antigenName },
-                resultItem: {collectedList ->
-                    if (collectedList) {
-                        new RbmRow(
-                                annotationId:   collectedList[0].annotationId,
-                                antigenName:    collectedList[0].antigenName,
-                                unit:           collectedList[0].unit,
-                                uniprotName:    RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.uniprotName, '/'),
-                                assayIndexMap:  collectedList[0].assayIndexMap,
-                                data:           collectedList[0].data
-                        )
-    }
-}
-        )
+        new RepeatedEntriesCollectingTabularResult<RbmRow>(preliminaryResult) {
+            @Override
+            def collectBy(RbmRow it) { it.antigenName }
+
+            @Override
+            RbmRow resultItem(List<RbmRow> collectedList) {
+                if (collectedList) {
+                    new RbmRow(
+                            annotationId: collectedList[0].annotationId,
+                            antigenName: collectedList[0].antigenName,
+                            unit: collectedList[0].unit,
+                            uniprotName: safeJoin(collectedList*.uniprotName, '/'),
+                            assayIndexMap: collectedList[0].assayIndexMap,
+                            data: collectedList[0].data
+                    )
+                }
+            }
+        }
     }
 
 }

@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -125,23 +126,20 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
          * the annotations table and several rows will be returned for the same
          * probeset_id, just with different genes.
          * Hence the order by clause and the definition of inSameGroup above */
-        new RepeatedEntriesCollectingTabularResult(
-                tabularResult: preliminaryResult,
-                collectBy: { it.probe },
-                resultItem: {collectedList ->
-                    if (collectedList) {
-                        new ProbeRow(
-                                probe:         collectedList[0].probe,
-                                geneSymbol:    RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneSymbol, '/'),
-                                geneId:        RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneId, '/'),
-                                assayIndexMap: collectedList[0].assayIndexMap,
-                                data:          collectedList[0].data
-                        )
+        new RepeatedEntriesCollectingTabularResult<ProbeRow>(preliminaryResult) {
+            @Override def collectBy(ProbeRow it) { it.probe }
+            @Override ProbeRow resultItem(List<ProbeRow> collectedList) {
+                if (collectedList) {
+                    new ProbeRow(
+                            probe: collectedList[0].probe,
+                            geneSymbol: safeJoin(collectedList*.geneSymbol, '/'),
+                            geneId: safeJoin(collectedList*.geneId, '/'),
+                            assayIndexMap: collectedList[0].assayIndexMap,
+                            data: collectedList[0].data
+                    )
+                }
             }
-            }
-        )
+        }
     }
 
     @Override
