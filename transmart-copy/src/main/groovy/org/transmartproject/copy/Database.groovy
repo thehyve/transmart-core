@@ -21,6 +21,7 @@ import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
 
 import java.sql.Connection
+import java.sql.ResultSet
 import java.time.Instant
 
 @Slf4j
@@ -156,7 +157,7 @@ class Database implements AutoCloseable {
 
     final Map<Table, SimpleJdbcInsert> inserters = [:]
 
-    SimpleJdbcInsert getInserter(Table table, LinkedHashMap<String, Class> columns) {
+    SimpleJdbcInsert getInserter(Table table, Map<String, Class> columns) {
         SimpleJdbcInsert inserter = inserters[table]
         if (!inserter) {
             log.debug "Creating inserter for ${table} ..."
@@ -185,6 +186,39 @@ class Database implements AutoCloseable {
         log.info 'Running VACUUM ANALYZE ...'
         executeCommand('vacuum analyze')
         log.info 'Done.'
+    }
+
+    Set<Table> getChildTables(Table parentTable) {
+        log.debug "Getting child tables for: ${parentTable} ..."
+        def queryResult = jdbcTemplate.queryForList("""
+            SELECT cn.nspname as childSchema, c.relname AS childTable
+            FROM pg_inherits
+            JOIN pg_class AS c ON (inhrelid=c.oid)
+            JOIN pg_catalog.pg_namespace cn ON (c.relnamespace=cn.oid)
+            JOIN pg_class as p ON (inhparent=p.oid)
+            JOIN pg_catalog.pg_namespace pn ON (p.relnamespace=pn.oid)
+            WHERE pn.nspname || '.' || p.relname='${parentTable}';
+        """)
+        queryResult.collect { Map<String, Object> resultRow ->
+            new Table(resultRow.childSchema.toString(), resultRow.childTable.toString())
+        } as Set
+    }
+
+    void dropTable(Table tableToDrop, boolean ifExists = false) {
+        jdbcTemplate.execute("DROP TABLE ${ifExists ? 'IF EXISTS' : ''} ${tableToDrop}")
+    }
+
+    Set<String> indexesForTable(Table table) {
+        Set<String> indxNames = [] as Set
+        ResultSet rs = connection.getMetaData().getIndexInfo(null, table.schema, table.name, false, false)
+        try  {
+            while (rs.next()) {
+                indxNames << rs.getString('INDEX_NAME')
+            }
+        } finally {
+            rs.close()
+        }
+        return indxNames
     }
 
     @Override

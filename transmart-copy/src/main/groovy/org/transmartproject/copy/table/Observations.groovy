@@ -88,8 +88,8 @@ class Observations {
     }
 
     static final Map<String, List> tableIndexes = [
-            'idx_fact_patient_num': ['patient_num'],
-            'idx_fact_concept': ['concept_cd'],
+            'idx_fact_patient_num'    : ['patient_num'],
+            'idx_fact_concept'        : ['concept_cd'],
             'idx_fact_trial_visit_num': ['trial_visit_num'],
     ]
 
@@ -105,18 +105,22 @@ class Observations {
     }
 
     void restoreTableIndexesIfNotExist() {
+        restoreTableIndexesIfNotExistForTable(table, '')
+    }
+
+    private restoreTableIndexesIfNotExistForTable(Table tbl, String suffix) {
         def tx = database.beginTransaction()
-        log.info "Restore indexes on ${table} ..."
+        log.info "Restore indexes on ${tbl} ..."
         tableIndexes.each { name, columns ->
-            database.jdbcTemplate.execute(composeCreateIndexSql(name, columns))
+            database.jdbcTemplate.execute(composeCreateIndexSql(tbl, name + suffix, columns))
         }
         nonModifiersTableIndexes.each { name, columns ->
-            database.jdbcTemplate.execute("${composeCreateIndexSql(name, columns)} where modifier_cd='@'")
+            database.jdbcTemplate.execute("${composeCreateIndexSql(tbl, name + suffix, columns)} where modifier_cd='@'")
         }
         database.commit(tx)
     }
 
-    private static String composeCreateIndexSql(String name, Iterable<String> columns) {
+    private static String composeCreateIndexSql(Table table, String name, Iterable<String> columns) {
         "create index if not exists ${name} on ${table} using btree (${columns.join(', ')})"
     }
 
@@ -213,7 +217,11 @@ class Observations {
                             batch.add(row)
                             if (batch.size() == config.batchSize) {
                                 batchCount++
-                                insert.executeBatch(batch.toArray() as Map[])
+                                if (config.partition) {
+                                    insertBatchToChildTables(batch, header)
+                                } else {
+                                    insert.executeBatch(batch.toArray() as Map[])
+                                }
                                 if (config.flushSize > 0 && batchCount % config.flushSize == 0) {
                                     tx.flush()
                                 }
@@ -230,7 +238,11 @@ class Observations {
                 }
                 if (batch.size() > 0) {
                     batchCount++
-                    insert.executeBatch(batch.toArray() as Map[])
+                    if (config.partition) {
+                        insertBatchToChildTables(batch, header)
+                    } else {
+                        insert.executeBatch(batch.toArray() as Map[])
+                    }
                 }
                 progressBar.stop()
                 log.info "${batchCount} batches of ${config.batchSize} inserted."
@@ -244,8 +256,10 @@ class Observations {
             def command = "insert into ${table} (${columnSpec}) select ${columnSpec} from ${temporaryTable}"
             database.jdbcTemplate.execute(command)
             tx.flush()
-
-            database.jdbcTemplate.execute("drop table ${temporaryTable}")
+            database.dropTable(temporaryTable)
+        }
+        if (config.partition) {
+            creatParttitionIndexes()
         }
         database.commit(tx)
         if (config.write) {
@@ -254,4 +268,53 @@ class Observations {
         log.info "Done loading observations data."
     }
 
+    private void insertBatchToChildTables(List<Map> batch, Map<String, Class> header) {
+        Map<Long, List<Map>> partitionedBatch = batch.groupBy { it['trial_visit_num'] as Long }
+        partitionedBatch.each { Long partition, List<Map> rows ->
+            database.getInserter(getOrCreatePartitionTable(partition), header)
+                    .executeBatch(rows.toArray() as Map[])
+        }
+    }
+
+    Map<Long, Table> partitionToTable = [:]
+
+    private Table getOrCreatePartitionTable(Long trialVisitNum) {
+        if (partitionToTable.containsKey(trialVisitNum)) {
+            return partitionToTable.get(trialVisitNum)
+        }
+        Table childTable = getChildTable(trialVisitNum)
+        database.jdbcTemplate.execute("CREATE TABLE ${childTable}(check (trial_visit_num = ${trialVisitNum})) INHERITS (${table})")
+        partitionToTable.put(trialVisitNum, childTable)
+        return childTable
+    }
+
+    private static Table getChildTable(Long trialVisitNum) {
+        new Table(table.schema, "${table.name}_${trialVisitNum.toString()}")
+    }
+
+    private creatParttitionIndexes() {
+        for (Map.Entry<Object, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+            restoreTableIndexesIfNotExistForTable(partitionToTableEntry.value, "_${partitionToTableEntry.key}")
+        }
+    }
+
+    void removeObservationsForTrials(Set<Long> trialVisitNums) {
+        if (!trialVisitNums) {
+            return
+        }
+        Map<Object, Table> posibleCandidateTablesToDrop = trialVisitNums.collectEntries { [it, getChildTable(it)] }
+        Set<Table> childTables = database.getChildTables(table)
+        for (Map.Entry<Object, Table> dropTableCandidate : posibleCandidateTablesToDrop.entrySet()) {
+            if (dropTableCandidate.value in childTables) {
+                database.dropTable(dropTableCandidate.value)
+                log.info "${dropTableCandidate.value} child table has been dropped."
+            }
+        }
+        int observationCount = database.namedParameterJdbcTemplate.update(
+                """delete from ${table} where trial_visit_num in 
+                (:trialVisitNums)""".toString(),
+                [trialVisitNums: trialVisitNums]
+        )
+        log.info "${observationCount} observations deleted from ${table}."
+    }
 }

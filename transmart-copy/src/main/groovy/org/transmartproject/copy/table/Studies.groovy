@@ -113,12 +113,8 @@ class Studies {
             }
         }
         log.info "Deleting observations for study ${studyId} ..."
-        int observationCount = database.namedParameterJdbcTemplate.update(
-                """delete from ${Observations.table} where trial_visit_num in 
-                    (select trial_visit_num from ${trial_visit_table} where study_num = :studyNum)""".toString(),
-                [studyNum: study.studyNum]
-        )
-        log.info "${observationCount} observations deleted."
+        List<Long> trialVisitNums = findTrialVisitNumsForStudy(study.studyNum)
+        new Observations(database, null, null, null, null).removeObservationsForTrials(trialVisitNums as Set)
 
         log.info "Deleting trial visits for study ${studyId} ..."
         int trialVisitCount = database.namedParameterJdbcTemplate.update(

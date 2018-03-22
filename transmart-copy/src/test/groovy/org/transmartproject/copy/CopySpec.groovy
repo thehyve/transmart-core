@@ -7,8 +7,6 @@ import org.apache.commons.cli.Options
 import org.transmartproject.copy.table.*
 import spock.lang.Specification
 
-import java.sql.ResultSet
-
 class CopySpec extends Specification {
 
     static String TEST_STUDY = 'SURVEY0'
@@ -124,12 +122,12 @@ class CopySpec extends Specification {
     def 'test index management'() {
         when: 'dropping and restore indexes'
         copy.dropIndexes()
-        def afterDropIndexes = indexesOnFactTable()
+        def afterDropIndexes = copy.database.indexesForTable(Observations.table)
         copy.restoreIndexes()
 
         then:
         afterDropIndexes == ['observation_fact_pkey'] as Set
-        indexesOnFactTable() == [
+        copy.database.indexesForTable(Observations.table) == [
                 'observation_fact_pkey',
                 'idx_fact_patient_num',
                 'idx_fact_trial_visit_num',
@@ -168,7 +166,7 @@ class CopySpec extends Specification {
         given: 'there is the study'
         ensureTestStudyLoaded()
         Options options = new Options()
-        options.addOption(new Option('d', 'delete', true, ''))
+        options.addOption(new Option('D', 'delete', true, ''))
 
         when: 'error during load happens'
         CommandLine cli1 = new DefaultParser()
@@ -200,19 +198,38 @@ class CopySpec extends Specification {
         getTestStudyDbIdentifier() > studyId1
     }
 
-    def count(ResultSet rs) {
-        Set<String> indxNames = [] as Set
-        while (rs.next()) {
-            indxNames << rs.getString('INDEX_NAME')
-        }
-        indxNames
-    }
 
-    def indexesOnFactTable() {
-        ResultSet rs = copy.database.connection.getMetaData()
-                .getIndexInfo(null, 'i2b2demodata', 'observation_fact', false, false)
-        def indxNames = count(rs)
-        return indxNames
+    def 'test partitioning handling'() {
+        given: 'there is no study'
+        ensureTestStudyUnloaded()
+        Options options = new Options()
+        options.addOption(new Option('d', 'directory', true, ''))
+        options.addOption(new Option('p', 'partition', false, ''))
+        options.addOption(new Option('D', 'delete', true, ''))
+        Set<Table> childTablesBefore = copy.database.getChildTables(Observations.table)
+
+        when: 'loading data with partitioning'
+        CommandLine cli1 = new DefaultParser()
+                .parse(options, ['--directory', STUDY_FOLDER, '--partition'] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+        Set<Table> childTablesAfterLoad = copy.database.getChildTables(Observations.table)
+        then: 'partitions created'
+        def addedChildTables = (childTablesAfterLoad - childTablesBefore)
+        addedChildTables.size() == 2
+        getTestStudyDbIdentifier()
+        copy.database.indexesForTable(addedChildTables[0]).size() == 4
+        copy.database.indexesForTable(addedChildTables[1]).size() == 4
+
+        when:
+        CommandLine cli2 = new DefaultParser()
+                .parse(options, ['--delete', TEST_STUDY] as String[])
+        Copy.runCopy(cli2, DATABASE_CREDENTIALS)
+        then:
+        copy.database.getChildTables(Observations.table) == childTablesBefore
+        noTestStudyInDb()
+
+        cleanup:
+        addedChildTables.each { Table table -> copy.database.dropTable(table, true) }
     }
 
     Number getTestStudyDbIdentifier() {
