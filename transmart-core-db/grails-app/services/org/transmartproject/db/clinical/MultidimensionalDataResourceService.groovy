@@ -161,8 +161,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
-    private Query buildCriteria(Set<DimensionImpl> dimensions,
-                                       ImmutableMap<DimensionImpl,SortOrder> orderDims) {
+    private Query buildCriteria(Set<DimensionImpl> dimensions, ImmutableMap<DimensionImpl,SortOrder> orderDims) {
         def nonSortableDimensions = orderDims.keySet().findAll { !(it instanceof AliasAwareDimension) }
         if (nonSortableDimensions) throw new InvalidArgumentsException("Sorting over these dimensions is not " +
                 "supported: " + nonSortableDimensions.collect {it.name}.join(','))

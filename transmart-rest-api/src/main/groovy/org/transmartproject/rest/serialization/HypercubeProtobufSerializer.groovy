@@ -10,6 +10,8 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Error
+import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.rest.hypercubeProto.ObservationsProto.SortOrder as ProtoSortOrder
 
 import javax.annotation.Nonnull
 
@@ -63,6 +65,15 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         Header.newBuilder().with {
             addAllDimensionDeclarations(dimensionsDefs)
             if(!iterator.hasNext()) last = true
+
+            for(Map.Entry<Dimension, SortOrder> entry : cube.sortOrder) {
+                addSort(Sort.newBuilder().with {
+                    setDimensionIndex(cube.dimensions.indexOf(entry.key))
+                    setField(0)
+                    setSortOrder(entry.value == SortOrder.DESC ? ProtoSortOrder.DESC : ProtoSortOrder.ASC)
+                    build()
+                })
+            }
             build()
         }
     }
