@@ -19,28 +19,37 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import groovy.transform.InheritConstructors
 import org.hibernate.ScrollableResults
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
 class DefaultHighDimensionTabularResultSpec extends Specification {
 
+    @InheritConstructors
+    static class TestDefaultHighDimensionTabularResult extends DefaultHighDimensionTabularResult {
+        boolean inSameGroup(a, b) { false }
+        ColumnOrderAwareDataRow finalizeGroup(List<Object[]> l) { null }
+
+    }
+
     void testEquals() {
-        def a = new DefaultHighDimensionTabularResult(closeSession: false),
-            b = new DefaultHighDimensionTabularResult(closeSession: false)
+        def a = new TestDefaultHighDimensionTabularResult(closeSession: false),
+            b = new TestDefaultHighDimensionTabularResult(closeSession: false)
 
         /* to avoid warning */
         a.close()
         b.close()
 
         expect:
-        a is(not(equalTo(b)))
+        a != b
     }
 
     void testEmptyResultSet() {
         ScrollableResults mockedResults = Mock(ScrollableResults)
-        def testee = new DefaultHighDimensionTabularResult(
+        def testee = new TestDefaultHighDimensionTabularResult(
                 results: mockedResults,
                 closeSession: false)
 

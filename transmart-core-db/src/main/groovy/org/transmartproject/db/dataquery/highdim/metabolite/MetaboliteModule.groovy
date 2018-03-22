@@ -38,8 +38,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealPr
 
 import javax.annotation.PostConstruct
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
-
 class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'metabolite'
@@ -139,23 +137,29 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
                                    Projection projection) {
         Map assayIndexes = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<MetaboliteDataRow>(
                 rowsDimensionLabel:    'Metabolites',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.annotationId == b.annotationId },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
-                    def firstNonNullCell = list.find()
+                allowMissingAssays:    true
+            ) {
+                @Override
+                def assayIdFromRow(Object[] row) { row[0].assayId }
+
+                @Override
+                boolean inSameGroup(a, b) { a.annotationId == b.annotationId }
+
+                @Override
+                MetaboliteDataRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
+                    Map firstNonNullCell = (Map) list.find()[0]
                     new MetaboliteDataRow(
-                            biochemicalName: firstNonNullCell[0].biochemicalName,
-                            hmdbId:          firstNonNullCell[0].hmdbId,
+                            biochemicalName: firstNonNullCell.biochemicalName,
+                            hmdbId:          firstNonNullCell.hmdbId,
                             assayIndexMap:   assayIndexes,
-                            data:            list.collect { projection.doWithResult it?.getAt(0) }
+                            data:            doWithProjection(projection, list)
                     )
                 }
-        )
+            }
     }
 }

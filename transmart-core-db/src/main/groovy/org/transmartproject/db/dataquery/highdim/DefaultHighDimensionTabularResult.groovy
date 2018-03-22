@@ -20,14 +20,17 @@
 package org.transmartproject.db.dataquery.highdim
 
 import groovy.transform.CompileStatic
+import groovy.transform.InheritConstructors
 import groovy.transform.ToString
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.CollectingTabularResult
 
 @CompileStatic
+@InheritConstructors
 @ToString
-class DefaultHighDimensionTabularResult<R extends ColumnOrderAwareDataRow>
+abstract class DefaultHighDimensionTabularResult<R extends ColumnOrderAwareDataRow>
         extends CollectingTabularResult<AssayColumn, R> {
 
     final String columnEntityName = 'assay'
@@ -37,7 +40,20 @@ class DefaultHighDimensionTabularResult<R extends ColumnOrderAwareDataRow>
         allowMissingColumns = value
     }
 
-    public void setAssayIdFromRow(Closure<Object> value) {
-        columnIdFromRow = value
+    Object assayIdFromRow(Object[] row) {
+        throw new UnsupportedOperationException("not implemented")
+    }
+
+    @Override
+    protected Object columnIdFromRow(Object[] row) {
+        assayIdFromRow(row)
+    }
+
+    static List doWithProjection(Projection projection, List<Object[]> data) {
+        List result = []
+        for(Object[] d : data) {
+            result.add projection.doWithResult(d ? d[0] : null)
+        }
+        result
     }
 }

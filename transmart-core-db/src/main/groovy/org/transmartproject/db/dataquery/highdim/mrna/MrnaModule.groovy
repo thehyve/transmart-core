@@ -93,6 +93,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
+    @CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                      List<AssayColumn> assays,
                                      Projection projection) {
@@ -100,27 +101,37 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        def preliminaryResult = new DefaultHighDimensionTabularResult(
+        def preliminaryResult = new DefaultHighDimensionTabularResult<ProbeRow>(
                 rowsDimensionLabel:    'Probes',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.probeId == b.probeId && a.geneSymbol == b.geneSymbol },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
+                allowMissingAssays:    true
+            ) {
+                @Override
+                def assayIdFromRow(Object[] row) { row[0].assayId }
+
+                @Override
+                boolean inSameGroup(a, b) {a.probeId == b.probeId && a.geneSymbol == b.geneSymbol }
+
+                @Override
+                ProbeRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
+                    List data = []
+                    for (Object[] e : list) {
+                        data.add projection.doWithResult(e ? e[0] : null)
+                    }
                     /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
-                    def firstNonNullCell = list.find()
+                    Map firstNonNullCell = (Map) list.find()[0]
                     new ProbeRow(
-                            probe:         firstNonNullCell[0].probeName,
-                            geneSymbol:    firstNonNullCell[0].geneSymbol,
-                            geneId:        firstNonNullCell[0].geneId,
+                            probe:         firstNonNullCell.probeName,
+                            geneSymbol:    firstNonNullCell.geneSymbol,
+                            geneId:        firstNonNullCell.geneId,
                             assayIndexMap: assayIndexMap,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
+                            data:          data,
                     )
                 }
-        )
+        }
 
         /* In some implementations, probeset_id is actually not a primary key on
          * the annotations table and several rows will be returned for the same
@@ -137,7 +148,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                             assayIndexMap: collectedList[0].assayIndexMap,
                             data: collectedList[0].data
                     )
-                }
+                } else {null}
             }
         }
     }

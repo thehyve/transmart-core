@@ -57,6 +57,18 @@ class TerminalClinicalVariablesTabularResult extends
 
     final String variableGroup
 
+    @Override
+    boolean inSameGroup(a, b) {
+        Object[] row1 = (Object[]) a
+        Object[] row2 = (Object[]) b
+        row1[PATIENT_NUM_COLUMN_INDEX] == row2[PATIENT_NUM_COLUMN_INDEX]
+    }
+
+    @Override
+    Object columnIdFromRow(Object[] row) {
+        row[CODE_COLUMN_INDEX]
+    }
+
     TerminalClinicalVariablesTabularResult(ScrollableResults results,
                                            List<TerminalClinicalVariable> indicesList) {
         this.results = results
@@ -90,16 +102,6 @@ class TerminalClinicalVariablesTabularResult extends
         // addToCollectedEntries() and just adds the row to the list
         allowMissingColumns = false
 
-        columnIdFromRow = { Object[] row ->
-            row[CODE_COLUMN_INDEX]
-        }
-        inSameGroup = { Object[] row1,
-                        Object[] row2 ->
-            row1[PATIENT_NUM_COLUMN_INDEX] == row2[PATIENT_NUM_COLUMN_INDEX]
-        }
-
-        finalizeGroup = this.&finalizePatientGroup
-
         /* session is managed outside, in ClinicalDataTabularResult */
         closeSession = false
     }
@@ -107,31 +109,34 @@ class TerminalClinicalVariablesTabularResult extends
 
     final String columnEntityName = 'concept'
 
-    //@Override
-    protected Object getIndexObjectId(TerminalConceptVariable object) {
-        object.conceptCode
+    @Override
+    protected Object getIndexObjectId(TerminalClinicalVariable object) {
+        if (object instanceof TerminalConceptVariable) {
+            return object.conceptCode
+        }
+        super.getIndexObjectId(object)
     }
 
+    @Override
     protected void finalizeCollectedEntries(ArrayList collectedEntries) {
         /* nothing to do here. All the logic in finalizePatientGroup */
     }
 
-    private PatientIdAnnotatedDataRow finalizePatientGroup(List<Object[]> list) {
+    @Override
+    protected PatientIdAnnotatedDataRow finalizeGroup(List l) {
+        List<Object[]> list = l
+
         Map<Integer, TerminalClinicalVariable> indexToColumn = localIndexMap.inverse()
 
         Object[] transformedData = new Object[localIndexMap.size()]
 
-        /* don't take Object[] otherwise would be vararg func and
-         * further unwrapping needed */
-        list.each { rawRowUntyped ->
-            /* array with 5 elements */
-            if (!rawRowUntyped) {
-                return
+        for (Object[] /* array with 5 elements */ rawRow : list) {
+            if (!rawRow) {
+                continue
             }
-            Object[] rawRow = (Object[])rawRowUntyped
 
             /* find out the position of this concept in the final result */
-            Integer index = codeToIndex[rawRow[CODE_COLUMN_INDEX] as String]
+            Integer index = codeToIndex[rawRow[CODE_COLUMN_INDEX].toString()]
             if (index == null) {
                 throw new IllegalStateException("Unexpected concept code " +
                         "'${rawRow[CODE_COLUMN_INDEX]}' at this point; " +

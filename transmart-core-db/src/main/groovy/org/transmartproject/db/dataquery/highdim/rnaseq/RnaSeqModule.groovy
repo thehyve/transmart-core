@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -161,6 +162,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
+    @CompileStatic
     @Override
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
@@ -169,44 +171,50 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<RegionRowImpl>(
                 rowsDimensionLabel:    'Regions',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.id == b.id }, // same region id //
-                finalizeGroup:         { List list ->
-                        if (list.size() != assays.size()) {
-                            throw new UnexpectedResultException(
-                                    "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
-                        }
-                        def firstNonNullCell = list.find()[0]
-                        new RegionRowImpl(
-                                id:             firstNonNullCell.id,
-                                name:           firstNonNullCell.name,
-                                cytoband:       firstNonNullCell.cytoband,
-                                chromosome:     firstNonNullCell.chromosome,
-                                start:          firstNonNullCell.start,
-                                end:            firstNonNullCell.end,
-                                numberOfProbes: firstNonNullCell.numberOfProbes,
-                                bioMarker:      firstNonNullCell.geneSymbol,
-                                platform: new PlatformImpl(
-                                        id:              firstNonNullCell.platformId,
-                                        title:           firstNonNullCell.platformTitle,
-                                        organism:        firstNonNullCell.platformOrganism,
-                                        //It converts timestamp to date
-                                        annotationDate:  firstNonNullCell.platformAnnotationDate ?
-                                                new Date(firstNonNullCell.platformAnnotationDate.getTime())
-                                                : null,
-                                        markerType:      firstNonNullCell.platformMarkerType,
-                                        genomeReleaseId: firstNonNullCell.platformGenomeReleaseId
-                                ),
-                                assayIndexMap:  assayIndexMap,
-                                data:           list.collect { projection.doWithResult it?.getAt(0) }
-                        )
+            ) {
+            @Override
+            def assayIdFromRow(Object[] row) { row[0].assayId }
+
+            @Override
+            boolean inSameGroup(a, b) { a.id == b.id } // same region id //
+
+            @Override
+            RegionRowImpl finalizeGroup(List<Object[]> list) {
+                if (list.size() != assays.size()) {
+                    throw new UnexpectedResultException(
+                            "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                 }
-        )
+                Map firstNonNullCell = (Map) list.find()[0]
+                new RegionRowImpl(
+                        id: firstNonNullCell.id,
+                        name: firstNonNullCell.name,
+                        cytoband: firstNonNullCell.cytoband,
+                        chromosome: firstNonNullCell.chromosome,
+                        start: firstNonNullCell.start,
+                        end: firstNonNullCell.end,
+                        numberOfProbes: firstNonNullCell.numberOfProbes,
+                        bioMarker: firstNonNullCell.geneSymbol,
+                        platform: new PlatformImpl(
+                                id: firstNonNullCell.platformId,
+                                title: firstNonNullCell.platformTitle,
+                                organism: firstNonNullCell.platformOrganism,
+                                //It converts timestamp to date
+                                annotationDate: firstNonNullCell.platformAnnotationDate ?
+                                        new Date(((Date) firstNonNullCell.platformAnnotationDate).getTime())
+                                        : null,
+                                markerType: firstNonNullCell.platformMarkerType,
+                                genomeReleaseId: firstNonNullCell.platformGenomeReleaseId
+                        ),
+                        assayIndexMap: assayIndexMap,
+                        data: doWithProjection(projection, list)
+                )
+            }
+        }
     }
 }

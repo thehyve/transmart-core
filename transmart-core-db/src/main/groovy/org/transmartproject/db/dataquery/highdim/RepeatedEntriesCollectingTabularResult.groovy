@@ -29,12 +29,12 @@ import org.transmartproject.core.dataquery.TabularResult
 @CompileStatic
 abstract class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> implements TabularResult<DataColumn, T> {
 
-    RepeatedEntriesCollectingTabularResult(TabularResult<DataColumn, T> tr) {
+    RepeatedEntriesCollectingTabularResult(TabularResult<? extends DataColumn, T> tr) {
         tabularResult = tr
     }
 
     @Delegate
-    TabularResult<DataColumn, T> tabularResult
+    TabularResult<? extends DataColumn, T> tabularResult
 
     def collectBy(T it) { it }
 

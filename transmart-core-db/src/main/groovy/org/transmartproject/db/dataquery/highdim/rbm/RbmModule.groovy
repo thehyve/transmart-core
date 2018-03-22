@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.rbm
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -108,31 +109,38 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
+    @CompileStatic
     @Override
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
         Map assayIndexes = createAssayIndexMap assays
 
-        def preliminaryResult = new DefaultHighDimensionTabularResult(
+        def preliminaryResult = new DefaultHighDimensionTabularResult<RbmRow>(
                 rowsDimensionLabel: 'Antigenes',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
                 results: results,
                 //TODO Remove this. On real data missing assays are signaling about problems
                 allowMissingAssays: true,
-                assayIdFromRow: { it[0].assayId },
-                inSameGroup: {a, b -> a.annotationId == b.annotationId && a.uniprotId == b.uniprotId },
-                finalizeGroup: {List list ->
-                    def firstNonNullCell = list.find()
+            ) {
+                @Override
+                def assayIdFromRow(Object[] row) { row[0].assayId }
+
+                @Override
+                boolean inSameGroup(a, b) { a.annotationId == b.annotationId && a.uniprotId == b.uniprotId }
+
+                @Override
+                RbmRow finalizeGroup(List<Object[]> list) {
+                    Map firstNonNullCell = (Map) list.find()[0]
                     new RbmRow(
-                            annotationId:  firstNonNullCell[0].annotationId,
-                            antigenName:   firstNonNullCell[0].antigenName,
-                            unit:          firstNonNullCell[0].unit,
-                            uniprotName:   firstNonNullCell[0].uniprotName,
+                            annotationId:  firstNonNullCell.annotationId,
+                            antigenName:   firstNonNullCell.antigenName,
+                            unit:          firstNonNullCell.unit,
+                            uniprotName:   firstNonNullCell.uniprotName,
                             assayIndexMap: assayIndexes,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
+                            data:          doWithProjection(projection, list)
                     )
                 }
-        )
+        }
 
         new RepeatedEntriesCollectingTabularResult<RbmRow>(preliminaryResult) {
             @Override

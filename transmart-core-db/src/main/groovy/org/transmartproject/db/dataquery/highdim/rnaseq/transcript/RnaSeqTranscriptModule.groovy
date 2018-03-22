@@ -129,16 +129,22 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
 
         Map assayIndexMap = createAssayIndexMap(assays)
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<RegionRowImpl>(
                 rowsDimensionLabel: "Transcripts",
                 columnsDimensionLabel: "Sample codes",
                 indicesList: assays,
                 results: results,
                 allowMissingAssays: true,
-                assayIdFromRow: { it[0].assayId },
-                inSameGroup: { a, b -> a.transcript == b.transcript },
-                finalizeGroup: { List list ->
-                    def firstRow = list.find()[0]
+            ) {
+                @Override
+                def assayIdFromRow(Object[] row) { row[0].assayId }
+
+                @Override
+                boolean inSameGroup(a, b) { a.transcript == b.transcript }
+
+                @Override
+                RegionRowImpl finalizeGroup(List<Object[]> list) {
+                    Map firstRow = (Map) list.find()[0]
                     new RegionRowImpl(
                             id: firstRow.id,
                             chromosome: firstRow.chromosome,
@@ -152,9 +158,9 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
 
                             ),
                             assayIndexMap: assayIndexMap,
-                            data: list.collect { projection.doWithResult(it?.getAt(0)) }
+                            data: doWithProjection(projection, list)
                     )
                 }
-        )
+        }
     }
 }

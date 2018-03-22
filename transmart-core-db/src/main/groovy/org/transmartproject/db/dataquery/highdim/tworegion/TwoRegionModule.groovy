@@ -4,6 +4,7 @@ package org.transmartproject.db.dataquery.highdim.tworegion
 
 import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -96,6 +97,7 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
+    @CompileStatic
     @Override
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
 
@@ -112,44 +114,56 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
                 results: results,
-                inSameGroup: { a, b -> a.junction.id == b.junction.id },
-                allowMissingColumns: false,
-                finalizeGroup : { List<Map<String, List<Object>>> rows ->
-                    // should be the same in all rows:
-                    DeTwoRegionJunction junction = rows[0].junction[0]
+                allowMissingColumns: false
+            ) {
+            @Override
+            boolean inSameGroup(a, b) { a.junction.id == b.junction.id }
 
-                    List<DeTwoRegionJunctionEvent> allJunctionEvents = rows
-                            .collect { it.junctionEvents[0] }
-                            .findAll()
+            private void addIf(List list, e) {
+                if (e) list.add(e)
+            }
 
-                    List<DeTwoRegionEvent> allEvents = rows
-                            .collect { it.event[0] }
-                            .findAll()
+            @Override
+            JunctionRow finalizeGroup(List r) {
+                List<Map<String, List>> rows = r
+                // should be the same in all rows:
+                DeTwoRegionJunction junction = (DeTwoRegionJunction) rows[0].junction[0]
 
-                    List<DeTwoRegionEventGene> allEventGenes = rows
-                            .collect { it.eventGenes[0] }
-                            .findAll()
-
-                    // Assign junction events to junction
-                    junction.junctionEvents = allJunctionEvents as Set
-
-                    // Assign events to junction events
-                    allJunctionEvents.each { DeTwoRegionJunctionEvent je ->
-                        je.event = allEvents.find { it.id == je.event.id }
-                    }
-
-                    // Assign event genes to events
-                    allEvents.each { DeTwoRegionEvent event ->
-                        event.eventGenes = allEventGenes
-                                .findAll { it.event.id == event.id } as Set
-                    }
-
-                    Long assayId = rows.first().assay[0].id
-                    new JunctionRow(assayIdToAssayColumn[assayId],
-                            assayIdToAssayIndex[assayId],
-                            assays.size(),
-                            junction)
+                List<DeTwoRegionJunctionEvent> allJunctionEvents = []
+                for (Map<String, List> row : rows) {
+                    addIf(allJunctionEvents, row.junctionEvents[0])
                 }
-        )
+
+                List<DeTwoRegionEvent> allEvents = []
+                for (Map<String, List> row : rows) {
+                    addIf(allEvents, row.event[0])
+                }
+
+                List<DeTwoRegionEventGene> allEventGenes = []
+                for (Map<String, List> row : rows) {
+                    addIf(allEventGenes, row.eventGenes[0])
+                }
+
+                // Assign junction events to junction
+                junction.junctionEvents = allJunctionEvents as Set
+
+                // Assign events to junction events
+                allJunctionEvents.each { DeTwoRegionJunctionEvent je ->
+                    je.event = allEvents.find { it.id == je.event.id }
+                }
+
+                // Assign event genes to events
+                allEvents.each { DeTwoRegionEvent event ->
+                    event.eventGenes = allEventGenes
+                            .findAll { it.event.id == event.id } as Set
+                }
+
+                Long assayId = rows.first().assay[0].id
+                new JunctionRow(assayIdToAssayColumn[assayId],
+                        assayIdToAssayIndex[assayId],
+                        assays.size(),
+                        junction)
+            }
+        }
     }
 }

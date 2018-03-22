@@ -41,8 +41,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
-
 class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     static final String ACGH_VALUES_PROJECTION = 'acgh_values'
@@ -162,18 +160,22 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<RegionRowImpl>(
                 rowsDimensionLabel: 'Regions',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
-                results: results,
-                inSameGroup: { a, b -> a.id == b.id },
-                finalizeGroup: { List list -> /* list of arrays with 15 elements (1/projection) */
+                results: results
+            ) {
+                @Override
+                boolean inSameGroup(a, b) { a.id == b.id }
+
+                @Override
+                RegionRowImpl finalizeGroup(List<Object[]> list /* list of arrays with 15 elements (1/projection) */) {
                     if (list.size() != assays.size()) {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def cell = list.find()[0]
+                    Map cell = (Map) list.find()[0]
                     def regionRow = new RegionRowImpl(
                             id: cell.id,
                             name: cell.name,
@@ -189,7 +191,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                                     organism:        cell.platformOrganism,
                                     //It converts timestamp to date
                                     annotationDate:  cell.platformAnnotationDate ?
-                                            new Date(cell.platformAnnotationDate.getTime())
+                                            new Date(((Date) cell.platformAnnotationDate).getTime())
                                             : null,
                                     markerType:      cell.platformMarkerType,
                                     genomeReleaseId: cell.platformGenomeReleaseId
@@ -197,11 +199,9 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
                             assayIndexMap: assayIndexMap
                     )
-                    regionRow.data = list.collect {
-                        projection.doWithResult(it?.getAt(0))
-                    }
+                    regionRow.data = doWithProjection(projection, list)
                     regionRow
                 }
-        )
+            }
     }
 }

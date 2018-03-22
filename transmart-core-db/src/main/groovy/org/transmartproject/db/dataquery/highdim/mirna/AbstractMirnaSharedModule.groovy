@@ -126,23 +126,29 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
 
         Map assayIndexes = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<MirnaProbeRow>(
                 rowsDimensionLabel:    'Probes',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.probeId == b.probeId },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
-                    def firstNonNullCell = list.find()
+            ) {
+                @Override
+                def assayIdFromRow(Object[] row) { row[0].assayId }
+
+                @Override
+                boolean inSameGroup(a, b) { a.probeId == b.probeId }
+
+                @Override
+                MirnaProbeRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
+                    Map firstNonNullCell = (Map) list.find()[0]
                     new MirnaProbeRow(
-                            probeId:       firstNonNullCell[0].probeId,
-                            mirnaId:       firstNonNullCell[0].mirna,
+                            probeId:       firstNonNullCell.probeId,
+                            mirnaId:       firstNonNullCell.mirna,
                             assayIndexMap: assayIndexes,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
+                            data:          doWithProjection(projection, list)
                     )
                 }
-        )
+        }
     }
 }

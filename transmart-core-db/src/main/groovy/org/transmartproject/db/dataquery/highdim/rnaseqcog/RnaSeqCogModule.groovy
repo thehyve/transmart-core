@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -90,29 +91,36 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
+    @CompileStatic
     @Override
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
         Map assayIndexMap = createAssayIndexMap assays
 
-        def preliminaryResult = new DefaultHighDimensionTabularResult(
+        def preliminaryResult = new DefaultHighDimensionTabularResult<RnaSeqCogDataRow>(
                 rowsDimensionLabel: 'Transcripts',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
                 results: results,
                 allowMissingAssays: true,
-                assayIdFromRow: { it[0].assayId },
-                inSameGroup: { a, b -> a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol },
-                finalizeGroup: { List list -> /* list of arrays with one element: a map */
-                    def firstNonNullCell = list.find()
+            ) {
+                @Override
+                def assayIdFromRow(Object[] row) { row[0].assayId }
+
+                @Override
+                boolean inSameGroup(a, b) { a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol }
+
+                @Override
+                RnaSeqCogDataRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
+                    Map firstNonNullCell = (Map) list.find()[0]
                     new RnaSeqCogDataRow(
-                            annotationId: firstNonNullCell[0].annotationId,
-                            geneSymbol: firstNonNullCell[0].geneSymbol,
-                            geneId: firstNonNullCell[0].geneId,
+                            annotationId: firstNonNullCell.annotationId,
+                            geneSymbol: firstNonNullCell.geneSymbol,
+                            geneId: firstNonNullCell.geneId,
                             assayIndexMap: assayIndexMap,
-                            data: list.collect { projection.doWithResult it?.getAt(0) }
+                            data: doWithProjection(projection, list)
                     )
                 }
-        )
+        }
 
         new RepeatedEntriesCollectingTabularResult<RnaSeqCogDataRow>(preliminaryResult) {
             @Override

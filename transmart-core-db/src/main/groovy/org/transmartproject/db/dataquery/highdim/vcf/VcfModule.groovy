@@ -163,47 +163,52 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<VcfDataRow>(
                 rowsDimensionLabel:    'Regions',
                 columnsDimensionLabel: 'Sample codes',
                 allowMissingAssays:    true,
                 indicesList:           assays,
                 results:               results,
-                assayIdFromRow:        { it[0].assayId } ,
-                inSameGroup:           { a, b -> a[0].chr == b[0].chr && a[0].pos == b[0].pos && a[0].rsId == b[0].rsId },
-                finalizeGroup:         { List list -> /* list of all the results belonging to a group defined by inSameGroup */
+            ) {
+                @Override
+                def assayIdFromRow(Object[] row) { row[0].assayId }
+
+                @Override
+                boolean inSameGroup(a, b) { a[0].chr == b[0].chr && a[0].pos == b[0].pos && a[0].rsId == b[0].rsId }
+
+                @Override
+                VcfDataRow finalizeGroup(List<Object[]> list) {
+                    /* list of all the results belonging to a group defined by inSameGroup */
                     /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
-                     *, but we're guaranteed to have at least one non-null */
-                    def firstNonNullCell = list.find()
+                     * but we're guaranteed to have at least one non-null */
+                    Map firstNonNullCell = (Map) list.find()[0]
                     new VcfDataRow(
-                            datasetId: firstNonNullCell[0].dataset_id,
-                            
+                            datasetId: firstNonNullCell.dataset_id,
+
                             // Chromosome to define the position
-                            chromosome: firstNonNullCell[0].chr,
-                            position: firstNonNullCell[0].pos,
-                            rsId: firstNonNullCell[0].rsId,
+                            chromosome: firstNonNullCell.chr,
+                            position: firstNonNullCell.pos,
+                            rsId: firstNonNullCell.rsId,
 
                             // Reference and alternatives for this position
-                            referenceAllele: firstNonNullCell[0].ref,
-                            alternatives: firstNonNullCell[0].alt,
-                            reference: firstNonNullCell[0].reference,
+                            referenceAllele: firstNonNullCell.ref,
+                            alternatives: firstNonNullCell.alt,
+                            reference: firstNonNullCell.reference,
 
                             // Study level properties
-                            quality: firstNonNullCell[0].quality,
-                            filter: firstNonNullCell[0].filter,
-                            info:  firstNonNullCell[0].info,
-                            format: firstNonNullCell[0].format,
-                            variants: firstNonNullCell[0].variants,
+                            quality: firstNonNullCell.quality,
+                            filter: firstNonNullCell.filter,
+                            info:  firstNonNullCell.info,
+                            format: firstNonNullCell.format,
+                            variants: firstNonNullCell.variants,
 
-                            geneName: firstNonNullCell[0].geneName,
+                            geneName: firstNonNullCell.geneName,
 
                             assayIndexMap: assayIndexMap,
-                            data: list.collect {
-                                projection.doWithResult it?.getAt(0)
-                            }
+                            data: doWithProjection(projection, list)
                     )
                 }
-        )
+        }
     }
 }
