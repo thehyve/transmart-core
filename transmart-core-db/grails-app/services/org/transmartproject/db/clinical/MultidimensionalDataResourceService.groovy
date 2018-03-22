@@ -86,17 +86,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     /**
-     * @param user: The current user.
-     * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
-     * the appropriate identifier string (hdd is not yet implemented).
-     * @param constraints: (nullable) A list of Constraint-s. If null, selects all the data in the database.
-     * @param dimensions: (nullable) A list of Dimension-s to select. Only dimensions valid for the selected studies
-     * will actually be applied. If null, select all available dimensions.
-     * @param sort: (nullable) Either a list of dimensions, or a LinkedHashMap of dimensions to "asc" or "desc".
-     * Dimensions can be either dimension objects or their string names. Note: allowed sortings are limited if
-     * modifier dimensions are used.
-     *
-     * @return a Hypercube result
+     * See the documentation for {@link MultiDimensionalDataResource#retrieveData}
      */
     @Override HypercubeImpl retrieveData(Map args, String dataType, User user) {
         // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
@@ -126,11 +116,18 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         new HypercubeImpl(dimensions, query)
     }
 
-    private static Map parseSort(sort) {
+    /**
+     * @param sort is either an ordered map of dimension -> sort order, or a list where each item is either a
+     * dimension or a two-item list [dimension, sort order]. A dimension is either a Dimension object or a string
+     * with the dimension's name. A sort order is either a member of the SortOrder enum, or a string 'asc' or 'desc'
+     * (case insensitive).
+     * @return An ordered Map<DimensionImpl, SortOrder>
+     */
+    private static Map<DimensionImpl, SortOrder> parseSort(sort) {
         if (sort == null) {
             [:]
         } else if (sort instanceof Map) {
-            sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] }
+            (Map) sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] }
         } else if (sort instanceof List) {
             sort.collectEntries {
                 it instanceof List ?
@@ -299,14 +296,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
     }
 
-    /**
-     * @description Function for getting a list of elements of a specified dimension
-     * that are meeting a specified criteria and the user has access to.
-     *
-     * @param dimensionName
-     * @param user
-     * @param constraint
-     */
     @Override
     IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
         if(constraint) checkAccess(constraint, user)
