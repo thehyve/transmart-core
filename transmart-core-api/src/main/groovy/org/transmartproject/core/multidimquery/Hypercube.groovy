@@ -2,7 +2,9 @@
 
 package org.transmartproject.core.multidimquery
 
+import com.google.common.collect.ImmutableMap
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.dataquery.SortOrder
 
 /**
  * The Hypercube represents data as a multidimensional data cube. The primary interface is the iterator(), which
@@ -56,4 +58,11 @@ interface Hypercube extends IterableResult<HypercubeValue> {
      * TODO 2: calling this method should not force-load all dimensions, doing that should be a separate call.
      */
     Object dimensionElementKey(Dimension dim, Integer idx)
+
+    /**
+     * An ordered map of Dimension to SortOrder specifying the sort order that was used in this result. The sort
+     * order can include sorting on dimensions that was not requested if that was needed due to implementation concerns.
+     * @return the sort order as an ordered map
+     */
+    ImmutableMap<Dimension, SortOrder> getSortOrder()
 }

@@ -46,7 +46,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                        OutputStream out,
                        Map options = [:]) {
 
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
+        Hypercube hypercube = multiDimService.retrieveClinicalData(options, constraint, user)
 
         try {
             log.info "Writing to format: ${format}"

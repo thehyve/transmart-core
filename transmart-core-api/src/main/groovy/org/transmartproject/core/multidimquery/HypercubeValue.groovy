@@ -46,6 +46,7 @@ interface HypercubeValue {
      *
      * @param dim the dimension
      * @return the dimension element's key value
+     * @throws IllegalArgumentException if dim is not part of this Hypercube
      */
     def getDimKey(Dimension dim)
 

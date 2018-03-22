@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
@@ -20,6 +21,7 @@ import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.serialization.Format
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
+import static org.transmartproject.rest.misc.RequestUtils.parseJson
 
 @Slf4j
 class QueryController extends AbstractQueryController {
@@ -69,16 +71,20 @@ class QueryController extends AbstractQueryController {
      */
     def observations() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint',
+                                         'projection', 'sort'])
 
         if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
         if (args.type == 'clinical') {
-            clinicalObservations(args.constraint)
+            clinicalObservations(args.constraint, args.sort)
         } else {
             if(args.assay_constraint) {
                 response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
+            }
+            if(args.sort) {
+                throw new UnsupportedByDataTypeException("Sorting is currently not supported for high dimensional data")
             }
             highdimObservations(args.type, args.constraint, args.biomarker_constraint, args.projection)
         }
@@ -87,7 +93,7 @@ class QueryController extends AbstractQueryController {
     /**
      * Helper function for retrieving clinical hypercube data
      */
-    private def clinicalObservations(String constraint_text) {
+    private def clinicalObservations(String constraint_text, String sort_text) {
 
         def format = contentFormat
         if (format == Format.NONE) {
@@ -99,10 +105,12 @@ class QueryController extends AbstractQueryController {
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
+        def sort = parseJson(sort_text)
+
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeClinical(format, constraint, user, out, [:])
+            hypercubeDataSerializationService.writeClinical(format, constraint, user, out, [sort: sort])
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {

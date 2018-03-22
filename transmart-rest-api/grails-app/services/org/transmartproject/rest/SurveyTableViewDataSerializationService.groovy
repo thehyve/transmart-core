@@ -77,7 +77,8 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
             Dimension patientDimension) {
         def stopWatch = new StopWatch("[Task ${parameters.task}] Write clinical data")
         stopWatch.start('Retrieve data')
-        def hypercube = multiDimService.retrieveClinicalData(parameters.constraint, parameters.user, [patientDimension])
+        def hypercube = multiDimService.retrieveClinicalData(parameters.constraint, parameters.user,
+                sort: [patientDimension])
         stopWatch.stop()
         def tabularView = new SurveyTableView(columns, hypercube)
         try {

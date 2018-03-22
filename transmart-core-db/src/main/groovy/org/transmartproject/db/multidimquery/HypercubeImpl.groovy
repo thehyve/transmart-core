@@ -8,9 +8,11 @@ import groovy.transform.TupleConstructor
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.CriteriaImpl
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.IndexedArraySet
 
@@ -41,6 +43,7 @@ class HypercubeImpl implements Hypercube {
     protected final ImmutableMap<String, Integer> aliases
     protected final ImmutableList<ModifierDimension> modifierDimensions
     protected final ImmutableList<DimensionImpl> denseDimensions
+    final ImmutableMap<DimensionImpl, SortOrder> sortOrder
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
@@ -51,16 +54,17 @@ class HypercubeImpl implements Hypercube {
     // A map that stores the actual dimension elements once they are loaded
     private Map<Dimension, ImmutableList<Object>> dimensionElements = new HashMap()
 
-    HypercubeImpl(Collection<DimensionImpl> dimensions, CriteriaImpl criteria) {
+    HypercubeImpl(Collection<DimensionImpl> dimensions, Query query) {
         this.dimensions = ImmutableList.copyOf(dimensions)
         this.dimensionsIndex = ImmutableMap.copyOf(this.dimensions.withIndex().collectEntries())
         this.modifierDimensions = ImmutableList.copyOf((Collection) dimensions.findAll { it instanceof ModifierDimension })
         this.denseDimensions = ImmutableList.copyOf(dimensions.findAll { it.density.isDense })
+        this.sortOrder = query.actualSortOrder
 
-        this.criteria = criteria
+        this.criteria = query.criteriaImpl
         //to run the query in the same transaction all the time. e.g. for dimensions elements loading and data receiving.
         this.criteria.session.connection().autoCommit = false
-        this.aliases = ImmutableMap.copyOf(criteria.projection.aliases.toList().withIndex().collectEntries())
+        this.aliases = ImmutableMap.copyOf(this.criteria.projection.aliases.toList().withIndex().collectEntries())
         this.dimensionElementKeys = new HashMap()
     }
 

@@ -652,6 +652,13 @@ var spec = {
             "type": "string"
           },
           {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "type": "string",
+            "description": "json string that specifies the sort order of the observations. Sorting can be done on multiple dimensions. `[\"patient\"]` sorts the observations on the patient dimension, `[\"patient\", \"concept\"]` sorts the observations first on the patient, and then on concept. The sort order is on the 'key' field of the chosen dimension, sorting on arbitrary fields is not yet supported. For patients, this is the `id`, for concepts the `conceptCode`.\nIt is also possible to specify the sort order to be ascending or descending. Use `[['patient', 'asc'], ['concept', 'desc']]` for that to sort the observations on patients first, ascending, and then on concepts descending.\nWhen requesting modifier dimensions, the supported sortings is very limited due to implementation constraints. Sorting support is limited to those dimensions that make up the primary key columns in the `i2b2demodata.observation_fact` table, and a few other supported dimensions. If you request a sort order that is not supported you will receive an HTTP 400 Bad Request error code.\n"
+          },
+          {
             "name": "biomarker_constraint",
             "required": false,
             "in": "query",
@@ -709,6 +716,10 @@ var spec = {
                   "description": "see GET parameters"
                 },
                 "projection": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                },
+                "sort": {
                   "type": "string",
                   "description": "see GET parameters"
                 }

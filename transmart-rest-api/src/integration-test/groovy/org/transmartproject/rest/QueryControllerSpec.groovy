@@ -43,6 +43,41 @@ class QueryControllerSpec extends MarshallerSpec {
         result instanceof Map
     }
 
+    void 'test_sorting'() {
+        def constraint = URLEncoder.encode(([
+                type: 'true',
+        ] as JSON).toString(false), 'UTF-8')
+        log.info "Constraint: $constraint"
+
+        when:
+        def sort = (order == 'asc' ? dimension : [dimension, order])
+        def sortJson = URLEncoder.encode((
+                [sort] as JSON
+        ).toString(false), 'UTF-8')
+        def url = "${baseURL}/$VERSION/observations?type=clinical&" +
+                "constraint=$constraint&" +
+                "sort=$sortJson"
+        log.info "Request URL: ${url}"
+        ResponseEntity<Resource> response = getJson(url)
+        String content = response.body.inputStream.readLines().join('\n')
+
+        then:
+        response.statusCode.value() == 200
+        def result = new JsonSlurper().parseText(content)
+        int dimIndex = result.dimensionDeclarations.findIndexOf { it.name == dimension}
+        dimIndex > 0
+        List elements = result.dimensionElements[dimension]
+        List observationElements = result.cells.collect { elements[it.dimensionIndexes[dimIndex]] }
+        List keys = observationElements*.getAt(dimensionKey)
+        keys == (order == 'asc' ? keys.sort(false) : keys.sort(false).reverse())
+
+        where:
+        dimension | dimensionKey | order
+        'patient' | 'id'         | 'asc'
+        'patient' | 'id'         | 'desc'
+        'concept' | 'conceptCode' | 'asc'
+    }
+
     void 'test invalid constraint'() {
         // invalid constraint with an operator that is not supported for the value type.
         def constraint = [

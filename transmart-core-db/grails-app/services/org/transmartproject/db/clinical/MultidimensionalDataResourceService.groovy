@@ -3,6 +3,7 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import grails.transaction.Transactional
@@ -18,6 +19,7 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -27,6 +29,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
@@ -83,17 +86,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     /**
-     * @param user: The current user.
-     * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
-     * the appropriate identifier string (hdd is not yet implemented).
-     * @param constraints: (nullable) A list of Constraint-s. If null, selects all the data in the database.
-     * @param dimensions: (nullable) A list of Dimension-s to select. Only dimensions valid for the selected studies
-     * will actually be applied. If null, select all available dimensions.
-     *
-     * Not yet implemented:
-     * @param sort
-     *
-     * @return a Hypercube result
+     * See the documentation for {@link MultiDimensionalDataResource#retrieveData}
      */
     @Override HypercubeImpl retrieveData(Map args, String dataType, User user) {
         // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
@@ -108,17 +101,40 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         // only allow valid dimensions
         dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in supportedDimensions } ?: supportedDimensions
 
-        List<DimensionImpl> orderByDimensions = ImmutableList.copyOf(args.sort.collect { toDimensionImpl(it) } ?: [])
-        assert (orderByDimensions - dimensions).empty : 'Some dimensions were not found in this result set to sort by'
+        ImmutableMap<DimensionImpl,SortOrder> orderByDimensions = ImmutableMap.copyOf(parseSort(args.sort))
+        def orphanSortDims = (orderByDimensions.keySet() - dimensions)
+        if (orphanSortDims) throw new InvalidArgumentsException("Requested ordering on dimension(s) " +
+                "${orphanSortDims.collect {it.name}.join(', ')}, which are not part of this query")
 
-        CriteriaImpl hibernateCriteria = buildCriteria(dimensions, orderByDimensions)
+        Query query = buildCriteria(dimensions, orderByDimensions)
         HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user)
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
-        restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
+        restrictionsBuilder.applyToCriteria(query.criteriaImpl, [constraint])
 
         // session will be closed by the Hypercube
-        new HypercubeImpl(dimensions, hibernateCriteria)
+        new HypercubeImpl(dimensions, query)
+    }
+
+    /**
+     * @param sort is either an ordered map of dimension -> sort order, or a list where each item is either a
+     * dimension or a two-item list [dimension, sort order]. A dimension is either a Dimension object or a string
+     * with the dimension's name. A sort order is either a member of the SortOrder enum, or a string 'asc' or 'desc'
+     * (case insensitive).
+     * @return An ordered Map<DimensionImpl, SortOrder>
+     */
+    private static Map<DimensionImpl, SortOrder> parseSort(sort) {
+        if (sort == null) {
+            [:]
+        } else if (sort instanceof Map) {
+            (Map) sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] }
+        } else if (sort instanceof List) {
+            sort.collectEntries {
+                it instanceof List ?
+                        [toDimensionImpl(it[0]), toSortOrder(it[1])] :
+                        [toDimensionImpl(it), SortOrder.ASC]
+            }
+        }
     }
 
     @Memoized
@@ -145,9 +161,12 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
-    private CriteriaImpl buildCriteria(Set<DimensionImpl> dimensions, List<DimensionImpl> orderByDimensions) {
-        def nonSortableDimensions = orderByDimensions.findAll { !(it instanceof AliasAwareDimension) }
-        assert !nonSortableDimensions : 'Sorting over following dimensions is not supported: ' +  nonSortableDimensions
+    private Query buildCriteria(Set<DimensionImpl> dimensions,
+                                       ImmutableMap<DimensionImpl,SortOrder> orderDims) {
+        def nonSortableDimensions = orderDims.keySet().findAll { !(it instanceof AliasAwareDimension) }
+        if (nonSortableDimensions) throw new InvalidArgumentsException("Sorting over these dimensions is not " +
+                "supported: " + nonSortableDimensions.collect {it.name}.join(','))
+        ImmutableMap<AliasAwareDimension, SortOrder> orderByDimensions = (ImmutableMap) orderDims
 
         // We need methods from different interfaces that StatelessSessionImpl implements.
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
@@ -166,13 +185,24 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             }
         }
 
-        Query query = new Query(q, [modifierCodes: ['@']])
+        Query query = new Query(q, [modifierCodes: ['@']], null)
 
         dimensions.each {
             it.selectIDs(query)
         }
-        boolean hasModifiers = dimensions.any { it.implementationType == ImplementationType.MODIFIER }
+
+        def actualSortOrder = [:]
+
+        boolean hasModifiers = dimensions.any { it instanceof ModifierDimension }
         if (hasModifiers) {
+            def nonModifierSortableDimensions = orderByDimensions.keySet().collectMany {
+                (it in modifierSortableDimensions) ? [] : [it.name] }
+            if (nonModifierSortableDimensions) {
+                def modifier = dimensions.findAll {it instanceof ModifierDimension }.collect { it.name }.join(", ")
+                throw new UnsupportedByDataTypeException("Sorting over these dimensions is not supported when querying" +
+                        " $modifier dimensions:" + nonModifierSortableDimensions.join(", "))
+            }
+
             // Make sure all primary key dimension columns are selected, even if they are not part of the result
             primaryKeyDimensions.each {
                 if (!(it in dimensions)) {
@@ -180,35 +210,50 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 }
             }
 
+            Set<AliasAwareDimension> neededPrimaryKeyDimensions = primaryKeyDimensions as Set<AliasAwareDimension>
             q.with {
                 // instanceNum is not a dimension
                 property 'instanceNum', 'instanceNum'
 
-                // Modifier dimension does not implement AliasAwareDimension interface. So it's excluded from the list.
-                (orderByDimensions + primaryKeyDimensions).unique().each { AliasAwareDimension aaDim ->
-                    order aaDim.alias
+                orderByDimensions.each { AliasAwareDimension aaDim, SortOrder so ->
+                    order(aaDim.alias, so.string())
+                    actualSortOrder[aaDim] = so
+                    neededPrimaryKeyDimensions.remove(aaDim)
                 }
-                order 'trialVisit'
+                neededPrimaryKeyDimensions.each {
+                    order it.alias
+                    actualSortOrder[it] = SortOrder.ASC
+                }
+
                 order 'instanceNum'
             }
         } else {
             q.with {
-                orderByDimensions.each { AliasAwareDimension aaDim ->
-                    order aaDim.alias
+                orderByDimensions.each { AliasAwareDimension aaDim, SortOrder so ->
+                    order(aaDim.alias, so.string())
+                    actualSortOrder[aaDim] = so
                 }
             }
         }
+        query.actualSortOrder = ImmutableMap.copyOf(actualSortOrder)
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
         }
 
-        (CriteriaImpl)query.criteria.instance
+        query
     }
 
     static final List<AliasAwareDimension> primaryKeyDimensions = ImmutableList.of(
             // primary key columns excluding modifierCd and instanceNum
             CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME)
+
+    static final List<Dimension> modifierSortableDimensions = ImmutableList.of(
+            // Primary key dimensions plus those on which sorting is compatible with modifiers. This compatibility is
+            // determined at data load time: to be compatible the values in the ObservationFact columns for these
+            // dimensions must be identical for all rows that have the same primary key excluding modifier_cd, in
+            // other words for an ObservationFact value row and its associated modifier rows.
+            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME, /*TRIAL_VISIT, STUDY, END_TIME*/)
 
     private static DimensionImpl toDimensionImpl(dimOrDimName) {
         if(dimOrDimName instanceof DimensionImpl) {
@@ -220,6 +265,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             return dim
         }
         throw new InvalidArgumentsException("dimension $dimOrDimName is not a valid dimension or dimension name")
+    }
+
+    private static SortOrder toSortOrder(it) {
+        if (it instanceof SortOrder) return it
+        try {
+            return SortOrder.valueOf(((String) it).toUpperCase())
+        } catch (IllegalArgumentException e) {
+            throw new InvalidArgumentsException("'$it' is not a valid sort order")
+        }
     }
 
     /*
@@ -242,14 +296,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
     }
 
-    /**
-     * @description Function for getting a list of elements of a specified dimension
-     * that are meeting a specified criteria and the user has access to.
-     *
-     * @param dimensionName
-     * @param user
-     * @param constraint
-     */
     @Override
     IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
         if(constraint) checkAccess(constraint, user)
@@ -636,11 +682,16 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    Hypercube retrieveClinicalData(Constraint constraint, User user, List<Dimension> orderByDimensions = []) {
+    Hypercube retrieveClinicalData(Constraint constraint, User user) {
+        retrieveClinicalData([:], constraint, user)
+    }
+
+    @Override
+    Hypercube retrieveClinicalData(Map args, Constraint constraint, User user) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
         def dataType = 'clinical'
-        retrieveData(dataType, user, constraint: constraint, sort: orderByDimensions)
+        retrieveData([*:args, constraint: constraint], dataType, user)
     }
 
 }
@@ -649,5 +700,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 class Query {
     HibernateCriteriaBuilder criteria
     Map params
+    ImmutableMap<DimensionImpl,SortOrder> actualSortOrder
+
+    CriteriaImpl getCriteriaImpl() { (CriteriaImpl) criteria.instance }
 }
 
