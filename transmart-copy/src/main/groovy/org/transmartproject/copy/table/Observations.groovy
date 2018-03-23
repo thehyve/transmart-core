@@ -62,27 +62,26 @@ class Observations {
         (maxInstanceNum ?: 0) + 1
     }
 
-    void transformRow(Map<String, Object> row, final int baseInstanceNum) {
+    void transformRow(final Map<String, Object> row, final int baseInstanceNum) {
         // replace patient index with patient num
-        def patientIndex = row.patient_num as int
+        int patientIndex = row.get('patient_num') as int
         if (patientIndex >= patients.indexToPatientNum.size()) {
             throw new IllegalStateException("Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
         }
-        row.patient_num = patients.indexToPatientNum[patientIndex]
-        def trialVisitIndex = row.trial_visit_num as int
+        row.put('patient_num', patients.indexToPatientNum[patientIndex])
+        int trialVisitIndex = row.get('trial_visit_num') as int
         if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
             throw new IllegalStateException("Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
         }
-        row.trial_visit_num = studies.indexToTrialVisitNum[trialVisitIndex]
-        def conceptCode = row.concept_cd as String
+        row.put('trial_visit_num', studies.indexToTrialVisitNum[trialVisitIndex])
+        String conceptCode = (String) row.get('concept_cd')
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new IllegalStateException("Unknown concept code: ${conceptCode}")
         }
-        def instanceIndex = row.instance_num as int
-        row.instance_num = baseInstanceNum + instanceIndex
-        def startDate = row.start_date
-        if (!startDate) {
-            row.start_date = emptyDate
+        Long instanceIndex = row.get('instance_num') as int
+        row.put('instance_num', baseInstanceNum + instanceIndex)
+        if (!row.get('start_date')) {
+            row.put('start_date', emptyDate)
         }
     }
 
@@ -247,10 +246,19 @@ class Observations {
     }
 
     private void insertBatchToChildTables(List<Map> batch, Map<String, Class> header) {
-        Map<Long, List<Map>> partitionedBatch = batch.groupBy { it['trial_visit_num'] as Long }
-        partitionedBatch.each { Long partition, List<Map> rows ->
-            database.getInserter(getOrCreatePartitionTable(partition), header)
-                    .executeBatch(rows.toArray() as Map[])
+        Map<Long, List<Map>> groupedByTrialVisitNumsRows = new HashMap<>()
+        for (Map row : batch) {
+            Long trialVisitNum = (Long) row.get('trial_visit_num')
+            if (groupedByTrialVisitNumsRows.containsKey(trialVisitNum)) {
+                groupedByTrialVisitNumsRows.get(trialVisitNum).add(row)
+            } else {
+                groupedByTrialVisitNumsRows.put(trialVisitNum, [row])
+            }
+        }
+        for (Map.Entry<Long, List<Map>> childRows : groupedByTrialVisitNumsRows) {
+            def childTable = getOrCreatePartitionTable(childRows.key)
+            database.getInserter(childTable, header)
+                    .executeBatch(childRows.value.toArray() as Map[])
         }
     }
 
