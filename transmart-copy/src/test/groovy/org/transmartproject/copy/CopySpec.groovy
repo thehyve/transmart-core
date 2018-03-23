@@ -206,6 +206,7 @@ class CopySpec extends Specification {
         options.addOption(new Option('d', 'directory', true, ''))
         options.addOption(new Option('p', 'partition', false, ''))
         options.addOption(new Option('D', 'delete', true, ''))
+        options.addOption(new Option('u', 'unlogged', false, ''))
         Set<Table> childTablesBefore = copy.database.getChildTables(Observations.table)
 
         when: 'loading data with partitioning'
@@ -213,17 +214,31 @@ class CopySpec extends Specification {
                 .parse(options, ['--directory', STUDY_FOLDER, '--partition'] as String[])
         Copy.runCopy(cli1, DATABASE_CREDENTIALS)
         Set<Table> childTablesAfterLoad = copy.database.getChildTables(Observations.table)
-        then: 'partitions created'
+        def studyId1 = getTestStudyDbIdentifier()
         def addedChildTables = (childTablesAfterLoad - childTablesBefore)
+
+        then: 'partitions created'
         addedChildTables.size() == 2
-        getTestStudyDbIdentifier()
+        studyId1
         copy.database.indexesForTable(addedChildTables[0]).size() == 3
         copy.database.indexesForTable(addedChildTables[1]).size() == 3
 
-        when:
+        when: 'we reupload data with unlogged flag'
         CommandLine cli2 = new DefaultParser()
-                .parse(options, ['--delete', TEST_STUDY] as String[])
+                .parse(options, ['--directory', STUDY_FOLDER, '--partition', '--unlogged'] as String[])
         Copy.runCopy(cli2, DATABASE_CREDENTIALS)
+        def studyId2 = getTestStudyDbIdentifier()
+        Set<Table> childTablesAfterReupload = copy.database.getChildTables(Observations.table)
+        then:
+        studyId2 != null
+        studyId1 != studyId2
+        childTablesAfterReupload.size() == childTablesAfterLoad.size()
+        childTablesAfterReupload != childTablesAfterLoad
+
+        when:
+        CommandLine cli3 = new DefaultParser()
+                .parse(options, ['--delete', TEST_STUDY] as String[])
+        Copy.runCopy(cli3, DATABASE_CREDENTIALS)
         then:
         copy.database.getChildTables(Observations.table) == childTablesBefore
         noTestStudyInDb()

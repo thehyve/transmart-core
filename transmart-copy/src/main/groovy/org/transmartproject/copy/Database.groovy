@@ -157,7 +157,7 @@ class Database implements AutoCloseable {
 
     final Map<Table, SimpleJdbcInsert> inserters = [:]
 
-    SimpleJdbcInsert getInserter(Table table, Map<String, Class> columns) {
+    SimpleJdbcInsert getInserter(Table table, LinkedHashMap<String, Class> columns) {
         SimpleJdbcInsert inserter = inserters[table]
         if (!inserter) {
             log.debug "Creating inserter for ${table} ..."

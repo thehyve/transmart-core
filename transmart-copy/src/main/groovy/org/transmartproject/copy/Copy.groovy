@@ -29,6 +29,7 @@ class Copy implements AutoCloseable {
         int flushSize
         boolean updateConceptPaths
         boolean partition
+        boolean unlogged
     }
 
     static Options options = new Options()
@@ -72,11 +73,6 @@ class Copy implements AutoCloseable {
     void dropIndexes() {
         def observations = new Observations(database, null, null, null, null)
         observations.dropTableIndexesIfExist()
-    }
-
-    void setLoggedMode(boolean logged) {
-        def observations = new Observations(database, null, null, null, null)
-        observations.setLoggedMode(logged)
     }
 
     void uploadStudy(String rootPath, Config config) {
@@ -188,9 +184,6 @@ class Copy implements AutoCloseable {
                     directory = '.'
                 }
                 copy.deleteStudy(directory, false)
-                if (cl.hasOption('unlogged')) {
-                    copy.setLoggedMode(false)
-                }
                 int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
                 int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
                 def config = new Config(
@@ -199,7 +192,8 @@ class Copy implements AutoCloseable {
                         write: cl.hasOption('write'),
                         outputFile: cl.getOptionValue('write'),
                         updateConceptPaths: cl.hasOption('update-concept-paths'),
-                        partition: cl.hasOption('partition')
+                        partition: cl.hasOption('partition'),
+                        unlogged: cl.hasOption('unlogged'),
                 )
                 def modes = cl.getOptionValues('mode')
                 log.debug("Load modes specified: ${modes}")
@@ -208,9 +202,6 @@ class Copy implements AutoCloseable {
                 }
                 if (!modes || 'study' in modes) {
                     copy.uploadStudy(directory, config)
-                }
-                if (cl.hasOption('unlogged')) {
-                    copy.setLoggedMode(true)
                 }
             }
             if (cl.hasOption('restore-indexes')) {

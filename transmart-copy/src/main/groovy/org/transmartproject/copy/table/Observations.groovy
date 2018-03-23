@@ -35,6 +35,8 @@ class Observations {
     final Concepts concepts
     final Patients patients
 
+    private final Map<Integer, Table> partitionToTable = [:]
+
     Observations(Database database, Studies studies, Concepts concepts, Patients patients, Copy.Config config) {
         this.database = database
         this.config = config
@@ -78,7 +80,7 @@ class Observations {
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new IllegalStateException("Unknown concept code: ${conceptCode}")
         }
-        Long instanceIndex = row.get('instance_num') as int
+        Integer instanceIndex = row.get('instance_num') as Integer
         row.put('instance_num', baseInstanceNum + instanceIndex)
         if (!row.get('start_date')) {
             row.put('start_date', emptyDate)
@@ -92,48 +94,36 @@ class Observations {
     ]
 
     static final Map<String, List> childTableIndexes = [
-            'idx_fact_patient_num'    : ['patient_num'],
-            'idx_fact_concept'        : ['concept_cd'],
+            'idx_fact_patient_num': ['patient_num'],
+            'idx_fact_concept'    : ['concept_cd'],
     ]
 
     static final Map<String, List> nonModifiersTableIndexes = [
             'observation_fact_pct_idx': ['patient_num', 'concept_cd', 'trial_visit_num'],
     ]
 
-    void setLoggedMode(boolean logged) {
-        def tx = database.beginTransaction()
-        log.info "Set 'logged' on ${table} to ${logged}"
-        database.jdbcTemplate.execute("alter table ${table} set ${logged ? 'logged' : 'unlogged'}")
-        database.commit(tx)
-    }
-
     void restoreTableIndexesIfNotExist() {
         createTableIndexesIfNotExistForTable(table)
     }
 
-    private createTableIndexesIfNotExistForTable(Table tbl, Long partition = null) {
-        def tx = database.beginTransaction()
-        log.info "Restore indexes on ${tbl} ..."
-        if (partition == null) {
-            parentTableIndexes.each { name, columns ->
-                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, name, columns))
-            }
-        } else {
-            childTableIndexes.each { name, columns ->
-                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, "${name}_${partition}", columns))
+    void removeObservationsForTrials(Set<Integer> trialVisitNums) {
+        if (!trialVisitNums) {
+            return
+        }
+        Set<Table> posibleCandidateTablesToDrop = trialVisitNums.collect { getChildTable(it) } as Set
+        Set<Table> childTables = database.getChildTables(table)
+        for (Table dropTableCandidate : posibleCandidateTablesToDrop) {
+            if (dropTableCandidate in childTables) {
+                database.dropTable(dropTableCandidate)
+                log.info "${dropTableCandidate} child table has been dropped."
             }
         }
-        //For partitions we still might need trial_visit_num as part of composite index so query could get everything it needs by index only scan.
-        nonModifiersTableIndexes.each { name, columns ->
-            String indexName = partition ? name + '_' + partition : name
-            String createIndexSqlPart = composeCreateIndexSql(tbl, indexName, columns)
-            database.jdbcTemplate.execute("${createIndexSqlPart} where modifier_cd='@'")
-        }
-        database.commit(tx)
-    }
-
-    private static String composeCreateIndexSql(Table table, String name, Iterable<String> columns) {
-        "create index if not exists ${name} on ${table} using btree (${columns.join(', ')})"
+        int observationCount = database.namedParameterJdbcTemplate.update(
+                """delete from ${table} where trial_visit_num in 
+                (:trialVisitNums)""".toString(),
+                [trialVisitNums: trialVisitNums]
+        )
+        log.info "${observationCount} observations deleted from ${table}."
     }
 
     void dropTableIndexesIfExist() {
@@ -167,6 +157,8 @@ class Observations {
         if (config.write) {
             writer = new PrintWriter(config.outputFile)
             tsvWriter = Util.tsvWriter(writer)
+        } else if (!config.partition && config.unlogged) {
+            setLoggedMode(table, false)
         }
 
         // Transform data: replace patient index with patient num,
@@ -203,7 +195,7 @@ class Observations {
                             if (batch.size() == config.batchSize) {
                                 batchCount++
                                 if (config.partition) {
-                                    insertBatchToChildTables(batch, header)
+                                    insertRowsToChildTables(batch, header)
                                 } else {
                                     insert.executeBatch(batch.toArray() as Map[])
                                 }
@@ -224,7 +216,7 @@ class Observations {
                 if (batch.size() > 0) {
                     batchCount++
                     if (config.partition) {
-                        insertBatchToChildTables(batch, header)
+                        insertRowsToChildTables(batch, header)
                     } else {
                         insert.executeBatch(batch.toArray() as Map[])
                     }
@@ -235,72 +227,93 @@ class Observations {
             }
         }
 
-        if (config.partition) {
-            creatParttitionIndexes()
-        }
-        database.commit(tx)
         if (config.write) {
             tsvWriter.close()
+        } else {
+            if (config.partition) {
+                createChildTableIndexes()
+                if (config.unlogged) {
+                    setLoggedModeForAllChildTables()
+                }
+            } else if (config.unlogged) {
+                setLoggedMode(table, true)
+            }
         }
+        database.commit(tx)
         log.info "Done loading observations data."
     }
 
-    private void insertBatchToChildTables(List<Map> batch, Map<String, Class> header) {
-        Map<Long, List<Map>> groupedByTrialVisitNumsRows = new HashMap<>()
-        for (Map row : batch) {
-            Long trialVisitNum = (Long) row.get('trial_visit_num')
+    private void insertRowsToChildTables(List<Map> rows, LinkedHashMap<String, Class> header) {
+        Map<Integer, List<Map>> groupedByTrialVisitNumsRows = new HashMap<>()
+        for (Map row : rows) {
+            Integer trialVisitNum = (Integer) row.get('trial_visit_num')
             if (groupedByTrialVisitNumsRows.containsKey(trialVisitNum)) {
                 groupedByTrialVisitNumsRows.get(trialVisitNum).add(row)
             } else {
                 groupedByTrialVisitNumsRows.put(trialVisitNum, [row])
             }
         }
-        for (Map.Entry<Long, List<Map>> childRows : groupedByTrialVisitNumsRows) {
-            def childTable = getOrCreatePartitionTable(childRows.key)
+        for (Map.Entry<Integer, List<Map>> childRows : groupedByTrialVisitNumsRows) {
+            def childTable = getOrCreateChildTable(childRows.key)
             database.getInserter(childTable, header)
                     .executeBatch(childRows.value.toArray() as Map[])
         }
     }
 
-    Map<Long, Table> partitionToTable = [:]
-
-    private Table getOrCreatePartitionTable(Long trialVisitNum) {
+    private Table getOrCreateChildTable(Integer trialVisitNum) {
         if (partitionToTable.containsKey(trialVisitNum)) {
             return partitionToTable.get(trialVisitNum)
         }
         Table childTable = getChildTable(trialVisitNum)
-        database.jdbcTemplate.execute("CREATE TABLE ${childTable}(check (trial_visit_num = ${trialVisitNum})) INHERITS (${table})")
+        database.jdbcTemplate.execute("CREATE ${config.unlogged ? 'UNLOGGED' : ''} TABLE ${childTable}" +
+                "(check (trial_visit_num = ${trialVisitNum})) INHERITS (${table})")
         partitionToTable.put(trialVisitNum, childTable)
         return childTable
     }
 
-    private static Table getChildTable(Long trialVisitNum) {
-        new Table(table.schema, "${table.name}_${trialVisitNum.toString()}")
+    private static Table getChildTable(int trialVisitNum) {
+        new Table(table.schema, "${table.name}_${trialVisitNum}")
     }
 
-    private creatParttitionIndexes() {
-        for (Map.Entry<Long, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+    private createChildTableIndexes() {
+        for (Map.Entry<Integer, Table> partitionToTableEntry : partitionToTable.entrySet()) {
             createTableIndexesIfNotExistForTable(partitionToTableEntry.value, partitionToTableEntry.key)
         }
     }
 
-    void removeObservationsForTrials(Set<Long> trialVisitNums) {
-        if (!trialVisitNums) {
-            return
+    private setLoggedModeForAllChildTables() {
+        for (Map.Entry<Integer, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+            setLoggedMode(partitionToTableEntry.value, true)
         }
-        Map<Object, Table> posibleCandidateTablesToDrop = trialVisitNums.collectEntries { [it, getChildTable(it)] }
-        Set<Table> childTables = database.getChildTables(table)
-        for (Map.Entry<Object, Table> dropTableCandidate : posibleCandidateTablesToDrop.entrySet()) {
-            if (dropTableCandidate.value in childTables) {
-                database.dropTable(dropTableCandidate.value)
-                log.info "${dropTableCandidate.value} child table has been dropped."
+    }
+
+    private createTableIndexesIfNotExistForTable(Table tbl, Integer partition = null) {
+        def tx = database.beginTransaction()
+        log.info "Creating indexes on ${tbl} ..."
+        if (partition == null) {
+            parentTableIndexes.each { name, columns ->
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, name, columns))
+            }
+        } else {
+            childTableIndexes.each { name, columns ->
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, "${name}_${partition}", columns))
             }
         }
-        int observationCount = database.namedParameterJdbcTemplate.update(
-                """delete from ${table} where trial_visit_num in 
-                (:trialVisitNums)""".toString(),
-                [trialVisitNums: trialVisitNums]
-        )
-        log.info "${observationCount} observations deleted from ${table}."
+        //For partitions we still might need trial_visit_num as part of composite index so query could get everything it needs by index only scan.
+        nonModifiersTableIndexes.each { name, columns ->
+            String indexName = partition ? name + '_' + partition : name
+            String createIndexSqlPart = composeCreateIndexSql(tbl, indexName, columns)
+            database.jdbcTemplate.execute("${createIndexSqlPart} where modifier_cd='@'")
+        }
+        database.commit(tx)
+    }
+
+    private static String composeCreateIndexSql(Table table, String name, Iterable<String> columns) {
+        "create index if not exists ${name} on ${table} using btree (${columns.join(', ')})"
+    }
+
+    private void setLoggedMode(Table table, boolean logged) {
+        log.info "Set 'logged' on ${table} to ${logged}"
+        database.jdbcTemplate.execute("alter table ${table} set ${logged ? 'logged' : 'unlogged'}")
     }
 }
