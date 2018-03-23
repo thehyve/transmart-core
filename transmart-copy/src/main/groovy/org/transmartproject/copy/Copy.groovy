@@ -24,7 +24,6 @@ class Copy implements AutoCloseable {
     @Immutable
     static class Config {
         boolean write
-        boolean temporaryTable
         String outputFile
         int batchSize
         int flushSize
@@ -40,7 +39,6 @@ class Copy implements AutoCloseable {
         options.addOption('v', 'vacuum-analyze', false, 'Run vacuum analyze on the database.')
         options.addOption('i', 'drop-indexes', false, 'Drop indexes when loading.')
         options.addOption('u', 'unlogged', false, 'Set observations table to unlogged when loading.')
-        options.addOption('t', 'temporary-table', false, 'Use a temporary table when loading.')
         options.addOption('b', 'batch-size', true, 'Number of observation to insert in a batch (default: 500).')
         options.addOption('f', 'flush-size', true, 'Number of batches to flush to the database (default: 1000).')
         options.addOption('w', 'write', true, 'Write observations to TSV file.')
@@ -196,7 +194,6 @@ class Copy implements AutoCloseable {
                 int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
                 int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
                 def config = new Config(
-                        temporaryTable: cl.hasOption('temporary-table'),
                         batchSize: batchSize,
                         flushSize: flushSize,
                         write: cl.hasOption('write'),

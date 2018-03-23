@@ -22,7 +22,6 @@ import java.text.NumberFormat
 @CompileStatic
 class Observations {
 
-    static final Table temporaryTable = new Table(null, 'observation_fact_upload')
     static final Table table = new Table('i2b2demodata', 'observation_fact')
 
     static final Timestamp emptyDate = Timestamp.valueOf('0001-01-01 00:00:00')
@@ -133,23 +132,6 @@ class Observations {
         database.commit(tx)
     }
 
-    void prepareTemporaryTable() {
-        log.info "Creating temporary table ${temporaryTable} ..."
-        try {
-            URL url = getClass().getClassLoader().getResource('sql/observation_fact_upload.sql')
-            url.withReader { reader ->
-                String uploadTableDefinition = reader.text
-                database.executeCommand(uploadTableDefinition)
-                def uploadTableColumns = this.database.getColumnMetadata(temporaryTable)
-                assert !uploadTableColumns.empty
-                log.info 'Temporary table created.'
-            }
-        } catch (Exception e) {
-            log.error "Error creating table: ${e.message}", e
-            throw e
-        }
-    }
-
     void load(String rootPath) {
         log.info "Determining instance num ..."
         int baseInstanceNum = baseInstanceNum
@@ -179,25 +161,15 @@ class Observations {
         // and write transformed data to database.
         def tx = database.beginTransaction()
 
-        def insertTable = table
-        if (config.temporaryTable) {
-            prepareTemporaryTable()
-            tx.flush()
-            insertTable = temporaryTable
-        }
-
         log.info 'Reading, transforming and writing observations data ...'
         observationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             String[] data = tsvReader.readNext()
             if (data != null) {
                 int i = 1
-                LinkedHashMap<String, Class> header = Util.verifyHeader(insertTable.fileName, data, columns)
-                def insert = database.getInserter(insertTable, header)
-                if (config.temporaryTable) {
-                    insert = insert.withoutTableColumnMetaDataAccess()
-                }
-                final progressBar = new ProgressBar("Insert into ${insertTable}", rowCount - 1)
+                LinkedHashMap<String, Class> header = Util.verifyHeader(table.fileName, data, columns)
+                def insert = database.getInserter(table, header)
+                final progressBar = new ProgressBar("Insert into ${table}", rowCount - 1)
                 progressBar.start()
                 ArrayList<Map> batch = []
                 data = tsvReader.readNext()
@@ -250,14 +222,6 @@ class Observations {
             }
         }
 
-        if (config.temporaryTable) {
-            // transfer data from temporary table to observations table
-            def columnSpec = columns.collect { it.key }.join(', ')
-            def command = "insert into ${table} (${columnSpec}) select ${columnSpec} from ${temporaryTable}"
-            database.jdbcTemplate.execute(command)
-            tx.flush()
-            database.dropTable(temporaryTable)
-        }
         if (config.partition) {
             creatParttitionIndexes()
         }
