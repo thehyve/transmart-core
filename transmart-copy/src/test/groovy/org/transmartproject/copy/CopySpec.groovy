@@ -217,8 +217,8 @@ class CopySpec extends Specification {
         def addedChildTables = (childTablesAfterLoad - childTablesBefore)
         addedChildTables.size() == 2
         getTestStudyDbIdentifier()
-        copy.database.indexesForTable(addedChildTables[0]).size() == 4
-        copy.database.indexesForTable(addedChildTables[1]).size() == 4
+        copy.database.indexesForTable(addedChildTables[0]).size() == 3
+        copy.database.indexesForTable(addedChildTables[1]).size() == 3
 
         when:
         CommandLine cli2 = new DefaultParser()

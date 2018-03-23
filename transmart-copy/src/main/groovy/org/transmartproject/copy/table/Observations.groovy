@@ -86,10 +86,15 @@ class Observations {
         }
     }
 
-    static final Map<String, List> tableIndexes = [
+    static final Map<String, List> parentTableIndexes = [
             'idx_fact_patient_num'    : ['patient_num'],
             'idx_fact_concept'        : ['concept_cd'],
             'idx_fact_trial_visit_num': ['trial_visit_num'],
+    ]
+
+    static final Map<String, List> childTableIndexes = [
+            'idx_fact_patient_num'    : ['patient_num'],
+            'idx_fact_concept'        : ['concept_cd'],
     ]
 
     static final Map<String, List> nonModifiersTableIndexes = [
@@ -104,17 +109,26 @@ class Observations {
     }
 
     void restoreTableIndexesIfNotExist() {
-        restoreTableIndexesIfNotExistForTable(table, '')
+        createTableIndexesIfNotExistForTable(table)
     }
 
-    private restoreTableIndexesIfNotExistForTable(Table tbl, String suffix) {
+    private createTableIndexesIfNotExistForTable(Table tbl, Long partition = null) {
         def tx = database.beginTransaction()
         log.info "Restore indexes on ${tbl} ..."
-        tableIndexes.each { name, columns ->
-            database.jdbcTemplate.execute(composeCreateIndexSql(tbl, name + suffix, columns))
+        if (partition == null) {
+            parentTableIndexes.each { name, columns ->
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, name, columns))
+            }
+        } else {
+            childTableIndexes.each { name, columns ->
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, "${name}_${partition}", columns))
+            }
         }
+        //For partitions we still might need trial_visit_num as part of composite index so query could get everything it needs by index only scan.
         nonModifiersTableIndexes.each { name, columns ->
-            database.jdbcTemplate.execute("${composeCreateIndexSql(tbl, name + suffix, columns)} where modifier_cd='@'")
+            String indexName = partition ? name + '_' + partition : name
+            String createIndexSqlPart = composeCreateIndexSql(tbl, indexName, columns)
+            database.jdbcTemplate.execute("${createIndexSqlPart} where modifier_cd='@'")
         }
         database.commit(tx)
     }
@@ -126,7 +140,7 @@ class Observations {
     void dropTableIndexesIfExist() {
         def tx = database.beginTransaction()
         log.info "Drop indexes on ${table} ..."
-        (tableIndexes.keySet() + nonModifiersTableIndexes.keySet()).each { name ->
+        (parentTableIndexes.keySet() + nonModifiersTableIndexes.keySet()).each { name ->
             database.jdbcTemplate.execute("drop index if exists i2b2demodata.${name}")
         }
         database.commit(tx)
@@ -257,8 +271,8 @@ class Observations {
     }
 
     private creatParttitionIndexes() {
-        for (Map.Entry<Object, Table> partitionToTableEntry : partitionToTable.entrySet()) {
-            restoreTableIndexesIfNotExistForTable(partitionToTableEntry.value, "_${partitionToTableEntry.key}")
+        for (Map.Entry<Long, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+            createTableIndexesIfNotExistForTable(partitionToTableEntry.value, partitionToTableEntry.key)
         }
     }
 
