@@ -38,6 +38,8 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealPr
 
 import javax.annotation.PostConstruct
 
+import static org.hibernate.sql.JoinType.INNER_JOIN
+
 class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'metabolite'

@@ -43,10 +43,8 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentC
 import org.transmartproject.db.dataquery.highdim.dataconstraints.PropertyDataConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpGeneNameConstraint
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.hibernate.sql.JoinFragment.LEFT_OUTER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 import static org.transmartproject.core.dataquery.highdim.projections.Projection.ALL_DATA_PROJECTION
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.processStringList
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.validateParameterNames

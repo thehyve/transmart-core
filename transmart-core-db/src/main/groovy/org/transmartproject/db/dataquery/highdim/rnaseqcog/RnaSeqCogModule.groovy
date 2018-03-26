@@ -35,7 +35,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRe
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 /**
  * Module for RNA-seq, as implemented for Oracle by Cognizant.

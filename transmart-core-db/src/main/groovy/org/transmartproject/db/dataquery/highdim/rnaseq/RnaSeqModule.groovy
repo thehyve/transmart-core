@@ -44,7 +44,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 /**
  * Module for RNA-seq, as implemented for Postgres by TraIT.

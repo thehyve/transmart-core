@@ -36,7 +36,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
 import javax.annotation.PostConstruct
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 /*
  * Mirna QPCR and Mirna SEQ are different data types (according to the user), but they have basically the same

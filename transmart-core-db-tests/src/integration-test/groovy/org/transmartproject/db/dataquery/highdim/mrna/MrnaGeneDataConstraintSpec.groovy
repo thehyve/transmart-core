@@ -30,7 +30,7 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 import static spock.util.matcher.HamcrestSupport.that
 
 @Integration

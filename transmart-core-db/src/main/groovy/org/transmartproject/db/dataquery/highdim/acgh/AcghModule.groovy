@@ -41,6 +41,8 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
+import static org.hibernate.sql.JoinType.INNER_JOIN
+
 class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     static final String ACGH_VALUES_PROJECTION = 'acgh_values'
