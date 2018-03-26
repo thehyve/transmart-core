@@ -1,10 +1,6 @@
 package org.transmartproject.db.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Collection;
-import java.util.Comparator;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import static java.util.Objects.requireNonNull;
@@ -22,19 +18,34 @@ public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
         addAll(c);
     }
 
+    // Count to track the number of recursive calls that make the indexMap inconsistent
+    private int inconsistent = 0;
     private HashMap<E, Integer> indexMap = new HashMap<>();
+
+    private void invalidateIndex() {
+        inconsistent++;
+    }
+
+    private void acceptIndex() {
+        inconsistent--;
+    }
 
     private void reindex() {
         indexMap.clear();
         int idx = 0;
         for (E item: this) {
-            addToIndex(item, idx++);
+            indexMap.putIfAbsent(requireNonNull(item), idx++);
         }
     }
 
-    private E addToIndex(E e, int idx) {
-        indexMap.putIfAbsent(requireNonNull(e), idx);
-        return e;
+    private void acceptReindex() {
+        reindex();
+        acceptIndex();
+    }
+
+    private void checkIndex() {
+        if(inconsistent != 0) throw new IllegalStateException(
+                "Recursive or parallel call of contains() or indexOf() while this object is being modified");
     }
 
     @Override
@@ -58,12 +69,13 @@ public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
 
     @Override
     public boolean contains(Object e) {
+        checkIndex();
         return indexMap.containsKey(e);
     }
 
     @Override
-
     public int indexOf(Object e) {
+        checkIndex();
         if (e == null) return -1;
         Integer i = indexMap.get(e);
         return (i == null) ? -1 : i;
@@ -83,16 +95,18 @@ public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
 
     @Override
     public void add(int idx, E e) {
-        if(indexMap.putIfAbsent(requireNonNull(e), -1) != null) return;
+        invalidateIndex();
+        if(indexMap.putIfAbsent(requireNonNull(e), -2) != null) return;
         super.add(idx, e);
-        reindex();
+        acceptReindex();
     }
 
     @Override
     public boolean remove(Object e) {
         boolean rv;
+        invalidateIndex();
         try { rv = super.remove(e); }
-        finally { reindex(); }
+        finally { acceptReindex(); }
         return rv;
     }
 
@@ -104,68 +118,60 @@ public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
 
     @Override
     public boolean addAll(int idx, Collection<? extends E> c) {
-        boolean rv;
-        try {
-            for(E item : c) {
-                // check uniqueness
-                addToIndex(item, -1);
-            }
-            rv = super.addAll(idx, c);
-        } finally {
-            reindex();
-        }
+        invalidateIndex();
+        List<E> tail = new ArrayList<>(this).subList(idx, size());
+        removeRange(idx, size());
+        reindex();
+        boolean rv = addAll(c);
+        addAll(tail);
+        acceptIndex();
         return rv;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
         boolean rv;
+        invalidateIndex();
         try { rv = super.removeAll(c); }
-        finally { reindex(); }
+        finally { acceptReindex(); }
         return rv;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
         boolean rv;
+        invalidateIndex();
         try { rv = super.retainAll(c); }
-        finally { reindex(); }
+        finally { acceptReindex(); }
         return rv;
     }
 
     @Override
     public boolean removeIf(Predicate<? super E> filter) {
         boolean rv;
+        invalidateIndex();
         try { rv = super.removeIf(filter); }
-        finally { reindex(); }
+        finally { acceptReindex(); }
         return rv;
     }
 
     @Override
     public void replaceAll(final UnaryOperator<E> operator) {
-        indexMap.clear();
+        invalidateIndex();
+        List<E> copy = new ArrayList<>(this);
+        clear();
         try {
-            int duplicates = 0;
-            for (int i = 0; i < size(); i++) {
-                E newval = requireNonNull(operator.apply(this.get(i)));
-                if(indexMap.putIfAbsent(newval, i-duplicates) == null) {
-                    super.set(i-duplicates, newval);
-                } else {
-                    duplicates++;
-                }
-            }
-            removeRange(size()-duplicates, size());
-        } catch (Exception ex) {
-            // If there's an exception the indexMap will be inconsistent
-            reindex();
-            throw ex;
+            copy.replaceAll(operator);
+        } finally {
+            addAll(copy);
+            acceptIndex();
         }
-
     }
 
     @Override
     public void sort(Comparator<? super E> c) {
+        invalidateIndex();
         try { super.sort(c); }
-        finally { reindex(); }
+        finally { acceptReindex(); }
     }
 }
