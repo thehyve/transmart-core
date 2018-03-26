@@ -124,24 +124,23 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
             }
 
             @Override
-            JunctionRow finalizeGroup(List r) {
-                List<Map<String, List>> rows = r
+            JunctionRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
                 // should be the same in all rows:
-                DeTwoRegionJunction junction = (DeTwoRegionJunction) rows[0].junction[0]
+                DeTwoRegionJunction junction = (DeTwoRegionJunction) list[0].junction[0]
 
                 List<DeTwoRegionJunctionEvent> allJunctionEvents = []
-                for (Map<String, List> row : rows) {
-                    addIf(allJunctionEvents, row.junctionEvents[0])
+                for (Object[] e : list) {
+                    addIf(allJunctionEvents, e.junctionEvents[0])
                 }
 
                 List<DeTwoRegionEvent> allEvents = []
-                for (Map<String, List> row : rows) {
-                    addIf(allEvents, row.event[0])
+                for (Object[] e : list) {
+                    addIf(allEvents, e.event[0])
                 }
 
                 List<DeTwoRegionEventGene> allEventGenes = []
-                for (Map<String, List> row : rows) {
-                    addIf(allEventGenes, row.eventGenes[0])
+                for (Object[] e : list) {
+                    addIf(allEventGenes, e.eventGenes[0])
                 }
 
                 // Assign junction events to junction
@@ -158,7 +157,7 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                             .findAll { it.event.id == event.id } as Set
                 }
 
-                Long assayId = rows.first().assay[0].id
+                Long assayId = list.first().assay[0].id
                 new JunctionRow(assayIdToAssayColumn[assayId],
                         assayIdToAssayIndex[assayId],
                         assays.size(),
