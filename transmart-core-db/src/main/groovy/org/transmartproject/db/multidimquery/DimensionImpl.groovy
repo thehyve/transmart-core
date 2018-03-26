@@ -137,6 +137,8 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     abstract ELKey getElementKey(Map result)
 
+    abstract def getKey(element)
+
 
     /** The externally visible element type, only for serializable dimensions */
     abstract Class<? extends Serializable> getElementType()
@@ -251,6 +253,8 @@ trait SerializableElemDim<ELTKey> {
 
     abstract Class getElemType()
 
+    def getKey(element) { element }
+
     Class<? extends Serializable> getElementType() { getElemType() }
     DimensionImpl.ImplementationType getImplementationType() { DimensionImpl.ImplementationType.COLUMN }
     List getElemFields() { null }
@@ -277,6 +281,11 @@ trait CompositeElemDim<ELT,ELKey> {
 
     abstract Class getElemType()
     abstract Map<String,Property> getElementFields()
+    abstract String getKeyProperty()
+
+    def getKey(element) {
+        element.getAt(getKeyProperty())
+    }
 
     Class<? extends Serializable> getElementType() { null }
 
@@ -554,6 +563,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String name = 'patient'
     String alias = 'patientId'
     String columnName = 'patient.id'
+    String keyProperty = 'id'
 
     @Override def selectIDs(Query query) {
         if(query.params.patientSelected) return
@@ -577,6 +587,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
     String nullValue = '@'
+    String keyProperty = 'conceptCode'
     // ObservationFact.conceptCode is a string, not an i2b2.ConceptDimension
     ImplementationType implementationType = ImplementationType.COLUMN
 
@@ -593,6 +604,7 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
+    String keyProperty = 'id'
     
     @CompileDynamic
     @Override
@@ -608,6 +620,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     String name = 'study'
     String alias = 'studyName'
     String getColumnName() {throw new UnsupportedOperationException()}
+    String keyProperty = 'name'
     ImplementationType implementationType = ImplementationType.STUDY
 
     @CompileDynamic
@@ -671,6 +684,7 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
                                       "locationCd"]
     String name = 'visit'
     String alias = 'encounterNum'
+    String keyProperty = 'encounterNum'
     ImplementationType implementationType = ImplementationType.VISIT
 
     @Override def selectIDs(Query query) {
@@ -757,6 +771,7 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
     ]
     ImplementationType implementationType = ImplementationType.ASSAY
     String name = 'assay'
+    String keyProperty = 'id'
 }
 
 // TODO: Expose the other Assay properties as the proper dimensions. Their structure should as much as possible be
@@ -773,6 +788,7 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
     List elemFields = ['label', 'biomarker']
     ImplementationType implementationType = ImplementationType.BIOMARKER
     String name = 'biomarker'
+    String keyProperty = 'label'
 }
 
 @CompileStatic @InheritConstructors
