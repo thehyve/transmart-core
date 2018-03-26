@@ -101,12 +101,15 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
     private Boolean   getRowsCalled = false
     private Boolean   closeCalled = false
 
-    CollectingTabularResult() {}
+    CollectingTabularResult() {
+        indicesListIds = indicesList*.getAt("id")
+    }
 
     CollectingTabularResult(Map properties) {
         for(Map.Entry e : properties) {
             this.metaClass.setProperty(this, (String) e.key, e.value)
         }
+        indicesListIds = indicesList*.getAt("id")
     }
 
     abstract protected boolean inSameGroup(a, b)
