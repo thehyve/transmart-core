@@ -3,6 +3,7 @@
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.SortOrder
 
@@ -37,7 +38,7 @@ interface Hypercube extends IterableResult<HypercubeValue> {
     /**
      * @return an iterator with the actual values as HypercubeValue's
      */
-    Iterator<HypercubeValue> iterator()
+    PeekingIterator<HypercubeValue> iterator()
 
     /**
      * @param dim the dimension
