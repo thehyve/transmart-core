@@ -623,13 +623,21 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
     }
-
+    @Override
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not implemented.")
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+        criteria.setProjection(Projections.property('trialVisit'))
+
+        def dimensionCriteria = DetachedCriteria.forClass(I2B2Study, 'study')
+        dimensionCriteria.createAlias('trialVisits', 'trialVisits')
+        dimensionCriteria.add(Subqueries.propertyIn('trialVisits.id', criteria))
+        dimensionCriteria
+
     }
+
     @Override
     DetachedCriteria elementCount(DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not implemented.")
+        selectDimensionElements(criteria).setProjection(Projections.rowCount())
     }
 
 }
