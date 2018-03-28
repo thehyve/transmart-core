@@ -568,7 +568,7 @@ var spec = {
         }
       }
     },
-    "/v2/studyId/{studyId}": {
+    "/v2/studies/studyId/{studyId}": {
       "get": {
         "description": "Gets the study with study id `id`.\n",
         "tags": [
