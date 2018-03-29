@@ -142,7 +142,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
             boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId }
 
             @Override @CompileStatic
-            ProteinDataRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+            ProteinDataRow finalizeRow(List<Map> list) {
                 Map cell = findFirst list
                 new ProteinDataRow(
                         id: (Long) cell.annotationId,

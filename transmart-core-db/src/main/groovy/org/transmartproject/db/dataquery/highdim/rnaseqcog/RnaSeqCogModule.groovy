@@ -110,7 +110,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
                 boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol }
 
                 @Override @CompileStatic
-                RnaSeqCogDataRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+                RnaSeqCogDataRow finalizeRow(List<Map> list) {
                     Map firstNonNullCell = findFirst list
                     new RnaSeqCogDataRow(
                             annotationId: (String) firstNonNullCell.annotationId,

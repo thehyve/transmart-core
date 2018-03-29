@@ -141,7 +141,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
                 boolean inSameGroup(Map a, Map b) { a.probeId == b.probeId }
 
                 @Override @CompileStatic
-                MirnaProbeRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+                MirnaProbeRow finalizeRow(List<Map> list) {
                     Map firstNonNullCell = findFirst list
                     new MirnaProbeRow(
                             probeId:       (String) firstNonNullCell.probeId,

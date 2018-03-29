@@ -80,7 +80,10 @@ abstract class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow>
         }
     }
 
-    // A helper function that's needed in several subclasses of this
+    /**
+     * A helper function that's needed in several subclasses.
+     * Join the list with the separator, but only if the list contains non-null elements. Else return null.
+     */
     @CompileStatic
     static String safeJoin(List<String> items, String sep) {
         if(items.size() == 0) return null

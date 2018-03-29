@@ -180,7 +180,6 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 @Override @CompileStatic
                 VcfDataRow finalizeRow(List<Map> list) {
                     /* list of all the results belonging to a group defined by inSameGroup */
-                    /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
                     Map firstNonNullCell = findFirst list

@@ -154,7 +154,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
                 boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId }
 
                 @Override @CompileStatic
-                MetaboliteDataRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+                MetaboliteDataRow finalizeRow(List<Map> list) {
                     Map firstNonNullCell = findFirst list
                     new MetaboliteDataRow(
                             biochemicalName: (String) firstNonNullCell.biochemicalName,

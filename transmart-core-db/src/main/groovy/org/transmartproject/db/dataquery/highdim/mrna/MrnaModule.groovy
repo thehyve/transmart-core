@@ -115,7 +115,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 boolean inSameGroup(Map a, Map b) {a.probeId == b.probeId && a.geneSymbol == b.geneSymbol }
 
                 @Override @CompileStatic
-                ProbeRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+                ProbeRow finalizeRow(List<Map> list) {
                     /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
                     Map firstNonNullCell = findFirst list
