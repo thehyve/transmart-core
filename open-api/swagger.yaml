@@ -688,24 +688,29 @@ paths:
         404:
           description: |
             Study not found
-  /v2/studies/studyId/{studyId}:
+  /v2/studies/studyId/{studyIds}:
     get:
       description: |
-        Gets the study with study id `id`.
+        Gets the studies with study ids `studyIds`.
       tags:
         - v2
       parameters:
-        - name: studyId
+        - name: studyIds
           in: path
-          description: the study id of the study to fetch
+          description: a list of study ids of the studies to fetch, comma-seperated
           required: true
           type: string
       responses:
         200:
           description: |
-            Returns one study
+            Returns a list of studies
           schema:
-            $ref: "#/definitions/v2Study"
+            type: object
+            properties:
+              studies:
+                type: array
+                items:
+                  $ref: '#/definitions/v2Study'
         404:
           description: |
             Study not found

@@ -138,7 +138,18 @@ class StudiesSpec extends RESTSpec {
         ])
 
         then: "the study object is returned"
-        assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
+        assert studyResponse.studies.size() == 1
+        assert studyResponse.studies*.studyId == [SHARED_CONCEPTS_A_ID]
+
+        when: "I try to fetch studies A and B by studyIds"
+        studyResponse = get([
+                path      : "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID},${SHARED_CONCEPTS_B_ID}",
+                acceptType: JSON,
+        ])
+
+        then: "the study objects are returned"
+        assert studyResponse.studies.size() == 2
+        assert studyResponse.studies*.studyId == [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID]
     }
 
 }

@@ -75,7 +75,26 @@ class MDStudyControllerSpec extends MarshallerSpec {
 
         then:
         response.statusCode.value() == 200
-        result['studyId'] == studyId
+        result['studies'].size() == 1
+        result['studies']['studyId'] == [studyId]
+    }
+
+    void 'test get multiple studies by study ids'() {
+        when:
+        def studyId1 = 'study1'
+        def studyId2 = 'study2'
+        def url = "${baseURL}/$VERSION/studies/studyId/${studyId1},${studyId2}"
+        ResponseEntity<Resource> response = getJson(url)
+
+        String content = response.body.inputStream.readLines().join('\n')
+        def result = new JsonSlurper().parseText(content)
+        log.info 'Studies:'
+        log.info (((Map)result).toMapString())
+
+        then:
+        response.statusCode.value() == 200
+        result['studies'].size() == 2
+        result['studies']['studyId'] == [studyId1, studyId2]
     }
 
     void 'test get non existing study by study id'() {

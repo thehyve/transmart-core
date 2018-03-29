@@ -59,28 +59,26 @@ class StudyQueryController extends AbstractQueryController {
 
     /**
      * Study endpoint:
-     * <code>/v2/studies/${id}</code>
+     * <code>/v2/studies/studyId/${studyIds}</code>
      *
-     * @param id the study id
+     * @param a list of the study names
      *
-     * @return the {@link org.transmartproject.db.i2b2data.Study} object with id ${id}
-     * if it exists and the user has access; null otherwise.
+     * @return a list of the {@link org.transmartproject.db.i2b2data.Study} objects with names ${studyIds}
+     * if all of them exist and the user has access; null otherwise.
      */
     def findStudyByStudyId(
             @RequestParam('api_version') String apiVersion,
-            @PathVariable('studyId') String studyId) {
-        if (studyId == null || studyId.trim().empty) {
-            throw new InvalidArgumentsException("Parameter 'studyId' is missing.")
+            @PathVariable('studyIds') String studyIds) {
+        if (studyIds == null || studyIds.trim().empty) {
+            throw new InvalidArgumentsException("Parameter 'studyIds' is missing.")
         }
 
-        checkForUnsupportedParams(params, ['studyId'])
+        checkForUnsupportedParams(params, ['studyIds'])
 
-        def study = studiesResource.getStudyByStudyIdForUser(studyId, currentUser)
+        List<String> studyIdList = studyIds.split(',')
+        def studies = studiesResource.getStudiesByStudyIdsForUser(studyIdList, currentUser)
 
-        respond new StudyWrapper(
-                study: study,
-                apiVersion: apiVersion
-        )
+        respond wrapStudies(apiVersion, studies)
     }
 
     private static wrapStudies(String apiVersion, Collection<MDStudy> source) {

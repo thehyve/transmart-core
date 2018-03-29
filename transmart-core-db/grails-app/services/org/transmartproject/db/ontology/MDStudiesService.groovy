@@ -107,17 +107,22 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     }
 
     @Override
-    MDStudy getStudyByStudyIdForUser(String studyId, User currentUser) throws NoSuchResourceException {
+    List<MDStudy> getStudiesByStudyIdsForUser(List<String> studyIds, User currentUser) throws NoSuchResourceException {
         def user = usersResource.getUserFromUsername(currentUser.username)
-        def study = Study.findByStudyId(studyId)
-        if (isLegacyStudy(study)) {
-            study = null
+        def studies = []
+        for (studyId in studyIds) {
+            def study = Study.findByStudyId(studyId)
+            if (isLegacyStudy(study)) {
+                study = null
+            }
+            if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+                throw new AccessDeniedException("Access denied to study or study does not exist: ${studyId}")
+            }
+            study.dimensions.size()
+            studies.add(study)
         }
-        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${studyId}")
-        }
-        study.dimensions.size()
-        study
+
+        studies
     }
 
     MDStudy getStudyByStudyId(String studyId) {
