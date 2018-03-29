@@ -30,9 +30,8 @@ class DefaultHighDimensionTabularResultSpec extends Specification {
 
     @InheritConstructors
     static class TestDefaultHighDimensionTabularResult extends DefaultHighDimensionTabularResult {
-        boolean inSameGroup(a, b) { false }
-        ColumnOrderAwareDataRow finalizeGroup(List<Object[]> l) { null }
-
+        boolean inSameGroup(Map a, Map b) { false }
+        ColumnOrderAwareDataRow finalizeRow(List<Map> l) { null }
     }
 
     void testEquals() {

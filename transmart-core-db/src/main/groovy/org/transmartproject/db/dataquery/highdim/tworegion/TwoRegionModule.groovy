@@ -10,6 +10,7 @@ import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.MultiTabularResult
@@ -101,12 +102,13 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
     @Override
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
 
-        Map<Long, AssayColumn> assayIdToAssayColumn = assays.collectEntries {
-            [it.id, it]
+        Map<Long, AssayColumn> assayIdToAssayColumn = [:]
+        for(def assay : assays) {
+            assayIdToAssayColumn[assay.id] = assay
         }
-        int i = 0
-        Map<Long, Long> assayIdToAssayIndex = assays.collectEntries {
-            [it.id, i++]
+        Map<Long, Integer> assayIdToAssayIndex = [:]
+        for(int i=0; i<assays.size(); i++) {
+            assayIdToAssayIndex[assays[i].id] = i
         }
 
         new MultiTabularResult(
@@ -116,49 +118,55 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                 results: results,
                 allowMissingColumns: false
             ) {
-            @Override
-            boolean inSameGroup(a, b) { a.junction.id == b.junction.id }
-
-            private void addIf(List list, e) {
-                if (e) list.add(e)
+            @Override @CompileStatic
+            boolean inSameGroup(Object[] a, Object[] b) {
+                ((DeTwoRegionJunction) ((Map) a[0]).junction).id ==
+                        ((DeTwoRegionJunction) ((Map) b[0]).junction).id
             }
 
-            @Override
-            JunctionRow finalizeGroup(List r) {
-                List<Map<String, List>> rows = r
+            @CompileStatic
+            private static List addAllIf(List<Object[]> list, String key) {
+                List result = []
+                for (Object[] e : list) {
+                    def map = (Map<String,Object>) e[0]
+                    def val = map[key]
+                    if(val != null) result.add(val)
+                }
+                result
+            }
+
+            @Override @CompileStatic
+            JunctionRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
                 // should be the same in all rows:
-                DeTwoRegionJunction junction = (DeTwoRegionJunction) rows[0].junction[0]
+                DeTwoRegionJunction junction = (DeTwoRegionJunction) ((Map) list[0][0]).junction
 
-                List<DeTwoRegionJunctionEvent> allJunctionEvents = []
-                for (Map<String, List> row : rows) {
-                    addIf(allJunctionEvents, row.junctionEvents[0])
-                }
-
-                List<DeTwoRegionEvent> allEvents = []
-                for (Map<String, List> row : rows) {
-                    addIf(allEvents, row.event[0])
-                }
-
-                List<DeTwoRegionEventGene> allEventGenes = []
-                for (Map<String, List> row : rows) {
-                    addIf(allEventGenes, row.eventGenes[0])
-                }
+                List<DeTwoRegionJunctionEvent> allJunctionEvents = addAllIf(list, 'junctionEvents')
+                List<DeTwoRegionEvent> allEvents = addAllIf(list, 'event')
+                List<DeTwoRegionEventGene> allEventGenes = addAllIf(list, 'eventGenes')
 
                 // Assign junction events to junction
                 junction.junctionEvents = allJunctionEvents as Set
 
                 // Assign events to junction events
-                allJunctionEvents.each { DeTwoRegionJunctionEvent je ->
-                    je.event = allEvents.find { it.id == je.event.id }
+                outer: for(def je : allJunctionEvents) {
+                    for(def event : allEvents) {
+                        if (event.id == je.event.id) {
+                            je.event = event
+                            break outer
+                        }
+                    }
                 }
 
                 // Assign event genes to events
-                allEvents.each { DeTwoRegionEvent event ->
-                    event.eventGenes = allEventGenes
-                            .findAll { it.event.id == event.id } as Set
+                for(def event : allEvents) {
+                    Set eventGenes = new LinkedHashSet()
+                    for(def gene : allEventGenes) {
+                        if (gene.event.id == event.id) eventGenes.add(gene)
+                    }
+                    event.eventGenes = eventGenes
                 }
 
-                Long assayId = rows.first().assay[0].id
+                Long assayId = ((Assay) ((Map) list[0][0]).assay).id
                 new JunctionRow(assayIdToAssayColumn[assayId],
                         assayIdToAssayIndex[assayId],
                         assays.size(),
