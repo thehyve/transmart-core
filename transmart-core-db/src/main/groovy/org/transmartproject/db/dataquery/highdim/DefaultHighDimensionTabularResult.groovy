@@ -44,8 +44,8 @@ abstract class DefaultHighDimensionTabularResult<R extends ColumnOrderAwareDataR
         throw new UnsupportedOperationException("not implemented")
     }
     @Override
-    protected Object columnIdFromRow(Object[] row) {
-        assayIdFromRow((Map) row[0])
+    protected Object columnIdFromRow(/*Object[]*/ row) {
+        assayIdFromRow((Map) ((Object[]) row)[0])
     }
 
     abstract protected boolean inSameGroup(Map a, Map b)

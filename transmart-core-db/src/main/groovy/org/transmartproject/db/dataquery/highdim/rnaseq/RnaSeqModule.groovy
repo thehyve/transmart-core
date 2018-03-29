@@ -192,13 +192,13 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 }
                 Map firstNonNullCell = findFirst list
                 new RegionRowImpl(
-                        id: (long) firstNonNullCell.id,
+                        id: (Long) firstNonNullCell.id,
                         name: (String) firstNonNullCell.name,
                         cytoband: (String) firstNonNullCell.cytoband,
                         chromosome: (String) firstNonNullCell.chromosome,
-                        start: (long) firstNonNullCell.start,
-                        end: (long) firstNonNullCell.end,
-                        numberOfProbes: (int) firstNonNullCell.numberOfProbes,
+                        start: (Long) firstNonNullCell.start,
+                        end: (Long) firstNonNullCell.end,
+                        numberOfProbes: (Integer) firstNonNullCell.numberOfProbes,
                         bioMarker: (String) firstNonNullCell.geneSymbol,
                         platform: new PlatformImpl(
                                 id: (String) firstNonNullCell.platformId,

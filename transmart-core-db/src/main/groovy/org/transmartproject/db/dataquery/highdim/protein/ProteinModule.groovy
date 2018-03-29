@@ -145,7 +145,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
             ProteinDataRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
                 Map cell = findFirst list
                 new ProteinDataRow(
-                        id: (long) cell.annotationId,
+                        id: (Long) cell.annotationId,
                         peptide: (String) cell.peptide,
                         uniprotName: (String) cell.uniprotName,
                         platform: new PlatformImpl(
@@ -160,8 +160,8 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
                                 genomeReleaseId: (String) cell.platformGenomeReleaseId
                         ),
                         chromosome: (String) cell.chromosome,
-                        start: (long) cell.startBp,
-                        end: (long) cell.endBp,
+                        start: (Long) cell.startBp,
+                        end: (Long) cell.endBp,
                         assayIndexMap: assayIndexes,
                         data: doWithProjection(projection, list)
                 )

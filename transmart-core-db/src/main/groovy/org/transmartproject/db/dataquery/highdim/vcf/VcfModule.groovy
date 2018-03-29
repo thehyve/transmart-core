@@ -189,7 +189,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
 
                             // Chromosome to define the position
                             chromosome: (String) firstNonNullCell.chr,
-                            position: (long) firstNonNullCell.pos,
+                            position: (Long) firstNonNullCell.pos,
                             rsId: (String) firstNonNullCell.rsId,
 
                             // Reference and alternatives for this position

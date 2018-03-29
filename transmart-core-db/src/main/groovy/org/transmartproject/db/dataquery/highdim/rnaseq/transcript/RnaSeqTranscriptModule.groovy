@@ -147,10 +147,10 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 RegionRowImpl finalizeRow(List<Map> list) {
                     Map firstRow = findFirst list
                     new RegionRowImpl(
-                            id: (long) firstRow.id,
+                            id: (Long) firstRow.id,
                             chromosome: (String) firstRow.chromosome,
-                            start: (long) firstRow.start,
-                            end: (long) firstRow.end,
+                            start: (Long) firstRow.start,
+                            end: (Long) firstRow.end,
                             bioMarker: (String) firstRow.transcript,
                             platform: new PlatformImpl(
                                     id: (String) firstRow.platformId,

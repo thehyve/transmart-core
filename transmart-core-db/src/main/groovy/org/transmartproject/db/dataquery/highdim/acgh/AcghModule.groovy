@@ -180,13 +180,13 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                     }
                     Map cell = findFirst list
                     def regionRow = new RegionRowImpl(
-                            id: (long) cell.id,
+                            id: (Long) cell.id,
                             name: (String) cell.name,
                             cytoband: (String) cell.cytoband,
                             chromosome: (String) cell.chromosome,
-                            start: (long) cell.start,
-                            end: (long) cell.end,
-                            numberOfProbes: (int) cell.numberOfProbes,
+                            start: (Long) cell.start,
+                            end: (Long) cell.end,
+                            numberOfProbes: (Integer) cell.numberOfProbes,
                             bioMarker: (String) cell.geneSymbol,
                             platform: new PlatformImpl(
                                     id:              (String) cell.platformId,

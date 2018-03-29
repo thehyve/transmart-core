@@ -63,8 +63,8 @@ class TerminalClinicalVariablesTabularResult extends
     }
 
     @Override
-    Object columnIdFromRow(Object[] row) {
-        row[CODE_COLUMN_INDEX]
+    Object columnIdFromRow(/*Object[]*/ row) {
+        ((Object[]) row)[CODE_COLUMN_INDEX]
     }
 
     TerminalClinicalVariablesTabularResult(ScrollableResults results,

@@ -132,7 +132,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 RbmRow finalizeRow(List<Map> list) {
                     Map firstNonNullCell = findFirst list
                     new RbmRow(
-                            annotationId:  (int) firstNonNullCell.annotationId,
+                            annotationId:  (Integer) firstNonNullCell.annotationId,
                             antigenName:   (String) firstNonNullCell.antigenName,
                             unit:          (String) firstNonNullCell.unit,
                             uniprotName:   (String) firstNonNullCell.uniprotName,
