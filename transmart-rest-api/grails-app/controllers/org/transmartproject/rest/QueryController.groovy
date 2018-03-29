@@ -129,6 +129,16 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
+     * /v2/observations/table
+     */
+    def table() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint',
+                                         'projection', 'rowDimensions', 'columnDimensions'])
+
+    }
+
+    /**
      * Count endpoint:
      * <code>/v2/observations/counts?constraint=${constraint}</code>
      *

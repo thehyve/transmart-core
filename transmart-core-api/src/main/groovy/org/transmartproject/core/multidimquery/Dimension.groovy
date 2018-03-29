@@ -79,8 +79,6 @@ interface Dimension {
      * Get an element's key, i.e. a simple value that uniquely identifies the element.
      * @param element
      * @return a simple object (Number, String, or Date) that is unique for this element and thus identifies it.
-     * Exception: for the Visit dimension there is no single key, the key is the combination of `encounterNum` and
-     * `patient.id`
      */
     def getKey(element)
 

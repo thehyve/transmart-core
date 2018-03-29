@@ -190,7 +190,6 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     }
 
     final protected Map createAssayIndexMap(List assays) {
-        int i = 0
-        assays.collectEntries { [ it, i++ ] }
+        assays.withIndex().collectEntries()
     }
 }

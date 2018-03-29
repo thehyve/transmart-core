@@ -684,8 +684,18 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
                                       "locationCd"]
     String name = 'visit'
     String alias = 'encounterNum'
-    String keyProperty = 'encounterNum'
+    String keyProperty = null
     ImplementationType implementationType = ImplementationType.VISIT
+
+    /**
+     * This must return a unique key for this dimension, and it must be a number, string or date (used in e.g. json
+     * serialization) so VisitKey is not going to work here.
+     */
+    @Override
+    def getKey(element) {
+        def visit = (I2b2VisitDimension) element
+        "${visit.encounterNum}/${visit.patient.id}"
+    }
 
     @Override def selectIDs(Query query) {
         query.criteria.with {
