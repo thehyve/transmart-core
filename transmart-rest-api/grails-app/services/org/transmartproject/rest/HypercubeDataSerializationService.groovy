@@ -74,6 +74,14 @@ class HypercubeDataSerializationService implements DataSerializer {
         }
     }
 
+    void writeTable(Constraint constraint, List<String> rowDimensions, List<String> columnDimensions, sort,
+                    User user, OutputStream out) {
+        def datatable = multiDimService.retrieveDataTable('clinical', constraint, user,
+                rowDimensions: rowDimensions, columnDimensions: columnDimensions, sort: sort)
+
+        DataTableSerializer.write(datatable, out, userSorting: multiDimService.parseSort(sort))
+    }
+
     @Override
     Set<Format> getSupportedFormats() {
         formatToSerializer.keySet()

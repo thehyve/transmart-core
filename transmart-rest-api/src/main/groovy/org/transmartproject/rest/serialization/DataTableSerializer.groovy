@@ -3,12 +3,11 @@ package org.transmartproject.rest.serialization
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.multidimquery.DataTable
+import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.db.multidimquery.DataTable
 
 import java.time.Instant
-
-import static org.transmartproject.db.multidimquery.DataTable.DataTableRow
 
 @CompileStatic
 class DataTableSerializer {
@@ -16,8 +15,12 @@ class DataTableSerializer {
     private JsonWriter writer
     private DataTable table
 
-    void write(DataTable table, OutputStream out) {
+    static void write(DataTable table, OutputStream out) {
         write([:], table, out)
+    }
+
+    static void write(Map args, DataTable table, OutputStream out) {
+        new DataTableSerializer().writeData(args, table, out)
     }
 
     void writeColumnHeaders() {
@@ -28,17 +31,19 @@ class DataTableSerializer {
 
             writer.name('dimension').value(dim.name)
 
-            writer.name('keys').beginArray()
             if(dim.elementsSerializable) {
+                writer.name('elements').beginArray()
                 for(def columnHeader : table.columnKeys) {
                     writeValue(columnHeader.elements[i])
                 }
+                writer.endArray()
             } else {
+                writer.name('keys').beginArray()
                 for(def columnHeader : table.columnKeys) {
                     writeValue(dim.getKey(columnHeader.elements[i]))
                 }
+                writer.endArray()
             }
-            writer.endArray()
             writer.endObject()
         }
 
@@ -47,7 +52,7 @@ class DataTableSerializer {
 
     void writeRows() {
         writer.name('rows').beginArray()
-        for(def rowHeader : table.rowKeys) {
+        for(DataTableRow rowHeader : table.rowKeys) {
             writeRow(rowHeader)
         }
         writer.endArray()
@@ -119,13 +124,13 @@ class DataTableSerializer {
     }
 
     void writeOtherKeys() {
-        writer.name('offset').value(table.rowKeys[0].idx)
+        writer.name('offset').value(table.offset)
         if(table.totalRowCount != null) {
             writer.name('row count').value(table.totalRowCount)
         }
     }
 
-    void write(Map args, DataTable table, OutputStream out) {
+    private void writeData(Map args, DataTable table, OutputStream out) {
         this.writer = new JsonWriter(new BufferedWriter(
                 new OutputStreamWriter(out),
                 // large 32k chars buffer to reduce overhead

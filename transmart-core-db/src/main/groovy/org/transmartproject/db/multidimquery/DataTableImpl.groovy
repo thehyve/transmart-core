@@ -12,6 +12,9 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.Immutable
 import org.springframework.context.annotation.Lazy
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.multidimquery.DataTable
+import org.transmartproject.core.multidimquery.DataTableColumn
+import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -19,7 +22,7 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import static java.util.Objects.requireNonNull
 
 @CompileStatic
-class DataTable implements Table<DataTableRow, DataTableColumn, HypercubeValue>, AutoCloseable {
+class DataTableImpl implements DataTable, AutoCloseable {
 
     final Hypercube hypercube
     final ImmutableList<Dimension> rowDimensions, columnDimensions
@@ -34,27 +37,34 @@ class DataTable implements Table<DataTableRow, DataTableColumn, HypercubeValue>,
     private Map<Dimension, Integer> columnIndices
 
     @Delegate @Lazy
-    Table<DataTableRow, DataTableColumn, HypercubeValue> table = buildTable()
+    Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> table = buildTable()
 
     @Lazy
-    List<DataTableRow> rowKeys = rowKeySet().sort(false)
+    List<DataTableRowImpl> rowKeys = rowKeySet().sort(false)
 
     @Lazy
-    List<DataTableColumn> columnKeys = columnKeySet().sort(false)
+    List<DataTableColumnImpl> columnKeys = columnKeySet().sort(false)
 
     /**
      * The total number of rows in this result; only set when known
      */
     Long totalRowCount
 
-    DataTable(Map args, Hypercube hypercube) {
+    // The @Lazy somehow fails to generate these bridge methods
+    Map<DataTableRowImpl, HypercubeValue> column(columnKey) { table.column((DataTableColumnImpl) columnKey) }
+    Map<DataTableColumnImpl, HypercubeValue> row(rowKey) { table.row((DataTableRowImpl) rowKey) }
+    HypercubeValue put(rowKey, columnKey, value) {
+        table.put((DataTableRowImpl) rowKey, (DataTableColumnImpl) columnKey, (HypercubeValue) value)
+    }
+
+    DataTableImpl(Map args, Hypercube hypercube) {
         requireNonNull this.hypercube = hypercube
         this.hypercubeIter = this.hypercube.iterator()
-        requireNonNull this.rowDimensions = args.rowDimensions
-        requireNonNull this.columnDimensions = args.columnDimensions
-        requireNonNull this.sort = args.sort
-        this.offset = args.offset ?: 0
-        requireNonNull this.limit = args.limit
+        requireNonNull this.rowDimensions = ImmutableList.<Dimension>copyOf(args.rowDimensions)
+        requireNonNull this.columnDimensions = ImmutableList.<Dimension>copyOf(args.columnDimensions)
+        requireNonNull this.sort = ImmutableMap.copyOf((Map) args.sort)
+        this.offset = (long) args.offset ?: 0
+        requireNonNull this.limit = (int) args.limit
 
         columnIndices = columnDimensions.withIndex().collectEntries()
 
@@ -68,7 +78,7 @@ class DataTable implements Table<DataTableRow, DataTableColumn, HypercubeValue>,
         for(def dim : columnDimensions) { columnPriority.putIfAbsent(dim, SortOrder.ASC) }
     }
 
-    private Table<DataTableRow, DataTableColumn, HypercubeValue> buildTable() {
+    private Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> buildTable() {
         def deque = new ArrayDeque<List<HypercubeValue>>(limit+1)
 
         def rowIter = new RowIterator()
@@ -89,7 +99,7 @@ class DataTable implements Table<DataTableRow, DataTableColumn, HypercubeValue>,
 
         def rows = Lists.newArrayList(deque)
 
-        Table<DataTableRow, DataTableColumn, HypercubeValue> table = HashBasedTable.create()
+        Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> table = HashBasedTable.create()
 
         for(int i=0; i<rows.size(); i++) {
             for(def hv : rows[i]) {
@@ -97,12 +107,12 @@ class DataTable implements Table<DataTableRow, DataTableColumn, HypercubeValue>,
                 for(def dim : rowDimensions) {
                     elems.add(hv[dim])
                 }
-                def row = new DataTableRow(startOffset+i, ImmutableList.copyOf(elems))
+                def row = new DataTableRowImpl(startOffset+i, ImmutableList.copyOf(elems))
                 elems.clear()
                 for(def dim: columnDimensions) {
                     elems.add(hv[dim])
                 }
-                def column = new DataTableColumn(this, ImmutableList.copyOf(elems))
+                def column = new DataTableColumnImpl(this, ImmutableList.copyOf(elems))
 
                 table.put(row, column, hv)
             }
@@ -112,15 +122,15 @@ class DataTable implements Table<DataTableRow, DataTableColumn, HypercubeValue>,
 
     @Immutable
     @EqualsAndHashCode(includes=["elements"])
-    static class DataTableColumn implements Comparable<DataTableColumn> {
-        DataTable dt
+    static class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
+        DataTableImpl dt
         ImmutableList elements // in the order of columnDimensions
 
         @Override
-        int compareTo(DataTableColumn other) {
+        int compareTo(DataTableColumnImpl other) {
             for (def entry : dt.columnPriority) {
                 int idx = dt.columnIndices[entry.key]
-                int c = elements[idx] <=> other.elements[idx]
+                int c = compareElements(elements[idx], other.elements[idx])
                 if (entry.value == SortOrder.DESC) {
                     c = -c
                 }
@@ -128,16 +138,23 @@ class DataTable implements Table<DataTableRow, DataTableColumn, HypercubeValue>,
             }
             return 0
         }
+
+        static int compareElements(e1, e2) {
+            if(e1 == null) (e2 == null ? 0 : -1)
+            else if(e2 == null) 1
+            ((Comparable) e1) <=> (Comparable) e2
+        }
     }
 
     @Immutable
-    @EqualsAndHashCode(includes=["idx"])
-    static class DataTableRow implements Comparable<DataTableRow> {
-        long idx
+    @EqualsAndHashCode(includes=["offset"])
+    static class DataTableRowImpl implements DataTableRow<DataTableRowImpl> {
+        long offset
         ImmutableList elements  // in the order of rowDimensions
 
-        int compareTo(DataTableRow other) {
-            idx <=> other.idx  // we defer to the database's order for this one
+        @Override
+        int compareTo(DataTableRowImpl other) {
+            offset <=> other.offset  // we defer to the database's order for this one
         }
     }
 
