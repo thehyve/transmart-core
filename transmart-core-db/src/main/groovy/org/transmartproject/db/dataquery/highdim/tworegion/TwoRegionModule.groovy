@@ -118,8 +118,11 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                 results: results,
                 allowMissingColumns: false
             ) {
-            @Override //@CompileStatic
-            boolean inSameGroup(a, b) { a.junction.id == b.junction.id }
+            @Override @CompileStatic
+            boolean inSameGroup(Object[] a, Object[] b) {
+                ((DeTwoRegionJunction) ((Map) a[0]).junction).id ==
+                        ((DeTwoRegionJunction) ((Map) b[0]).junction).id
+            }
 
             @CompileStatic
             private static List addAllIf(List<Object[]> list, String key) {

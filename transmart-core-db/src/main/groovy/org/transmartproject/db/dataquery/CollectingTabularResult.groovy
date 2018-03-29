@@ -112,7 +112,7 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
         indicesListIds = indicesList*.getAt("id")
     }
 
-    abstract protected boolean inSameGroup(a, b)
+    abstract protected boolean inSameGroup(Object[] a, Object[] b)
     abstract protected R finalizeGroup(List<Object[]> collectedEntries)
 
     protected Object columnIdFromRow(Object[] row) {

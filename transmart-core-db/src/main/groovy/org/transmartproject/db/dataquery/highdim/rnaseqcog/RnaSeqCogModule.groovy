@@ -103,19 +103,19 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
                 results: results,
                 allowMissingAssays: true,
             ) {
-                @Override
-                def assayIdFromRow(Object[] row) { row[0].assayId }
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
 
-                @Override
-                boolean inSameGroup(a, b) { a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol }
 
-                @Override
-                RnaSeqCogDataRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
-                    Map firstNonNullCell = (Map) list.find()[0]
+                @Override @CompileStatic
+                RnaSeqCogDataRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+                    Map firstNonNullCell = findFirst list
                     new RnaSeqCogDataRow(
-                            annotationId: firstNonNullCell.annotationId,
-                            geneSymbol: firstNonNullCell.geneSymbol,
-                            geneId: firstNonNullCell.geneId,
+                            annotationId: (String) firstNonNullCell.annotationId,
+                            geneSymbol: (String) firstNonNullCell.geneSymbol,
+                            geneId: (String) firstNonNullCell.geneId,
                             assayIndexMap: assayIndexMap,
                             data: doWithProjection(projection, list)
                     )
@@ -123,10 +123,10 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
         }
 
         new RepeatedEntriesCollectingTabularResult<RnaSeqCogDataRow>(preliminaryResult) {
-            @Override
+            @Override @CompileStatic
             def collectBy(RnaSeqCogDataRow it) { it.annotationId }
 
-            @Override
+            @Override @CompileStatic
             RnaSeqCogDataRow resultItem(List<RnaSeqCogDataRow> collectedList) {
                 if (collectedList) {
                     new RnaSeqCogDataRow(

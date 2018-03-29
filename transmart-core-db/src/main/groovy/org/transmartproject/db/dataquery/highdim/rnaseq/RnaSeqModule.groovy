@@ -178,38 +178,38 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 results:               results,
                 allowMissingAssays:    true,
             ) {
-            @Override
-            def assayIdFromRow(Object[] row) { row[0].assayId }
+            @Override @CompileStatic
+            def assayIdFromRow(Map row) { row.assayId }
 
-            @Override
-            boolean inSameGroup(a, b) { a.id == b.id } // same region id //
+            @Override @CompileStatic
+            boolean inSameGroup(Map a, Map b) { a.id == b.id } // same region id //
 
-            @Override
-            RegionRowImpl finalizeGroup(List<Object[]> list) {
+            @Override @CompileStatic
+            RegionRowImpl finalizeRow(List<Map> list) {
                 if (list.size() != assays.size()) {
                     throw new UnexpectedResultException(
                             "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                 }
-                Map firstNonNullCell = (Map) list.find()[0]
+                Map firstNonNullCell = findFirst list
                 new RegionRowImpl(
-                        id: firstNonNullCell.id,
-                        name: firstNonNullCell.name,
-                        cytoband: firstNonNullCell.cytoband,
-                        chromosome: firstNonNullCell.chromosome,
-                        start: firstNonNullCell.start,
-                        end: firstNonNullCell.end,
-                        numberOfProbes: firstNonNullCell.numberOfProbes,
-                        bioMarker: firstNonNullCell.geneSymbol,
+                        id: (long) firstNonNullCell.id,
+                        name: (String) firstNonNullCell.name,
+                        cytoband: (String) firstNonNullCell.cytoband,
+                        chromosome: (String) firstNonNullCell.chromosome,
+                        start: (long) firstNonNullCell.start,
+                        end: (long) firstNonNullCell.end,
+                        numberOfProbes: (int) firstNonNullCell.numberOfProbes,
+                        bioMarker: (String) firstNonNullCell.geneSymbol,
                         platform: new PlatformImpl(
-                                id: firstNonNullCell.platformId,
-                                title: firstNonNullCell.platformTitle,
-                                organism: firstNonNullCell.platformOrganism,
+                                id: (String) firstNonNullCell.platformId,
+                                title: (String) firstNonNullCell.platformTitle,
+                                organism: (String) firstNonNullCell.platformOrganism,
                                 //It converts timestamp to date
                                 annotationDate: firstNonNullCell.platformAnnotationDate ?
                                         new Date(((Date) firstNonNullCell.platformAnnotationDate).getTime())
                                         : null,
-                                markerType: firstNonNullCell.platformMarkerType,
-                                genomeReleaseId: firstNonNullCell.platformGenomeReleaseId
+                                markerType: (String) firstNonNullCell.platformMarkerType,
+                                genomeReleaseId: (String) firstNonNullCell.platformGenomeReleaseId
                         ),
                         assayIndexMap: assayIndexMap,
                         data: doWithProjection(projection, list)

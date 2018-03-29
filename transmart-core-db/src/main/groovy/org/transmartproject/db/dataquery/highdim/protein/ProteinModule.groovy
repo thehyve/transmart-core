@@ -135,33 +135,33 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
                 results:               results,
                 allowMissingAssays:    true
             ) {
-            @Override
-            def assayIdFromRow(Object[] row) { row[0].assayId }
+            @Override @CompileStatic
+            def assayIdFromRow(Map row) { row.assayId }
 
-            @Override
-            boolean inSameGroup(a, b) { a.annotationId == b.annotationId }
+            @Override @CompileStatic
+            boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId }
 
-            @Override
-            ProteinDataRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
-                Map cell = (Map) list.find()[0]
+            @Override @CompileStatic
+            ProteinDataRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+                Map cell = findFirst list
                 new ProteinDataRow(
-                        id: cell.annotationId,
-                        peptide: cell.peptide,
-                        uniprotName: cell.uniprotName,
+                        id: (long) cell.annotationId,
+                        peptide: (String) cell.peptide,
+                        uniprotName: (String) cell.uniprotName,
                         platform: new PlatformImpl(
-                                id: cell.platformId,
-                                title: cell.platformTitle,
-                                organism: cell.platformOrganism,
+                                id: (String) cell.platformId,
+                                title: (String) cell.platformTitle,
+                                organism: (String) cell.platformOrganism,
                                 //It converts timestamp to date
                                 annotationDate: cell.platformAnnotationDate ?
                                         new Date(((Date) cell.platformAnnotationDate).getTime())
                                         : null,
-                                markerType: cell.platformMarkerType,
-                                genomeReleaseId: cell.platformGenomeReleaseId
+                                markerType: (String) cell.platformMarkerType,
+                                genomeReleaseId: (String) cell.platformGenomeReleaseId
                         ),
-                        chromosome: cell.chromosome,
-                        start: cell.startBp,
-                        end: cell.endBp,
+                        chromosome: (String) cell.chromosome,
+                        start: (long) cell.startBp,
+                        end: (long) cell.endBp,
                         assayIndexMap: assayIndexes,
                         data: doWithProjection(projection, list)
                 )

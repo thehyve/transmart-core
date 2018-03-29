@@ -58,9 +58,7 @@ class TerminalClinicalVariablesTabularResult extends
     final String variableGroup
 
     @Override
-    boolean inSameGroup(a, b) {
-        Object[] row1 = (Object[]) a
-        Object[] row2 = (Object[]) b
+    boolean inSameGroup(Object[] row1, Object[] row2) {
         row1[PATIENT_NUM_COLUMN_INDEX] == row2[PATIENT_NUM_COLUMN_INDEX]
     }
 

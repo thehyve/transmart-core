@@ -3,6 +3,7 @@
 package org.transmartproject.db.dataquery.highdim.rnaseq.transcript
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -124,7 +125,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
-    @Override
+    @Override @CompileStatic
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
 
         Map assayIndexMap = createAssayIndexMap(assays)
@@ -136,25 +137,25 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 results: results,
                 allowMissingAssays: true,
             ) {
-                @Override
-                def assayIdFromRow(Object[] row) { row[0].assayId }
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
 
-                @Override
-                boolean inSameGroup(a, b) { a.transcript == b.transcript }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.transcript == b.transcript }
 
-                @Override
-                RegionRowImpl finalizeGroup(List<Object[]> list) {
-                    Map firstRow = (Map) list.find()[0]
+                @Override @CompileStatic
+                RegionRowImpl finalizeRow(List<Map> list) {
+                    Map firstRow = findFirst list
                     new RegionRowImpl(
-                            id: firstRow.id,
-                            chromosome: firstRow.chromosome,
-                            start: firstRow.start,
-                            end: firstRow.end,
-                            bioMarker: firstRow.transcript,
+                            id: (long) firstRow.id,
+                            chromosome: (String) firstRow.chromosome,
+                            start: (long) firstRow.start,
+                            end: (long) firstRow.end,
+                            bioMarker: (String) firstRow.transcript,
                             platform: new PlatformImpl(
-                                    id: firstRow.platformId,
-                                    markerType: firstRow.platformMarkerType,
-                                    genomeReleaseId: firstRow.platformGenomeReleaseId
+                                    id: (String) firstRow.platformId,
+                                    markerType: (String) firstRow.platformMarkerType,
+                                    genomeReleaseId: (String) firstRow.platformGenomeReleaseId
 
                             ),
                             assayIndexMap: assayIndexMap,

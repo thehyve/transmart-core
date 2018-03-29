@@ -291,7 +291,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
-    @Override
+    @Override //@CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
                                    Projection projection) {

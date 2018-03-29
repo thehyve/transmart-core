@@ -40,20 +40,43 @@ abstract class DefaultHighDimensionTabularResult<R extends ColumnOrderAwareDataR
         allowMissingColumns = value
     }
 
-    Object assayIdFromRow(Object[] row) {
+    Object assayIdFromRow(Map row) {
         throw new UnsupportedOperationException("not implemented")
     }
-
     @Override
     protected Object columnIdFromRow(Object[] row) {
-        assayIdFromRow(row)
+        assayIdFromRow((Map) row[0])
     }
 
-    static List doWithProjection(Projection projection, List<Object[]> data) {
+    abstract protected boolean inSameGroup(Map a, Map b)
+    @Override
+    protected boolean inSameGroup(Object[] a, Object[] b) {
+        inSameGroup((Map) a[0], (Map) b[0])
+    }
+
+    abstract protected R finalizeRow(List<Map> collectedEntries)
+    @Override
+    protected R finalizeGroup(List collectedEntries) {
+        for(int i=0; i<collectedEntries.size(); i++) {
+            def obj = (Object[]) collectedEntries[i]
+            if (obj != null && obj.length > 0) {
+                collectedEntries[i] = (Map) obj[0]
+            }
+        }
+        finalizeRow(collectedEntries)
+    }
+
+    static List doWithProjection(Projection projection, List<Map> data) {
         List result = []
-        for(Object[] d : data) {
-            result.add projection.doWithResult(d ? d[0] : null)
+        for(def d : data) {
+            result.add projection.doWithResult(d)
         }
         result
+    }
+
+    static Map findFirst(List<Map> list) {
+        for(def e : list) {
+            if (e != null && !e.isEmpty()) return e
+        }
     }
 }

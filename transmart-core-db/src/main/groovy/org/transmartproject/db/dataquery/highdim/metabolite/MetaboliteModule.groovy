@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -133,7 +134,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
-    @Override
+    @Override @CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
                                    Projection projection) {
@@ -146,18 +147,18 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
                 results:               results,
                 allowMissingAssays:    true
             ) {
-                @Override
-                def assayIdFromRow(Object[] row) { row[0].assayId }
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
 
-                @Override
-                boolean inSameGroup(a, b) { a.annotationId == b.annotationId }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId }
 
-                @Override
-                MetaboliteDataRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
-                    Map firstNonNullCell = (Map) list.find()[0]
+                @Override @CompileStatic
+                MetaboliteDataRow finalizeRow(List<Map> list /* list of arrays with one element: a map */) {
+                    Map firstNonNullCell = findFirst list
                     new MetaboliteDataRow(
-                            biochemicalName: firstNonNullCell.biochemicalName,
-                            hmdbId:          firstNonNullCell.hmdbId,
+                            biochemicalName: (String) firstNonNullCell.biochemicalName,
+                            hmdbId:          (String) firstNonNullCell.hmdbId,
                             assayIndexMap:   assayIndexes,
                             data:            doWithProjection(projection, list)
                     )
