@@ -22,7 +22,7 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import static java.util.Objects.requireNonNull
 
 @CompileStatic
-class DataTableImpl implements DataTable, AutoCloseable {
+class DataTableImpl implements DataTable {
 
     final Hypercube hypercube
     final ImmutableList<Dimension> rowDimensions, columnDimensions

@@ -7,7 +7,7 @@ import org.transmartproject.core.dataquery.SortOrder
  * A DataTable is a two-dimensional representation of a hypercube. Which dimensions are represented as rows or as
  * columns is selectable.
  */
-interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue> {
+interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>, AutoCloseable, Closeable {
 
     /**
      * @return the underlying hypercube
