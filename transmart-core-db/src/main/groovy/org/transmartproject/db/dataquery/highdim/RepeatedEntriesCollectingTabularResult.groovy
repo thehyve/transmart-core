@@ -27,14 +27,18 @@ import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.TabularResult
 
 @CompileStatic
-class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> implements TabularResult<DataColumn, T> {
+abstract class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> implements TabularResult<DataColumn, T> {
+
+    RepeatedEntriesCollectingTabularResult(TabularResult<? extends DataColumn, T> tr) {
+        tabularResult = tr
+    }
 
     @Delegate
-    TabularResult<DataColumn, T> tabularResult
+    TabularResult<? extends DataColumn, T> tabularResult
 
-    Closure<Object> collectBy = Closure.IDENTITY
+    def collectBy(T it) { it }
 
-    Closure<T> resultItem = { List<T> it -> (T) it[0] }
+    T resultItem(List<T> it) { (T) it[0] }
 
     Iterator<T> getRows() {
         new RepeatedEntriesCollectingIterator(tabularResult.iterator())
@@ -62,9 +66,9 @@ class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> implemen
             }
 
             collected.add((T) sourceIterator.next())
-            def compareValue = collectBy.call(collected[0])
+            def compareValue = collectBy(collected[0])
             while (sourceIterator.hasNext()) {
-                def element = collectBy.call(sourceIterator.peek())
+                def element = collectBy(sourceIterator.peek())
                 if(element != null && element == compareValue) {
                     collected.add((T) sourceIterator.next())
                 } else {
@@ -72,11 +76,14 @@ class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> implemen
                 }
             }
 
-            (T) resultItem.call(collected)
+            (T) resultItem(collected)
         }
     }
 
-    // A helper function that's needed in several subclasses of this
+    /**
+     * A helper function that's needed in several subclasses.
+     * Join the list with the separator, but only if the list contains non-null elements. Else return null.
+     */
     @CompileStatic
     static String safeJoin(List<String> items, String sep) {
         if(items.size() == 0) return null

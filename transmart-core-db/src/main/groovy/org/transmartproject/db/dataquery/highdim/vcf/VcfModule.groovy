@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -163,47 +164,51 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<VcfDataRow>(
                 rowsDimensionLabel:    'Regions',
                 columnsDimensionLabel: 'Sample codes',
                 allowMissingAssays:    true,
                 indicesList:           assays,
                 results:               results,
-                assayIdFromRow:        { it[0].assayId } ,
-                inSameGroup:           { a, b -> a[0].chr == b[0].chr && a[0].pos == b[0].pos && a[0].rsId == b[0].rsId },
-                finalizeGroup:         { List list -> /* list of all the results belonging to a group defined by inSameGroup */
-                    /* list of arrays with one element: a map */
+            ) {
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
+
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.chr == b.chr && a.pos == b.pos && a.rsId == b.rsId }
+
+                @Override @CompileStatic
+                VcfDataRow finalizeRow(List<Map> list) {
+                    /* list of all the results belonging to a group defined by inSameGroup */
                     /* we may have nulls if allowMissingAssays is true,
-                     *, but we're guaranteed to have at least one non-null */
-                    def firstNonNullCell = list.find()
+                     * but we're guaranteed to have at least one non-null */
+                    Map firstNonNullCell = findFirst list
                     new VcfDataRow(
-                            datasetId: firstNonNullCell[0].dataset_id,
-                            
+                            datasetId: (String) firstNonNullCell.dataset_id,
+
                             // Chromosome to define the position
-                            chromosome: firstNonNullCell[0].chr,
-                            position: firstNonNullCell[0].pos,
-                            rsId: firstNonNullCell[0].rsId,
+                            chromosome: (String) firstNonNullCell.chr,
+                            position: (Long) firstNonNullCell.pos,
+                            rsId: (String) firstNonNullCell.rsId,
 
                             // Reference and alternatives for this position
-                            referenceAllele: firstNonNullCell[0].ref,
-                            alternatives: firstNonNullCell[0].alt,
-                            reference: firstNonNullCell[0].reference,
+                            referenceAllele: (String) firstNonNullCell.ref,
+                            alternatives: (String) firstNonNullCell.alt,
+                            reference: (boolean) firstNonNullCell.reference,
 
                             // Study level properties
-                            quality: firstNonNullCell[0].quality,
-                            filter: firstNonNullCell[0].filter,
-                            info:  firstNonNullCell[0].info,
-                            format: firstNonNullCell[0].format,
-                            variants: firstNonNullCell[0].variants,
+                            quality: (String) firstNonNullCell.quality,
+                            filter: (String) firstNonNullCell.filter,
+                            info:  (String) firstNonNullCell.info,
+                            format: (String) firstNonNullCell.format,
+                            variants: (String) firstNonNullCell.variants,
 
-                            geneName: firstNonNullCell[0].geneName,
+                            geneName: (String) firstNonNullCell.geneName,
 
                             assayIndexMap: assayIndexMap,
-                            data: list.collect {
-                                projection.doWithResult it?.getAt(0)
-                            }
+                            data: doWithProjection(projection, list)
                     )
                 }
-        )
+        }
     }
 }

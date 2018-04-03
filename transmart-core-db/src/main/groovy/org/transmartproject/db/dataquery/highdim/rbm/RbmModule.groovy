@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.rbm
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -36,7 +37,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class RbmModule extends AbstractHighDimensionDataTypeModule {
 
@@ -108,49 +109,57 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
+    @CompileStatic
     @Override
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
         Map assayIndexes = createAssayIndexMap assays
 
-        def preliminaryResult = new DefaultHighDimensionTabularResult(
+        def preliminaryResult = new DefaultHighDimensionTabularResult<RbmRow>(
                 rowsDimensionLabel: 'Antigenes',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
                 results: results,
                 //TODO Remove this. On real data missing assays are signaling about problems
                 allowMissingAssays: true,
-                assayIdFromRow: { it[0].assayId },
-                inSameGroup: {a, b -> a.annotationId == b.annotationId && a.uniprotId == b.uniprotId },
-                finalizeGroup: {List list ->
-                    def firstNonNullCell = list.find()
+            ) {
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
+
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId && a.uniprotId == b.uniprotId }
+
+                @Override @CompileStatic
+                RbmRow finalizeRow(List<Map> list) {
+                    Map firstNonNullCell = findFirst list
                     new RbmRow(
-                            annotationId:  firstNonNullCell[0].annotationId,
-                            antigenName:   firstNonNullCell[0].antigenName,
-                            unit:          firstNonNullCell[0].unit,
-                            uniprotName:   firstNonNullCell[0].uniprotName,
+                            annotationId:  (Integer) firstNonNullCell.annotationId,
+                            antigenName:   (String) firstNonNullCell.antigenName,
+                            unit:          (String) firstNonNullCell.unit,
+                            uniprotName:   (String) firstNonNullCell.uniprotName,
                             assayIndexMap: assayIndexes,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
+                            data:          doWithProjection(projection, list)
                     )
                 }
-        )
+        }
 
-        new RepeatedEntriesCollectingTabularResult(
-                tabularResult: preliminaryResult,
-                collectBy: { it.antigenName },
-                resultItem: {collectedList ->
-                    if (collectedList) {
-                        new RbmRow(
-                                annotationId:   collectedList[0].annotationId,
-                                antigenName:    collectedList[0].antigenName,
-                                unit:           collectedList[0].unit,
-                                uniprotName:    RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.uniprotName, '/'),
-                                assayIndexMap:  collectedList[0].assayIndexMap,
-                                data:           collectedList[0].data
-                        )
-    }
-}
-        )
+        new RepeatedEntriesCollectingTabularResult<RbmRow>(preliminaryResult) {
+            @Override @CompileStatic
+            def collectBy(RbmRow it) { it.antigenName }
+
+            @Override @CompileStatic
+            RbmRow resultItem(List<RbmRow> collectedList) {
+                if (collectedList) {
+                    new RbmRow(
+                            annotationId: collectedList[0].annotationId,
+                            antigenName: collectedList[0].antigenName,
+                            unit: collectedList[0].unit,
+                            uniprotName: safeJoin(collectedList*.uniprotName, '/'),
+                            assayIndexMap: collectedList[0].assayIndexMap,
+                            data: collectedList[0].data
+                    )
+                }
+            }
+        }
     }
 
 }
