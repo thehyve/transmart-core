@@ -554,7 +554,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 @CompileStatic @InheritConstructors
 class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> implements CompositeElemDim<I2B2PatientDimension, Long> {
     Class elemType = I2B2PatientDimension
-    List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
+    List elemFields = ["id", "trial", "inTrialId", "subjectIds", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion", "sexCd",
                       new PropertyImpl('sex', 'sex', String) {
                           @Override def get(element) { super.get(element).toString() }
@@ -564,6 +564,24 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String alias = 'patientId'
     String columnName = 'patient.id'
     String keyProperty = 'id'
+
+    final static String SOURCE_SUBJECT_KEY = 'SUBJ_ID'
+
+    // For patients there are several identifiers. The internal `id` is guaranteed unique, but only meaningful within
+    // the TM database. `inTrialId` and `subjectIds[SOURCE_SUBJECT_KEY]` are external identifiers, but therefore are
+    // not guaranteed to be unique, but they are much more useful for users. `subjectIds[SOURCE_SUBJECT_KEY]` is the
+    // newer way so that is preferred over `inTrialId` if it is available.
+    @Override def getKey(element) {
+        def patient = (I2B2PatientDimension) element
+        def source_subj_id = patient.subjectIds[SOURCE_SUBJECT_KEY]
+        if(source_subj_id) {
+            return "${patient.id}/$source_subj_id"
+        } else if (patient.inTrialId) {
+            return "${patient.id}/${patient.trial}:${patient.inTrialId}"
+        } else {
+            return patient.id
+        }
+    }
 
     @Override def selectIDs(Query query) {
         if(query.params.patientSelected) return
