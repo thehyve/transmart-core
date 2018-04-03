@@ -10,7 +10,6 @@ import com.google.common.collect.Table
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.Immutable
-import org.springframework.context.annotation.Lazy
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
@@ -36,7 +35,7 @@ class DataTableImpl implements DataTable {
     // A map from dimension to columnDimensions.indexOf(dimension)
     private Map<Dimension, Integer> columnIndices
 
-    @Delegate @Lazy
+    @Lazy @Delegate
     Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> table = buildTable()
 
     @Lazy
@@ -60,10 +59,10 @@ class DataTableImpl implements DataTable {
     DataTableImpl(Map args, Hypercube hypercube) {
         requireNonNull this.hypercube = hypercube
         this.hypercubeIter = this.hypercube.iterator()
-        requireNonNull this.rowDimensions = ImmutableList.<Dimension>copyOf(args.rowDimensions)
-        requireNonNull this.columnDimensions = ImmutableList.<Dimension>copyOf(args.columnDimensions)
+        requireNonNull this.rowDimensions = ImmutableList.<Dimension>copyOf((List) args.rowDimensions)
+        requireNonNull this.columnDimensions = ImmutableList.<Dimension>copyOf((List) args.columnDimensions)
         requireNonNull this.sort = ImmutableMap.copyOf((Map) args.sort)
-        this.offset = (long) args.offset ?: 0
+        this.offset = (long) (args.offset ?: 0)
         requireNonNull this.limit = (int) args.limit
 
         columnIndices = columnDimensions.withIndex().collectEntries()
@@ -103,7 +102,7 @@ class DataTableImpl implements DataTable {
 
         for(int i=0; i<rows.size(); i++) {
             for(def hv : rows[i]) {
-                def elems = []
+                List elems = []
                 for(def dim : rowDimensions) {
                     elems.add(hv[dim])
                 }
@@ -120,10 +119,11 @@ class DataTableImpl implements DataTable {
         table
     }
 
-    @Immutable
+    // tell groovy to ignore mutability of `dt`
+    @Immutable(knownImmutableClasses=[ImmutableList], knownImmutables=['dt'])
     @EqualsAndHashCode(includes=["elements"])
     static class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
-        DataTableImpl dt
+        private DataTableImpl dt
         ImmutableList elements // in the order of columnDimensions
 
         @Override
@@ -146,7 +146,7 @@ class DataTableImpl implements DataTable {
         }
     }
 
-    @Immutable
+    @Immutable(knownImmutableClasses=[ImmutableList])
     @EqualsAndHashCode(includes=["offset"])
     static class DataTableRowImpl implements DataTableRow<DataTableRowImpl> {
         long offset
