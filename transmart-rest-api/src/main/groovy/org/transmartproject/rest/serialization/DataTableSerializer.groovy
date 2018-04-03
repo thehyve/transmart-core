@@ -142,7 +142,7 @@ class DataTableSerializer {
         writeRows()
         writeDimensions('row', table.rowDimensions)
         writeDimensions('column', table.columnDimensions)
-        writeSorting(args.userSorting ?: [:])
+        writeSorting((Map) args.userSorting ?: [:])
         writeOtherKeys()
 
         writer.endObject()
