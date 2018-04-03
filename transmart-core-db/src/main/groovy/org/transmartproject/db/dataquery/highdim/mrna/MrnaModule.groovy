@@ -108,27 +108,23 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 results:               results,
                 allowMissingAssays:    true
             ) {
-                @Override
-                def assayIdFromRow(Object[] row) { row[0].assayId }
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
 
-                @Override
-                boolean inSameGroup(a, b) {a.probeId == b.probeId && a.geneSymbol == b.geneSymbol }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) {a.probeId == b.probeId && a.geneSymbol == b.geneSymbol }
 
-                @Override
-                ProbeRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
-                    List data = []
-                    for (Object[] e : list) {
-                        data.add projection.doWithResult(e ? e[0] : null)
-                    }
+                @Override @CompileStatic
+                ProbeRow finalizeRow(List<Map> list) {
                     /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
-                    Map firstNonNullCell = (Map) list.find()[0]
+                    Map firstNonNullCell = findFirst list
                     new ProbeRow(
-                            probe:         firstNonNullCell.probeName,
-                            geneSymbol:    firstNonNullCell.geneSymbol,
-                            geneId:        firstNonNullCell.geneId,
+                            probe:         (String) firstNonNullCell.probeName,
+                            geneSymbol:    (String) firstNonNullCell.geneSymbol,
+                            geneId:        (String) firstNonNullCell.geneId,
                             assayIndexMap: assayIndexMap,
-                            data:          data,
+                            data:          doWithProjection(projection, list),
                     )
                 }
         }
@@ -138,8 +134,8 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
          * probeset_id, just with different genes.
          * Hence the order by clause and the definition of inSameGroup above */
         new RepeatedEntriesCollectingTabularResult<ProbeRow>(preliminaryResult) {
-            @Override def collectBy(ProbeRow it) { it.probe }
-            @Override ProbeRow resultItem(List<ProbeRow> collectedList) {
+            @Override @CompileStatic def collectBy(ProbeRow it) { it.probe }
+            @Override @CompileStatic ProbeRow resultItem(List<ProbeRow> collectedList) {
                 if (collectedList) {
                     new ProbeRow(
                             probe: collectedList[0].probe,

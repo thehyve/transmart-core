@@ -101,18 +101,21 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
     private Boolean   getRowsCalled = false
     private Boolean   closeCalled = false
 
-    CollectingTabularResult() {}
+    CollectingTabularResult() {
+        indicesListIds = indicesList*.getAt("id")
+    }
 
     CollectingTabularResult(Map properties) {
         for(Map.Entry e : properties) {
             this.metaClass.setProperty(this, (String) e.key, e.value)
         }
+        indicesListIds = indicesList*.getAt("id")
     }
 
-    abstract protected boolean inSameGroup(a, b)
+    abstract protected boolean inSameGroup(Object[] a, Object[] b)
     abstract protected R finalizeGroup(List<Object[]> collectedEntries)
 
-    protected Object columnIdFromRow(Object[] row) {
+    protected Object columnIdFromRow(/*Object[]*/ row) {
         throw new UnsupportedOperationException("not implemented")
     }
     private Boolean hasColumnIdFromRow = null
@@ -126,7 +129,7 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
     private RuntimeException initialException =
         new RuntimeException('Instantiated at this point')
 
-    private void checkValidColumnIdFromRow(row) {
+    private void checkValidColumnIdFromRow(Object[] row) {
         if (hasColumnIdFromRow != null) return
         try {
             columnIdFromRow(row)
@@ -156,7 +159,7 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
         finalizeGroup collectedEntries
     }
 
-    protected void finalizeCollectedEntries(ArrayList collectedEntries) {
+    protected void finalizeCollectedEntries(ArrayList<Object[]> collectedEntries) {
         if (collectedEntries.size() == indicesList.size()) {
             return
         }
@@ -174,7 +177,7 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
 
         if (allowMissingColumns) {
             /* fill with nulls till we have the expected size */
-            collectedEntries.addAll(Collections.nCopies(
+            collectedEntries.addAll((List) Collections.nCopies(
                     indicesList.size() - collectedEntries.size(),
                     null
             ))

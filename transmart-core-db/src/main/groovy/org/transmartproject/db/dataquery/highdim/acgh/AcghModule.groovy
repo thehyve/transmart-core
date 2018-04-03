@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -40,6 +41,8 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class AcghModule extends AbstractHighDimensionDataTypeModule {
 
@@ -152,7 +155,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
-    @Override
+    @Override @CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
                                    Projection projection) {
@@ -166,35 +169,35 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 indicesList: assays,
                 results: results
             ) {
-                @Override
-                boolean inSameGroup(a, b) { a.id == b.id }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.id == b.id }
 
-                @Override
-                RegionRowImpl finalizeGroup(List<Object[]> list /* list of arrays with 15 elements (1/projection) */) {
+                @Override @CompileStatic
+                RegionRowImpl finalizeRow(List<Map> list) {
                     if (list.size() != assays.size()) {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    Map cell = (Map) list.find()[0]
+                    Map cell = findFirst list
                     def regionRow = new RegionRowImpl(
-                            id: cell.id,
-                            name: cell.name,
-                            cytoband: cell.cytoband,
-                            chromosome: cell.chromosome,
-                            start: cell.start,
-                            end: cell.end,
-                            numberOfProbes: cell.numberOfProbes,
-                            bioMarker: cell.geneSymbol,
+                            id: (Long) cell.id,
+                            name: (String) cell.name,
+                            cytoband: (String) cell.cytoband,
+                            chromosome: (String) cell.chromosome,
+                            start: (Long) cell.start,
+                            end: (Long) cell.end,
+                            numberOfProbes: (Integer) cell.numberOfProbes,
+                            bioMarker: (String) cell.geneSymbol,
                             platform: new PlatformImpl(
-                                    id:              cell.platformId,
-                                    title:           cell.platformTitle,
-                                    organism:        cell.platformOrganism,
+                                    id:              (String) cell.platformId,
+                                    title:           (String) cell.platformTitle,
+                                    organism:        (String) cell.platformOrganism,
                                     //It converts timestamp to date
                                     annotationDate:  cell.platformAnnotationDate ?
                                             new Date(((Date) cell.platformAnnotationDate).getTime())
                                             : null,
-                                    markerType:      cell.platformMarkerType,
-                                    genomeReleaseId: cell.platformGenomeReleaseId
+                                    markerType:      (String) cell.platformMarkerType,
+                                    genomeReleaseId: (String) cell.platformGenomeReleaseId
                             ),
 
                             assayIndexMap: assayIndexMap

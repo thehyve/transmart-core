@@ -37,7 +37,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class RbmModule extends AbstractHighDimensionDataTypeModule {
 
@@ -122,20 +122,20 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 //TODO Remove this. On real data missing assays are signaling about problems
                 allowMissingAssays: true,
             ) {
-                @Override
-                def assayIdFromRow(Object[] row) { row[0].assayId }
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
 
-                @Override
-                boolean inSameGroup(a, b) { a.annotationId == b.annotationId && a.uniprotId == b.uniprotId }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId && a.uniprotId == b.uniprotId }
 
-                @Override
-                RbmRow finalizeGroup(List<Object[]> list) {
-                    Map firstNonNullCell = (Map) list.find()[0]
+                @Override @CompileStatic
+                RbmRow finalizeRow(List<Map> list) {
+                    Map firstNonNullCell = findFirst list
                     new RbmRow(
-                            annotationId:  firstNonNullCell.annotationId,
-                            antigenName:   firstNonNullCell.antigenName,
-                            unit:          firstNonNullCell.unit,
-                            uniprotName:   firstNonNullCell.uniprotName,
+                            annotationId:  (Integer) firstNonNullCell.annotationId,
+                            antigenName:   (String) firstNonNullCell.antigenName,
+                            unit:          (String) firstNonNullCell.unit,
+                            uniprotName:   (String) firstNonNullCell.uniprotName,
                             assayIndexMap: assayIndexes,
                             data:          doWithProjection(projection, list)
                     )
@@ -143,10 +143,10 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
         }
 
         new RepeatedEntriesCollectingTabularResult<RbmRow>(preliminaryResult) {
-            @Override
+            @Override @CompileStatic
             def collectBy(RbmRow it) { it.antigenName }
 
-            @Override
+            @Override @CompileStatic
             RbmRow resultItem(List<RbmRow> collectedList) {
                 if (collectedList) {
                     new RbmRow(

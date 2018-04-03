@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.mirna
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -36,7 +37,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
 import javax.annotation.PostConstruct
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 /*
  * Mirna QPCR and Mirna SEQ are different data types (according to the user), but they have basically the same
@@ -119,7 +120,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
         criteriaBuilder
     }
 
-    @Override
+    @Override @CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
                                    Projection projection) {
@@ -133,18 +134,18 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
                 results:               results,
                 allowMissingAssays:    true,
             ) {
-                @Override
-                def assayIdFromRow(Object[] row) { row[0].assayId }
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
 
-                @Override
-                boolean inSameGroup(a, b) { a.probeId == b.probeId }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.probeId == b.probeId }
 
-                @Override
-                MirnaProbeRow finalizeGroup(List<Object[]> list /* list of arrays with one element: a map */) {
-                    Map firstNonNullCell = (Map) list.find()[0]
+                @Override @CompileStatic
+                MirnaProbeRow finalizeRow(List<Map> list) {
+                    Map firstNonNullCell = findFirst list
                     new MirnaProbeRow(
-                            probeId:       firstNonNullCell.probeId,
-                            mirnaId:       firstNonNullCell.mirna,
+                            probeId:       (String) firstNonNullCell.probeId,
+                            mirnaId:       (String) firstNonNullCell.mirna,
                             assayIndexMap: assayIndexes,
                             data:          doWithProjection(projection, list)
                     )

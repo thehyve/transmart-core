@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -170,40 +171,39 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
             ) {
-                @Override
-                def assayIdFromRow(Object[] row) { row[0].assayId }
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
 
-                @Override
-                boolean inSameGroup(a, b) { a[0].chr == b[0].chr && a[0].pos == b[0].pos && a[0].rsId == b[0].rsId }
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.chr == b.chr && a.pos == b.pos && a.rsId == b.rsId }
 
-                @Override
-                VcfDataRow finalizeGroup(List<Object[]> list) {
+                @Override @CompileStatic
+                VcfDataRow finalizeRow(List<Map> list) {
                     /* list of all the results belonging to a group defined by inSameGroup */
-                    /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
-                    Map firstNonNullCell = (Map) list.find()[0]
+                    Map firstNonNullCell = findFirst list
                     new VcfDataRow(
-                            datasetId: firstNonNullCell.dataset_id,
+                            datasetId: (String) firstNonNullCell.dataset_id,
 
                             // Chromosome to define the position
-                            chromosome: firstNonNullCell.chr,
-                            position: firstNonNullCell.pos,
-                            rsId: firstNonNullCell.rsId,
+                            chromosome: (String) firstNonNullCell.chr,
+                            position: (Long) firstNonNullCell.pos,
+                            rsId: (String) firstNonNullCell.rsId,
 
                             // Reference and alternatives for this position
-                            referenceAllele: firstNonNullCell.ref,
-                            alternatives: firstNonNullCell.alt,
-                            reference: firstNonNullCell.reference,
+                            referenceAllele: (String) firstNonNullCell.ref,
+                            alternatives: (String) firstNonNullCell.alt,
+                            reference: (boolean) firstNonNullCell.reference,
 
                             // Study level properties
-                            quality: firstNonNullCell.quality,
-                            filter: firstNonNullCell.filter,
-                            info:  firstNonNullCell.info,
-                            format: firstNonNullCell.format,
-                            variants: firstNonNullCell.variants,
+                            quality: (String) firstNonNullCell.quality,
+                            filter: (String) firstNonNullCell.filter,
+                            info:  (String) firstNonNullCell.info,
+                            format: (String) firstNonNullCell.format,
+                            variants: (String) firstNonNullCell.variants,
 
-                            geneName: firstNonNullCell.geneName,
+                            geneName: (String) firstNonNullCell.geneName,
 
                             assayIndexMap: assayIndexMap,
                             data: doWithProjection(projection, list)
