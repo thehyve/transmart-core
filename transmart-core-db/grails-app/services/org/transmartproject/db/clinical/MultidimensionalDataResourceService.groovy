@@ -11,7 +11,6 @@ import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
-import org.apache.commons.lang.NotImplementedException
 import org.hibernate.Criteria
 import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
@@ -29,6 +28,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.OperationNotImplementedException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
@@ -92,7 +92,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
         // that has not been implemented, so we only support clinical data in this call. Instead there is the
         // highDimension call that uses the old high dim api and converts the tabular result to a hypercube.
-        if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
+        if(dataType != "clinical") throw new OperationNotImplementedException(
+                "High dimension datatypes are not yet implemented for the native hypercube")
 
         Constraint constraint = args.constraint
         Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions.collect { toDimensionImpl(it) } ?: [])
