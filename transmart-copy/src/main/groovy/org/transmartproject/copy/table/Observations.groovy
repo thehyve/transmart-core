@@ -35,7 +35,7 @@ class Observations {
     final Concepts concepts
     final Patients patients
 
-    private final Map<Integer, Table> partitionToTable = [:]
+    private final Map<Long, Table> partitionToTable = [:]
 
     Observations(Database database, Studies studies, Concepts concepts, Patients patients, Copy.Config config) {
         this.database = database
@@ -60,18 +60,18 @@ class Observations {
         )
     }
 
-    Integer getBaseInstanceNum() {
+    int getBaseInstanceNum() {
         (maxInstanceNum ?: 0) + 1
     }
 
     void transformRow(final Map<String, Object> row, final int baseInstanceNum) {
         // replace patient index with patient num
-        int patientIndex = row.get('patient_num') as int
+        int patientIndex = ((BigDecimal) row.get('patient_num')).intValueExact()
         if (patientIndex >= patients.indexToPatientNum.size()) {
             throw new IllegalStateException("Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
         }
         row.put('patient_num', patients.indexToPatientNum[patientIndex])
-        int trialVisitIndex = row.get('trial_visit_num') as int
+        int trialVisitIndex = ((BigDecimal) row.get('trial_visit_num')).intValueExact()
         if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
             throw new IllegalStateException("Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
         }
@@ -80,7 +80,7 @@ class Observations {
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new IllegalStateException("Unknown concept code: ${conceptCode}")
         }
-        Integer instanceIndex = row.get('instance_num') as Integer
+        int instanceIndex = ((BigDecimal) row.get('instance_num')).intValueExact()
         row.put('instance_num', baseInstanceNum + instanceIndex)
         if (!row.get('start_date')) {
             row.put('start_date', emptyDate)
@@ -106,7 +106,7 @@ class Observations {
         createTableIndexesIfNotExistForTable(table)
     }
 
-    void removeObservationsForTrials(Set<Integer> trialVisitNums) {
+    void removeObservationsForTrials(Set<Long> trialVisitNums) {
         if (!trialVisitNums) {
             return
         }
@@ -244,23 +244,23 @@ class Observations {
     }
 
     private void insertRowsToChildTables(List<Map> rows, LinkedHashMap<String, Class> header) {
-        Map<Integer, List<Map>> groupedByTrialVisitNumsRows = new HashMap<>()
+        Map<Long, List<Map>> groupedByTrialVisitNumsRows = new HashMap<>()
         for (Map row : rows) {
-            Integer trialVisitNum = (Integer) row.get('trial_visit_num')
+            Long trialVisitNum = (Long) row.get('trial_visit_num')
             if (groupedByTrialVisitNumsRows.containsKey(trialVisitNum)) {
                 groupedByTrialVisitNumsRows.get(trialVisitNum).add(row)
             } else {
                 groupedByTrialVisitNumsRows.put(trialVisitNum, [row])
             }
         }
-        for (Map.Entry<Integer, List<Map>> childRows : groupedByTrialVisitNumsRows) {
+        for (Map.Entry<Long, List<Map>> childRows : groupedByTrialVisitNumsRows) {
             def childTable = getOrCreateChildTable(childRows.key)
             database.getInserter(childTable, header)
                     .executeBatch(childRows.value.toArray() as Map[])
         }
     }
 
-    private Table getOrCreateChildTable(Integer trialVisitNum) {
+    private Table getOrCreateChildTable(Long trialVisitNum) {
         if (partitionToTable.containsKey(trialVisitNum)) {
             return partitionToTable.get(trialVisitNum)
         }
@@ -271,23 +271,23 @@ class Observations {
         return childTable
     }
 
-    private static Table getChildTable(int trialVisitNum) {
+    private static Table getChildTable(long trialVisitNum) {
         new Table(table.schema, "${table.name}_${trialVisitNum}")
     }
 
     private createChildTableIndexes() {
-        for (Map.Entry<Integer, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+        for (Map.Entry<Long, Table> partitionToTableEntry : partitionToTable.entrySet()) {
             createTableIndexesIfNotExistForTable(partitionToTableEntry.value, partitionToTableEntry.key)
         }
     }
 
     private setLoggedModeForAllChildTables() {
-        for (Map.Entry<Integer, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+        for (Map.Entry<Long, Table> partitionToTableEntry : partitionToTable.entrySet()) {
             setLoggedMode(partitionToTableEntry.value, true)
         }
     }
 
-    private createTableIndexesIfNotExistForTable(Table tbl, Integer partition = null) {
+    private createTableIndexesIfNotExistForTable(Table tbl, Long partition = null) {
         def tx = database.beginTransaction()
         log.info "Creating indexes on ${tbl} ..."
         if (partition == null) {

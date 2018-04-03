@@ -46,8 +46,8 @@ class Patients {
         void processRow(ResultSet rs) throws SQLException {
             def patientIde = rs.getString('patient_ide')
             def patientIdeSource = rs.getString('patient_ide_source')
-            def patientNum = rs.getLong('patient_num')
-            def key = "${patientIdeSource}:${patientIde}".toString()
+            Long patientNum = rs.getLong('patient_num')
+            String key = "${patientIdeSource}:${patientIde}"
             subjectIdToPatientNum[key] = patientNum
         }
     }
@@ -79,7 +79,7 @@ class Patients {
                 }
                 try {
                     def patientMappingData = Util.asMap(patient_mapping_header, data)
-                    def patientIndex = patientMappingData['patient_num'] as int
+                    int patientIndex = ((BigDecimal) patientMappingData['patient_num']).intValueExact()
                     if (i != patientIndex + 1) {
                         throw new IllegalStateException("The patients in the patient mapping are not in order. (Found ${patientIndex} on line ${i}.)")
                     }
@@ -114,7 +114,7 @@ class Patients {
                 }
                 try {
                     def patientData = Util.asMap(patient_dimension_header, data)
-                    def patientIndex = patientData['patient_num'] as int
+                    int patientIndex = ((BigDecimal) patientData['patient_num']).intValueExact()
                     if (i != patientIndex + 1) {
                         throw new IllegalStateException("The patients are not in order. (Found ${patientIndex} on line ${i}.)")
                     }

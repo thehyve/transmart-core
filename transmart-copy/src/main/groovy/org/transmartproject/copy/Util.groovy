@@ -111,6 +111,9 @@ class Util {
                 case Double.class:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> Double.parseDouble(value) })
                     break
+                case BigDecimal.class:
+                    result[columnName] = parseIfNotEmpty(data[i], { String value -> new BigDecimal(value) })
+                    break
                 case Instant.class:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> parseDate(value) })
                     break

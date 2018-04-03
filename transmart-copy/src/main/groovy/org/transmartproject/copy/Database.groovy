@@ -36,7 +36,7 @@ class Database implements AutoCloseable {
                 case 'bool':
                     return Boolean.class
                 case 'numeric':
-                    return Double.class
+                    return BigDecimal.class
                 case 'integer':
                 case 'int8':
                 case 'int4':

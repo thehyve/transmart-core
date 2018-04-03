@@ -97,15 +97,15 @@ class Relations {
 
     void transformRow(Map<String, Object> row) {
         // replace patient index with patient num
-        def relationTypeIndex = row.relation_type_id as int
+        int relationTypeIndex = ((BigDecimal) row.relation_type_id).intValueExact()
         if (relationTypeIndex >= indexToRelationTypeId.size()) {
             throw new IllegalStateException("Invalid relation type index (${relationTypeIndex}). Only ${indexToRelationTypeId.size()} relation types found.")
         }
-        def leftSubjectIndex = row.left_subject_id as int
+        int leftSubjectIndex = ((BigDecimal) row.left_subject_id).intValueExact()
         if (leftSubjectIndex >= patients.indexToPatientNum.size()) {
             throw new IllegalStateException("Invalid patient index (${leftSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
         }
-        def rightSubjectIndex = row.right_subject_id as int
+        int rightSubjectIndex = ((BigDecimal) row.right_subject_id).intValueExact()
         if (rightSubjectIndex >= patients.indexToPatientNum.size()) {
             throw new IllegalStateException("Invalid patient index (${rightSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
         }
