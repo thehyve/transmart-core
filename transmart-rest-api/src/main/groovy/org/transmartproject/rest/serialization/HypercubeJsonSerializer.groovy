@@ -173,7 +173,7 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         } else if (value instanceof Map) {
             Map obj = (Map) value
             writer.beginObject()
-            for(Map.Entry e : obj) {
+            for (Map.Entry e : obj) {
                 writer.name((String) e.key)
                 writeValue(e.value)
             }

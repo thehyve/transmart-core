@@ -56,6 +56,19 @@ enum Type {
         void setValue(Value.Builder builder, elem) {
             builder.timestampValue = ((Date) elem).time
         }
+    },
+
+    MAP {
+        String getJsonType() {"Object"}
+        ObservationsProto.Type getProtobufType() {throw new UnsupportedOperationException("not implemented")}
+        void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
+            throw new UnsupportedOperationException("not implemented")
+            builder.addTimestampValue(((Date) elem).time)
+        }
+        void setValue(Value.Builder builder, elem) {
+            throw new UnsupportedOperationException("not implemented")
+            builder.timestampValue = ((Date) elem).time
+        }
     }
 
     /**
@@ -93,6 +106,8 @@ enum Type {
                 return DOUBLE
             case Date:
                 return TIMESTAMP
+            case Map:
+                return MAP
             default:
                 throw new RuntimeException("Unsupported type: $cls. This type is not serializable")
         }
