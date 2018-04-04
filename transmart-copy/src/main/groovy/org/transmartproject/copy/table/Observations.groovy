@@ -291,17 +291,23 @@ class Observations {
         def tx = database.beginTransaction()
         log.info "Creating indexes on ${tbl} ..."
         if (partition == null) {
-            parentTableIndexes.each { name, columns ->
-                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, name, columns))
+            for (Map.Entry<String, List> parentTableIndexDeclaration: parentTableIndexes.entrySet()) {
+                def indexName = parentTableIndexDeclaration.key
+                def columns = parentTableIndexDeclaration.value
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, indexName, columns))
             }
         } else {
-            childTableIndexes.each { name, columns ->
-                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, "${name}_${partition}", columns))
+            for (Map.Entry<String, List> childTableIndexDeclaration: childTableIndexes.entrySet()) {
+                def indexName = childTableIndexDeclaration.key
+                def columns = childTableIndexDeclaration.value
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, "${indexName}_${partition}", columns))
             }
         }
         //For partitions we still might need trial_visit_num as part of composite index so query could get everything it needs by index only scan.
-        nonModifiersTableIndexes.each { name, columns ->
-            String indexName = partition ? name + '_' + partition : name
+        for (Map.Entry<String, List> nonModifiersTableIndexDeclaration: nonModifiersTableIndexes.entrySet()) {
+            String indexName = partition ? nonModifiersTableIndexDeclaration.key + '_' + partition
+                    : nonModifiersTableIndexDeclaration.key
+            def columns = nonModifiersTableIndexDeclaration.value
             String createIndexSqlPart = composeCreateIndexSql(tbl, indexName, columns)
             database.jdbcTemplate.execute("${createIndexSqlPart} where modifier_cd='@'")
         }

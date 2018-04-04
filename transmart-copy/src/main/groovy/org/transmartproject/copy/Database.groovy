@@ -190,7 +190,7 @@ class Database implements AutoCloseable {
 
     Set<Table> getChildTables(Table parentTable) {
         log.debug "Getting child tables for: ${parentTable} ..."
-        def queryResult = jdbcTemplate.queryForList("""
+        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList("""
             SELECT cn.nspname as childSchema, c.relname AS childTable
             FROM pg_inherits
             JOIN pg_class AS c ON (inhrelid=c.oid)
@@ -199,9 +199,12 @@ class Database implements AutoCloseable {
             JOIN pg_catalog.pg_namespace pn ON (p.relnamespace=pn.oid)
             WHERE pn.nspname || '.' || p.relname='${parentTable}';
         """)
-        queryResult.collect { Map<String, Object> resultRow ->
-            new Table(resultRow.childSchema.toString(), resultRow.childTable.toString())
-        } as Set
+
+        HashSet<Table> tables = new HashSet<>()
+        for (Map<String, Object> resultRow : queryResult) {
+            tables.add(new Table(resultRow.childSchema.toString(), resultRow.childTable.toString()))
+        }
+        return tables
     }
 
     void dropTable(Table tableToDrop, boolean ifExists = false) {
