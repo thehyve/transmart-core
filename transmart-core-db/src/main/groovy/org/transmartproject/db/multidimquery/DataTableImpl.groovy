@@ -123,7 +123,7 @@ class DataTableImpl implements DataTable {
     @Immutable(knownImmutableClasses=[ImmutableList], knownImmutables=['dt'])
     @EqualsAndHashCode(includes=["elements"])
     static class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
-        private DataTableImpl dt
+        DataTableImpl dt
         ImmutableList elements // in the order of columnDimensions
 
         @Override
