@@ -69,7 +69,7 @@ class DataTableSpec extends TransmartSpecification {
         table.rowDimensions == [DimensionImpl.PATIENT]
         table.columnDimensions == [DimensionImpl.CONCEPT]
         table.rowKeys*.elements*.getAt(0) as Set == (clinicalData.longitudinalClinicalFacts*.patient as Set)
-        table.columnKeys*.elements*.getAt(0)*.conceptCode as Set == clinicalData.longitudinalClinicalFacts[0].conceptCode as Set
+        table.columnKeys*.elements*.getAt(0)*.conceptCode as Set == clinicalData.longitudinalClinicalFacts*.conceptCode as Set
 
 
     }

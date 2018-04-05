@@ -142,7 +142,7 @@ class DataTableImpl implements DataTable {
         static int compareElements(e1, e2) {
             if(e1 == null) (e2 == null ? 0 : -1)
             else if(e2 == null) 1
-            ((Comparable) e1) <=> (Comparable) e2
+            ((Comparable) e1) <=> e2
         }
     }
 
