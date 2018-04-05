@@ -262,9 +262,10 @@ class ObservationsBuilderTests extends Specification {
         def dataType = 'clinical'
         def rowDimensions = ['patient', 'study']
         def columnDimensions = ['concept', 'trial visit']
+        def limit = 10
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedDataTable = queryResource.retrieveDataTable(dataType, constraint, adminUser,
-                rowDimensions: rowDimensions, columnDimensions: columnDimensions, sort: ['patient'], limit: 10)
+                rowDimensions: rowDimensions, columnDimensions: columnDimensions, sort: ['patient'], limit: limit)
         def builder = new DataTableSerializer()
 
         when:
@@ -272,10 +273,46 @@ class ObservationsBuilderTests extends Specification {
         builder.write(mockedDataTable, out)
         out.flush()
         def result = new JsonSlurper().parse(out.toByteArray())
+        def rows = result.rows
+        def offset = result.offset
+        def sorting = result.sorting
+        def columnHeaders = result.column_headers
+        def columnDim = result.column_dimensions
+        def rowDim = result.row_dimensions
 
         then:
-        out != ""
-        result != null
+        rows.size() < clinicalData.longitudinalClinicalFacts.size()
+        rows.size() == limit
+        offset == 0
+
+        sorting.size() == columnDimensions.size() + rowDimensions.size()
+        sorting[0] == [dimension: 'patient', order: 'asc']
+        sorting[1] == [dimension: 'study', order: 'asc']
+        sorting[2] == [dimension: 'concept', order: 'asc']
+        sorting[3] == [dimension: 'trial visit', order: 'asc']
+
+        columnHeaders*.dimension == columnDimensions
+        columnHeaders[0].keys.size() == 6
+        columnHeaders[1].keys.size() == 6
+        //columnHeaders[0].keys = ['c5', 'c5', 'c5', 'c6', 'c6', 'c6'] // TODO fix header columns order
+        //columnHeaders[1].keys = ['48', '49', '50', '48', '49', '50'] // TODO fix header columns order
+
+        columnDim*.name == columnDimensions
+        columnDim[0].elements.size() == (columnHeaders[0].keys as Set).size()
+        columnDim[1].elements.size() == (columnHeaders[1].keys as Set).size()
+
+        rowDim*.name == rowDimensions
+        rowDim[0].elements.size() == 3
+        rowDim[1].elements.size() == 1
+
+        that rows*.dimensions, everyItem(hasSize(2))
+        that rows*.dimensions*.dimension, everyItem(contains('patient', 'study'))
+        (rows*.dimensions.collect{it[1].key} as Set).size() == rowDim[1].elements.size()
+        that rows*.row, everyItem(hasSize(6))
+        // TODO Fix (rowDim[0].elements = ["-103/SAMP_TRIAL:SUBJ_ID_3", "-102/SAMP_TRIAL:SUBJ_ID_2", "-101/SAMP_TRIAL:SUBJ_ID_1"])
+        // TODO but in rows there are only 2 different patients used: -103/SAMP_TRIAL:SUBJ_ID_3", "-102/SAMP_TRIAL:SUBJ_ID_2"
+        // (rows*.dimensions.collect{it[0].key} as Set).size() == rowDim[0].elements.size()
+
     }
 
 }
