@@ -137,7 +137,7 @@ class Observations {
 
     void load(String rootPath) {
         log.info "Determining instance num ..."
-        int baseInstanceNum = baseInstanceNum
+        int baseInstanceNum = config.baseOnMaxInstanceNum ? getBaseInstanceNum() : 0
         log.info "Using ${baseInstanceNum} as lowest instance num."
         File observationsFile = new File(rootPath, table.fileName)
 

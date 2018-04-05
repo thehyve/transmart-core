@@ -247,6 +247,35 @@ class CopySpec extends Specification {
         addedChildTables.each { Table table -> copy.database.dropTable(table, true) }
     }
 
+    def 'test instance num recalculation'() {
+        given: 'there is no study'
+        ensureTestStudyUnloaded()
+        Options options = new Options()
+        options.addOption(new Option('d', 'directory', true, ''))
+        options.addOption(new Option('n', 'base-on-max-instance-num', false, ''))
+        def maxInstanceNum = readFieldsFromDb(Observations.table, 'instance_num').max() ?: 0
+
+        when: 'study loaded with instance num calculation on'
+        CommandLine cli1 = new DefaultParser()
+                .parse(options, ['--directory', STUDY_FOLDER, '--base-on-max-instance-num'] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+        then: 'instance_num starts from base'
+        def instanceNums = readFieldsFromDb(Observations.table, 'instance_num', "where trial_visit_num in (${testTrialVisitsDbIdentifiers.join(',')})")
+        instanceNums.min() > maxInstanceNum
+
+        when: 'study loaded with instance num calculation off'
+        CommandLine cli2 = new DefaultParser()
+                .parse(options, ['--directory', STUDY_FOLDER] as String[])
+        Copy.runCopy(cli2, DATABASE_CREDENTIALS)
+        then: 'instance_num starts from base'
+        def zeroBasedInstanceNums = readFieldsFromDb(Observations.table, 'instance_num', "where trial_visit_num in (${testTrialVisitsDbIdentifiers.join(',')})")
+        zeroBasedInstanceNums.min() == 1
+    }
+
+    List<Number> getTestTrialVisitsDbIdentifiers() {
+        readFieldsFromDb(Studies.trial_visit_table, 'trial_visit_num', "where study_num='${getTestStudyDbIdentifier()}'")
+    }
+
     Number getTestStudyDbIdentifier() {
         def list = readFieldsFromDb(Studies.study_table, 'study_num', "where study_id='${TEST_STUDY}'")
         list ? list.first() : null

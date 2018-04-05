@@ -30,6 +30,7 @@ class Copy implements AutoCloseable {
         boolean updateConceptPaths
         boolean partition
         boolean unlogged
+        boolean baseOnMaxInstanceNum
     }
 
     static Options options = new Options()
@@ -47,6 +48,7 @@ class Copy implements AutoCloseable {
         options.addOption('m', 'mode', true, 'Load mode (e.g. \'study\' or \'pedigree\').')
         options.addOption('U', 'update-concept-paths', false, 'Updates concept paths and tree nodes when there is concept code collision.')
         options.addOption('p', 'partition', false, 'Partition observation_fact table based on trial_visit_num.')
+        options.addOption('n', 'base-on-max-instance-num', false, 'Adds to each instance num a base. The base detected as max(observation_fact.incstance_num).')
     }
 
     static printHelp() {
@@ -194,6 +196,7 @@ class Copy implements AutoCloseable {
                         updateConceptPaths: cl.hasOption('update-concept-paths'),
                         partition: cl.hasOption('partition'),
                         unlogged: cl.hasOption('unlogged'),
+                        baseOnMaxInstanceNum: cl.hasOption('base-on-max-instance-num')
                 )
                 def modes = cl.getOptionValues('mode')
                 log.debug("Load modes specified: ${modes}")
