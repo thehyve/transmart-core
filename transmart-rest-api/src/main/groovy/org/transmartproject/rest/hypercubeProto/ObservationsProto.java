@@ -324,7 +324,7 @@ public final class ObservationsProto {
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
      * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
      * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-     * to be returned with a textual or json error message in the body.
+     * to be returned with a textual or json error message in the body instead of a protobuf stream.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -336,7 +336,7 @@ public final class ObservationsProto {
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
      * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
      * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-     * to be returned with a textual or json error message in the body.
+     * to be returned with a textual or json error message in the body instead of a protobuf stream.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -561,7 +561,7 @@ public final class ObservationsProto {
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
      * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
      * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-     * to be returned with a textual or json error message in the body.
+     * to be returned with a textual or json error message in the body instead of a protobuf stream.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -584,7 +584,7 @@ public final class ObservationsProto {
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
      * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
      * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-     * to be returned with a textual or json error message in the body.
+     * to be returned with a textual or json error message in the body instead of a protobuf stream.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -1605,7 +1605,7 @@ public final class ObservationsProto {
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
        * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
        * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-       * to be returned with a textual or json error message in the body.
+       * to be returned with a textual or json error message in the body instead of a protobuf stream.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1628,7 +1628,7 @@ public final class ObservationsProto {
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
        * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
        * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-       * to be returned with a textual or json error message in the body.
+       * to be returned with a textual or json error message in the body instead of a protobuf stream.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1652,7 +1652,7 @@ public final class ObservationsProto {
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
        * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
        * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-       * to be returned with a textual or json error message in the body.
+       * to be returned with a textual or json error message in the body instead of a protobuf stream.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1673,7 +1673,7 @@ public final class ObservationsProto {
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
        * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
        * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-       * to be returned with a textual or json error message in the body.
+       * to be returned with a textual or json error message in the body instead of a protobuf stream.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1690,7 +1690,7 @@ public final class ObservationsProto {
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
        * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
        * that can be detected before writing to the response stream has started will be and will cause an HTTP error
-       * to be returned with a textual or json error message in the body.
+       * to be returned with a textual or json error message in the body instead of a protobuf stream.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -3931,20 +3931,10 @@ public final class ObservationsProto {
         getNameBytes();
 
     /**
-     * <pre>
-     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-     * (Support for nested compound types could be added in the future)
-     * </pre>
-     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     int getTypeValue();
     /**
-     * <pre>
-     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-     * (Support for nested compound types could be added in the future)
-     * </pre>
-     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType();
@@ -4076,22 +4066,12 @@ public final class ObservationsProto {
     public static final int TYPE_FIELD_NUMBER = 2;
     private int type_;
     /**
-     * <pre>
-     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-     * (Support for nested compound types could be added in the future)
-     * </pre>
-     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     public int getTypeValue() {
       return type_;
     }
     /**
-     * <pre>
-     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-     * (Support for nested compound types could be added in the future)
-     * </pre>
-     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
@@ -4490,22 +4470,12 @@ public final class ObservationsProto {
 
       private int type_ = 0;
       /**
-       * <pre>
-       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-       * (Support for nested compound types could be added in the future)
-       * </pre>
-       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public int getTypeValue() {
         return type_;
       }
       /**
-       * <pre>
-       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-       * (Support for nested compound types could be added in the future)
-       * </pre>
-       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder setTypeValue(int value) {
@@ -4514,11 +4484,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-       * (Support for nested compound types could be added in the future)
-       * </pre>
-       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
@@ -4526,11 +4491,6 @@ public final class ObservationsProto {
         return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.UNRECOGNIZED : result;
       }
       /**
-       * <pre>
-       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-       * (Support for nested compound types could be added in the future)
-       * </pre>
-       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder setType(org.transmartproject.rest.hypercubeProto.ObservationsProto.Type value) {
@@ -4543,11 +4503,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-       * (Support for nested compound types could be added in the future)
-       * </pre>
-       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder clearType() {
@@ -9912,6 +9867,50 @@ public final class ObservationsProto {
      */
     long getTimestampValue();
 
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> 
+        getObjectValueList();
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getObjectValue(int index);
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    int getObjectValueCount();
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+        getObjectValueOrBuilderList();
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getObjectValueOrBuilder(
+        int index);
+
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.ValueCase getValueCase();
   }
   /**
@@ -9926,6 +9925,7 @@ public final class ObservationsProto {
       super(builder);
     }
     private Value() {
+      objectValue_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -9974,6 +9974,15 @@ public final class ObservationsProto {
               value_ = input.readInt64();
               break;
             }
+            case 42: {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              objectValue_.add(
+                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.parser(), extensionRegistry));
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -9982,6 +9991,9 @@ public final class ObservationsProto {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          objectValue_ = java.util.Collections.unmodifiableList(objectValue_);
+        }
         makeExtensionsImmutable();
       }
     }
@@ -9997,6 +10009,7 @@ public final class ObservationsProto {
               org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder.class);
     }
 
+    private int bitField0_;
     private int valueCase_ = 0;
     private java.lang.Object value_;
     public enum ValueCase
@@ -10115,6 +10128,61 @@ public final class ObservationsProto {
       return 0L;
     }
 
+    public static final int OBJECTVALUE_FIELD_NUMBER = 5;
+    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> objectValue_;
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> getObjectValueList() {
+      return objectValue_;
+    }
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+        getObjectValueOrBuilderList() {
+      return objectValue_;
+    }
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    public int getObjectValueCount() {
+      return objectValue_.size();
+    }
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getObjectValue(int index) {
+      return objectValue_.get(index);
+    }
+    /**
+     * <pre>
+     * logically also part of the oneof, but that is syntactically not supported
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getObjectValueOrBuilder(
+        int index) {
+      return objectValue_.get(index);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -10142,6 +10210,9 @@ public final class ObservationsProto {
         output.writeInt64(
             4, (long)((java.lang.Long) value_));
       }
+      for (int i = 0; i < objectValue_.size(); i++) {
+        output.writeMessage(5, objectValue_.get(i));
+      }
     }
 
     public int getSerializedSize() {
@@ -10167,6 +10238,10 @@ public final class ObservationsProto {
           .computeInt64Size(
               4, (long)((java.lang.Long) value_));
       }
+      for (int i = 0; i < objectValue_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(5, objectValue_.get(i));
+      }
       memoizedSize = size;
       return size;
     }
@@ -10183,6 +10258,8 @@ public final class ObservationsProto {
       org.transmartproject.rest.hypercubeProto.ObservationsProto.Value other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Value) obj;
 
       boolean result = true;
+      result = result && getObjectValueList()
+          .equals(other.getObjectValueList());
       result = result && getValueCase().equals(
           other.getValueCase());
       if (!result) return false;
@@ -10218,6 +10295,10 @@ public final class ObservationsProto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (getObjectValueCount() > 0) {
+        hash = (37 * hash) + OBJECTVALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getObjectValueList().hashCode();
+      }
       switch (valueCase_) {
         case 1:
           hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
@@ -10355,10 +10436,17 @@ public final class ObservationsProto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
+          getObjectValueFieldBuilder();
         }
       }
       public Builder clear() {
         super.clear();
+        if (objectValueBuilder_ == null) {
+          objectValue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+        } else {
+          objectValueBuilder_.clear();
+        }
         valueCase_ = 0;
         value_ = null;
         return this;
@@ -10383,6 +10471,8 @@ public final class ObservationsProto {
 
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value buildPartial() {
         org.transmartproject.rest.hypercubeProto.ObservationsProto.Value result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Value(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (valueCase_ == 1) {
           result.value_ = value_;
         }
@@ -10395,6 +10485,16 @@ public final class ObservationsProto {
         if (valueCase_ == 4) {
           result.value_ = value_;
         }
+        if (objectValueBuilder_ == null) {
+          if (((bitField0_ & 0x00000010) == 0x00000010)) {
+            objectValue_ = java.util.Collections.unmodifiableList(objectValue_);
+            bitField0_ = (bitField0_ & ~0x00000010);
+          }
+          result.objectValue_ = objectValue_;
+        } else {
+          result.objectValue_ = objectValueBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
         result.valueCase_ = valueCase_;
         onBuilt();
         return result;
@@ -10437,6 +10537,32 @@ public final class ObservationsProto {
 
       public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value other) {
         if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance()) return this;
+        if (objectValueBuilder_ == null) {
+          if (!other.objectValue_.isEmpty()) {
+            if (objectValue_.isEmpty()) {
+              objectValue_ = other.objectValue_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+            } else {
+              ensureObjectValueIsMutable();
+              objectValue_.addAll(other.objectValue_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.objectValue_.isEmpty()) {
+            if (objectValueBuilder_.isEmpty()) {
+              objectValueBuilder_.dispose();
+              objectValueBuilder_ = null;
+              objectValue_ = other.objectValue_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+              objectValueBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getObjectValueFieldBuilder() : null;
+            } else {
+              objectValueBuilder_.addAllMessages(other.objectValue_);
+            }
+          }
+        }
         switch (other.getValueCase()) {
           case STRINGVALUE: {
             valueCase_ = 1;
@@ -10500,6 +10626,7 @@ public final class ObservationsProto {
         return this;
       }
 
+      private int bitField0_;
 
       /**
        * <code>optional string stringValue = 1;</code>
@@ -10670,6 +10797,318 @@ public final class ObservationsProto {
         }
         return this;
       }
+
+      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> objectValue_ =
+        java.util.Collections.emptyList();
+      private void ensureObjectValueIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value>(objectValue_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> objectValueBuilder_;
+
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> getObjectValueList() {
+        if (objectValueBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(objectValue_);
+        } else {
+          return objectValueBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public int getObjectValueCount() {
+        if (objectValueBuilder_ == null) {
+          return objectValue_.size();
+        } else {
+          return objectValueBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getObjectValue(int index) {
+        if (objectValueBuilder_ == null) {
+          return objectValue_.get(index);
+        } else {
+          return objectValueBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder setObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (objectValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureObjectValueIsMutable();
+          objectValue_.set(index, value);
+          onChanged();
+        } else {
+          objectValueBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder setObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          objectValueBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder addObjectValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (objectValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureObjectValueIsMutable();
+          objectValue_.add(value);
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder addObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (objectValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureObjectValueIsMutable();
+          objectValue_.add(index, value);
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder addObjectValue(
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.add(builderForValue.build());
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder addObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder addAllObjectValue(
+          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> values) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, objectValue_);
+          onChanged();
+        } else {
+          objectValueBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder clearObjectValue() {
+        if (objectValueBuilder_ == null) {
+          objectValue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+          onChanged();
+        } else {
+          objectValueBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public Builder removeObjectValue(int index) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.remove(index);
+          onChanged();
+        } else {
+          objectValueBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder getObjectValueBuilder(
+          int index) {
+        return getObjectValueFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getObjectValueOrBuilder(
+          int index) {
+        if (objectValueBuilder_ == null) {
+          return objectValue_.get(index);  } else {
+          return objectValueBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+           getObjectValueOrBuilderList() {
+        if (objectValueBuilder_ != null) {
+          return objectValueBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(objectValue_);
+        }
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder addObjectValueBuilder() {
+        return getObjectValueFieldBuilder().addBuilder(
+            org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder addObjectValueBuilder(
+          int index) {
+        return getObjectValueFieldBuilder().addBuilder(
+            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * logically also part of the oneof, but that is syntactically not supported
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       */
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder> 
+           getObjectValueBuilderList() {
+        return getObjectValueFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+          getObjectValueFieldBuilder() {
+        if (objectValueBuilder_ == null) {
+          objectValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder>(
+                  objectValue_,
+                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  getParentForChildren(),
+                  isClean());
+          objectValue_ = null;
+        }
+        return objectValueBuilder_;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -10714,6 +11153,760 @@ public final class ObservationsProto {
     }
 
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface MapEntryOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:hypercube.MapEntry)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    boolean hasKey();
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getKey();
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getKeyOrBuilder();
+
+    /**
+     * <code>optional .hypercube.Value value = 2;</code>
+     */
+    boolean hasValue();
+    /**
+     * <code>optional .hypercube.Value value = 2;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getValue();
+    /**
+     * <code>optional .hypercube.Value value = 2;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getValueOrBuilder();
+  }
+  /**
+   * Protobuf type {@code hypercube.MapEntry}
+   */
+  public  static final class MapEntry extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:hypercube.MapEntry)
+      MapEntryOrBuilder {
+    // Use MapEntry.newBuilder() to construct.
+    private MapEntry(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private MapEntry() {
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private MapEntry(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder subBuilder = null;
+              if (key_ != null) {
+                subBuilder = key_.toBuilder();
+              }
+              key_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(key_);
+                key_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 18: {
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder subBuilder = null;
+              if (value_ != null) {
+                subBuilder = value_.toBuilder();
+              }
+              value_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(value_);
+                value_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapEntry_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapEntry_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder.class);
+    }
+
+    public static final int KEY_FIELD_NUMBER = 1;
+    private org.transmartproject.rest.hypercubeProto.ObservationsProto.Value key_;
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    public boolean hasKey() {
+      return key_ != null;
+    }
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getKey() {
+      return key_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : key_;
+    }
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getKeyOrBuilder() {
+      return getKey();
+    }
+
+    public static final int VALUE_FIELD_NUMBER = 2;
+    private org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value_;
+    /**
+     * <code>optional .hypercube.Value value = 2;</code>
+     */
+    public boolean hasValue() {
+      return value_ != null;
+    }
+    /**
+     * <code>optional .hypercube.Value value = 2;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getValue() {
+      return value_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : value_;
+    }
+    /**
+     * <code>optional .hypercube.Value value = 2;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getValueOrBuilder() {
+      return getValue();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (key_ != null) {
+        output.writeMessage(1, getKey());
+      }
+      if (value_ != null) {
+        output.writeMessage(2, getValue());
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (key_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, getKey());
+      }
+      if (value_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getValue());
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry)) {
+        return super.equals(obj);
+      }
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry) obj;
+
+      boolean result = true;
+      result = result && (hasKey() == other.hasKey());
+      if (hasKey()) {
+        result = result && getKey()
+            .equals(other.getKey());
+      }
+      result = result && (hasValue() == other.hasValue());
+      if (hasValue()) {
+        result = result && getValue()
+            .equals(other.getValue());
+      }
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasKey()) {
+        hash = (37 * hash) + KEY_FIELD_NUMBER;
+        hash = (53 * hash) + getKey().hashCode();
+      }
+      if (hasValue()) {
+        hash = (37 * hash) + VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getValue().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code hypercube.MapEntry}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:hypercube.MapEntry)
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapEntry_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapEntry_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder.class);
+      }
+
+      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (keyBuilder_ == null) {
+          key_ = null;
+        } else {
+          key_ = null;
+          keyBuilder_ = null;
+        }
+        if (valueBuilder_ == null) {
+          value_ = null;
+        } else {
+          value_ = null;
+          valueBuilder_ = null;
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapEntry_descriptor;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry getDefaultInstanceForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.getDefaultInstance();
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry build() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry buildPartial() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry(this);
+        if (keyBuilder_ == null) {
+          result.key_ = key_;
+        } else {
+          result.key_ = keyBuilder_.build();
+        }
+        if (valueBuilder_ == null) {
+          result.value_ = value_;
+        } else {
+          result.value_ = valueBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry) {
+          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry other) {
+        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.getDefaultInstance()) return this;
+        if (other.hasKey()) {
+          mergeKey(other.getKey());
+        }
+        if (other.hasValue()) {
+          mergeValue(other.getValue());
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private org.transmartproject.rest.hypercubeProto.ObservationsProto.Value key_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> keyBuilder_;
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public boolean hasKey() {
+        return keyBuilder_ != null || key_ != null;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getKey() {
+        if (keyBuilder_ == null) {
+          return key_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : key_;
+        } else {
+          return keyBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder setKey(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (keyBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          key_ = value;
+          onChanged();
+        } else {
+          keyBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder setKey(
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (keyBuilder_ == null) {
+          key_ = builderForValue.build();
+          onChanged();
+        } else {
+          keyBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder mergeKey(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (keyBuilder_ == null) {
+          if (key_ != null) {
+            key_ =
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.newBuilder(key_).mergeFrom(value).buildPartial();
+          } else {
+            key_ = value;
+          }
+          onChanged();
+        } else {
+          keyBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder clearKey() {
+        if (keyBuilder_ == null) {
+          key_ = null;
+          onChanged();
+        } else {
+          key_ = null;
+          keyBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder getKeyBuilder() {
+        
+        onChanged();
+        return getKeyFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getKeyOrBuilder() {
+        if (keyBuilder_ != null) {
+          return keyBuilder_.getMessageOrBuilder();
+        } else {
+          return key_ == null ?
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : key_;
+        }
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+          getKeyFieldBuilder() {
+        if (keyBuilder_ == null) {
+          keyBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder>(
+                  getKey(),
+                  getParentForChildren(),
+                  isClean());
+          key_ = null;
+        }
+        return keyBuilder_;
+      }
+
+      private org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> valueBuilder_;
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public boolean hasValue() {
+        return valueBuilder_ != null || value_ != null;
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getValue() {
+        if (valueBuilder_ == null) {
+          return value_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : value_;
+        } else {
+          return valueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public Builder setValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (valueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          value_ = value;
+          onChanged();
+        } else {
+          valueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public Builder setValue(
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (valueBuilder_ == null) {
+          value_ = builderForValue.build();
+          onChanged();
+        } else {
+          valueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public Builder mergeValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (valueBuilder_ == null) {
+          if (value_ != null) {
+            value_ =
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.newBuilder(value_).mergeFrom(value).buildPartial();
+          } else {
+            value_ = value;
+          }
+          onChanged();
+        } else {
+          valueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public Builder clearValue() {
+        if (valueBuilder_ == null) {
+          value_ = null;
+          onChanged();
+        } else {
+          value_ = null;
+          valueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder getValueBuilder() {
+        
+        onChanged();
+        return getValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getValueOrBuilder() {
+        if (valueBuilder_ != null) {
+          return valueBuilder_.getMessageOrBuilder();
+        } else {
+          return value_ == null ?
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : value_;
+        }
+      }
+      /**
+       * <code>optional .hypercube.Value value = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+          getValueFieldBuilder() {
+        if (valueBuilder_ == null) {
+          valueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder>(
+                  getValue(),
+                  getParentForChildren(),
+                  isClean());
+          value_ = null;
+        }
+        return valueBuilder_;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:hypercube.MapEntry)
+    }
+
+    // @@protoc_insertion_point(class_scope:hypercube.MapEntry)
+    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry();
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<MapEntry>
+        PARSER = new com.google.protobuf.AbstractParser<MapEntry>() {
+      public MapEntry parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new MapEntry(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<MapEntry> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MapEntry> getParserForType() {
+      return PARSER;
+    }
+
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -13188,6 +14381,84 @@ public final class ObservationsProto {
     long getTimestampValue(int index);
 
     /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn> 
+        getObjectValueList();
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn getObjectValue(int index);
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    int getObjectValueCount();
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder> 
+        getObjectValueOrBuilderList();
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder getObjectValueOrBuilder(
+        int index);
+
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> 
+        getUnpackedValueList();
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getUnpackedValue(int index);
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    int getUnpackedValueCount();
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+        getUnpackedValueOrBuilderList();
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getUnpackedValueOrBuilder(
+        int index);
+
+    /**
      * <code>repeated int32 absentValueIndices = 5;</code>
      */
     java.util.List<java.lang.Integer> getAbsentValueIndicesList();
@@ -13216,6 +14487,8 @@ public final class ObservationsProto {
       doubleValue_ = java.util.Collections.emptyList();
       intValue_ = java.util.Collections.emptyList();
       timestampValue_ = java.util.Collections.emptyList();
+      objectValue_ = java.util.Collections.emptyList();
+      unpackedValue_ = java.util.Collections.emptyList();
       absentValueIndices_ = java.util.Collections.emptyList();
     }
 
@@ -13317,9 +14590,9 @@ public final class ObservationsProto {
               break;
             }
             case 40: {
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
                 absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000010;
+                mutable_bitField0_ |= 0x00000040;
               }
               absentValueIndices_.add(input.readInt32());
               break;
@@ -13327,14 +14600,32 @@ public final class ObservationsProto {
             case 42: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
                 absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000010;
+                mutable_bitField0_ |= 0x00000040;
               }
               while (input.getBytesUntilLimit() > 0) {
                 absentValueIndices_.add(input.readInt32());
               }
               input.popLimit(limit);
+              break;
+            }
+            case 50: {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              objectValue_.add(
+                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.parser(), extensionRegistry));
+              break;
+            }
+            case 58: {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+                unpackedValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value>();
+                mutable_bitField0_ |= 0x00000020;
+              }
+              unpackedValue_.add(
+                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.parser(), extensionRegistry));
               break;
             }
           }
@@ -13357,8 +14648,14 @@ public final class ObservationsProto {
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           timestampValue_ = java.util.Collections.unmodifiableList(timestampValue_);
         }
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           absentValueIndices_ = java.util.Collections.unmodifiableList(absentValueIndices_);
+        }
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          objectValue_ = java.util.Collections.unmodifiableList(objectValue_);
+        }
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+          unpackedValue_ = java.util.Collections.unmodifiableList(unpackedValue_);
         }
         makeExtensionsImmutable();
       }
@@ -13489,6 +14786,106 @@ public final class ObservationsProto {
     }
     private int timestampValueMemoizedSerializedSize = -1;
 
+    public static final int OBJECTVALUE_FIELD_NUMBER = 6;
+    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn> objectValue_;
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn> getObjectValueList() {
+      return objectValue_;
+    }
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder> 
+        getObjectValueOrBuilderList() {
+      return objectValue_;
+    }
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    public int getObjectValueCount() {
+      return objectValue_.size();
+    }
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn getObjectValue(int index) {
+      return objectValue_.get(index);
+    }
+    /**
+     * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder getObjectValueOrBuilder(
+        int index) {
+      return objectValue_.get(index);
+    }
+
+    public static final int UNPACKEDVALUE_FIELD_NUMBER = 7;
+    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> unpackedValue_;
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> getUnpackedValueList() {
+      return unpackedValue_;
+    }
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+        getUnpackedValueOrBuilderList() {
+      return unpackedValue_;
+    }
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    public int getUnpackedValueCount() {
+      return unpackedValue_.size();
+    }
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getUnpackedValue(int index) {
+      return unpackedValue_.get(index);
+    }
+    /**
+     * <pre>
+     * As an alternative to one of the above packed representations, the value for each element can be represented in
+     * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+     * element. It is up to the encoder to decide how to represent values.
+     * </pre>
+     *
+     * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getUnpackedValueOrBuilder(
+        int index) {
+      return unpackedValue_.get(index);
+    }
+
     public static final int ABSENTVALUEINDICES_FIELD_NUMBER = 5;
     private java.util.List<java.lang.Integer> absentValueIndices_;
     /**
@@ -13555,6 +14952,12 @@ public final class ObservationsProto {
       }
       for (int i = 0; i < absentValueIndices_.size(); i++) {
         output.writeInt32NoTag(absentValueIndices_.get(i));
+      }
+      for (int i = 0; i < objectValue_.size(); i++) {
+        output.writeMessage(6, objectValue_.get(i));
+      }
+      for (int i = 0; i < unpackedValue_.size(); i++) {
+        output.writeMessage(7, unpackedValue_.get(i));
       }
     }
 
@@ -13624,6 +15027,14 @@ public final class ObservationsProto {
         }
         absentValueIndicesMemoizedSerializedSize = dataSize;
       }
+      for (int i = 0; i < objectValue_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, objectValue_.get(i));
+      }
+      for (int i = 0; i < unpackedValue_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, unpackedValue_.get(i));
+      }
       memoizedSize = size;
       return size;
     }
@@ -13648,6 +15059,10 @@ public final class ObservationsProto {
           .equals(other.getIntValueList());
       result = result && getTimestampValueList()
           .equals(other.getTimestampValueList());
+      result = result && getObjectValueList()
+          .equals(other.getObjectValueList());
+      result = result && getUnpackedValueList()
+          .equals(other.getUnpackedValueList());
       result = result && getAbsentValueIndicesList()
           .equals(other.getAbsentValueIndicesList());
       return result;
@@ -13675,6 +15090,14 @@ public final class ObservationsProto {
       if (getTimestampValueCount() > 0) {
         hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
         hash = (53 * hash) + getTimestampValueList().hashCode();
+      }
+      if (getObjectValueCount() > 0) {
+        hash = (37 * hash) + OBJECTVALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getObjectValueList().hashCode();
+      }
+      if (getUnpackedValueCount() > 0) {
+        hash = (37 * hash) + UNPACKEDVALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getUnpackedValueList().hashCode();
       }
       if (getAbsentValueIndicesCount() > 0) {
         hash = (37 * hash) + ABSENTVALUEINDICES_FIELD_NUMBER;
@@ -13794,6 +15217,8 @@ public final class ObservationsProto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
+          getObjectValueFieldBuilder();
+          getUnpackedValueFieldBuilder();
         }
       }
       public Builder clear() {
@@ -13806,8 +15231,20 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         timestampValue_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000008);
+        if (objectValueBuilder_ == null) {
+          objectValue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+        } else {
+          objectValueBuilder_.clear();
+        }
+        if (unpackedValueBuilder_ == null) {
+          unpackedValue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000020);
+        } else {
+          unpackedValueBuilder_.clear();
+        }
         absentValueIndices_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -13851,9 +15288,27 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.timestampValue_ = timestampValue_;
-        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        if (objectValueBuilder_ == null) {
+          if (((bitField0_ & 0x00000010) == 0x00000010)) {
+            objectValue_ = java.util.Collections.unmodifiableList(objectValue_);
+            bitField0_ = (bitField0_ & ~0x00000010);
+          }
+          result.objectValue_ = objectValue_;
+        } else {
+          result.objectValue_ = objectValueBuilder_.build();
+        }
+        if (unpackedValueBuilder_ == null) {
+          if (((bitField0_ & 0x00000020) == 0x00000020)) {
+            unpackedValue_ = java.util.Collections.unmodifiableList(unpackedValue_);
+            bitField0_ = (bitField0_ & ~0x00000020);
+          }
+          result.unpackedValue_ = unpackedValue_;
+        } else {
+          result.unpackedValue_ = unpackedValueBuilder_.build();
+        }
+        if (((bitField0_ & 0x00000040) == 0x00000040)) {
           absentValueIndices_ = java.util.Collections.unmodifiableList(absentValueIndices_);
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000040);
         }
         result.absentValueIndices_ = absentValueIndices_;
         onBuilt();
@@ -13937,10 +15392,62 @@ public final class ObservationsProto {
           }
           onChanged();
         }
+        if (objectValueBuilder_ == null) {
+          if (!other.objectValue_.isEmpty()) {
+            if (objectValue_.isEmpty()) {
+              objectValue_ = other.objectValue_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+            } else {
+              ensureObjectValueIsMutable();
+              objectValue_.addAll(other.objectValue_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.objectValue_.isEmpty()) {
+            if (objectValueBuilder_.isEmpty()) {
+              objectValueBuilder_.dispose();
+              objectValueBuilder_ = null;
+              objectValue_ = other.objectValue_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+              objectValueBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getObjectValueFieldBuilder() : null;
+            } else {
+              objectValueBuilder_.addAllMessages(other.objectValue_);
+            }
+          }
+        }
+        if (unpackedValueBuilder_ == null) {
+          if (!other.unpackedValue_.isEmpty()) {
+            if (unpackedValue_.isEmpty()) {
+              unpackedValue_ = other.unpackedValue_;
+              bitField0_ = (bitField0_ & ~0x00000020);
+            } else {
+              ensureUnpackedValueIsMutable();
+              unpackedValue_.addAll(other.unpackedValue_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.unpackedValue_.isEmpty()) {
+            if (unpackedValueBuilder_.isEmpty()) {
+              unpackedValueBuilder_.dispose();
+              unpackedValueBuilder_ = null;
+              unpackedValue_ = other.unpackedValue_;
+              bitField0_ = (bitField0_ & ~0x00000020);
+              unpackedValueBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getUnpackedValueFieldBuilder() : null;
+            } else {
+              unpackedValueBuilder_.addAllMessages(other.unpackedValue_);
+            }
+          }
+        }
         if (!other.absentValueIndices_.isEmpty()) {
           if (absentValueIndices_.isEmpty()) {
             absentValueIndices_ = other.absentValueIndices_;
-            bitField0_ = (bitField0_ & ~0x00000010);
+            bitField0_ = (bitField0_ & ~0x00000040);
           } else {
             ensureAbsentValueIndicesIsMutable();
             absentValueIndices_.addAll(other.absentValueIndices_);
@@ -14302,11 +15809,599 @@ public final class ObservationsProto {
         return this;
       }
 
+      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn> objectValue_ =
+        java.util.Collections.emptyList();
+      private void ensureObjectValueIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn>(objectValue_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder> objectValueBuilder_;
+
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn> getObjectValueList() {
+        if (objectValueBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(objectValue_);
+        } else {
+          return objectValueBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public int getObjectValueCount() {
+        if (objectValueBuilder_ == null) {
+          return objectValue_.size();
+        } else {
+          return objectValueBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn getObjectValue(int index) {
+        if (objectValueBuilder_ == null) {
+          return objectValue_.get(index);
+        } else {
+          return objectValueBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder setObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn value) {
+        if (objectValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureObjectValueIsMutable();
+          objectValue_.set(index, value);
+          onChanged();
+        } else {
+          objectValueBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder setObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder builderForValue) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          objectValueBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder addObjectValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn value) {
+        if (objectValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureObjectValueIsMutable();
+          objectValue_.add(value);
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder addObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn value) {
+        if (objectValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureObjectValueIsMutable();
+          objectValue_.add(index, value);
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder addObjectValue(
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder builderForValue) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.add(builderForValue.build());
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder addObjectValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder builderForValue) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          objectValueBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder addAllObjectValue(
+          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn> values) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, objectValue_);
+          onChanged();
+        } else {
+          objectValueBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder clearObjectValue() {
+        if (objectValueBuilder_ == null) {
+          objectValue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+          onChanged();
+        } else {
+          objectValueBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public Builder removeObjectValue(int index) {
+        if (objectValueBuilder_ == null) {
+          ensureObjectValueIsMutable();
+          objectValue_.remove(index);
+          onChanged();
+        } else {
+          objectValueBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder getObjectValueBuilder(
+          int index) {
+        return getObjectValueFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder getObjectValueOrBuilder(
+          int index) {
+        if (objectValueBuilder_ == null) {
+          return objectValue_.get(index);  } else {
+          return objectValueBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder> 
+           getObjectValueOrBuilderList() {
+        if (objectValueBuilder_ != null) {
+          return objectValueBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(objectValue_);
+        }
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder addObjectValueBuilder() {
+        return getObjectValueFieldBuilder().addBuilder(
+            org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder addObjectValueBuilder(
+          int index) {
+        return getObjectValueFieldBuilder().addBuilder(
+            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .hypercube.MapColumn objectValue = 6;</code>
+       */
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder> 
+           getObjectValueBuilderList() {
+        return getObjectValueFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder> 
+          getObjectValueFieldBuilder() {
+        if (objectValueBuilder_ == null) {
+          objectValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder>(
+                  objectValue_,
+                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  getParentForChildren(),
+                  isClean());
+          objectValue_ = null;
+        }
+        return objectValueBuilder_;
+      }
+
+      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> unpackedValue_ =
+        java.util.Collections.emptyList();
+      private void ensureUnpackedValueIsMutable() {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+          unpackedValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value>(unpackedValue_);
+          bitField0_ |= 0x00000020;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> unpackedValueBuilder_;
+
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> getUnpackedValueList() {
+        if (unpackedValueBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(unpackedValue_);
+        } else {
+          return unpackedValueBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public int getUnpackedValueCount() {
+        if (unpackedValueBuilder_ == null) {
+          return unpackedValue_.size();
+        } else {
+          return unpackedValueBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getUnpackedValue(int index) {
+        if (unpackedValueBuilder_ == null) {
+          return unpackedValue_.get(index);
+        } else {
+          return unpackedValueBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder setUnpackedValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (unpackedValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUnpackedValueIsMutable();
+          unpackedValue_.set(index, value);
+          onChanged();
+        } else {
+          unpackedValueBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder setUnpackedValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (unpackedValueBuilder_ == null) {
+          ensureUnpackedValueIsMutable();
+          unpackedValue_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          unpackedValueBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder addUnpackedValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (unpackedValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUnpackedValueIsMutable();
+          unpackedValue_.add(value);
+          onChanged();
+        } else {
+          unpackedValueBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder addUnpackedValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (unpackedValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUnpackedValueIsMutable();
+          unpackedValue_.add(index, value);
+          onChanged();
+        } else {
+          unpackedValueBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder addUnpackedValue(
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (unpackedValueBuilder_ == null) {
+          ensureUnpackedValueIsMutable();
+          unpackedValue_.add(builderForValue.build());
+          onChanged();
+        } else {
+          unpackedValueBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder addUnpackedValue(
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (unpackedValueBuilder_ == null) {
+          ensureUnpackedValueIsMutable();
+          unpackedValue_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          unpackedValueBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder addAllUnpackedValue(
+          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> values) {
+        if (unpackedValueBuilder_ == null) {
+          ensureUnpackedValueIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, unpackedValue_);
+          onChanged();
+        } else {
+          unpackedValueBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder clearUnpackedValue() {
+        if (unpackedValueBuilder_ == null) {
+          unpackedValue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000020);
+          onChanged();
+        } else {
+          unpackedValueBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public Builder removeUnpackedValue(int index) {
+        if (unpackedValueBuilder_ == null) {
+          ensureUnpackedValueIsMutable();
+          unpackedValue_.remove(index);
+          onChanged();
+        } else {
+          unpackedValueBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder getUnpackedValueBuilder(
+          int index) {
+        return getUnpackedValueFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getUnpackedValueOrBuilder(
+          int index) {
+        if (unpackedValueBuilder_ == null) {
+          return unpackedValue_.get(index);  } else {
+          return unpackedValueBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+           getUnpackedValueOrBuilderList() {
+        if (unpackedValueBuilder_ != null) {
+          return unpackedValueBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(unpackedValue_);
+        }
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder addUnpackedValueBuilder() {
+        return getUnpackedValueFieldBuilder().addBuilder(
+            org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder addUnpackedValueBuilder(
+          int index) {
+        return getUnpackedValueFieldBuilder().addBuilder(
+            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * As an alternative to one of the above packed representations, the value for each element can be represented in
+       * separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+       * element. It is up to the encoder to decide how to represent values.
+       * </pre>
+       *
+       * <code>repeated .hypercube.Value unpackedValue = 7;</code>
+       */
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder> 
+           getUnpackedValueBuilderList() {
+        return getUnpackedValueFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+          getUnpackedValueFieldBuilder() {
+        if (unpackedValueBuilder_ == null) {
+          unpackedValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder>(
+                  unpackedValue_,
+                  ((bitField0_ & 0x00000020) == 0x00000020),
+                  getParentForChildren(),
+                  isClean());
+          unpackedValue_ = null;
+        }
+        return unpackedValueBuilder_;
+      }
+
       private java.util.List<java.lang.Integer> absentValueIndices_ = java.util.Collections.emptyList();
       private void ensureAbsentValueIndicesIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
           absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>(absentValueIndices_);
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000040;
          }
       }
       /**
@@ -14363,7 +16458,7 @@ public final class ObservationsProto {
        */
       public Builder clearAbsentValueIndices() {
         absentValueIndices_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000040);
         onChanged();
         return this;
       }
@@ -14411,6 +16506,945 @@ public final class ObservationsProto {
     }
 
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface MapColumnOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:hypercube.MapColumn)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    boolean hasKey();
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getKey();
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getKeyOrBuilder();
+
+    /**
+     * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+     */
+    boolean hasValues();
+    /**
+     * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getValues();
+    /**
+     * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder getValuesOrBuilder();
+
+    /**
+     * <code>repeated int32 absentMappingIndices = 3;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentMappingIndicesList();
+    /**
+     * <code>repeated int32 absentMappingIndices = 3;</code>
+     */
+    int getAbsentMappingIndicesCount();
+    /**
+     * <code>repeated int32 absentMappingIndices = 3;</code>
+     */
+    int getAbsentMappingIndices(int index);
+  }
+  /**
+   * <pre>
+   * A mapping for a single key to values of a list of dimension elements. The key is the same for all dimension elements.
+   * </pre>
+   *
+   * Protobuf type {@code hypercube.MapColumn}
+   */
+  public  static final class MapColumn extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:hypercube.MapColumn)
+      MapColumnOrBuilder {
+    // Use MapColumn.newBuilder() to construct.
+    private MapColumn(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private MapColumn() {
+      absentMappingIndices_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private MapColumn(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder subBuilder = null;
+              if (key_ != null) {
+                subBuilder = key_.toBuilder();
+              }
+              key_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(key_);
+                key_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 18: {
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder subBuilder = null;
+              if (values_ != null) {
+                subBuilder = values_.toBuilder();
+              }
+              values_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(values_);
+                values_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 24: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                absentMappingIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              absentMappingIndices_.add(input.readInt32());
+              break;
+            }
+            case 26: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
+                absentMappingIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentMappingIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          absentMappingIndices_ = java.util.Collections.unmodifiableList(absentMappingIndices_);
+        }
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapColumn_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapColumn_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private org.transmartproject.rest.hypercubeProto.ObservationsProto.Value key_;
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    public boolean hasKey() {
+      return key_ != null;
+    }
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getKey() {
+      return key_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : key_;
+    }
+    /**
+     * <code>optional .hypercube.Value key = 1;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getKeyOrBuilder() {
+      return getKey();
+    }
+
+    public static final int VALUES_FIELD_NUMBER = 2;
+    private org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn values_;
+    /**
+     * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+     */
+    public boolean hasValues() {
+      return values_ != null;
+    }
+    /**
+     * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getValues() {
+      return values_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.getDefaultInstance() : values_;
+    }
+    /**
+     * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder getValuesOrBuilder() {
+      return getValues();
+    }
+
+    public static final int ABSENTMAPPINGINDICES_FIELD_NUMBER = 3;
+    private java.util.List<java.lang.Integer> absentMappingIndices_;
+    /**
+     * <code>repeated int32 absentMappingIndices = 3;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentMappingIndicesList() {
+      return absentMappingIndices_;
+    }
+    /**
+     * <code>repeated int32 absentMappingIndices = 3;</code>
+     */
+    public int getAbsentMappingIndicesCount() {
+      return absentMappingIndices_.size();
+    }
+    /**
+     * <code>repeated int32 absentMappingIndices = 3;</code>
+     */
+    public int getAbsentMappingIndices(int index) {
+      return absentMappingIndices_.get(index);
+    }
+    private int absentMappingIndicesMemoizedSerializedSize = -1;
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (key_ != null) {
+        output.writeMessage(1, getKey());
+      }
+      if (values_ != null) {
+        output.writeMessage(2, getValues());
+      }
+      if (getAbsentMappingIndicesList().size() > 0) {
+        output.writeUInt32NoTag(26);
+        output.writeUInt32NoTag(absentMappingIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentMappingIndices_.size(); i++) {
+        output.writeInt32NoTag(absentMappingIndices_.get(i));
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (key_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, getKey());
+      }
+      if (values_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getValues());
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentMappingIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentMappingIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentMappingIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentMappingIndicesMemoizedSerializedSize = dataSize;
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn)) {
+        return super.equals(obj);
+      }
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn) obj;
+
+      boolean result = true;
+      result = result && (hasKey() == other.hasKey());
+      if (hasKey()) {
+        result = result && getKey()
+            .equals(other.getKey());
+      }
+      result = result && (hasValues() == other.hasValues());
+      if (hasValues()) {
+        result = result && getValues()
+            .equals(other.getValues());
+      }
+      result = result && getAbsentMappingIndicesList()
+          .equals(other.getAbsentMappingIndicesList());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasKey()) {
+        hash = (37 * hash) + KEY_FIELD_NUMBER;
+        hash = (53 * hash) + getKey().hashCode();
+      }
+      if (hasValues()) {
+        hash = (37 * hash) + VALUES_FIELD_NUMBER;
+        hash = (53 * hash) + getValues().hashCode();
+      }
+      if (getAbsentMappingIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTMAPPINGINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentMappingIndicesList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * A mapping for a single key to values of a list of dimension elements. The key is the same for all dimension elements.
+     * </pre>
+     *
+     * Protobuf type {@code hypercube.MapColumn}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:hypercube.MapColumn)
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumnOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapColumn_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapColumn_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.Builder.class);
+      }
+
+      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (keyBuilder_ == null) {
+          key_ = null;
+        } else {
+          key_ = null;
+          keyBuilder_ = null;
+        }
+        if (valuesBuilder_ == null) {
+          values_ = null;
+        } else {
+          values_ = null;
+          valuesBuilder_ = null;
+        }
+        absentMappingIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_MapColumn_descriptor;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn getDefaultInstanceForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.getDefaultInstance();
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn build() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn buildPartial() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (keyBuilder_ == null) {
+          result.key_ = key_;
+        } else {
+          result.key_ = keyBuilder_.build();
+        }
+        if (valuesBuilder_ == null) {
+          result.values_ = values_;
+        } else {
+          result.values_ = valuesBuilder_.build();
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentMappingIndices_ = java.util.Collections.unmodifiableList(absentMappingIndices_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.absentMappingIndices_ = absentMappingIndices_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn) {
+          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn other) {
+        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn.getDefaultInstance()) return this;
+        if (other.hasKey()) {
+          mergeKey(other.getKey());
+        }
+        if (other.hasValues()) {
+          mergeValues(other.getValues());
+        }
+        if (!other.absentMappingIndices_.isEmpty()) {
+          if (absentMappingIndices_.isEmpty()) {
+            absentMappingIndices_ = other.absentMappingIndices_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureAbsentMappingIndicesIsMutable();
+            absentMappingIndices_.addAll(other.absentMappingIndices_);
+          }
+          onChanged();
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private org.transmartproject.rest.hypercubeProto.ObservationsProto.Value key_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> keyBuilder_;
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public boolean hasKey() {
+        return keyBuilder_ != null || key_ != null;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getKey() {
+        if (keyBuilder_ == null) {
+          return key_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : key_;
+        } else {
+          return keyBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder setKey(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (keyBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          key_ = value;
+          onChanged();
+        } else {
+          keyBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder setKey(
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+        if (keyBuilder_ == null) {
+          key_ = builderForValue.build();
+          onChanged();
+        } else {
+          keyBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder mergeKey(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+        if (keyBuilder_ == null) {
+          if (key_ != null) {
+            key_ =
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.newBuilder(key_).mergeFrom(value).buildPartial();
+          } else {
+            key_ = value;
+          }
+          onChanged();
+        } else {
+          keyBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public Builder clearKey() {
+        if (keyBuilder_ == null) {
+          key_ = null;
+          onChanged();
+        } else {
+          key_ = null;
+          keyBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder getKeyBuilder() {
+        
+        onChanged();
+        return getKeyFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getKeyOrBuilder() {
+        if (keyBuilder_ != null) {
+          return keyBuilder_.getMessageOrBuilder();
+        } else {
+          return key_ == null ?
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance() : key_;
+        }
+      }
+      /**
+       * <code>optional .hypercube.Value key = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+          getKeyFieldBuilder() {
+        if (keyBuilder_ == null) {
+          keyBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder>(
+                  getKey(),
+                  getParentForChildren(),
+                  isClean());
+          key_ = null;
+        }
+        return keyBuilder_;
+      }
+
+      private org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn values_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder> valuesBuilder_;
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public boolean hasValues() {
+        return valuesBuilder_ != null || values_ != null;
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getValues() {
+        if (valuesBuilder_ == null) {
+          return values_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.getDefaultInstance() : values_;
+        } else {
+          return valuesBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public Builder setValues(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn value) {
+        if (valuesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          values_ = value;
+          onChanged();
+        } else {
+          valuesBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public Builder setValues(
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder builderForValue) {
+        if (valuesBuilder_ == null) {
+          values_ = builderForValue.build();
+          onChanged();
+        } else {
+          valuesBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public Builder mergeValues(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn value) {
+        if (valuesBuilder_ == null) {
+          if (values_ != null) {
+            values_ =
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.newBuilder(values_).mergeFrom(value).buildPartial();
+          } else {
+            values_ = value;
+          }
+          onChanged();
+        } else {
+          valuesBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public Builder clearValues() {
+        if (valuesBuilder_ == null) {
+          values_ = null;
+          onChanged();
+        } else {
+          values_ = null;
+          valuesBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder getValuesBuilder() {
+        
+        onChanged();
+        return getValuesFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder getValuesOrBuilder() {
+        if (valuesBuilder_ != null) {
+          return valuesBuilder_.getMessageOrBuilder();
+        } else {
+          return values_ == null ?
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.getDefaultInstance() : values_;
+        }
+      }
+      /**
+       * <code>optional .hypercube.DimensionElementFieldColumn values = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder> 
+          getValuesFieldBuilder() {
+        if (valuesBuilder_ == null) {
+          valuesBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder>(
+                  getValues(),
+                  getParentForChildren(),
+                  isClean());
+          values_ = null;
+        }
+        return valuesBuilder_;
+      }
+
+      private java.util.List<java.lang.Integer> absentMappingIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentMappingIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentMappingIndices_ = new java.util.ArrayList<java.lang.Integer>(absentMappingIndices_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+      /**
+       * <code>repeated int32 absentMappingIndices = 3;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentMappingIndicesList() {
+        return java.util.Collections.unmodifiableList(absentMappingIndices_);
+      }
+      /**
+       * <code>repeated int32 absentMappingIndices = 3;</code>
+       */
+      public int getAbsentMappingIndicesCount() {
+        return absentMappingIndices_.size();
+      }
+      /**
+       * <code>repeated int32 absentMappingIndices = 3;</code>
+       */
+      public int getAbsentMappingIndices(int index) {
+        return absentMappingIndices_.get(index);
+      }
+      /**
+       * <code>repeated int32 absentMappingIndices = 3;</code>
+       */
+      public Builder setAbsentMappingIndices(
+          int index, int value) {
+        ensureAbsentMappingIndicesIsMutable();
+        absentMappingIndices_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentMappingIndices = 3;</code>
+       */
+      public Builder addAbsentMappingIndices(int value) {
+        ensureAbsentMappingIndicesIsMutable();
+        absentMappingIndices_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentMappingIndices = 3;</code>
+       */
+      public Builder addAllAbsentMappingIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentMappingIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentMappingIndices_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentMappingIndices = 3;</code>
+       */
+      public Builder clearAbsentMappingIndices() {
+        absentMappingIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:hypercube.MapColumn)
+    }
+
+    // @@protoc_insertion_point(class_scope:hypercube.MapColumn)
+    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn();
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<MapColumn>
+        PARSER = new com.google.protobuf.AbstractParser<MapColumn>() {
+      public MapColumn parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new MapColumn(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<MapColumn> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MapColumn> getParserForType() {
+      return PARSER;
+    }
+
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapColumn getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -15008,6 +18042,11 @@ public final class ObservationsProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_hypercube_Value_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_hypercube_MapEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_hypercube_MapEntry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_hypercube_Footer_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -15022,6 +18061,11 @@ public final class ObservationsProto {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_hypercube_MapColumn_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_hypercube_MapColumn_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_hypercube_Error_descriptor;
   private static final 
@@ -15062,24 +18106,32 @@ public final class ObservationsProto {
       "Element\022 \n\006fields\030\001 \003(\0132\020.hypercube.Valu" +
       "e\022\020\n\010intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001" +
       "\022\023\n\013stringValue\030\004 \001(\t\022\026\n\016timestampValue\030" +
-      "\005 \001(\003\022\032\n\022absentFieldIndices\030\006 \003(\005\"l\n\005Val" +
-      "ue\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doubleValue" +
-      "\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestam" +
-      "pValue\030\004 \001(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdim",
-      "ension\030\001 \003(\0132\034.hypercube.DimensionElemen" +
-      "ts\022\r\n\005error\030c \001(\t\"\216\001\n\021DimensionElements\022" +
-      "\014\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercub" +
-      "e.DimensionElementFieldColumn\022 \n\030absentF" +
-      "ieldColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001" +
-      "(\010\"\215\001\n\033DimensionElementFieldColumn\022\023\n\013st" +
-      "ringValue\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010" +
-      "intValue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032" +
-      "\n\022absentValueIndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005e" +
-      "rror\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING",
-      "\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004*\036" +
-      "\n\tSortOrder\022\007\n\003ASC\020\000\022\010\n\004DESC\020\001B=\n(org.tr" +
-      "ansmartproject.rest.hypercubeProtoB\021Obse" +
-      "rvationsProtob\006proto3"
+      "\005 \001(\003\022\032\n\022absentFieldIndices\030\006 \003(\005\"\223\001\n\005Va" +
+      "lue\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doubleValu" +
+      "e\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016timesta" +
+      "mpValue\030\004 \001(\003H\000\022%\n\013objectValue\030\005 \003(\0132\020.h",
+      "ypercube.ValueB\007\n\005value\"J\n\010MapEntry\022\035\n\003k" +
+      "ey\030\001 \001(\0132\020.hypercube.Value\022\037\n\005value\030\002 \001(" +
+      "\0132\020.hypercube.Value\"H\n\006Footer\022/\n\tdimensi" +
+      "on\030\001 \003(\0132\034.hypercube.DimensionElements\022\r" +
+      "\n\005error\030c \001(\t\"\216\001\n\021DimensionElements\022\014\n\004n" +
+      "ame\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Di" +
+      "mensionElementFieldColumn\022 \n\030absentField" +
+      "ColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001(\010\"\341" +
+      "\001\n\033DimensionElementFieldColumn\022\023\n\013string" +
+      "Value\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intV",
+      "alue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022)\n\013ob" +
+      "jectValue\030\006 \003(\0132\024.hypercube.MapColumn\022\'\n" +
+      "\runpackedValue\030\007 \003(\0132\020.hypercube.Value\022\032" +
+      "\n\022absentValueIndices\030\005 \003(\005\"\200\001\n\tMapColumn" +
+      "\022\035\n\003key\030\001 \001(\0132\020.hypercube.Value\0226\n\006value" +
+      "s\030\002 \001(\0132&.hypercube.DimensionElementFiel" +
+      "dColumn\022\034\n\024absentMappingIndices\030\003 \003(\005\"\026\n" +
+      "\005Error\022\r\n\005error\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020" +
+      "\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n" +
+      "\006OBJECT\020\004*\036\n\tSortOrder\022\007\n\003ASC\020\000\022\010\n\004DESC\020",
+      "\001B=\n(org.transmartproject.rest.hypercube" +
+      "ProtoB\021ObservationsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -15140,27 +18192,39 @@ public final class ObservationsProto {
     internal_static_hypercube_Value_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Value_descriptor,
-        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "Value", });
-    internal_static_hypercube_Footer_descriptor =
+        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "ObjectValue", "Value", });
+    internal_static_hypercube_MapEntry_descriptor =
       getDescriptor().getMessageTypes().get(8);
+    internal_static_hypercube_MapEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_hypercube_MapEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_hypercube_Footer_descriptor =
+      getDescriptor().getMessageTypes().get(9);
     internal_static_hypercube_Footer_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Footer_descriptor,
         new java.lang.String[] { "Dimension", "Error", });
     internal_static_hypercube_DimensionElements_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_hypercube_DimensionElements_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElements_descriptor,
         new java.lang.String[] { "Name", "Fields", "AbsentFieldColumnIndices", "PerSample", });
     internal_static_hypercube_DimensionElementFieldColumn_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElementFieldColumn_descriptor,
-        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "AbsentValueIndices", });
+        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "ObjectValue", "UnpackedValue", "AbsentValueIndices", });
+    internal_static_hypercube_MapColumn_descriptor =
+      getDescriptor().getMessageTypes().get(12);
+    internal_static_hypercube_MapColumn_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_hypercube_MapColumn_descriptor,
+        new java.lang.String[] { "Key", "Values", "AbsentMappingIndices", });
     internal_static_hypercube_Error_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_hypercube_Error_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Error_descriptor,
