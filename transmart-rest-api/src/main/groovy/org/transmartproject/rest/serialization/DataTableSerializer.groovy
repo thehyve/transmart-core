@@ -82,7 +82,7 @@ class DataTableSerializer {
         def row = table.row(rowHeader)
         for(def column : table.columnKeys) {
             def cell = row[column]
-            writeValue(cell)
+            writeValue(cell?.value)
         }
         writer.endArray()
 
