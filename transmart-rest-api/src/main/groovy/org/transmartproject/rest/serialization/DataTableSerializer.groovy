@@ -97,9 +97,10 @@ class DataTableSerializer {
             if(!dim.elementsSerializable) {
                 writer.name('elements').beginObject()
                 for(def element: table.hypercube.dimensionElements(dim)) {
-                    writer.name(dim.getKey(element).toString())
+                    def key = dim.getKey(element)
+                    writer.name(key.toString())
                     Map value = (Map) dim.asSerializable(element)
-                    value.label = dim.getKey(element)
+                    value.label = key
                     writeValue(value)
                 }
                 writer.endObject()
