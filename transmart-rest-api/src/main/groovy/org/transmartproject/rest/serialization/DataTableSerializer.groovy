@@ -146,6 +146,7 @@ class DataTableSerializer {
         writeOtherKeys()
 
         writer.endObject()
+        writer.flush()
     }
 
     protected void writeValue(Object value) {
