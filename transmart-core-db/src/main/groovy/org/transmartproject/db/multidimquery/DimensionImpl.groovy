@@ -575,9 +575,9 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
         def patient = (I2B2PatientDimension) element
         def source_subj_id = patient.subjectIds[SOURCE_SUBJECT_KEY]
         if(source_subj_id) {
-            return "${patient.id}/$source_subj_id"
+            return "${patient.id}/$source_subj_id".toString()
         } else if (patient.inTrialId) {
-            return "${patient.id}/${patient.trial}:${patient.inTrialId}"
+            return "${patient.id}/${patient.trial}:${patient.inTrialId}".toString()
         } else {
             return patient.id
         }
