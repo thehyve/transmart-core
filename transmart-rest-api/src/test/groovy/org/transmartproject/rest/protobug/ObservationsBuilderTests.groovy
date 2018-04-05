@@ -16,6 +16,7 @@ import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
+import org.transmartproject.rest.serialization.DataTableSerializer
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
@@ -254,6 +255,27 @@ class ObservationsBuilderTests extends Specification {
         then:
         out.xentries != null
         out.names.sort() == expectedEntries.sort()
+    }
+
+    void testDataTableSerialization() {
+        setupData()
+        def dataType = 'clinical'
+        def rowDimensions = ['patient', 'study']
+        def columnDimensions = ['concept', 'trial visit']
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        def mockedDataTable = queryResource.retrieveDataTable(dataType, constraint, adminUser,
+                rowDimensions: rowDimensions, columnDimensions: columnDimensions, sort: ['patient'], limit: 10)
+        def builder = new DataTableSerializer()
+
+        when:
+        def out = new ByteArrayOutputStream()
+        builder.write(mockedDataTable, out)
+        out.flush()
+        def result = new JsonSlurper().parse(out.toByteArray())
+
+        then:
+        out != ""
+        result != null
     }
 
 }
