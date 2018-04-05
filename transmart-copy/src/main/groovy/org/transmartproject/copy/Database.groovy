@@ -178,8 +178,11 @@ class Database implements AutoCloseable {
         log.debug "Executing command: ${command} ..."
         def conn = DataSourceUtils.getConnection(dataSource)
         conn.autoCommit = true
-        conn.createStatement().execute(command)
-        conn.autoCommit = false
+        try {
+            conn.createStatement().execute(command)
+        } finally {
+            conn.autoCommit = false
+        }
     }
 
     void vacuumAnalyze() {

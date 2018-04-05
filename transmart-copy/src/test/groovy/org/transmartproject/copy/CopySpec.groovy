@@ -272,6 +272,21 @@ class CopySpec extends Specification {
         zeroBasedInstanceNums.min() == 1
     }
 
+    def 'test refreshing mvs'() {
+        given: 'there is a study'
+        ensureTestStudyLoaded()
+        Options options = new Options()
+        options.addOption(new Option('mv', 'refresh-materialized-views', false, ''))
+
+        when: 'refrech materialzed views'
+        CommandLine cli1 = new DefaultParser()
+                .parse(options, ['--refresh-materialized-views'] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+        then: 'all records are present'
+        def conceptCds = readFieldsFromDb(new Table('i2b2demodata', 'study_concept_sets'), 'concept_cd', "where study_num = ${testStudyDbIdentifier}")
+        conceptCds as Set == ['favouritefood', 'description', 'gender', 'height', 'birthdate'] as Set
+    }
+
     List<Number> getTestTrialVisitsDbIdentifiers() {
         readFieldsFromDb(Studies.trial_visit_table, 'trial_visit_num', "where study_num='${getTestStudyDbIdentifier()}'")
     }

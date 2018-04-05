@@ -49,6 +49,7 @@ class Copy implements AutoCloseable {
         options.addOption('U', 'update-concept-paths', false, 'Updates concept paths and tree nodes when there is concept code collision.')
         options.addOption('p', 'partition', false, 'Partition observation_fact table based on trial_visit_num.')
         options.addOption('n', 'base-on-max-instance-num', false, 'Adds to each instance num a base. The base detected as max(observation_fact.incstance_num).')
+        options.addOption('mv', 'refresh-materialized-views', false, 'Refreshes the counts related materialised views after loading the data.')
     }
 
     static printHelp() {
@@ -163,7 +164,8 @@ class Copy implements AutoCloseable {
     }
 
     public final static Set<String> INDEPENDENT_OPERATION_OPTIONS = ['help', 'delete', 'drop-indexes',
-                                                                     'restore-indexes', 'vacuum-analyze'] as Set
+                                                                     'restore-indexes', 'vacuum-analyze',
+                                                                     'refresh-materialized-views'] as Set
 
     static void runCopy(CommandLine cl, Map<String, String> params) {
         def copy = new Copy(params)
@@ -209,6 +211,12 @@ class Copy implements AutoCloseable {
             }
             if (cl.hasOption('restore-indexes')) {
                 copy.restoreIndexes()
+            }
+            if (cl.hasOption('refresh-materialized-views')) {
+                log.info('Starting refreshing the counts materialized views.')
+                copy.database.executeCommand('refresh materialized view i2b2demodata.patient_num_bounds;')
+                copy.database.executeCommand('refresh materialized view i2b2demodata.study_concept_sets;')
+                log.info('Finished refreshing the counts materialized views.')
             }
             copy.database.commit(tx)
             if (cl.hasOption('vacuum-analyze')) {
