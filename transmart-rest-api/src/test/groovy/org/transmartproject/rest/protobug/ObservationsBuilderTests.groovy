@@ -266,11 +266,10 @@ class ObservationsBuilderTests extends Specification {
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedDataTable = queryResource.retrieveDataTable(dataType, constraint, adminUser,
                 rowDimensions: rowDimensions, columnDimensions: columnDimensions, sort: ['patient'], limit: limit)
-        def builder = new DataTableSerializer()
 
         when:
         def out = new ByteArrayOutputStream()
-        builder.write(mockedDataTable, out)
+        DataTableSerializer.write(mockedDataTable, out)
         out.flush()
         def result = new JsonSlurper().parse(out.toByteArray())
         def rows = result.rows

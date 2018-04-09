@@ -284,7 +284,7 @@ trait CompositeElemDim<ELT,ELKey> {
     abstract String getKeyProperty()
 
     def getKey(element) {
-        element.getAt(getKeyProperty())
+        element?.getAt(getKeyProperty())
     }
 
     Class<? extends Serializable> getElementType() { null }

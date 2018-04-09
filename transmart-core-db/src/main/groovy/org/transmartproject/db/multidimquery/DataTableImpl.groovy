@@ -164,7 +164,7 @@ class DataTableImpl implements DataTable {
         List<HypercubeValue> computeNext() {
             if(!hypercubeIter.hasNext()) return endOfData()
 
-            List key = getKey(hypercubeIter.peek())
+            List key = rowKey(hypercubeIter.peek())
             List row = [hypercubeIter.next()]
 
             while(hypercubeIter.hasNext() && sameGroup(key, hypercubeIter.peek())) {
@@ -174,9 +174,9 @@ class DataTableImpl implements DataTable {
             return row
         }
 
-        private ImmutableList getKey(HypercubeValue cell) {
+        private ImmutableList rowKey(HypercubeValue cell) {
             List key = []
-            for(Dimension d : columnDimensions) {
+            for(Dimension d : rowDimensions) {
                 key.add(cell.getDimKey(d))
             }
             ImmutableList.copyOf(key)
@@ -184,10 +184,10 @@ class DataTableImpl implements DataTable {
 
         private boolean sameGroup(List key, HypercubeValue cell) {
             // if there are no column dimensions, all cells are a separate row
-            if (!columnDimensions) return false
+            if (!rowDimensions) return false
 
-            for(int i=0; i<columnDimensions.size(); i++) {
-                if(key[i] != cell.getDimKey(columnDimensions[i])) {
+            for(int i=0; i<rowDimensions.size(); i++) {
+                if(key[i] != cell.getDimKey(rowDimensions[i])) {
                     return false
                 }
             }
