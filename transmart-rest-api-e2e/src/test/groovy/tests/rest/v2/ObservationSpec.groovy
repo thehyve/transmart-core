@@ -61,7 +61,8 @@ class ObservationSpec extends RESTSpec {
                 type             : 'clinical',
                 rowDimensions    : ['patient', 'study'],
                 columnDimensions : ['trial visit', 'concept'],
-                sort             : [dimension: 'study', order: 'desc'],
+                columnSort       : toJSON([['trial visit', 'asc'], ['concept', 'desc']]),
+                rowSort          : toJSON(['patient': 'desc']),
                 limit            : 5,
                 offset           : 3
         ]

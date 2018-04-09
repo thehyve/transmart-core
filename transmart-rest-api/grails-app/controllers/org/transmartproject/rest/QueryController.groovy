@@ -130,12 +130,27 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
-     * /v2/observations/table
+     * Data table endpoint:
+     * <code>/v2/observations/table?type=${type}&constraint=${constraint}&rowDimensions=${rowDimensions}&
+     * columnDimensions=${columnDimensions}&rowSort=${rowSort}&columnSort=${columnSort}&limit={limit}&offset={offset}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * The type should be the data type name of a high dimension type, or 'autodetect'.
+     * Only 'clinical' type is currently supported.
+     *
+     * Expects columnDimensions and rowDimensions parameters.
+     *
+     * Optional rowSort and columnSort parameters allow to define the sorting.
+     *
+     * Pagination is supported via limit and offset parameters.
+     *
+     * @return a tabular representation of hypercube in a json format.
      */
     def table() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions', 'sort',
-                                         'limit', 'offset'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions',
+                                         'rowSort', 'columnSort', 'limit', 'offset'])
 
         if (args.type != 'clinical') { throw new OperationNotImplementedException("High dimensional data is not yet " +
                 "implemented for the data table")
@@ -146,8 +161,11 @@ class QueryController extends AbstractQueryController {
 
         OutputStream out = getLazyOutputStream(Format.JSON)
 
-        hypercubeDataSerializationService.writeTable(constraint, args.rowDimensions, args.columnDimensions, args.sort,
-                args.limit, args.offset, user, out)
+        def rowSort = parseJson(args.rowSort)
+        def columnSort = parseJson(args.columnSort)
+
+        hypercubeDataSerializationService.writeTable(constraint, args.rowDimensions, args.columnDimensions,
+                rowSort, columnSort, args.limit, args.offset, user, out)
     }
 
     /**
