@@ -73,7 +73,9 @@ class DataTableImpl implements DataTable {
          * priority equals the order of columnDimensions, so grouping happens on the first column dimension first, within
          * that on the second column dimension, and so on. If explicit sorting is specified, that takes priority.
          */
-        columnPriority = (LinkedHashMap) sort.findAll { dim, sort -> dim in columnIndices }
+        columnPriority = (LinkedHashMap) sort.findAll { dim, sort ->
+            dim in columnIndices.keySet() // `dim in columnIndices` does not work as expected if columnIndices[dim] == 0
+        }
         for(def dim : columnDimensions) { columnPriority.putIfAbsent(dim, SortOrder.ASC) }
     }
 
@@ -103,6 +105,7 @@ class DataTableImpl implements DataTable {
         for(int i=0; i<rows.size(); i++) {
             for(def hv : rows[i]) {
                 List elems = []
+                List keys = []
                 for(def dim : rowDimensions) {
                     elems.add(hv[dim])
                 }
@@ -110,8 +113,9 @@ class DataTableImpl implements DataTable {
                 elems.clear()
                 for(def dim: columnDimensions) {
                     elems.add(hv[dim])
+                    keys.add(hv.getDimKey(dim))
                 }
-                def column = new DataTableColumnImpl(this, ImmutableList.copyOf(elems))
+                def column = new DataTableColumnImpl(elems, keys)
 
                 table.put(row, column, hv)
             }
@@ -120,17 +124,23 @@ class DataTableImpl implements DataTable {
     }
 
     // tell groovy to ignore mutability of `dt`
-    @Immutable(knownImmutableClasses=[ImmutableList], knownImmutables=['dt'])
-    @EqualsAndHashCode(includes=["elements"])
-    static class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
-        DataTableImpl dt
-        ImmutableList elements // in the order of columnDimensions
+    //@Immutable(knownImmutableClasses=[ImmutableList], knownImmutables=['dt'])
+    @EqualsAndHashCode(includes=["keys"])
+    class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
+        //DataTableImpl dt
+        final ImmutableList elements // in the order of columnDimensions
+        final ImmutableList keys
+
+        DataTableColumnImpl(List elements, List keys) {
+            this.elements = ImmutableList.copyOf(elements)
+            this.keys = ImmutableList.copyOf(keys)
+        }
 
         @Override
         int compareTo(DataTableColumnImpl other) {
-            for (def entry : dt.columnPriority) {
-                int idx = dt.columnIndices[entry.key]
-                int c = compareElements(elements[idx], other.elements[idx])
+            for (def entry : columnPriority) {
+                int idx = columnIndices[entry.key]
+                int c = compareKeys(keys[idx], other.keys[idx])
                 if (entry.value == SortOrder.DESC) {
                     c = -c
                 }
@@ -139,7 +149,7 @@ class DataTableImpl implements DataTable {
             return 0
         }
 
-        static int compareElements(e1, e2) {
+        static int compareKeys(e1, e2) {
             if(e1 == null) (e2 == null ? 0 : -1)
             else if(e2 == null) 1
             ((Comparable) e1) <=> e2
