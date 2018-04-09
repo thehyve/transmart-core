@@ -688,7 +688,28 @@ paths:
         404:
           description: |
             Study not found
-  /v2/studies/studyId/{studyIds}:
+  /v2/studies/studyId/{studyId}:
+    get:
+      description: |
+        Gets the study with study id `studyId`.
+      tags:
+        - v2
+      parameters:
+        - name: studyId
+          in: path
+          description: the study id of the study to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns one study
+          schema:
+            $ref: "#/definitions/v2Study"
+        404:
+          description: |
+            Study not found
+  /v2/studies/studyIds:
     get:
       description: |
         Gets the studies with study ids `studyIds`.
@@ -696,8 +717,8 @@ paths:
         - v2
       parameters:
         - name: studyIds
-          in: path
-          description: a list of study ids of the studies to fetch, comma-seperated
+          in: query
+          description: 'a list of study ids of the studies to fetch. Example: `studyIds:"GSE8581"&studyIds:"EHR"`'
           required: true
           type: string
       responses:

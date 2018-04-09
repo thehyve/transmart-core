@@ -22,6 +22,8 @@ import org.transmartproject.db.i2b2data.Study
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 
+import static java.util.Objects.requireNonNull
+
 @Transactional
 class MDStudiesService implements MDStudiesResource, ApplicationRunner {
 
@@ -107,22 +109,33 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     }
 
     @Override
+    MDStudy getStudyByStudyIdForUser(String studyId, User currentUser) throws NoSuchResourceException {
+        def user = usersResource.getUserFromUsername(currentUser.username)
+        def study = Study.findByStudyId(studyId)
+        if (isLegacyStudy(study)) {
+            study = null
+        }
+        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+            throw new AccessDeniedException("Access denied to study or study does not exist: ${studyId}")
+        }
+        study.dimensions.size()
+        study
+    }
+
+    @Override
     List<MDStudy> getStudiesByStudyIdsForUser(List<String> studyIds, User currentUser) throws NoSuchResourceException {
         def user = usersResource.getUserFromUsername(currentUser.username)
-        def studies = []
-        for (studyId in studyIds) {
-            def study = Study.findByStudyId(studyId)
-            if (isLegacyStudy(study)) {
-                study = null
+        def studies = Study.findAllByStudyIdInList(studyIds)
+        def studiesForUser = []
+        for (study in studies) {
+            if (!isLegacyStudy(study) && user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+                studiesForUser.add(study)
             }
-            if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-                throw new AccessDeniedException("Access denied to study or study does not exist: ${studyId}")
-            }
-            study.dimensions.size()
-            studies.add(study)
         }
-
-        studies
+        if(studiesForUser.size() == 0) {
+            throw new NoSuchResourceException("No study found for specified studyIds.")
+        }
+        studiesForUser
     }
 
     MDStudy getStudyByStudyId(String studyId) {
