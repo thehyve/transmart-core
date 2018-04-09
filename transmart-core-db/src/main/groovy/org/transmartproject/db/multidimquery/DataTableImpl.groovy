@@ -123,11 +123,8 @@ class DataTableImpl implements DataTable {
         table
     }
 
-    // tell groovy to ignore mutability of `dt`
-    //@Immutable(knownImmutableClasses=[ImmutableList], knownImmutables=['dt'])
     @EqualsAndHashCode(includes=["keys"])
     class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
-        //DataTableImpl dt
         final ImmutableList elements // in the order of columnDimensions
         final ImmutableList keys
 
