@@ -134,7 +134,8 @@ class QueryController extends AbstractQueryController {
      */
     def table() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions', 'sort'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions', 'sort',
+                                         'limit', 'offset'])
 
         if (args.type != 'clinical') { throw new OperationNotImplementedException("High dimensional data is not yet " +
                 "implemented for the data table")
@@ -146,7 +147,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(Format.JSON)
 
         hypercubeDataSerializationService.writeTable(constraint, args.rowDimensions, args.columnDimensions, args.sort,
-                user, out)
+                args.limit, args.offset, user, out)
     }
 
     /**
