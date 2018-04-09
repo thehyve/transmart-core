@@ -106,19 +106,15 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         builder
     }
 
-    Value.Builder transferValue = Value.newBuilder()
-
     private Value.Builder buildValue(@Nonnull value) {
-        def builder = transferValue.clear()
+        def builder = Value.newBuilder()
         builder.clear()
         Type.get(value.class).setValue(builder, value)
         builder
     }
 
-    private DimensionElement.Builder transferDimElem = DimensionElement.newBuilder()
-
     DimensionElement buildDimensionElement(Dimension dim, @Nonnull Object value) {
-        def builder = transferDimElem.clear()
+        def builder = DimensionElement.newBuilder()
         if (dim.elementsSerializable) {
             Value.Builder v = buildValue(dim.asSerializable(value))
             if(v == null) return null
@@ -147,7 +143,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         //builder.perSample = false //TODO: implement this
 
         if(dim.elementsSerializable) {
-            def fieldColumnBuilder = transferFieldColumn.clear()
+            def fieldColumnBuilder = DimensionElementFieldColumn.newBuilder()
             Type type = Type.get(dim.elementType)
             boolean allEmpty = true
             for(int i=0; i<dimElements.size(); i++) {
@@ -181,10 +177,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     }
 
 
-    private DimensionElementFieldColumn.Builder transferFieldColumn = DimensionElementFieldColumn.newBuilder()
-
     protected DimensionElementFieldColumn buildElementFields(Property prop, List dimElements) {
-        DimensionElementFieldColumn.Builder builder = transferFieldColumn.clear()
+        DimensionElementFieldColumn.Builder builder = DimensionElementFieldColumn.newBuilder()
 
         Type type = Type.get(prop.type)
 
