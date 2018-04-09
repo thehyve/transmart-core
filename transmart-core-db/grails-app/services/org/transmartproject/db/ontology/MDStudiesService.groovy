@@ -96,29 +96,15 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
 
     @Override
     MDStudy getStudyForUser(Long id, User currentUser) throws NoSuchResourceException {
-        def user = usersResource.getUserFromUsername(currentUser.username)
         def study = Study.findById(id)
-        if (isLegacyStudy(study)) {
-            study = null
-        }
-        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${id}")
-        }
-        study.dimensions.size()
+        checkAccessToStudy(study, currentUser, id)
         study
     }
 
     @Override
     MDStudy getStudyByStudyIdForUser(String studyId, User currentUser) throws NoSuchResourceException {
-        def user = usersResource.getUserFromUsername(currentUser.username)
         def study = Study.findByStudyId(studyId)
-        if (isLegacyStudy(study)) {
-            study = null
-        }
-        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${studyId}")
-        }
-        study.dimensions.size()
+        checkAccessToStudy(study, currentUser, studyId)
         study
     }
 
@@ -136,6 +122,17 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             throw new NoSuchResourceException("No study found for specified studyIds.")
         }
         studiesForUser
+    }
+
+    private checkAccessToStudy(Study study, User currentUser, id) {
+        def user = usersResource.getUserFromUsername(currentUser.username)
+        if (isLegacyStudy(study)) {
+            study = null
+        }
+        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+            throw new AccessDeniedException("Access denied to study or study does not exist: ${id}")
+        }
+        study.dimensions.size()
     }
 
     MDStudy getStudyByStudyId(String studyId) {
