@@ -27,10 +27,20 @@ interface MDStudiesResource {
      *
      * @param id the unique study name of the study
      * @return the study with the name, if it exists and the user has access to the study.
-     * @throws NoSuchResourceException iff no study can be found with the name or the user does not have
+     * @throws NoSuchResourceException if no study can be found with the name or the user does not have
      * access to the study.
      */
     MDStudy getStudyByStudyIdForUser(String studyId, User user) throws NoSuchResourceException
+
+    /**
+     * Returns a list of studies with the given study names.
+     *
+     * @param studyIds the list of unique study names of the studies
+     * @return the studies with the names, if they exist and the user has access to the studies.
+     * @throws NoSuchResourceException if no study can be found with one of the names or the user does not have
+     * access to one of the studies.
+     */
+    List<MDStudy> getStudiesByStudyIdsForUser(List<String> studyIds, User user) throws NoSuchResourceException
 
     /**
      * Returns the study with the given name.

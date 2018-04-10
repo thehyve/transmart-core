@@ -141,4 +141,32 @@ class StudiesSpec extends RESTSpec {
         assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
     }
 
+    def "list of studies is fetched by names"() {
+        given: "Shared concepts studies are loaded and I do have limited access"
+
+        when: "I try to fetch studies A and B by studyIds with limited access"
+        def studyResponse1 = get([
+                path      : "${PATH_STUDIES}/studyIds",
+                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_DB_ID]],
+                acceptType: JSON,
+                user      : DEFAULT_USER
+        ])
+
+        then: "only one study is returned"
+        assert studyResponse1.studies.size() == 1
+        assert studyResponse1.studies*.studyId == [SHARED_CONCEPTS_A_ID]
+
+        when: "I try to fetch studies A and B by studyIds with the admin user"
+        def studyResponse2 = get([
+                path      : "${PATH_STUDIES}/studyIds",
+                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID]],
+                acceptType: JSON,
+                user      : ADMIN_USER
+        ])
+
+        then: "both study objects are returned"
+        assert studyResponse2.studies.size() == 2
+        assert studyResponse2.studies*.studyId == [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID]
+    }
+
 }

@@ -515,6 +515,49 @@ class QueryServiceSpec extends TransmartSpecification {
         locationsCount == Long.valueOf(expectedResults.grep().size())
     }
 
+    void "test query for study dimension elements"() {
+        setupHypercubeData()
+        DimensionImpl dimension = DimensionImpl.STUDY
+        def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
+        Constraint constraint = new ValueConstraint(
+                        valueType: "STRING",
+                        operator: Operator.EQUALS,
+                        value: testObservation.textValue
+        )
+        def expectedResults = hypercubeTestData.clinicalData.longitudinalStudy
+
+        when:"I query for all studies for a constraint with admin user"
+        def studies = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+            dimension.asSerializable(it)
+        }
+
+        then: "List of all studies matching the constraints is returned"
+        studies.size() == 1
+        studies.any {
+            it.name == expectedResults.name
+        }
+
+        when:"I query for studies count with admin user"
+        def studiesCount = aggregateDataResource.getDimensionElementsCount(dimension, constraint, accessLevelTestData.users[0])
+
+        then: "Number of studies matching the constraints is returned"
+        studiesCount == 1
+
+        when:"I query for all studies for a constraint with user without access to any study"
+        def studies2 = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[4]).collect {
+            dimension.asSerializable(it)
+        }
+
+        then: "Empty list is returned with user without access to any study"
+        studies2.size() == 0
+
+        when:"I query for studies count"
+        def studies2Count = aggregateDataResource.getDimensionElementsCount(dimension, constraint, accessLevelTestData.users[4])
+
+        then: "Number is zero"
+        studies2Count == 0
+    }
+
     void 'test_sorting'() {
         setupHypercubeData()
 
