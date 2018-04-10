@@ -606,7 +606,7 @@
           {
             "name": "studyIds",
             "in": "query",
-            "description": "a list of study ids of the studies to fetch. Example: `studyIds:\"GSE8581\"&studyIds:\"EHR\"`",
+            "description": "a list of study ids of the studies to fetch. Example: `/v2/studies/studyIds?studyIds=GSE8581&studyIds=EHR`",
             "required": true,
             "type": "string"
           }
