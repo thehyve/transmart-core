@@ -10,6 +10,8 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.StudyWrapper
+
+import static java.util.Objects.requireNonNull
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class StudyQueryController extends AbstractQueryController {
@@ -59,11 +61,11 @@ class StudyQueryController extends AbstractQueryController {
 
     /**
      * Study endpoint:
-     * <code>/v2/studies/${id}</code>
+     * <code>/v2/studies/studyIds/${studyIds}</code>
      *
      * @param id the study id
      *
-     * @return the {@link org.transmartproject.db.i2b2data.Study} object with id ${id}
+     * @return the {@link org.transmartproject.db.i2b2data.Study} object with studyIds ${studyIds}
      * if it exists and the user has access; null otherwise.
      */
     def findStudyByStudyId(
@@ -81,6 +83,29 @@ class StudyQueryController extends AbstractQueryController {
                 study: study,
                 apiVersion: apiVersion
         )
+    }
+
+    /**
+     * Study endpoint:
+     * <code>/v2/studies/studyIds?studyIds=</code>
+     *
+     * @param a list of the study names
+     *
+     * @return a list of the {@link org.transmartproject.db.i2b2data.Study} objects with names ${studyIds}
+     * if all of them exist and the user has access; null otherwise.
+     */
+    def findStudiesByStudyIds(
+            @RequestParam('api_version') String apiVersion) {
+        if (params.studyIds == null) {
+            throw new InvalidArgumentsException("Parameter 'studyIds' is missing.")
+        }
+
+        checkForUnsupportedParams(params, ['studyIds'])
+        List<String> studyIdList =  (List) requireNonNull(params.studyIds)
+
+        def studies = studiesResource.getStudiesByStudyIdsForUser(studyIdList, currentUser)
+
+        respond wrapStudies(apiVersion, studies)
     }
 
     private static wrapStudies(String apiVersion, Collection<MDStudy> source) {

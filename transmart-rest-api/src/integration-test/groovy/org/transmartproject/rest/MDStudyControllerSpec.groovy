@@ -2,13 +2,11 @@
 
 package org.transmartproject.rest
 
-import grails.converters.JSON
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.transmartproject.rest.marshallers.MarshallerSpec
-import spock.lang.Ignore
 
 @Slf4j
 class MDStudyControllerSpec extends MarshallerSpec {
@@ -78,6 +76,24 @@ class MDStudyControllerSpec extends MarshallerSpec {
         result['studyId'] == studyId
     }
 
+    void 'test get multiple studies by study ids'() {
+        when:
+        def studyId1 = 'study1'
+        def studyId2 = 'study2'
+        def url = "${baseURL}/$VERSION/studies/studyIds?studyIds=${studyId1}&studyIds=${studyId2}"
+        ResponseEntity<Resource> response = getJson(url)
+
+        String content = response.body.inputStream.readLines().join('\n')
+        def result = new JsonSlurper().parseText(content)
+        log.info 'Studies:'
+        log.info (((Map)result).toMapString())
+
+        then:
+        response.statusCode.value() == 200
+        result['studies'].size() == 2
+        result['studies']['studyId'] == [studyId1, studyId2]
+    }
+
     void 'test get non existing study by study id'() {
         when:
         def studyId = 'non existing study'
@@ -90,7 +106,7 @@ class MDStudyControllerSpec extends MarshallerSpec {
         log.info (((Map)result).toMapString())
 
         then:
-        response.statusCode.value() == 403
+        response.statusCode.value() == 404
     }
 
 }
