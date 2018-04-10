@@ -159,13 +159,19 @@ class QueryController extends AbstractQueryController {
         Constraint constraint = bindConstraint((String) args.constraint)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        OutputStream out = getLazyOutputStream(Format.JSON)
+        if (args.limit == null) {
+            throw new InvalidArgumentsException("Parameter 'limit' is required")
+        }
+        int limit = Integer.parseInt((String) args.limit)
+        Long offset = args.offset ? Long.parseLong((String) args.offset) : 0
 
         def rowSort = parseJson(args.rowSort)
         def columnSort = parseJson(args.columnSort)
 
+        OutputStream out = getLazyOutputStream(Format.JSON)
+
         hypercubeDataSerializationService.writeTable(constraint, args.rowDimensions, args.columnDimensions,
-                rowSort, columnSort, args.limit, args.offset, user, out)
+                rowSort, columnSort, limit, offset, user, out)
     }
 
     /**

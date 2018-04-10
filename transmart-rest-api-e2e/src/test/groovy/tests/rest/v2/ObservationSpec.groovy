@@ -53,6 +53,7 @@ class ObservationSpec extends RESTSpec {
     @RequiresStudy(EHR_ID)
     def "get data table"() {
         given: "study EHR is loaded"
+        def limit = 10
         def params = [
                 constraint       : toJSON([
                         type: ConceptConstraint,
@@ -63,8 +64,7 @@ class ObservationSpec extends RESTSpec {
                 columnDimensions : ['trial visit', 'concept'],
                 columnSort       : toJSON([['trial visit', 'asc'], ['concept', 'desc']]),
                 rowSort          : toJSON(['patient': 'desc']),
-                limit            : 5,
-                offset           : 3
+                limit            : limit,
         ]
         def request = [
                 path      : PATH_TABLE,
@@ -79,11 +79,26 @@ class ObservationSpec extends RESTSpec {
         assert responseData.column_dimensions.size() == 2
         assert responseData.column_headers.size() == 2
         assert responseData.row_dimensions.size() == 2
-        assert responseData.rows.size() == 1
-        assert responseData["row count"] == 1
-        //assert responseData.offset == 3
-        //assert responseData.sorting.find{ it.dimension == 'study'}.order == "desc"
+        assert responseData.rows.size() == 3
+        assert responseData["row count"] == 3
+        assert responseData.offset == 0
+        assert responseData.sorting.find{ it.dimension == 'study'}.order == "asc"
+        assert responseData.sorting.find{ it.dimension == 'patient'}.order == "desc"
+        assert responseData.sorting.find{ it.dimension == 'trial visit'}.order == "asc"
+        assert responseData.sorting.find{ it.dimension == 'concept'}.order == "desc"
 
+        when: "I specify an offset"
+        def offset = 2
+        limit = 2
+        params['offset'] = offset
+        params['limit'] = limit
+        def responseData2 = getOrPostRequest(method, request, params)
+
+        then: "number of results has decreased"
+        assert responseData2.offset == offset
+        assert responseData2["row count"] == responseData["row count"]
+        assert responseData2.rows.size() == limit
+        assert responseData2.rows == responseData.rows.takeRight(2)
 
         where:
         method | _
