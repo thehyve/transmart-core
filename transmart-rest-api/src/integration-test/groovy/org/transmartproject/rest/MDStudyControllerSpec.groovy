@@ -106,7 +106,7 @@ class MDStudyControllerSpec extends MarshallerSpec {
         log.info (((Map)result).toMapString())
 
         then:
-        response.statusCode.value() == 403
+        response.statusCode.value() == 404
     }
 
 }

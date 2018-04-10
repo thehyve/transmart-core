@@ -7,7 +7,6 @@ import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.ontology.MDStudiesResource
-import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.ProtectedOperation
@@ -21,8 +20,6 @@ import org.transmartproject.db.i2b2data.Study
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
-
-import static java.util.Objects.requireNonNull
 
 @Transactional
 class MDStudiesService implements MDStudiesResource, ApplicationRunner {
@@ -116,7 +113,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             try {
                 checkAccessToStudy(study, currentUser, study?.studyId)
                 studiesForUser.add(study)
-            } catch (AccessDeniedException e) {
+            } catch (NoSuchResourceException e) {
                 // ignore here
             }
         }
@@ -126,13 +123,12 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         studiesForUser
     }
 
-    private checkAccessToStudy(Study study, User currentUser, id) {
-        def user = usersResource.getUserFromUsername(currentUser.username)
+    private void checkAccessToStudy(Study study, User user, id) {
         if (isLegacyStudy(study)) {
             study = null
         }
         if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${id}")
+            throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
         }
     }
 
