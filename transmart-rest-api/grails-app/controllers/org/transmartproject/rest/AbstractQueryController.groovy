@@ -76,7 +76,7 @@ abstract class AbstractQueryController implements Controller {
             def parameters = request.JSON as Map
             return parameters.collectEntries { String k, v ->
                 if(v instanceof Object[] || v instanceof List) {
-                    [k, v.collect { it.toString(false) }]
+                    [k, v.collect { it.toString() }]
                 } else {
                     [k, v.toString()]
                 }
