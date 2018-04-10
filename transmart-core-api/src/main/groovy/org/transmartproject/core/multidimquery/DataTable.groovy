@@ -51,7 +51,8 @@ interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>
     List<DataTableColumn> getColumnKeys()
 
     /**
-     * @return the sorting that was actually used for the hypercube from which this datatable was constructed
+     * @return the sorting that was actually used for the hypercube from which this datatable was constructed. The
+     * map is an ordered map.
      */
     Map<Dimension, SortOrder> getSort()
 }

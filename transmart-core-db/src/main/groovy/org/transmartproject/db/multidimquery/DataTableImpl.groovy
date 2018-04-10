@@ -10,6 +10,7 @@ import com.google.common.collect.Table
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.Immutable
+import groovy.transform.ToString
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
@@ -108,9 +109,11 @@ class DataTableImpl implements DataTable {
                 List keys = []
                 for(def dim : rowDimensions) {
                     elems.add(hv[dim])
+                    keys.add(hv.getDimKey(dim))
                 }
-                def row = new DataTableRowImpl(startOffset+i, ImmutableList.copyOf(elems))
+                def row = new DataTableRowImpl(startOffset+i, elems, keys)
                 elems.clear()
+                keys.clear()
                 for(def dim: columnDimensions) {
                     elems.add(hv[dim])
                     keys.add(hv.getDimKey(dim))
@@ -123,6 +126,7 @@ class DataTableImpl implements DataTable {
         table
     }
 
+    @ToString(includes=['keys'], includeNames=true, includePackage=false)
     @EqualsAndHashCode(includes=["keys"])
     class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
         final ImmutableList elements // in the order of columnDimensions
@@ -153,11 +157,18 @@ class DataTableImpl implements DataTable {
         }
     }
 
-    @Immutable(knownImmutableClasses=[ImmutableList])
+    @ToString(includes=['offset', 'keys'], includeNames=true, includePackage=false)
     @EqualsAndHashCode(includes=["offset"])
     static class DataTableRowImpl implements DataTableRow<DataTableRowImpl> {
-        long offset
-        ImmutableList elements  // in the order of rowDimensions
+        final long offset
+        final ImmutableList elements  // in the order of rowDimensions
+        final ImmutableList keys
+
+        DataTableRowImpl(long offset, List elements, List keys) {
+            this.offset = offset
+            this.elements = ImmutableList.copyOf(elements)
+            this.keys = ImmutableList.copyOf(keys)
+        }
 
         @Override
         int compareTo(DataTableRowImpl other) {
