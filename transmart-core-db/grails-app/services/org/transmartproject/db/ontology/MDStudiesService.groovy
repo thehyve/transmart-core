@@ -130,6 +130,14 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
             throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
         }
+        fixLoad(study)
+    }
+
+    private Study fixLoad(Study study) {
+        // Ensure study dimensions are loaded in the same hibernate session as the study object itself. This is
+        // needed for parallel query processing where each parallel thread has its own hibernate session.
+        study.dimensions.size()
+        study
     }
 
     MDStudy getStudyByStudyId(String studyId) {
@@ -139,7 +147,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found: ${studyId}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             studyIdToStudy[studyId] = study
         }
         study
@@ -152,7 +160,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found: ${id}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             idToStudy[id] = study
         }
         study
@@ -165,7 +173,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found for trial visit ${trialVisitId}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             trialVisitIdToStudy[trialVisitId] = study
         }
         study
@@ -180,7 +188,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found with id ${id}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             studyId = study.studyId
             studyNumToStudyId[id] = studyId
         }
