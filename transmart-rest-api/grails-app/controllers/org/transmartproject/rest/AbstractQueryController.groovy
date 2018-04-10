@@ -78,7 +78,7 @@ abstract class AbstractQueryController implements Controller {
                 if(v instanceof Object[] || v instanceof List) {
                     [k, v.collect { (it as JSON).toString(false) }]
                 } else {
-                    [k, (v as JSON).toString(false)]
+                    [k, v instanceof JSON ? (v as JSON).toString(false) : v.toString()]
                 }
             }
         }
