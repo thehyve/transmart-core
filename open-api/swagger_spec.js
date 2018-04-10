@@ -563,7 +563,7 @@ var spec = {
             }
           },
           "404": {
-            "description": "Study not found\n"
+            "description": "Study not found or no access\n"
           }
         }
       }
@@ -591,7 +591,7 @@ var spec = {
             }
           },
           "404": {
-            "description": "Study not found\n"
+            "description": "Study not found or no access\n"
           }
         }
       }
@@ -627,7 +627,7 @@ var spec = {
             }
           },
           "404": {
-            "description": "Study not found\n"
+            "description": "Study not found or no access\n"
           }
         }
       }

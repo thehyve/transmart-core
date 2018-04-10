@@ -687,7 +687,7 @@ paths:
             $ref: "#/definitions/v2Study"
         404:
           description: |
-            Study not found
+            Study not found or no access
   /v2/studies/studyId/{studyId}:
     get:
       description: |
@@ -708,7 +708,7 @@ paths:
             $ref: "#/definitions/v2Study"
         404:
           description: |
-            Study not found
+            Study not found or no access
   /v2/studies/studyIds:
     get:
       description: |
@@ -734,7 +734,7 @@ paths:
                   $ref: '#/definitions/v2Study'
         404:
           description: |
-            Study not found
+            Study not found or no access
   /v2/supported_fields:
     get:
       description: |
