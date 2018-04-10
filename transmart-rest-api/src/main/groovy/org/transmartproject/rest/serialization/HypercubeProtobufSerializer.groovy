@@ -51,7 +51,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                     builder.addFields FieldDefinition.newBuilder().with {
                         name = field.name
                         type = Type.get(field.type).protobufType
-                        assert type != ProtoType.OBJECT
                         build()
                     }
                 }
@@ -182,6 +181,10 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         Type type = Type.get(prop.type)
 
+        if (type == Type.MAP) {
+            return buildMapFields(prop, type, dimElements)
+        }
+
         long absentCount = 0
         for(int i=0; i<dimElements.size(); i++) {
             def elem = prop.get(dimElements[i])
@@ -198,6 +201,82 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         } else {
             builder.build()
         }
+    }
+
+    protected DimensionElementFieldColumn buildMapFields(Property prop, Type type, List dimElements) {
+        // assert type == Type.MAP
+
+        DimensionElementFieldColumn.Builder builder = DimensionElementFieldColumn.newBuilder()
+        long absentCount = 0
+
+        Map<Object, MapFieldBuilders> keyBuilders = [:]
+
+        for(int i=0; i<dimElements.size(); i++) {
+            def element = dimElements[i]
+
+            if (element == null) {
+                builder.addAbsentValueIndices(i)
+                absentCount++
+                continue
+            }
+
+            Map field = (Map) prop.get(element)
+
+            for(def entry : field) {
+                def builders = keyBuilders[entry.key]
+                if (builders == null) {
+                    builders = keyBuilders[entry.key] = new MapFieldBuilders()
+
+                    def mapColumn = builders.mapColumn = MapColumn.newBuilder()
+
+                    Value.Builder keyBuilder = Value.newBuilder()
+                    Type.get(entry.key.class).setValue(keyBuilder, entry.key)
+                    mapColumn.setKey(keyBuilder)
+
+                    def values = builders.values = DimensionElementFieldColumn.newBuilder()
+
+                    for(int skipped=0; skipped<i; skipped++) {
+                        values.addAbsentValueIndices(skipped)
+                    }
+                }
+
+                if(entry.value == null) {
+                    builders.values.addAbsentValueIndices(i)
+                    continue
+                }
+                if(builders.type == null) {
+                    builders.type = Type.get(entry.value.class)
+                }
+
+                if (builders.type == Type.MAP) {
+                    def valueBuilder = Value.newBuilder()
+                    builders.type.setValue(valueBuilder, entry.value)
+                    builders.values.addUnpackedValue(valueBuilder)
+                } else {
+                    builders.type.addToColumn(builders.values, entry.value)
+                }
+            }
+        }
+
+        for(def builders : keyBuilders.values()) {
+            if (builders.type == null) continue  // values for this key are all missing or null
+
+            MapColumn.Builder mapColumn = builders.mapColumn
+            mapColumn.setValues(builders.values)
+
+            builder.addObjectValue(mapColumn)
+        }
+
+        if (absentCount == dimElements.size()) {
+            return null
+        }
+        builder.build()
+    }
+
+    static class MapFieldBuilders {
+        MapColumn.Builder mapColumn
+        DimensionElementFieldColumn.Builder values
+        Type type
     }
 
     protected Footer buildFooter() {

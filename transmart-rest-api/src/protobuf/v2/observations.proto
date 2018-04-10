@@ -154,7 +154,7 @@ message Value {
         int64 timestampValue = 4;
     }
     // logically also part of the oneof, but that is syntactically not supported
-    repeated Value objectValue = 5;
+    repeated MapEntry objectValue = 5;
 }
 
 message MapEntry {
@@ -176,7 +176,7 @@ message Footer {
 message DimensionElements { // Multiple dimension elements are stored in a "column oriented" format, with the fields
                             // as the columns.
 
-    // not used when a DimensionElements is embedded in a PackedObservation
+    // not used when a DimensionElements is embedded in a PackedObservation or in the Header
     string name = 3;
 
     // List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
@@ -197,6 +197,9 @@ message DimensionElementFieldColumn {
     repeated sint64 intValue = 3;
     repeated int64 timestampValue = 4;
 
+    // For top level objects, this contains them. While the above stringValue/intValue/etc contain one entry per
+    // dimension element, this contains one MapColumn per object key (for all keys appearing in any dimension element).
+    // The MapColumn.values then contain the values for each dimension element for the key.
     repeated MapColumn objectValue = 6;
 
     // As an alternative to one of the above packed representations, the value for each element can be represented in
@@ -208,11 +211,11 @@ message DimensionElementFieldColumn {
 }
 
 // A mapping for a single key to values of a list of dimension elements. The key is the same for all dimension elements.
+// This only applies to first level maps, nested maps are not packed but are encoded in
+// DimensionElementFieldColumn.unpackedValue
 message MapColumn {
     Value key = 1;
     DimensionElementFieldColumn values = 2;
-
-    repeated int32 absentMappingIndices = 3;
 }
 
 

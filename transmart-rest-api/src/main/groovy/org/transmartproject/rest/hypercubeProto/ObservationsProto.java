@@ -9872,24 +9872,24 @@ public final class ObservationsProto {
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> 
+    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry> 
         getObjectValueList();
     /**
      * <pre>
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getObjectValue(int index);
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry getObjectValue(int index);
     /**
      * <pre>
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
     int getObjectValueCount();
     /**
@@ -9897,18 +9897,18 @@ public final class ObservationsProto {
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder> 
         getObjectValueOrBuilderList();
     /**
      * <pre>
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getObjectValueOrBuilder(
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder getObjectValueOrBuilder(
         int index);
 
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.ValueCase getValueCase();
@@ -9976,11 +9976,11 @@ public final class ObservationsProto {
             }
             case 42: {
               if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-                objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value>();
+                objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry>();
                 mutable_bitField0_ |= 0x00000010;
               }
               objectValue_.add(
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.parser(), extensionRegistry));
+                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.parser(), extensionRegistry));
               break;
             }
           }
@@ -10129,15 +10129,15 @@ public final class ObservationsProto {
     }
 
     public static final int OBJECTVALUE_FIELD_NUMBER = 5;
-    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> objectValue_;
+    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry> objectValue_;
     /**
      * <pre>
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> getObjectValueList() {
+    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry> getObjectValueList() {
       return objectValue_;
     }
     /**
@@ -10145,9 +10145,9 @@ public final class ObservationsProto {
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder> 
         getObjectValueOrBuilderList() {
       return objectValue_;
     }
@@ -10156,7 +10156,7 @@ public final class ObservationsProto {
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
     public int getObjectValueCount() {
       return objectValue_.size();
@@ -10166,9 +10166,9 @@ public final class ObservationsProto {
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getObjectValue(int index) {
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry getObjectValue(int index) {
       return objectValue_.get(index);
     }
     /**
@@ -10176,9 +10176,9 @@ public final class ObservationsProto {
      * logically also part of the oneof, but that is syntactically not supported
      * </pre>
      *
-     * <code>repeated .hypercube.Value objectValue = 5;</code>
+     * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getObjectValueOrBuilder(
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder getObjectValueOrBuilder(
         int index) {
       return objectValue_.get(index);
     }
@@ -10798,26 +10798,26 @@ public final class ObservationsProto {
         return this;
       }
 
-      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> objectValue_ =
+      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry> objectValue_ =
         java.util.Collections.emptyList();
       private void ensureObjectValueIsMutable() {
         if (!((bitField0_ & 0x00000010) == 0x00000010)) {
-          objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value>(objectValue_);
+          objectValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry>(objectValue_);
           bitField0_ |= 0x00000010;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> objectValueBuilder_;
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder> objectValueBuilder_;
 
       /**
        * <pre>
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> getObjectValueList() {
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry> getObjectValueList() {
         if (objectValueBuilder_ == null) {
           return java.util.Collections.unmodifiableList(objectValue_);
         } else {
@@ -10829,7 +10829,7 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public int getObjectValueCount() {
         if (objectValueBuilder_ == null) {
@@ -10843,9 +10843,9 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getObjectValue(int index) {
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry getObjectValue(int index) {
         if (objectValueBuilder_ == null) {
           return objectValue_.get(index);
         } else {
@@ -10857,10 +10857,10 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder setObjectValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry value) {
         if (objectValueBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -10878,10 +10878,10 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder setObjectValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder builderForValue) {
         if (objectValueBuilder_ == null) {
           ensureObjectValueIsMutable();
           objectValue_.set(index, builderForValue.build());
@@ -10896,9 +10896,9 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public Builder addObjectValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+      public Builder addObjectValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry value) {
         if (objectValueBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -10916,10 +10916,10 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder addObjectValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value value) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry value) {
         if (objectValueBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -10937,10 +10937,10 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder addObjectValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder builderForValue) {
         if (objectValueBuilder_ == null) {
           ensureObjectValueIsMutable();
           objectValue_.add(builderForValue.build());
@@ -10955,10 +10955,10 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder addObjectValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder builderForValue) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder builderForValue) {
         if (objectValueBuilder_ == null) {
           ensureObjectValueIsMutable();
           objectValue_.add(index, builderForValue.build());
@@ -10973,10 +10973,10 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder addAllObjectValue(
-          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> values) {
+          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry> values) {
         if (objectValueBuilder_ == null) {
           ensureObjectValueIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -10992,7 +10992,7 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder clearObjectValue() {
         if (objectValueBuilder_ == null) {
@@ -11009,7 +11009,7 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
       public Builder removeObjectValue(int index) {
         if (objectValueBuilder_ == null) {
@@ -11026,9 +11026,9 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder getObjectValueBuilder(
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder getObjectValueBuilder(
           int index) {
         return getObjectValueFieldBuilder().getBuilder(index);
       }
@@ -11037,9 +11037,9 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder getObjectValueOrBuilder(
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder getObjectValueOrBuilder(
           int index) {
         if (objectValueBuilder_ == null) {
           return objectValue_.get(index);  } else {
@@ -11051,9 +11051,9 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder> 
            getObjectValueOrBuilderList() {
         if (objectValueBuilder_ != null) {
           return objectValueBuilder_.getMessageOrBuilderList();
@@ -11066,41 +11066,41 @@ public final class ObservationsProto {
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder addObjectValueBuilder() {
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder addObjectValueBuilder() {
         return getObjectValueFieldBuilder().addBuilder(
-            org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance());
+            org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.getDefaultInstance());
       }
       /**
        * <pre>
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder addObjectValueBuilder(
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder addObjectValueBuilder(
           int index) {
         return getObjectValueFieldBuilder().addBuilder(
-            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance());
+            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.getDefaultInstance());
       }
       /**
        * <pre>
        * logically also part of the oneof, but that is syntactically not supported
        * </pre>
        *
-       * <code>repeated .hypercube.Value objectValue = 5;</code>
+       * <code>repeated .hypercube.MapEntry objectValue = 5;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder> 
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder> 
            getObjectValueBuilderList() {
         return getObjectValueFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder> 
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder> 
           getObjectValueFieldBuilder() {
         if (objectValueBuilder_ == null) {
           objectValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.Value, org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.ValueOrBuilder>(
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntry.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.MapEntryOrBuilder>(
                   objectValue_,
                   ((bitField0_ & 0x00000010) == 0x00000010),
                   getParentForChildren(),
@@ -18106,32 +18106,32 @@ public final class ObservationsProto {
       "Element\022 \n\006fields\030\001 \003(\0132\020.hypercube.Valu" +
       "e\022\020\n\010intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001" +
       "\022\023\n\013stringValue\030\004 \001(\t\022\026\n\016timestampValue\030" +
-      "\005 \001(\003\022\032\n\022absentFieldIndices\030\006 \003(\005\"\223\001\n\005Va" +
+      "\005 \001(\003\022\032\n\022absentFieldIndices\030\006 \003(\005\"\226\001\n\005Va" +
       "lue\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doubleValu" +
       "e\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016timesta" +
-      "mpValue\030\004 \001(\003H\000\022%\n\013objectValue\030\005 \003(\0132\020.h",
-      "ypercube.ValueB\007\n\005value\"J\n\010MapEntry\022\035\n\003k" +
-      "ey\030\001 \001(\0132\020.hypercube.Value\022\037\n\005value\030\002 \001(" +
-      "\0132\020.hypercube.Value\"H\n\006Footer\022/\n\tdimensi" +
-      "on\030\001 \003(\0132\034.hypercube.DimensionElements\022\r" +
-      "\n\005error\030c \001(\t\"\216\001\n\021DimensionElements\022\014\n\004n" +
-      "ame\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Di" +
-      "mensionElementFieldColumn\022 \n\030absentField" +
-      "ColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001(\010\"\341" +
-      "\001\n\033DimensionElementFieldColumn\022\023\n\013string" +
-      "Value\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intV",
-      "alue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022)\n\013ob" +
-      "jectValue\030\006 \003(\0132\024.hypercube.MapColumn\022\'\n" +
-      "\runpackedValue\030\007 \003(\0132\020.hypercube.Value\022\032" +
-      "\n\022absentValueIndices\030\005 \003(\005\"\200\001\n\tMapColumn" +
-      "\022\035\n\003key\030\001 \001(\0132\020.hypercube.Value\0226\n\006value" +
-      "s\030\002 \001(\0132&.hypercube.DimensionElementFiel" +
-      "dColumn\022\034\n\024absentMappingIndices\030\003 \003(\005\"\026\n" +
-      "\005Error\022\r\n\005error\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020" +
-      "\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n" +
-      "\006OBJECT\020\004*\036\n\tSortOrder\022\007\n\003ASC\020\000\022\010\n\004DESC\020",
-      "\001B=\n(org.transmartproject.rest.hypercube" +
-      "ProtoB\021ObservationsProtob\006proto3"
+      "mpValue\030\004 \001(\003H\000\022(\n\013objectValue\030\005 \003(\0132\023.h",
+      "ypercube.MapEntryB\007\n\005value\"J\n\010MapEntry\022\035" +
+      "\n\003key\030\001 \001(\0132\020.hypercube.Value\022\037\n\005value\030\002" +
+      " \001(\0132\020.hypercube.Value\"H\n\006Footer\022/\n\tdime" +
+      "nsion\030\001 \003(\0132\034.hypercube.DimensionElement" +
+      "s\022\r\n\005error\030c \001(\t\"\216\001\n\021DimensionElements\022\014" +
+      "\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube" +
+      ".DimensionElementFieldColumn\022 \n\030absentFi" +
+      "eldColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001(" +
+      "\010\"\341\001\n\033DimensionElementFieldColumn\022\023\n\013str" +
+      "ingValue\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010i",
+      "ntValue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022)\n" +
+      "\013objectValue\030\006 \003(\0132\024.hypercube.MapColumn" +
+      "\022\'\n\runpackedValue\030\007 \003(\0132\020.hypercube.Valu" +
+      "e\022\032\n\022absentValueIndices\030\005 \003(\005\"\200\001\n\tMapCol" +
+      "umn\022\035\n\003key\030\001 \001(\0132\020.hypercube.Value\0226\n\006va" +
+      "lues\030\002 \001(\0132&.hypercube.DimensionElementF" +
+      "ieldColumn\022\034\n\024absentMappingIndices\030\003 \003(\005" +
+      "\"\026\n\005Error\022\r\n\005error\030c \001(\t*B\n\004Type\022\n\n\006DOUB" +
+      "LE\020\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003" +
+      "\022\n\n\006OBJECT\020\004*\036\n\tSortOrder\022\007\n\003ASC\020\000\022\010\n\004DE",
+      "SC\020\001B=\n(org.transmartproject.rest.hyperc" +
+      "ubeProtoB\021ObservationsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
