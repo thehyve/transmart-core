@@ -60,8 +60,8 @@ class ObservationSpec extends RESTSpec {
                         path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
                 ]),
                 type             : 'clinical',
-                rowDimensions    : ['patient', 'study'],
-                columnDimensions : ['trial visit', 'concept'],
+                rowDimensions    : toJSON(['patient', 'study']),
+                columnDimensions : toJSON(['trial visit', 'concept']),
                 columnSort       : toJSON([['trial visit', 'asc'], ['concept', 'desc']]),
                 rowSort          : toJSON(['patient': 'desc']),
                 limit            : limit,
