@@ -141,4 +141,65 @@ class QueryControllerSpec extends MarshallerSpec {
         result instanceof List
     }
 
+    void 'test data table'() {
+        def constraint = URLEncoder.encode(([
+                type: 'true',
+        ] as JSON).toString(false), 'UTF-8')
+        log.info "Constraint: $constraint"
+
+        when:
+        def columnSort = URLEncoder.encode((['concept': 'desc'] as JSON).toString(false), 'UTF-8')
+        def rowDimensions = URLEncoder.encode((['patient', 'study'] as JSON).toString(false), 'UTF-8')
+        def columnDimensions = URLEncoder.encode((['trial visit', 'concept'] as JSON).toString(false), 'UTF-8')
+        def limit = 4
+        def offset = 0
+
+        def url = "${baseURL}/$VERSION/observations/table?" +
+                "type=clinical&" +
+                "constraint=$constraint&" +
+                "rowDimensions=$rowDimensions&" +
+                "columnDimensions=$columnDimensions&" +
+                "columnSort=$columnSort&" +
+                "limit=$limit&" +
+                "offset=$offset"
+        log.info "Request URL: ${url}"
+        ResponseEntity<Resource> response = getJson(url)
+        String content = response.body.inputStream.readLines().join('\n')
+
+        then:
+        response.statusCode.value() == 200
+        def result = new JsonSlurper().parseText(content)
+        result.offset == offset
+        result.column_dimensions*.name == ['trial visit', 'concept']
+        result.column_headers*.dimension == ['trial visit', 'concept']
+        result.rows.size() == 4
+        result["row count"] == 4
+        result.sorting.find{ it.dimension == 'study'}.order == "asc"
+        result.sorting.find{ it.dimension == 'patient'}.order == "asc"
+        result.sorting.find{ it.dimension == 'trial visit'}.order == "asc"
+        result.sorting.find{ it.dimension == 'concept'}.order == "desc"
+
+        when:
+        def offset2 = 2
+        def limit2 = 2
+        url = "${baseURL}/$VERSION/observations/table?" +
+                "type=clinical&" +
+                "constraint=$constraint&" +
+                "rowDimensions=$rowDimensions&" +
+                "columnDimensions=$columnDimensions&" +
+                "columnSort=$columnSort&" +
+                "limit=$limit2&" +
+                "offset=$offset2"
+        ResponseEntity<Resource> response2 = getJson(url)
+        String content2 = response.body.inputStream.readLines().join('\n')
+
+        then:
+        response2.statusCode.value() == 200
+        def result2 = new JsonSlurper().parseText(content2)
+        result2.offset == offset2
+        result2.rows.size() == 2
+        result2["row count"] == 2
+        result2.rows == result.rows.takeRight(2)
+    }
+
 }
