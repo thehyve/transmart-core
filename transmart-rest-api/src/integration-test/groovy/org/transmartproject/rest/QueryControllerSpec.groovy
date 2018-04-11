@@ -7,7 +7,6 @@ import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
-import org.transmartproject.db.TestData
 import org.transmartproject.rest.marshallers.MarshallerSpec
 import spock.lang.Ignore
 
@@ -199,7 +198,8 @@ class QueryControllerSpec extends MarshallerSpec {
         result2.offset == offset2
         result2.rows.size() == 2
         result2["row count"] == 4
-        result2.rows == result.rows.takeRight(2)
+        result2.rows*.dimensions == result.rows.takeRight(2)*.dimensions
+        result2.rows*.row*.findAll() == result.rows.takeRight(2)*.row*.findAll()
     }
 
 }
