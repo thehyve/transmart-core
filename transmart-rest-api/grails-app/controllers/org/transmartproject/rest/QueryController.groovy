@@ -167,8 +167,8 @@ class QueryController extends AbstractQueryController {
 
         def rowSort = parseJson(args.rowSort)
         def columnSort = parseJson(args.columnSort)
-        def rowDimensions = parseJson(args.rowDimensions)
-        def columnDimensions = parseJson(args.columnDimensions)
+        def rowDimensions = paramToArray(args.rowDimensions)
+        def columnDimensions = paramToArray(args.columnDimensions)
 
         [rowDimensions: rowDimensions, columnDimensions: columnDimensions].each { name, list ->
             if(! list instanceof List || list.any { ! it instanceof String }) {
@@ -362,4 +362,7 @@ class QueryController extends AbstractQueryController {
         render fields as JSON
     }
 
+    private static Object paramToArray(value){
+        return value instanceof ArrayList ? value : parseJson(value)
+    }
 }
