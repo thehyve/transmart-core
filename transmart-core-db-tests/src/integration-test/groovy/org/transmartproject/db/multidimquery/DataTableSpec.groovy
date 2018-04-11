@@ -4,6 +4,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
@@ -51,25 +52,90 @@ class DataTableSpec extends TransmartSpecification {
         sessionFactory.currentSession.flush()
     }
 
-    void testSimple() {
-        setupData()
-
-        Constraint constraint = new AndConstraint([
+    Constraint getConstraint() {
+        new AndConstraint([
                 new StudyObjectConstraint(study: clinicalData.longitudinalStudy),
                 new FieldConstraint(field:
                         new Field(dimension: 'trial visit', type: Type.NUMERIC, fieldName: 'relTime'),
-                            operator: Operator.EQUALS, value: 0)
+                        operator: Operator.EQUALS, value: 0)
         ])
+    }
+
+    void testSimple() {
+        setupData()
 
         when:
         DataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['patient'], columnDimensions: ['concept'], offset: 0, limit: 10)
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], offset: 0, limit: 10)
+        def sortDims = table.sort.keySet().withIndex().collectEntries()
+
 
         then:
-        table.rowDimensions == [DimensionImpl.PATIENT]
-        table.columnDimensions == [DimensionImpl.CONCEPT]
-        table.rowKeys*.elements*.getAt(0) as Set == (clinicalData.longitudinalClinicalFacts*.patient as Set)
-        table.columnKeys*.elements*.getAt(0)*.conceptCode as Set == clinicalData.longitudinalClinicalFacts*.conceptCode as Set
+        table.rowDimensions == [DimensionImpl.STUDY, DimensionImpl.PATIENT]
+        table.columnDimensions == [DimensionImpl.TRIAL_VISIT, DimensionImpl.CONCEPT]
+        table.rowKeys*.elements*.getAt(1) as Set == (clinicalData.longitudinalClinicalFacts*.patient as Set)
+        table.columnKeys*.elements*.getAt(1)*.conceptCode as Set == clinicalData.longitudinalClinicalFacts*.conceptCode as Set
+        sortDims[DimensionImpl.TRIAL_VISIT] < sortDims[DimensionImpl.CONCEPT]
+        sortDims[DimensionImpl.STUDY] < sortDims[DimensionImpl.PATIENT]
+        table.columnKeys*.keys*.getAt(0) == table.columnKeys*.keys*.getAt(0).sort(false)
+        table.rowKeys*.keys*.getAt(0) == table.rowKeys*.keys*.getAt(0).sort(false)
+        table.columnKeys == table.columnKeys.sort(false)
+
+        when:
+        def secondRow = table.row(table.rowKeys[1])
+        DataTable subTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], offset: 1, limit: 1)
+
+        then:
+        subTable.rowKeys.size() == 1
+        subTable.rowKeys[0] == table.rowKeys[1]
+        subTable.row(subTable.rowKeys[0]).collectEntries { col, val -> [col, val.value] } ==
+                secondRow.collectEntries { col, val -> [col, val.value] }
+
+    }
+
+    void testSort() {
+        setupData()
+
+        when:
+        DataTable reverseSortTable = queryResource.retrieveDataTable('clinical', constraint, adminUser, 
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
+                rowSort: ['patient', 'study'], columnSort: ['concept', 'trial visit'])
+        def reverseSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
+        
+        then:
+        reverseSortDims[DimensionImpl.TRIAL_VISIT] > reverseSortDims[DimensionImpl.CONCEPT]
+        reverseSortDims[DimensionImpl.STUDY] > reverseSortDims[DimensionImpl.PATIENT]
+        reverseSortTable.columnKeys*.keys*.getAt(0) == reverseSortTable.columnKeys*.keys*.getAt(0).sort(false)
+        reverseSortTable.rowKeys*.keys*.getAt(0) == reverseSortTable.rowKeys*.keys*.getAt(0).sort(false)
+    }
+
+    void testInvalidSort() {
+        setupData()
+
+        when:
+        DataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
+                rowSort: ['patient', 'concept'], columnSort: ['trial visit'])
+
+        then:
+        thrown InvalidArgumentsException
+
+        when:
+        table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
+                rowSort: ['patient'], columnSort: ['study', 'trial visit'])
+
+        then:
+        thrown InvalidArgumentsException
+
+        when:
+        table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
+                rowSort: ['patient': 'foo'])
+
+        then:
+        thrown InvalidArgumentsException
 
 
     }

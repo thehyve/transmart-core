@@ -647,10 +647,10 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         def columnDimensions = args.columnDimensions = (List) requireNonNull(
                 args.columnDimensions?.collect { toDimensionImpl(it) })
 
-        def invalidRowSorts = rowSort ? rowSort.keySet()*.name - rowDimensions*.name : null
+        def invalidRowSorts = rowSort ? rowSort.keySet() - rowDimensions : null
         if(invalidRowSorts) throw new InvalidArgumentsException("Only dimensions specified in rowDimensions can be " +
                 "specified in rowSort: "+invalidRowSorts.join(', '))
-        def invalidColumnSorts = columnSort ? columnSort.keySet()*.name - columnDimensions*.name : null
+        def invalidColumnSorts = columnSort ? columnSort.keySet() - columnDimensions : null
         if(invalidColumnSorts) throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
                 " be specified in columnSort "+invalidColumnSorts.join(', '))
 
