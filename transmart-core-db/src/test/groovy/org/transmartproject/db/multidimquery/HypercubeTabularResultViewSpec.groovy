@@ -166,7 +166,7 @@ class HypercubeTabularResultViewSpec extends Specification {
         val2.getDimKey(dim1) >> 'code1'
 
         hypercube.dimensions >> dimensions
-        hypercube.iterator() >> { hypercubeValues.iterator() }
+        hypercube.iterator() >> { PeekingIteratorImpl.getPeekingIterator(hypercubeValues.iterator()) }
 
         List<HypercubeDataColumn> indicesList = [new HypercubeDataColumn(ImmutableMap.builder().build())]
         def view = new HypercubeTabularResultView(hypercube, dimensions, [], indicesList)
