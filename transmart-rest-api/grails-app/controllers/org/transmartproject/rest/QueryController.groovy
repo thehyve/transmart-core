@@ -167,10 +167,18 @@ class QueryController extends AbstractQueryController {
 
         def rowSort = parseJson(args.rowSort)
         def columnSort = parseJson(args.columnSort)
+        def rowDimensions = parseJson(args.rowDimensions)
+        def columnDimensions = parseJson(args.columnDimensions)
+
+        [rowDimensions: rowDimensions, columnDimensions: columnDimensions].each { name, list ->
+            if(! list instanceof List || list.any { ! it instanceof String }) {
+                throw new InvalidArgumentsException("$name must be a JSON array of strings")
+            }
+        }
 
         OutputStream out = getLazyOutputStream(Format.JSON)
 
-        hypercubeDataSerializationService.writeTable(constraint, args.rowDimensions, args.columnDimensions,
+        hypercubeDataSerializationService.writeTable(constraint, rowDimensions, columnDimensions,
                 rowSort, columnSort, limit, offset, user, out)
     }
 
