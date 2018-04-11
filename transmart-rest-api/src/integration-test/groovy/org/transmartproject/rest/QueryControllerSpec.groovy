@@ -191,14 +191,14 @@ class QueryControllerSpec extends MarshallerSpec {
                 "limit=$limit2&" +
                 "offset=$offset2"
         ResponseEntity<Resource> response2 = getJson(url)
-        String content2 = response.body.inputStream.readLines().join('\n')
+        String content2 = response2.body.inputStream.readLines().join('\n')
 
         then:
         response2.statusCode.value() == 200
         def result2 = new JsonSlurper().parseText(content2)
         result2.offset == offset2
         result2.rows.size() == 2
-        result2["row count"] == 2
+        result2["row count"] == 4
         result2.rows == result.rows.takeRight(2)
     }
 
