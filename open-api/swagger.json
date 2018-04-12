@@ -1154,7 +1154,7 @@
             "required": true,
             "in": "query",
             "type": "string",
-            "description": "The same as `columnDimensions`, but with the dimensions that specify the horizontal axis of the table"
+            "description": "The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table"
           },
           {
             "name": "rowSort",
@@ -3281,7 +3281,7 @@
             }
           },
           "row_dimensions": {
-            "description": "This property contains a description of the row dimensions. It is a list of objects, with each object\ndescribing one dimension. If the dimension has its elements inlined the description here will only\ncontain the dimension name. If the headers contain keys the full dimension elements can be found in the\n`elements` map. This map is indexed by the key found in the headers. The elements themselves are a\nfree-from maps with the properties depending on the dimension type, but every element has at least a\n`label` property (which is often the same as the key, though not always).\n",
+            "description": "This property contains a description of the row dimensions. It is a list of objects, with each object\ndescribing one dimension. If the dimension has its elements inlined the description here will only\ncontain the dimension name. If the headers contain keys the full dimension elements can be found in the\n`elements` map. This map is indexed by the key found in the headers. The elements themselves are a\nfree-form maps with the properties depending on the dimension type, but every element has at least a\n`label` property (which is often the same as the key, though not always).\n",
             "type": "array",
             "items": {
               "type": "object",
@@ -3369,7 +3369,7 @@
           },
           "row count": {
             "type": "integer",
-            "description": "The total number of rows available. This property is only set if the total is known, which is\ngenreally only the case if the last row is part of this result.\n"
+            "description": "The total number of rows available. This property is only set if the total is known, which is\ngenerally only the case if the last row is part of this result.\n"
           }
         },
         "required": [

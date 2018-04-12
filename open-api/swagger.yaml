@@ -1118,7 +1118,7 @@ paths:
           required: true
           in: query
           type: string
-          description: The same as `columnDimensions`, but with the dimensions that specify the horizontal axis of the table
+          description: The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table
         - name: rowSort
           required: false
           in: query
@@ -2638,7 +2638,7 @@ definitions:
             describing one dimension. If the dimension has its elements inlined the description here will only
             contain the dimension name. If the headers contain keys the full dimension elements can be found in the
             `elements` map. This map is indexed by the key found in the headers. The elements themselves are a
-            free-from maps with the properties depending on the dimension type, but every element has at least a
+            free-form maps with the properties depending on the dimension type, but every element has at least a
             `label` property (which is often the same as the key, though not always).
           type: array
           items:
@@ -2715,7 +2715,7 @@ definitions:
           type: integer
           description: |
             The total number of rows available. This property is only set if the total is known, which is
-            genreally only the case if the last row is part of this result.
+            generally only the case if the last row is part of this result.
       required: [column_headers, rows, row_dimensions, sorting, offset]
 
   observation:
