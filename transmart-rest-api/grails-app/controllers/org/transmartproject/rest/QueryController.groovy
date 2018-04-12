@@ -165,10 +165,10 @@ class QueryController extends AbstractQueryController {
         int limit = Integer.parseInt((String) args.limit)
         Long offset = args.offset ? Long.parseLong((String) args.offset) : 0
 
-        def rowSort = parseJson(args.rowSort)
-        def columnSort = parseJson(args.columnSort)
-        def rowDimensions = paramToArray(args.rowDimensions)
-        def columnDimensions = paramToArray(args.columnDimensions)
+        def rowSort = parseIfJson(args.rowSort)
+        def columnSort = parseIfJson(args.columnSort)
+        def rowDimensions = parseIfJson(args.rowDimensions)
+        def columnDimensions = parseIfJson(args.columnDimensions)
 
         [rowDimensions: rowDimensions, columnDimensions: columnDimensions].each { name, list ->
             if(! list instanceof List || list.any { ! it instanceof String }) {
@@ -362,7 +362,21 @@ class QueryController extends AbstractQueryController {
         render fields as JSON
     }
 
-    private static Object paramToArray(value){
-        return value instanceof ArrayList ? value : parseJson(value)
+    /**
+     * Helper function to parse params of different types in GET and POST calls
+     * This will no longer be needed after fixing getGetOrPostParams
+     * TODO add a proper validation and error handling
+     */
+    private static Object parseIfJson(value){
+        if(value instanceof ArrayList) {
+            value.collect { parseIfJson(it) }
+        } else {
+            try {
+                def result = parseJson(value)
+                return result
+            } catch (InvalidArgumentsException ex) {
+                return value
+            }
+        }
     }
 }
