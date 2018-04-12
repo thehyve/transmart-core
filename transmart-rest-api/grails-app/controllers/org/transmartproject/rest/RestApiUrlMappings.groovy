@@ -54,6 +54,10 @@ class RestApiUrlMappings {
                 action = [GET: 'observations', POST: 'observations']
                 apiVersion = 'v2'
             }
+            "/observations/table"(controller: 'query') {
+                action = [GET: 'table', POST: 'table']
+                apiVersion = 'v2'
+            }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }

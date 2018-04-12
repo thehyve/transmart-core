@@ -14,8 +14,11 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
+import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
+import org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer
+import org.transmartproject.rest.serialization.DataTableSerializer
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
@@ -204,6 +207,19 @@ class ObservationsBuilderTests extends Specification {
         header.sortList[0].field == 0
         cells.size() == clinicalData.longitudinalClinicalFacts.size()
         footer != null
+
+        when:
+        def PATIENT = queryResource.getDimension('patient')
+        def fields = PATIENT.elementFields.keySet().asList()
+        def patientDimIndex = header.dimensionDeclarationsList.findIndexOf { it.name == 'patient' }
+        def idFieldIndex = header.dimensionDeclarationsList[patientDimIndex].fieldsList.findIndexOf { it.name == 'id' }
+        def patientElement = footer.dimensionList[patientDimIndex]
+        def patients = clinicalData.longitudinalClinicalFacts*.patient.sort {
+            patientElement.fieldsList[idFieldIndex].intValueList.indexOf(it.id) }
+
+        then:
+        patientElement.fieldsList[idFieldIndex].intValueList == patients*.id.unique()
+        // TODO: verify patient element fields better
     }
 
     public void testCSVSerialization() {
@@ -254,6 +270,60 @@ class ObservationsBuilderTests extends Specification {
         then:
         out.xentries != null
         out.names.sort() == expectedEntries.sort()
+    }
+
+    void testDataTableSerialization() {
+        setupData()
+        def dataType = 'clinical'
+        def rowDimensions = ['patient', 'study']
+        def columnDimensions = ['concept', 'trial visit']
+        def limit = 10
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        def mockedDataTable = queryResource.retrieveDataTable(dataType, constraint, adminUser,
+                rowDimensions: rowDimensions, columnDimensions: columnDimensions, sort: ['patient'], limit: limit)
+
+        when:
+        def out = new ByteArrayOutputStream()
+        DataTableSerializer.write(mockedDataTable, out)
+        out.flush()
+        def result = new JsonSlurper().parse(out.toByteArray())
+        def rows = result.rows
+        def offset = result.offset
+        def sorting = result.sorting
+        def columnHeaders = result.column_headers
+        def columnDim = result.column_dimensions
+        def rowDim = result.row_dimensions
+
+        then:
+        rows.size() < clinicalData.longitudinalClinicalFacts.size()
+        rows.size() <= limit
+        offset == 0
+
+        sorting.size() == columnDimensions.size() + rowDimensions.size()
+        sorting[0] == [dimension: 'patient', order: 'asc']
+        sorting[1] == [dimension: 'study', order: 'asc']
+        sorting[2] == [dimension: 'concept', order: 'asc']
+        sorting[3] == [dimension: 'trial visit', order: 'asc']
+
+        columnHeaders*.dimension == columnDimensions
+        columnHeaders[0].keys == ['c5', 'c5', 'c5', 'c6', 'c6', 'c6']
+        // [4, 5, 6, 4, 5, 6] or something similar, but the id values can change between runs
+        columnHeaders[1].keys == clinicalData.longitudinalClinicalFacts*.trialVisit*.id.unique().sort() * 2
+
+        columnDim*.name == columnDimensions
+        columnDim[0].elements.size() == (columnHeaders[0].keys as Set).size()
+        columnDim[1].elements.size() == (columnHeaders[1].keys as Set).size()
+
+        rowDim*.name == rowDimensions
+        rowDim[0].elements.size() == 3
+        rowDim[1].elements.size() == 1
+
+        that rows*.dimensions, everyItem(hasSize(2))
+        that rows*.dimensions*.dimension, everyItem(contains('patient', 'study'))
+        (rows*.dimensions.collect{it[1].key} as Set).size() == rowDim[1].elements.size()
+        that rows*.row, everyItem(hasSize(6))
+        (rows*.dimensions.collect{it[0].key} as Set).size() == rowDim[0].elements.size()
+
     }
 
 }

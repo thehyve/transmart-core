@@ -272,7 +272,7 @@ class UserQuerySetService implements UserQuerySetResource {
     private String getPatientRepresentationByPatientNum(Long id){
         def patient = patientsResource.getPatientById(id)
         String patientMappingId = patient.subjectIds[SUBJ_ID_SOURCE]
-        String patientRepId = patientMappingId != null && patientMappingId != '' ? patientMappingId :
+        String patientRepId = patientMappingId ? patientMappingId :
                 patient.trial + ":" + patient.inTrialId
         return patientRepId
     }

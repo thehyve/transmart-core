@@ -39,7 +39,7 @@ message Header { // header is sent without chunking in a one message
     // If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
     // these error fields generally indicates an internal application bug or a database consistency issue. Any errors
     // that can be detected before writing to the response stream has started will be and will cause an HTTP error
-    // to be returned with a textual or json error message in the body.
+    // to be returned with a textual or json error message in the body instead of a protobuf stream.
     string error = 99;
 }
 
@@ -76,8 +76,6 @@ message FieldDefinition {
     // Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
     // age, gender, race, etc.
     string name = 1;
-    // In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
-    // (Support for nested compound types could be added in the future)
     Type type = 2;
 }
 
@@ -155,6 +153,13 @@ message Value {
         sint64 intValue = 3;
         int64 timestampValue = 4;
     }
+    // logically also part of the oneof, but that is syntactically not supported
+    repeated MapEntry objectValue = 5;
+}
+
+message MapEntry {
+    Value key = 1;
+    Value value = 2;
 }
 
 
@@ -171,7 +176,7 @@ message Footer {
 message DimensionElements { // Multiple dimension elements are stored in a "column oriented" format, with the fields
                             // as the columns.
 
-    // not used when a DimensionElements is embedded in a PackedObservation
+    // not used when a DimensionElements is embedded in a PackedObservation or in the Header
     string name = 3;
 
     // List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
@@ -192,7 +197,25 @@ message DimensionElementFieldColumn {
     repeated sint64 intValue = 3;
     repeated int64 timestampValue = 4;
 
+    // For top level objects, this contains them. While the above stringValue/intValue/etc contain one entry per
+    // dimension element, this contains one MapColumn per object key (for all keys appearing in any dimension element).
+    // The MapColumn.values then contain the values for each dimension element for the key.
+    repeated MapColumn objectValue = 6;
+
+    // As an alternative to one of the above packed representations, the value for each element can be represented in
+    // separate unpacked messages. This is mainly useful to encode nested maps if the structure is different for each
+    // element. It is up to the encoder to decide how to represent values.
+    repeated Value unpackedValue = 7;
+
     repeated int32 absentValueIndices = 5;
+}
+
+// A mapping for a single key to values of a list of dimension elements. The key is the same for all dimension elements.
+// This only applies to first level maps, nested maps are not packed but are encoded in
+// DimensionElementFieldColumn.unpackedValue
+message MapColumn {
+    Value key = 1;
+    DimensionElementFieldColumn values = 2;
 }
 
 

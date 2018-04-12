@@ -56,6 +56,27 @@ enum Type {
         void setValue(Value.Builder builder, elem) {
             builder.timestampValue = ((Date) elem).time
         }
+    },
+
+    MAP {
+        String getJsonType() {"Object"}
+        ObservationsProto.Type getProtobufType() {ObservationsProto.Type.OBJECT}
+        void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
+            // It is simpler to special-case serialising a map into protobuf messages in the calling code than to
+            // extend this method to support maps
+            throw new UnsupportedOperationException("not implemented for type MAP, use custom code")
+        }
+        void setValue(Value.Builder builder, elem) {
+            Map map = (Map) elem
+            for(def entry : map) {
+                def key = Value.newBuilder()
+                get(entry.key.class).setValue(key, entry.key)
+                def value = Value.newBuilder()
+                get(entry.value.class).setValue(value, entry.value)
+
+                builder.addObjectValue(MapEntry.newBuilder().setKey(key).setValue(value).build())
+            }
+        }
     }
 
     /**
@@ -93,6 +114,8 @@ enum Type {
                 return DOUBLE
             case Date:
                 return TIMESTAMP
+            case Map:
+                return MAP
             default:
                 throw new RuntimeException("Unsupported type: $cls. This type is not serializable")
         }

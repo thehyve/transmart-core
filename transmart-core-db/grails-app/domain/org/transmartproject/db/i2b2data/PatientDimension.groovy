@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.i2b2data
 
+import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Sex
@@ -122,11 +123,16 @@ class PatientDimension implements Patient {
         }
     }
 
-    @Override @CompileStatic
-    Map<String, String> getSubjectIds() {
-        (mappings?.collectEntries {
-            [(it.source): it.encryptedId]
-        } ?: [:]) as Map<String, String>
+    @Lazy
+    ImmutableMap<String, String> subjectIds = computeSubjectIds()
+
+    @CompileStatic
+    private ImmutableMap<String,String> computeSubjectIds () {
+        def builder = ImmutableMap.builder()
+        if (mappings != null) for(def mapping : mappings) {
+            builder.put(mapping.source, mapping.encryptedId)
+        }
+        builder.build()
     }
 
 }

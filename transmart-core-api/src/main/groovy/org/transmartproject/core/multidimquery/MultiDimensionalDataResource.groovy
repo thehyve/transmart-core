@@ -2,8 +2,11 @@
 
 package org.transmartproject.core.multidimquery
 
+import com.google.common.collect.Table
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
 
@@ -40,6 +43,15 @@ interface MultiDimensionalDataResource {
     Iterable getDimensionElements(Dimension dimension, Constraint constraint, User user)
 
     /**
+     * Parse a sort specification to an ordered map of dimensions to SortOrders
+     * @param sort the sort order as an ordered map or list of pairs, with keys and values as objects or strings
+     * @return The sort as an ordered map
+     *
+     * TODO: parseSort should live in rest-api, not here
+     */
+    Map<Dimension, SortOrder> parseSort(sort)
+
+    /**
      * @description Function for creating a patient set consisting of patients for which there are observations
      * that are specified by <code>query</code>.
      */
@@ -66,7 +78,13 @@ interface MultiDimensionalDataResource {
     Hypercube retrieveClinicalData(Constraint constraint, User user)
     Hypercube retrieveClinicalData(Map args, Constraint constraint, User user)
 
+    DataTable retrieveDataTable(Map args, String type, Constraint constraint, User user)
+
     List<String> retrieveHighDimDataTypes(Constraint assayConstraint, User user)
+
+    Set<Dimension> getAvailableDimensions(Iterable<MDStudy> studies)
+
+    Set<MDStudy> getConstraintStudies(Constraint constraint)
 
     Iterable<Dimension> getSupportedDimensions(Constraint constraint)
 

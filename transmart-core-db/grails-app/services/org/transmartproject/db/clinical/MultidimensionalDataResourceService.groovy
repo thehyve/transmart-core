@@ -11,7 +11,6 @@ import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
-import org.apache.commons.lang.NotImplementedException
 import org.hibernate.Criteria
 import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
@@ -29,6 +28,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.OperationNotImplementedException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
@@ -42,6 +42,7 @@ import org.transmartproject.core.multidimquery.query.QueryBuilder
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
@@ -58,6 +59,7 @@ import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
 
+import static java.util.Objects.requireNonNull
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class MultidimensionalDataResourceService extends AbstractDataResourceService implements MultiDimensionalDataResource {
@@ -92,7 +94,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
         // that has not been implemented, so we only support clinical data in this call. Instead there is the
         // highDimension call that uses the old high dim api and converts the tabular result to a hypercube.
-        if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
+        if(dataType != "clinical") throw new OperationNotImplementedException(
+                "High dimension datatypes are not yet implemented for the native hypercube")
 
         Constraint constraint = args.constraint
         Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions.collect { toDimensionImpl(it) } ?: [])
@@ -123,7 +126,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      * (case insensitive).
      * @return An ordered Map<DimensionImpl, SortOrder>
      */
-    private static Map<DimensionImpl, SortOrder> parseSort(sort) {
+    Map<DimensionImpl, SortOrder> parseSort(sort) {
         if (sort == null) {
             [:]
         } else if (sort instanceof Map) {
@@ -143,22 +146,28 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         DimensionDescription.allDimensions
     }
 
-    Set<? extends Dimension> getSupportedDimensions(Constraint constraint) {
+    Set<MDStudy> getConstraintStudies(Constraint constraint) {
         // Add any studies that are being selected on
         def studyIds = findStudyNameConstraints(constraint)*.studyId
         Set studies = (studyIds.empty ? [] : studyIds.collect { studiesResource.getStudyByStudyId(it) }) +
                 findStudyObjectConstraints(constraint)*.study as Set
+        studies
+    }
 
+    Set<Dimension> getAvailableDimensions(Iterable<MDStudy> studies) {
         //TODO Remove after adding all the dimension, added to prevent e2e tests failing
         def notImplementedDimensions = [AssayDimension, BioMarkerDimension, ProjectionDimension]
         // This throws a LegacyStudyException for non-17.1 style studies
         // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
         // buggy. And usually the studies and dimensions will be cached in memory.
-        List<Dimension> availableDimensions = studies ? studies*.dimensions.flatten()
-                : allDimensions
+        List<Dimension> availableDimensions = studies ? studies*.dimensions.flatten() : allDimensions
         ImmutableSet.copyOf availableDimensions.findAll {
             !(it.class in notImplementedDimensions)
         }
+    }
+
+    Set<? extends Dimension> getSupportedDimensions(Constraint constraint) {
+        getAvailableDimensions(getConstraintStudies(constraint))
     }
 
     private Query buildCriteria(Set<DimensionImpl> dimensions, ImmutableMap<DimensionImpl,SortOrder> orderDims) {
@@ -627,7 +636,43 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    List retrieveHighDimDataTypes(Constraint assayConstraint, User user){
+    DataTableImpl retrieveDataTable(Map args, String type, Constraint constraint, User user) {
+        if(type != 'clinical') throw new OperationNotImplementedException("High dimensional data is not supported in " +
+                "data table format")
+
+        def rowSort = parseSort(args.rowSort)
+        def columnSort = parseSort(args.columnSort)
+        def rowDimensions = args.rowDimensions = (List) requireNonNull(
+                args.rowDimensions?.collect { toDimensionImpl(it) })
+        def columnDimensions = args.columnDimensions = (List) requireNonNull(
+                args.columnDimensions?.collect { toDimensionImpl(it) })
+
+        def invalidRowSorts = rowSort ? rowSort.keySet() - rowDimensions : null
+        if(invalidRowSorts) throw new InvalidArgumentsException("Only dimensions specified in rowDimensions can be " +
+                "specified in rowSort: "+invalidRowSorts.join(', '))
+        def invalidColumnSorts = columnSort ? columnSort.keySet() - columnDimensions : null
+        if(invalidColumnSorts) throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
+                " be specified in columnSort "+invalidColumnSorts.join(', '))
+
+        for(def dim : rowDimensions) {
+            rowSort.putIfAbsent(dim, SortOrder.ASC)
+        }
+        for(def dim : columnDimensions) {
+            columnSort.putIfAbsent(dim, SortOrder.ASC)
+        }
+
+        args.sort = rowSort + columnSort
+        args.dimensions = rowDimensions + columnDimensions
+
+        Hypercube cube = retrieveClinicalData(args, constraint, user)
+
+        DataTableImpl table = new DataTableImpl(args, cube)
+
+        table
+    }
+
+    @Override
+    List retrieveHighDimDataTypes(Constraint assayConstraint, User user) {
         assert assayConstraint instanceof Constraint
         checkAccess(assayConstraint, user)
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')

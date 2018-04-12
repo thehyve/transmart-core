@@ -76,6 +76,13 @@ interface Dimension {
     ImmutableMap<String, Property> getElementFields()
 
     /**
+     * Get an element's key, i.e. a simple value that uniquely identifies the element.
+     * @param element
+     * @return a simple object (Number, String, or Date) that is unique for this element and thus identifies it.
+     */
+    def getKey(element)
+
+    /**
      * Returns a serializable view of an element. If the element is in fact a Number, String, or Date, it is returned
      * as-is. If it is a complex type, this method returns a map with String keys that holds the relevant properties,
      * which themselves are again of serializable types.
