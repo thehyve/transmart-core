@@ -115,7 +115,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                         32*1024),
                 COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
         Iterator<DataRow> rows = tabularResult.rows
-        while(rows.hasNext()) {
+        while (rows.hasNext()) {
             DataRow row = rows.next()
             List<Object> valuesRow = columns.stream().map({ DataColumn column -> row[column] }).collect(Collectors.toList())
             csvWriter.writeNext(formatRowValues(valuesRow))
@@ -133,7 +133,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             } else {
                 value.toString()
             }
-        }).toArray()
+        }).collect(Collectors.toList()).toArray(new String[0])
     }
 
     static writeSpsFile(List<DataColumn> columnList,

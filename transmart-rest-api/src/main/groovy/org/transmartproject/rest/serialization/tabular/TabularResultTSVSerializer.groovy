@@ -12,6 +12,7 @@ import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
 import java.text.SimpleDateFormat
+import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -22,37 +23,34 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
     final static char COLUMN_SEPARATOR = '\t' as char
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
 
-    private <C extends DataColumn, R extends DataRow> void writeValues(
-            TabularResult<C, R> tabularResult,
-            OutputStream outputStream) {
+    private void writeValues(TabularResult<DataColumn, DataRow> tabularResult, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
-        List<DataColumn> columns = tabularResult.indicesList
-        for (R row in tabularResult) {
-            List valuesRow = columns.collect { DataColumn column -> row[column] }
+        Iterator<DataRow> rows = tabularResult.rows
+        while (rows.hasNext()) {
+            DataRow row = rows.next()
+            List<Object> valuesRow = columns.stream().map({ DataColumn column -> row[column] }).collect(Collectors.toList())
             csvWriter.writeNext(formatRowValues(valuesRow))
         }
         csvWriter.flush()
     }
 
-    static <C extends DataColumn, R extends DataRow> void writeHeader(
-            List<DataColumn> columns,
-            OutputStream outputStream) {
+    static void writeHeader(List<DataColumn> columns, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
         csvWriter.writeNext(columns*.label as String[])
         csvWriter.flush()
     }
 
-    private String[] formatRowValues(List<? extends Object> valuesRow) {
-        valuesRow.collect { value ->
+    private String[] formatRowValues(List<Object> valuesRow) {
+        valuesRow.stream().map({value ->
             if (value == null) return ''
             if (value instanceof Date) {
                 synchronized (DATE_FORMAT) {
                     DATE_FORMAT.format(value)
                 }
             } else {
-                value as String
+                value.toString()
             }
-        } as String[]
+        }).collect(Collectors.toList()).toArray(new String[0])
     }
 
     static writeColumnsMetadata(ImmutableList<DataColumn> indicesList, OutputStream outputStream) {
