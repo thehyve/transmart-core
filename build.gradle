@@ -30,7 +30,7 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 ext {
-    transmartVersion = '17.1-LUKE-1-RC2'
+    transmartVersion = '17.1-LUKE-1-RC3'
 
     assetPipelineVersion = '2.11.6'
     gradleWrapperVersion = '2.13'
