@@ -388,7 +388,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                                              Constraint constraint,
                                              String apiVersion,
                                              Function<PatientSetDefinition, Long> queryExecutor) {
-        log.info "Create or reuse patient set for query ${constraint.toJson()} ..."
+        log.info "Create or reuse patient set ..."
         if (constraint instanceof SubSelectionConstraint && constraint.dimension == 'patient') {
             log.info "Flattening subselection constraint."
             return createOrReuseQueryResult(name, user, constraint.constraint, apiVersion, queryExecutor)
@@ -463,7 +463,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     @CompileStatic
     private List<PatientIdListWrapper> getPatientIdsTask(SubtaskParameters parameters) {
-        log.info "Task ${parameters.task}, constraint: ${parameters.constraint.toJson()}"
+        log.info "Task ${parameters.task}"
         def session = (StatelessSessionImpl)sessionFactory.openStatelessSession()
         try {
             session.connection().autoCommit = false
@@ -529,11 +529,11 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         if (constraint instanceof SubSelectionConstraint) {
             def subSelect = ((SubSelectionConstraint)constraint)
             if (subSelect.dimension == 'patient') {
-                log.info "Creating new patient set for constraint: ${subSelect.constraint.toJson()}"
+                log.info "Creating new patient set ..."
                 QueryResult subQueryResult = createOrReusePatientSetQueryResult('temp',
                         subSelect.constraint, user, apiVersion)
                 def result = new PatientSetConstraint(subQueryResult.id)
-                log.info "Result: ${result.toJson()}"
+                log.debug "Result: ${result.toJson()}"
                 return result
             }
         } else if (constraint instanceof Negation) {
@@ -541,11 +541,11 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             if (arg instanceof SubSelectionConstraint) {
                 def subSelect = ((SubSelectionConstraint)arg)
                 if (subSelect.dimension == 'patient') {
-                    log.info "Creating new patient set for constraint: ${subSelect.constraint.toJson()}"
+                    log.info "Creating new patient set ..."
                     QueryResult subQueryResult = createOrReusePatientSetQueryResult('temp',
                             subSelect.constraint, user, apiVersion)
                     def result = new Negation(new PatientSetConstraint(subQueryResult.id))
-                    log.info "Result: ${result.toJson()}"
+                    log.debug "Result: ${result.toJson()}"
                     return result
                 }
             }
@@ -576,10 +576,10 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             if (subQuery) {
                 // subquery or negated subquery found, replaced with patient set
                 subQueries.add(subQuery)
-                log.info "Argument is a subquery and has been persisted: ${part.toJson()}"
+                log.info "Argument is a subquery and has been persisted."
             } else if (operator == Operator.OR && part instanceof StudyNameConstraint) {
                 // study constraint found in a (patient query level) disjunction, create patient set for study
-                log.info "Creating new patient set for constraint: ${part.toJson()}"
+                log.info "Creating new patient set for constraint ..."
                 QueryResult studySubset = createOrReusePatientSetQueryResult('temp',
                         part, user, apiVersion)
                 def studySubsetConstraint = new PatientSetConstraint(studySubset.id)
@@ -588,10 +588,10 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 // recursive call, to support nested subqueries
                 def partResult = persistPatientSubqueries(part, user, apiVersion)
                 if (partResult instanceof MultipleSubSelectionsConstraint) {
-                    log.info "Argument is a nested subquery: ${partResult.toJson()}"
+                    log.info "Argument is a nested subquery."
                     subQueries.add((Constraint)partResult)
                 } else {
-                    log.info "Argument is not a subquery: ${partResult.toJson()}"
+                    log.info "Argument is not a subquery."
                     topQueryParts.add(partResult)
                 }
             }
@@ -617,7 +617,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 subQueries.add(new PatientSetConstraint(topQueryResult.id))
             }
             def result = new MultipleSubSelectionsConstraint('patient', setOperator, subQueries)
-            log.info "Subqueries replaced by patient sets. Result: ${result.toJson()}"
+            log.info "Subqueries replaced by patient sets."
             return result
         }
         log.info "No subqueries found, returning constraint."
@@ -686,7 +686,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                     Projections.id()))
 
             def t1 = new Date()
-            log.info "Querying patient ids for: ${constraint.toJson()} ..."
+            log.info "Querying patient ids ..."
 
             def result = criteria.list() as List<Long>
 
@@ -744,18 +744,18 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
              * - First split into multiple subselects if of the form (subselect() op subselect()) with op in {'or', 'and'}
              * - Create patient sets for each of the subselects
              */
-            log.info "Check if the query can be split into subqueries: ${constraint.toJson()}"
+            log.info "Check if the query can be split into subqueries ..."
             def transformedQuery = persistPatientSubqueries(constraint, user, apiVersion)
             // NOTE: This is a bit of a hack, we know that a MultipleSubSelectionsConstraint is only returned
             // if all subqueries have been replaced by patient set constraints.
             if (transformedQuery instanceof MultipleSubSelectionsConstraint) {
                 // Create a patient set as a combination of patient subsets.
-                log.info "Fetch patients based on patient subsets: ${transformedQuery.toJson()}"
+                log.info "Fetch patients based on patient subsets ..."
                 def patientIds = getPatientIdsFromSubselections((MultipleSubSelectionsConstraint)transformedQuery)
                 insertPatientsToQueryResult(queryResult, patientIds)
             } else {
                 // Base case: executing the leaf query on observation_fact.
-                log.info "Executing query on observation_fact: ${constraint.toJson()}"
+                log.info "Executing query on observation_fact ..."
                 def taskConstraint = constraint
 
                 boolean parallelise = false
