@@ -29,18 +29,18 @@ class DimensionController extends AbstractQueryController {
     
     /**
      * Dimension endpoint:
-     * <code>GET /v2/dimensions/${dimensionName}/elements</code>
+     * <code>/v2/dimensions/${dimensionName}/elements</code>
      *
      * @return a list of all dimension elements that user has access to.
      */
     def list(@PathVariable('dimensionName') String dimensionName) {
-
-        checkForUnsupportedParams(params, ['dimensionName', 'constraint'])
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['dimensionName', 'constraint'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def dimension = getDimension(dimensionName, user)
 
-        Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? new TrueConstraint() : bindConstraint(params.constraint)
+        Constraint constraint = Strings.isNullOrEmpty(args.constraint) ? new TrueConstraint() : bindConstraint(args.constraint)
 
         def results = multiDimService.getDimensionElements(dimension, constraint, user)
         render wrapElements(dimension, results) as JSON

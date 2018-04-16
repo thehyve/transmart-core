@@ -2099,6 +2099,38 @@ var spec = {
             }
           }
         }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dimensionName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "constraint",
+            "required": false,
+            "in": "body",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list of all elements from the given dimension that user has access to.\n",
+            "schema": {
+              "$ref": "#/definitions/dimensionElements"
+            }
+          }
+        }
       }
     },
     "/v2/export/job": {
