@@ -14,6 +14,7 @@ import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
+import javax.transaction.NotSupportedException
 import java.text.SimpleDateFormat
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry
@@ -284,6 +285,11 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         }
         this.columns = columns
         this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
+    }
+
+    @Override
+    void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
+        throw new UnsupportedOperationException('Use "writeParallel" method instead')
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.rest.DataTableViewDataSerializationService
 import org.transmartproject.rest.HypercubeDataSerializationService
 import org.transmartproject.rest.SurveyTableViewDataSerializationService
 import org.transmartproject.rest.serialization.DataSerializer
@@ -25,6 +26,9 @@ class ExportService {
 
     @Autowired
     SurveyTableViewDataSerializationService surveyTableViewDataSerializationService
+
+    @Autowired
+    DataTableViewDataSerializationService dataTableViewDataSerializationService
 
     Set<Format> getSupportedFormats(String dataView) {
         getDataSerializerByDataView(dataView).supportedFormats
@@ -72,6 +76,8 @@ class ExportService {
     DataSerializer getDataSerializerByDataView(String dataView) {
         if (dataView == 'surveyTable') {
             surveyTableViewDataSerializationService
+        } else if (dataView == 'dataTable') {
+            dataTableViewDataSerializationService
         } else {
             hypercubeDataSerializationService
         }

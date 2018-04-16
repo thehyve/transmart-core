@@ -107,6 +107,26 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
     }
 
     @Override
+    void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
+        ImmutableList<DataColumn> columns = ImmutableList.copyOf(tabularResult.indicesList)
+
+        zipOutStream.putNextEntry(new ZipEntry('data.tsv'))
+        writeValues(tabularResult, zipOutStream)
+        zipOutStream.closeEntry()
+
+        zipOutStream.putNextEntry(new ZipEntry('variables.tsv'))
+        writeColumnsMetadata(columns, zipOutStream)
+        zipOutStream.closeEntry()
+
+        if (tabularResult.indicesList
+                .any { it instanceof MetadataAwareDataColumn && it.metadata?.valueLabels }) {
+            zipOutStream.putNextEntry(new ZipEntry('value_labels.tsv'))
+            writeColumnsValueMappings(columns, zipOutStream)
+            zipOutStream.closeEntry()
+        }
+    }
+
+    @Override
     void writeParallel(TabularResult tabularResult, int task) {
         def taskUuid = UUID.randomUUID().toString()
         // Write TSV file to disk
