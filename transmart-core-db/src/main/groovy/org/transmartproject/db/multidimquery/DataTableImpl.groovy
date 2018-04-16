@@ -9,8 +9,8 @@ import com.google.common.collect.PeekingIterator
 import com.google.common.collect.Table
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.Immutable
 import groovy.transform.ToString
+import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
@@ -18,6 +18,9 @@ import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 import static java.util.Objects.requireNonNull
 
@@ -126,6 +129,33 @@ class DataTableImpl implements DataTable {
         table
     }
 
+    @Override
+    List<DataTableColumnImpl> getIndicesList() {
+        columnKeys
+    }
+
+    @Override
+    String getColumnsDimensionLabel() {
+        // FIXME
+        return null
+    }
+
+    @Override
+    String getRowsDimensionLabel() {
+        // FIXME
+        return null
+    }
+
+    @Override
+    Iterator<? extends DataRow> getRows() {
+        return new DataTableRowDataIterator(this)
+    }
+
+    @Override
+    Iterator<? extends DataRow> iterator() {
+        getRows()
+    }
+
     @ToString(includes=['keys'], includeNames=true, includePackage=false)
     @EqualsAndHashCode(includes=["keys"])
     class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
@@ -135,6 +165,11 @@ class DataTableImpl implements DataTable {
         DataTableColumnImpl(List elements, List keys) {
             this.elements = ImmutableList.copyOf(elements)
             this.keys = ImmutableList.copyOf(keys)
+        }
+
+        @Override
+        String getLabel() {
+            keys.stream().map({o -> (CharSequence)o.toString()}).collect(Collectors.joining(', '))
         }
 
         @Override
@@ -171,9 +206,58 @@ class DataTableImpl implements DataTable {
         }
 
         @Override
+        String getLabel() {
+            keys.stream().map({o -> (CharSequence)o.toString()}).collect(Collectors.joining(', '))
+        }
+
+        @Override
         int compareTo(DataTableRowImpl other) {
             offset <=> other.offset  // we defer to the database's order for this one
         }
+    }
+
+    static class DataTableRowDataImpl implements DataRow<DataTableColumn, HypercubeValue> {
+
+        DataTableRow row
+        Map<DataTableColumn, HypercubeValue> data
+
+        DataTableRowDataImpl(DataTableRow row, Map<DataTableColumn, HypercubeValue> data) {
+            this.row = row
+            this.data = data
+        }
+
+        @Override
+        String getLabel() {
+            return row.label
+        }
+
+        @Override
+        HypercubeValue getAt(DataTableColumn column) {
+            return data[column]
+        }
+    }
+
+    static class DataTableRowDataIterator implements Iterator<DataRow<DataTableColumn, HypercubeValue>> {
+
+        DataTable table
+        Iterator<DataTableRow> rowIterator
+
+        DataTableRowDataIterator(DataTable table) {
+            this.table = table
+            this.rowIterator = table.rowKeys.iterator()
+        }
+
+        @Override
+        boolean hasNext() {
+            rowIterator.hasNext()
+        }
+
+        @Override
+        DataRow<DataTableColumn, HypercubeValue> next() {
+            DataTableRow row = rowIterator.next()
+            new DataTableRowDataImpl(row, table.row(row))
+        }
+
     }
 
     class RowIterator extends AbstractIterator<List<HypercubeValue>> {

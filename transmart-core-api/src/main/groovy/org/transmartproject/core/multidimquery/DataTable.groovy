@@ -1,13 +1,17 @@
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.Table
+import org.transmartproject.core.dataquery.DataColumn
+import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.dataquery.TabularResult
 
 /**
  * A DataTable is a two-dimensional representation of a hypercube. Which dimensions are represented as rows or as
  * columns is selectable.
  */
-interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>, AutoCloseable, Closeable {
+interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>,
+        TabularResult<? extends DataTableColumn, ? extends DataRow>, AutoCloseable, Closeable {
 
     /**
      * @return the underlying hypercube
@@ -57,11 +61,14 @@ interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>
     Map<Dimension, SortOrder> getSort()
 }
 
-interface DataTableRow<SELF extends DataTableRow<SELF>> extends Comparable<SELF> {
+interface DataTableRow<SELF extends DataTableRow<SELF>>
+        extends Comparable<SELF> {
     /**
      * @return a list with the elements of the row dimensions for this row
      */
     List getElements()
+
+    String getLabel()
 
     /**
      * The (unpaged) row offset
@@ -70,7 +77,7 @@ interface DataTableRow<SELF extends DataTableRow<SELF>> extends Comparable<SELF>
     long getOffset()
 }
 
-interface DataTableColumn<SELF extends DataTableColumn<SELF>> extends Comparable<SELF> {
+interface DataTableColumn<SELF extends DataTableColumn<SELF>> extends Comparable<SELF>, DataColumn {
     /**
      * @return a list with the elements of the column dimensions for this column
      */
