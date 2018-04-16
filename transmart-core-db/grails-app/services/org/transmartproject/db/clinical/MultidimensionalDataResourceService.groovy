@@ -699,6 +699,67 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
+    /**
+     * Find the intersection between a patient set and a list of subject ids.
+     */
+    @CompileStatic
+    private List<Long> getPatientIdsFromSubjectIds(Collection<String> subjectIds, QueryResult patientSet) {
+        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
+        try {
+            session.connection().autoCommit = false
+
+            def t1 = new Date()
+            // create a temporary table
+            def tx = session.beginTransaction()
+            def tempTableDdl = session.connection().prepareStatement(
+                    'create temporary table subject_ids(patient_ide varchar(200) not null)')
+            tempTableDdl.execute()
+
+            // populate temporary table with subject identifiers
+            int insertCount = 0
+            int i = 0
+            def statement = session.connection().prepareStatement(
+                    'insert into subject_ids (patient_ide) values (?)')
+            for (String subjectId : subjectIds) {
+                statement.setString(1, subjectId)
+                statement.addBatch()
+                i++
+                if ((i % 500) == 0) {
+                    log.debug 'Inserting batch ...'
+                    int[] insertCounts = statement.executeBatch()
+                    insertCount += insertCounts.sum()
+                }
+            }
+            log.debug 'Inserting final batch ...'
+            int[] insertCounts = statement.executeBatch()
+            insertCount += insertCounts.sum()
+
+            def t2 = new Date()
+            log.info "Temporary table created, ${insertCount} subjects inserted. (took ${t2.time - t1.time} ms.)"
+
+            // compute intersection between patient set and temporary table
+            List<Long> result = []
+            def query = session.connection().prepareStatement(
+                    '''select p.patient_num as patient_num from i2b2demodata.qt_patient_set_collection p
+                      where p.result_instance_id = ?
+                      and p.patient_num in (
+                          select pm.patient_num
+                          from patient_mapping pm
+                          inner join subject_ids si on pm.patient_ide = si.patient_ide)''')
+            query.setLong(1, patientSet.id)
+            def rs = query.executeQuery()
+            while (rs.next()) {
+                result.add(rs.getLong('patient_num'))
+            }
+            tx.commit()
+            def t3 = new Date()
+            log.info "Patient list fetched: ${result.size()} patients. (took ${t3.time - t2.time} ms.)"
+            result
+        } finally {
+            session.close()
+        }
+    }
+
     @CompileStatic
     @Canonical
     static class PatientSetDefinition {
@@ -754,32 +815,29 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 def patientIds = getPatientIdsFromSubselections((MultipleSubSelectionsConstraint)transformedQuery)
                 insertPatientsToQueryResult(queryResult, patientIds)
             } else {
-                // Base case: executing the leaf query on observation_fact.
-                log.info "Executing query on observation_fact ..."
-                def taskConstraint = constraint
-
-                boolean parallelise = false
-                if (parallelise) {
+                // Base case: executing the leaf query on observation_fact or patient id list.
+                def t1 = new Date()
+                log.info "Start patient set creation ..."
+                List<Long> patientIds
+                if (constraint instanceof PatientSetConstraint && ((PatientSetConstraint)constraint).subjectIds != null) {
                     // Find or create the set of all patients
                     QueryResult allPatientsResult = createOrReusePatientSetQueryResult('All subjects',
                             new TrueConstraint(), user, apiVersion)
-                    log.info "Using set of all subjects for parallelisation: ${allPatientsResult.id}"
-                    // Enable parallelisation based on allPatientsResult
-                    taskConstraint = new AndConstraint([new PatientSetConstraint(allPatientsResult.id), constraint])
+                    log.info "Computing intersection of set of all subjects and list of subject ids ..."
+                    patientIds = getPatientIdsFromSubjectIds(((PatientSetConstraint)constraint).subjectIds, allPatientsResult)
+                } else {
+                    log.info "Executing query on observation_fact ..."
+                    def taskParameters = new TaskParameters(constraint, user)
+                    patientIds = parallelPatientSetTaskService.run(
+                            taskParameters,
+                            { SubtaskParameters params ->
+                                getPatientIdsTask(params)
+                            },
+                            { List<PatientIdListWrapper> patientIdLists ->
+                                patientIdLists.collectMany { it.patientIds } as List<Long>
+                            }
+                    )
                 }
-
-                def t1 = new Date()
-                log.info "Start patient set creation ..."
-                def taskParameters = new TaskParameters(taskConstraint, user)
-                List<Long> patientIds = parallelPatientSetTaskService.run(
-                        taskParameters,
-                        { SubtaskParameters params ->
-                            getPatientIdsTask(params)
-                        },
-                        { List<PatientIdListWrapper> patientIdLists ->
-                            patientIdLists.collectMany { it.patientIds } as List<Long>
-                        }
-                )
                 def t2 = new Date()
                 log.info "Fetched ${patientIds.size()} patients (took ${t2.time - t1.time} ms.)."
                 insertPatientsToQueryResult(queryResult, patientIds)
