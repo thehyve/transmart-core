@@ -10,6 +10,7 @@ import org.transmartproject.db.clinical.AggregateDataService
 import org.transmartproject.db.config.RuntimeConfigImpl
 import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.db.ontology.MDStudiesService
+import org.transmartproject.db.ontology.OntologyTermTagsResourceService
 import org.transmartproject.db.ontology.TrialVisitsService
 import org.transmartproject.db.tree.TreeCacheService
 
@@ -34,6 +35,9 @@ class SystemService implements SystemResource {
     TreeCacheService treeCacheService
 
     @Autowired
+    OntologyTermTagsResourceService ontologyTermTagsResourceService
+
+    @Autowired
     MDStudiesService studiesService
 
     @Autowired
@@ -51,12 +55,13 @@ class SystemService implements SystemResource {
     }
 
     /**
-     * Clears the tree node cache, the counts caches and the studies caches.
+     * Clears the tree node cache, the tags cache, the counts caches and the studies caches.
      * This function should be called after loading, removing or updating
      * tree nodes or observations in the database.
      */
     void clearCaches() {
         treeCacheService.clearAllCacheEntries()
+        ontologyTermTagsResourceService.clearTagsCache()
         aggregateDataService.clearCountsCache()
         aggregateDataService.clearPatientCountCache()
         aggregateDataService.clearCountsPerConceptCache()
