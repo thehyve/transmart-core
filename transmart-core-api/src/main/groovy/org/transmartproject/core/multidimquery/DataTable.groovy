@@ -11,7 +11,7 @@ import org.transmartproject.core.dataquery.TabularResult
  * columns is selectable.
  */
 interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>,
-        TabularResult<? extends DataTableColumn, ? extends DataRow>, AutoCloseable, Closeable {
+        AutoCloseable, Closeable {
 
     /**
      * @return the underlying hypercube
@@ -21,12 +21,12 @@ interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>
     /**
      * The list of row dimensions in order
      */
-    List<Dimension> getRowDimensions()
+    //List<Dimension> getRowDimensions()
 
     /**
      * The list of column dimensions in order
      */
-    List<Dimension> getColumnDimensions()
+    //List<Dimension> getColumnDimensions()
 
     /**
      * The row offset of the first row of this data table
@@ -68,7 +68,7 @@ interface DataTableRow<SELF extends DataTableRow<SELF>>
      */
     List getElements()
 
-    String getLabel()
+    //String getLabel()
 
     /**
      * The (unpaged) row offset
@@ -77,7 +77,7 @@ interface DataTableRow<SELF extends DataTableRow<SELF>>
     long getOffset()
 }
 
-interface DataTableColumn<SELF extends DataTableColumn<SELF>> extends Comparable<SELF>, DataColumn {
+interface DataTableColumn<SELF extends DataTableColumn<SELF>> extends Comparable<SELF> {
     /**
      * @return a list with the elements of the column dimensions for this column
      */

@@ -636,15 +636,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    DataTableImpl retrieveDataTable(Map args, String type, Constraint constraint, User user) {
+    PagingDataTable retrieveDataTable(Map args, String type, Constraint constraint, User user) {
         if(type != 'clinical') throw new OperationNotImplementedException("High dimensional data is not supported in " +
                 "data table format")
 
         def rowSort = parseSort(args.rowSort)
         def columnSort = parseSort(args.columnSort)
-        def rowDimensions = args.rowDimensions = (List) requireNonNull(
+        List<DimensionImpl> rowDimensions = args.rowDimensions = (List) requireNonNull(
                 args.rowDimensions?.collect { toDimensionImpl(it) })
-        def columnDimensions = args.columnDimensions = (List) requireNonNull(
+        List<DimensionImpl> columnDimensions = args.columnDimensions = (List) requireNonNull(
                 args.columnDimensions?.collect { toDimensionImpl(it) })
 
         def invalidRowSorts = rowSort ? rowSort.keySet() - rowDimensions : null
@@ -666,7 +666,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
         Hypercube cube = retrieveClinicalData(args, constraint, user)
 
-        DataTableImpl table = new DataTableImpl(args, cube)
+        PagingDataTable table = new PagingDataTable(args, cube)
 
         table
     }
