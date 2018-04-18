@@ -19,6 +19,7 @@
 package org.transmartproject.rest.serialization.tabular
 
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.users.User
 
 import java.util.zip.ZipOutputStream
@@ -28,14 +29,6 @@ import java.util.zip.ZipOutputStream
  */
 interface TabularResultSerializer {
 
-    /**
-     * Writes a tabular file content to the output stream.
-     * Does not close the output stream afterwards.
-     *
-     * @param tabularResult table which data to write.
-     * @param zipOutStream the stream to write to.
-     */
-    void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream)
     /**
      * Writes a tabular file content to the output stream.
      * Does not close the output stream afterwards.

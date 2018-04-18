@@ -70,25 +70,13 @@ class DataTableViewDataSerializationService implements DataSerializer {
                        Map options) {
 
         def tableArgs = options.tableConfig
-        Boolean includeMeasurementDateColumns = options.includeMeasurementDateColumns
-
-        //TODO include measurement date columns, similar as below
-//        final ImmutableList<MetadataAwareDataColumn> columns
-//        if (includeMeasurementDateColumns == null) {
-//            columns = surveyTableColumnService
-//                    .getMetadataAwareColumns(dataTableColumns)
-//        } else {
-//            columns = surveyTableColumnService
-//                    .getMetadataAwareColumns(dataTableColumns, includeMeasurementDateColumns)
-//        }
 
         //TODO fix tableArgs parsing (rowDimensions, columnDimensions, rowSort, columnSort)
         StreamingDataTable datatable = multiDimService.retrieveStreamingDataTable(
                 (Map)tableArgs, 'clinical', constraint, user)
         try {
             log.info "Writing tabular data in ${format} format."
-            TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
-                    null)
+            TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,null)
             //serializer.writeFilesToZip(user, datatable, (ZipOutputStream) out)
         } finally {
             datatable.close()

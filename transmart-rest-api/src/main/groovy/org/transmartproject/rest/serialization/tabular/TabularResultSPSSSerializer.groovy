@@ -8,6 +8,7 @@ import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
 import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.ontology.VariableDataType
 import org.transmartproject.core.ontology.VariableMetadata
@@ -285,11 +286,6 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         }
         this.columns = columns
         this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
-    }
-
-    @Override
-    void writeFilesToZip(User user, TabularResult tabularResult, ZipOutputStream zipOutStream) {
-        throw new UnsupportedOperationException('Use "writeParallel" method instead')
     }
 
     @Override
