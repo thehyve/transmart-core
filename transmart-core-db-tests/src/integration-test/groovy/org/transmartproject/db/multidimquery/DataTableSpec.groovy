@@ -9,6 +9,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.PagingDataTable
 import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -68,8 +69,9 @@ class DataTableSpec extends TransmartSpecification {
         setupData()
 
         when:
-        DataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+        PagingDataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
                 rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], offset: 0, limit: 10)
+
         def sortDims = table.sort.keySet().withIndex().collectEntries()
 
 
@@ -86,7 +88,7 @@ class DataTableSpec extends TransmartSpecification {
 
         when:
         def secondRow = table.row(table.rowKeys[1])
-        DataTable subTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+        PagingDataTable subTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
                 rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], offset: 1, limit: 1)
 
         then:
@@ -113,7 +115,7 @@ class DataTableSpec extends TransmartSpecification {
         setupData()
 
         when:
-        DataTable reverseSortTable = queryResource.retrieveDataTable('clinical', constraint, adminUser, 
+        PagingDataTable reverseSortTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
                 rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
                 rowSort: ['patient', 'study'], columnSort: ['concept', 'trial visit'])
         def reverseSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
@@ -129,7 +131,7 @@ class DataTableSpec extends TransmartSpecification {
         setupData()
 
         when:
-        DataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+        PagingDataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
                 rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
                 rowSort: ['patient', 'concept'], columnSort: ['trial visit'])
 

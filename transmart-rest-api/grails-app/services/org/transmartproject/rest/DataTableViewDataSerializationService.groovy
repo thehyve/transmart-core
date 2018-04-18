@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.serialization.DataSerializer
@@ -82,12 +83,13 @@ class DataTableViewDataSerializationService implements DataSerializer {
 //        }
 
         //TODO fix tableArgs parsing (rowDimensions, columnDimensions, rowSort, columnSort)
-        DataTable datatable = multiDimService.retrieveDataTable((Map)tableArgs, 'clinical', constraint, user)
+        StreamingDataTable datatable = multiDimService.retrieveStreamingDataTable(
+                (Map)tableArgs, 'clinical', constraint, user)
         try {
             log.info "Writing tabular data in ${format} format."
             TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
-                    ImmutableList.copyOf(datatable.indicesList as List<DataColumn>))
-            serializer.writeFilesToZip(user, datatable, (ZipOutputStream) out)
+                    null)
+            //serializer.writeFilesToZip(user, datatable, (ZipOutputStream) out)
         } finally {
             datatable.close()
             log.info "Writing tabular data in ${format} format completed."

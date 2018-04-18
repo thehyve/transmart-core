@@ -118,6 +118,7 @@ class FullDataTable extends AbstractDataTable implements StreamingDataTable {
             }
         }
 
+        @Override
         List getHeaderValues() {
             List vals = []
             for(int i=0; i<rowDimensions.size(); i++) {
