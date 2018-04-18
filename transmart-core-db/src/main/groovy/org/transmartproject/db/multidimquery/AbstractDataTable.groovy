@@ -69,11 +69,6 @@ abstract class AbstractDataTable implements AutoCloseable {
             this.keys = ImmutableList.copyOf(keys)
         }
 
-//        @Override
-//        String getLabel() {
-//            keys.stream().map({o -> (CharSequence)o.toString()}).collect(Collectors.joining(', '))
-//        }
-
         @Override
         int compareTo(DataTableColumnImpl other) {
             for (def entry : columnPriority) {
@@ -106,11 +101,6 @@ abstract class AbstractDataTable implements AutoCloseable {
             this.elements = ImmutableList.copyOf(elements)
             this.keys = ImmutableList.copyOf(keys)
         }
-
-//        @Override
-//        String getLabel() {
-//            keys.stream().map({o -> (CharSequence)o.toString()}).collect(Collectors.joining(', '))
-//        }
 
         @Override
         int compareTo(DataTableRowImpl other) {
