@@ -8,6 +8,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
@@ -17,13 +18,11 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import static java.util.Objects.requireNonNull
 
 @CompileStatic
-abstract class AbstractDataTable implements AutoCloseable {
+abstract class AbstractDataTable implements DataTable {
 
     final Hypercube hypercube
     final ImmutableList<Dimension> rowDimensions, columnDimensions
     final ImmutableMap<Dimension, SortOrder> sort
-    // without an explicit getter the generated getter is final and for some reason PagingDataTable generates an override
-    ImmutableMap<Dimension, SortOrder> getSort() { sort }
     // An ordered map, the order is the order in which column dimensions are sorted.
     protected LinkedHashMap<Dimension, SortOrder> columnPriority  // NB: an ordered map
     // A map from dimension to columnDimensions.indexOf(dimension)
@@ -35,6 +34,11 @@ abstract class AbstractDataTable implements AutoCloseable {
      * The total number of rows in this result; only set when known
      */
     Long totalRowCount
+
+    // without an explicit getter the generated getters are final and for some reason PagingDataTable generates overrides
+    ImmutableList<Dimension> getRowDimensions() { rowDimensions }
+    ImmutableList<Dimension> getColumnDimensions() { columnDimensions }
+    ImmutableMap<Dimension, SortOrder> getSort() { sort }
 
     AbstractDataTable(Map args, Hypercube hypercube) {
         requireNonNull this.hypercube = hypercube

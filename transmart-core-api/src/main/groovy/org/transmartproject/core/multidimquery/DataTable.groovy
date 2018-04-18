@@ -1,6 +1,7 @@
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.Table
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.SortOrder
@@ -10,8 +11,7 @@ import org.transmartproject.core.dataquery.TabularResult
  * A DataTable is a two-dimensional representation of a hypercube. Which dimensions are represented as rows or as
  * columns is selectable.
  */
-interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>,
-        AutoCloseable, Closeable {
+interface DataTable extends AutoCloseable, Closeable {
 
     /**
      * @return the underlying hypercube
@@ -21,13 +21,29 @@ interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>
     /**
      * The list of row dimensions in order
      */
-    //List<Dimension> getRowDimensions()
+    List<Dimension> getRowDimensions()
 
     /**
      * The list of column dimensions in order
      */
-    //List<Dimension> getColumnDimensions()
+    List<Dimension> getColumnDimensions()
 
+    /**
+     * @return the table column headers in order
+     */
+    List<DataTableColumn> getColumnKeys()
+
+    /**
+     * @return the sorting that was actually used for the hypercube from which this datatable was constructed. The
+     * map is an ordered map.
+     */
+    Map<Dimension, SortOrder> getSort()
+}
+
+/**
+ * PagingDataTable represents an in-memory view on a data table that contains a subset of all rows
+ */
+interface PagingDataTable extends DataTable, Table<DataTableRow, DataTableColumn, HypercubeValue> {
     /**
      * The row offset of the first row of this data table
      */
@@ -48,18 +64,12 @@ interface DataTable extends Table<DataTableRow, DataTableColumn, HypercubeValue>
      * @return The table row headers in order
      */
     List<DataTableRow> getRowKeys()
-
-    /**
-     * @return the table column headers in order
-     */
-    List<DataTableColumn> getColumnKeys()
-
-    /**
-     * @return the sorting that was actually used for the hypercube from which this datatable was constructed. The
-     * map is an ordered map.
-     */
-    Map<Dimension, SortOrder> getSort()
 }
+
+/**
+ * StreamingDataTable represents a DataTable that is not all loaded in memory, but the rows can be streamed.
+ */
+interface StreamingDataTable extends DataTable, IterableResult<DataTableRow> {}
 
 interface DataTableRow<SELF extends DataTableRow<SELF>>
         extends Comparable<SELF> {

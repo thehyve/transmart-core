@@ -4,14 +4,14 @@ import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Lists
 import com.google.common.collect.Table
 import groovy.transform.CompileStatic
-import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.PagingDataTable
 
 import static java.util.Objects.requireNonNull
 
 @CompileStatic
-class PagingDataTable extends AbstractDataTable implements DataTable {
+class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
 
     final long offset
     final int limit
@@ -32,7 +32,7 @@ class PagingDataTable extends AbstractDataTable implements DataTable {
         table.put((DataTableRowImpl) rowKey, (DataTableColumnImpl) columnKey, (HypercubeValue) value)
     }
 
-    PagingDataTable(Map args, Hypercube hypercube) {
+    PagingDataTableImpl(Map args, Hypercube hypercube) {
         super(args, hypercube)
 
         this.offset = (long) (args.offset ?: 0)

@@ -636,7 +636,19 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    PagingDataTable retrieveDataTable(Map args, String type, Constraint constraint, User user) {
+    PagingDataTableImpl retrieveDataTable(Map args, String type, Constraint constraint, User user) {
+        args = parseDataTableArgs(args, type)
+        Hypercube cube = retrieveClinicalData(args, constraint, user)
+        return new PagingDataTableImpl(args, cube)
+    }
+
+    FullDataTable retrieveStreamingDataTable(Map args, String type, Constraint constraint, User user) {
+        args = parseDataTableArgs(args, type)
+        Hypercube cube = retrieveClinicalData(args, constraint, user)
+        return new FullDataTable(args, cube)
+    }
+
+    private Map parseDataTableArgs(Map args, String type) {
         if(type != 'clinical') throw new OperationNotImplementedException("High dimensional data is not supported in " +
                 "data table format")
 
@@ -664,11 +676,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         args.sort = rowSort + columnSort
         args.dimensions = rowDimensions + columnDimensions
 
-        Hypercube cube = retrieveClinicalData(args, constraint, user)
-
-        PagingDataTable table = new PagingDataTable(args, cube)
-
-        table
+        args
     }
 
     @Override

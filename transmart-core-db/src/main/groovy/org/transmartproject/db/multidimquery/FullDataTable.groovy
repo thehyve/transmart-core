@@ -6,14 +6,16 @@ import com.google.common.collect.ImmutableList
 import com.google.common.collect.Multimap
 import groovy.transform.CompileStatic
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.StreamingDataTable
 
 @CompileStatic
-class FullDataTable extends AbstractDataTable implements IterableResult<FullDataTableRow> {
+class FullDataTable extends AbstractDataTable implements StreamingDataTable {
 
     final ImmutableList<DataTableColumnImpl> columnKeys
 
