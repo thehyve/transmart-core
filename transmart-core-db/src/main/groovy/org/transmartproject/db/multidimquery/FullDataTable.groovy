@@ -39,28 +39,31 @@ class FullDataTable extends AbstractDataTable implements IterableResult<FullData
             for(def dim : columnDimensions) {
                 keys.add val.getDimKey(dim)
             }
-            columns.add(new DataTableColumnImpl([], keys))
+            columns.add(newDataTableColumnImpl([], keys))
             for(def dim : rowDimensions) {
                 rowKeys.put(dim, val.getDimKey(dim))
             }
         }
 
-        def sortedColumns = columns.sort(false)
+        List<DataTableColumnImpl> sortedColumns = columns.sort(false)
 
+        // Note: we initialise the object property here
         elementsMap = (Map) columnIndices.collectEntries { Dimension dim, Integer idx ->
-            def keys = sortedColumns.collect(new LinkedHashSet()) { it.keys[idx] }.toList()
+            def keys = sortedColumns.collect(new LinkedHashSet(), (Closure) /*Cast to please the compiler*/ {
+                DataTableColumnImpl col -> col.keys[idx] }).toList()
             def elements = dim.resolveElements(keys)
             [dim, [keys, elements].transpose().collectEntries()]
         }
 
-        rowKeys.asMap().each { Dimension dim, Collection k ->
-            List keys = new ArrayList(k)
+        rowKeys.asMap().each { d, k ->
+            Dimension dim = (Dimension) d
+            List keys = k as List
             def elements = dim.resolveElements(keys)
             elementsMap[dim] = [keys, elements].transpose().collectEntries()
         }
 
         List<DataTableColumnImpl> finalColumns = sortedColumns.collect { col ->
-            new DataTableColumnImpl(columnIndices.collect { Dimension dim, Integer idx ->
+            newDataTableColumnImpl(columnIndices.collect { Dimension dim, Integer idx ->
                 elementsMap[dim][col.keys[idx]]
             } , col.keys)
         }
@@ -76,7 +79,7 @@ class FullDataTable extends AbstractDataTable implements IterableResult<FullData
             elems.add(elementsMap[dim][key])
             keys.add(key)
         }
-        new DataTableColumnImpl(elems, keys)
+        newDataTableColumnImpl(elems, keys)
     }
 
     DataTableRowImpl getRow(HypercubeValue hv, long offset) {
@@ -137,7 +140,7 @@ class FullDataTable extends AbstractDataTable implements IterableResult<FullData
 
     class DataTableRowsIterator extends AbstractIterator<FullDataTableRow> {
 
-        Iterator<List<HypercubeValue>> rowIterator = new RowIterator()
+        Iterator<List<HypercubeValue>> rowIterator = newRowIterator()
         long offset = 0
 
         @Override

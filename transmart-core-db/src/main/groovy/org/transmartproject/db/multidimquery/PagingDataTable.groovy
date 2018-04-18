@@ -42,7 +42,7 @@ class PagingDataTable extends AbstractDataTable implements DataTable {
     private Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> buildTable() {
         def deque = new ArrayDeque<List<HypercubeValue>>(limit+1)
 
-        def rowIter = new RowIterator()
+        def rowIter = newRowIterator()
 
         long startOffset = 0
         long toload = offset+limit
@@ -77,7 +77,7 @@ class PagingDataTable extends AbstractDataTable implements DataTable {
                     elems.add(hv[dim])
                     keys.add(hv.getDimKey(dim))
                 }
-                def column = new DataTableColumnImpl(elems, keys)
+                def column = newDataTableColumnImpl(elems, keys)
 
                 table.put(row, column, hv)
             }

@@ -22,6 +22,8 @@ abstract class AbstractDataTable implements AutoCloseable {
     final Hypercube hypercube
     final ImmutableList<Dimension> rowDimensions, columnDimensions
     final ImmutableMap<Dimension, SortOrder> sort
+    // without an explicit getter the generated getter is final and for some reason PagingDataTable generates an override
+    ImmutableMap<Dimension, SortOrder> getSort() { sort }
     // An ordered map, the order is the order in which column dimensions are sorted.
     protected LinkedHashMap<Dimension, SortOrder> columnPriority  // NB: an ordered map
     // A map from dimension to columnDimensions.indexOf(dimension)
@@ -55,6 +57,7 @@ abstract class AbstractDataTable implements AutoCloseable {
     }
 
 
+    DataTableColumnImpl newDataTableColumnImpl(List elements, List keys) { new DataTableColumnImpl(elements, keys) }
     @ToString(includes=['keys'], includeNames=true, includePackage=false)
     @EqualsAndHashCode(includes=["keys"])
     class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
@@ -116,6 +119,7 @@ abstract class AbstractDataTable implements AutoCloseable {
     }
 
 
+    RowIterator newRowIterator() { return new RowIterator() }
     class RowIterator extends AbstractIterator<List<HypercubeValue>> {
 
         PeekingIterator<HypercubeValue> hypercubeIter
