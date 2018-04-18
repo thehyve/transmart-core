@@ -1,12 +1,15 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.DataTable
+import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.Field
@@ -89,9 +92,21 @@ class DataTableSpec extends TransmartSpecification {
         then:
         subTable.rowKeys.size() == 1
         subTable.rowKeys[0] == table.rowKeys[1]
-        subTable.row(subTable.rowKeys[0]).collectEntries { col, val -> [col, val.value] } ==
-                secondRow.collectEntries { col, val -> [col, val.value] }
+        subTable.row(subTable.rowKeys[0]).collectEntries { col, vals -> [col, vals[0].value] } ==
+                secondRow.collectEntries { col, vals -> [col, vals[0].value] }
 
+    }
+
+    void testStreaming() {
+        setupData()
+
+        when:
+        StreamingDataTable table = queryResource.retrieveStreamingDataTable('clinical', constraint, adminUser,
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'])
+        List<DataTableRow> rows = Lists.newArrayList(table)
+
+        then:
+        true
     }
 
     void testSort() {

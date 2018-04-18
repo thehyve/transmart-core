@@ -2554,7 +2554,8 @@ definitions:
                     - type: number
                 description: |
                   A list of column headers for one dimension. This list has the same size as the number of columns in
-                  the table. The items describe a dimension element, they refer to keys in the
+                  the table (unless no column dimensions were specified, in which case this list is empty). The items
+                  describe a dimension element, they refer to keys in the
                   `row_dimensions*.elements` dictionary for the given dimension. Further properties of this dimension
                   element can be found there.
 
@@ -2569,6 +2570,9 @@ definitions:
                   A list of column headers for one dimension, but in this property the items do not refer to a
                   further description, the dimension element is just a single string or number. The string may also
                   be a formatted date.
+
+                  The size of this list is equal to the number of columns in the table, or empty if no column
+                  dimensions were specified.
 
                   This property is mutually exclusive with the `keys` property.
             required: [dimension]

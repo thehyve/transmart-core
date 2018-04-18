@@ -145,7 +145,7 @@ abstract class AbstractDataTable implements DataTable {
         }
 
         private boolean sameGroup(List key, HypercubeValue cell) {
-            // if there are no column dimensions, all cells are a separate row
+            // if there are no row dimensions, all cells are a separate row
             if (!rowDimensions) return false
 
             for(int i=0; i<rowDimensions.size(); i++) {

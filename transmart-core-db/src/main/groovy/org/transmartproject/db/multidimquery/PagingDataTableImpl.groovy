@@ -17,7 +17,7 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
     final int limit
 
     @Lazy @Delegate
-    Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> table = buildTable()
+    Table<DataTableRowImpl, DataTableColumnImpl, ? extends Collection<HypercubeValue>> table = buildTable()
 
     @Lazy
     List<DataTableRowImpl> rowKeys = rowKeySet().sort(false)
@@ -26,11 +26,12 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
     List<DataTableColumnImpl> columnKeys = columnKeySet().sort(false)
 
     // The @Lazy somehow fails to generate these bridge methods
-    Map<DataTableRowImpl, HypercubeValue> column(columnKey) { table.column((DataTableColumnImpl) columnKey) }
-    Map<DataTableColumnImpl, HypercubeValue> row(rowKey) { table.row((DataTableRowImpl) rowKey) }
-    HypercubeValue put(rowKey, columnKey, value) {
-        table.put((DataTableRowImpl) rowKey, (DataTableColumnImpl) columnKey, (HypercubeValue) value)
+    Map<DataTableRowImpl, ? extends Collection<HypercubeValue>> column(columnKey) { table.column((DataTableColumnImpl) columnKey) }
+    Map<DataTableColumnImpl, ? extends Collection<HypercubeValue>> row(rowKey) { table.row((DataTableRowImpl) rowKey) }
+    Collection<HypercubeValue> put(rowKey, columnKey, value) {
+        table.put((DataTableRowImpl) rowKey, (DataTableColumnImpl) columnKey, (Collection<HypercubeValue>) value)
     }
+    //Map<DataTableColumnImpl, ? extends Collection<HypercubeValue>> row(DataTableRowImpl row) { table.row(row) }
 
     PagingDataTableImpl(Map args, Hypercube hypercube) {
         super(args, hypercube)
@@ -39,7 +40,7 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
         requireNonNull this.limit = (int) args.limit
     }
 
-    private Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> buildTable() {
+    private Table<DataTableRowImpl, DataTableColumnImpl, Collection<HypercubeValue>> buildTable() {
         def deque = new ArrayDeque<List<HypercubeValue>>(limit+1)
 
         def rowIter = newRowIterator()
@@ -60,17 +61,22 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
 
         def rows = Lists.newArrayList(deque)
 
-        Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> table = HashBasedTable.create()
+        Table<DataTableRowImpl, DataTableColumnImpl, List<HypercubeValue>> table = HashBasedTable.create()
 
         for(int i=0; i<rows.size(); i++) {
+            def firstHv = rows[i][0]
+            if (firstHv == null) continue
+            List elems = []
+            List keys = []
+            for(def dim : rowDimensions) {
+                elems.add(firstHv[dim])
+                keys.add(firstHv.getDimKey(dim))
+            }
+            def rowHeader = new DataTableRowImpl(startOffset+i, elems, keys)
+
+            def row = table.row(rowHeader)
+
             for(def hv : rows[i]) {
-                List elems = []
-                List keys = []
-                for(def dim : rowDimensions) {
-                    elems.add(hv[dim])
-                    keys.add(hv.getDimKey(dim))
-                }
-                def row = new DataTableRowImpl(startOffset+i, elems, keys)
                 elems.clear()
                 keys.clear()
                 for(def dim: columnDimensions) {
@@ -79,9 +85,11 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
                 }
                 def column = newDataTableColumnImpl(elems, keys)
 
-                table.put(row, column, hv)
+                def vals = (List) row[column]
+                if(vals == null) vals = row[column] = []
+                vals.add(hv)
             }
         }
-        table
+        (Table) table
     }
 }

@@ -1,15 +1,17 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
+import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ListMultimap
 import com.google.common.collect.Multimap
+import com.google.common.collect.Multimaps
 import groovy.transform.CompileStatic
-import org.transmartproject.core.IterableResult
-import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.StreamingDataTable
@@ -95,27 +97,28 @@ class FullDataTable extends AbstractDataTable implements StreamingDataTable {
         new DataTableRowImpl(offset, elems, keys)
     }
 
-    Iterator<FullDataTableRow> getRows() {
+    Iterator<FullDataTableRowImpl> getRows() {
         return new DataTableRowsIterator()
     }
 
-    Iterator<FullDataTableRow> iterator() {
+    Iterator<FullDataTableRowImpl> iterator() {
         getRows()
     }
 
-    class FullDataTableRow {
+    class FullDataTableRowImpl implements FullDataTableRow {
 
         DataTableRow rowHeader
-        Map<DataTableColumn, HypercubeValue> rowValues = [:]
+        ListMultimap<DataTableColumn, HypercubeValue> rowValues = ArrayListMultimap.create()
+        Map<DataTableColumn, List<HypercubeValue>> rowMap = Multimaps.asMap(rowValues)
 
-        FullDataTableRow(List<HypercubeValue> row, long offset) {
+        FullDataTableRowImpl(List<HypercubeValue> row, long offset) {
             this.rowHeader = getRow(row[0], offset)
             for(def hv : row) {
-                this.rowValues[getColumn(hv)] = hv
+                this.rowValues.put(getColumn(hv), hv)
             }
         }
 
-        List headerValues() {
+        List getHeaderValues() {
             List vals = []
             for(int i=0; i<rowDimensions.size(); i++) {
                 vals.add(rowDimensions[i].getKey(rowHeader.elements[i]))
@@ -123,33 +126,34 @@ class FullDataTable extends AbstractDataTable implements StreamingDataTable {
             vals
         }
 
-        List dataValues() {
+        @Override
+        List<Collection> getDataValues() {
             List vals = []
-            for(def col : columnKeys) {
-                vals.add(getAt(col))
-            }
+            for(def col : columnKeys) { vals.add(getAt(col)*.value) }
             vals
         }
 
-        HypercubeValue getAt(DataTableColumn column) {
-            rowValues[column]
+        Collection<HypercubeValue> getAt(DataTableColumn column) {
+            rowMap[column]
         }
 
-        def getAtValue(DataTableColumn column) {
-            getAt(column)?.value
+        List getAtValue(DataTableColumn column) {
+            List vals = []
+            for(def hv : getAt(column)) { vals.add(hv.value) }
+            vals
         }
     }
 
-    class DataTableRowsIterator extends AbstractIterator<FullDataTableRow> {
+    class DataTableRowsIterator extends AbstractIterator<FullDataTableRowImpl> {
 
         Iterator<List<HypercubeValue>> rowIterator = newRowIterator()
         long offset = 0
 
         @Override
-        FullDataTableRow computeNext() {
+        FullDataTableRowImpl computeNext() {
             if(!rowIterator.hasNext()) return endOfData()
 
-            new FullDataTableRow(rowIterator.next(), offset++)
+            new FullDataTableRowImpl(rowIterator.next(), offset++)
         }
     }
 }

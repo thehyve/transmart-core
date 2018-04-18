@@ -200,6 +200,26 @@ class QueryControllerSpec extends MarshallerSpec {
         result2["row count"] == 4
         result2.rows*.dimensions == result.rows.takeRight(2)*.dimensions
         result2.rows*.row*.findAll() == result.rows.takeRight(2)*.row*.findAll()
+
+        when: "test without dimensions"
+        def rowDimensions3 = URLEncoder.encode((['study'] as JSON).toString(false), 'UTF-8')
+        def url3 = "${baseURL}/$VERSION/observations/table?" +
+                "type=clinical&" +
+                "constraint=$constraint&" +
+                "rowDimensions=$rowDimensions3&" +
+                "columnDimensions=[]&" +
+                "limit=$limit&" +
+                "offset=$offset"
+        ResponseEntity<Resource> response3 = getJson(url3)
+        String content3 = response3.body.inputStream.readLines().join('\n')
+        def result3 = new JsonSlurper().parseText(content3)
+
+        then:
+        result3.offset == 0
+        result3['row count'] == 1
+        result3.column_headers*.dimensions == []
+        result3.rows[0].row.size() == 1
+        result3.rows[0].row[0].size() > 1
     }
 
 }

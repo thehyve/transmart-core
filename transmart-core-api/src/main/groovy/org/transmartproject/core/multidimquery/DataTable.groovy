@@ -43,7 +43,7 @@ interface DataTable extends AutoCloseable, Closeable {
 /**
  * PagingDataTable represents an in-memory view on a data table that contains a subset of all rows
  */
-interface PagingDataTable extends DataTable, Table<DataTableRow, DataTableColumn, HypercubeValue> {
+interface PagingDataTable extends DataTable, Table<DataTableRow, DataTableColumn, ? extends Collection<HypercubeValue>> {
     /**
      * The row offset of the first row of this data table
      */
@@ -71,14 +71,19 @@ interface PagingDataTable extends DataTable, Table<DataTableRow, DataTableColumn
  */
 interface StreamingDataTable extends DataTable, IterableResult<DataTableRow> {}
 
+interface FullDataTableRow {
+    DataTableRow getRowHeader()
+
+    List getHeaderValues()
+    List<Collection> getDataValues()
+}
+
 interface DataTableRow<SELF extends DataTableRow<SELF>>
         extends Comparable<SELF> {
     /**
      * @return a list with the elements of the row dimensions for this row
      */
     List getElements()
-
-    //String getLabel()
 
     /**
      * The (unpaged) row offset
