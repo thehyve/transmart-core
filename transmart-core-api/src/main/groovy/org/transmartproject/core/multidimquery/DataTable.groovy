@@ -1,11 +1,9 @@
 package org.transmartproject.core.multidimquery
 
+import com.google.common.collect.Multimap
 import com.google.common.collect.Table
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.dataquery.TabularResult
 
 /**
  * A DataTable is a two-dimensional representation of a hypercube. Which dimensions are represented as rows or as
@@ -69,10 +67,14 @@ interface PagingDataTable extends DataTable, Table<DataTableRow, DataTableColumn
 /**
  * StreamingDataTable represents a DataTable that is not all loaded in memory, but the rows can be streamed.
  */
-interface StreamingDataTable extends DataTable, IterableResult<DataTableRow> {}
+interface StreamingDataTable extends DataTable, IterableResult<FullDataTableRow> {}
 
 interface FullDataTableRow {
     DataTableRow getRowHeader()
+
+    Set<DataTableColumn> getColumnKeys()
+
+    Multimap<DataTableColumn, HypercubeValue> getMultimap()
 
     List getHeaderValues()
     List<Collection> getDataValues()

@@ -108,14 +108,19 @@ class FullDataTable extends AbstractDataTable implements StreamingDataTable {
     class FullDataTableRowImpl implements FullDataTableRow {
 
         DataTableRow rowHeader
-        ListMultimap<DataTableColumn, HypercubeValue> rowValues = ArrayListMultimap.create()
-        Map<DataTableColumn, List<HypercubeValue>> rowMap = Multimaps.asMap(rowValues)
+        ListMultimap<DataTableColumn, HypercubeValue> multimap = ArrayListMultimap.create()
+        Map<DataTableColumn, List<HypercubeValue>> rowMap = Multimaps.asMap(multimap)
 
         FullDataTableRowImpl(List<HypercubeValue> row, long offset) {
             this.rowHeader = getRow(row[0], offset)
             for(def hv : row) {
-                this.rowValues.put(getColumn(hv), hv)
+                this.multimap.put(getColumn(hv), hv)
             }
+        }
+
+        @Override
+        Set<DataTableColumn> getColumnKeys() {
+            rowMap.keySet()
         }
 
         @Override

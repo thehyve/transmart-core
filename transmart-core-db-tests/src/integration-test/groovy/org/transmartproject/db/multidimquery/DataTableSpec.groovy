@@ -1,13 +1,14 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Lists
+import com.google.common.collect.Table
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.DataTable
-import org.transmartproject.core.multidimquery.DataTableRow
+import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PagingDataTable
 import org.transmartproject.core.multidimquery.StreamingDataTable
@@ -16,13 +17,11 @@ import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.multidimquery.query.FieldConstraint
 import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.user.AccessLevelTestData
 
@@ -97,18 +96,27 @@ class DataTableSpec extends TransmartSpecification {
         subTable.row(subTable.rowKeys[0]).collectEntries { col, vals -> [col, vals[0].value] } ==
                 secondRow.collectEntries { col, vals -> [col, vals[0].value] }
 
-    }
-
-    void testStreaming() {
-        setupData()
-
         when:
-        StreamingDataTable table = queryResource.retrieveStreamingDataTable('clinical', constraint, adminUser,
+        StreamingDataTable sTable = queryResource.retrieveStreamingDataTable('clinical', constraint, adminUser,
                 rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'])
-        List<DataTableRow> rows = Lists.newArrayList(table)
+        List<FullDataTableRow> rows = Lists.newArrayList(sTable)
+
+        Table sTab = HashBasedTable.create()
+        rows.each { row ->
+            row.multimap.entries().each { entry ->
+                sTab.put(row.rowHeader, entry.key, entry.value.value)
+            }
+        }
+
+        Table tab = HashBasedTable.create()
+        table.cellSet().each { cell ->
+            tab.put(cell.rowKey, cell.columnKey, cell.value[0].value)
+        }
 
         then:
-        true
+        sTable.columnKeys == table.columnKeys
+        rows*.rowHeader == table.rowKeys
+        sTab == tab
     }
 
     void testSort() {
