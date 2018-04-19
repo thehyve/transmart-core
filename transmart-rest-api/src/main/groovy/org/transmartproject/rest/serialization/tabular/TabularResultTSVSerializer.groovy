@@ -83,8 +83,8 @@ class TabularResultTSVSerializer extends AbstractTSVSerializer implements Tabula
     final File workingDir
     final SortedMap<Integer, File> dataFiles = Collections.synchronizedSortedMap([:] as TreeMap)
 
-    TabularResultTSVSerializer(User user, ZipOutputStream zipOutStream, ImmutableList<DataColumn> columns) {
-        super(user, zipOutStream)
+    TabularResultTSVSerializer(User user, OutputStream outStream, ImmutableList<DataColumn> columns) {
+        super(user, outStream)
         this.columns = columns
         this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-tsv-', '-tmpdir')
     }

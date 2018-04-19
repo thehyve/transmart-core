@@ -26,6 +26,8 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.serialization.*
 
+import java.util.zip.ZipOutputStream
+
 @Transactional
 class HypercubeDataSerializationService implements DataSerializer {
 

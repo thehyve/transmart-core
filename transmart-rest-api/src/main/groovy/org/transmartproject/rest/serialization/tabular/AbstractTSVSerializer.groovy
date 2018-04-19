@@ -16,9 +16,9 @@ class AbstractTSVSerializer {
     final User user
     final ZipOutputStream zipOutStream
 
-    AbstractTSVSerializer(User user, ZipOutputStream zipOutputStream) {
+    AbstractTSVSerializer(User user, OutputStream outputStream) {
         this.user = user
-        this.zipOutStream = zipOutputStream
+        this.zipOutStream = new ZipOutputStream(outputStream)
     }
 
     protected String[] formatRowValues(List<? extends Object> valuesRow) {

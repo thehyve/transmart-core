@@ -30,6 +30,7 @@ import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.serialization.DataSerializer
 import org.transmartproject.rest.serialization.Format
+import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 import org.transmartproject.rest.serialization.tabular.TabularResultSerializer
 import org.transmartproject.rest.serialization.tabular.TabularResultTSVSerializer
 
@@ -43,15 +44,6 @@ class DataTableViewDataSerializationService implements DataSerializer {
     MultiDimensionalDataResource multiDimService
 
     Set<Format> supportedFormats = [Format.TSV] as Set<Format>
-
-    TabularResultSerializer getSerializer(Format format, User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
-        switch(format) {
-            case Format.TSV:
-                return new TabularResultTSVSerializer(user, zipOutputStream, columns)
-            default:
-                throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
-        }
-    }
 
     /**
      * Write clinical data to the output stream.
@@ -76,7 +68,7 @@ class DataTableViewDataSerializationService implements DataSerializer {
                 (Map)tableArgs, 'clinical', constraint, user)
         try {
             log.info "Writing tabular data in ${format} format."
-            TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,null)
+            def serializer = new DataTableTSVSerializer(user, out)
             //serializer.writeFilesToZip(user, datatable, (ZipOutputStream) out)
         } finally {
             datatable.close()

@@ -278,9 +278,9 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
      * will be used for temporary files.
      * @param zipOutStream the stream to write to.
      */
-    TabularResultSPSSSerializer(User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
+    TabularResultSPSSSerializer(User user, OutputStream outputStream, ImmutableList<DataColumn> columns) {
         this.user = user
-        this.zipOutputStream = zipOutputStream
+        this.zipOutputStream = new ZipOutputStream(outputStream)
         if (!columns) {
             throw new IllegalArgumentException("Can't write spss files for empty table.")
         }
