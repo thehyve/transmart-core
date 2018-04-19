@@ -23,11 +23,15 @@ class ExportService {
     @Autowired
     HypercubeDataSerializationService hypercubeDataSerializationService
 
+    Set<Format> exportFormats =  EnumSet.of(TSV, SPSS)
+
     @Autowired
     SurveyTableViewDataSerializationService surveyTableViewDataSerializationService
 
     Set<Format> getSupportedFormats(String dataView) {
-        getDataSerializerByDataView(dataView).supportedFormats
+        Set<Format> supportedExportFormats = new LinkedHashSet<Format>(exportFormats)
+        supportedExportFormats.retainAll(getDataSerializerByDataView(dataView).supportedFormats)
+        return supportedExportFormats
     }
 
     def downloadFile(AsyncJobCoreDb job) {
