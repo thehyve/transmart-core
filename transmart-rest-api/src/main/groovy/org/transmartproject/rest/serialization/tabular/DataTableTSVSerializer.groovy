@@ -29,7 +29,6 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
      * @param zipOutStream the stream to write to.
      */
     void writeDataTableToZip(StreamingDataTable dataTable) {
-        List<DataTableColumn> columns = dataTable.columnKeys
 
         zipOutStream.putNextEntry(new ZipEntry('data.tsv'))
         def rowElements = writeValues(dataTable)
@@ -44,7 +43,7 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         }
 
         rowElements.indices.each { i ->
-            def dim = dataTable.rowDimensions[i]
+            Dimension dim = dataTable.rowDimensions[i]
             def elems = rowElements[i]
             if(elems != null) {
                 zipOutStream.putNextEntry(new ZipEntry("${dim.name}.tsv"))

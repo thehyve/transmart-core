@@ -69,7 +69,7 @@ class DataTableViewDataSerializationService implements DataSerializer {
         try {
             log.info "Writing tabular data in ${format} format."
             def serializer = new DataTableTSVSerializer(user, out)
-            //serializer.writeFilesToZip(user, datatable, (ZipOutputStream) out)
+            serializer.writeDataTableToZip(datatable)
         } finally {
             datatable.close()
             log.info "Writing tabular data in ${format} format completed."
