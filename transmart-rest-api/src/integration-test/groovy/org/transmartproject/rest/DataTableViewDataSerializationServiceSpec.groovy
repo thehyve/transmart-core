@@ -1,6 +1,7 @@
 package org.transmartproject.rest
 
 import com.opencsv.CSVReader
+import com.opencsv.CSVWriter
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
@@ -74,7 +75,9 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
             }
 
             String name = entry.name[0..-5]
-            def csvReader = new CSVReader(new InputStreamReader(zip), DataTableTSVSerializer.COLUMN_SEPARATOR)
+            def csvReader = new CSVReader(new InputStreamReader(zip), DataTableTSVSerializer.COLUMN_SEPARATOR,
+                    CSVWriter.DEFAULT_ESCAPE_CHARACTER)  // The default escape char for CSVWriter is not the same as
+                                                         // for CSVReader 😕
             def data = csvReader.readAll().collect { it as List<String> }
 
             result[name] = data

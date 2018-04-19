@@ -87,12 +87,13 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
             }
             csvWriter.writeNext(formatRowValues(values))
         }
-        csvWriter.close()
+        csvWriter.flush()
 
         rowElements
     }
 
-    void findKeys(Set names, List<String> prefix, value) {
+    // Helper to find all keys that apply to a type of object
+    static void findKeys(Set names, List<String> prefix, value) {
         if(! value instanceof Map) {
             names.add(prefix)
             return
@@ -110,14 +111,14 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         for(def prop : dim.elementFields.values()) {
             if(prop.type in Map) {
                 for(def elem : elements) {
-                    findKeys(keys, [prop.name], elem)
+                    findKeys(keys, [prop.name], prop.get(elem))
                 }
             } else {
                 keys.add(prop.name)
             }
         }
 
-        writeRow(csvWriter, keys.collect { it instanceof String ? it : ((Collection) it).join('.') })
+        writeRow(csvWriter, ['label'] + keys.collect { it instanceof String ? (String) it : ((Collection) it).join('' + '.') })
 
         for(def elem : elements) {
             List values = [dim.getKey(elem)]
@@ -132,10 +133,11 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
             writeRow(csvWriter, values)
         }
 
-        csvWriter.close()
+        csvWriter.flush()
     }
 
-    def getByPath(List<String> path, int i, object) {
+    // helper to retrieve an object from a tree of nested maps given a path
+    static def getByPath(List<String> path, int i, object) {
         if(path.size() >= i) {
             if(object == null || object instanceof Map) return ''
             else return object
