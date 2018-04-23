@@ -2,6 +2,7 @@ package org.transmartproject.rest.serialization.tabular
 
 import com.google.common.collect.ImmutableList
 import com.opencsv.CSVWriter
+import grails.converters.JSON
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.dataquery.DataColumn
@@ -30,15 +31,19 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
      */
     void writeDataTableToZip(StreamingDataTable dataTable) {
 
+        zipOutStream.putNextEntry(new ZipEntry('metadata.json'))
+        writeMetaData(dataTable)
+        zipOutStream.closeEntry()
+
         zipOutStream.putNextEntry(new ZipEntry('data.tsv'))
         def rowElements = writeValues(dataTable)
         zipOutStream.closeEntry()
 
-        dataTable.columnDimensions.eachWithIndex{ Dimension dim, int i ->
+        dataTable.columnDimensions.eachWithIndex { Dimension dim, int i ->
             if(dim.elementsSerializable) return
 
             zipOutStream.putNextEntry(new ZipEntry("${dim.name}.tsv"))
-            writeDimensionElements(dim, dataTable.columnKeys*.elements*.getAt(i))
+            writeDimensionElements(dim, dataTable.columnKeys*.elements*.getAt(i) as LinkedHashSet)
             zipOutStream.closeEntry()
         }
 
@@ -51,6 +56,20 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
                 zipOutStream.closeEntry()
             }
         }
+    }
+
+    private void writeMetaData(StreamingDataTable dataTable) {
+        def writer = new OutputStreamWriter(zipOutStream)
+        def description = [
+                row_dimensions: dataTable.rowDimensions*.name,
+                column_dimensions: dataTable.columnDimensions*.name,
+                sort: dataTable.sort.collect { dim, sort ->
+                    ((Map) [dimension: dim.name, order: sort.string()]) +
+                            (dataTable.requestedSort.containsKey(dim) ? [user_requested: true] : [:])
+                }
+        ]
+        writer.write((description as JSON).toString(true))
+        writer.flush()
     }
 
     private void writeHeaders(CSVWriter csvWriter, StreamingDataTable dataTable) {
@@ -92,9 +111,11 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         rowElements
     }
 
-    // Helper to find all keys that apply to a type of object
+    // Helper to find all keys that apply to a type of object. For map and nested map values, the nested paths that
+    // are set are added to the list of names.
     static void findKeys(Set names, List<String> prefix, value) {
-        if(! value instanceof Map) {
+        if(value == null) return
+        if(!(value instanceof Map)) {
             names.add(prefix)
             return
         }
@@ -136,15 +157,17 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         csvWriter.flush()
     }
 
-    // helper to retrieve an object from a tree of nested maps given a path
+    // helper to retrieve an object from a tree of nested maps given a path. If a path does not exist for this
+    // object, returns an empty string.
     static def getByPath(List<String> path, int i, object) {
-        if(path.size() >= i) {
+        if(i >= path.size()) {
             if(object == null || object instanceof Map) return ''
             else return object
+        } else {
+            if (!(object instanceof Map)) return ''
+            def map = (Map) object
+            return getByPath(path, i+1, map[path[i]])
         }
-        if(! object instanceof Map) return ''
-        def map = (Map) object
-        return getByPath(path, i++, map[path[i]])
     }
 
 }

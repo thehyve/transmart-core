@@ -23,6 +23,7 @@ import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataColumn
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.StreamingDataTable
@@ -61,11 +62,11 @@ class DataTableViewDataSerializationService implements DataSerializer {
                        OutputStream out,
                        Map options) {
 
-        def tableArgs = options.tableConfig
+        def tableArgs = (Map) options.tableConfig
+        if(tableArgs == null) throw new InvalidArgumentsException("No 'tableConfig' option provided")
 
-        //TODO fix tableArgs parsing (rowDimensions, columnDimensions, rowSort, columnSort)
         StreamingDataTable datatable = multiDimService.retrieveStreamingDataTable(
-                (Map)tableArgs, 'clinical', constraint, user)
+                tableArgs, 'clinical', constraint, user)
         try {
             log.info "Writing tabular data in ${format} format."
             def serializer = new DataTableTSVSerializer(user, out)

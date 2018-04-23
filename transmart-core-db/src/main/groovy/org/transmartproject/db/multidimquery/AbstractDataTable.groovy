@@ -23,6 +23,7 @@ abstract class AbstractDataTable implements DataTable {
     final Hypercube hypercube
     final ImmutableList<Dimension> rowDimensions, columnDimensions
     final ImmutableMap<Dimension, SortOrder> sort
+    final ImmutableMap<Dimension, SortOrder> requestedSort
     // An ordered map, the order is the order in which column dimensions are sorted.
     protected LinkedHashMap<Dimension, SortOrder> columnPriority  // NB: an ordered map
     // A map from dimension to columnDimensions.indexOf(dimension)
@@ -39,12 +40,14 @@ abstract class AbstractDataTable implements DataTable {
     ImmutableList<Dimension> getRowDimensions() { rowDimensions }
     ImmutableList<Dimension> getColumnDimensions() { columnDimensions }
     ImmutableMap<Dimension, SortOrder> getSort() { sort }
+    ImmutableMap<Dimension, SortOrder> getRequestedSort() { requestedSort }
 
     AbstractDataTable(Map args, Hypercube hypercube) {
         requireNonNull this.hypercube = hypercube
-        requireNonNull this.rowDimensions = ImmutableList.<Dimension>copyOf((List) args.rowDimensions)
-        requireNonNull this.columnDimensions = ImmutableList.<Dimension>copyOf((List) args.columnDimensions)
-        requireNonNull this.sort = ImmutableMap.copyOf((Map) args.sort)
+        this.rowDimensions = ImmutableList.<Dimension>copyOf((List) args.rowDimensions)
+        this.columnDimensions = ImmutableList.<Dimension>copyOf((List) args.columnDimensions)
+        this.sort = ImmutableMap.copyOf((Map) args.sort)
+        this.requestedSort = ImmutableMap.copyOf(((Map) args.userSort) ?: [:])
 
         columnIndices = columnDimensions.withIndex().collectEntries()
 

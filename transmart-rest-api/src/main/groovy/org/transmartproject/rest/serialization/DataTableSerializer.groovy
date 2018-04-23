@@ -20,11 +20,7 @@ class DataTableSerializer {
     private PagingDataTable table
 
     static void write(PagingDataTable table, OutputStream out) {
-        write([:], table, out)
-    }
-
-    static void write(Map args, PagingDataTable table, OutputStream out) {
-        new DataTableSerializer().writeData(args, table, out)
+        new DataTableSerializer().writeData(table, out)
     }
 
     void writeColumnHeaders() {
@@ -125,13 +121,13 @@ class DataTableSerializer {
         writer.endArray()
     }
 
-    void writeSorting(Map<Dimension, SortOrder> userSorting) {
+    void writeSorting() {
         writer.name('sorting').beginArray()
         for(def entry : table.sort) {
             writer.beginObject()
             writer.name('dimension').value(entry.key.name)
             writer.name('order').value(entry.value.string())
-            if(entry.key in userSorting) {
+            if(entry.key in table.requestedSort) {
                 writer.name('user_requested').value(true)
             }
             writer.endObject()
@@ -146,7 +142,7 @@ class DataTableSerializer {
         }
     }
 
-    private void writeData(Map args, PagingDataTable table, OutputStream out) {
+    private void writeData(PagingDataTable table, OutputStream out) {
         this.writer = new JsonWriter(new BufferedWriter(
                 new OutputStreamWriter(out),
                 // large 32k chars buffer to reduce overhead
@@ -158,7 +154,7 @@ class DataTableSerializer {
         writeRows()
         writeDimensions('row', table.rowDimensions)
         writeDimensions('column', table.columnDimensions)
-        writeSorting((Map) args.userSorting ?: [:])
+        writeSorting()
         writeOtherKeys()
 
         writer.endObject()

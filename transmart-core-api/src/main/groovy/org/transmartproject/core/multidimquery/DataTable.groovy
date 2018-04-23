@@ -36,6 +36,12 @@ interface DataTable extends AutoCloseable, Closeable {
      * map is an ordered map.
      */
     Map<Dimension, SortOrder> getSort()
+
+    /**
+     * @return the sorting that was requested by the user. The actual sorting used may be more elaborate, see
+     * getSort(). The returned map is an ordered map.
+     */
+    Map<Dimension, SortOrder> getRequestedSort()
 }
 
 /**

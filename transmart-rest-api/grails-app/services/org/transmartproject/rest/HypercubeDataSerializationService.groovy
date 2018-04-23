@@ -82,14 +82,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                 rowDimensions: rowDimensions, columnDimensions: columnDimensions,
                 rowSort: rowSort, columnSort: columnSort, limit: limit, offset: offset)
         try {
-            def userSorting = [:]
-            if(rowSort) {
-                userSorting.put('rowSort', multiDimService.parseSort(rowSort))
-            }
-            if (columnSort) {
-                userSorting.put('columnSort', multiDimService.parseSort(columnSort))
-            }
-            DataTableSerializer.write(datatable, out, userSorting: userSorting)
+            DataTableSerializer.write(datatable, out)
         } finally {
             datatable.close()
         }

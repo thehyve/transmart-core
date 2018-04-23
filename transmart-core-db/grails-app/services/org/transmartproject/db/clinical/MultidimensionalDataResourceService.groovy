@@ -666,6 +666,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         if(invalidColumnSorts) throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
                 " be specified in columnSort "+invalidColumnSorts.join(', '))
 
+        args.userSort = rowSort + columnSort
+
         for(def dim : rowDimensions) {
             rowSort.putIfAbsent(dim, SortOrder.ASC)
         }
