@@ -164,7 +164,8 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
+            "/dimensions/$dimensionName/elements"(controller: 'dimension') {
+                action = [GET: 'list', POST: 'list']
                 apiVersion = 'v2'
             }
             "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {
