@@ -170,6 +170,15 @@ class RestApiUrlMappings {
             "/export/$jobId/run"(method: 'POST', controller: 'export', action: 'run') {
                 apiVersion = "v2"
             }
+            "/export/$jobId/cancel"(method: 'POST', controller: 'export', action: 'cancel') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId"(method: 'DELETE', controller: 'export', action: 'delete') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId"(method: 'GET', controller: 'export', action: 'get') {
+                apiVersion = "v2"
+            }
             "/export/$jobId/download"(method: 'GET', controller: 'export', action: 'download') {
                 apiVersion = "v2"
             }

@@ -10,7 +10,7 @@ Available Parameters
 - `DATA_LOCATION` _Default_: parent directory of the metadata file. The
   directory that functions as the path against which the data files
   referenced in the metadata file are to be found.
-- `HG_VERSION` _Default_: 19. Either 18 or 19. The reference assembly to use.
+- `HG_VERSION` _Default_: 19. Either 18, 19 or 38. The reference assembly to use.
 
 Metadata file
 -------------

@@ -9,6 +9,7 @@ import org.quartz.JobKey
 import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
@@ -22,7 +23,11 @@ class ExportAsyncJobService {
     static String jobType = 'DataExport'
 
     AsyncJobCoreDb getJobById(Long id) {
-        AsyncJobCoreDb.findById(id)
+        def job = AsyncJobCoreDb.findById(id)
+        if (!job) {
+            throw new NoSuchResourceException("Job with id '$id' does not exist.")
+        }
+        return job
     }
 
     List<AsyncJobCoreDb> getJobList(User user) {
@@ -68,44 +73,65 @@ class ExportAsyncJobService {
     }
     
     /**
-     * Cancel a running job
+     * Cancels a job
      */
-    def cancelJob(id, group = null) {
-        def jobStatus = JobStatus.CANCELLED
-        log.debug("Attempting to delete ${id} from the Quartz scheduler")
-        def result = quartzScheduler.deleteJob(new JobKey(id.toString, group))
-        log.debug("Deletion attempt successful? ${result}")
-        
-        updateStatus(id, jobStatus)
+    void cancelJob(Long jobId) {
+        log.info("Canceling job with id ${jobId}.")
+        AsyncJobCoreDb job = getJobById(jobId)
+        if (job.jobStatus == JobStatus.CANCELLED.value) {
+            log.info("Job with ${jobId} id has been cancelled already.")
+            return
+        }
+        if (job.inTerminalStatus) {
+            throw new IllegalStateException("Can't cancel job with ${jobId} id as it has '${job.jobStatus}' status.")
+        }
 
-        JSONObject jsonResult = new JSONObject()
-        jsonResult.put("jobId", id)
-        return jsonResult
+        JobKey jobKey = getJobKeyForId(jobId)
+        if (quartzScheduler.deleteJob(jobKey)) {
+            log.info("${jobKey} job was unscheduled.")
+        }
+        if (quartzScheduler.interrupt(jobKey)) {
+            log.info("${jobKey} job has been interrupted.")
+        }
+        updateStatus(jobId, JobStatus.CANCELLED)
+        log.info("${jobKey} job was marked as cancelled.")
+    }
+
+    /**
+     * Deletes a job after the cancelling it
+     */
+    void deleteJob(Long jobId) {
+        AsyncJobCoreDb job = getJobById(jobId)
+        if (!job.inTerminalStatus) {
+            log.info("Job with id ${jobId} hasn't finished. Try to cancel it first.")
+            try {
+                cancelJob(jobId)
+            } catch (Exception e) {
+                log.error("Can't cancel job with id ${jobId}.", e)
+            }
+        }
+        log.info("Removing job with id ${jobId} from the table.")
+        job.delete()
     }
 
     String getJobUser(Long id) {
-        def asyncJobCoreDb = AsyncJobCoreDb.findById(id)
+        def asyncJobCoreDb = getJobById(id)
         asyncJobCoreDb?.userId
     }
 
     AsyncJobCoreDb updateStatus(Long id, JobStatus status, String viewerURL = null, String results = null) {
-        def asyncJobCoreDb = AsyncJobCoreDb.findById(id)
-        if (isJobCancelled(asyncJobCoreDb)) return asyncJobCoreDb
-
-        asyncJobCoreDb.jobStatus = status.value
-        if (viewerURL?.trim()) asyncJobCoreDb.viewerURL = viewerURL
-        if (results?.trim()) asyncJobCoreDb.results = results
-
-        asyncJobCoreDb.save(flush: true)
-        return asyncJobCoreDb
-    }
-
-    boolean isJobCancelled(AsyncJobCoreDb job) {
-        boolean isJobCancelled = job.jobStatus == JobStatus.CANCELLED.value
-        if (isJobCancelled) {
+        def job = getJobById(id)
+        if (job.jobStatus == JobStatus.CANCELLED.value) {
             log.warn("Job ${job.jobName} has been cancelled")
+            return job
         }
-        isJobCancelled
+
+        job.jobStatus = status.value
+        if (viewerURL?.trim()) job.viewerURL = viewerURL
+        if (results?.trim()) job.results = results
+
+        job.save(flush: true)
+        return job
     }
 
     private static Map createJobDataMap(Constraint constraint, List types, User user, Long jobId, String jobName) {
@@ -118,12 +144,16 @@ class ExportAsyncJobService {
         ]
     }
 
+    private static JobKey getJobKeyForId(Long jobId) {
+        new JobKey(jobId.toString(), 'DataExport')
+    }
+
     private AsyncJobCoreDb executeExportJob(Map dataMap) {
 
         def job
         def jobDataMap = new JobDataMap(dataMap)
         JobDetail jobDetail = JobBuilder.newJob(ExportJobExecutor.class)
-                .withIdentity(dataMap.jobId.toString(), 'DataExport')
+                .withIdentity(getJobKeyForId(dataMap.jobId))
                 .setJobData(jobDataMap)
                 .build()
         def randomDelay = Math.random()*10 as int
