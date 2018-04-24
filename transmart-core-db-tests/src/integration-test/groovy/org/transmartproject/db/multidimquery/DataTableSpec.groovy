@@ -7,6 +7,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -24,6 +25,9 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.user.AccessLevelTestData
+
+import static org.transmartproject.db.clinical.MultidimensionalDataResourceService.toDimensionImpl
+
 
 @Integration
 @Rollback
@@ -79,6 +83,7 @@ class DataTableSpec extends TransmartSpecification {
         table.columnDimensions == [DimensionImpl.TRIAL_VISIT, DimensionImpl.CONCEPT]
         table.rowKeys*.elements*.getAt(1) as Set == (clinicalData.longitudinalClinicalFacts*.patient as Set)
         table.columnKeys*.elements*.getAt(1)*.conceptCode as Set == clinicalData.longitudinalClinicalFacts*.conceptCode as Set
+        table.requestedSort == [:]
         sortDims[DimensionImpl.TRIAL_VISIT] < sortDims[DimensionImpl.CONCEPT]
         sortDims[DimensionImpl.STUDY] < sortDims[DimensionImpl.PATIENT]
         table.columnKeys*.keys*.getAt(0) == table.columnKeys*.keys*.getAt(0).sort(false)
@@ -114,6 +119,7 @@ class DataTableSpec extends TransmartSpecification {
         }
 
         then:
+        sTable.requestedSort == [:]
         sTable.columnKeys == table.columnKeys
         rows*.rowHeader == table.rowKeys
         sTab == tab
@@ -129,10 +135,28 @@ class DataTableSpec extends TransmartSpecification {
         def reverseSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
         
         then:
+        reverseSortTable.requestedSort == ['patient', 'study', 'concept', 'trial visit'].collectEntries {
+            [toDimensionImpl(it), SortOrder.ASC]
+        }
         reverseSortDims[DimensionImpl.TRIAL_VISIT] > reverseSortDims[DimensionImpl.CONCEPT]
         reverseSortDims[DimensionImpl.STUDY] > reverseSortDims[DimensionImpl.PATIENT]
         reverseSortTable.columnKeys*.keys*.getAt(0) == reverseSortTable.columnKeys*.keys*.getAt(0).sort(false)
         reverseSortTable.rowKeys*.keys*.getAt(0) == reverseSortTable.rowKeys*.keys*.getAt(0).sort(false)
+
+        when:
+        PagingDataTable descSortTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
+                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
+                rowSort: [['patient', 'desc'], ['study', 'desc']], columnSort: ['concept', 'trial visit'])
+        def descSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
+
+        then:
+        descSortTable.requestedSort == [(DimensionImpl.PATIENT): SortOrder.DESC, (DimensionImpl.STUDY): SortOrder.DESC,
+                               (DimensionImpl.CONCEPT): SortOrder.ASC, (DimensionImpl.TRIAL_VISIT): SortOrder.ASC]
+        descSortTable.requestedSort.each { dim, sort ->
+            assert descSortTable.sort[dim] == sort
+        }
+        descSortDims[DimensionImpl.TRIAL_VISIT] > descSortDims[DimensionImpl.CONCEPT]
+        descSortDims[DimensionImpl.STUDY] > descSortDims[DimensionImpl.PATIENT]
     }
 
     void testInvalidSort() {
