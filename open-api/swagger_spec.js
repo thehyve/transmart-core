@@ -606,7 +606,7 @@ var spec = {
           {
             "name": "studyIds",
             "in": "query",
-            "description": "a list of study ids of the studies to fetch. Example: `/v2/studies/studyIds?studyIds=GSE8581&studyIds=EHR`",
+            "description": "Json list of strings, with each string being a study name. Example: `/v2/studies/studyIds?studyIds=[\"GSE8581\", \"EHR\"]`",
             "required": true,
             "type": "string"
           }

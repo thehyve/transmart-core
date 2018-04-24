@@ -13,6 +13,7 @@ import org.transmartproject.rest.marshallers.StudyWrapper
 
 import static java.util.Objects.requireNonNull
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
+import static org.transmartproject.rest.misc.RequestUtils.parseJson
 
 class StudyQueryController extends AbstractQueryController {
 
@@ -61,7 +62,7 @@ class StudyQueryController extends AbstractQueryController {
 
     /**
      * Study endpoint:
-     * <code>/v2/studies/studyIds/${studyIds}</code>
+     * <code>/v2/studies/studyId/${studyId}</code>
      *
      * @param id the study id
      *
@@ -87,11 +88,11 @@ class StudyQueryController extends AbstractQueryController {
 
     /**
      * Study endpoint:
-     * <code>/v2/studies/studyIds?studyIds=</code>
+     * <code>/v2/studies/studyIds?studyIds=[]</code>
      *
-     * @param a list of the study names
+     * @param a json-encoded list of the study ids ${studyIds}
      *
-     * @return a list of the {@link org.transmartproject.db.i2b2data.Study} objects with names ${studyIds}
+     * @return a list of the {@link org.transmartproject.db.i2b2data.Study}
      * if all of them exist and the user has access; null otherwise.
      */
     def findStudiesByStudyIds(@RequestParam('api_version') String apiVersion) {
@@ -99,10 +100,13 @@ class StudyQueryController extends AbstractQueryController {
             throw new InvalidArgumentsException("Parameter 'studyIds' is missing.")
         }
         checkForUnsupportedParams(params, ['studyIds'])
-        List<String> studyIdList =  new ArrayList<String>()
-        studyIdList.addAll(params.studyIds)
+        def studyIds = parseJson(params.studyIds) as List
 
-        def studies = studiesResource.getStudiesByStudyIdsForUser(studyIdList, currentUser)
+        if (studyIds.size() == 0) {
+            throw new InvalidArgumentsException("List of study ids is empty.")
+        }
+
+        def studies = studiesResource.getStudiesByStudyIdsForUser(studyIds, currentUser)
 
         respond wrapStudies(apiVersion, studies)
     }
