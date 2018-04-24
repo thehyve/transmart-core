@@ -1858,7 +1858,7 @@ paths:
                 type: string
                 description: |
                     `tableConfig` is only used for data table exports. It must be a JSON map containing the
-                    keys `type`, `constraint`, `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with
+                    keys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with
                     the same meanings and optionality as in the `/v2/observations/table` call.
             required: [ "id", "elements" ]
       responses:

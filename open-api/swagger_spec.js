@@ -2169,7 +2169,7 @@ var spec = {
                 },
                 "tableConfig": {
                   "type": "string",
-                  "description": "`tableConfig` is only used for data table exports. It must be a JSON map containing the\nkeys `type`, `constraint`, `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with\nthe same meanings and optionality as in the `/v2/observations/table` call.\n"
+                  "description": "`tableConfig` is only used for data table exports. It must be a JSON map containing the\nkeys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with\nthe same meanings and optionality as in the `/v2/observations/table` call.\n"
                 }
               },
               "required": [
