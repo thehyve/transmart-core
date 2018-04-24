@@ -2165,11 +2165,7 @@ var spec = {
                 },
                 "elements": {
                   "type": "string",
-                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,\nwhere `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,\nor one of the supported high dimensional data types and `format` is one of the supported file formats\nyou want to export current data type to. The tabular flag (optional, false by default) specifies whether\nrepresent hypercube data as wide filer format where patients are rows and columns are variables.\nExample: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.\n\n`dataView` is optional, it can be `\"surveyTable\"` or `\"dataTable\"`, resulting in either a survey\ntable or a data table export. When not set the export will default to a plain hypercube export.\n"
-                },
-                "tableConfig": {
-                  "type": "string",
-                  "description": "`tableConfig` is only used for data table exports. It must be a JSON map containing the\nkeys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with\nthe same meanings and optionality as in the `/v2/observations/table` call.\n"
+                  "description": "json that specifies the list of pairs:\n`[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}, tableConfig:${tableConfig}]`,\nwhere `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,\nor one of the supported high dimensional data types and `format` is one of the supported file formats\nyou want to export current data type to. The tabular flag (optional, false by default) specifies whether\nrepresent hypercube data as wide filer format where patients are rows and columns are variables.\nExample: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.\n\n`dataView` is optional, it can be `\"surveyTable\"` or `\"dataTable\"`, resulting in either a survey\ntable or a data table export. When not set the export will default to a plain hypercube export.\n\n`tableConfig` is only used for data table exports. It must be a JSON map containing the\nkeys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with\nthe same meanings and optionality as in the `/v2/observations/table` call.\n"
                 }
               },
               "required": [

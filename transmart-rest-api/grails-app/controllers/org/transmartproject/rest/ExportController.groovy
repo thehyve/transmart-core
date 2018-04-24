@@ -62,12 +62,12 @@ class ExportController {
      *          format: "<TSV/SPSS/...>" //supported file format
      *          dataView: "<data view>" //optional
      *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
-     *      }
-     *      tableConfig: { //additional config, required for the data table export
-     *          rowDimensions: [ "<list of dimension names>" ] //specifies the row dimensions of the data table
-     *          columnDimensions: [ "<list of dimension names>" ] //specifies the column dimensions of the data table
-     *          rowSort: [ "<list of sort specifications>" ] // Json list of sort specifications for the row dimensions
-     *          columnSort: [ "<list of sort specifications>" ] // Json list of sort specifications for the column dimensions
+     *          tableConfig: { //additional config, required for the data table export
+     *              rowDimensions: [ "<list of dimension names>" ] //specifies the row dimensions of the data table
+     *              columnDimensions: [ "<list of dimension names>" ] //specifies the column dimensions of the data table
+     *              rowSort: [ "<list of sort specifications>" ] // Json list of sort specifications for the row dimensions
+     *              columnSort: [ "<list of sort specifications>" ] // Json list of sort specifications for the column dimensions
+     *          }
      *      }
      * }
      * </code>
@@ -82,8 +82,7 @@ class ExportController {
     def run(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
         def requestBody = request.JSON as Map
-        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint', 'includeMeasurementDateColumns',
-                                                         'tableConfig']
+        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint', 'includeMeasurementDateColumns']
         if (notSupportedFields) {
             throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
         }
@@ -93,14 +92,16 @@ class ExportController {
         if (!requestBody.elements) {
             throw new InvalidArgumentsException("No elements provided.")
         }
-        if (requestBody.elements.any { it.dataView == 'dataTable' }) {
-            if (!requestBody.tableConfig) {
-                throw new InvalidArgumentsException("No tableConfig provided.")
-            }
-            def config = requestBody.tableConfig
-            [rowDimensions: config.rowDimensions, columnDimensions: config.columnDimensions].each { name, list ->
-                if (!list instanceof List || list.any { !it instanceof String }) {
-                    throw new InvalidArgumentsException("$name must be a JSON array of strings")
+        requestBody.elements.each {
+            if(it.dataView == 'dataTable') {
+                if (!it.tableConfig) {
+                    throw new InvalidArgumentsException("No tableConfig provided.")
+                }
+                def config = it.tableConfig
+                [rowDimensions: config.rowDimensions, columnDimensions: config.columnDimensions].each { name, list ->
+                    if (!list instanceof List || list.any { !it instanceof String }) {
+                        throw new InvalidArgumentsException("$name must be a JSON array of strings")
+                    }
                 }
             }
         }
@@ -117,8 +118,7 @@ class ExportController {
         Constraint constraint = ConstraintFactory.create(requestBody.constraint).normalise()
 
         def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId,
-                includeMeasurementDateColumns: requestBody.includeMeasurementDateColumns,
-                tableConfig: requestBody.tableConfig )
+                includeMeasurementDateColumns: requestBody.includeMeasurementDateColumns)
 
         render wrapExportJob(job) as JSON
     }

@@ -59,7 +59,9 @@ class ExportService {
 
             if (dataType == 'clinical') {
                 try {
-                    dataSerializer.writeClinical(outFormat, constraint, user, output, jobDataMap)
+                    def typeOptions = new LinkedHashMap(typeFormatPair)
+                    typeOptions.keySet().removeAll(['format', 'dataType', 'dataView'])
+                    dataSerializer.writeClinical(outFormat, constraint, user, output, jobDataMap + typeOptions)
                 } catch (LegacyStudyException e) {
                     throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
                 }
