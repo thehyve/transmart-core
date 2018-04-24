@@ -8,7 +8,9 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 
+import java.sql.Timestamp
 import java.time.Instant
+import java.time.ZoneId
 
 /**
  * <code>
@@ -164,6 +166,9 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
             writer.nullValue()
         } else if (value instanceof String) {
             writer.value((String) value)
+        } else if (value instanceof Timestamp) {
+            def time = ((Timestamp)value).toLocalDateTime().atZone(ZoneId.of("GMT")).toInstant().toString()
+            writer.value(time)
         } else if (value instanceof Date) {
             def time = Instant.ofEpochMilli(((Date) value).time).toString()
             writer.value(time)
