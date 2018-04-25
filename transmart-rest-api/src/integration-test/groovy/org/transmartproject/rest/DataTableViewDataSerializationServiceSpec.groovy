@@ -2,20 +2,16 @@ package org.transmartproject.rest
 
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.ImmutableMap
-import com.opencsv.CSVParserBuilder
 import com.opencsv.CSVReader
-import com.opencsv.CSVReaderBuilder
 import com.opencsv.CSVWriter
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
-import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
@@ -23,15 +19,13 @@ import org.transmartproject.db.multidimquery.PropertyImpl
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.serialization.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
-import spock.lang.Specification
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-
 @Integration
 @Rollback
-class DataTableViewDataSerializationServiceSpec extends Specification {
+class DataTableViewDataSerializationServiceSpec extends BaseSpec {
 
     TestData testData
     ClinicalTestData clinicalData
@@ -42,7 +36,8 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     DataTableViewDataSerializationService serializationService
 
     void setupData() {
-        TestData.clearAllData()
+        // do not TestData.clearAllData() here, that destroys the data other tests rely on.
+        TestData.clearAllDataInTransaction()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
