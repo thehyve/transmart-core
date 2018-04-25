@@ -28,4 +28,4 @@ package org.transmartproject.rest
 import spock.lang.Specification
 
 // I have no idea why this helps, but some tests make other tests fail if they don't inherit from something
-abstract class BaseSpec extends Specification { }
+abstract class BaseSpec2 extends Specification { }

@@ -25,7 +25,15 @@
 
 package org.transmartproject.rest
 
+import grails.test.mixin.integration.Integration
+import grails.test.runtime.FreshRuntime
+import grails.transaction.Rollback
+import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
 // I have no idea why this helps, but some tests make other tests fail if they don't inherit from something
+@FreshRuntime
+@Rollback
+@Integration
+@Slf4j
 abstract class BaseSpec extends Specification { }

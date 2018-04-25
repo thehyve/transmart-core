@@ -23,7 +23,7 @@ import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-@Integration
+//@Integration
 @Rollback
 class DataTableViewDataSerializationServiceSpec extends BaseSpec {
 
