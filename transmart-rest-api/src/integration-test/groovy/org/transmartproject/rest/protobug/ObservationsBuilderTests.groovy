@@ -3,10 +3,12 @@
 package org.transmartproject.rest.protobug
 
 import grails.test.mixin.integration.Integration
+import grails.test.runtime.FreshRuntime
 import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.transaction.annotation.Transactional
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
@@ -16,6 +18,8 @@ import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.user.AccessLevelTestData
+import org.transmartproject.rest.BaseSpec
+import org.transmartproject.rest.ResourceSpec
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer
 import org.transmartproject.rest.serialization.DataTableSerializer
@@ -37,7 +41,7 @@ import static org.hamcrest.Matchers.*
 @Integration
 @Rollback
 @Slf4j
-class ObservationsBuilderTests extends Specification {
+class ObservationsBuilderTests extends BaseSpec {
 
     TestData testData
     ClinicalTestData clinicalData
@@ -49,7 +53,7 @@ class ObservationsBuilderTests extends Specification {
 
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.clearAllDataInTransaction()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
