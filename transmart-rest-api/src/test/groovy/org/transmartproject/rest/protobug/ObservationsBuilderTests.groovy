@@ -19,7 +19,6 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.BaseSpec
-import org.transmartproject.rest.ResourceSpec
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer
 import org.transmartproject.rest.serialization.DataTableSerializer
