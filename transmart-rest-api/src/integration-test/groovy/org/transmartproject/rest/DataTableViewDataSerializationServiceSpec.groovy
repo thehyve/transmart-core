@@ -37,7 +37,10 @@ class DataTableViewDataSerializationServiceSpec extends BaseSpec {
 
     void setupData() {
         // do not TestData.clearAllData() here, that destroys the data other tests rely on.
-        TestData.clearAllDataInTransaction()
+
+        // We should call TestData.clearAllDataInTransaction(), but that still breaks other tests on Travis. This
+        // test doesn't depend on having other data cleared.
+        //TestData.clearAllDataInTransaction()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
