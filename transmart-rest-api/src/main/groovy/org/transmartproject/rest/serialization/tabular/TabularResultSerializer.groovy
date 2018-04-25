@@ -19,10 +19,6 @@
 package org.transmartproject.rest.serialization.tabular
 
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.multidimquery.StreamingDataTable
-import org.transmartproject.core.users.User
-
-import java.util.zip.ZipOutputStream
 
 /**
  * Writes tabular data to an output.
