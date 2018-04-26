@@ -4,7 +4,6 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.ImmutableMap
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
-import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Dimension
@@ -16,37 +15,33 @@ import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.PropertyImpl
-import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.serialization.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-@Integration
 @Rollback
 class DataTableViewDataSerializationServiceSpec extends BaseSpec {
 
     TestData testData
     ClinicalTestData clinicalData
-    AccessLevelTestData accessLevelTestData
     User adminUser
 
     @Autowired
     DataTableViewDataSerializationService serializationService
 
     void setupData() {
-        // do not TestData.clearAllData() here, that destroys the data other tests rely on.
-        TestData.clearAllDataInTransaction()
-
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
-        accessLevelTestData = new AccessLevelTestData()
-        accessLevelTestData.saveAuthorities()
-        adminUser = accessLevelTestData.users[0]
+        adminUser = BootStrap.accessLevelTestData.users[0]
     }
 
+    void cleanup() {
+        TestData.clearAllData()
+        BootStrap.setupTestData()
+    }
 
     void testBasicSerialization() {
         setupData()
