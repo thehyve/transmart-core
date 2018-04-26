@@ -3,6 +3,9 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.db.storage.StorageSystem
 import spock.lang.Ignore
 
 /**
@@ -14,6 +17,18 @@ class StorageControllerSpec extends ResourceSpec {
     public static final String FILES_COLLECTION_NAME = 'files'
     public static final String STORAGE_SYSTEM_COLLECTION_NAME = 'storageSystems'
 
+
+    @Autowired
+    SessionFactory sessionFactory
+
+    StorageSystem testStorageSystem() {
+        BootStrap.testData.storageTestData.storageSystemList[0]
+    }
+
+    StorageSystem testStorageSystem2() {
+        BootStrap.testData.storageTestData.storageSystemList[1]
+    }
+
     void storageIndexTest() {
         when:
         def response = get "/$VERSION/files"
@@ -24,7 +39,7 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[FILES_COLLECTION_NAME][0].name == '1000 genemes VCFs'
         response.json[FILES_COLLECTION_NAME][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
         response.json[FILES_COLLECTION_NAME][0].study == 'storage_study'
-        response.json[FILES_COLLECTION_NAME][0].sourceSystem == 1
+        response.json[FILES_COLLECTION_NAME][0].sourceSystem == testStorageSystem().id
     }
 
     /**
@@ -36,7 +51,7 @@ class StorageControllerSpec extends ResourceSpec {
     void postFileLinkTest() {
         when:
         def bodyContent = ['name'        : 'new file Link',
-                           'sourceSystem': 1,
+                           'sourceSystem': testStorageSystem().id,
                            'study'       : 'storage_study2',
                            'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc'] as JSON
         def postResponse = post "/$VERSION/files", {
@@ -51,7 +66,7 @@ class StorageControllerSpec extends ResourceSpec {
         indexResponse.json[FILES_COLLECTION_NAME][1].name == 'new file Link'
         indexResponse.json[FILES_COLLECTION_NAME][1].uuid == 'aaaaa-bbbbb-ccccccccccccccc'
         indexResponse.json[FILES_COLLECTION_NAME][1].study == 'storage_study2'
-        indexResponse.json[FILES_COLLECTION_NAME][1].sourceSystem == 1
+        indexResponse.json[FILES_COLLECTION_NAME][1].sourceSystem == testStorageSystem().id
     }
 
     def singleGetTest() {
@@ -64,7 +79,7 @@ class StorageControllerSpec extends ResourceSpec {
         response.json['name'] == '1000 genemes VCFs'
         response.json['uuid'] == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
         response.json['study'] == 'storage_study'
-        response.json['sourceSystem'] == 1
+        response.json['sourceSystem'] == testStorageSystem().id
     }
 
     void indexByStudyTest() {
@@ -78,7 +93,7 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[expectedCollectionName][0].name == '1000 genemes VCFs'
         response.json[expectedCollectionName][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
         response.json[expectedCollectionName][0].study == 'storage_study'
-        response.json[expectedCollectionName][0].sourceSystem == 1
+        response.json[expectedCollectionName][0].sourceSystem == testStorageSystem().id
     }
 
     /**
@@ -139,7 +154,7 @@ class StorageControllerSpec extends ResourceSpec {
         def indexResponse = get("/$VERSION/files")
         int fileId = indexResponse.json[FILES_COLLECTION_NAME][0].id
         def bodyContent = ['name'        : 'updated name',
-                           'sourceSystem': 1,
+                           'sourceSystem': testStorageSystem().id,
                            'study'       : 'storage_study2',
                            'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc'] as JSON
         def before = get "/$VERSION/files/$fileId"
@@ -178,9 +193,10 @@ class StorageControllerSpec extends ResourceSpec {
 
     def storageSystemDeleteTest() {
         when:
-        def beforeResponse = get("/$VERSION/storage/2")
-        def deleteResponse = delete("/$VERSION/storage/2")
-        def afterResponse = get("/$VERSION/storage/2")
+        def storageId = testStorageSystem2().id
+        def beforeResponse = get("/$VERSION/storage/${storageId}")
+        def deleteResponse = delete("/$VERSION/storage/${storageId}")
+        def afterResponse = get("/$VERSION/storage/${storageId}")
         then:
         beforeResponse.status == 200
         deleteResponse.status == 204
