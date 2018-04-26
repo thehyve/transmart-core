@@ -28,6 +28,8 @@ class RoleCoreDb {
 
     static mapping = {
         table schema: 'searchapp', name: 'search_role'
+
+        id    column: 'id', generator: 'assigned'
     }
 
     static constraints = {
