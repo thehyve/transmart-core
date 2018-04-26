@@ -15,13 +15,13 @@ import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.db.user.AccessLevelTestData
-import org.transmartproject.rest.BaseSpec2
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.serialization.DataTableSerializer
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import spock.lang.Ignore
+import spock.lang.Specification
 
 import java.util.zip.ZipOutputStream
 
@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.*
 @Integration
 @Rollback
 @Slf4j
-class ObservationsBuilderTests extends BaseSpec2 {
+class ObservationsBuilderTests extends Specification {
 
     TestData testData
     ClinicalTestData clinicalData
