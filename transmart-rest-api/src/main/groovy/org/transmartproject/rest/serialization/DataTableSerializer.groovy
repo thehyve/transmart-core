@@ -1,11 +1,15 @@
 package org.transmartproject.rest.serialization
 
+import com.google.common.collect.Table
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.DataTable
+import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.PagingDataTable
 
 import java.time.Instant
 
@@ -13,14 +17,10 @@ import java.time.Instant
 class DataTableSerializer {
 
     private JsonWriter writer
-    private DataTable table
+    private PagingDataTable table
 
-    static void write(DataTable table, OutputStream out) {
-        write([:], table, out)
-    }
-
-    static void write(Map args, DataTable table, OutputStream out) {
-        new DataTableSerializer().writeData(args, table, out)
+    static void write(PagingDataTable table, OutputStream out) {
+        new DataTableSerializer().writeData(table, out)
     }
 
     void writeColumnHeaders() {
@@ -79,10 +79,21 @@ class DataTableSerializer {
         writer.endArray()
 
         writer.name('row').beginArray()
-        def row = table.row(rowHeader)
+        def row = ((Table<DataTableRow, DataTableColumn, Collection<HypercubeValue>> /*work around compiler bug*/)
+                        table).row(rowHeader)
         for(def column : table.columnKeys) {
-            def cell = row[column]
-            writeValue(cell?.value)
+            def cells = row[column]
+            if(cells == null || cells.size() == 0) {
+                writer.nullValue()
+            } else if(cells.size() == 1) {
+                writeValue(cells[0].value)
+            } else {
+                writer.beginArray()
+                for(def hv : cells) {
+                    writeValue(hv?.value)
+                }
+                writer.endArray()
+            }
         }
         writer.endArray()
 
@@ -110,13 +121,13 @@ class DataTableSerializer {
         writer.endArray()
     }
 
-    void writeSorting(Map<Dimension, SortOrder> userSorting) {
+    void writeSorting() {
         writer.name('sorting').beginArray()
         for(def entry : table.sort) {
             writer.beginObject()
             writer.name('dimension').value(entry.key.name)
             writer.name('order').value(entry.value.string())
-            if(entry.key in userSorting) {
+            if(entry.key in table.requestedSort) {
                 writer.name('user_requested').value(true)
             }
             writer.endObject()
@@ -131,7 +142,7 @@ class DataTableSerializer {
         }
     }
 
-    private void writeData(Map args, DataTable table, OutputStream out) {
+    private void writeData(PagingDataTable table, OutputStream out) {
         this.writer = new JsonWriter(new BufferedWriter(
                 new OutputStreamWriter(out),
                 // large 32k chars buffer to reduce overhead
@@ -143,7 +154,7 @@ class DataTableSerializer {
         writeRows()
         writeDimensions('row', table.rowDimensions)
         writeDimensions('column', table.columnDimensions)
-        writeSorting((Map) args.userSorting ?: [:])
+        writeSorting()
         writeOtherKeys()
 
         writer.endObject()

@@ -636,15 +636,27 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    DataTableImpl retrieveDataTable(Map args, String type, Constraint constraint, User user) {
+    PagingDataTableImpl retrieveDataTable(Map args, String type, Constraint constraint, User user) {
+        args = parseDataTableArgs(args, type)
+        Hypercube cube = retrieveClinicalData(args, constraint, user)
+        return new PagingDataTableImpl(args, cube)
+    }
+
+    FullDataTable retrieveStreamingDataTable(Map args, String type, Constraint constraint, User user) {
+        args = parseDataTableArgs(args, type)
+        Hypercube cube = retrieveClinicalData(args, constraint, user)
+        return new FullDataTable(args, cube)
+    }
+
+    private Map parseDataTableArgs(Map args, String type) {
         if(type != 'clinical') throw new OperationNotImplementedException("High dimensional data is not supported in " +
                 "data table format")
 
         def rowSort = parseSort(args.rowSort)
         def columnSort = parseSort(args.columnSort)
-        def rowDimensions = args.rowDimensions = (List) requireNonNull(
+        List<DimensionImpl> rowDimensions = args.rowDimensions = (List) requireNonNull(
                 args.rowDimensions?.collect { toDimensionImpl(it) })
-        def columnDimensions = args.columnDimensions = (List) requireNonNull(
+        List<DimensionImpl> columnDimensions = args.columnDimensions = (List) requireNonNull(
                 args.columnDimensions?.collect { toDimensionImpl(it) })
 
         def invalidRowSorts = rowSort ? rowSort.keySet() - rowDimensions : null
@@ -653,6 +665,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         def invalidColumnSorts = columnSort ? columnSort.keySet() - columnDimensions : null
         if(invalidColumnSorts) throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
                 " be specified in columnSort "+invalidColumnSorts.join(', '))
+
+        args.userSort = rowSort + columnSort
 
         for(def dim : rowDimensions) {
             rowSort.putIfAbsent(dim, SortOrder.ASC)
@@ -664,11 +678,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         args.sort = rowSort + columnSort
         args.dimensions = rowDimensions + columnDimensions
 
-        Hypercube cube = retrieveClinicalData(args, constraint, user)
-
-        DataTableImpl table = new DataTableImpl(args, cube)
-
-        table
+        args
     }
 
     @Override

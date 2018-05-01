@@ -1,15 +1,11 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
-import com.google.common.collect.HashBasedTable
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
-import com.google.common.collect.Lists
 import com.google.common.collect.PeekingIterator
-import com.google.common.collect.Table
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.Immutable
 import groovy.transform.ToString
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.DataTable
@@ -22,49 +18,36 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import static java.util.Objects.requireNonNull
 
 @CompileStatic
-class DataTableImpl implements DataTable {
+abstract class AbstractDataTable implements DataTable {
 
     final Hypercube hypercube
     final ImmutableList<Dimension> rowDimensions, columnDimensions
     final ImmutableMap<Dimension, SortOrder> sort
-    final long offset
-    final int limit
-
-    private PeekingIterator<HypercubeValue> hypercubeIter
+    final ImmutableMap<Dimension, SortOrder> requestedSort
     // An ordered map, the order is the order in which column dimensions are sorted.
-    private LinkedHashMap<Dimension, SortOrder> columnPriority  // NB: an ordered map
+    protected LinkedHashMap<Dimension, SortOrder> columnPriority  // NB: an ordered map
     // A map from dimension to columnDimensions.indexOf(dimension)
-    private Map<Dimension, Integer> columnIndices
+    protected Map<Dimension, Integer> columnIndices
 
-    @Lazy @Delegate
-    Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> table = buildTable()
-
-    @Lazy
-    List<DataTableRowImpl> rowKeys = rowKeySet().sort(false)
-
-    @Lazy
-    List<DataTableColumnImpl> columnKeys = columnKeySet().sort(false)
+    abstract List<DataTableColumnImpl> getColumnKeys()
 
     /**
      * The total number of rows in this result; only set when known
      */
     Long totalRowCount
 
-    // The @Lazy somehow fails to generate these bridge methods
-    Map<DataTableRowImpl, HypercubeValue> column(columnKey) { table.column((DataTableColumnImpl) columnKey) }
-    Map<DataTableColumnImpl, HypercubeValue> row(rowKey) { table.row((DataTableRowImpl) rowKey) }
-    HypercubeValue put(rowKey, columnKey, value) {
-        table.put((DataTableRowImpl) rowKey, (DataTableColumnImpl) columnKey, (HypercubeValue) value)
-    }
+    // without an explicit getter the generated getters are final and for some reason PagingDataTable generates overrides
+    ImmutableList<Dimension> getRowDimensions() { rowDimensions }
+    ImmutableList<Dimension> getColumnDimensions() { columnDimensions }
+    ImmutableMap<Dimension, SortOrder> getSort() { sort }
+    ImmutableMap<Dimension, SortOrder> getRequestedSort() { requestedSort }
 
-    DataTableImpl(Map args, Hypercube hypercube) {
+    AbstractDataTable(Map args, Hypercube hypercube) {
         requireNonNull this.hypercube = hypercube
-        this.hypercubeIter = this.hypercube.iterator()
-        requireNonNull this.rowDimensions = ImmutableList.<Dimension>copyOf((List) args.rowDimensions)
-        requireNonNull this.columnDimensions = ImmutableList.<Dimension>copyOf((List) args.columnDimensions)
-        requireNonNull this.sort = ImmutableMap.copyOf((Map) args.sort)
-        this.offset = (long) (args.offset ?: 0)
-        requireNonNull this.limit = (int) args.limit
+        this.rowDimensions = ImmutableList.<Dimension>copyOf((List) args.rowDimensions)
+        this.columnDimensions = ImmutableList.<Dimension>copyOf((List) args.columnDimensions)
+        this.sort = ImmutableMap.copyOf((Map) args.sort)
+        this.requestedSort = ImmutableMap.copyOf(((Map) args.userSort) ?: [:])
 
         columnIndices = columnDimensions.withIndex().collectEntries()
 
@@ -80,52 +63,8 @@ class DataTableImpl implements DataTable {
         for(def dim : columnDimensions) { columnPriority.putIfAbsent(dim, SortOrder.ASC) }
     }
 
-    private Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> buildTable() {
-        def deque = new ArrayDeque<List<HypercubeValue>>(limit+1)
 
-        def rowIter = new RowIterator()
-
-        long startOffset = 0
-        long toload = offset+limit
-        while(toload && rowIter.hasNext()) {
-            deque.add(rowIter.next())
-            toload--
-            if(deque.size() > limit) {
-                deque.removeFirst()
-                startOffset++
-            }
-        }
-        if(!rowIter.hasNext()) {
-            totalRowCount = startOffset + deque.size()
-        }
-
-        def rows = Lists.newArrayList(deque)
-
-        Table<DataTableRowImpl, DataTableColumnImpl, HypercubeValue> table = HashBasedTable.create()
-
-        for(int i=0; i<rows.size(); i++) {
-            for(def hv : rows[i]) {
-                List elems = []
-                List keys = []
-                for(def dim : rowDimensions) {
-                    elems.add(hv[dim])
-                    keys.add(hv.getDimKey(dim))
-                }
-                def row = new DataTableRowImpl(startOffset+i, elems, keys)
-                elems.clear()
-                keys.clear()
-                for(def dim: columnDimensions) {
-                    elems.add(hv[dim])
-                    keys.add(hv.getDimKey(dim))
-                }
-                def column = new DataTableColumnImpl(elems, keys)
-
-                table.put(row, column, hv)
-            }
-        }
-        table
-    }
-
+    DataTableColumnImpl newDataTableColumnImpl(List elements, List keys) { new DataTableColumnImpl(elements, keys) }
     @ToString(includes=['keys'], includeNames=true, includePackage=false)
     @EqualsAndHashCode(includes=["keys"])
     class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
@@ -176,7 +115,15 @@ class DataTableImpl implements DataTable {
         }
     }
 
+
+    RowIterator newRowIterator() { return new RowIterator() }
     class RowIterator extends AbstractIterator<List<HypercubeValue>> {
+
+        PeekingIterator<HypercubeValue> hypercubeIter
+
+        RowIterator() {
+            hypercubeIter = hypercube.iterator()
+        }
 
         @Override
         List<HypercubeValue> computeNext() {
@@ -201,7 +148,7 @@ class DataTableImpl implements DataTable {
         }
 
         private boolean sameGroup(List key, HypercubeValue cell) {
-            // if there are no column dimensions, all cells are a separate row
+            // if there are no row dimensions, all cells are a separate row
             if (!rowDimensions) return false
 
             for(int i=0; i<rowDimensions.size(); i++) {

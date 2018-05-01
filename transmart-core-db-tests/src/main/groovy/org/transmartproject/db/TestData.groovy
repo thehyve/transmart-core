@@ -150,24 +150,39 @@ class TestData {
     }
 
     @Lazy
-    static List<String> h2TruncateScript = {
+    static List<String> allTables = {
         SessionFactory sessionFactory = Holders.applicationContext.getBean(SessionFactory)
         List<Class> domainClasses = Holders.grailsApplication.getArtefacts("Domain")*.clazz
         List<String> tables = domainClasses.collect { sessionFactory.getClassMetadata(it).tableName }
 
-        def commands = tables.collect { "TRUNCATE TABLE $it;".toString() }
-        commands
+        tables
     }()
 
-    static void clearAllData() {
+    /**
+     * Clear data, but only within the current transaction. When this transaction ends (e.g. at the end of the
+     * current test case), the original data is visible again.
+     * Note that if your test makes a rest api call, the call will be handled in a different thread and a different
+     * transaction, so in that case this method won't help you.
+     */
+    static void clearAllDataInTransaction() {
+        clearAllData(true)
+    }
+
+    /**
+     * Clear data globally, visible over all connections and transactions. You will need to restore any data manually
+     * after calling this.
+     * @param currentTransactionOnly false. When true, deletes only happen in the current transaction, but then you
+     * should use clearAllDataInTransaction() instead.
+     */
+    static void clearAllData(boolean currentTransactionOnly=false) {
         reset()
 
         Session session = Holders.applicationContext.getBean(SessionFactory).currentSession
         session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate()
 
-        getH2TruncateScript().each {
+        allTables.each {
             try {
-                session.createSQLQuery(it).executeUpdate()
+                session.createSQLQuery(currentTransactionOnly ? "DELETE FROM $it;" : "TRUNCATE TABLE $it;").executeUpdate()
             } catch(GenericJDBCException e) {
                 //ignore CANNOT TRUNCATE xxx, as several domain classes are backed by views
             }

@@ -7,6 +7,7 @@ import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.rest.DataTableViewDataSerializationService
 import org.transmartproject.rest.HypercubeDataSerializationService
 import org.transmartproject.rest.SurveyTableViewDataSerializationService
 import org.transmartproject.rest.serialization.DataSerializer
@@ -28,6 +29,9 @@ class ExportService {
     @Autowired
     SurveyTableViewDataSerializationService surveyTableViewDataSerializationService
 
+    @Autowired
+    DataTableViewDataSerializationService dataTableViewDataSerializationService
+
     Set<Format> getSupportedFormats(String dataView) {
         Set<Format> supportedExportFormats = new LinkedHashSet<Format>(exportFormats)
         supportedExportFormats.retainAll(getDataSerializerByDataView(dataView).supportedFormats)
@@ -43,7 +47,7 @@ class ExportService {
         return exportJobExecutor.getExportJobFileStream(job.viewerURL)
     }
 
-    def exportData(Map jobDataMap, ZipOutputStream output) {
+    def exportData(Map jobDataMap, OutputStream output) {
 
         List<Map> dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList.flatten()
         org.transmartproject.core.users.User user = jobDataMap.user
@@ -76,6 +80,8 @@ class ExportService {
     DataSerializer getDataSerializerByDataView(String dataView) {
         if (dataView == 'surveyTable') {
             surveyTableViewDataSerializationService
+        } else if (dataView == 'dataTable') {
+            dataTableViewDataSerializationService
         } else {
             hypercubeDataSerializationService
         }

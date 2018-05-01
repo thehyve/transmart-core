@@ -22,7 +22,7 @@ class ExportJobExecutor implements InterruptableJob, AutoCloseable {
     ExportAsyncJobService asyncJobService = ctx.exportAsyncJobService
     PersistenceContextInterceptor interceptor = ctx.persistenceInterceptor
 
-    ZipOutputStream zipFile
+    FileOutputStream zipFile
 
     @Override
     void execute(JobExecutionContext jobExecutionContext) {
@@ -45,7 +45,7 @@ class ExportJobExecutor implements InterruptableJob, AutoCloseable {
         String jobName = jobDataMap.jobName
         User user = jobDataMap.user
         String file = getFilePath(user, "${jobName}.zip")
-        zipFile = new ZipOutputStream(new FileOutputStream(file))
+        zipFile = new FileOutputStream(file)
         asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
         exportService.exportData(jobDataMap, zipFile)
         asyncJobService.updateStatus(jobId, JobStatus.COMPLETED, file.toString())
