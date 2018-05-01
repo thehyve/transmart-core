@@ -276,5 +276,62 @@ CREATE VIEW biomart_user.folder_study_mapping AS
      JOIN study_nodes s ON ((s.unique_id = upper((map.unique_id)::text))))
   WHERE (map.unique_id IS NOT NULL);
 
+--
+-- Name: patient_num_boundaries; Type: VIEW; Schema: biomart_user; Owner: -
+--
+CREATE VIEW biomart_user.patient_num_boundaries AS
+WITH boundaries AS (
+SELECT MIN(patient_num) AS min_patient_num, MAX(patient_num) as max_patient_num FROM i2b2demodata.patient_dimension
+)
+SELECT
+  boundaries.min_patient_num,
+  boundaries.max_patient_num,
+  lpad('1', (boundaries.max_patient_num - boundaries.min_patient_num + 1)::integer, '0')::bit varying AS one
+FROM boundaries;
+
+--
+-- Name: study_concept_bitset; Type: MATERIALIZED VIEW; Schema: biomart_user; Owner: -
+--
+CREATE MATERIALIZED VIEW biomart_user.study_concept_bitset AS
+SELECT
+  s.study_id AS study_id,
+  o.concept_cd AS concept_cd,
+  bit_or(patient_num_boundaries.one << (o.patient_num - patient_num_boundaries.min_patient_num)::INTEGER) AS patient_set_bits
+FROM patient_num_boundaries, i2b2demodata.observation_fact o
+JOIN i2b2demodata.trial_visit_dimension tv ON o.trial_visit_num = tv.trial_visit_num
+JOIN i2b2demodata.study s ON s.study_num = tv.study_num
+WHERE o.modifier_cd = '@'
+GROUP BY s.study_id, o.concept_cd;
 
 SET default_with_oids = false;
+
+--
+-- Name: subject_counts_per_study_and_concept(p_result_instance_id NUMERIC, p_study_ids VARCHAR[]); Type: FUNCTION; Schema: biomart_user; Owner: -
+--
+CREATE FUNCTION biomart_user.subject_counts_per_study_and_concept(p_result_instance_id NUMERIC, p_study_ids VARCHAR[]) RETURNS TABLE (
+ study_id VARCHAR,
+ concept_cd VARCHAR,
+ patient_count INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+  IF NOT EXISTS (SELECT 1 FROM biomart_user.patient_set_bitset WHERE result_instance_id = p_result_instance_id) THEN
+    INSERT INTO biomart_user.patient_set_bitset SELECT
+          collection.result_instance_id AS result_instance_id,
+          (bit_or(patient_num_boundaries.one << (collection.patient_num - patient_num_boundaries.min_patient_num)::INTEGER)) AS patient_set
+    FROM biomart_user.patient_num_boundaries, i2b2demodata.qt_patient_set_collection collection
+    WHERE collection.result_instance_id = p_result_instance_id
+    GROUP BY collection.result_instance_id;
+  END IF;
+
+  RETURN QUERY SELECT
+      scs.study_id,
+      scs.concept_cd,
+      --less eficient length(replace((bitset_result)::text, '0', '')) could be used instead pg_bitcount ext. function.
+      public.pg_bitcount(scs.patient_set_bits & psb.patient_set)
+  FROM biomart_user.study_concept_bitset scs, biomart_user.patient_set_bitset psb
+  WHERE psb.result_instance_id = p_result_instance_id AND scs.study_id = ANY(p_study_ids);
+END;
+$$;
