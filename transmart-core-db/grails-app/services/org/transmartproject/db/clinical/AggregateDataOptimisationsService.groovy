@@ -15,7 +15,6 @@ import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.User
 
-import java.sql.Array
 import java.sql.Connection
 import java.util.stream.Collectors
 
@@ -42,7 +41,7 @@ class AggregateDataOptimisationsService {
      */
     @Memoized
     boolean isCountsPerStudyAndConceptForPatientSetEnabled() {
-        dbFunctionExists('biomart_user', 'subject_counts_per_study_and_concept')
+        dbViewExists('biomart_user', 'study_concept_patient_set_bitset')
     }
 
     /**
@@ -68,8 +67,9 @@ class AggregateDataOptimisationsService {
                     study_id,
                     concept_cd,
                     patient_count
-                   from biomart_user.subject_counts_per_study_and_concept(:result_instance_id, :study_ids)''',
-                [result_instance_id: resultInstanceId, study_ids: createArrayOfStrings(studyIds)])
+                   from biomart_user.study_concept_patient_set_bitset
+                   where result_instance_id = :result_instance_id and study_id in (:study_ids)''',
+                [result_instance_id: resultInstanceId, study_ids: studyIds])
 
         Map<String, Map<String, Counts>> result = [:]
         for (Map<String, Object> row : rows) {
@@ -90,12 +90,8 @@ class AggregateDataOptimisationsService {
         ((JdbcTemplate) namedParameterJdbcTemplate.jdbcOperations).dataSource.connection
     }
 
-    private Array createArrayOfStrings(Collection<String> strings) {
-        getConnection().createArrayOf('varchar', strings.toArray(new String[0]))
-    }
-
-    private boolean dbFunctionExists(String schema, String function) {
-        getConnection().metaData.getFunctions(null, schema, function).next()
+    private boolean dbViewExists(String schema, String function) {
+        getConnection().metaData.getTables(null, schema, function, ['VIEW'].toArray(new String[0])).next()
     }
 
 }

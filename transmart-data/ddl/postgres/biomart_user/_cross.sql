@@ -306,32 +306,23 @@ GROUP BY s.study_id, o.concept_cd;
 SET default_with_oids = false;
 
 --
--- Name: subject_counts_per_study_and_concept(p_result_instance_id NUMERIC, p_study_ids VARCHAR[]); Type: FUNCTION; Schema: biomart_user; Owner: -
+-- Name: patient_set_bitset; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE FUNCTION biomart_user.subject_counts_per_study_and_concept(p_result_instance_id NUMERIC, p_study_ids VARCHAR[]) RETURNS TABLE (
- study_id VARCHAR,
- concept_cd VARCHAR,
- patient_count INTEGER
-)
-LANGUAGE plpgsql
-AS $$
-BEGIN
+CREATE VIEW biomart_user.patient_set_bitset AS
+SELECT
+  collection.result_instance_id AS result_instance_id,
+  (bit_or(patient_num_boundaries.one << (collection.patient_num - patient_num_boundaries.min_patient_num)::INTEGER)) AS patient_set
+FROM biomart_user.patient_num_boundaries, i2b2demodata.qt_patient_set_collection collection
+GROUP BY collection.result_instance_id;
 
-  IF NOT EXISTS (SELECT 1 FROM biomart_user.patient_set_bitset WHERE result_instance_id = p_result_instance_id) THEN
-    INSERT INTO biomart_user.patient_set_bitset SELECT
-          collection.result_instance_id AS result_instance_id,
-          (bit_or(patient_num_boundaries.one << (collection.patient_num - patient_num_boundaries.min_patient_num)::INTEGER)) AS patient_set
-    FROM biomart_user.patient_num_boundaries, i2b2demodata.qt_patient_set_collection collection
-    WHERE collection.result_instance_id = p_result_instance_id
-    GROUP BY collection.result_instance_id;
-  END IF;
-
-  RETURN QUERY SELECT
-      scs.study_id,
-      scs.concept_cd,
-      --less eficient length(replace((bitset_result)::text, '0', '')) could be used instead pg_bitcount ext. function.
-      public.pg_bitcount(scs.patient_set_bits & psb.patient_set)
-  FROM biomart_user.study_concept_bitset scs, biomart_user.patient_set_bitset psb
-  WHERE psb.result_instance_id = p_result_instance_id AND scs.study_id = ANY(p_study_ids);
-END;
-$$;
+--
+-- Name: study_concept_patient_set_bitset; Type: VIEW; Schema: biomart_user; Owner: -
+--
+CREATE VIEW biomart_user.study_concept_patient_set_bitset AS
+SELECT
+  psb.result_instance_id,
+  scs.study_id,
+  scs.concept_cd,
+  --less eficient length(replace((bitset_result)::text, '0', '')) could be used instead pg_bitcount ext. function.
+  public.pg_bitcount(scs.patient_set_bits & psb.patient_set) as patient_count
+FROM biomart_user.study_concept_bitset scs, biomart_user.patient_set_bitset psb;

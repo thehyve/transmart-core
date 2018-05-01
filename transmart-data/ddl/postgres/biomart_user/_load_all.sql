@@ -10,4 +10,3 @@
 \i biomart_user/query_set.sql
 \i biomart_user/query_set_instance.sql
 \i biomart_user/query_set_diff.sql
-\i biomart_user/patient_set_bitset.sql
