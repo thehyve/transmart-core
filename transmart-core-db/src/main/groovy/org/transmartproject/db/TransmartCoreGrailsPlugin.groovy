@@ -1,6 +1,7 @@
 package org.transmartproject.db
 
 import grails.plugins.Plugin
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
 /*
  * Copyright © 2013-2014 The Hyve B.V.
@@ -107,6 +108,8 @@ A runtime dependency for tranSMART that implements the Core API
         if (!config.org.transmartproject.i2b2.group_id) {
             config.org.transmartproject.i2b2.group_id = 'Demo'
         }
+
+        namedParameterJdbcTemplate(NamedParameterJdbcTemplate, ref('dataSource'))
     }}
 
     void doWithDynamicMethods() {

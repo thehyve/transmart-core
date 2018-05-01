@@ -11,7 +11,9 @@ import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import org.hibernate.criterion.*
+import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
@@ -22,17 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.ConstraintFactory
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.QueryBuilder
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
-import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
@@ -41,8 +33,8 @@ import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.*
-import org.transmartproject.db.multidimquery.query.*
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
@@ -52,8 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 import static groovyx.gpars.GParsPool.withPool
-import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
+import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 
 class AggregateDataService extends AbstractDataResourceService implements AggregateDataResource {
 
@@ -405,13 +397,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     private Map<String, Counts> getConceptCountsForStudy(String studyId, Constraint constraint, User user) {
-        if (constraint instanceof PatientSetConstraint && aggregateDataOptimisationsService.countsPerConceptForStudyEnabled) {
-            log.info "Counts per concept for study ${studyId} using the summary view."
-            return aggregateDataOptimisationsService.countsPerConceptForStudyAndPatientSet(studyId, constraint, user)
-        } else {
-            def studyConstraint = new AndConstraint([new StudyNameConstraint(studyId), constraint]).canonise()
-            return wrappedThis.countsPerConcept(studyConstraint, user)
-        }
+        def studyConstraint = new AndConstraint([new StudyNameConstraint(studyId), constraint]).canonise()
+        return wrappedThis.countsPerConcept(studyConstraint, user)
     }
 
     @Override
