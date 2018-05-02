@@ -36,6 +36,7 @@ class Query implements UserQuery {
     SubscriptionFrequency subscriptionFreq
     Date createDate = new Date()
     Date updateDate = new Date()
+    String queryBlob
 
     static mapping = {
         table schema: 'BIOMART_USER'
@@ -61,6 +62,7 @@ class Query implements UserQuery {
         deleted nullable: true
         createDate nullable: true
         updateDate nullable: true
+        queryBlob nullable: true
     }
 
 }

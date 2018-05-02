@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.db.util.PeekingIteratorImpl
 import spock.lang.Specification
 
 class HypercubeTabularResultViewSpec extends Specification {
@@ -48,7 +49,7 @@ class HypercubeTabularResultViewSpec extends Specification {
         val4.getDimKey(var) >> 'var2'
 
         hypercube.dimensions >> dimensions
-        hypercube.iterator() >> { hypercubeValues.iterator() }
+        hypercube.iterator() >> { PeekingIteratorImpl.getPeekingIterator(hypercubeValues.iterator()) }
     }
 
     def 'no column dimensions'() {
@@ -165,7 +166,7 @@ class HypercubeTabularResultViewSpec extends Specification {
         val2.getDimKey(dim1) >> 'code1'
 
         hypercube.dimensions >> dimensions
-        hypercube.iterator() >> { hypercubeValues.iterator() }
+        hypercube.iterator() >> { PeekingIteratorImpl.getPeekingIterator(hypercubeValues.iterator()) }
 
         List<HypercubeDataColumn> indicesList = [new HypercubeDataColumn(ImmutableMap.builder().build())]
         def view = new HypercubeTabularResultView(hypercube, dimensions, [], indicesList)

@@ -42,7 +42,7 @@ CREATE INDEX qt_idx_qm_ugid ON qt_query_master USING btree (user_id, group_id, m
 --
 -- Name: qt_query_master_request_constraints; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
-CREATE INDEX qt_query_master_request_constraints ON qt_query_master USING btree (request_constraints);
+CREATE INDEX qt_query_master_request_constraints ON qt_query_master USING hash (request_constraints);
 
 --
 -- add documentation

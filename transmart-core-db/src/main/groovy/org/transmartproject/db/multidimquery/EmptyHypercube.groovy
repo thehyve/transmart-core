@@ -3,6 +3,10 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
+import com.google.common.collect.Iterators
+import com.google.common.collect.PeekingIterator
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
@@ -26,9 +30,9 @@ class EmptyHypercube implements Hypercube {
 
     void close() {}
 
-    Iterator<HypercubeValue> iterator() {
-        [].iterator()
+    PeekingIterator<HypercubeValue> iterator() {
+        Iterators.peekingIterator([].iterator())
     }
 
-
+    ImmutableMap<Dimension, SortOrder> getSortOrder() { ImmutableMap.of() }
 }

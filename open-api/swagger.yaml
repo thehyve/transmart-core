@@ -687,11 +687,11 @@ paths:
             $ref: "#/definitions/v2Study"
         404:
           description: |
-            Study not found
-  /v2/studyId/{studyId}:
+            Study not found or no access
+  /v2/studies/studyId/{studyId}:
     get:
       description: |
-        Gets the study with study id `id`.
+        Gets the study with study id `studyId`.
       tags:
         - v2
       parameters:
@@ -708,7 +708,33 @@ paths:
             $ref: "#/definitions/v2Study"
         404:
           description: |
-            Study not found
+            Study not found or no access
+  /v2/studies/studyIds:
+    get:
+      description: |
+        Gets the studies with study ids `studyIds`.
+      tags:
+        - v2
+      parameters:
+        - name: studyIds
+          in: query
+          description: 'Json list of strings, with each string being a study name. Example: `/v2/studies/studyIds?studyIds=["GSE8581", "EHR"]`'
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns a list of studies
+          schema:
+            type: object
+            properties:
+              studies:
+                type: array
+                items:
+                  $ref: '#/definitions/v2Study'
+        404:
+          description: |
+            Study not found or no access
   /v2/supported_fields:
     get:
       description: |
@@ -753,6 +779,25 @@ paths:
           description: 'json that specifies the constraint. Example: `{"type":"study_name", "studyId":"EHR"}` or
           `{"type":"concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
           type: string
+        - name: sort
+          required: false
+          in: query
+          type: string
+          description: >
+              json string that specifies the sort order of the observations. Sorting can be done on multiple
+              dimensions. `["patient"]` sorts the observations on the patient dimension, `["patient", "concept"]`
+              sorts the observations first on the patient, and then on concept. The sort order is on the 'key'
+              field of the chosen dimension, sorting on arbitrary fields is not yet supported. For patients, this is
+              the `id`, for concepts the `conceptCode`.
+
+              It is also possible to specify the sort order to be ascending or descending. Use `[['patient', 'asc'],
+              ['concept', 'desc']]` for that to sort the observations on patients first, ascending, and then on
+              concepts descending.
+
+              When requesting modifier dimensions, the supported sortings is very limited due to implementation
+              constraints. Sorting support is limited to those dimensions that make up the primary key columns in the
+              `i2b2demodata.observation_fact` table, and a few other supported dimensions. If you request a sort
+              order that is not supported you will receive an HTTP 400 Bad Request error code.
         - name: biomarker_constraint
           required: false
           in: query
@@ -799,6 +844,9 @@ paths:
                     type: string
                     description: see GET parameters
                   projection:
+                    type: string
+                    description: see GET parameters
+                  sort:
                     type: string
                     description: see GET parameters
                 required: [ "type", "constraint" ]
@@ -1038,6 +1086,116 @@ paths:
               countsPerStudy:
                 $ref: '#/definitions/CountsMapMap'
 
+  /v2/observations/table:
+    get:
+      description: |
+        Returns a tabular view of observations, as a table using specified dimensions for rows and columns
+      tags:
+        - v2
+      parameters:
+        - name: type
+          required: true
+          in: query
+          type: string
+          description: |
+            The type of data to retrieve. At the moment only 'clinical' is supported. High dimensional
+            data is not supported.
+        - name: constraint
+          required: true
+          in: query
+          type: string
+          description: |
+            JSON-encoded constraint specification. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital
+            Signs\\Heart Rate\\"}`.
+        - name: rowDimensions
+          required: true
+          in: query
+          type: string
+          description: |
+            Json list of strings, with each string being a dimension name. This specifies the dimensions
+            that form the vertical axis of the table (in order). Example: `['study', 'patient']`
+        - name: columnDimensions
+          required: true
+          in: query
+          type: string
+          description: The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table
+        - name: rowSort
+          required: false
+          in: query
+          type: string
+          description: |
+            Json list of sort specifications for the row dimensions. A sort specification is either the name of a
+            dimension as string, or a list `[<dimension>, <direction>]` where `<dimension>` is the name of a
+            dimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is
+            part of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.
+            Example: `['study', ['patient', 'desc']]`
+        - name: columnSort
+          required: false
+          in: query
+          type: string
+          description: Analogous to `rowSort`, but for the column dimensions.
+        - name: limit
+          required: true
+          in: query
+          type: integer
+          description: The maximum number of rows to return. This determines the size of the result.
+        - name: offset
+          required: false
+          in: query
+          type: integer
+          description: |
+            The number of rows to skip before the first returned row. If the dataset does not contain at least
+            limit+offset number of rows, the returned result will contain the `limit` last rows of the dataset. (The
+            result also includes the actual offset of the returned rows.)
+      responses:
+        200:
+          $ref: '#/definitions/DataTable'
+    post:
+      description: |
+        The same as the `get` call, but with parameters specified as a JSON object in the request body. Useful if the
+        parameters don't fit in a single request. 
+        
+        See the `get` version for additional documentation.
+      tags:
+        - v2
+      parameters:
+        - name: type
+          required: true
+          in: body
+          type: string
+        - name: constraint
+          required: true
+          in: body
+          type: string
+        - name: rowDimensions
+          required: true
+          in: body
+          type: string
+        - name: columnDimensions
+          required: true
+          in: body
+          type: string
+        - name: rowSort
+          required: false
+          in: body
+          type: string
+        - name: columnSort
+          required: false
+          in: body
+          type: string
+        - name: limit
+          required: true
+          in: body
+          type: integer
+        - name: offset
+          required: false
+          in: body
+          type: integer
+      responses:
+        200:
+          $ref: '#/definitions/DataTable'
+
+    
   /v2/patients:
     get:
       description: |
@@ -1634,6 +1792,29 @@ paths:
             Returns list of all elements from the given dimension that user has access to.
           schema:
             $ref: '#/definitions/dimensionElements'
+    post:
+      description: |
+        Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+      tags:
+        - v2
+      consumes:
+        - application/json
+      parameters:
+        - name: dimensionName
+          in: path
+          required: true
+          type: string
+        - name: constraint
+          required: false
+          in: body
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          type: string
+      responses:
+        200:
+          description: |
+            Returns list of all elements from the given dimension that user has access to.
+          schema:
+            $ref: '#/definitions/dimensionElements'
   /v2/export/job:
     post:
       description: |
@@ -1686,12 +1867,22 @@ paths:
                 description: 'Flag specifies whether to include measurement date columns.'
               elements:
                 type: string
-                description: 'json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,
-                where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,
-                or one of the supported high dimensional data types and `format` is one of the supported file formats
-                you want to export current data type to. The tabular flag (optional, false by default) specifies whether
-                represent hypercube data as wide filer format where patients are rows and columns are variables.
-                Example: `[{"dataType":clinical, "format":TSV, "tabular":true},{"dataType":rnaseq_transcript, "format":TSV}]`.'
+                description: |
+                    json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,
+                    where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,
+                    or one of the supported high dimensional data types and `format` is one of the supported file formats
+                    you want to export current data type to. The tabular flag (optional, false by default) specifies whether
+                    represent hypercube data as wide filer format where patients are rows and columns are variables.
+                    Example: `[{"dataType":clinical, "format":TSV, "tabular":true},{"dataType":rnaseq_transcript, "format":TSV}]`.
+
+                    `dataView` is optional, it can be `"surveyTable"` or `"dataTable"`, resulting in either a survey
+                    table or a data table export. When not set the export will default to a plain hypercube export.
+              tableConfig:
+                type: string
+                description: |
+                    `tableConfig` is only used for data table exports. It must be a JSON map containing the
+                    keys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with
+                    the same meanings and optionality as in the `/v2/observations/table` call.
             required: [ "id", "elements" ]
       responses:
         200:
@@ -1891,6 +2082,8 @@ paths:
                   type: boolean
                 subscriptionFreq:
                   type: string
+                queryBlob:
+                  type: object
         responses:
           201:
             description: |
@@ -2367,6 +2560,201 @@ definitions:
     additionalProperties:
       $ref: '#/definitions/CountsMap'
 
+  DataTable:
+    description: |
+      A JSON object that represents the dataset in a tabular form. The actual row data can be found in
+      `rows*.row`, with the headers and other metadata available in other keys.
+    schema:
+      type: object
+      properties:
+        column_headers:
+          description: |
+            This property describes the top header of the table. The header can contain multiple rows, each row is
+            found in the `keys` or `elements` property of an item. If the `keys` property is set, it contains
+            references to dimension elements that are further elaborated in the `column_dimensions` property.
+          type: array
+          items:
+            type: object
+            properties:
+              dimension:
+                type: string
+                description: the name of a column dimension
+              keys:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: number
+                description: |
+                  A list of column headers for one dimension. This list has the same size as the number of columns in
+                  the table (unless no column dimensions were specified, in which case this list is empty). The items
+                  describe a dimension element, they refer to keys in the
+                  `row_dimensions*.elements` dictionary for the given dimension. Further properties of this dimension
+                  element can be found there.
+
+                  This property is mutually exclusive with the `elements` property.
+              elements:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: number
+                description: |
+                  A list of column headers for one dimension, but in this property the items do not refer to a
+                  further description, the dimension element is just a single string or number. The string may also
+                  be a formatted date.
+
+                  The size of this list is equal to the number of columns in the table, or empty if no column
+                  dimensions were specified.
+
+                  This property is mutually exclusive with the `keys` property.
+            required: [dimension]
+
+        rows:
+          description: |
+            This property contains the row data and the left table header. The row data is found in the `row`
+            property, the left header cells in the `dimensions` property.
+          type: array
+          items:
+            type: object
+            properties:
+              dimensions:
+                description: |
+                  The left header cells for this row. Each cell contains the element or a reference to the element of
+                  one row dimension. There is one item for each row dimension in this list, in order.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    dimension:
+                      type: string
+                      description: The name of this row dimension
+                    key:
+                      type:
+                        oneOf:
+                          - type: string
+                          - type: number
+                      description: |
+                        Analogous to `column_headers*.keys`. The value is a reference to a dimension element
+                        specified in `row_dimensions*.elements` for the specified dimension.
+
+                        This property is mutually exclusive with the `element` property.
+                    element:
+                      type:
+                        oneOf:
+                          - type: string
+                          - type: number
+                      description: |
+                        Analogous to `column_headers*.elements`. This is a single dimension element if that dimension
+                        element is a single string, number or date. A date is represented as a formatted string.
+
+                        This property is mutually exclusive with the `key` property.
+                  required: [dimension]
+              row:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: number
+                    - type: array
+                      items:
+                        oneOf:
+                          - type: string
+                          - type: number
+                description: |
+                  The row data for a single table row. The items are strings or numbers or dates (represented as a
+                  formatted string). The length of each row is the same, and is the same as the size of the
+                  `column_headers*.keys` and `column_headers*.elements` lists.
+
+                  The item can also be an array of strings, numbers or dates. This happens if multiple values fall
+                  into the same table cell.
+
+        row_dimensions:
+          description: |
+            This property contains a description of the row dimensions. It is a list of objects, with each object
+            describing one dimension. If the dimension has its elements inlined the description here will only
+            contain the dimension name. If the headers contain keys the full dimension elements can be found in the
+            `elements` map. This map is indexed by the key found in the headers. The elements themselves are a
+            free-form maps with the properties depending on the dimension type, but every element has at least a
+            `label` property (which is often the same as the key, though not always).
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: the dimension name
+              elements:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    label:
+                      type: string
+                  additionalProperties: true
+                  description: |
+                    A dimension element, the available properties depend on the dimension, but 'label' is always
+                    included.
+                description: |
+                  The dimension elements, indexed by the key used in the header. This property is only present if the
+                  dimension elements are compound and referenced by keys, simple elements will be inlined in the header.
+            required: [name]
+
+        column_dimensions:
+          description: |
+            The same as `row_dimensions`, but for the column dimensions.
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: the dimension name
+              elements:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    label:
+                      type: string
+                  additionalProperties: true
+            required: [name]
+
+        sorting:
+          description: |
+            This property lists the sort order that was used in creating the dataset. This will generally include all
+            the dimensions that were specified as row or column dimensions. This property includes both the row
+            and column dimensions, with row dimensions first and column dimensions followed by that.
+          type: array
+          items:
+            type: object
+            properties:
+              dimension:
+                type: string
+                description: the name of a dimension
+              order:
+                type: string
+                description: |
+                  'asc' or 'desc', describing if sorting is ascending or descending.
+              user_requested:
+                type: boolean
+                description: |
+                  Whether sorting on this dimension was explicitly requested by the client, i.e. set to
+                  true if this dimension was part of the `rowSort` or `columnSort` request parameter.
+
+                  This parameter is optional, the default is `false`.
+            required: [dimension, order]
+
+        offset:
+          type: integer
+          description: the offset of the first returned row in the full dataset
+        row count:
+          type: integer
+          description: |
+            The total number of rows available. This property is only set if the total is known, which is
+            generally only the case if the last row is part of this result.
+      required: [column_headers, rows, row_dimensions, sorting, offset]
+
   observation:
     type: object
     properties:
@@ -2419,6 +2807,24 @@ definitions:
             type: array
             items:
               $ref: '#/definitions/dimensionDeclaration'
+          sort:
+            type: object
+            properties:
+              dimensionIndex:
+                type: number
+                description: >
+                    An index into the dimensionDeclarations list, indicating the dimension on which the
+                    result is sorted.
+              sortOrder:
+                type: string
+                enum: [asc, desc]
+                description: "'asc' or 'desc', indicating the sort order."
+              field:
+                type: number
+                description: >
+                    always 0. A non-zero value indicates that a different sorting is used that this version
+                    of the api does not know about. This only applies to the protobuf representation, in JSON this
+                    property is omitted.
       cells:
         type: array
         items:
@@ -2534,6 +2940,8 @@ definitions:
       updateDate:
         type: string
         format: 'date-time'
+      queryBlob:
+        type: object
 
   userQuerySet:
     type: object

@@ -262,9 +262,7 @@ class DataExportSpec extends RESTSpec {
 
         then:
         "I get a list of fields containing the supported formats"
-        'TSV' in responseData.fileFormats
-        'PROTOBUF' in responseData.fileFormats
-        'JSON' in responseData.fileFormats
+        responseData.fileFormats == ['TSV']
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)

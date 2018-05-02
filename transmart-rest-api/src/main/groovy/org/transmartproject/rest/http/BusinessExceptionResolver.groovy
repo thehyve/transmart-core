@@ -61,6 +61,7 @@ class BusinessExceptionResolver implements ServletContextAware,
             (InvalidArgumentsException)     : SC_BAD_REQUEST,
             (EmptySetException)             : SC_NOT_FOUND,
             (UnsupportedByDataTypeException): SC_BAD_REQUEST,
+            (OperationNotImplementedException) : SC_BAD_REQUEST,
             (UnexpectedResultException)     : SC_INTERNAL_SERVER_ERROR,
             (AccessDeniedException)         : SC_FORBIDDEN,
             (ServiceNotAvailableException)  : SC_SERVICE_UNAVAILABLE

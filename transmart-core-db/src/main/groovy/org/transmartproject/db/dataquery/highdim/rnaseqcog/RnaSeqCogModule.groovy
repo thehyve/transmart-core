@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -34,7 +35,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRe
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 /**
  * Module for RNA-seq, as implemented for Oracle by Cognizant.
@@ -90,47 +91,54 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
+    @CompileStatic
     @Override
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
         Map assayIndexMap = createAssayIndexMap assays
 
-        def preliminaryResult = new DefaultHighDimensionTabularResult(
-                rowsDimensionLabel:    'Transcripts',
+        def preliminaryResult = new DefaultHighDimensionTabularResult<RnaSeqCogDataRow>(
+                rowsDimensionLabel: 'Transcripts',
                 columnsDimensionLabel: 'Sample codes',
-                indicesList:           assays,
-                results:               results,
-                allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
-                    def firstNonNullCell = list.find()
+                indicesList: assays,
+                results: results,
+                allowMissingAssays: true,
+            ) {
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
+
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId && a.geneSymbol == b.geneSymbol }
+
+                @Override @CompileStatic
+                RnaSeqCogDataRow finalizeRow(List<Map> list) {
+                    Map firstNonNullCell = findFirst list
                     new RnaSeqCogDataRow(
-                            annotationId:  firstNonNullCell[0].annotationId,
-                            geneSymbol:    firstNonNullCell[0].geneSymbol,
-                            geneId:        firstNonNullCell[0].geneId,
+                            annotationId: (String) firstNonNullCell.annotationId,
+                            geneSymbol: (String) firstNonNullCell.geneSymbol,
+                            geneId: (String) firstNonNullCell.geneId,
                             assayIndexMap: assayIndexMap,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
+                            data: doWithProjection(projection, list)
                     )
                 }
-        )
+        }
 
-        new RepeatedEntriesCollectingTabularResult(
-                tabularResult: preliminaryResult,
-                collectBy: { it.annotationId },
-                resultItem: { collectedList ->
-                    if (collectedList) {
-                        new RnaSeqCogDataRow(
-                                annotationId:  collectedList[0].annotationId,
-                                geneSymbol:    RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneSymbol, '/'),
-                                geneId:        RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneId, '/'),
-                                assayIndexMap: collectedList[0].assayIndexMap,
-                                data:          collectedList[0].data
-                        )
+        new RepeatedEntriesCollectingTabularResult<RnaSeqCogDataRow>(preliminaryResult) {
+            @Override @CompileStatic
+            def collectBy(RnaSeqCogDataRow it) { it.annotationId }
+
+            @Override @CompileStatic
+            RnaSeqCogDataRow resultItem(List<RnaSeqCogDataRow> collectedList) {
+                if (collectedList) {
+                    new RnaSeqCogDataRow(
+                            annotationId: collectedList[0].annotationId,
+                            geneSymbol: safeJoin(collectedList*.geneSymbol, '/'),
+                            geneId: safeJoin(collectedList*.geneId, '/'),
+                            assayIndexMap: collectedList[0].assayIndexMap,
+                            data: collectedList[0].data
+                    )
+                }
             }
-            }
-        )
+        }
     }
 
     @Override

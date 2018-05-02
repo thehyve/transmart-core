@@ -26,6 +26,8 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.serialization.*
 
+import java.util.zip.ZipOutputStream
+
 @Transactional
 class HypercubeDataSerializationService implements DataSerializer {
 
@@ -46,7 +48,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                        OutputStream out,
                        Map options = [:]) {
 
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
+        Hypercube hypercube = multiDimService.retrieveClinicalData(options, constraint, user)
 
         try {
             log.info "Writing to format: ${format}"
@@ -71,6 +73,18 @@ class HypercubeDataSerializationService implements DataSerializer {
             formatToSerializer[format].write(hypercube, out, dataType: type)
         } finally {
             hypercube.close()
+        }
+    }
+
+    void writeTable(Constraint constraint, List<String> rowDimensions, List<String> columnDimensions,
+                    rowSort, columnSort, int limit, Long offset, User user, OutputStream out) {
+        def datatable = multiDimService.retrieveDataTable('clinical', constraint, user,
+                rowDimensions: rowDimensions, columnDimensions: columnDimensions,
+                rowSort: rowSort, columnSort: columnSort, limit: limit, offset: offset)
+        try {
+            DataTableSerializer.write(datatable, out)
+        } finally {
+            datatable.close()
         }
     }
 

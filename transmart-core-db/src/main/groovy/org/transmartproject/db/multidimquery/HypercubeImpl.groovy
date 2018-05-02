@@ -8,13 +8,13 @@ import groovy.transform.TupleConstructor
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.CriteriaImpl
+import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.IndexedArraySet
-
-import java.util.concurrent.ConcurrentHashMap
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
@@ -40,6 +40,10 @@ class HypercubeImpl implements Hypercube {
     // ImmutableList<Entry>.
     protected final ImmutableMap<Dimension, Integer> dimensionsIndex
     final ImmutableList<DimensionImpl> dimensions
+    protected final ImmutableMap<String, Integer> aliases
+    protected final ImmutableList<ModifierDimension> modifierDimensions
+    protected final ImmutableList<DimensionImpl> denseDimensions
+    final ImmutableMap<DimensionImpl, SortOrder> sortOrder
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
@@ -48,29 +52,29 @@ class HypercubeImpl implements Hypercube {
     private int completeScanNumber = 0
 
     // A map that stores the actual dimension elements once they are loaded
-    private Map<Dimension, ImmutableList<Object>> dimensionElements = new ConcurrentHashMap()
+    private Map<Dimension, ImmutableList<Object>> dimensionElements = new HashMap()
 
-    HypercubeImpl(Collection<DimensionImpl> dimensions, CriteriaImpl criteria) {
+    HypercubeImpl(Collection<DimensionImpl> dimensions, Query query) {
         this.dimensions = ImmutableList.copyOf(dimensions)
         this.dimensionsIndex = ImmutableMap.copyOf(this.dimensions.withIndex().collectEntries())
-        this.criteria = criteria
+        this.modifierDimensions = ImmutableList.copyOf((Collection) dimensions.findAll { it instanceof ModifierDimension })
+        this.denseDimensions = ImmutableList.copyOf(dimensions.findAll { it.density.isDense })
+        this.sortOrder = query.actualSortOrder
+
+        this.criteria = query.criteriaImpl
         //to run the query in the same transaction all the time. e.g. for dimensions elements loading and data receiving.
         this.criteria.session.connection().autoCommit = false
-        this.dimensionElementKeys = new ConcurrentHashMap()
+        this.aliases = ImmutableMap.copyOf(this.criteria.projection.aliases.toList().withIndex().collectEntries())
+        this.dimensionElementKeys = new HashMap()
+    }
+
+    private void scanCompleted() {
+        completeScanNumber += 1
     }
 
     @Override
     PeekingIterator<HypercubeValueImpl> iterator() {
-        new ResultIterator(dimensions, criteria, { Map<String, Object> row ->
-            def value = ObservationFact.observationFactValue(
-                    (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue, (String) row.rawValue)
-
-            Object[] dimensionElementIdexes = getDimensionElementIndexes(row)
-
-            new HypercubeValueImpl(this, dimensionElementIdexes, value)
-        }, {
-            completeScanNumber += 1
-        })
+        new ResultIterator()
     }
 
     @Override
@@ -126,10 +130,6 @@ class HypercubeImpl implements Hypercube {
         return dimElementIdx
     }
 
-    int getCompleteScanNumber() {
-        completeScanNumber
-    }
-
     private Object[] getDimensionElementIndexes(Map<String, Object> result) {
         // actually this array only contains indexes for dense dimensions, for sparse ones it contains the
         // element keys directly
@@ -150,31 +150,20 @@ class HypercubeImpl implements Hypercube {
         dimensionElementIdxes
     }
 
-    class ResultIterator<T> extends AbstractIterator<T> implements PeekingIterator<T> {
+    /**
+     * ResultIterator (and the derived DimensionsLoaderIterator) make intimate use of private HypercubeImpl data and
+     * private methods.
+     */
+    private class ResultIterator extends AbstractIterator<HypercubeValueImpl> implements PeekingIterator<HypercubeValueImpl> {
 
         private final ScrollableResults results
-        private final ImmutableMap<String, Integer> aliases
-        private final ImmutableList<ModifierDimension> modifierDimensions
         private final Iterator<? extends Map<String, Object>> resultIterator
-        private final Closure<T> onNext
-        private final Closure onClose
 
-        ResultIterator(
-                final Collection<DimensionImpl> dimensions,
-                final CriteriaImpl criteria,
-                final Closure<T> onNext,
-                final Closure onClose = Closure.IDENTITY) {
-
-            this.onNext = onNext
-            this.onClose = onClose
+        ResultIterator() {
             this.results = criteria.with {
                 setFetchSize(FETCH_SIZE)
                 scroll(ScrollMode.FORWARD_ONLY)
             }
-            this.aliases = ImmutableMap.copyOf(criteria.projection.aliases.toList().withIndex().collectEntries())
-            this.modifierDimensions = ImmutableList.copyOf((List) dimensions.findAll {
-                it instanceof ModifierDimension
-            })
             this.resultIterator = (modifierDimensions
                     ? new ModifierResultIterator(modifierDimensions, aliases, results)
                     : new ProjectionMapIterator(aliases, results)
@@ -182,15 +171,25 @@ class HypercubeImpl implements Hypercube {
         }
 
         @Override
-        T computeNext() {
+        HypercubeValueImpl computeNext() {
             if (!resultIterator.hasNext()) {
-                onClose()
                 results.close()
-                return super.endOfData()
+                endOfData()
+                scanCompleted()
+                return (null)
             }
 
             Map<String, Object> row = resultIterator.next()
-            onNext(row)
+            transformRow(row)
+        }
+
+        HypercubeValueImpl transformRow(Map<String, Object> row) {
+            def value = ObservationFact.observationFactValue(
+                    (String) row.valueType, (String) row.textValue, (BigDecimal) row.numberValue, (String) row.rawValue)
+
+            Object[] dimensionElementIdexes = getDimensionElementIndexes(row)
+
+            new HypercubeValueImpl(HypercubeImpl.this, dimensionElementIdexes, value)
         }
     }
 
@@ -211,18 +210,24 @@ class HypercubeImpl implements Hypercube {
         i
     }
 
-    private fetchAllDimensionsElementKeys() {
-        final List<DimensionImpl> denseDimensions = dimensions.findAll { it.density.isDense }
-        new ResultIterator(dimensions, criteria, { Map<String, Object> row ->
-            denseDimensions.collect { DimensionImpl dimension ->
+    private void fetchAllDimensionsElementKeys() {
+        // exhaust the iterator for side effect
+        Iterators.getLast(new DimensionsLoaderIterator())
+    }
+
+    private class DimensionsLoaderIterator extends ResultIterator {
+
+        DimensionsLoaderIterator() { super() }
+
+        HypercubeValueImpl transformRow(Map<String, Object> row) {
+            for(DimensionImpl dimension : denseDimensions) {
                 def key = dimension.getElementKey(row)
                 if (key) {
                     indexDimensionElement(dimension, key)
                 }
             }
-        }, {
-            completeScanNumber += 1
-        }).collect()
+            null
+        }
     }
 
     void close() {
@@ -239,9 +244,17 @@ class HypercubeImpl implements Hypercube {
      * Group modifiers together. Assumes the query is sorted on the primary key columns with modifierCd last.
      * The returned values are result maps that have the modifiers added in.
      *
-     * Todo: if we stick with this solution, this iterator and ProjectionMapIterator should be refactored to extend
-     * ResultIterator and there are probably some other optimizations to make. For now this is a temporary
-     * implementation until modifiers can be joined in the database using the hibernate 5 JPA api.
+     * Todo: This solution was meant as a temporary solution, with a better solution involving a database side join
+     * of the modifier ObservationFacts to the non-modifier ObservationFacts. However Hibernate 4 criteria queries do
+     * not support such joins, and it also won't be added to the api because the api is deprecated. The functionality
+     * is available in the replacement JPA api, but the Grails ORM does not use that. There does not seem to be an
+     * easy way to convert a data model or a query from the hibernate api representation to hibernates JPA
+     * representation, so for now there is no upgrade path that does not involve a lot of work or some very ugly
+     * hacks. Let's hope Grails switches to the JPA api at some point, but that is probably a lot of work for them.
+     *
+     * If we decide to take on this work, a better alternative might be to bypass hibernate and JPA altogether for
+     * queries, and build SQL directly. When streaming large datasets the CPU overhead of hibernate can become quite
+     * significant, so using raw SQL avoids that.
      */
     // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
     // ResultIterator constructor. (Groovy 3.1.10)
@@ -284,7 +297,7 @@ class HypercubeImpl implements Hypercube {
                 }
             }
 
-            result
+            (Map) result
         }
 
         /**

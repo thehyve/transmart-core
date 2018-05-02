@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
+import org.transmartproject.core.exceptions.OperationNotImplementedException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
@@ -20,6 +22,7 @@ import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.serialization.Format
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
+import static org.transmartproject.rest.misc.RequestUtils.parseJson
 
 @Slf4j
 class QueryController extends AbstractQueryController {
@@ -69,16 +72,20 @@ class QueryController extends AbstractQueryController {
      */
     def observations() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint',
+                                         'projection', 'sort'])
 
         if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
         if (args.type == 'clinical') {
-            clinicalObservations(args.constraint)
+            clinicalObservations(args.constraint, args.sort)
         } else {
             if(args.assay_constraint) {
                 response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
+            }
+            if(args.sort) {
+                throw new UnsupportedByDataTypeException("Sorting is currently not supported for high dimensional data")
             }
             highdimObservations(args.type, args.constraint, args.biomarker_constraint, args.projection)
         }
@@ -87,7 +94,7 @@ class QueryController extends AbstractQueryController {
     /**
      * Helper function for retrieving clinical hypercube data
      */
-    private def clinicalObservations(String constraint_text) {
+    private def clinicalObservations(String constraint_text, String sort_text) {
 
         def format = contentFormat
         if (format == Format.NONE) {
@@ -99,10 +106,12 @@ class QueryController extends AbstractQueryController {
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
+        def sort = parseJson(sort_text)
+
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeClinical(format, constraint, user, out, [:])
+            hypercubeDataSerializationService.writeClinical(format, constraint, user, out, [sort: sort])
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -118,6 +127,59 @@ class QueryController extends AbstractQueryController {
                     response.contentType = format.toString()
                     response.outputStream
                 })
+    }
+
+    /**
+     * Data table endpoint:
+     * <code>/v2/observations/table?type=${type}&constraint=${constraint}&rowDimensions=${rowDimensions}&
+     * columnDimensions=${columnDimensions}&rowSort=${rowSort}&columnSort=${columnSort}&limit={limit}&offset={offset}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * The type should be the data type name of a high dimension type, or 'autodetect'.
+     * Only 'clinical' type is currently supported.
+     *
+     * Expects columnDimensions and rowDimensions parameters.
+     *
+     * Optional rowSort and columnSort parameters allow to define the sorting.
+     *
+     * Pagination is supported via limit and offset parameters.
+     *
+     * @return a tabular representation of hypercube in a json format.
+     */
+    def table() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions',
+                                         'rowSort', 'columnSort', 'limit', 'offset'])
+
+        if (args.type != 'clinical') { throw new OperationNotImplementedException("High dimensional data is not yet " +
+                "implemented for the data table")
+        }
+
+        Constraint constraint = bindConstraint((String) args.constraint)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+
+        if (args.limit == null) {
+            throw new InvalidArgumentsException("Parameter 'limit' is required")
+        }
+        int limit = Integer.parseInt((String) args.limit)
+        Long offset = args.offset ? Long.parseLong((String) args.offset) : 0
+
+        def rowSort = parseIfJson(args.rowSort)
+        def columnSort = parseIfJson(args.columnSort)
+        def rowDimensions = parseIfJson(args.rowDimensions)
+        def columnDimensions = parseIfJson(args.columnDimensions)
+
+        [rowDimensions: rowDimensions, columnDimensions: columnDimensions].each { name, list ->
+            if(! list instanceof List || list.any { ! it instanceof String }) {
+                throw new InvalidArgumentsException("$name must be a JSON array of strings")
+            }
+        }
+
+        OutputStream out = getLazyOutputStream(Format.JSON)
+
+        hypercubeDataSerializationService.writeTable(constraint, rowDimensions, columnDimensions,
+                rowSort, columnSort, limit, offset, user, out)
     }
 
     /**
@@ -300,4 +362,21 @@ class QueryController extends AbstractQueryController {
         render fields as JSON
     }
 
+    /**
+     * Helper function to parse params of different types in GET and POST calls
+     * This will no longer be needed after fixing getGetOrPostParams
+     * TODO add a proper validation and error handling
+     */
+    private static Object parseIfJson(value){
+        if(value instanceof ArrayList) {
+            value.collect { parseIfJson(it) }
+        } else {
+            try {
+                def result = parseJson(value)
+                return result
+            } catch (InvalidArgumentsException ex) {
+                return value
+            }
+        }
+    }
 }

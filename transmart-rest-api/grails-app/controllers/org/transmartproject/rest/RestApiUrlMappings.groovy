@@ -44,11 +44,18 @@ class RestApiUrlMappings {
             "/studies/$id"(method: 'GET', controller: 'studyQuery', action: 'findStudy') {
                 apiVersion = 'v2'
             }
+            "/studies/studyIds"(method: 'GET', controller: 'studyQuery', action: 'findStudiesByStudyIds') {
+                apiVersion = 'v2'
+            }
             "/studies/studyId/$studyId"(method: 'GET', controller: 'studyQuery', action: 'findStudyByStudyId') {
                 apiVersion = 'v2'
             }
             "/observations"(controller: 'query') {
                 action = [GET: 'observations', POST: 'observations']
+                apiVersion = 'v2'
+            }
+            "/observations/table"(controller: 'query') {
+                action = [GET: 'table', POST: 'table']
                 apiVersion = 'v2'
             }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
@@ -157,7 +164,8 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
+            "/dimensions/$dimensionName/elements"(controller: 'dimension') {
+                action = [GET: 'list', POST: 'list']
                 apiVersion = 'v2'
             }
             "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {

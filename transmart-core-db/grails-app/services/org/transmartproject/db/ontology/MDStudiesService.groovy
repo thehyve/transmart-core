@@ -7,7 +7,6 @@ import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.ontology.MDStudiesResource
-import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.ProtectedOperation
@@ -94,28 +93,49 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
 
     @Override
     MDStudy getStudyForUser(Long id, User currentUser) throws NoSuchResourceException {
-        def user = usersResource.getUserFromUsername(currentUser.username)
         def study = Study.findById(id)
-        if (isLegacyStudy(study)) {
-            study = null
-        }
-        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${id}")
-        }
-        study.dimensions.size()
+        checkAccessToStudy(study, currentUser, id)
         study
     }
 
     @Override
     MDStudy getStudyByStudyIdForUser(String studyId, User currentUser) throws NoSuchResourceException {
-        def user = usersResource.getUserFromUsername(currentUser.username)
         def study = Study.findByStudyId(studyId)
+        checkAccessToStudy(study, currentUser, studyId)
+        study
+    }
+
+    @Override
+    List<MDStudy> getStudiesByStudyIdsForUser(List<String> studyIds, User currentUser) throws NoSuchResourceException {
+        def studies = Study.findAllByStudyIdInList(studyIds)
+        def studiesForUser = []
+        for (study in studies) {
+            try {
+                checkAccessToStudy(study, currentUser, study?.studyId)
+                studiesForUser.add(study)
+            } catch (NoSuchResourceException e) {
+                // ignore here
+            }
+        }
+        if(studiesForUser.size() == 0) {
+            throw new NoSuchResourceException("No study found for specified studyIds.")
+        }
+        studiesForUser
+    }
+
+    private void checkAccessToStudy(Study study, User user, id) {
         if (isLegacyStudy(study)) {
             study = null
         }
         if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${studyId}")
+            throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
         }
+        fixLoad(study)
+    }
+
+    private Study fixLoad(Study study) {
+        // Ensure study dimensions are loaded in the same hibernate session as the study object itself. This is
+        // needed for parallel query processing where each parallel thread has its own hibernate session.
         study.dimensions.size()
         study
     }
@@ -127,7 +147,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found: ${studyId}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             studyIdToStudy[studyId] = study
         }
         study
@@ -140,7 +160,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found: ${id}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             idToStudy[id] = study
         }
         study
@@ -153,7 +173,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found for trial visit ${trialVisitId}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             trialVisitIdToStudy[trialVisitId] = study
         }
         study
@@ -168,7 +188,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             if (!study) {
                 throw new NoSuchResourceException("Study could not be found with id ${id}.")
             }
-            study.dimensions.size()
+            fixLoad(study)
             studyId = study.studyId
             studyNumToStudyId[id] = studyId
         }
