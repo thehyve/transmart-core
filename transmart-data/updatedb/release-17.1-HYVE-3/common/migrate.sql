@@ -1,1 +1,0 @@
---Here you write migrate sql statements that work for both DBMS
