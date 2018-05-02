@@ -276,53 +276,8 @@ CREATE VIEW biomart_user.folder_study_mapping AS
      JOIN study_nodes s ON ((s.unique_id = upper((map.unique_id)::text))))
   WHERE (map.unique_id IS NOT NULL);
 
---
--- Name: patient_num_boundaries; Type: VIEW; Schema: biomart_user; Owner: -
---
-CREATE VIEW biomart_user.patient_num_boundaries AS
-WITH boundaries AS (
-SELECT MIN(patient_num) AS min_patient_num, MAX(patient_num) as max_patient_num FROM i2b2demodata.patient_dimension
-)
-SELECT
-  boundaries.min_patient_num,
-  boundaries.max_patient_num,
-  lpad('1', (boundaries.max_patient_num - boundaries.min_patient_num + 1)::integer, '0')::bit varying AS one
-FROM boundaries;
-
---
--- Name: study_concept_bitset; Type: MATERIALIZED VIEW; Schema: biomart_user; Owner: -
---
-CREATE MATERIALIZED VIEW biomart_user.study_concept_bitset AS
-SELECT
-  s.study_id AS study_id,
-  o.concept_cd AS concept_cd,
-  bit_or(patient_num_boundaries.one << (o.patient_num - patient_num_boundaries.min_patient_num)::INTEGER) AS patient_set_bits
-FROM patient_num_boundaries, i2b2demodata.observation_fact o
-JOIN i2b2demodata.trial_visit_dimension tv ON o.trial_visit_num = tv.trial_visit_num
-JOIN i2b2demodata.study s ON s.study_num = tv.study_num
-WHERE o.modifier_cd = '@'
-GROUP BY s.study_id, o.concept_cd;
-
-SET default_with_oids = false;
-
---
--- Name: patient_set_bitset; Type: VIEW; Schema: biomart_user; Owner: -
---
-CREATE VIEW biomart_user.patient_set_bitset AS
-SELECT
-  collection.result_instance_id AS result_instance_id,
-  (bit_or(patient_num_boundaries.one << (collection.patient_num - patient_num_boundaries.min_patient_num)::INTEGER)) AS patient_set
-FROM biomart_user.patient_num_boundaries, i2b2demodata.qt_patient_set_collection collection
-GROUP BY collection.result_instance_id;
-
---
--- Name: study_concept_patient_set_bitset; Type: VIEW; Schema: biomart_user; Owner: -
---
-CREATE VIEW biomart_user.study_concept_patient_set_bitset AS
-SELECT
-  psb.result_instance_id,
-  scs.study_id,
-  scs.concept_cd,
-  --less eficient length(replace((bitset_result)::text, '0', '')) could be used instead pg_bitcount ext. function.
-  public.pg_bitcount(scs.patient_set_bits & psb.patient_set) as patient_count
-FROM biomart_user.study_concept_bitset scs, biomart_user.patient_set_bitset psb;
+-- transmart-core/transmart-data/ddl/postgres is the working directory for the code that executes this sql script.
+\i biomart_user/views/patient_num_boundaries.sql
+\i biomart_user/materialized_views/study_concept_bitset.sql
+\i biomart_user/views/patient_set_bitset.sql
+\i biomart_user/views/study_concept_patient_set_bitset.sql
