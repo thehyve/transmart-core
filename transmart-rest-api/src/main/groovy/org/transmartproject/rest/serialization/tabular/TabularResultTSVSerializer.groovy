@@ -8,34 +8,25 @@ import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.multidimquery.DataTableColumn
-import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
-import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 @Slf4j
 @CompileStatic
 class TabularResultTSVSerializer extends AbstractTSVSerializer implements TabularResultSerializer {
 
-    private <C extends DataColumn, R extends DataRow> void writeValues(
-            TabularResult<C, R> tabularResult,
-            OutputStream outputStream) {
+    private void writeValues(TabularResult<DataColumn, DataRow> tabularResult, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
-        List<C> columns = tabularResult.indicesList
-        for (R row in tabularResult) {
+        for (DataRow row in tabularResult) {
             List valuesRow = columns.collect { DataColumn column -> row[column] }
             csvWriter.writeNext(formatRowValues(valuesRow))
         }
         csvWriter.flush()
     }
 
-    static <C extends DataColumn, R extends DataRow> void writeHeader(
-            List<DataColumn> columns,
-            OutputStream outputStream) {
+    static void writeHeader(List<DataColumn> columns, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
         csvWriter.writeNext(columns*.label as String[])
         csvWriter.flush()
