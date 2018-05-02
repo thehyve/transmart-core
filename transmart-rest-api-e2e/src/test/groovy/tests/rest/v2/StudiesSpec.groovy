@@ -8,6 +8,11 @@ import groovy.util.logging.Slf4j
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
+import static org.hamcrest.Matchers.allOf
+import static org.hamcrest.Matchers.hasEntry
+import static org.hamcrest.Matchers.hasItems
+import static spock.util.matcher.HamcrestSupport.that
+import static org.hamcrest.Matchers.hasProperty
 
 /**
  *  TMPREQ-6 Building a tree where concepts are study-specific.
@@ -169,4 +174,26 @@ class StudiesSpec extends RESTSpec {
         assert studyResponse2.studies*.studyId.sort() == [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID].sort()
     }
 
+    /**
+     *  given: "Shared concepts study is loaded with the default tabular representation"
+     *  when: "I try to fetch study A by studyId"
+     *  then: "the study object is returned with the defaultTabularRepresentation metadata
+     */
+    def "default tabular representation for a study is fetched by study name"() {
+        given: "Shared concepts studies are loaded and I do have limited access"
+
+        when: "I try to fetch study A by studyId"
+        def studyResponse = get([
+                path      : "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}",
+                acceptType: JSON,
+        ])
+        def metadata = studyResponse.metadata
+
+        then: "the study object is returned with the defaultTabularRepresentation metadata"
+        assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
+        assert metadata != null
+        assert metadata.defaultTabularRepresentation.rowDimensions == ['patient', "study"]
+        assert metadata.defaultTabularRepresentation.columnDimensions == ['concept']
+
+    }
 }
