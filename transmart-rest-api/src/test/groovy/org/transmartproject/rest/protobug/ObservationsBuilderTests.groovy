@@ -14,10 +14,8 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
-import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
-import org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer
 import org.transmartproject.rest.serialization.DataTableSerializer
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
@@ -49,7 +47,7 @@ class ObservationsBuilderTests extends Specification {
 
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.clearAllDataInTransaction()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

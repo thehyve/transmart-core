@@ -78,7 +78,9 @@ interface MultiDimensionalDataResource {
     Hypercube retrieveClinicalData(Constraint constraint, User user)
     Hypercube retrieveClinicalData(Map args, Constraint constraint, User user)
 
-    DataTable retrieveDataTable(Map args, String type, Constraint constraint, User user)
+    PagingDataTable retrieveDataTable(Map args, String type, Constraint constraint, User user)
+
+    StreamingDataTable retrieveStreamingDataTable(Map args, String type, Constraint constraint, User user)
 
     List<String> retrieveHighDimDataTypes(Constraint assayConstraint, User user)
 

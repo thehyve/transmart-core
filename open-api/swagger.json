@@ -606,7 +606,7 @@
           {
             "name": "studyIds",
             "in": "query",
-            "description": "a list of study ids of the studies to fetch. Example: `/v2/studies/studyIds?studyIds=GSE8581&studyIds=EHR`",
+            "description": "Json list of strings, with each string being a study name. Example: `/v2/studies/studyIds?studyIds=[\"GSE8581\", \"EHR\"]`",
             "required": true,
             "type": "string"
           }
@@ -2099,6 +2099,38 @@
             }
           }
         }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dimensionName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "constraint",
+            "required": false,
+            "in": "body",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list of all elements from the given dimension that user has access to.\n",
+            "schema": {
+              "$ref": "#/definitions/dimensionElements"
+            }
+          }
+        }
       }
     },
     "/v2/export/job": {
@@ -2165,7 +2197,11 @@
                 },
                 "elements": {
                   "type": "string",
-                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
+                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,\nwhere `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,\nor one of the supported high dimensional data types and `format` is one of the supported file formats\nyou want to export current data type to. The tabular flag (optional, false by default) specifies whether\nrepresent hypercube data as wide filer format where patients are rows and columns are variables.\nExample: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.\n\n`dataView` is optional, it can be `\"surveyTable\"` or `\"dataTable\"`, resulting in either a survey\ntable or a data table export. When not set the export will default to a plain hypercube export.\n"
+                },
+                "tableConfig": {
+                  "type": "string",
+                  "description": "`tableConfig` is only used for data table exports. It must be a JSON map containing the\nkeys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with\nthe same meanings and optionality as in the `/v2/observations/table` call.\n"
                 }
               },
               "required": [
@@ -3180,7 +3216,7 @@
                       }
                     ]
                   },
-                  "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table. The items describe a dimension element, they refer to keys in the\n`row_dimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
+                  "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table (unless no column dimensions were specified, in which case this list is empty). The items\ndescribe a dimension element, they refer to keys in the\n`row_dimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
                 },
                 "elements": {
                   "type": "array",
@@ -3194,7 +3230,7 @@
                       }
                     ]
                   },
-                  "description": "A list of column headers for one dimension, but in this property the items do not refer to a\nfurther description, the dimension element is just a single string or number. The string may also\nbe a formatted date.\n\nThis property is mutually exclusive with the `keys` property.\n"
+                  "description": "A list of column headers for one dimension, but in this property the items do not refer to a\nfurther description, the dimension element is just a single string or number. The string may also\nbe a formatted date.\n\nThe size of this list is equal to the number of columns in the table, or empty if no column\ndimensions were specified.\n\nThis property is mutually exclusive with the `keys` property.\n"
                 }
               },
               "required": [

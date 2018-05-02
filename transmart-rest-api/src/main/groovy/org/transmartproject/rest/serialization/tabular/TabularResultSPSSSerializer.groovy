@@ -8,12 +8,14 @@ import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
 import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.ontology.VariableDataType
 import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
+import javax.transaction.NotSupportedException
 import java.text.SimpleDateFormat
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry
@@ -276,9 +278,9 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
      * will be used for temporary files.
      * @param zipOutStream the stream to write to.
      */
-    TabularResultSPSSSerializer(User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
+    TabularResultSPSSSerializer(User user, OutputStream outputStream, ImmutableList<DataColumn> columns) {
         this.user = user
-        this.zipOutputStream = zipOutputStream
+        this.zipOutputStream = new ZipOutputStream(outputStream)
         if (!columns) {
             throw new IllegalArgumentException("Can't write spss files for empty table.")
         }

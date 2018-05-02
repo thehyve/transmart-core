@@ -610,4 +610,37 @@ class QueryServicePgSpec extends Specification {
         multipleSubselectResult.size() == subselectResult1.size() + subselectResult2.size()
     }
 
+    void 'test numerical constraints'() {
+        given: 'a constraint for temperature readings'
+        def user = User.findByUsername('test-public-user-2')
+
+        Constraint temperature = new ConceptConstraint('VSIGN:TEMP')
+
+        when: 'retrieving aggregates for the concept'
+        def aggregates = aggregateDataResource.numericalValueAggregatesPerConcept(temperature, user)
+
+        then: 'the aggregates match expected values'
+        aggregates['VSIGN:TEMP'].count == 7
+        aggregates['VSIGN:TEMP'].min == 55
+        aggregates['VSIGN:TEMP'].max == 89
+
+        when: 'restricting to values < 82'
+        Constraint lessThan = new AndConstraint([temperature, new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN, 82)])
+        def aggregates2 = aggregateDataResource.numericalValueAggregatesPerConcept(lessThan, user)
+
+        then: 'the aggregates differ from the previous accordingly'
+        aggregates2['VSIGN:TEMP'].count == 4
+        aggregates2['VSIGN:TEMP'].min == 55
+        aggregates2['VSIGN:TEMP'].max == 81
+
+        when: 'restricting to values <= 82'
+        Constraint lessThanOrEquals = new AndConstraint([temperature, new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN_OR_EQUALS, 82)])
+        def aggregates3 = aggregateDataResource.numericalValueAggregatesPerConcept(lessThanOrEquals, user)
+
+        then: 'the aggregates differ from the previous accordingly'
+        aggregates3['VSIGN:TEMP'].count == 6
+        aggregates3['VSIGN:TEMP'].min == 55
+        aggregates3['VSIGN:TEMP'].max == 82
+    }
+
 }

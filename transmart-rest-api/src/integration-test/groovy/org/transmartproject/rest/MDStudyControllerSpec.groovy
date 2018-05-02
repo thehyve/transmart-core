@@ -2,6 +2,7 @@
 
 package org.transmartproject.rest
 
+import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
@@ -80,7 +81,8 @@ class MDStudyControllerSpec extends MarshallerSpec {
         when:
         def studyId1 = 'study1'
         def studyId2 = 'study2'
-        def url = "${baseURL}/$VERSION/studies/studyIds?studyIds=${studyId1}&studyIds=${studyId2}"
+        def studyIds = new JsonBuilder([studyId1,studyId2]).toString()
+        def url = "${baseURL}/$VERSION/studies/studyIds?studyIds=$studyIds"
         ResponseEntity<Resource> response = getJson(url)
 
         String content = response.body.inputStream.readLines().join('\n')

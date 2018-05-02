@@ -154,7 +154,7 @@
     />
 
     <cache name="org.transmartproject.db.ontology.OntologyTermTagsResourceService"
-           maxElementsInMemory="1000"
+           maxElementsInMemory="10000"
            timeToIdleSeconds="0"
     />
 

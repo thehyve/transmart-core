@@ -374,7 +374,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             case Operator.BEFORE:
                 return Restrictions.lt(propertyName, value)
             case Operator.LESS_THAN_OR_EQUALS:
-                return Restrictions.lt(propertyName, value)
+                return Restrictions.le(propertyName, value)
             case Operator.BETWEEN:
                 def values = value as List<Date>
                 return Restrictions.between(propertyName, values[0], values[1])

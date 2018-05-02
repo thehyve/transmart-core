@@ -11,24 +11,16 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
-import java.text.SimpleDateFormat
-import java.util.stream.Collectors
 import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 @Slf4j
 @CompileStatic
-class TabularResultTSVSerializer implements TabularResultSerializer {
-
-    final static char COLUMN_SEPARATOR = '\t' as char
-    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
+class TabularResultTSVSerializer extends AbstractTSVSerializer implements TabularResultSerializer {
 
     private void writeValues(TabularResult<DataColumn, DataRow> tabularResult, OutputStream outputStream) {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
-        Iterator<DataRow> rows = tabularResult.rows
-        while (rows.hasNext()) {
-            DataRow row = rows.next()
-            List<Object> valuesRow = columns.stream().map({ DataColumn column -> row[column] }).collect(Collectors.toList())
+        for (DataRow row in tabularResult) {
+            List valuesRow = columns.collect { DataColumn column -> row[column] }
             csvWriter.writeNext(formatRowValues(valuesRow))
         }
         csvWriter.flush()
@@ -38,19 +30,6 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
         CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
         csvWriter.writeNext(columns*.label as String[])
         csvWriter.flush()
-    }
-
-    private String[] formatRowValues(List<Object> valuesRow) {
-        valuesRow.stream().map({value ->
-            if (value == null) return ''
-            if (value instanceof Date) {
-                synchronized (DATE_FORMAT) {
-                    DATE_FORMAT.format(value)
-                }
-            } else {
-                value.toString()
-            }
-        }).collect(Collectors.toList()).toArray(new String[0])
     }
 
     static writeColumnsMetadata(ImmutableList<DataColumn> indicesList, OutputStream outputStream) {
@@ -91,15 +70,12 @@ class TabularResultTSVSerializer implements TabularResultSerializer {
         csvWriter.flush()
     }
 
-    final User user
-    final ZipOutputStream zipOutStream
     final ImmutableList<DataColumn> columns
     final File workingDir
     final SortedMap<Integer, File> dataFiles = Collections.synchronizedSortedMap([:] as TreeMap)
 
-    TabularResultTSVSerializer(User user, ZipOutputStream zipOutStream, ImmutableList<DataColumn> columns) {
-        this.user = user
-        this.zipOutStream = zipOutStream
+    TabularResultTSVSerializer(User user, OutputStream outStream, ImmutableList<DataColumn> columns) {
+        super(user, outStream)
         this.columns = columns
         this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-tsv-', '-tmpdir')
     }

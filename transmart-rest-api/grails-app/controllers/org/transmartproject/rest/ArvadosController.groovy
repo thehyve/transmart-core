@@ -35,8 +35,7 @@ class ArvadosController extends RestfulController {
     def save() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
-            throw new AccessDeniedException("Creating a new supported workflow" +
-                    "is an admin action")
+            throw new AccessDeniedException('Creating a new supported workflow is an admin action')
         }
         def instance = resource.newInstance()
         def fields = request.JSON

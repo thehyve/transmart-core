@@ -1,1 +1,11 @@
-"-27"	"-17"	"SHARED_CONCEPTS_STUDY_A"	"PUBLIC"	
+"-27"	"-17"	"SHARED_CONCEPTS_STUDY_A"	"PUBLIC"	"{
+    ""defaultTabularRepresentation"": {
+        ""rowDimensions"": [
+            ""patient"",
+            ""study""
+        ],
+        ""columnDimensions"": [
+            ""concept""
+        ]
+    }
+}"
