@@ -104,7 +104,8 @@ class TreeController {
     }
 
     /**
-     * Clears tree node, counts caches, patient sets and bitsets:
+     * Clears tree node, counts caches, patient sets and bitsets,
+     * updates data for subscribed user queries:
      * <code>/${apiVersion}/tree_nodes/clear_and_update</code>
      *
      * This endpoint should be called after loading, deleting or updating

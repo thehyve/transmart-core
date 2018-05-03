@@ -1566,6 +1566,19 @@ var spec = {
         }
       }
     },
+    "/v2/tree_nodes/clear_and_update": {
+      "get": {
+        "description": "This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache and patient sets have been cleared. The data for subscribed user queries is updated.\n"
+          }
+        }
+      }
+    },
     "/v2/storage": {
       "get": {
         "description": "Gets a list of all storage systems.\n",

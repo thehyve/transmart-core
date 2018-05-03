@@ -509,6 +509,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         )
     }
 
+    @Override
     @Transactional
     void clearPatientSets() {
         log.info 'Clearing patient sets ...'

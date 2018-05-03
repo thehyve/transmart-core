@@ -2,7 +2,6 @@
 
 package org.transmartproject.core.multidimquery
 
-import com.google.common.collect.Table
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -90,4 +89,5 @@ interface MultiDimensionalDataResource {
 
     Iterable<Dimension> getSupportedDimensions(Constraint constraint)
 
+    void clearPatientSets()
 }
