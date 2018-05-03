@@ -65,4 +65,5 @@ interface MultiDimensionalDataResource {
 
     Iterable<Dimension> getSupportedDimensions(Constraint constraint)
 
+    void clearPatientSets()
 }
