@@ -70,6 +70,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Autowired
     AggregateDataOptimisationsService aggregateDataOptimisationsService
 
+    @Autowired
+    PatientSetResource patientSetResource
+
     /**
      * Instance of this object wrapped with the cache proxy.
      */
@@ -177,7 +180,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             def constraintParts = ParallelPatientSetTaskService.getConstraintParts(constraint)
             if (!constraintParts.patientSetConstraint || !constraintParts.patientSetConstraint.patientSetId) {
                 // Try to combine the constraint a patient set for all accessible patients
-                def allPatientsSet = multidimensionalDataResourceService.findQueryResultByConstraint(
+                def allPatientsSet = patientSetResource.findQueryResultByConstraint(
                         user, new TrueConstraint())
                 if (allPatientsSet) {
                     // add patient set constraint
@@ -213,9 +216,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
-        QueryResult queryResult = multidimensionalDataResourceService.createPatientSetQueryResult(
+        QueryResult queryResult = patientSetResource.createPatientSetQueryResult(
                 'Automatically generated set',
-                constraint, user, 'v2')
+                constraint, user, 'v2', false)
         PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
         wrappedThis.updateCountsCache(patientSetConstraint, user)
         wrappedThis.updateCountsPerStudyCache(patientSetConstraint, user)

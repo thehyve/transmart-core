@@ -10,6 +10,10 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
+import org.transmartproject.core.multidimquery.PatientSetResource
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.*
@@ -43,6 +47,9 @@ class QueryServiceSpec extends TransmartSpecification {
 
     @Autowired
     AggregateDataResource aggregateDataResource
+
+    @Autowired
+    PatientSetResource patientSetResource
 
     TestData testData
     AccessLevelTestData accessLevelTestData
@@ -196,10 +203,11 @@ class QueryServiceSpec extends TransmartSpecification {
         observations*.getAt(DimensionImpl.PATIENT) as Set == patients as Set
 
         when: "I build a patient set based on the constraint"
-        def patientSet = (QtQueryResultInstance)multiDimService.createPatientSetQueryResult("Test set",
-                                                       constraint,
-                                                       accessLevelTestData.users[0],
-                                                       apiVersion)
+        def patientSet = (QtQueryResultInstance)patientSetResource.createPatientSetQueryResult("Test set",
+                constraint,
+                accessLevelTestData.users[0],
+                apiVersion,
+                false)
         then: "I get a patient set id"
         patientSet != null
         patientSet.id != null
@@ -245,10 +253,11 @@ class QueryServiceSpec extends TransmartSpecification {
         patients.size() == 3
 
         when: "I build a patient set based on the constraint"
-        def patientSet = (QtQueryResultInstance)multiDimService.createPatientSetQueryResult("Test set",
+        def patientSet = (QtQueryResultInstance)patientSetResource.createPatientSetQueryResult("Test set",
                 constraint,
                 accessLevelTestData.users[0],
-                apiVersion)
+                apiVersion,
+                false)
 
         then: "I get a patient set id"
         patientSet != null
@@ -281,10 +290,11 @@ class QueryServiceSpec extends TransmartSpecification {
         patients.size() == 0
 
         when: "I build a patient set based on the constraint"
-        def patientSet = (QtQueryResultInstance)multiDimService.createPatientSetQueryResult("Test set",
+        def patientSet = (QtQueryResultInstance)patientSetResource.createPatientSetQueryResult("Test set",
                 constraint,
                 accessLevelTestData.users[0],
-                apiVersion)
+                apiVersion,
+                false)
 
         then: "I get a patient set id"
         patientSet != null
@@ -322,19 +332,20 @@ class QueryServiceSpec extends TransmartSpecification {
         String apiVersion = "2.1-tests"
         def adminUser = accessLevelTestData.users[0]
         def otherUser = accessLevelTestData.users[3]
-        def patientSet = multiDimService.createPatientSetQueryResult("Test admin set ",
+        def patientSet = patientSetResource.createPatientSetQueryResult("Test admin set ",
                 constraint,
                 adminUser,
-                apiVersion)
+                apiVersion,
+                false)
 
         when: "I query for all patient sets with admin user"
-        def adminPatientSetList = multiDimService.findPatientSetQueryResults(adminUser)
+        def adminPatientSetList = patientSetResource.findPatientSetQueryResults(adminUser)
 
         then: "List of all patient_sets contains the newly created one for admin user"
         assert adminPatientSetList.contains(patientSet)
 
         when: "I query for all patient sets with a different user"
-        def otherUserPatientSetList = multiDimService.findPatientSetQueryResults(otherUser)
+        def otherUserPatientSetList = patientSetResource.findPatientSetQueryResults(otherUser)
 
         then: "List of all patient_sets does NOT contain the newly created patient set"
         assert !otherUserPatientSetList.contains(patientSet)

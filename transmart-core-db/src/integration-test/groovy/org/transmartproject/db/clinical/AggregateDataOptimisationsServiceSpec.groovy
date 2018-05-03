@@ -5,6 +5,7 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.ontology.StudiesResource
@@ -28,6 +29,9 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
     @Autowired
     StudiesResource studiesResource
 
+    @Autowired
+    PatientSetResource patientSetResource
+
     def 'counts per study and concept has been enabled'() {
         expect:
         aggregateDataOptimisationsService.isCountsPerStudyAndConceptForPatientSetEnabled()
@@ -37,8 +41,8 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
         def admin = usersResource.getUserFromUsername('admin')
         Set<String> allStudyids = studiesResource.studySet*.id as Set<String>
 
-        QueryResult patientSetQueryResult = multiDimService.createPatientSetQueryResult('All patients',
-                new TrueConstraint(), admin, 'v2')
+        QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult('All patients',
+                new TrueConstraint(), admin, 'v2', false)
         def patientSetConstraint = new PatientSetConstraint(patientSetId: patientSetQueryResult.id)
 
         when: 'count all subjects per concept and study'
@@ -57,9 +61,9 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
         def publicUser1 = usersResource.getUserFromUsername('test-public-user-1')
         Set<String> allStudyids = studiesResource.studySet*.id as Set<String>
 
-        QueryResult patientSetQueryResult = multiDimService.createPatientSetQueryResult(
+        QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult(
                 'All patients available for test-public-user-1',
-                new TrueConstraint(), publicUser1, 'v2')
+                new TrueConstraint(), publicUser1, 'v2', false)
         def patientSetConstraint = new PatientSetConstraint(patientSetId: patientSetQueryResult.id)
 
         when: 'count all subjects per concept and study'
