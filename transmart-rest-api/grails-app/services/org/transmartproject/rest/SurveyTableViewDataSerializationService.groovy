@@ -60,12 +60,12 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
 
     Set<Format> supportedFormats = [Format.TSV, Format.SPSS] as Set<Format>
 
-    TabularResultSerializer getSerializer(Format format, User user, OutputStream outputStream, ImmutableList<DataColumn> columns) {
+    TabularResultSerializer getSerializer(Format format, User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
         switch(format) {
             case Format.TSV:
-                return new TabularResultTSVSerializer(user, outputStream, columns)
+                return new TabularResultTSVSerializer(user, zipOutputStream, columns)
             case Format.SPSS:
-                return new TabularResultSPSSSerializer(user, outputStream, columns)
+                return new TabularResultSPSSSerializer(user, zipOutputStream, columns)
             default:
                 throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
         }
@@ -123,7 +123,7 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
             columns = surveyTableColumnService
                     .getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
         }
-        final TabularResultSerializer serializer = getSerializer(format, user, new ZipOutputStream(out),
+        final TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
                 ImmutableList.copyOf(columns as List<DataColumn>))
         final patientDimension = multiDimService.getDimension('patient')
 

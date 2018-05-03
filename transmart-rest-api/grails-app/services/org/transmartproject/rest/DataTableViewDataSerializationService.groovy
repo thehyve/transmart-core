@@ -69,7 +69,7 @@ class DataTableViewDataSerializationService implements DataSerializer {
                 tableArgs, 'clinical', constraint, user)
         try {
             log.info "Writing tabular data in ${format} format."
-            def serializer = new DataTableTSVSerializer(user, out)
+            def serializer = new DataTableTSVSerializer(user, (ZipOutputStream) out)
             serializer.writeDataTableToZip(datatable)
         } finally {
             datatable.close()
