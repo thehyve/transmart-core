@@ -125,7 +125,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             if (metadata?.type == DATE && value instanceof Number) {
                 return toDate(value)
             }
-            return value
+            return label
         }
 
         private static Date toDate(Number value) {
