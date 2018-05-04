@@ -241,7 +241,7 @@ class QueryServiceSpec extends TransmartSpecification {
         setVersion == apiVersion
     }
 
-    void "test patient set creation reusing subquery sets"() {
+    void "test patient set creation"() {
         setupHypercubeData()
         Constraint constraint = new AndConstraint([
                 new SubSelectionConstraint('patient',
@@ -281,7 +281,7 @@ class QueryServiceSpec extends TransmartSpecification {
         patients as Set == patients2 as Set
     }
 
-    void "test negation support in patient set creation reusing subquery sets"() {
+    void "test patient set creation with negation of the subselection"() {
         setupHypercubeData()
         Constraint constraint = new AndConstraint([
                 new SubSelectionConstraint('patient',
