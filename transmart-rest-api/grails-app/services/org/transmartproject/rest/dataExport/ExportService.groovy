@@ -47,7 +47,7 @@ class ExportService {
         return exportJobExecutor.getExportJobFileStream(job.viewerURL)
     }
 
-    def exportData(Map jobDataMap, OutputStream output) {
+    def exportData(Map jobDataMap, ZipOutputStream output) {
 
         List<Map> dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList.flatten()
         org.transmartproject.core.users.User user = jobDataMap.user
