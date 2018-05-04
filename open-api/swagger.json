@@ -1566,7 +1566,7 @@
         }
       }
     },
-    "/v2/tree_nodes/clear_and_update": {
+    "/v2/system/after_data_loading_update": {
       "get": {
         "description": "This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.\nOnly for administrators.\n",
         "tags": [
