@@ -24,6 +24,7 @@ import spock.lang.Specification
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 @FreshRuntime
 @Rollback
@@ -54,13 +55,14 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         setupData()
 
         def file = new ByteArrayOutputStream()
+        def zipFile = new ZipOutputStream(file)
         Constraint constraint = new StudyObjectConstraint(study: clinicalData.longitudinalStudy)
         Map config = [
                 rowDimensions: ['study', 'patient'],
                 columnDimensions: ['trial visit', 'concept'],
         ]
 
-        serializationService.writeClinical(Format.TSV, constraint, adminUser, file, [tableConfig: config])
+        serializationService.writeClinical(Format.TSV, constraint, adminUser, zipFile, [tableConfig: config])
         def files = parseTSVZip(file)
 
         expect:
@@ -121,7 +123,8 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
 
     List<List<String>> roundTrip(Dimension dim, List elements) {
         def file = new ByteArrayOutputStream()
-        def serializer = new DataTableTSVSerializer(adminUser, file)
+        def zipFile = new ZipOutputStream(file)
+        def serializer = new DataTableTSVSerializer(adminUser, zipFile)
 
         serializer.zipOutStream.putNextEntry(new ZipEntry(dim.name))
         serializer.writeDimensionElements(dim, elements)

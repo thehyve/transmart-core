@@ -12,7 +12,6 @@ Overview
 
 ## Data Migration
 
-`data_migration.sql` takes care of adding a new 'query_blob' column to 'biomart_user'.'query' table in order to store additional information about query.
 
 How to apply all changes
 ------------------------
