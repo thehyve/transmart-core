@@ -720,7 +720,7 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
     @Override
     def getKey(element) {
         def visit = (I2b2VisitDimension) element
-        "${visit.encounterNum}/${visit.patient.id}"
+        visit ? "${visit.encounterNum}/${visit.patient.id}".toString() : null
     }
 
     @Override def selectIDs(Query query) {
