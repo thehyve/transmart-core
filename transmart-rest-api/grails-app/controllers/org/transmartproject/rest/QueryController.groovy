@@ -17,6 +17,8 @@ import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.CrossTable
+import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.NumericalValueAggregates
@@ -24,6 +26,7 @@ import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
+import org.transmartproject.rest.serialization.CrossTableSerializer
 import org.transmartproject.rest.serialization.Format
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -36,6 +39,9 @@ class QueryController extends AbstractQueryController {
 
     @Autowired
     AggregateDataResource aggregateDataResource
+
+    @Autowired
+    CrossTableResource crossTableResource
 
 
     protected Format getContentFormat() {
@@ -196,6 +202,42 @@ class QueryController extends AbstractQueryController {
                 offset: offset
         )
         hypercubeDataSerializationService.writeTable(Format.JSON, constraint, tableConfig, user, out)
+    }
+
+    /**
+     * Cross table endpoint:
+     * <code>/v2/observations/crosstable?rowConstraints=${rowConstraints}&columnConstraints=${columnConstraints}&
+     * patientSetId=&{patientSetId}</code>
+     *
+     * Expects a list of {@link Constraint} <code>rowConstraints</code>
+     * and a list of {@link Constraint} <code>columnConstraints</code>.
+     *
+     * The patientSetId should be the id of related set of patients.
+     *
+     * @return a tabular representation of counts in a json format.
+     */
+    def crosstable() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['rowConstraints', 'columnConstraints', 'patientSetId'])
+
+        [rowConstraints: args.rowConstraints, columnConstraints: args.columnConstraints].each { name, list ->
+            if (!list instanceof List || list.any { !it instanceof String }) {
+                throw new InvalidArgumentsException("$name must be a JSON array of strings")
+            }
+        }
+        List<Constraint> rowConstraints = args.rowConstraints.collect { constraint -> bindConstraint(constraint) }
+        List<Constraint> columnConstraints = args.columnConstraints.collect { constraint -> bindConstraint(constraint.toString()) }
+
+        if (args.patientSetId == null) {
+            throw new InvalidArgumentsException("Parameter 'patientSetId' is required")
+        }
+        Long patientSetId = Long.parseLong((String) args.patientSetId)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+
+        OutputStream out = getLazyOutputStream(Format.JSON)
+
+        CrossTable crossTable = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, patientSetId, user)
+        new CrossTableSerializer().write(crossTable.rows, out)
     }
 
     /**
