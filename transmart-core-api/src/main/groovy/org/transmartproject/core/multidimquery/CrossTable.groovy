@@ -1,6 +1,12 @@
 package org.transmartproject.core.multidimquery
 
+/**
+ * A CrossTable is a list of rows. Each row contains list of cells with a subject count.
+ */
 interface CrossTable {
+    /**
+     * @return a list of {@link CrossTableRow}
+     */
     List<CrossTableRow> getRows()
 
 }

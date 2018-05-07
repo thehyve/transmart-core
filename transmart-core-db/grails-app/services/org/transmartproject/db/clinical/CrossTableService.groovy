@@ -1,6 +1,6 @@
 package org.transmartproject.db.clinical
 
-import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.multidimquery.CrossTable
@@ -13,7 +13,7 @@ import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.CrossTableImpl
 
-@Transactional
+@CompileStatic
 class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
 
     @Autowired
