@@ -54,7 +54,7 @@ class ConstraintSpec extends RESTSpec {
         then: "then I get a 400 with 'Cannot parse constraint parameter'"
         that responseData.httpStatus, is(400)
         that responseData.type, is(CONSTRAINTBINDINGEXCEPTION)
-        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'BadType\' into a subtype of [simple type, class org.transmartproject.db.multidimquery.query.Constraint]: known type ids =')
+        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'BadType\' into a subtype of')
 
         where:
         acceptType | _

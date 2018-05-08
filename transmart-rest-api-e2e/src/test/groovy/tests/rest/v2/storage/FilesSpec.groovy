@@ -237,10 +237,10 @@ class FilesSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 500, user: ADMIN_USER])
+        def responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 404, user: ADMIN_USER])
 
         then:
-        assert responseData.httpStatus == 500
+        assert responseData.error == 'Not Found'
     }
 
     /**
