@@ -45,6 +45,13 @@ class AggregateDataOptimisationsService {
     }
 
     /**
+     * Refreshes biomart_user.study_concept_bitset
+     */
+    void clearPatientSetBitset() {
+        refreshMaterializedView('biomart_user', 'study_concept_bitset')
+    }
+
+    /**
      * Implementation using bit sets. Only returns patient counts, not observation counts.
      * @param constraint
      * @param user
@@ -94,4 +101,17 @@ class AggregateDataOptimisationsService {
         getConnection().metaData.getTables(null, schema, function, ['VIEW'].toArray(new String[0])).next()
     }
 
+    private void refreshMaterializedView(String schema, String function) {
+        def connection = getConnection()
+        try {
+            log.info "Refreshing $schema.$function materialized view ..."
+            getConnection().prepareStatement("refresh materialized VIEW $schema.$function").executeUpdate()
+        } catch (Exception e) {
+            log.warn "$schema.$function materialized view not updated. $e.message"
+        } finally {
+            connection?.close()
+        }
+    }
 }
+
+

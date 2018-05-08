@@ -27,6 +27,8 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryInstance
+import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
@@ -515,6 +517,38 @@ class QueryServicePgSpec extends Specification {
         then:
         patientSetQueryResult1 == patientSetQueryResult2
     }
+
+    void "clear all patient sets"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        multiDimService.createOrReusePatientSetQueryResult("Test set", constraint, user,'v2')
+        def patientSetCollectionsCount = QtPatientSetCollection.findAll().size()
+        def queryResultInstancesCount = QtQueryResultInstance.findAll().size()
+        def queryInstancesCount = QtQueryInstance.findAll().size()
+        def queryMastersCount = QtQueryMaster.findAll().size()
+
+        when:
+        multiDimService.clearPatientSets()
+        def newPatientSetCollectionsCount = QtPatientSetCollection.findAll().size()
+        def newQueryResultInstancesCount = QtQueryResultInstance.findAll().size()
+        def newQueryInstancesCount = QtQueryInstance.findAll().size()
+        def newQueryMastersCount = QtQueryMaster.findAll().size()
+
+        then:
+        newPatientSetCollectionsCount < patientSetCollectionsCount
+        newQueryResultInstancesCount < queryResultInstancesCount
+        newQueryInstancesCount < queryInstancesCount
+        newQueryMastersCount == queryMastersCount
+
+        newPatientSetCollectionsCount == 0
+        newQueryResultInstancesCount == 0
+        newQueryInstancesCount == 0
+        newQueryMastersCount > 0
+    }
+
 
     void "test large text values (raw data type)"() {
         def user = User.findByUsername('test-public-user-1')

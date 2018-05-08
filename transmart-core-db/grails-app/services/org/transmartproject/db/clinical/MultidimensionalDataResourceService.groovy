@@ -509,6 +509,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         )
     }
 
+    @Override
+    @Transactional
+    void clearPatientSets() {
+        log.info 'Clearing patient sets ...'
+        QtPatientSetCollection.executeUpdate('delete QtPatientSetCollection')
+        QtQueryResultInstance.executeUpdate('delete QtQueryResultInstance')
+        QtQueryInstance.executeUpdate('delete QtQueryInstance')
+    }
+
     @Canonical
     @CompileStatic
     static class PatientIdListWrapper {

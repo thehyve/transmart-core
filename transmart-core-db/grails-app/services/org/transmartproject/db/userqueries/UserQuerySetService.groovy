@@ -60,6 +60,7 @@ class UserQuerySetService implements UserQuerySetResource {
 
     @Override
     Integer scan(User currentUser) {
+        log.info 'Scanning for subscribed user queries updates ...'
         int numberOfResults = 0
         DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {

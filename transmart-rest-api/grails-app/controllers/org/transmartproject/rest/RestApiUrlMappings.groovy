@@ -110,6 +110,9 @@ class RestApiUrlMappings {
             "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
                 apiVersion = 'v2'
             }
+            "/system/after_data_loading_update"(method: 'GET', controller: 'system', action: 'afterDataLoadingUpdate') {
+                apiVersion = 'v2'
+            }
             "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
                 apiVersion = 'v2'
             }
