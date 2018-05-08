@@ -104,25 +104,6 @@ class TreeController {
     }
 
     /**
-     * Clears tree node, counts caches, patient sets and bitsets,
-     * updates data for subscribed user queries:
-     * <code>/${apiVersion}/tree_nodes/clear_and_update</code>
-     *
-     * This endpoint should be called after loading, deleting or updating
-     * data in the database.
-     * Only available for administrators.
-     */
-    def clearAndUpdate() {
-        checkForUnsupportedParams(params, [])
-        User dbUser = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!dbUser.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
-        systemResource.updateAfterDataLoading(dbUser)
-        response.status = 200
-    }
-
-    /**
      * Clears tree node and counts caches and rebuilds the tree node cache:
      * <code>/${apiVersion}/tree_nodes/rebuild_cache</code>
      *
