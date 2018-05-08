@@ -11,8 +11,8 @@ import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.VariableMetadata
@@ -20,14 +20,6 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HypercubeDataColumn
 import org.transmartproject.db.multidimquery.SurveyTableView
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.OrConstraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 
 import static org.transmartproject.core.ontology.Measure.NOMINAL
@@ -143,22 +135,29 @@ class SurveyTableColumnService {
      * @param columnConstraint the column constraint, restricting studies and concepts, to extract
      *        a column definition from.
      * @param user
-     * @return a list of columns, each based on a study-concept pair.
+     * @return a list of columns, each based on a study-concept pair. Or null in case it does not match the pattern.
      */
     private ImmutableList<HypercubeDataColumn> getColumnsForTableQuery(PatientSetConstraint patientSetConstraint, Constraint columnConstraint, User user) {
         def allStudyConceptPairs = getStudyAndConceptListFromCounts(patientSetConstraint, user)
         log.debug "Column query: ${columnConstraint.toJson()}"
         List<StudyConceptPair> studyConceptPairs = null
         if (columnConstraint instanceof Combination && columnConstraint.operator == Operator.AND) {
-            studyConceptPairs = getStudyAndConceptFromConstraint(new AndConstraint(columnConstraint.args))
+            def askedStudyConceptPairs = getStudyAndConceptFromConstraint(new AndConstraint(columnConstraint.args))
+            studyConceptPairs = new ArrayList<>(allStudyConceptPairs)
+            studyConceptPairs.retainAll(askedStudyConceptPairs)
         } else if (columnConstraint instanceof Combination && columnConstraint.operator == Operator.OR) {
             studyConceptPairs = getStudyAndConceptListFromConstraint(new OrConstraint(columnConstraint.args), allStudyConceptPairs)
         } else if (columnConstraint instanceof ConceptConstraint) {
             studyConceptPairs = getStudyAndConceptListForConcept((ConceptConstraint)columnConstraint, allStudyConceptPairs)
+        } else if (columnConstraint instanceof StudyNameConstraint) {
+            studyConceptPairs = getStudyAndConceptListForStudy((StudyNameConstraint)columnConstraint, allStudyConceptPairs)
+        } else if (columnConstraint == null || columnConstraint instanceof TrueConstraint) {
+            studyConceptPairs = allStudyConceptPairs
         }
         if (studyConceptPairs == null) {
             // no list of study-concept constraint pairs.
-            studyConceptPairs = allStudyConceptPairs
+            log.debug("Don't know how to reduce number of study/concept pairs given the column constraint: ${columnConstraint}.")
+            return null
         }
         toColumnList(studyConceptPairs)
     }
@@ -180,21 +179,27 @@ class SurveyTableColumnService {
     ImmutableList<HypercubeDataColumn> getHypercubeDataColumnsForConstraint(Constraint constraint, User user) {
         def parts = ParallelPatientSetTaskService.getConstraintParts(constraint)
         if (parts.patientSetConstraint) {
-            // Base the columns on selected concepts and studies
-            return getColumnsForTableQuery(parts.patientSetConstraint, parts.otherConstraint, user)
+            // Try to base the columns on selected concepts and studies
+            def columns = getColumnsForTableQuery(parts.patientSetConstraint, parts.otherConstraint, user)
+            if (columns != null) {
+                return columns
+            }
         }
         // Compute all combinations of studies and concepts for the constraint.
         ImmutableList.Builder<HypercubeDataColumn> columns = ImmutableList.builder()
-        Map<String, Map<String, Counts>> counts = aggregateDataResource.countsPerStudyAndConcept(constraint, user)
-        for (Map.Entry<String, Map> entry: counts.entrySet()) {
+        Map<String, Map<String, Counts>> countsPerStudyAndConcept = aggregateDataResource.countsPerStudyAndConcept(constraint, user)
+        for (Map.Entry<String, Map> entry : countsPerStudyAndConcept.entrySet()) {
             String studyId = entry.key
-            Collection<String> conceptCodes = entry.value.keySet()
-            for (String conceptCode: conceptCodes) {
-                ImmutableMap<Dimension, Object> coordinates = ImmutableMap.builder()
-                        .put((Dimension) DimensionImpl.CONCEPT, (Object) conceptCode)
-                        .put((Dimension) DimensionImpl.STUDY, (Object) studiesResource.getStudyByStudyId(studyId).id)
-                        .build()
-                columns.add(new HypercubeDataColumn(coordinates))
+            for (Map.Entry<String, Counts> conceptCodesToCountsEntry : entry.value.entrySet()) {
+                String conceptCode = conceptCodesToCountsEntry.key
+                Counts counts = conceptCodesToCountsEntry.value
+                if (counts.observationCount > 0 || counts.patientCount > 0) {
+                    ImmutableMap<Dimension, Object> coordinates = ImmutableMap.builder()
+                            .put((Dimension) DimensionImpl.CONCEPT, (Object) conceptCode)
+                            .put((Dimension) DimensionImpl.STUDY, (Object) studiesResource.getStudyByStudyId(studyId).id)
+                            .build()
+                    columns.add(new HypercubeDataColumn(coordinates))
+                }
             }
         }
         columns.build()
@@ -259,6 +264,20 @@ class SurveyTableColumnService {
     }
 
     /**
+     * Gets a list of unique study-concept pairs for a study name constraint.
+     * The list of all study-concept pairs is consulted to retrieve all study-concept pairs for those concepts.
+     *
+     * @param studyNameConstraint the study name constraint
+     * @param allStudyConceptPairs the list of all study-concept pairs for the data set.
+     * @return the list of unique study-concept pairs for the concepts.
+     */
+    private List<StudyConceptPair> getStudyAndConceptListForStudy(StudyNameConstraint studyNameConstraint, List<StudyConceptPair> allStudyConceptPairs) {
+        allStudyConceptPairs.findAll {
+            studyNameConstraint.studyId == it.study.name
+        }
+    }
+
+    /**
      * Extracts a list of unique study-concept pairs from a query of the shape
      * <code>(study A and (concept 1 or concept 2)) or (concept 3)</code>.
      * If a disjunct contains both a study and a concept restriction, study-concept pairs can be
@@ -295,6 +314,7 @@ class SurveyTableColumnService {
 
     /**
      * Get a list of all unique study-concept pairs for a data set based on the constraint.
+     * Study-concept pairs with zero counts are excluded from the result.
      * The list is computed using a counts per study and concept query on the database.
      * These counts may be already in the application cache.
      * The query is restricted to the data the current user has access to.
@@ -307,11 +327,18 @@ class SurveyTableColumnService {
         // possible workaround: fetch all available study-concept pairs from the counts_per_study_and_concept call.
         log.info "Retrieving column definition from study and concept count ..."
         List<StudyConceptPair> studyConceptPairs = []
-        Map<String, Map<String, Counts>> counts = aggregateDataResource.countsPerStudyAndConcept(constraint, user)
-        for (Map.Entry<String, Map> entry: counts.entrySet()) {
-            def study = studiesResource.getStudyByStudyId(entry.key)
-            for (String conceptCode: entry.value.keySet()) {
-                studyConceptPairs << new StudyConceptPair(study, conceptCode)
+        Map<String, Map<String, Counts>> countsPerStudyAndConcept = aggregateDataResource
+                .countsPerStudyAndConcept(constraint, user)
+        for (Map.Entry<String, Map> entry : countsPerStudyAndConcept.entrySet()) {
+            def studyId = entry.key
+            def study = studiesResource.getStudyByStudyId(studyId)
+            def conceptCodeToCounts = entry.value
+            for (Map.Entry<String, Counts> conceptCodeToCountsEntry : conceptCodeToCounts.entrySet()) {
+                Counts counts = conceptCodeToCountsEntry.value
+                if (counts.patientCount > 0 || counts.observationCount > 0) {
+                    String conceptCode = conceptCodeToCountsEntry.key
+                    studyConceptPairs << new StudyConceptPair(study, conceptCode)
+                }
             }
         }
         studyConceptPairs

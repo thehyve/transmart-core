@@ -1,6 +1,5 @@
 package org.transmartproject.db.multidimquery
 
-import com.google.common.collect.ImmutableList
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,19 +7,20 @@ import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.db.clinical.SurveyTableColumnService
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
 import static org.hamcrest.CoreMatchers.containsString
-import static org.transmartproject.core.ontology.VariableDataType.NUMERIC
-import static org.transmartproject.core.ontology.VariableDataType.STRING
-import static org.transmartproject.core.ontology.VariableDataType.DATE
 import static org.transmartproject.core.ontology.Measure.NOMINAL
 import static org.transmartproject.core.ontology.Measure.SCALE
+import static org.transmartproject.core.ontology.VariableDataType.*
 import static spock.util.matcher.HamcrestSupport.that
 
 @Rollback
@@ -170,7 +170,82 @@ class SurveyTableViewSpec extends Specification {
         metadata2*.description == ['FIS Number', 'Description', 'Height']
 
         cleanup:
-        if(transformedView) transformedView.close()
+        if (transformedView) transformedView.close()
+    }
+
+    def 'number of column for the patient set constraint and study'() {
+        def user = User.findByUsername('test-public-user-1')
+        def survey1 = new StudyNameConstraint(studyId: 'SURVEY1')
+        def survey1PatientSet = multiDimService.createPatientSetQueryResult("Test set",
+                survey1,
+                user,
+                'v2')
+        List<HypercubeDataColumn> survey1Columns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
+                survey1, user)
+
+        when: 'we get data columns for the patient set and study'
+        List<HypercubeDataColumn> survey1PatientSetColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
+                new AndConstraint([
+                        new PatientSetConstraint(patientSetId: survey1PatientSet.id),
+                        survey1
+                ]), user)
+
+        then: 'we get exactly the same columns as for the survey1 only'
+        (survey1PatientSetColumns - survey1Columns).empty
+    }
+
+    def 'number of column for the patient set constraint'() {
+        def user = User.findByUsername('test-public-user-1')
+        def ora1000 = new StudyNameConstraint(studyId: 'ORACLE_1000_PATIENT')
+        def ora1000PatientSet = multiDimService.createPatientSetQueryResult("Test set",
+                ora1000,
+                user,
+                'v2')
+        List<HypercubeDataColumn> ora1000Columns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
+                ora1000, user)
+
+        when: 'we get data columns for the patient set'
+        List<HypercubeDataColumn> survey1PatientSetColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
+                new PatientSetConstraint(patientSetId: ora1000PatientSet.id), user)
+
+        then: 'we get exactly 1000 columns'
+        (survey1PatientSetColumns - ora1000Columns).empty
+    }
+
+    def 'number of column for study/concept column constraint'() {
+        def user = User.findByUsername('test-public-user-1')
+        def survey1 = new StudyNameConstraint(studyId: 'SURVEY1')
+        def survey1PatientSet = multiDimService.createPatientSetQueryResult("Test set",
+                survey1,
+                user,
+                'v2')
+
+        when: 'we get data columns for the patient set and unexisting study/concept'
+        List<HypercubeDataColumn> survey1PatientSetColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
+                new AndConstraint([
+                        new PatientSetConstraint(patientSetId: survey1PatientSet.id),
+                        new AndConstraint([
+                                new ConceptConstraint(conceptCodes: ['a', 'b', 'c']),
+                                survey1
+                        ])
+                ]), user)
+
+        then: 'we get nothing as there is no such study/concept'
+        survey1PatientSetColumns.empty
+
+
+        when: 'we get data columns for the patient set and study/concept constraint'
+        List<HypercubeDataColumn> survey1PatientSetColumns2 = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
+                new AndConstraint([
+                        new PatientSetConstraint(patientSetId: survey1PatientSet.id),
+                        new AndConstraint([
+                                new ConceptConstraint(conceptCodes: ['favouritebook']),
+                                survey1
+                        ])
+                ]), user)
+
+        then: 'we get one column'
+        survey1PatientSetColumns2.size() == 1
     }
 
 }

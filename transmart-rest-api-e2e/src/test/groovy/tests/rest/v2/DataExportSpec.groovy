@@ -432,7 +432,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers['spss/data.tsv'] == 15
-        filesLineNumbers['spss/data.sps'] == 111
+        filesLineNumbers['spss/data.sps'] == 92
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers.containsKey('spss/data.sav')
         }
