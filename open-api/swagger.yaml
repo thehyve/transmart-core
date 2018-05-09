@@ -1194,6 +1194,68 @@ paths:
       responses:
         200:
           $ref: '#/definitions/DataTable'
+  /v2/observations/crosstable:
+    get:
+      description: |
+        Returns a tabular view of subject counts, using specified constraints for rows and columns.
+        Each cell represents a number of subjects computed as an intersection of column set, row set
+        and selected subject set that is specified in the parameters as the patientSetId.
+      tags:
+        - v2
+      parameters:
+        - name: rowConstraints
+          required: true
+          in: query
+          type: array
+          description: |
+            List of JSON-encoded constraint specifications. Each constraint is a row header and specifies a row set
+            part of the final set computed for a cell.
+            Example: `[{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"},
+            {"type":"concept","conceptCode":"height"}]`.
+          items:
+            type: string
+        - name: columnConstraints
+          required: true
+          in: query
+          type: array
+          items:
+            type: string
+        - name: patientSetId
+          required: true
+          in: query
+          type: integer
+          description: ID of the patient set.
+      responses:
+        200:
+          $ref: '#/definitions/CrossTable'
+    post:
+      description: |
+        The same as the `get` call, but with parameters specified as a JSON object in the request body. Useful if the
+        parameters don't fit in a single request.
+
+        See the `get` version for additional documentation.
+      tags:
+        - v2
+      parameters:
+        - name: rowConstraints
+          required: true
+          in: body
+          type: array
+          items:
+            type: string
+        - name: columnConstraints
+          required: true
+          in: body
+          type: array
+          items:
+            type: string
+        - name: patientSetId
+          required: true
+          in: query
+          type: integer
+      responses:
+        200:
+          $ref: '#/definitions/CrossTable'
 
     
   /v2/patients:
@@ -2765,6 +2827,22 @@ definitions:
             The total number of rows available. This property is only set if the total is known, which is
             generally only the case if the last row is part of this result.
       required: [column_headers, rows, row_dimensions, sorting, offset]
+
+  CrossTable:
+    description: |
+      A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains
+      a list with numbers of subjects for each cell.
+    schema:
+      type: object
+      properties:
+        rows:
+          description: |
+            This property contains the row data. Items are cells, each cell is a number of subject, computed as a result
+            of an intersection of constraints specified for a row, for a column and for a selected subject set.
+          type: array
+          items:
+            type: number
+      required: [rows]
 
   observation:
     type: object
