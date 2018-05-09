@@ -7,12 +7,13 @@ import grails.converters.JSON
 import groovy.transform.CompileStatic
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.RequestUtils
@@ -51,7 +52,7 @@ abstract class AbstractQueryController implements Controller {
     protected Constraint bindConstraint(String constraintText) {
         try {
             return getConstraintFromString(constraintText)
-        } catch (ConstraintBindingException e) {
+        } catch (BindingException e) {
             def error = [
                     httpStatus: 400,
                     message   : e.message,
@@ -81,8 +82,10 @@ abstract class AbstractQueryController implements Controller {
         if(request.method == 'POST') {
             def parameters = request.JSON as Map<String, Object>
             return parameters.collectEntries { String k, v ->
-                if(v instanceof Object[] || v instanceof List) {
+                if (v instanceof Object[] || v instanceof List) {
                     [k, v.collect { it.toString() }]
+                } else if (v instanceof Map) {
+                    [k, BindingHelper.objectMapper.writeValueAsString((Map)v)]
                 } else {
                     [k, v.toString()]
                 }

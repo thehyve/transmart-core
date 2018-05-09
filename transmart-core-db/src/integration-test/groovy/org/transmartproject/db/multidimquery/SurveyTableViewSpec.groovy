@@ -5,6 +5,8 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PatientSetResource
@@ -50,7 +52,8 @@ class SurveyTableViewSpec extends Specification {
         setup:
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY1")
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, sort: [DimensionImpl.PATIENT])
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        Hypercube hypercube = multiDimService.retrieveClinicalData(args, user)
         boolean includeMeasurementDateColumns = true
 
         when:
@@ -124,7 +127,8 @@ class SurveyTableViewSpec extends Specification {
         setup:
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY2")
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, sort: [DimensionImpl.PATIENT])
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        Hypercube hypercube = multiDimService.retrieveClinicalData(args, user)
         boolean includeMeasurementDateColumns = true
 
         when:

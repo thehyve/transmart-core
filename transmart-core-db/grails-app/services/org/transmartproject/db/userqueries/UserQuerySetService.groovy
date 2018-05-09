@@ -15,7 +15,7 @@ import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SetType
@@ -242,7 +242,7 @@ class UserQuerySetService implements UserQuerySetResource {
     private static Constraint createConstraints(String constraintParam) {
         try {
             ConstraintFactory.read(constraintParam)
-        } catch (ConstraintBindingException c) {
+        } catch (BindingException c) {
             throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam", c)
         }
     }

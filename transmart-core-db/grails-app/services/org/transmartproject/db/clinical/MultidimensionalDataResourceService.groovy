@@ -16,6 +16,9 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -27,6 +30,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.OperationNotImplementedException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
@@ -73,12 +77,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     /**
      * See the documentation for {@link MultiDimensionalDataResource#retrieveData}
      */
-    @Override HypercubeImpl retrieveData(Map args, String dataType, User user) {
+    @Override
+    HypercubeImpl retrieveData(DataRetrievalParameters args, String dataType, User user) {
         // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
         // that has not been implemented, so we only support clinical data in this call. Instead there is the
         // highDimension call that uses the old high dim api and converts the tabular result to a hypercube.
-        if(dataType != "clinical") throw new OperationNotImplementedException(
-                "High dimension datatypes are not yet implemented for the native hypercube")
+        if (dataType != "clinical") {
+            throw new OperationNotImplementedException(
+                    "High dimension datatypes are not yet implemented for the native hypercube")
+        }
 
         Constraint constraint = args.constraint
         Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions.collect { toDimensionImpl(it) } ?: [])
@@ -109,17 +116,12 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
      * (case insensitive).
      * @return An ordered Map<DimensionImpl, SortOrder>
      */
-    Map<DimensionImpl, SortOrder> parseSort(sort) {
+    Map<DimensionImpl, SortOrder> parseSort(List<SortSpecification> sort) {
         if (sort == null) {
-            [:]
-        } else if (sort instanceof Map) {
-            (Map) sort.collectEntries { [toDimensionImpl(it.key), toSortOrder(it.value)] }
-        } else if (sort instanceof List) {
-            sort.collectEntries {
-                it instanceof List ?
-                        [toDimensionImpl(it[0]), toSortOrder(it[1])] :
-                        [toDimensionImpl(it), SortOrder.ASC]
-            }
+            return [:]
+        }
+        sort.collectEntries {
+            [toDimensionImpl(it.dimension), it.sortOrder]
         }
     }
 
@@ -246,25 +248,19 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             // other words for an ObservationFact value row and its associated modifier rows.
             CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME, /*TRIAL_VISIT, STUDY, END_TIME*/)
 
-    private static DimensionImpl toDimensionImpl(dimOrDimName) {
-        if(dimOrDimName instanceof DimensionImpl) {
+    private Dimension toDimensionImpl(dimOrDimName) {
+        if (dimOrDimName instanceof DimensionImpl) {
             return dimOrDimName
         }
-        if(dimOrDimName instanceof String) {
-            def dim = DimensionDescription.findByName(dimOrDimName)?.dimension
-            if(dim == null) throw new InvalidArgumentsException("Unknown dimension: $dimOrDimName")
+        if (dimOrDimName instanceof String) {
+            def dim = allDimensions.find { it.name == dimOrDimName }
+            //def dim = DimensionDescription.findByName(dimOrDimName)?.dimension
+            if (dim == null) {
+                throw new InvalidArgumentsException("Unknown dimension: $dimOrDimName")
+            }
             return dim
         }
         throw new InvalidArgumentsException("dimension $dimOrDimName is not a valid dimension or dimension name")
-    }
-
-    private static SortOrder toSortOrder(it) {
-        if (it instanceof SortOrder) return it
-        try {
-            return SortOrder.valueOf(((String) it).toUpperCase())
-        } catch (IllegalArgumentException e) {
-            throw new InvalidArgumentsException("'$it' is not a valid sort order")
-        }
     }
 
     /*
@@ -386,49 +382,69 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    PagingDataTableImpl retrieveDataTable(Map args, String type, Constraint constraint, User user) {
-        args = parseDataTableArgs(args, type)
-        Hypercube cube = retrieveClinicalData(args, constraint, user)
+    PagingDataTableImpl retrieveDataTable(TableConfig tableConfig, String type, Constraint constraint, User user) {
+        TableRetrievalParameters args = parseDataTableArgs(tableConfig, type, constraint)
+        Hypercube cube = retrieveClinicalData(args.dataRetrievalParameters, user)
         return new PagingDataTableImpl(args, cube)
     }
 
-    FullDataTable retrieveStreamingDataTable(Map args, String type, Constraint constraint, User user) {
-        args = parseDataTableArgs(args, type)
-        Hypercube cube = retrieveClinicalData(args, constraint, user)
+    FullDataTable retrieveStreamingDataTable(TableConfig tableConfig, String type, Constraint constraint, User user) {
+        TableRetrievalParameters args = parseDataTableArgs(tableConfig, type, constraint)
+        Hypercube cube = retrieveClinicalData(args.dataRetrievalParameters, user)
         return new FullDataTable(args, cube)
     }
 
-    private Map parseDataTableArgs(Map args, String type) {
-        if(type != 'clinical') throw new OperationNotImplementedException("High dimensional data is not supported in " +
-                "data table format")
-
-        def rowSort = parseSort(args.rowSort)
-        def columnSort = parseSort(args.columnSort)
-        List<DimensionImpl> rowDimensions = args.rowDimensions = (List) requireNonNull(
-                args.rowDimensions?.collect { toDimensionImpl(it) })
-        List<DimensionImpl> columnDimensions = args.columnDimensions = (List) requireNonNull(
-                args.columnDimensions?.collect { toDimensionImpl(it) })
-
-        def invalidRowSorts = rowSort ? rowSort.keySet() - rowDimensions : null
-        if(invalidRowSorts) throw new InvalidArgumentsException("Only dimensions specified in rowDimensions can be " +
-                "specified in rowSort: "+invalidRowSorts.join(', '))
-        def invalidColumnSorts = columnSort ? columnSort.keySet() - columnDimensions : null
-        if(invalidColumnSorts) throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
-                " be specified in columnSort "+invalidColumnSorts.join(', '))
-
-        args.userSort = rowSort + columnSort
-
-        for(def dim : rowDimensions) {
-            rowSort.putIfAbsent(dim, SortOrder.ASC)
-        }
-        for(def dim : columnDimensions) {
-            columnSort.putIfAbsent(dim, SortOrder.ASC)
+    private TableRetrievalParameters parseDataTableArgs(TableConfig tableConfig, String type, Constraint constraint) {
+        if (type != 'clinical') {
+            throw new OperationNotImplementedException("High dimensional data is not supported in data table format")
         }
 
-        args.sort = rowSort + columnSort
-        args.dimensions = rowDimensions + columnDimensions
+        List<SortSpecification> rowSort = tableConfig.rowSort ?: []
+        List<SortSpecification> columnSort = tableConfig.columnSort ?: []
+        requireNonNull(tableConfig.rowDimensions)
+        def rowDimensions = tableConfig.rowDimensions
+        requireNonNull(tableConfig.columnDimensions)
+        def columnDimensions = tableConfig.columnDimensions
 
-        args
+        def rowSortDimensions = (rowSort ? rowSort.dimension : []) as Set
+        def invalidRowSorts = rowSort ? rowSortDimensions - rowDimensions : null
+        if (invalidRowSorts) {
+            throw new InvalidArgumentsException("Only dimensions specified in rowDimensions can be " +
+                    "specified in rowSort: "+invalidRowSorts.join(', '))
+        }
+        def columnSortDimensions = (columnSort ? columnSort.dimension : []) as Set
+        def invalidColumnSorts = columnSort ? columnSortDimensions - columnDimensions : null
+        if (invalidColumnSorts) {
+            throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
+                    " be specified in columnSort: ${invalidColumnSorts.join(', ')}")
+        }
+
+        def userSort = rowSort + columnSort
+
+        for (def dim : rowDimensions) {
+            if (!rowSortDimensions.contains(dim)) {
+                rowSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
+            }
+        }
+        for (def dim : columnDimensions) {
+            if (!columnSortDimensions.contains(dim)) {
+                columnSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
+            }
+        }
+
+        def sort = rowSort + columnSort
+        def dimensions = rowDimensions + columnDimensions
+        def dataRetrievalParameters = new DataRetrievalParameters(constraint: constraint, dimensions: dimensions, sort: sort)
+
+        new TableRetrievalParameters(
+                dataRetrievalParameters: dataRetrievalParameters,
+                rowDimensions: rowDimensions.collect { toDimensionImpl(it) },
+                columnDimensions: columnDimensions.collect { toDimensionImpl(it) },
+                userSort: userSort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] },
+                sort: sort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] },
+                offset: tableConfig.offset,
+                limit: tableConfig.limit
+        )
     }
 
     @Override
@@ -487,15 +503,14 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     @Override
     Hypercube retrieveClinicalData(Constraint constraint, User user) {
-        retrieveClinicalData([:], constraint, user)
+        retrieveClinicalData(new DataRetrievalParameters(constraint: constraint), user)
     }
 
     @Override
-    Hypercube retrieveClinicalData(Map args, Constraint constraint, User user) {
-        assert constraint instanceof Constraint
-        checkAccess(constraint, user)
+    Hypercube retrieveClinicalData(DataRetrievalParameters args, User user) {
+        checkAccess(args.constraint, user)
         def dataType = 'clinical'
-        retrieveData([*:args, constraint: constraint], dataType, user)
+        retrieveData(args, dataType, user)
     }
 
 }

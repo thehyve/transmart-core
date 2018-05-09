@@ -8,6 +8,7 @@ import com.google.common.collect.ListMultimap
 import com.google.common.collect.Multimap
 import com.google.common.collect.Multimaps
 import groovy.transform.CompileStatic
+import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
 import org.transmartproject.core.multidimquery.Dimension
@@ -24,7 +25,7 @@ class FullDataTable extends AbstractDataTable implements StreamingDataTable {
     // maps of elementKey -> element for each dimension.
     private Map<Dimension, Map> elementsMap
 
-    FullDataTable(Map args, Hypercube hypercube) {
+    FullDataTable(TableRetrievalParameters args, Hypercube hypercube) {
         super(args, hypercube)
 
         columnKeys = buildColumns(hypercube)

@@ -1,7 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.multidimquery.query.FieldConstraint
@@ -23,7 +23,7 @@ class ConstraintSpec extends Specification {
         when: 'null constraint without field'
         ConstraintFactory.create([type: 'null'])
         then: 'constraint binding exception is thrown'
-        def e1 = thrown(ConstraintBindingException)
+        def e1 = thrown(BindingException)
         e1.message.contains('null')
         e1.message.contains('field')
         e1.errors
@@ -32,7 +32,7 @@ class ConstraintSpec extends Specification {
         when: 'value constraint with 3 not compatible fileds supplied'
         ConstraintFactory.create([type: 'value', valueType: 'date', operator: 'or', value: 'text'])
         then: 'constraint binding exception is thrown with 3 violations'
-        def e2 = thrown(ConstraintBindingException)
+        def e2 = thrown(BindingException)
         e2.message.contains('Only string or numerical value type is allowed')
         e2.message.contains('The type does not support the value')
         e2.message.contains('The value type is not compatible with the operator')

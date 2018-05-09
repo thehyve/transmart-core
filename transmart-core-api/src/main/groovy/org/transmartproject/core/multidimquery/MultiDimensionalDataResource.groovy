@@ -3,6 +3,8 @@
 package org.transmartproject.core.multidimquery
 
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.ontology.MDStudy
@@ -23,7 +25,7 @@ interface MultiDimensionalDataResource {
      *
      * @return a Hypercube result
      */
-    Hypercube retrieveData(Map args, String dataType, User user)
+    Hypercube retrieveData(DataRetrievalParameters args, String dataType, User user)
 
     /**
      * Translate a dimension name to the dimension object
@@ -40,15 +42,6 @@ interface MultiDimensionalDataResource {
      */
     Iterable getDimensionElements(Dimension dimension, Constraint constraint, User user)
 
-    /**
-     * Parse a sort specification to an ordered map of dimensions to SortOrders
-     * @param sort the sort order as an ordered map or list of pairs, with keys and values as objects or strings
-     * @return The sort as an ordered map
-     *
-     * TODO: parseSort should live in rest-api, not here
-     */
-    Map<Dimension, SortOrder> parseSort(sort)
-
     Hypercube highDimension(
             Constraint assayConstraint_,
             BiomarkerConstraint biomarkerConstraint,
@@ -58,11 +51,11 @@ interface MultiDimensionalDataResource {
 
     Hypercube retrieveClinicalData(Constraint constraint, User user)
 
-    Hypercube retrieveClinicalData(Map args, Constraint constraint, User user)
+    Hypercube retrieveClinicalData(DataRetrievalParameters args, User user)
 
-    PagingDataTable retrieveDataTable(Map args, String type, Constraint constraint, User user)
+    PagingDataTable retrieveDataTable(TableConfig tableConfig, String type, Constraint constraint, User user)
 
-    StreamingDataTable retrieveStreamingDataTable(Map args, String type, Constraint constraint, User user)
+    StreamingDataTable retrieveStreamingDataTable(TableConfig tableConfig, String type, Constraint constraint, User user)
 
     List<String> retrieveHighDimDataTypes(Constraint assayConstraint, User user)
 

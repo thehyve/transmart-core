@@ -7,9 +7,11 @@ import org.hibernate.internal.SessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
@@ -161,9 +163,12 @@ class QueryServiceSpec extends TransmartSpecification {
         result[0][DimensionImpl.PATIENT].sourcesystemCd.contains('SUBJ_ID_2')
     }
 
-    private List<HypercubeValue> getObservationsList(Constraint constraint) { getObservationsList([:], constraint) }
-    private List<HypercubeValue> getObservationsList(Map args, Constraint constraint) {
-        multiDimService.retrieveClinicalData(args, constraint, accessLevelTestData.users[0]).asList()
+    private List<HypercubeValue> getObservationsList(Constraint constraint) {
+        multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+    }
+
+    private List<HypercubeValue> getObservationsList(DataRetrievalParameters args) {
+        multiDimService.retrieveClinicalData(args, accessLevelTestData.users[0]).asList()
     }
 
     private List<Patient> getPatients(Constraint constraint) {
@@ -622,19 +627,23 @@ class QueryServiceSpec extends TransmartSpecification {
         Constraint constraint = new OrConstraint(studies.collect { new StudyObjectConstraint(it) })
 
         when:
-        def result = getObservationsList(constraint, sort: [PATIENT])
+        def args = new DataRetrievalParameters(constraint: constraint)
+        args.sort = [SortSpecification.asc('patient')]
+        def result = getObservationsList(args)
 
         then:
         result*.getDimKey(PATIENT) == result*.getDimKey(PATIENT).sort(false)
 
         when:
-        result = getObservationsList(constraint, sort: [(PATIENT): 'desc'])
+        args.sort = [SortSpecification.desc('patient')]
+        result = getObservationsList(args)
 
         then:
         result*.getDimKey(PATIENT) == result*.getDimKey(PATIENT).sort(false).reverse()
 
         when:
-        result = getObservationsList(constraint, sort: [[PATIENT, 'desc'], [CONCEPT, 'asc']])
+        args.sort = [SortSpecification.desc('patient'), SortSpecification.asc('concept')]
+        result = getObservationsList(args)
 
         then:
         result == result.sort(false) { a, b ->
@@ -654,7 +663,9 @@ class QueryServiceSpec extends TransmartSpecification {
             new StudyObjectConstraint(it) })
 
         when:
-        getObservationsList(constraint, sort: [hypercubeTestData.clinicalData.doseDimension])
+        def args = new DataRetrievalParameters(constraint: constraint)
+        args.sort = [SortSpecification.asc(hypercubeTestData.clinicalData.doseDimension.name)]
+        getObservationsList(args)
 
         then:
         thrown InvalidArgumentsException
@@ -662,12 +673,11 @@ class QueryServiceSpec extends TransmartSpecification {
         when:
         // END_TIME can be made sortable, if it is loaded in a sort-compatible way. If we decide to support that, this
         // test can be removed or test another dimension that cannot be sorted with modifiers present.
-        getObservationsList(constraint, sort: [END_TIME])
+        args.sort = [SortSpecification.asc(END_TIME.name)]
+        getObservationsList(args)
 
         then:
         thrown UnsupportedByDataTypeException
-
-
     }
 
 }

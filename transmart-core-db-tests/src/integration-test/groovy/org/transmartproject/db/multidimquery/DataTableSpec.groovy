@@ -8,6 +8,8 @@ import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -25,8 +27,6 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.user.AccessLevelTestData
-
-import static org.transmartproject.db.clinical.MultidimensionalDataResourceService.toDimensionImpl
 
 
 @Integration
@@ -72,8 +72,13 @@ class DataTableSpec extends TransmartSpecification {
         setupData()
 
         when:
-        PagingDataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], offset: 0, limit: 10)
+        def tableConfig = new TableConfig(
+                rowDimensions: ['study', 'patient'],
+                columnDimensions: ['trial visit', 'concept'],
+                offset: 0,
+                limit: 10
+        )
+        PagingDataTable table = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
 
         def sortDims = table.sort.keySet().withIndex().collectEntries()
 
@@ -92,8 +97,9 @@ class DataTableSpec extends TransmartSpecification {
 
         when:
         def secondRow = table.row(table.rowKeys[1])
-        PagingDataTable subTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], offset: 1, limit: 1)
+        tableConfig.offset = 1
+        tableConfig.limit = 1
+        PagingDataTable subTable = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
 
         then:
         subTable.rowKeys.size() == 1
@@ -102,8 +108,11 @@ class DataTableSpec extends TransmartSpecification {
                 secondRow.collectEntries { col, vals -> [col, vals[0].value] }
 
         when:
-        StreamingDataTable sTable = queryResource.retrieveStreamingDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'])
+        tableConfig = new TableConfig(
+                rowDimensions: ['study', 'patient'],
+                columnDimensions: ['trial visit', 'concept']
+        )
+        StreamingDataTable sTable = queryResource.retrieveStreamingDataTable(tableConfig, 'clinical', constraint, adminUser)
         List<FullDataTableRow> rows = Lists.newArrayList(sTable)
 
         Table sTab = HashBasedTable.create()
@@ -129,14 +138,19 @@ class DataTableSpec extends TransmartSpecification {
         setupData()
 
         when:
-        PagingDataTable reverseSortTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
-                rowSort: ['patient', 'study'], columnSort: ['concept', 'trial visit'])
+        def tableConfig = new TableConfig(
+                rowDimensions: ['study', 'patient'],
+                columnDimensions: ['trial visit', 'concept'],
+                limit: 10,
+                rowSort: [SortSpecification.asc('patient'), SortSpecification.asc('study')],
+                columnSort: [SortSpecification.asc('concept'), SortSpecification.asc('trial visit')]
+        )
+        PagingDataTable reverseSortTable = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
         def reverseSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
         
         then:
         reverseSortTable.requestedSort == ['patient', 'study', 'concept', 'trial visit'].collectEntries {
-            [toDimensionImpl(it), SortOrder.ASC]
+            [queryResource.getDimension(it), SortOrder.ASC]
         }
         reverseSortDims[DimensionImpl.TRIAL_VISIT] > reverseSortDims[DimensionImpl.CONCEPT]
         reverseSortDims[DimensionImpl.STUDY] > reverseSortDims[DimensionImpl.PATIENT]
@@ -144,9 +158,14 @@ class DataTableSpec extends TransmartSpecification {
         reverseSortTable.rowKeys*.keys*.getAt(0) == reverseSortTable.rowKeys*.keys*.getAt(0).sort(false)
 
         when:
-        PagingDataTable descSortTable = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
-                rowSort: [['patient', 'desc'], ['study', 'desc']], columnSort: ['concept', 'trial visit'])
+        def descTableConfig = new TableConfig(
+                rowDimensions: ['study', 'patient'],
+                columnDimensions: ['trial visit', 'concept'],
+                limit: 10,
+                rowSort: [SortSpecification.desc('patient'), SortSpecification.desc('study')],
+                columnSort: [SortSpecification.asc('concept'), SortSpecification.asc('trial visit')]
+        )
+        PagingDataTable descSortTable = queryResource.retrieveDataTable(descTableConfig, 'clinical', constraint, adminUser)
         def descSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
 
         then:
@@ -163,30 +182,25 @@ class DataTableSpec extends TransmartSpecification {
         setupData()
 
         when:
-        PagingDataTable table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
-                rowSort: ['patient', 'concept'], columnSort: ['trial visit'])
+        def tableConfig = new TableConfig(
+                rowDimensions: ['study', 'patient'],
+                columnDimensions: ['trial visit', 'concept'],
+                limit: 10,
+                rowSort: [SortSpecification.asc('patient'), SortSpecification.asc('concept')],
+                columnSort: [SortSpecification.asc('trial visit')]
+        )
+        PagingDataTable table = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
 
         then:
         thrown InvalidArgumentsException
 
         when:
-        table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
-                rowSort: ['patient'], columnSort: ['study', 'trial visit'])
+        tableConfig.rowSort = [SortSpecification.asc('patient')]
+        tableConfig.columnSort = [SortSpecification.asc('study'), SortSpecification.asc('trial visit')]
+        table = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
 
         then:
         thrown InvalidArgumentsException
-
-        when:
-        table = queryResource.retrieveDataTable('clinical', constraint, adminUser,
-                rowDimensions: ['study', 'patient'], columnDimensions: ['trial visit', 'concept'], limit: 10,
-                rowSort: ['patient': 'foo'])
-
-        then:
-        thrown InvalidArgumentsException
-
-
     }
 
 }

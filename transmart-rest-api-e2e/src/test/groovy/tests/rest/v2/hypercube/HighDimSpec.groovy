@@ -433,7 +433,7 @@ class HighDimSpec extends RESTSpec {
 
         then:
         that responseData.httpStatus, is(400)
-        that responseData.type, is('ConstraintBindingException')
+        that responseData.type, is('BindingException')
         that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'invalidConstraint\' into a subtype of ')
 
         where:

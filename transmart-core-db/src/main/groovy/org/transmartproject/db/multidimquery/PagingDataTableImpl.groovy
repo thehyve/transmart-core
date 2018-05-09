@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Lists
 import com.google.common.collect.Table
 import groovy.transform.CompileStatic
+import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.PagingDataTable
@@ -33,7 +34,7 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
     }
     //Map<DataTableColumnImpl, ? extends Collection<HypercubeValue>> row(DataTableRowImpl row) { table.row(row) }
 
-    PagingDataTableImpl(Map args, Hypercube hypercube) {
+    PagingDataTableImpl(TableRetrievalParameters args, Hypercube hypercube) {
         super(args, hypercube)
 
         this.offset = (long) (args.offset ?: 0)

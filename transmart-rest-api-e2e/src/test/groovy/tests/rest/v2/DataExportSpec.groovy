@@ -287,7 +287,7 @@ class DataExportSpec extends RESTSpec {
                 statusCode: 400,
         ])
         then: "I get the error."
-        runResponse.message == 'No constraint provided.'
+        runResponse.message == '1 error(s): constraint: may not be null'
     }
 
     @RequiresStudy(EHR_ID)
