@@ -5,10 +5,23 @@ import annotations.RequiresStudy
 import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
+import static config.Config.ADMIN_USER
+import static config.Config.DEFAULT_USER
 import static config.Config.EHR_ID
+import static config.Config.PATH_CROSSTABLE
 import static config.Config.PATH_OBSERVATIONS
+import static config.Config.PATH_PATIENT_SET
 import static config.Config.PATH_TABLE
+import static config.Config.SHARED_CONCEPTS_A_ID
+import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
+import static tests.rest.Operator.GREATER_THAN
+import static tests.rest.Operator.OR
+import static tests.rest.ValueType.NUMERIC
+import static tests.rest.constraints.Combination
 import static tests.rest.constraints.ConceptConstraint
+import static tests.rest.constraints.StudyNameConstraint
+import static tests.rest.constraints.TrueConstraint
+import static tests.rest.constraints.ValueConstraint
 
 class ObservationSpec extends RESTSpec {
 
@@ -47,8 +60,9 @@ class ObservationSpec extends RESTSpec {
     }
 
     /**
-     *
-     * @return
+     *  given: "study EHR is loaded"
+     *  when: "for that study I get all observations for a heart rate in table format"
+     *  then: "table is properly formatted"
      */
     @RequiresStudy(EHR_ID)
     def "get data table"() {
@@ -99,6 +113,95 @@ class ObservationSpec extends RESTSpec {
         assert responseData2["row count"] == responseData["row count"]
         assert responseData2.rows.size() == limit
         assert responseData2.rows == responseData.rows.takeRight(2)
+
+        where:
+        method | _
+        "POST" | _
+        "GET"  | _
+    }
+
+    /**
+     *  given: "study EHR, SHARED_CONCEPTS_RESTRICTED and SHARED_CONCEPTS_A are loaded"
+     *  when: "I specify a list of row and column constraints and their intersections create table cells"
+     *  then: "for each of cells the number of subjects is computed properly"
+     */
+    @RequiresStudy([EHR_ID, SHARED_CONCEPTS_RESTRICTED_ID, SHARED_CONCEPTS_A_ID])
+    def "get cross-table"() {
+        def patientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'crosstable_test_set'],
+                body      : toJSON([
+                        type    : Combination,
+                        operator: OR,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: EHR_ID],
+                                [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
+                        ]
+                ]),
+                user      : ADMIN_USER,
+                statusCode: 201
+        ]
+        def patientSetResponse = post(patientSetRequest)
+        def patientSetId = patientSetResponse.id
+        def restrictedConceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
+        def params = [
+                rowConstraints   : [toJSON([type: TrueConstraint]),
+                                    toJSON([type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 80])],
+                columnConstraints: [toJSON([type: ConceptConstraint, path: restrictedConceptPath]),
+                                    toJSON([type: TrueConstraint])],
+                patientSetId     : patientSetId,
+        ]
+        def request = [
+                path      : PATH_CROSSTABLE,
+                acceptType: JSON,
+                user      : ADMIN_USER
+        ]
+        when: "I specify a list of row and column constraints and their intersections create table cells"
+        def responseData = getOrPostRequest(method, request, params)
+
+        then: "for each of cells the number of subjects is computed properly"
+        assert responseData.rows.size() == 2
+        assert responseData.rows[0] == [2, 5]
+        assert responseData.rows[1] == [0, 3]
+
+        when: "I do not have an access to the specified patient set"
+        def request2 = request
+        request2.user = DEFAULT_USER
+        def responseData2 = getOrPostRequest(method, request2, params)
+
+        then: "Returned counts for all cells equal zero"
+        assert responseData2.rows.size() == 2
+        assert responseData2.rows[0] == [0, 0]
+        assert responseData2.rows[1] == [0, 0]
+
+        when: "I do not have an access to the restricted concept path constraint"
+        def patientSetRequest2 = [
+                path      : PATH_PATIENT_SET,
+                acceptType: JSON,
+                query     : [name: 'crosstable_test_set'],
+                body      : toJSON([
+                        type    : Combination,
+                        operator: OR,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: EHR_ID],
+                                [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID]
+                        ]
+                ]),
+                user      : ADMIN_USER,
+                statusCode: 201
+        ]
+        patientSetRequest2.user = DEFAULT_USER
+        def patientSetResponse2 = post(patientSetRequest2)
+        def patientSetId2 = patientSetResponse2.id
+        def params2 = params
+        params2.patientSetId = patientSetId2
+        def responseData3 = getOrPostRequest(method, request2, params2)
+
+        then: "Returned count for the first cell equals zero"
+        assert responseData3.rows.size() == 2
+        assert responseData3.rows[0] == [0, 5]
+        assert responseData3.rows[1] == [0, 3]
 
         where:
         method | _
