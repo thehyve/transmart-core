@@ -55,7 +55,7 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
                 row_dimensions: dataTable.rowDimensions*.name,
                 column_dimensions: dataTable.columnDimensions*.name,
                 sort: dataTable.sort.collect { dim, sort ->
-                    ((Map) [dimension: dim.name, order: sort.string()]) +
+                    ((Map) [dimension: dim.name, sortOrder: sort.string()]) +
                             (dataTable.requestedSort.containsKey(dim) ? [user_requested: true] : [:])
                 }
         ]
