@@ -6,6 +6,7 @@ import grails.artefact.Controller
 import grails.converters.JSON
 import groovy.transform.CompileStatic
 import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONArray
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -83,7 +84,12 @@ abstract class AbstractQueryController implements Controller {
             def parameters = request.JSON as Map<String, Object>
             return parameters.collectEntries { String k, v ->
                 if (v instanceof Object[] || v instanceof List) {
-                    [k, v.collect { it.toString() }]
+                    [k, v.collect {
+                        if (it instanceof Map) {
+                            BindingHelper.objectMapper.writeValueAsString((Map) it)
+                        } else
+                            it.toString()
+                    }]
                 } else if (v instanceof Map) {
                     [k, BindingHelper.objectMapper.writeValueAsString((Map)v)]
                 } else {

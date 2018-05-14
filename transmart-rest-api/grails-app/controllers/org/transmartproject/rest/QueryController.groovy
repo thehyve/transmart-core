@@ -225,8 +225,8 @@ class QueryController extends AbstractQueryController {
                 throw new InvalidArgumentsException("$name must be a JSON array of strings")
             }
         }
-        List<Constraint> rowConstraints = args.rowConstraints.collect { constraint -> bindConstraint(constraint) }
-        List<Constraint> columnConstraints = args.columnConstraints.collect { constraint -> bindConstraint(constraint.toString()) }
+        List<Constraint> rowConstraints = args.rowConstraints.collect { constraint -> bindConstraint((String) constraint) }
+        List<Constraint> columnConstraints = args.columnConstraints.collect { constraint -> bindConstraint((String) constraint) }
 
         if (args.patientSetId == null) {
             throw new InvalidArgumentsException("Parameter 'patientSetId' is required")
