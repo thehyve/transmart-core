@@ -63,7 +63,7 @@ class ExportService {
                 try {
                     if (jobDataMap.tableConfig) {
                         TableConfig tableConfig = jobDataMap.tableConfig
-                        dataSerializer.writeTable(element.format, constraint, tableConfig, user, output)
+                        dataSerializer.writeTable(element.format, constraint, tableConfig, null, user, output)
                     } else {
                         DataRetrievalParameters parameters = new DataRetrievalParameters(
                                 constraint: constraint,

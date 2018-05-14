@@ -7,6 +7,7 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.binding.BindingHelper
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -187,15 +188,19 @@ class QueryController extends AbstractQueryController {
 
         OutputStream out = getLazyOutputStream(Format.JSON)
 
-        TableConfig tableConfig = new TableConfig(
+        def tableConfig = new TableConfig(
                 rowDimensions: rowDimensions,
                 columnDimensions: columnDimensions,
                 rowSort: rowSort,
-                columnSort: columnSort,
+                columnSort: columnSort
+        )
+        BindingHelper.validate(tableConfig)
+        def pagination = new PaginationParameters(
                 limit: limit,
                 offset: offset
         )
-        hypercubeDataSerializationService.writeTable(Format.JSON, constraint, tableConfig, user, out)
+        BindingHelper.validate(pagination)
+        hypercubeDataSerializationService.writeTablePage(Format.JSON, constraint, tableConfig, pagination, user, out)
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.transmartproject.rest.serialization
 
 import groovy.transform.CompileStatic
-import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.query.Constraint
 

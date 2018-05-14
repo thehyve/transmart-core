@@ -20,6 +20,7 @@ package org.transmartproject.rest
 
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
@@ -86,14 +87,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                     TableConfig tableConfig,
                     User user,
                     OutputStream out) {
-        if (format == Format.JSON) {
-            def datatable = multiDimService.retrieveDataTable(tableConfig, 'clinical', constraint, user)
-            try {
-                DataTableSerializer.write(datatable, out)
-            } finally {
-                datatable.close()
-            }
-        } else if (format == Format.TSV) {
+        if (format == Format.TSV) {
             StreamingDataTable datatable = multiDimService.retrieveStreamingDataTable(
                     tableConfig, 'clinical', constraint, user)
             try {
@@ -103,6 +97,25 @@ class HypercubeDataSerializationService implements DataSerializer {
             } finally {
                 datatable.close()
                 log.info "Writing tabular data in ${format} format completed."
+            }
+        } else {
+            throw new UnsupportedOperationException("Unsupported format: ${format}")
+        }
+    }
+
+    @Override
+    void writeTablePage(Format format,
+                    Constraint constraint,
+                    TableConfig tableConfig,
+                    PaginationParameters pagination,
+                    User user,
+                    OutputStream out) {
+        if (format == Format.JSON) {
+            def datatable = multiDimService.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, user)
+            try {
+                DataTableSerializer.write(datatable, out)
+            } finally {
+                datatable.close()
             }
         } else {
             throw new UnsupportedOperationException("Unsupported format: ${format}")

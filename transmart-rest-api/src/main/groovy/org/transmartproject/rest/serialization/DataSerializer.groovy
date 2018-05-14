@@ -18,6 +18,7 @@
  */
 package org.transmartproject.rest.serialization
 
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -51,6 +52,23 @@ interface DataSerializer {
     void writeTable(Format format,
                     Constraint constraint,
                     TableConfig tableConfig,
+                    User user,
+                    OutputStream out)
+
+    /**
+     * Write tabular data page to the output stream.
+     *
+     * @param format
+     * @param constraint
+     * @param tableConfig
+     * @param pagination
+     * @param user
+     * @param out
+     */
+    void writeTablePage(Format format,
+                    Constraint constraint,
+                    TableConfig tableConfig,
+                    PaginationParameters pagination,
                     User user,
                     OutputStream out)
 

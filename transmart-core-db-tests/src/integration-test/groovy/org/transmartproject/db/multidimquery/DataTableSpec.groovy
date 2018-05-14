@@ -7,6 +7,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
@@ -74,11 +75,13 @@ class DataTableSpec extends TransmartSpecification {
         when:
         def tableConfig = new TableConfig(
                 rowDimensions: ['study', 'patient'],
-                columnDimensions: ['trial visit', 'concept'],
+                columnDimensions: ['trial visit', 'concept']
+        )
+        def pagination = new PaginationParameters(
                 offset: 0,
                 limit: 10
         )
-        PagingDataTable table = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
+        PagingDataTable table = queryResource.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, adminUser)
 
         def sortDims = table.sort.keySet().withIndex().collectEntries()
 
@@ -97,9 +100,9 @@ class DataTableSpec extends TransmartSpecification {
 
         when:
         def secondRow = table.row(table.rowKeys[1])
-        tableConfig.offset = 1
-        tableConfig.limit = 1
-        PagingDataTable subTable = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
+        pagination.offset = 1
+        pagination.limit = 1
+        PagingDataTable subTable = queryResource.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, adminUser)
 
         then:
         subTable.rowKeys.size() == 1
@@ -141,11 +144,11 @@ class DataTableSpec extends TransmartSpecification {
         def tableConfig = new TableConfig(
                 rowDimensions: ['study', 'patient'],
                 columnDimensions: ['trial visit', 'concept'],
-                limit: 10,
                 rowSort: [SortSpecification.asc('patient'), SortSpecification.asc('study')],
                 columnSort: [SortSpecification.asc('concept'), SortSpecification.asc('trial visit')]
         )
-        PagingDataTable reverseSortTable = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
+        def pagination = new PaginationParameters(limit: 10)
+        PagingDataTable reverseSortTable = queryResource.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, adminUser)
         def reverseSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
         
         then:
@@ -161,11 +164,10 @@ class DataTableSpec extends TransmartSpecification {
         def descTableConfig = new TableConfig(
                 rowDimensions: ['study', 'patient'],
                 columnDimensions: ['trial visit', 'concept'],
-                limit: 10,
                 rowSort: [SortSpecification.desc('patient'), SortSpecification.desc('study')],
                 columnSort: [SortSpecification.asc('concept'), SortSpecification.asc('trial visit')]
         )
-        PagingDataTable descSortTable = queryResource.retrieveDataTable(descTableConfig, 'clinical', constraint, adminUser)
+        PagingDataTable descSortTable = queryResource.retrieveDataTablePage(descTableConfig, pagination, 'clinical', constraint, adminUser)
         def descSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
 
         then:
@@ -185,11 +187,11 @@ class DataTableSpec extends TransmartSpecification {
         def tableConfig = new TableConfig(
                 rowDimensions: ['study', 'patient'],
                 columnDimensions: ['trial visit', 'concept'],
-                limit: 10,
                 rowSort: [SortSpecification.asc('patient'), SortSpecification.asc('concept')],
                 columnSort: [SortSpecification.asc('trial visit')]
         )
-        PagingDataTable table = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
+        def pagination = new PaginationParameters(limit: 10)
+        PagingDataTable table = queryResource.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, adminUser)
 
         then:
         thrown InvalidArgumentsException
@@ -197,7 +199,7 @@ class DataTableSpec extends TransmartSpecification {
         when:
         tableConfig.rowSort = [SortSpecification.asc('patient')]
         tableConfig.columnSort = [SortSpecification.asc('study'), SortSpecification.asc('trial visit')]
-        table = queryResource.retrieveDataTable(tableConfig, 'clinical', constraint, adminUser)
+        table = queryResource.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, adminUser)
 
         then:
         thrown InvalidArgumentsException

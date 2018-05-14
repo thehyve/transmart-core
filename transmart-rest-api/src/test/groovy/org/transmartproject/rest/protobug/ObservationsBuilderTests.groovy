@@ -7,6 +7,7 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.dataquery.TableRetrievalParameters
@@ -286,10 +287,10 @@ class ObservationsBuilderTests extends Specification {
         def tableConfig = new TableConfig(
                 rowSort: [new SortSpecification(dimension: 'patient')],
                 rowDimensions: rowDimensions,
-                columnDimensions: columnDimensions,
-                limit: limit
+                columnDimensions: columnDimensions
         )
-        def mockedDataTable = queryResource.retrieveDataTable(tableConfig, dataType, constraint, adminUser)
+        def pagination = new PaginationParameters(limit: limit)
+        def mockedDataTable = queryResource.retrieveDataTablePage(tableConfig, pagination, dataType, constraint, adminUser)
 
         when:
         def out = new ByteArrayOutputStream()

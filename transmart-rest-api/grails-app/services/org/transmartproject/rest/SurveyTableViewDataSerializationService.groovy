@@ -25,6 +25,7 @@ import org.grails.core.util.StopWatch
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
@@ -138,6 +139,11 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
 
     @Override
     void writeTable(Format format, Constraint constraint, TableConfig tableConfig, User user, OutputStream out) {
+        throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
+    }
+
+    @Override
+    void writeTablePage(Format format, Constraint constraint, TableConfig tableConfig, PaginationParameters pagination, User user, OutputStream out) {
         throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
     }
 

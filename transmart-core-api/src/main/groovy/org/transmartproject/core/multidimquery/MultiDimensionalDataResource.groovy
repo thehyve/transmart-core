@@ -2,6 +2,7 @@
 
 package org.transmartproject.core.multidimquery
 
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
@@ -53,7 +54,7 @@ interface MultiDimensionalDataResource {
 
     Hypercube retrieveClinicalData(DataRetrievalParameters args, User user)
 
-    PagingDataTable retrieveDataTable(TableConfig tableConfig, String type, Constraint constraint, User user)
+    PagingDataTable retrieveDataTablePage(TableConfig tableConfig, PaginationParameters pagination, String type, Constraint constraint, User user)
 
     StreamingDataTable retrieveStreamingDataTable(TableConfig tableConfig, String type, Constraint constraint, User user)
 

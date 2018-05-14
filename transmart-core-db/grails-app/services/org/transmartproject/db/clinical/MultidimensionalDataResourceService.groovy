@@ -15,6 +15,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
@@ -382,10 +383,10 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    PagingDataTableImpl retrieveDataTable(TableConfig tableConfig, String type, Constraint constraint, User user) {
+    PagingDataTableImpl retrieveDataTablePage(TableConfig tableConfig, PaginationParameters pagination, String type, Constraint constraint, User user) {
         TableRetrievalParameters args = parseDataTableArgs(tableConfig, type, constraint)
         Hypercube cube = retrieveClinicalData(args.dataRetrievalParameters, user)
-        return new PagingDataTableImpl(args, cube)
+        return new PagingDataTableImpl(args, pagination, cube)
     }
 
     FullDataTable retrieveStreamingDataTable(TableConfig tableConfig, String type, Constraint constraint, User user) {
@@ -441,9 +442,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 rowDimensions: rowDimensions.collect { toDimensionImpl(it) },
                 columnDimensions: columnDimensions.collect { toDimensionImpl(it) },
                 userSort: userSort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] },
-                sort: sort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] },
-                offset: tableConfig.offset,
-                limit: tableConfig.limit
+                sort: sort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] }
         )
     }
 

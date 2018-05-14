@@ -15,9 +15,4 @@ class TableRetrievalParameters {
 
     Map<Dimension, SortOrder> sort, userSort
 
-    Integer offset
-
-    @NotNull
-    Integer limit
-
 }
