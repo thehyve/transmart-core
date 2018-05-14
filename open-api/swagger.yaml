@@ -1124,11 +1124,11 @@ paths:
           in: query
           type: string
           description: |
-            Json list of sort specifications for the row dimensions. A sort specification is either the name of a
-            dimension as string, or a list `[<dimension>, <direction>]` where `<dimension>` is the name of a
+            Json list of sort specifications for the row dimensions. A sort specification is
+            an element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a
             dimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is
             part of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.
-            Example: `['study', ['patient', 'desc']]`
+            Example: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`
         - name: columnSort
           required: false
           in: query
@@ -2731,7 +2731,7 @@ definitions:
                   additionalProperties: true
             required: [name]
 
-        sorting:
+        sort:
           description: |
             This property lists the sort order that was used in creating the dataset. This will generally include all
             the dimensions that were specified as row or column dimensions. This property includes both the row
@@ -2743,7 +2743,7 @@ definitions:
               dimension:
                 type: string
                 description: the name of a dimension
-              order:
+              sortOrder:
                 type: string
                 description: |
                   'asc' or 'desc', describing if sorting is ascending or descending.
