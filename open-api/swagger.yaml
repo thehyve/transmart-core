@@ -1199,7 +1199,7 @@ paths:
       description: |
         Returns a tabular view of subject counts, using specified constraints for rows and columns.
         Each cell represents a number of subjects computed as an intersection of column set, row set
-        and selected subject set that is specified in the parameters as the patientSetId.
+        and selected subject set that is specified by subject constraint.
       tags:
         - v2
       parameters:
@@ -1220,11 +1220,14 @@ paths:
           type: array
           items:
             type: string
-        - name: patientSetId
+        - name: subjectConstraint
           required: true
           in: query
-          type: integer
-          description: ID of the patient set.
+          type: string
+          description: |
+            Json that specifies the constraint for a subject set. In particular, subjectConstraint can be
+            of type `patient_set` in order to explicitly specify the id of a set of patients.
+            Example: `{“type”:“patient_set”, “patientSetId”: 12345}`.
       responses:
         200:
           $ref: '#/definitions/CrossTable'
@@ -1249,10 +1252,10 @@ paths:
           type: array
           items:
             type: string
-        - name: patientSetId
+        - name: subjectConstraint
           required: true
           in: query
-          type: integer
+          type: string
       responses:
         200:
           $ref: '#/definitions/CrossTable'

@@ -19,6 +19,7 @@ import static tests.rest.Operator.OR
 import static tests.rest.ValueType.NUMERIC
 import static tests.rest.constraints.Combination
 import static tests.rest.constraints.ConceptConstraint
+import static tests.rest.constraints.PatientSetConstraint
 import static tests.rest.constraints.StudyNameConstraint
 import static tests.rest.constraints.TrueConstraint
 import static tests.rest.constraints.ValueConstraint
@@ -150,7 +151,7 @@ class ObservationSpec extends RESTSpec {
                                     toJSON([type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 80])],
                 columnConstraints: [toJSON([type: ConceptConstraint, path: restrictedConceptPath]),
                                     toJSON([type: TrueConstraint])],
-                patientSetId     : patientSetId,
+                subjectConstraint: toJSON(type: PatientSetConstraint, patientSetId: patientSetId),
         ]
         def request = [
                 path      : PATH_CROSSTABLE,
@@ -194,8 +195,9 @@ class ObservationSpec extends RESTSpec {
         patientSetRequest2.user = DEFAULT_USER
         def patientSetResponse2 = post(patientSetRequest2)
         def patientSetId2 = patientSetResponse2.id
+        def subjectConstraint2 = toJSON(type: PatientSetConstraint, patientSetId: patientSetId2)
         def params2 = params
-        params2.patientSetId = patientSetId2
+        params2.subjectConstraint = subjectConstraint2
         def responseData3 = getOrPostRequest(method, request2, params2)
 
         then: "Returned count for the first cell equals zero"

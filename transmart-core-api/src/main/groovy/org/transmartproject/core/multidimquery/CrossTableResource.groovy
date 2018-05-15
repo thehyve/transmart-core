@@ -8,10 +8,10 @@ interface CrossTableResource {
      *
      * @param rowConstraints - The list of constraints, each specified for a table row
      * @param columnConstraints - The list of constraints, each specified for a table column
-     * @param patientSetId : The id of related set of patients
+     * @param subjectConstraint : The constraint describing the set of patients specified by user
      * @param user : The current user
      * @return the {@link CrossTable} representation
      */
     CrossTable retrieveCrossTable(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
-                                                    Long patientSetId, User user)
+                                                    Constraint subjectConstraint, User user)
 }

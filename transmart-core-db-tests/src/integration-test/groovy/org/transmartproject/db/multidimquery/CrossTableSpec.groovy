@@ -57,6 +57,7 @@ class CrossTableSpec extends TransmartSpecification {
                 adminUser,
                 apiVersion,
                 true)
+        Constraint subjectConstraint = new PatientSetConstraint(patientSet.id)
         List<Constraint> rowConstraints = [
                 new StudyNameConstraint(testData.clinicalData.multidimsStudy.name),
                 new TrueConstraint(),
@@ -68,10 +69,10 @@ class CrossTableSpec extends TransmartSpecification {
                 new ValueConstraint(Type.NUMERIC, Operator.GREATER_THAN, 60)
         ]
 
-        when:
-        def result = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, patientSet.id, adminUser)
+        when: 'passing patient set constraint'
+        def result = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, adminUser)
 
-        then:
+        then: 'proper counts are returned'
         result.rows.size() == rowConstraints.size()
         result.rows.every { it.counts.size() == columnConstraints.size() }
 
@@ -84,13 +85,23 @@ class CrossTableSpec extends TransmartSpecification {
         result.rows[2].counts == [1, 0]
         result.rows[3].counts == [0, 0]
 
+        when: 'passing arbitrary constraints instead of a patient set constraint'
+        def subjectConstraint2 = constraint
+        def result2 = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint2, adminUser)
+
+        then: 'the same result is returned'
+        result2.rows[0].counts == result.rows[0].counts
+        result2.rows[1].counts == result.rows[1].counts
+        result2.rows[2].counts == result.rows[2].counts
+        result2.rows[3].counts == result.rows[3].counts
+
     }
 
     void 'test cross table retrieval on non-existing patient set'() {
         setupData()
         def adminUser = accessLevelTestData.users[0]
         // not existing patient set id
-        def patientSetId = -9999
+        Constraint subjectConstraint = new PatientSetConstraint(-99999)
         List<Constraint> rowConstraints = [
                 new StudyNameConstraint(testData.clinicalData.multidimsStudy.name),
                 new TrueConstraint(),
@@ -103,7 +114,7 @@ class CrossTableSpec extends TransmartSpecification {
         ]
 
         when:
-        def result = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, patientSetId, adminUser)
+        def result = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, adminUser)
 
         then:
         assert result.rows.every { it.counts.every { it == 0 } }
@@ -114,17 +125,12 @@ class CrossTableSpec extends TransmartSpecification {
         String apiVersion = "2.1-tests"
         def adminUser = accessLevelTestData.users[0]
 
-        Constraint constraint = new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN_OR_EQUALS, 100)
-        def patientSet = patientSetResource.createPatientSetQueryResult("Test crosstable set ",
-                constraint,
-                adminUser,
-                apiVersion,
-                true)
+        Constraint subjectConstraint = new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN_OR_EQUALS, 100)
         List<Constraint> rowConstraints = []
         List<Constraint> columnConstraints = []
 
         when:
-        def result = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, patientSet.id, adminUser)
+        def result = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, adminUser)
 
         then:
         result.rows.size() == 0

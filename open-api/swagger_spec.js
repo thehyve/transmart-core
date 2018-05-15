@@ -1255,7 +1255,7 @@ var spec = {
     },
     "/v2/observations/crosstable": {
       "get": {
-        "description": "Returns a tabular view of subject counts, using specified constraints for rows and columns.\nEach cell represents a number of subjects computed as an intersection of column set, row set\nand selected subject set that is specified in the parameters as the patientSetId.\n",
+        "description": "Returns a tabular view of subject counts, using specified constraints for rows and columns.\nEach cell represents a number of subjects computed as an intersection of column set, row set\nand selected subject set that is specified by subject constraint.\n",
         "tags": [
           "v2"
         ],
@@ -1280,11 +1280,11 @@ var spec = {
             }
           },
           {
-            "name": "patientSetId",
+            "name": "subjectConstraint",
             "required": true,
             "in": "query",
-            "type": "integer",
-            "description": "ID of the patient set."
+            "type": "string",
+            "description": "Json that specifies the constraint for a subject set. In particular, subjectConstraint can be\nof type `patient_set` in order to explicitly specify the id of a set of patients.\nExample: `{“type”:“patient_set”, “patientSetId”: 12345}`.\n"
           }
         ],
         "responses": {
@@ -1318,10 +1318,10 @@ var spec = {
             }
           },
           {
-            "name": "patientSetId",
+            "name": "subjectConstraint",
             "required": true,
             "in": "query",
-            "type": "integer"
+            "type": "string"
           }
         ],
         "responses": {

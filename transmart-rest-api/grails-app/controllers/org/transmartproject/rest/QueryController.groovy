@@ -207,18 +207,20 @@ class QueryController extends AbstractQueryController {
     /**
      * Cross table endpoint:
      * <code>/v2/observations/crosstable?rowConstraints=${rowConstraints}&columnConstraints=${columnConstraints}&
-     * patientSetId=&{patientSetId}</code>
+     * subjectConstraint=&{subjectConstraint}</code>
      *
      * Expects a list of {@link Constraint} <code>rowConstraints</code>
      * and a list of {@link Constraint} <code>columnConstraints</code>.
      *
-     * The patientSetId should be the id of related set of patients.
+     * Expects a {@link Constraint} <code>subjectConstraint</code> as a constraints for a related set of patients.
+     * In particular, subjectConstraint can be of type {@link org.transmartproject.core.multidimquery.query.PatientSetConstraint}
+     * in order to explicitly specify the id of the set of patients.
      *
      * @return a tabular representation of counts in a json format.
      */
     def crosstable() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['rowConstraints', 'columnConstraints', 'patientSetId'])
+        checkForUnsupportedParams(args, ['rowConstraints', 'columnConstraints', 'subjectConstraint'])
 
         [rowConstraints: args.rowConstraints, columnConstraints: args.columnConstraints].each { name, list ->
             if (!list instanceof List || list.any { !it instanceof String }) {
@@ -227,16 +229,13 @@ class QueryController extends AbstractQueryController {
         }
         List<Constraint> rowConstraints = args.rowConstraints.collect { constraint -> bindConstraint((String) constraint) }
         List<Constraint> columnConstraints = args.columnConstraints.collect { constraint -> bindConstraint((String) constraint) }
+        Constraint subjectConstraint = bindConstraint((String) args.subjectConstraint)
 
-        if (args.patientSetId == null) {
-            throw new InvalidArgumentsException("Parameter 'patientSetId' is required")
-        }
-        Long patientSetId = Long.parseLong((String) args.patientSetId)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         OutputStream out = getLazyOutputStream(Format.JSON)
 
-        CrossTable crossTable = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, patientSetId, user)
+        CrossTable crossTable = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, user)
         new CrossTableSerializer().write(crossTable.rows, out)
     }
 
