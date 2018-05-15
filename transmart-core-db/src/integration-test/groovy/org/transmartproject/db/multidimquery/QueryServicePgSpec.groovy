@@ -26,7 +26,10 @@ import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryInstance
+import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
@@ -47,6 +50,8 @@ class QueryServicePgSpec extends Specification {
     @Autowired
     AggregateDataResource aggregateDataResource
 
+    @Autowired
+    PatientSetService patientSetResource
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
@@ -476,10 +481,11 @@ class QueryServicePgSpec extends Specification {
                 '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        QueryResult patientSetQueryResult = multiDimService.createPatientSetQueryResult("Test set",
+        QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult("Test set",
                 constraint,
                 user,
-                'v2')
+                'v2',
+                false)
 
         then:
         patientSetQueryResult.id > 0
@@ -501,20 +507,54 @@ class QueryServicePgSpec extends Specification {
         ConceptConstraint constraint = new ConceptConstraint(path:
                 '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
-        QueryResult patientSetQueryResult1 = multiDimService.createOrReusePatientSetQueryResult("Test set",
+        QueryResult patientSetQueryResult1 = patientSetResource.createPatientSetQueryResult("Test set",
                 constraint,
                 user,
-                'v2')
+                'v2',
+                true)
 
         when:
-        QueryResult patientSetQueryResult2 = multiDimService.createOrReusePatientSetQueryResult("Test set 2",
+        QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
                 constraint,
                 user,
-                'v2')
+                'v2',
+                true)
 
         then:
         patientSetQueryResult1 == patientSetQueryResult2
     }
+
+    void "clear all patient sets"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        patientSetResource.createPatientSetQueryResult("Test set", constraint, user,'v2', true)
+        def patientSetCollectionsCount = QtPatientSetCollection.findAll().size()
+        def queryResultInstancesCount = QtQueryResultInstance.findAll().size()
+        def queryInstancesCount = QtQueryInstance.findAll().size()
+        def queryMastersCount = QtQueryMaster.findAll().size()
+
+        when:
+        patientSetResource.clearPatientSets()
+        def newPatientSetCollectionsCount = QtPatientSetCollection.findAll().size()
+        def newQueryResultInstancesCount = QtQueryResultInstance.findAll().size()
+        def newQueryInstancesCount = QtQueryInstance.findAll().size()
+        def newQueryMastersCount = QtQueryMaster.findAll().size()
+
+        then:
+        newPatientSetCollectionsCount < patientSetCollectionsCount
+        newQueryResultInstancesCount < queryResultInstancesCount
+        newQueryInstancesCount < queryInstancesCount
+        newQueryMastersCount == queryMastersCount
+
+        newPatientSetCollectionsCount == 0
+        newQueryResultInstancesCount == 0
+        newQueryInstancesCount == 0
+        newQueryMastersCount > 0
+    }
+
 
     void "test large text values (raw data type)"() {
         def user = User.findByUsername('test-public-user-1')

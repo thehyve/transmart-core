@@ -14,7 +14,7 @@ analyze:
 $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties: Common.properties.php
 	php -d variables_order=E $< > $@
 
-.PHONY: row_counts analyze $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
+.PHONY: row_counts analyze $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties refresh_mvs
 
 ##
 # GWAS reference data
@@ -46,5 +46,8 @@ load_de_gene_info:
 
 load_bio_recombination_rates:
 	$(call load_psql,biomart,bio_recombination_rates,$(RECOMBINATION_FILE),)
+
+refresh_mvs:
+	$(PSQL_COMMAND) -d $(PGDATABASE) -c "refresh materialized view biomart_user.study_concept_bitset;"
 
 # vim: set filetype=make:

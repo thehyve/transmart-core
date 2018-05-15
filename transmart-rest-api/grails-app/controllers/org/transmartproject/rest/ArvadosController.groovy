@@ -4,6 +4,7 @@ package org.transmartproject.rest
 
 import grails.converters.JSON
 import grails.rest.RestfulController
+import grails.transaction.Transactional
 import grails.web.http.HttpHeaders
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
@@ -32,6 +33,7 @@ class ArvadosController extends RestfulController {
     CurrentUser currentUser
 
     @Override
+    @Transactional
     def save() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {

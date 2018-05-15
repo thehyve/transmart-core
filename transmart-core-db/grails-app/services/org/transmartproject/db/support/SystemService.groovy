@@ -6,7 +6,11 @@ import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.RuntimeConfig
 import org.transmartproject.core.config.SystemResource
+import org.transmartproject.core.userquery.UserQuerySetResource
+import org.transmartproject.core.users.User
+import org.transmartproject.db.clinical.AggregateDataOptimisationsService
 import org.transmartproject.db.clinical.AggregateDataService
+import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.config.RuntimeConfigImpl
 import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.db.ontology.MDStudiesService
@@ -43,6 +47,14 @@ class SystemService implements SystemResource {
     @Autowired
     TrialVisitsService trialVisitsService
 
+    @Autowired
+    UserQuerySetResource userQuerySetResource
+
+    @Autowired
+    AggregateDataOptimisationsService aggregateDataOptimisationsService
+
+    @Autowired
+    PatientSetService patientSetService
 
     RuntimeConfig getRuntimeConfig() {
         return modelMapper.map(runtimeConfig, RuntimeConfigRepresentation.class)
@@ -55,6 +67,18 @@ class SystemService implements SystemResource {
     }
 
     /**
+     * Clears the caches, patient sets, refreshes a materialized view with study_concept bitset
+     * and scans for the changes for subscribed user queries.
+     * @param currentUser
+     */
+    void updateAfterDataLoading(User currentUser) {
+        clearCaches()
+        aggregateDataOptimisationsService.clearPatientSetBitset()
+        patientSetService.clearPatientSets()
+        userQuerySetResource.scan(currentUser)
+    }
+
+    /**
      * Clears the tree node cache, the tags cache, the counts caches and the studies caches.
      * This function should be called after loading, removing or updating
      * tree nodes or observations in the database.
@@ -63,9 +87,6 @@ class SystemService implements SystemResource {
         treeCacheService.clearAllCacheEntries()
         ontologyTermTagsResourceService.clearTagsCache()
         aggregateDataService.clearCountsCache()
-        aggregateDataService.clearPatientCountCache()
-        aggregateDataService.clearCountsPerConceptCache()
-        aggregateDataService.clearCountsPerStudyCache()
         aggregateDataService.clearCountsPerStudyAndConceptCache()
         studiesService.clearCaches()
         trialVisitsService.clearCache()

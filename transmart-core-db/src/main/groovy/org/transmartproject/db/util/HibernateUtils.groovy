@@ -15,6 +15,7 @@ import org.hibernate.engine.spi.QueryParameters
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.internal.CriteriaImpl
+import org.hibernate.internal.SessionImpl
 import org.hibernate.loader.criteria.CriteriaJoinWalker
 import org.hibernate.loader.criteria.CriteriaQueryTranslator
 import org.hibernate.persister.entity.OuterJoinLoadable
@@ -171,6 +172,8 @@ class HibernateUtils {
                 specification.queryReturns,
                 specification.querySpaces
         )
-        session.executeNativeUpdate(insertSpecification, sqlDetails.parameters)
+        int updateCount = session.executeNativeUpdate(insertSpecification, sqlDetails.parameters)
+        session.connection().commit()
+        updateCount
     }
 }

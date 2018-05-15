@@ -49,7 +49,9 @@ class QueryControllerSpec extends MarshallerSpec {
         log.info "Constraint: $constraint"
 
         when:
-        def sort = (order == 'asc' ? dimension : [dimension, order])
+        def sort = [dimension: dimension] as Map
+        if (order != 'asc')
+        sort.sortOrder = order
         def sortJson = URLEncoder.encode((
                 [sort] as JSON
         ).toString(false), 'UTF-8')
@@ -147,7 +149,7 @@ class QueryControllerSpec extends MarshallerSpec {
         log.info "Constraint: $constraint"
 
         when:
-        def columnSort = URLEncoder.encode((['concept': 'desc'] as JSON).toString(false), 'UTF-8')
+        def columnSort = URLEncoder.encode(([[dimension: 'concept', sortOrder: 'desc']] as JSON).toString(false), 'UTF-8')
         def rowDimensions = URLEncoder.encode((['patient', 'study'] as JSON).toString(false), 'UTF-8')
         def columnDimensions = URLEncoder.encode((['trial visit', 'concept'] as JSON).toString(false), 'UTF-8')
         def limit = 4
@@ -173,10 +175,10 @@ class QueryControllerSpec extends MarshallerSpec {
         result.column_headers*.dimension == ['trial visit', 'concept']
         result.rows.size() == 4
         result["row count"] == 4
-        result.sorting.find{ it.dimension == 'study'}.order == "asc"
-        result.sorting.find{ it.dimension == 'patient'}.order == "asc"
-        result.sorting.find{ it.dimension == 'trial visit'}.order == "asc"
-        result.sorting.find{ it.dimension == 'concept'}.order == "desc"
+        result.sort.find{ it.dimension == 'study'}.sortOrder == "asc"
+        result.sort.find{ it.dimension == 'patient'}.sortOrder == "asc"
+        result.sort.find{ it.dimension == 'trial visit'}.sortOrder == "asc"
+        result.sort.find{ it.dimension == 'concept'}.sortOrder == "desc"
 
         when:
         def offset2 = 2

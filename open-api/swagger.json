@@ -1161,7 +1161,7 @@
             "required": false,
             "in": "query",
             "type": "string",
-            "description": "Json list of sort specifications for the row dimensions. A sort specification is either the name of a\ndimension as string, or a list `[<dimension>, <direction>]` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `['study', ['patient', 'desc']]`\n"
+            "description": "Json list of sort specifications for the row dimensions. A sort specification is\nan element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`\n"
           },
           {
             "name": "columnSort",
@@ -1562,6 +1562,19 @@
           },
           "503": {
             "description": "A rebuild operation is already in progress.\n"
+          }
+        }
+      }
+    },
+    "/v2/system/after_data_loading_update": {
+      "get": {
+        "description": "This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache and patient sets have been cleared. The data for subscribed user queries is updated.\n"
           }
         }
       }
@@ -3374,7 +3387,7 @@
               ]
             }
           },
-          "sorting": {
+          "sort": {
             "description": "This property lists the sort order that was used in creating the dataset. This will generally include all\nthe dimensions that were specified as row or column dimensions. This property includes both the row\nand column dimensions, with row dimensions first and column dimensions followed by that.\n",
             "type": "array",
             "items": {
@@ -3384,7 +3397,7 @@
                   "type": "string",
                   "description": "the name of a dimension"
                 },
-                "order": {
+                "sortOrder": {
                   "type": "string",
                   "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
                 },

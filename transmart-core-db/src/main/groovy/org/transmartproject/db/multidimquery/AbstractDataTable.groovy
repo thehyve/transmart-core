@@ -8,6 +8,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
@@ -42,12 +43,12 @@ abstract class AbstractDataTable implements DataTable {
     ImmutableMap<Dimension, SortOrder> getSort() { sort }
     ImmutableMap<Dimension, SortOrder> getRequestedSort() { requestedSort }
 
-    AbstractDataTable(Map args, Hypercube hypercube) {
+    AbstractDataTable(TableRetrievalParameters args, Hypercube hypercube) {
         requireNonNull this.hypercube = hypercube
         this.rowDimensions = ImmutableList.<Dimension>copyOf((List) args.rowDimensions)
         this.columnDimensions = ImmutableList.<Dimension>copyOf((List) args.columnDimensions)
         this.sort = ImmutableMap.copyOf((Map) args.sort)
-        this.requestedSort = ImmutableMap.copyOf(((Map) args.userSort) ?: [:])
+        this.requestedSort = ImmutableMap.copyOf(args.userSort)
 
         columnIndices = columnDimensions.withIndex().collectEntries()
 
