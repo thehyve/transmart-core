@@ -2,9 +2,14 @@
 
 package org.transmartproject.rest
 
+import com.fasterxml.jackson.core.type.TypeReference
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.binding.BindingHelper
+import org.transmartproject.core.dataquery.PaginationParameters
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
@@ -12,6 +17,7 @@ import org.transmartproject.core.exceptions.OperationNotImplementedException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.NumericalValueAggregates
@@ -91,6 +97,9 @@ class QueryController extends AbstractQueryController {
         }
     }
 
+    static final TypeReference<List<SortSpecification>> sortListTypeReference =
+            new TypeReference<List<SortSpecification>>(){}
+
     /**
      * Helper function for retrieving clinical hypercube data
      */
@@ -106,12 +115,13 @@ class QueryController extends AbstractQueryController {
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def sort = parseJson(sort_text)
+        def sort = BindingHelper.readList(sort_text, sortListTypeReference)
 
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeClinical(format, constraint, user, out, [sort: sort])
+            def args = new DataRetrievalParameters(constraint: constraint, sort: sort)
+            hypercubeDataSerializationService.writeClinical(format, args, user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -165,8 +175,8 @@ class QueryController extends AbstractQueryController {
         int limit = Integer.parseInt((String) args.limit)
         Long offset = args.offset ? Long.parseLong((String) args.offset) : 0
 
-        def rowSort = parseIfJson(args.rowSort)
-        def columnSort = parseIfJson(args.columnSort)
+        def rowSort = BindingHelper.readList((String)args.rowSort, sortListTypeReference)
+        def columnSort = BindingHelper.readList((String)args.columnSort, sortListTypeReference)
         def rowDimensions = parseIfJson(args.rowDimensions)
         def columnDimensions = parseIfJson(args.columnDimensions)
 
@@ -178,8 +188,19 @@ class QueryController extends AbstractQueryController {
 
         OutputStream out = getLazyOutputStream(Format.JSON)
 
-        hypercubeDataSerializationService.writeTable(constraint, rowDimensions, columnDimensions,
-                rowSort, columnSort, limit, offset, user, out)
+        def tableConfig = new TableConfig(
+                rowDimensions: rowDimensions,
+                columnDimensions: columnDimensions,
+                rowSort: rowSort,
+                columnSort: columnSort
+        )
+        BindingHelper.validate(tableConfig)
+        def pagination = new PaginationParameters(
+                limit: limit,
+                offset: offset
+        )
+        BindingHelper.validate(pagination)
+        hypercubeDataSerializationService.writeTablePage(Format.JSON, constraint, tableConfig, pagination, user, out)
     }
 
     /**

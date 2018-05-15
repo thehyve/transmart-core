@@ -1,22 +1,13 @@
 package org.transmartproject.rest.serialization.tabular
 
-import com.google.common.collect.ImmutableList
 import com.opencsv.CSVWriter
 import grails.converters.JSON
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
-import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.DataRow
-import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.StreamingDataTable
-import org.transmartproject.core.users.User
-import org.transmartproject.rest.dataExport.WorkingDirectory
 
 import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 @InheritConstructors
 @CompileStatic
@@ -64,7 +55,7 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
                 row_dimensions: dataTable.rowDimensions*.name,
                 column_dimensions: dataTable.columnDimensions*.name,
                 sort: dataTable.sort.collect { dim, sort ->
-                    ((Map) [dimension: dim.name, order: sort.string()]) +
+                    ((Map) [dimension: dim.name, sortOrder: sort.string()]) +
                             (dataTable.requestedSort.containsKey(dim) ? [user_requested: true] : [:])
                 }
         ]

@@ -6,6 +6,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.TestData
@@ -79,8 +80,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_longitudinal_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.retrieveData('clinical', adminUser,
-                constraint: study(clinicalData.longitudinalStudy.studyId))
+        def args = new DataRetrievalParameters(constraint: study(clinicalData.longitudinalStudy.studyId))
+        def hypercube = queryResource.retrieveData(args, 'clinical', adminUser)
         def resultObs = Lists.newArrayList(hypercube).sort(getKey)
 
         def result = resultObs*.value as HashMultiset
@@ -127,8 +128,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def ttDim = clinicalData.tissueTypeDimension
         def doseDim = clinicalData.doseDimension
 
-        def hypercube = queryResource.retrieveData('clinical', adminUser,
-                constraint: study(clinicalData.sampleStudy.studyId))
+        def args = new DataRetrievalParameters(constraint: study(clinicalData.sampleStudy.studyId))
+        def hypercube = queryResource.retrieveData(args, 'clinical', adminUser)
         def resultObs = Lists.newArrayList(hypercube) // TODO: make observations sortable to ensure order
 
         def resultValues = resultObs*.value as HashMultiset
@@ -180,9 +181,11 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def ttDim = clinicalData.tissueTypeDimension
         def doseDim = clinicalData.doseDimension
 
-        def hypercube = queryResource.retrieveData('clinical', adminUser,
+        def args = new DataRetrievalParameters(
                 constraint: study(clinicalData.sampleStudy.studyId),
-                dimensions: ['study', 'concept', 'tissueType', 'dose'])
+                dimensions: ['study', 'concept', 'tissueType', 'dose']
+        )
+        def hypercube = queryResource.retrieveData(args, 'clinical', adminUser)
         def resultObs = Lists.newArrayList(hypercube.iterator()) // TODO: make observations sortable to ensure order
 
         def resultValues = resultObs*.value as HashMultiset
@@ -225,8 +228,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_ehr_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.retrieveData('clinical', adminUser,
-                constraint: study(clinicalData.ehrStudy.studyId))
+        def args = new DataRetrievalParameters(constraint: study(clinicalData.ehrStudy.studyId))
+        def hypercube = queryResource.retrieveData(args, 'clinical', adminUser)
         def resultObs = Lists.newArrayList(hypercube) // TODO: make observations sortable to ensure order
 
         def result = resultObs*.value as HashMultiset
@@ -265,8 +268,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         setupData()
 
         when:
-        def hypercube = queryResource.retrieveData('clinical', adminUser,
-                constraint: study(clinicalData.multidimsStudy.studyId))
+        def args = new DataRetrievalParameters(constraint: study(clinicalData.multidimsStudy.studyId))
+        def hypercube = queryResource.retrieveData(args, 'clinical', adminUser)
         then:
         hypercube != null
         hypercube.dimensions.size() == clinicalData.multidimsStudy.dimensions.size()
@@ -305,8 +308,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         setupData()
 
         when:
-        def hypercube = queryResource.retrieveData('clinical', adminUser,
-                constraint: study(clinicalData.multidimsStudy.studyId))
+        def args = new DataRetrievalParameters(constraint: study(clinicalData.multidimsStudy.studyId))
+        def hypercube = queryResource.retrieveData(args, 'clinical', adminUser)
         then:
         hypercube != null
         hypercube.dimensions.size() == clinicalData.multidimsStudy.dimensions.size()

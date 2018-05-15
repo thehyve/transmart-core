@@ -10,7 +10,7 @@ import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.AggregateDataOptimisationsService
 import org.transmartproject.db.clinical.AggregateDataService
-import org.transmartproject.db.clinical.MultidimensionalDataResourceService
+import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.config.RuntimeConfigImpl
 import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.db.ontology.MDStudiesService
@@ -51,11 +51,10 @@ class SystemService implements SystemResource {
     UserQuerySetResource userQuerySetResource
 
     @Autowired
-    MultidimensionalDataResourceService multidimDataResourceService
-
-    @Autowired
     AggregateDataOptimisationsService aggregateDataOptimisationsService
 
+    @Autowired
+    PatientSetService patientSetService
 
     RuntimeConfig getRuntimeConfig() {
         return modelMapper.map(runtimeConfig, RuntimeConfigRepresentation.class)
@@ -75,7 +74,7 @@ class SystemService implements SystemResource {
     void updateAfterDataLoading(User currentUser) {
         clearCaches()
         aggregateDataOptimisationsService.clearPatientSetBitset()
-        multidimDataResourceService.clearPatientSets()
+        patientSetService.clearPatientSets()
         userQuerySetResource.scan(currentUser)
     }
 

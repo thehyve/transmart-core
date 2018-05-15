@@ -4,9 +4,11 @@ import grails.converters.JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -16,6 +18,9 @@ import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.serialization.ExportElement
+import org.transmartproject.rest.serialization.ExportJobRepresentation
+
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class ExportController {
@@ -81,44 +86,18 @@ class ExportController {
      */
     def run(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        def requestBody = request.JSON as Map
-        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint', 'includeMeasurementDateColumns',
-                                                         'tableConfig']
-        if (notSupportedFields) {
-            throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
-        }
-        if (!requestBody.constraint) {
-            throw new InvalidArgumentsException("No constraint provided.")
-        }
-        if (!requestBody.elements) {
-            throw new InvalidArgumentsException("No elements provided.")
-        }
-        if (requestBody.elements.any { it.dataView == 'dataTable' }) {
-            if (!requestBody.tableConfig) {
+
+        def exportJob = BindingHelper.read(request.inputStream, ExportJobRepresentation.class)
+
+        if (exportJob.elements.any { it.dataView == 'dataTable' }) {
+            if (!exportJob.tableConfig) {
                 throw new InvalidArgumentsException("No tableConfig provided.")
             }
-            def config = requestBody.tableConfig
-            [rowDimensions: config.rowDimensions, columnDimensions: config.columnDimensions].each { name, list ->
-                if (!list instanceof List || list.any { !it instanceof String }) {
-                    throw new InvalidArgumentsException("$name must be a JSON array of strings")
-                }
-            }
-        }
-        if ('includeMeasurementDateColumns' in requestBody
-                && !(requestBody.includeMeasurementDateColumns instanceof Boolean)) {
-            throw new InvalidArgumentsException("includeMeasurementDateColumns parameter has to be of boolean type.")
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
-        if (!requestBody.elements) {
-            throw new InvalidArgumentsException('Empty elements map.')
-        }
 
-        Constraint constraint = ConstraintFactory.create(requestBody.constraint).normalise()
-
-        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId,
-                includeMeasurementDateColumns: requestBody.includeMeasurementDateColumns,
-                tableConfig: requestBody.tableConfig )
+        def job = exportAsyncJobService.exportData(exportJob, user, jobId)
 
         render wrapExportJob(job) as JSON
     }

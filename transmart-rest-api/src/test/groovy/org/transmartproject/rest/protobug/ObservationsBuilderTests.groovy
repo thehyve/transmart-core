@@ -7,6 +7,11 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.PaginationParameters
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.dataquery.TableRetrievalParameters
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
@@ -60,8 +65,8 @@ class ObservationsBuilderTests extends Specification {
     public void testJsonSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', adminUser,
-                constraint: constraint, sort: ['patient'])
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def builder = new HypercubeJsonSerializer()
 
         when:
@@ -92,8 +97,8 @@ class ObservationsBuilderTests extends Specification {
     public void testPackedDimsSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', adminUser,
-                constraint: constraint, sort: ['patient'])
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def patientDimension = DimensionImpl.PATIENT
         def builder = new HypercubeProtobufSerializer()
 
@@ -158,8 +163,8 @@ class ObservationsBuilderTests extends Specification {
     public void testProtobufSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', adminUser,
-                constraint: constraint, sort: ['patient'])
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def builder = new HypercubeProtobufSerializer()
 
         when:
@@ -225,7 +230,8 @@ class ObservationsBuilderTests extends Specification {
         def dataType = 'clinical'
         def fileExtension = '.tsv'
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData(dataType, adminUser, constraint: constraint)
+        def args = new DataRetrievalParameters(constraint: constraint)
+        def mockedCube = queryResource.retrieveData(args, dataType, adminUser)
         def builder = new HypercubeCSVSerializer()
 
         when:
@@ -250,7 +256,8 @@ class ObservationsBuilderTests extends Specification {
         def dataType = 'clinical'
         def fileExtension = '.tsv'
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData(dataType, adminUser, constraint: constraint)
+        def args = new DataRetrievalParameters(constraint: constraint)
+        def mockedCube = queryResource.retrieveData(args, dataType, adminUser)
         def builder = new HypercubeCSVSerializer()
 
         when:
@@ -277,8 +284,13 @@ class ObservationsBuilderTests extends Specification {
         def columnDimensions = ['concept', 'trial visit']
         def limit = 10
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedDataTable = queryResource.retrieveDataTable(dataType, constraint, adminUser,
-                rowDimensions: rowDimensions, columnDimensions: columnDimensions, sort: ['patient'], limit: limit)
+        def tableConfig = new TableConfig(
+                rowSort: [new SortSpecification(dimension: 'patient')],
+                rowDimensions: rowDimensions,
+                columnDimensions: columnDimensions
+        )
+        def pagination = new PaginationParameters(limit: limit)
+        def mockedDataTable = queryResource.retrieveDataTablePage(tableConfig, pagination, dataType, constraint, adminUser)
 
         when:
         def out = new ByteArrayOutputStream()
@@ -287,7 +299,7 @@ class ObservationsBuilderTests extends Specification {
         def result = new JsonSlurper().parse(out.toByteArray())
         def rows = result.rows
         def offset = result.offset
-        def sorting = result.sorting
+        def sorting = result.sort
         def columnHeaders = result.column_headers
         def columnDim = result.column_dimensions
         def rowDim = result.row_dimensions
@@ -298,10 +310,10 @@ class ObservationsBuilderTests extends Specification {
         offset == 0
 
         sorting.size() == columnDimensions.size() + rowDimensions.size()
-        sorting[0] == [dimension: 'patient', order: 'asc']
-        sorting[1] == [dimension: 'study', order: 'asc']
-        sorting[2] == [dimension: 'concept', order: 'asc']
-        sorting[3] == [dimension: 'trial visit', order: 'asc']
+        sorting[0] == [dimension: 'patient', sortOrder: 'asc', user_requested: true]
+        sorting[1] == [dimension: 'study', sortOrder: 'asc']
+        sorting[2] == [dimension: 'concept', sortOrder: 'asc']
+        sorting[3] == [dimension: 'trial visit', sortOrder: 'asc']
 
         columnHeaders*.dimension == columnDimensions
         columnHeaders[0].keys == ['c5', 'c5', 'c5', 'c6', 'c6', 'c6']

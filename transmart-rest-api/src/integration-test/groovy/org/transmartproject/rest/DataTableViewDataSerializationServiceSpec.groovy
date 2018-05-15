@@ -9,6 +9,7 @@ import grails.test.runtime.FreshRuntime
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
@@ -37,7 +38,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     User adminUser
 
     @Autowired
-    DataTableViewDataSerializationService serializationService
+    HypercubeDataSerializationService serializationService
 
     void setupData() {
         testData = TestData.createHypercubeDefault()
@@ -57,12 +58,12 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         def file = new ByteArrayOutputStream()
         def zipFile = new ZipOutputStream(file)
         Constraint constraint = new StudyObjectConstraint(study: clinicalData.longitudinalStudy)
-        Map config = [
+        def tableConfig = new TableConfig(
                 rowDimensions: ['study', 'patient'],
-                columnDimensions: ['trial visit', 'concept'],
-        ]
+                columnDimensions: ['trial visit', 'concept']
+        )
 
-        serializationService.writeClinical(Format.TSV, constraint, adminUser, zipFile, [tableConfig: config])
+        serializationService.writeTable(Format.TSV, constraint, tableConfig, adminUser, zipFile)
         def files = parseTSVZip(file)
 
         expect:

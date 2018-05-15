@@ -6,6 +6,7 @@ import grails.test.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.core.config.SystemResource
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -31,6 +32,8 @@ class ParallelAggregateDataServicePgSpec extends Specification {
     @Autowired
     UsersResource usersResource
 
+    @Autowired
+    PatientSetResource patientSetResource
 
     /**
      * Test the parallel implementation for counting patients and observations grouped by
@@ -38,8 +41,8 @@ class ParallelAggregateDataServicePgSpec extends Specification {
      */
     void 'test parallel counts per study, concept'() {
         def user = usersResource.getUserFromUsername('test-public-user-1')
-        QueryResult patientSet = multiDimensionalDataResource.createOrReusePatientSetQueryResult(
-                'test', new TrueConstraint(), user, 'v2')
+        QueryResult patientSet = patientSetResource.createPatientSetQueryResult(
+                'test', new TrueConstraint(), user, 'v2', true)
 
         Constraint patientSetConstraint = new PatientSetConstraint(patientSetId: patientSet.id)
 

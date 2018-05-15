@@ -3,11 +3,9 @@ package org.transmartproject.core.multidimquery.query
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic
+import org.transmartproject.core.binding.BindingException
+import org.transmartproject.core.binding.BindingHelper
 
-import javax.validation.ConstraintViolation
-import javax.validation.Validation
-import javax.validation.Validator
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 
 /**
@@ -31,10 +29,6 @@ import java.text.SimpleDateFormat
 @CompileStatic
 class ConstraintFactory {
 
-    private static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator()
-    private static final ObjectMapper objectMappper = new ObjectMapper().setDateFormat(DATE_TIME_FORMAT)
-
     /**
      * Create a constraint object from a map of values
      * using Jackson and validates the constraint.
@@ -46,7 +40,7 @@ class ConstraintFactory {
      */
     @Deprecated
     static Constraint create(Map constraintMap) {
-        read(objectMappper.writeValueAsString(constraintMap))
+        read(BindingHelper.objectMapper.writeValueAsString(constraintMap))
     }
 
     /**
@@ -58,19 +52,11 @@ class ConstraintFactory {
      */
     static Constraint read(String src) {
         try {
-            Constraint constraint = objectMappper.readValue(src, Constraint.class)
-            validate(constraint)
+            Constraint constraint = BindingHelper.objectMapper.readValue(src, Constraint.class)
+            BindingHelper.validate(constraint)
             constraint
         } catch (JsonProcessingException e) {
-            throw new ConstraintBindingException("Cannot parse constraint parameter: ${e.message}", e)
-        }
-    }
-
-    static validate(Constraint constraint) {
-        Set<ConstraintViolation<Constraint>> errors = validator.validate(constraint)
-        if (errors) {
-            String sErrors = errors.collect { "${it.propertyPath.toString()}: ${it.message}" }.join('; ')
-            throw new ConstraintBindingException("${errors.size()} error(s): ${sErrors}", errors)
+            throw new BindingException("Cannot parse constraint parameter: ${e.message}", e)
         }
     }
 

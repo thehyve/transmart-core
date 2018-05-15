@@ -25,7 +25,10 @@ import org.grails.core.util.StopWatch
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.dataquery.PaginationParameters
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.SurveyTableColumnService
@@ -73,12 +76,13 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
 
     private writeClinicalSubtask(SubtaskParameters parameters,
             TabularResultSerializer serializer,
-            ImmutableList<MetadataAwareDataColumn> columns,
-            Dimension patientDimension) {
+            ImmutableList<MetadataAwareDataColumn> columns) {
         def stopWatch = new StopWatch("[Task ${parameters.task}] Write clinical data")
         stopWatch.start('Retrieve data')
-        def hypercube = multiDimService.retrieveClinicalData(parameters.constraint, parameters.user,
-                sort: [patientDimension])
+        def args = new DataRetrievalParameters(
+                constraint: parameters.constraint,
+                sort: [new SortSpecification(dimension: 'patient')])
+        def hypercube = multiDimService.retrieveClinicalData(args, parameters.user)
         stopWatch.stop()
         def tabularView = new SurveyTableView(columns, hypercube)
         try {
@@ -107,14 +111,13 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
      */
     @Override
     void writeClinical(Format format,
-                       Constraint constraint,
+                       DataRetrievalParameters parameters,
                        User user,
-                       OutputStream out,
-                       Map options = [:]) {
+                       OutputStream out) {
         log.info "Start parallel export ..."
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
-                constraint, user)
-        Boolean includeMeasurementDateColumns = options.includeMeasurementDateColumns
+                parameters.constraint, user)
+        Boolean includeMeasurementDateColumns = parameters.includeMeasurementDateColumns
         final ImmutableList<MetadataAwareDataColumn> columns
         if (includeMeasurementDateColumns == null) {
             columns = surveyTableColumnService
@@ -125,14 +128,23 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
         }
         final TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
                 ImmutableList.copyOf(columns as List<DataColumn>))
-        final patientDimension = multiDimService.getDimension('patient')
 
-        def parameters = new TaskParameters(constraint, user)
+        def taskParameters = new TaskParameters(parameters.constraint, user)
         parallelPatientSetTaskService.run(
-                parameters,
-                {SubtaskParameters params -> writeClinicalSubtask(params, serializer, columns, patientDimension)},
+                taskParameters,
+                {SubtaskParameters params -> writeClinicalSubtask(params, serializer, columns)},
                 {taskResults -> serializer.combine()}
         )
+    }
+
+    @Override
+    void writeTable(Format format, Constraint constraint, TableConfig tableConfig, User user, OutputStream out) {
+        throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
+    }
+
+    @Override
+    void writeTablePage(Format format, Constraint constraint, TableConfig tableConfig, PaginationParameters pagination, User user, OutputStream out) {
+        throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
     }
 
     @Override

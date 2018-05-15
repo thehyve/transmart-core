@@ -62,8 +62,8 @@ class ObservationSpec extends RESTSpec {
                 type             : 'clinical',
                 rowDimensions    : toJSON(['patient', 'study']),
                 columnDimensions : toJSON(['trial visit', 'concept']),
-                columnSort       : toJSON([['trial visit', 'asc'], ['concept', 'desc']]),
-                rowSort          : toJSON(['patient': 'desc']),
+                columnSort       : toJSON([[dimension: 'trial visit', sortOrder: 'asc'], [dimension: 'concept', sortOrder: 'desc']]),
+                rowSort          : toJSON([[dimension: 'patient', sortOrder: 'desc']]),
                 limit            : limit,
         ]
         def request = [
@@ -82,10 +82,10 @@ class ObservationSpec extends RESTSpec {
         assert responseData.rows.size() == 3
         assert responseData["row count"] == 3
         assert responseData.offset == 0
-        assert responseData.sorting.find{ it.dimension == 'study'}.order == "asc"
-        assert responseData.sorting.find{ it.dimension == 'patient'}.order == "desc"
-        assert responseData.sorting.find{ it.dimension == 'trial visit'}.order == "asc"
-        assert responseData.sorting.find{ it.dimension == 'concept'}.order == "desc"
+        assert responseData.sort.find{ it.dimension == 'study'}.sortOrder == "asc"
+        assert responseData.sort.find{ it.dimension == 'patient'}.sortOrder == "desc"
+        assert responseData.sort.find{ it.dimension == 'trial visit'}.sortOrder == "asc"
+        assert responseData.sort.find{ it.dimension == 'concept'}.sortOrder == "desc"
 
         when: "I specify an offset"
         def offset = 2

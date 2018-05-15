@@ -5,8 +5,11 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -39,13 +42,18 @@ class SurveyTableViewSpec extends Specification {
     @Autowired
     SurveyTableColumnService surveyTableColumnService
 
+    @Autowired
+    PatientSetResource patientSetResource
+
+
     private final UTC = TimeZone.getTimeZone('UTC')
 
     def 'survey 1'() {
         setup:
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY1")
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, sort: [DimensionImpl.PATIENT])
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        Hypercube hypercube = multiDimService.retrieveClinicalData(args, user)
         boolean includeMeasurementDateColumns = true
 
         when:
@@ -119,7 +127,8 @@ class SurveyTableViewSpec extends Specification {
         setup:
         def user = User.findByUsername('test-public-user-1')
         Constraint constraint = new StudyNameConstraint(studyId: "SURVEY2")
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, sort: [DimensionImpl.PATIENT])
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        Hypercube hypercube = multiDimService.retrieveClinicalData(args, user)
         boolean includeMeasurementDateColumns = true
 
         when:
@@ -176,10 +185,11 @@ class SurveyTableViewSpec extends Specification {
     def 'number of column for the patient set constraint and study'() {
         def user = User.findByUsername('test-public-user-1')
         def survey1 = new StudyNameConstraint(studyId: 'SURVEY1')
-        def survey1PatientSet = multiDimService.createPatientSetQueryResult("Test set",
+        def survey1PatientSet = patientSetResource.createPatientSetQueryResult("Test set",
                 survey1,
                 user,
-                'v2')
+                'v2',
+                false)
         List<HypercubeDataColumn> survey1Columns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
                 survey1, user)
 
@@ -197,10 +207,11 @@ class SurveyTableViewSpec extends Specification {
     def 'number of column for the patient set constraint'() {
         def user = User.findByUsername('test-public-user-1')
         def ora1000 = new StudyNameConstraint(studyId: 'ORACLE_1000_PATIENT')
-        def ora1000PatientSet = multiDimService.createPatientSetQueryResult("Test set",
+        def ora1000PatientSet = patientSetResource.createPatientSetQueryResult("Test set",
                 ora1000,
                 user,
-                'v2')
+                'v2',
+                false)
         List<HypercubeDataColumn> ora1000Columns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
                 ora1000, user)
 
@@ -215,10 +226,11 @@ class SurveyTableViewSpec extends Specification {
     def 'number of column for study/concept column constraint'() {
         def user = User.findByUsername('test-public-user-1')
         def survey1 = new StudyNameConstraint(studyId: 'SURVEY1')
-        def survey1PatientSet = multiDimService.createPatientSetQueryResult("Test set",
+        def survey1PatientSet = patientSetResource.createPatientSetQueryResult("Test set",
                 survey1,
                 user,
-                'v2')
+                'v2',
+                false)
 
         when: 'we get data columns for the patient set and unexisting study/concept'
         List<HypercubeDataColumn> survey1PatientSetColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Combination
@@ -27,6 +28,10 @@ class ParallelPatientSetTaskService {
 
     @Autowired
     SystemResource systemResource
+
+    @Autowired
+    PatientSetResource patientSetResource
+
 
     @Canonical
     @CompileStatic
@@ -98,12 +103,12 @@ class ParallelPatientSetTaskService {
 
         def t1 = new Date()
 
-        def patientSet = multiDimensionalDataResource.findQueryResult(
+        def patientSet = patientSetResource.findQueryResult(
                 constraintParts.patientSetConstraint.patientSetId, parameters.user)
         long size = patientSet.setSize
         int workers = systemResource.runtimeConfig.numberOfWorkers
         int chunkSize = systemResource.runtimeConfig.patientSetChunkSize
-        int numTasks = Math.ceil(size / chunkSize).intValue()
+        int numTasks = Math.ceil((size / chunkSize).doubleValue()).intValue()
         log.info "Patient set has ${size} patients. Preparing ${numTasks} tasks of size ${chunkSize} for ${workers} workers..."
 
         final results = [] as List<SubtaskResultEntry>

@@ -13,6 +13,8 @@ import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.user.User
+import org.transmartproject.rest.serialization.ExportElement
+import org.transmartproject.rest.serialization.ExportJobRepresentation
 
 @Transactional
 class ExportAsyncJobService {
@@ -164,19 +166,21 @@ class ExportAsyncJobService {
         return job
     }
 
-    def exportData(Map params, Constraint constraint, List dataTypeAndFormatList, User user, Long jobId) {
+    def exportData(ExportJobRepresentation exportJob, User user, Long jobId) {
         def job = getJobById(jobId)
         if (job.jobStatus != JobStatus.CREATED.value) {
             throw new InvalidRequestException("Job with id $jobId has invalid status. " +
                     "Expected: $JobStatus.CREATED.value, actual: $job.jobStatus")
         }
 
-        executeExportJob(params + [
+        executeExportJob([
                 user                         : user,
                 jobName                      : job.jobName,
                 jobId                        : jobId,
-                constraint                   : constraint,
-                dataTypeAndFormatList        : dataTypeAndFormatList,
+                constraint                   : exportJob.constraint,
+                dataTypeAndFormatList        : exportJob.elements,
+                includeMeasurementDateColumns: exportJob.includeMeasurementDateColumns,
+                tableConfig                  : exportJob.tableConfig
         ])
     }
 
