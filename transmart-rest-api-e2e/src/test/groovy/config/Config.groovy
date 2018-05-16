@@ -46,6 +46,7 @@ class Config {
 
     public static final String PATH_OBSERVATIONS = "/v2/observations"
     public static final String PATH_TABLE = "/v2/observations/table"
+    public static final String PATH_CROSSTABLE = "/v2/observations/crosstable"
     public static final String PATH_AGGREGATES_PER_CONCEPT = "/v2/observations/aggregates_per_concept"
     public static final String PATH_COUNTS = "/v2/observations/counts"
     public static final String PATH_COUNTS_PER_CONCEPT = "/v2/observations/counts_per_concept"

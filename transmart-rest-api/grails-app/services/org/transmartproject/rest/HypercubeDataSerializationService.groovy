@@ -26,6 +26,7 @@ import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.StreamingDataTable
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
@@ -39,6 +40,9 @@ class HypercubeDataSerializationService implements DataSerializer {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+
+    @Autowired
+    PatientSetResource patientSetService
 
     Map<Format, HypercubeSerializer> formatToSerializer = [
             (Format.JSON)    : new HypercubeJsonSerializer(),

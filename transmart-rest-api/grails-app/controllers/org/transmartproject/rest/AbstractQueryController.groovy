@@ -6,6 +6,7 @@ import grails.artefact.Controller
 import grails.converters.JSON
 import groovy.transform.CompileStatic
 import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONArray
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.InvalidArgumentsException

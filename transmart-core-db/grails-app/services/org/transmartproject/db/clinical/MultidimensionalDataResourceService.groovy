@@ -389,6 +389,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         return new PagingDataTableImpl(args, pagination, cube)
     }
 
+    @Override
     FullDataTable retrieveStreamingDataTable(TableConfig tableConfig, String type, Constraint constraint, User user) {
         TableRetrievalParameters args = parseDataTableArgs(tableConfig, type, constraint)
         Hypercube cube = retrieveClinicalData(args.dataRetrievalParameters, user)
