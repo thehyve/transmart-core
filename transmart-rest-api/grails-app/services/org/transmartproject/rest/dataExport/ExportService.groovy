@@ -47,7 +47,7 @@ class ExportService {
         return exportJobExecutor.getExportJobFileStream(job.viewerURL)
     }
 
-    def exportData(Map jobDataMap, ZipOutputStream output) {
+    def exportData(Map jobDataMap, String fileName, ZipOutputStream output) {
 
         List<ExportElement> dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList
         User user = jobDataMap.user
@@ -63,11 +63,12 @@ class ExportService {
                 try {
                     if (jobDataMap.tableConfig) {
                         TableConfig tableConfig = jobDataMap.tableConfig
-                        dataSerializer.writeTable(element.format, constraint, tableConfig, null, user, output)
+                        dataSerializer.writeTable(element.format, constraint, tableConfig, user, output)
                     } else {
                         DataRetrievalParameters parameters = new DataRetrievalParameters(
                                 constraint: constraint,
-                                includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns
+                                includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns,
+                                exportFileName: fileName
                         )
                         dataSerializer.writeClinical(element.format, parameters, user, output)
                     }

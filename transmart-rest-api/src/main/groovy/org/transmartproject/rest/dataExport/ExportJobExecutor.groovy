@@ -9,6 +9,7 @@ import org.quartz.UnableToInterruptJobException
 import org.springframework.context.ApplicationContext
 import org.transmartproject.core.users.User
 
+import java.text.SimpleDateFormat
 import java.util.zip.ZipOutputStream
 
 /**
@@ -44,10 +45,10 @@ class ExportJobExecutor implements InterruptableJob, AutoCloseable {
         Long jobId = jobDataMap.jobId
         String jobName = jobDataMap.jobName
         User user = jobDataMap.user
-        String file = getFilePath(user, "${jobName}.zip")
+        String file = getFilePath(user, jobName)
         zipFile = new ZipOutputStream(new FileOutputStream(file))
         asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
-        exportService.exportData(jobDataMap, zipFile)
+        exportService.exportData(jobDataMap, jobName, zipFile)
         asyncJobService.updateStatus(jobId, JobStatus.COMPLETED, file.toString())
     }
 

@@ -30,7 +30,7 @@ interface DataSerializer {
      * Write clinical data to the output stream
      *
      * @param format
-     * @param constraint
+     * @param parameters
      * @param user The user accessing the data
      * @param out
      * @param options

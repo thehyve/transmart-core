@@ -15,4 +15,6 @@ class DataRetrievalParameters {
 
     Boolean includeMeasurementDateColumns
 
+    String exportFileName
+
 }
