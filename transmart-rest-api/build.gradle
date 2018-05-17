@@ -32,7 +32,7 @@ dependencies {
     compile "com.opencsv:opencsv:${openCsvVersion}"
     compile "org.grails.plugins:quartz:${quartzVersion}"
 
-    compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
+    compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
     compile project(':transmart-core-api')
     compile project(':transmart-core-db-tests')
 }

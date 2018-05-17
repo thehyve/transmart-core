@@ -122,7 +122,6 @@ environments {
 }
 
 grails.converters.json.pretty.print = true
-grails.plugin.springsecurity.active = false
 
 grails.mime.disable.accept.header.userAgents = false
 

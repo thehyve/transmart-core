@@ -27,6 +27,8 @@ dependencies {
     //Custom dependencies
     compile project(':transmart-rest-api')
 
+    compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.springframework.security.oauth:spring-security-oauth2"
 }
 
 bootRun {

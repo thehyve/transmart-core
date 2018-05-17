@@ -1,3 +1,3 @@
-// Place your Spring DSL code here
 beans = {
+    requestContextListener(org.springframework.web.context.request.RequestContextListener)
 }

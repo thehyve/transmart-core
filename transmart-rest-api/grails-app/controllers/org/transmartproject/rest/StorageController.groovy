@@ -49,7 +49,9 @@ class StorageController extends RestfulController<LinkedFileCollection> {
             notFound()
             return
         }
-        currentUser.checkAccess(READ, fileCollection.study)
+        if (!currentUser.canPerform(READ, fileCollection.study)) {
+            throw new AccessDeniedException()
+        }
         respond fileCollection
     }
 
@@ -94,7 +96,9 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     @Transactional(readOnly = true)
     def indexStudy(String studyId) {
         def study = Study.findByStudyId(studyId)
-        currentUser.checkAccess(READ, study)
+        if (!currentUser.canPerform(READ, study)) {
+            throw new AccessDeniedException()
+        }
         def filesInStudy = LinkedFileCollection.findAllByStudy(study)
         def response = ['files': filesInStudy  ]
         respond response
