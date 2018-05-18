@@ -19,12 +19,16 @@
 
 package org.transmartproject.db.user
 
+import com.google.common.collect.ImmutableMultimap
+import com.google.common.collect.Multimap
 import org.hibernate.FetchMode
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.accesscontrol.SecuredObject
+import org.transmartproject.db.accesscontrol.SecuredObjectAccessView
 
 class User extends PrincipalCoreDb implements org.transmartproject.core.users.User {
 
@@ -85,9 +89,25 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         //federatedId nullable: true, unique: true
     }
 
-    /* not in api */
+    @Override
     boolean isAdmin() {
         roles.find { it.authority == RoleCoreDb.ROLE_ADMIN_AUTHORITY }
+    }
+
+    @Override
+    Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations() {
+        def securedObjects = SecuredObjectAccessView.where {
+            user == this
+            securedObject.dataType == SecuredObject.STUDY_DATA_TYPE
+        }.list()
+        def mapBuilder = ImmutableMultimap. <String, ProtectedOperation> builder()
+        for (SecuredObjectAccessView so: securedObjects) {
+            def uid = so.securedObject.bioDataUniqueId
+            for (ProtectedOperation operation: so.accessLevel.correspondingProtectedOperations) {
+                mapBuilder.put(uid, operation)
+            }
+        }
+        mapBuilder.build()
     }
 
     @Override

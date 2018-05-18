@@ -90,4 +90,8 @@ class AccessLevel implements Permission {
     boolean isCase(ProtectedOperation operation) {
         permissionToOperations.containsEntry(name, operation)
     }
+
+    Collection<ProtectedOperation> getCorrespondingProtectedOperations() {
+        permissionToOperations.get(name) ?: Collections.emptyList()
+    }
 }

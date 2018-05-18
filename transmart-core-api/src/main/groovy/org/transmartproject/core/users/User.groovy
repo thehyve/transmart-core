@@ -1,4 +1,7 @@
 package org.transmartproject.core.users
+
+import com.google.common.collect.Multimap
+
 /**
  * Represents a tranSMART user.
  */
@@ -6,15 +9,19 @@ public interface User {
 
     /**
      * An numerical identifier for the user.
-     *
+     * @deprecated Use {@code getUserame()} instead to identify the user.
      * @return numeric unique identifier for the user
      */
+    @Deprecated
     Long getId()
 
     /**
-     * The local name for the user. If the user logs in through tranSMART (as
-     * opposed to some SSO solution), this is the username he should input.
+     * The name for the user. Has to be unique in the system.
      *
+     * In case of the basic local identity provider this field is stored in the database.
+     * In case of Open ID Connect it's the `sub` field.
+     *  Note not `username` or `preferred_username` as it does not identify a user.
+     *  See http://openid.net/specs/openid-connect-core-1_0.html
      * @return the local username
      */
     String getUsername()
@@ -43,4 +50,14 @@ public interface User {
      */
     boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource)
 
+    /**
+     * @return true if user is admin, otherwise false
+     */
+    boolean isAdmin()
+
+    /**
+     * The key of the map is a study token. The study token is a string that give access to the study.
+     * Level of access specified by the value part of the map {@code ProtectedOperation}.
+     */
+    Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations()
 }
