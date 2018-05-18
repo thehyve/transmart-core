@@ -64,7 +64,7 @@ class AccessLevel implements Permission {
     static Multimap<String, ProtectedOperation> permissionToOperations = {
         def mapBuilder = ImmutableMultimap.builder()
 
-        [API_READ, BUILD_COHORT, SHOW_SUMMARY_STATISTICS, RUN_ANALYSIS, EXPORT,
+        [READ, API_READ, BUILD_COHORT, SHOW_SUMMARY_STATISTICS, RUN_ANALYSIS, EXPORT,
                 SHOW_IN_TABLE].each {
             mapBuilder.put 'OWN', it
             mapBuilder.put 'EXPORT', it

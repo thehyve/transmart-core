@@ -27,8 +27,11 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.accesscontrol.AccessLevel
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccessView
+
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class User extends PrincipalCoreDb implements org.transmartproject.core.users.User {
 
@@ -96,14 +99,23 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
 
     @Override
     Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations() {
-        def securedObjects = SecuredObjectAccessView.where {
-            user == this
-            securedObject.dataType == SecuredObject.STUDY_DATA_TYPE
-        }.list()
+        List<Object[]> securedObjectWithaccessLevelPairs = SecuredObjectAccessView.createCriteria().list {
+            projections {
+                property('securedObject')
+                property('accessLevel')
+            }
+            createAlias('securedObject', 'so', INNER_JOIN)
+            or {
+                eq('user', this)
+                isNull('user')
+            }
+            eq('so.dataType', SecuredObject.STUDY_DATA_TYPE)
+        }
         def mapBuilder = ImmutableMultimap. <String, ProtectedOperation> builder()
-        for (SecuredObjectAccessView so: securedObjects) {
-            def uid = so.securedObject.bioDataUniqueId
-            for (ProtectedOperation operation: so.accessLevel.correspondingProtectedOperations) {
+        for (Object[] securedObjectWithaccessLevelPair: securedObjectWithaccessLevelPairs) {
+            def (SecuredObject securedObject, AccessLevel accessLevel) = securedObjectWithaccessLevelPair
+            String uid = securedObject.bioDataUniqueId
+            for (ProtectedOperation operation: accessLevel.correspondingProtectedOperations) {
                 mapBuilder.put(uid, operation)
             }
         }

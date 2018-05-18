@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
@@ -63,6 +64,7 @@ import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.
 class AccessControlChecks {
 
     public static final String PUBLIC_SOT = 'EXP:PUBLIC'
+    public static final Set<String> PUBLIC_TOKENS = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT]
 
     @Autowired
     OntologyTermsResource conceptsResource
@@ -82,7 +84,6 @@ class AccessControlChecks {
                        I2b2Secure secure) {
 
         if (user.admin) {
-            /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
                     "${secure.fullName} for user ${user.username} because she is an " +
                     "administrator"
@@ -95,41 +96,11 @@ class AccessControlChecks {
         }
         log.debug "Token for ${secure.fullName} is $token"
 
-        /* if token is EXP:PUBLIC, always permit */
-        if (token == PUBLIC_SOT) {
+        if (token in PUBLIC_TOKENS) {
             return true
         }
 
-        /* see if the user has some access level for this
-         * soav.user will be null to indicate access to EVERYONE_GROUP */
-        def query = session.createQuery '''
-            select soav.accessLevel from SecuredObjectAccessView soav
-            where (soav.user = :user OR soav.user is null)
-            and soav.securedObject.bioDataUniqueId = :token
-            and soav.securedObject.dataType = 'BIO_CLINICAL_TRIAL'
-            '''
-        query.setParameter 'user', user
-        query.setParameter 'token', token
-
-        List<AccessLevel> results = query.list()
-        log.debug "Got access levels for user ${user.username}, token $token: $results"
-
-        if (!results) {
-            log.info "No access level entries found for user ${user.username} and " +
-                    "token $token; denying access"
-            return false
-        }
-
-        if (results.any { protectedOperation in it }) {
-            log.debug("Access level of user ${user.username} for token $token " +
-                    "granted through permission " +
-                    "${results.find { protectedOperation in it }}")
-            true
-        } else {
-            log.info("Permissions of user ${user.username} for token $token are " +
-                    "only ${results as Set}; denying access")
-            false
-        }
+        protectedOperation in user.accessStudyTokenToOperations.get(token)
     }
 
     /**
@@ -147,7 +118,23 @@ class AccessControlChecks {
     boolean canPerform(User user,
                        ProtectedOperation protectedOperation,
                        org.transmartproject.db.i2b2data.Study study) {
-        existsDimensionStudyForUser(user, study?.studyId)
+        if (user.admin) {
+            log.debug "Bypassing check for $protectedOperation on ${study.studyId} for user ${user.username}" +
+                    ' because she is an administrator'
+            return true
+        }
+
+        String token = study.secureObjectToken
+        if (!token) {
+            throw new UnexpectedResultException("${study.studyId} study has empty token.")
+        }
+        log.debug "Token for ${study.studyId} is $token"
+
+        if (token in PUBLIC_TOKENS) {
+            return true
+        }
+
+        protectedOperation in user.accessStudyTokenToOperations.get(study.secureObjectToken)
     }
 
     /**
@@ -187,67 +174,22 @@ class AccessControlChecks {
     Set<Study> getAccessibleStudiesForUser(User user) {
         /* this method could benefit from caching */
         def studySet = studiesResource.studySet
-        if (user.admin) {
-            return studySet
-        }
+        def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
+        studySet.findAll {
+            OntologyTerm ontologyTerm = it.ontologyTerm
+            assert ontologyTerm : "No ontology node found for study ${it.id}."
+            I2b2Secure i2b2Secure = ontologyTerm instanceof I2b2Secure ? ontologyTerm : I2b2Secure.findByFullName(ontologyTerm.fullName)
+            if (!i2b2Secure) {
+                log.debug("No secure record for ${ontologyTerm.fullName} path found. Study treated as public.")
+                return true
+            }
 
-        List<I2b2Secure> allI2b2s = I2b2Secure.findAllByFullNameInList(
-                studySet*.ontologyTerm*.fullName as List)
-
-        allI2b2s.find { !it.secureObjectToken }?.collect {
-            throw new UnexpectedResultException("Found I2b2Secure object " +
-                    "with empty secureObjectToken")
-        }
-
-        Map<Study, String> studySOTMap = studySet.collectEntries { study ->
-            /* note that the user is GRANTED access to studies that don't
-             * have a corresponding I2b2Secure object. That is
-             * the reason for "?.(...) ?: PUBLIC_SOT" part below
-             */
-            [study, allI2b2s.find { i2b2secure ->
-                i2b2secure.fullName == study.ontologyTerm.fullName
-            }?.secureObjectToken ?: PUBLIC_SOT]
-        }
-
-        List<String> nonPublicSOTs = allI2b2s.findAll {
-            it.secureObjectToken && it.secureObjectToken != PUBLIC_SOT
-        }*.secureObjectToken
-
-        def query = session.createQuery '''
-            select soav.securedObject.bioDataUniqueId
-            from SecuredObjectAccessView soav
-            where (soav.user = :user OR soav.user is null)
-            and soav.securedObject.bioDataUniqueId IN (:tokens)
-            and soav.securedObject.dataType = 'BIO_CLINICAL_TRIAL'
-            '''
-        query.setParameter 'user', user
-        query.setParameterList 'tokens', nonPublicSOTs
-
-        List<String> userGrantedSOTs = nonPublicSOTs ? query.list() : []
-
-        studySet.findAll { Study study ->
-            studySOTMap[study] == PUBLIC_SOT ||
-                    studySOTMap[study] in userGrantedSOTs
+            canPerform(user, mostLimitedOperation, i2b2Secure)
         }
     }
 
     boolean hasUnlimitedStudiesAccess(User user) {
         user.admin
-    }
-
-    List<String> findSecureObjectTokens(User user) {
-        def secureObjectTokens = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT] as List<String>
-        def criteria = org.hibernate.criterion.DetachedCriteria.forClass(SecuredObject, 'so')
-            .add(Restrictions.eq('dataType', 'BIO_CLINICAL_TRIAL'))
-            .add(Subqueries.exists(
-                org.hibernate.criterion.DetachedCriteria.forClass(SecuredObjectAccessView, 'soav')
-                    .add(Restrictions.eq('user', user))
-                    .add(Restrictions.eqProperty('securedObject.id', 'so.id'))
-                    .setProjection(Projections.id())
-            ))
-            .setProjection(Projections.property('bioDataUniqueId'))
-        secureObjectTokens += (criteria.getExecutableCriteria(sessionFactory.currentSession).list() as List<String>)
-        secureObjectTokens
     }
 
     /* Study is included if the user has ANY kind of access */
@@ -257,38 +199,20 @@ class AccessControlChecks {
             return org.transmartproject.db.i2b2data.Study.findAll()
         }
 
-        def secureObjectTokens = findSecureObjectTokens(user)
-        org.transmartproject.db.i2b2data.Study.findAllBySecureObjectTokenInList(secureObjectTokens)
+        def accessibleStudyTokens = getAccessibleStudyTokensForUser(user)
+        org.transmartproject.db.i2b2data.Study.findAllBySecureObjectTokenInList(accessibleStudyTokens)
     }
 
-    /* Study is included if the user has ANY kind of access */
-    boolean existsDimensionStudyForUser(User user, String studyIdString) {
-        if (studyIdString == null || studyIdString.empty) {
-            return false
-        }
-
-        if (user.admin) {
-            return org.transmartproject.db.i2b2data.Study.findByStudyId(studyIdString) != null
-        }
-
-        def secureObjectTokens = findSecureObjectTokens(user)
-        DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
-            studyId == studyIdString
-            secureObjectToken in secureObjectTokens
-        }
-        query.find() != null
+    /**
+     * Gets all tokens to the studies user have access to including PUBLIC tokens.
+     * @param user
+     */
+    private static Set<String> getAccessibleStudyTokensForUser(User user) {
+        user.accessStudyTokenToOperations.keySet() + PUBLIC_TOKENS
     }
 
     private boolean exists(org.hibernate.criterion.DetachedCriteria criteria) {
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
-    }
-
-    void verifyDimensionsAccessible(Collection<Dimension> dimensions, User user) {
-        def inaccessibleDimensions = getInaccessibleDimensions(dimensions, user)
-        if (inaccessibleDimensions){
-            throw new AccessDeniedException(
-                    "Access denied to ${inaccessibleDimensions.size()==1 ? 'dimension' : 'dimensions'}: ${inaccessibleDimensions.join(', ')}.")
-        }
     }
 
     Set<Dimension> getInaccessibleDimensions(Collection<Dimension> dimensions, User user) {
@@ -335,8 +259,7 @@ class AccessControlChecks {
             return true
         }
 
-        Collection<org.transmartproject.db.i2b2data.Study> studies = getDimensionStudiesForUser(user)
-        List<String> tokens = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT] + studies*.secureObjectToken
+        Set<String> tokens = getAccessibleStudyTokensForUser(user)
 
         org.hibernate.criterion.DetachedCriteria conceptCriteria =
                 org.hibernate.criterion.DetachedCriteria.forClass(ConceptDimension)
