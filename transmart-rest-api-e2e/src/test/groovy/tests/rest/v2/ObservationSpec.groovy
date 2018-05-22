@@ -148,7 +148,7 @@ class ObservationSpec extends RESTSpec {
         def restrictedConceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
         def params = [
                 rowConstraints   : [toJSON([type: TrueConstraint]),
-                                    toJSON([type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 80])],
+                                    toJSON([type: StudyNameConstraint, studyId: EHR_ID])],
                 columnConstraints: [toJSON([type: ConceptConstraint, path: restrictedConceptPath]),
                                     toJSON([type: TrueConstraint])],
                 subjectConstraint: toJSON(type: PatientSetConstraint, patientSetId: patientSetId),
