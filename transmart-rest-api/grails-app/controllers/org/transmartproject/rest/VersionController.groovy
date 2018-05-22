@@ -72,7 +72,6 @@ class VersionController {
                         'pedigree',
                         'survey-table-view',
                         'query-subscription',
-                        'query-subscription',
                         'crosstable',
                         'after_data_loading_update',
                 ]
