@@ -122,11 +122,11 @@ class DataTableSerializer {
     }
 
     void writeSorting() {
-        writer.name('sorting').beginArray()
+        writer.name('sort').beginArray()
         for(def entry : table.sort) {
             writer.beginObject()
             writer.name('dimension').value(entry.key.name)
-            writer.name('order').value(entry.value.string())
+            writer.name('sortOrder').value(entry.value.string())
             if(entry.key in table.requestedSort) {
                 writer.name('user_requested').value(true)
             }

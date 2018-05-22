@@ -8,6 +8,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
@@ -42,12 +43,12 @@ abstract class AbstractDataTable implements DataTable {
     ImmutableMap<Dimension, SortOrder> getSort() { sort }
     ImmutableMap<Dimension, SortOrder> getRequestedSort() { requestedSort }
 
-    AbstractDataTable(Map args, Hypercube hypercube) {
+    AbstractDataTable(TableRetrievalParameters args, Hypercube hypercube) {
         requireNonNull this.hypercube = hypercube
         this.rowDimensions = ImmutableList.<Dimension>copyOf((List) args.rowDimensions)
         this.columnDimensions = ImmutableList.<Dimension>copyOf((List) args.columnDimensions)
         this.sort = ImmutableMap.copyOf((Map) args.sort)
-        this.requestedSort = ImmutableMap.copyOf(((Map) args.userSort) ?: [:])
+        this.requestedSort = ImmutableMap.copyOf(args.userSort)
 
         columnIndices = columnDimensions.withIndex().collectEntries()
 
@@ -68,12 +69,13 @@ abstract class AbstractDataTable implements DataTable {
     @ToString(includes=['keys'], includeNames=true, includePackage=false)
     @EqualsAndHashCode(includes=["keys"])
     class DataTableColumnImpl implements DataTableColumn<DataTableColumnImpl> {
-        final ImmutableList elements // in the order of columnDimensions
-        final ImmutableList keys
+        // elements ant keys are nullable, so they cannot be of type ImmutableList
+        final List elements // in the order of columnDimensions
+        final List keys
 
         DataTableColumnImpl(List elements, List keys) {
-            this.elements = ImmutableList.copyOf(elements)
-            this.keys = ImmutableList.copyOf(keys)
+            this.elements = Collections.unmodifiableList(new ArrayList(elements))
+            this.keys = Collections.unmodifiableList(new ArrayList(keys))
         }
 
         @Override
@@ -100,13 +102,14 @@ abstract class AbstractDataTable implements DataTable {
     @EqualsAndHashCode(includes=["offset"])
     static class DataTableRowImpl implements DataTableRow<DataTableRowImpl> {
         final long offset
-        final ImmutableList elements  // in the order of rowDimensions
-        final ImmutableList keys
+        // elements ant keys are nullable, so they cannot be of type ImmutableList
+        final List elements  // in the order of rowDimensions
+        final List keys
 
         DataTableRowImpl(long offset, List elements, List keys) {
             this.offset = offset
-            this.elements = ImmutableList.copyOf(elements)
-            this.keys = ImmutableList.copyOf(keys)
+            this.elements = Collections.unmodifiableList(new ArrayList(elements))
+            this.keys = Collections.unmodifiableList(new ArrayList(keys))
         }
 
         @Override
@@ -139,12 +142,12 @@ abstract class AbstractDataTable implements DataTable {
             return row
         }
 
-        private ImmutableList rowKey(HypercubeValue cell) {
+        private List rowKey(HypercubeValue cell) {
             List key = []
             for(Dimension d : rowDimensions) {
                 key.add(cell.getDimKey(d))
             }
-            ImmutableList.copyOf(key)
+            Collections.unmodifiableList(new ArrayList<>(key))
         }
 
         private boolean sameGroup(List key, HypercubeValue cell) {

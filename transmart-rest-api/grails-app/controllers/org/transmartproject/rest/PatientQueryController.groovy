@@ -103,7 +103,7 @@ class PatientQueryController extends AbstractQueryController {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        QueryResult patientSet = multiDimService.findQueryResult(id, user)
+        QueryResult patientSet = patientSetResource.findQueryResult(id, user)
         def version = patientSet.queryInstance.queryMaster.apiVersion
         def constraintText = patientSet.queryInstance.queryMaster.requestConstraints
 
@@ -127,7 +127,7 @@ class PatientQueryController extends AbstractQueryController {
         checkForUnsupportedParams(params, [])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Iterable<QueryResult> patientSets = multiDimService.findPatientSetQueryResults(user)
+        Iterable<QueryResult> patientSets = patientSetResource.findPatientSetQueryResults(user)
 
         respond wrapPatientSets(patientSets)
     }
@@ -141,7 +141,7 @@ class PatientQueryController extends AbstractQueryController {
      *
      * @param apiVersion
      * @param name
-     * @param reuse
+     * @param reuse (default: false)
      *
      * @return a map with the query result id, description, size, status, constraints and api version.
      */
@@ -183,12 +183,11 @@ class PatientQueryController extends AbstractQueryController {
         // Canonise the constraint, to enable reuse
         constraint = constraint.canonise()
 
-        QueryResult patientSet
-        if (reuse) {
-            patientSet = multiDimService.createOrReusePatientSetQueryResult(name, constraint, user, currentVersion)
-        } else {
-            patientSet = multiDimService.createPatientSetQueryResult(name, constraint, user, currentVersion)
+        if (reuse == null) {
+            reuse = false
         }
+
+        QueryResult patientSet = patientSetResource.createPatientSetQueryResult(name, constraint, user, currentVersion, reuse)
 
         response.status = 201
         render new QueryResultWrapper(

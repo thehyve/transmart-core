@@ -118,14 +118,16 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
                 return null
             }
             def value = hValue.value
-            def label = (value == null ? getMissingValueLabel(hValue) : value) as String
-            if (labelsToValues.containsKey(label)) {
-                return labelsToValues[label]
+            def label = (value == null ? getMissingValueLabel(hValue) : value)
+            def label_key = label.toString()
+
+            if (labelsToValues.containsKey(label_key)) {
+                return labelsToValues[label_key]
             }
             if (metadata?.type == DATE && value instanceof Number) {
                 return toDate(value)
             }
-            return value
+            return label
         }
 
         private static Date toDate(Number value) {

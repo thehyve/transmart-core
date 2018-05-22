@@ -1161,7 +1161,7 @@
             "required": false,
             "in": "query",
             "type": "string",
-            "description": "Json list of sort specifications for the row dimensions. A sort specification is either the name of a\ndimension as string, or a list `[<dimension>, <direction>]` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `['study', ['patient', 'desc']]`\n"
+            "description": "Json list of sort specifications for the row dimensions. A sort specification is\nan element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`\n"
           },
           {
             "name": "columnSort",
@@ -1249,6 +1249,84 @@
         "responses": {
           "200": {
             "$ref": "#/definitions/DataTable"
+          }
+        }
+      }
+    },
+    "/v2/observations/crosstable": {
+      "get": {
+        "description": "Returns a tabular view of subject counts, using specified constraints for rows and columns.\nEach cell represents a number of subjects computed as an intersection of column set, row set\nand selected subject set that is specified by subject constraint.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "rowConstraints",
+            "required": true,
+            "in": "query",
+            "type": "array",
+            "description": "List of JSON-encoded constraint specifications. Each constraint is a row header and specifies a row set\npart of the final set computed for a cell.\nExample: `[{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"},\n{\"type\":\"concept\",\"conceptCode\":\"height\"}]`.\n",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "columnConstraints",
+            "required": true,
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subjectConstraint",
+            "required": true,
+            "in": "query",
+            "type": "string",
+            "description": "Json that specifies the constraint for a subject set. In particular, subjectConstraint can be\nof type `patient_set` in order to explicitly specify the id of a set of patients.\nExample: `{“type”:“patient_set”, “patientSetId”: 12345}`.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/definitions/CrossTable"
+          }
+        }
+      },
+      "post": {
+        "description": "The same as the `get` call, but with parameters specified as a JSON object in the request body. Useful if the\nparameters don't fit in a single request.\n\nSee the `get` version for additional documentation.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "rowConstraints",
+            "required": true,
+            "in": "body",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "columnConstraints",
+            "required": true,
+            "in": "body",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subjectConstraint",
+            "required": true,
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/definitions/CrossTable"
           }
         }
       }
@@ -1562,6 +1640,19 @@
           },
           "503": {
             "description": "A rebuild operation is already in progress.\n"
+          }
+        }
+      }
+    },
+    "/v2/system/after_data_loading_update": {
+      "get": {
+        "description": "This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache and patient sets have been cleared. The data for subscribed user queries is updated.\n"
           }
         }
       }
@@ -3374,7 +3465,7 @@
               ]
             }
           },
-          "sorting": {
+          "sort": {
             "description": "This property lists the sort order that was used in creating the dataset. This will generally include all\nthe dimensions that were specified as row or column dimensions. This property includes both the row\nand column dimensions, with row dimensions first and column dimensions followed by that.\n",
             "type": "array",
             "items": {
@@ -3384,7 +3475,7 @@
                   "type": "string",
                   "description": "the name of a dimension"
                 },
-                "order": {
+                "sortOrder": {
                   "type": "string",
                   "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
                 },
@@ -3414,6 +3505,24 @@
           "row_dimensions",
           "sorting",
           "offset"
+        ]
+      }
+    },
+    "CrossTable": {
+      "description": "A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains\na list with numbers of subjects for each cell.\n",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "description": "This property contains the row data. Items are cells, each cell is a number of subject, computed as a result\nof an intersection of constraints specified for a row, for a column and for a selected subject set.\n",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "rows"
         ]
       }
     },

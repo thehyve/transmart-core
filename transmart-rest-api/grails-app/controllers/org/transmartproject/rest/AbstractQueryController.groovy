@@ -4,21 +4,29 @@ package org.transmartproject.rest
 
 import grails.artefact.Controller
 import grails.converters.JSON
+import groovy.transform.CompileStatic
 import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONArray
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.RequestUtils
 
+@CompileStatic
 abstract class AbstractQueryController implements Controller {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+
+    @Autowired
+    PatientSetResource patientSetResource
 
     @Autowired
     CurrentUser currentUser
@@ -45,12 +53,12 @@ abstract class AbstractQueryController implements Controller {
     protected Constraint bindConstraint(String constraintText) {
         try {
             return getConstraintFromString(constraintText)
-        } catch (ConstraintBindingException e) {
-            Map error = [
+        } catch (BindingException e) {
+            def error = [
                     httpStatus: 400,
                     message   : e.message,
                     type      : e.class.simpleName,
-            ]
+            ] as Map<String, Object>
 
             if (e.errors) {
                 error.errors = e.errors
@@ -72,22 +80,29 @@ abstract class AbstractQueryController implements Controller {
      * @return Map with passed arguments
      */
     protected Map getGetOrPostParams() {
-        if(request.method == "POST") {
-            def parameters = request.JSON as Map
+        if(request.method == 'POST') {
+            def parameters = request.JSON as Map<String, Object>
             return parameters.collectEntries { String k, v ->
-                if(v instanceof Object[] || v instanceof List) {
-                    [k, v.collect { it.toString() }]
+                if (v instanceof Object[] || v instanceof List) {
+                    [k, v.collect {
+                        if (it instanceof Map) {
+                            BindingHelper.objectMapper.writeValueAsString((Map) it)
+                        } else
+                            it.toString()
+                    }]
+                } else if (v instanceof Map) {
+                    [k, BindingHelper.objectMapper.writeValueAsString((Map)v)]
                 } else {
                     [k, v.toString()]
                 }
             }
         }
-        return params.collectEntries { String k, v ->
+        return (params as Map<String, Object>).collectEntries { String k, v ->
             if (!RequestUtils.GLOBAL_PARAMS.contains(k)) {
                 if(v instanceof Object[] || v instanceof List) {
-                    [k, v.collect { URLDecoder.decode(it, 'UTF-8') }]
+                    [k, v.collect { URLDecoder.decode(it.toString(), 'UTF-8') }]
                 } else {
-                    [k, URLDecoder.decode(v, 'UTF-8')]
+                    [k, URLDecoder.decode(v.toString(), 'UTF-8')]
                 }
             } else [:]
         }

@@ -12,6 +12,7 @@ import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
 import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 @Slf4j
 @CompileStatic
@@ -74,8 +75,8 @@ class TabularResultTSVSerializer extends AbstractTSVSerializer implements Tabula
     final File workingDir
     final SortedMap<Integer, File> dataFiles = Collections.synchronizedSortedMap([:] as TreeMap)
 
-    TabularResultTSVSerializer(User user, OutputStream outStream, ImmutableList<DataColumn> columns) {
-        super(user, outStream)
+    TabularResultTSVSerializer(User user, ZipOutputStream zipOutStream, ImmutableList<DataColumn> columns) {
+        super(user, zipOutStream)
         this.columns = columns
         this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-tsv-', '-tmpdir')
     }

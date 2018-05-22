@@ -58,6 +58,10 @@ class RestApiUrlMappings {
                 action = [GET: 'table', POST: 'table']
                 apiVersion = 'v2'
             }
+            "/observations/crosstable"(controller: 'query') {
+                action = [GET: 'crosstable', POST: 'crosstable']
+                apiVersion = 'v2'
+            }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
@@ -108,6 +112,9 @@ class RestApiUrlMappings {
                 apiVersion = 'v2'
             }
             "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
+                apiVersion = 'v2'
+            }
+            "/system/after_data_loading_update"(method: 'GET', controller: 'system', action: 'afterDataLoadingUpdate') {
                 apiVersion = 'v2'
             }
             "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {

@@ -120,11 +120,11 @@ class StudiesSpec extends RESTSpec {
         def studyResponse = get([
                 path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
                 acceptType: JSON,
-                statusCode: 403
+                statusCode: 404
         ])
 
-        then: "the study object is returned"
-        assert studyResponse.httpStatus == 403
+        then: "we don't distinguish between study not found and the user does not have access to"
+        assert studyResponse.httpStatus == 404
         assert studyResponse.message == "Access denied to study or study does not exist: ${SHARED_CONCEPTS_RESTRICTED_DB_ID}"
     }
 

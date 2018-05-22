@@ -15,6 +15,7 @@ import org.transmartproject.db.multidimquery.StudyDimension
 import spock.lang.Specification
 
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 import static org.transmartproject.core.multidimquery.Dimension.Density.DENSE
 import static org.transmartproject.core.multidimquery.Dimension.Packable.NOT_PACKABLE
@@ -35,7 +36,8 @@ class TabularResultTSVSerializerSpec extends Specification {
      */
     def 'test TSV serialisation for tabular data'() {
         def user = Mock(User)
-        def out = new ByteArrayOutputStream()
+        ByteArrayOutputStream bout = new ByteArrayOutputStream()
+        def out = new ZipOutputStream(bout)
         def column1 = new HypercubeDataColumn(ImmutableMap.copyOf([(STUDY): 'studyA', (CONCEPT): 'age']))
         def column2 = new HypercubeDataColumn(ImmutableMap.copyOf([(STUDY): 'studyB', (CONCEPT): 'age']))
         def column3 = new HypercubeDataColumn(ImmutableMap.copyOf([(STUDY): 'studyA', (CONCEPT): 'height']))
@@ -72,7 +74,7 @@ class TabularResultTSVSerializerSpec extends Specification {
         out.flush()
 
         then:
-        def bytes = new ByteArrayInputStream(out.toByteArray())
+        def bytes = new ByteArrayInputStream(bout.toByteArray())
         def zipIn = new ZipInputStream(bytes)
         def entry = zipIn.nextEntry
         entry.name == 'data.tsv'

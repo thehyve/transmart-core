@@ -42,6 +42,7 @@ BEGIN
             WHEN 'r' THEN 'arwdDxt'
             WHEN 'S' THEN 'rwU'
             WHEN 'v' THEN 'arwdDxt'
+            WHEN 'm' THEN 'arwdDxt'
             WHEN 'f' THEN 'X'
             WHEN 'a' THEN 'X'
             WHEN 's' THEN 'UC'
@@ -103,6 +104,7 @@ BEGIN
                 WHEN 'r' THEN 'r'
                 WHEN 'S' THEN 'rwU' -- from the docs, w or U would suffice
                 WHEN 'v' THEN 'r'
+                WHEN 'v' THEN 'r'
                 WHEN 'f' THEN 'X'
                 WHEN 'a' THEN 'X'
                 WHEN 's' THEN 'U' -- usage only; not create
@@ -150,6 +152,7 @@ BEGIN
         CASE type
             WHEN 'r' THEN 'TABLE'
             WHEN 'v' THEN 'TABLE'
+            WHEN 'm' THEN 'TABLE'
             WHEN 'S' THEN 'SEQUENCE'
             WHEN 'f' THEN 'FUNCTION'
             WHEN 'a' THEN 'FUNCTION' -- It's actually AGGREGATE, but we have to reference to it as FUNCTION in DDL

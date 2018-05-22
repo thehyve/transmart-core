@@ -24,7 +24,6 @@ import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperat
  * Created by piotrzakrzewski on 02/12/2016.
  */
 @Slf4j
-@Transactional
 class StorageController extends RestfulController<LinkedFileCollection> {
 
     static responseFormats = ['json']
@@ -55,6 +54,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     }
 
     @Override
+    @Transactional
     def save() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
@@ -101,6 +101,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     }
 
     @Override
+    //Adding @Transactional here causes stack overflow.
     def delete() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
@@ -111,6 +112,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     }
 
     @Override
+    @Transactional
     def update() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
