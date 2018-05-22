@@ -3,7 +3,7 @@
 swagger: '2.0'
 
 info:
-  version: 2.2
+  version: 2.3
   title: Transmart
   license:
     name: Apache 2.0
