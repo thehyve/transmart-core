@@ -45,7 +45,7 @@ class ExportJobExecutor implements InterruptableJob, AutoCloseable {
         Long jobId = jobDataMap.jobId
         String jobName = jobDataMap.jobName
         User user = jobDataMap.user
-        String file = getFilePath(user, jobName)
+        String file = getFilePath(user, "${jobName}.zip")
         zipFile = new ZipOutputStream(new FileOutputStream(file))
         asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
         exportService.exportData(jobDataMap, jobName, zipFile)
