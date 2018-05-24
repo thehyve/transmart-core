@@ -8,5 +8,5 @@ SELECT MIN(patient_num) AS min_patient_num, MAX(patient_num) as max_patient_num 
 SELECT
   boundaries.min_patient_num,
   boundaries.max_patient_num,
-  lpad('1', (boundaries.max_patient_num - boundaries.min_patient_num + 1)::integer, '0')::bit varying AS one
+  bitcat(biomart_user.scale_bitset((boundaries.max_patient_num - boundaries.min_patient_num + 1)::bigint), B'1') AS one
 FROM boundaries;
