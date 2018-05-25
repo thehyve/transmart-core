@@ -36,7 +36,7 @@ class RelationSpec extends RESTSpec {
 
         then: "2 parents are returned"
         responseData.patients.size() == 2
-        responseData.patients*.id as Set == [-3001, -3002] as Set
+        responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['1', '2'] as Set
 
         where:
         method | _
@@ -59,21 +59,21 @@ class RelationSpec extends RESTSpec {
         mz.symmetrical == true
     }
 
-    def "get observations of the parents of patient with id -3007"() {
+    def "get observations of the parents of patient with subject id 7"() {
         given: "study SURVEY1 is loaded"
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: JSON,
                 query     : toQuery([
                         type                     : "relation",
-                        relatedSubjectsConstraint: ["type": "patient_set", patientIds: [-3007]],
+                        relatedSubjectsConstraint: ["type": "patient_set", subjectIds: ['7']],
                         "relationTypeLabel"      : "PAR",
                         "biological"             : true,
                         "shareHousehold"         : true
                 ]),
         ]
 
-        when: "I get observations of the parents of patient with id -3007."
+        when: "I get observations of the parents of patient with subject id 7."
 
         def responseData = get(request)
         def selector = jsonSelector(responseData)
@@ -99,7 +99,7 @@ class RelationSpec extends RESTSpec {
 
         then: "2 parents are returned"
         responseData.patients.size() == 2
-        responseData.patients*.id as Set == [-3001, -3005] as Set
+        responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['1', '5'] as Set
 
         where:
         method | _
