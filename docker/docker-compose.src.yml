@@ -1,0 +1,39 @@
+---
+version: '2.0'
+services:
+    transmart-database:
+        build:
+            context: ../
+            dockerfile: docker/transmart-database/Dockerfile
+        ports: ['5437:5432']
+        networks:
+            - db-network
+
+    solr:
+        build:
+            context: ../
+            dockerfile: docker/solr/Dockerfile
+        ports: ['8983:8983']
+        networks:
+            - db-network
+        depends_on: ['transmart-database']
+        environment:
+           - PGHOST=transmart-database
+           - PGPORT=5432
+
+    transmart-server:
+        build:
+            context: ../
+            dockerfile: docker/transmart-server/Dockerfile
+        ports:
+            - '8085:8080'
+            - '9995:9990'
+        networks:
+            - db-network
+        depends_on: ['transmart-database']
+        environment:
+            - TRANSMART_URL=http://localhost:8085/transmart-server
+
+networks:
+    db-network:
+        driver: bridge

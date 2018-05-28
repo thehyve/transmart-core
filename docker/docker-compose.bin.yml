@@ -1,0 +1,23 @@
+---
+version: '2.0'
+services:
+    transmart-database:
+        image: thehyve/transmart-database:latest
+        ports: ['5437:5432']
+        networks:
+            - db-network
+
+    transmart-server:
+        image: thehyve/transmart-server:latest
+        ports:
+            - '8085:8080'
+            - '9995:9990'
+        networks:
+            - db-network
+        depends_on: ['transmart-database']
+        environment:
+            - TRANSMART_URL=http://localhost:8085/transmart-server
+
+networks:
+    db-network:
+        driver: bridge
