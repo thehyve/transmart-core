@@ -1,5 +1,7 @@
 # tranSMART
 [![Build Status](https://travis-ci.org/thehyve/transmart-core.svg?branch=master)](https://travis-ci.org/thehyve/transmart-core/branches)
+[![Docker Build Status](https://img.shields.io/docker/build/thehyve/transmart-core.svg)](https://cloud.docker.com/swarm/thehyve/repository/registry-1.docker.io/thehyve/transmart-core)
+
 
 This is the repository containing the core components and documentation of the _tranSMART_ platform,
 an open source data sharing and analytics platform for translational biomedical research. tranSMART
@@ -7,7 +9,9 @@ is maintained by the [tranSMART Foundation](http://transmartfoundation.org). Off
 can be found on the tranSMART Foundation website, and the tranSMART Foundation's development repositories
 can be found at <https://github.com/transmart/>.
 
-All the instructions on how to install, build and run a private instance of tranSMART, get set up for developing or upgrade to the latest version of tranSMART from an older version are available [in the documentation.](https://USERNAME.github.io/transmart-core/.)  For details on contributing code changes via pull requests, [see the Contributing document.](CONTRIBUTING.md)
+All the instructions on how to install, build and run a private instance of tranSMART, get set up for developing or upgrade to the latest version of tranSMART from an older version are available [in the documentation.](https://USERNAME.github.io/transmart-core/.)  For details on contributing code changes via pull requests, [see the Contributing document.](CONTRIBUTING.md).
+
+For deployment using Docker, see [*Docker Deployment README*]{https://github.com/thehyve/transmart-core/blob/dev/docker/README.md}.
 
 ## Overview
 
@@ -52,4 +56,3 @@ You should have received a copy of the [GNU General Public License](LICENSE) alo
 
 
 Some subprojects may have more permissive licenses. Check the individual projects and files for details.
-
