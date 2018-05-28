@@ -17,6 +17,7 @@ import org.transmartproject.core.multidimquery.query.RelationConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.i2b2data.PatientMapping
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
@@ -40,8 +41,8 @@ class RelationSpec extends Specification {
     }
 
     void 'test relation domain object mapping'() {
-        def subject1 = PatientDimension.get(-3001)
-        def subject2 = PatientDimension.get(-3002)
+        def subject1 = PatientMapping.findByEncryptedIdAndSource('1', 'SUBJ_ID').patient
+        def subject2 = PatientMapping.findByEncryptedIdAndSource('2', 'SUBJ_ID').patient
         when:
         def relation = Relation.findByLeftSubjectAndRightSubject(subject1, subject2)
         then:
@@ -62,7 +63,7 @@ class RelationSpec extends Specification {
 
         then:
         def subjects = hypercube.dimensionElements(PATIENT)
-        subjects*.id as Set == [-3001L, -3002L, -3004L, -3005L, -3010L, -3011L] as Set
+        subjects.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['1', '2', '4', '5', '10', '11'] as Set
     }
 
     void "get patients applying relation constraint"() {
@@ -89,18 +90,18 @@ class RelationSpec extends Specification {
                         relationTypeLabel: 'PAR'
                 ), user)
         then: 'all parents selected'
-        allParents*.id as Set == [-3001L, -3002L, -3003L, -3004L, -3005L, -3010L, -3011L] as Set
+        allParents.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['1', '2', '3', '4', '5', '10', '11'] as Set
 
         when: 'get parents for the subject'
         def parentsForSubject = multiDimService.getDimensionElements(PATIENT,
                 new RelationConstraint(
                         relatedSubjectsConstraint: new PatientSetConstraint(
-                                patientIds: [-3014]
+                                subjectIds: ['14']
                         ),
                         relationTypeLabel: 'PAR'
                 ), user)
         then: 'both parents selected'
-        parentsForSubject*.id as Set == [-3010L, -3011L] as Set
+        parentsForSubject.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['10', '11'] as Set
 
         when: 'get all step parents'
         def stepParents = multiDimService.getDimensionElements(PATIENT,
@@ -109,7 +110,7 @@ class RelationSpec extends Specification {
                         biological: false
                 ), user)
         then: 'both step parents selected'
-        stepParents*.id as Set == [-3004L, -3005L] as Set
+        stepParents.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['4', '5'] as Set
 
         when: 'get all parents that don\'t live with theirs kids at the same address'
         def parentsThatLiveSeparateFromTheirKids = multiDimService.getDimensionElements(PATIENT,
@@ -118,7 +119,7 @@ class RelationSpec extends Specification {
                         shareHousehold: false
                 ), user)
         then: 'all such parents selected'
-        parentsThatLiveSeparateFromTheirKids*.id as Set == [-3002L, -3003L, -3004, -3005] as Set
+        parentsThatLiveSeparateFromTheirKids.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['2', '3', '4', '5'] as Set
 
         when: 'get all biological siblings that have twin kids.'
         def siblingsWithTwins = multiDimService.getDimensionElements(PATIENT,
@@ -131,7 +132,7 @@ class RelationSpec extends Specification {
                         biological: true,
                 ), user)
         then: 'the sisters ids have been returned'
-        siblingsWithTwins*.id as Set == [-3002L, -3004L] as Set
+        siblingsWithTwins.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['2', '4'] as Set
     }
 
 }

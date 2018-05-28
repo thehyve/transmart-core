@@ -136,9 +136,7 @@ class PatientsSpec extends RESTSpec {
 
         then: "I get all patients"
         assert responseData.patients.size() == 2
-        that responseData.patients, hasItems(
-                hasEntry('id', -69),
-                hasEntry('id', -59))
+        responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['SCSC:69', 'SCSC:59'] as Set
     }
 
     /**
@@ -149,8 +147,20 @@ class PatientsSpec extends RESTSpec {
     @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
     def "restricted get patient by id"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+        def patientsRequest = [
+                path      : PATH_PATIENTS,
+                acceptType: JSON,
+                query     : toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                user      : UNRESTRICTED_USER
+        ]
+
+        def patientsResponseData = get(patientsRequest)
+        assert patientsResponseData.patients
+        def patient = patientsResponseData.patients[0]
+        assert patient.id
+
         def request = [
-                path      : PATH_PATIENTS + "/-69",
+                path      : PATH_PATIENTS + '/' + patient.id,
                 acceptType: JSON,
                 statusCode: 404
         ]
@@ -161,7 +171,7 @@ class PatientsSpec extends RESTSpec {
         then: "I get an not found error"
         assert responseData.httpStatus == 404
         assert responseData.type == 'NoSuchResourceException'
-        assert responseData.message == "Patient not found with id -69."
+        assert responseData.message == "Patient not found with id ${patient.id}."
     }
 
     /**
@@ -172,15 +182,26 @@ class PatientsSpec extends RESTSpec {
     @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
     def "get patient by id"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+        def patientsRequest = [
+                path      : PATH_PATIENTS,
+                acceptType: JSON,
+                query     : toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                user      : UNRESTRICTED_USER
+        ]
+
+        def patientsResponseData = get(patientsRequest)
+        assert patientsResponseData.patients
+        def patient = patientsResponseData.patients[0]
+        assert patient.id
 
         when: "I try to get the patients from that study by id in path"
         def responseData = get([
-                path      : PATH_PATIENTS + "/-69",
+                path      : PATH_PATIENTS + '/' + patient.id,
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER
         ])
 
         then: "I get the patient"
-        assert responseData.id == -69
+        responseData.subjectIds == patient.subjectIds
     }
 }
