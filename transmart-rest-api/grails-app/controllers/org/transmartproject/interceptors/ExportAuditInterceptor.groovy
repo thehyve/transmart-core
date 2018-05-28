@@ -1,25 +1,18 @@
 package org.transmartproject.interceptors
 
-import org.transmartproject.core.log.AccessLogEntryResource
-import org.transmartproject.rest.user.AuthContext
+import groovy.transform.CompileStatic
 
-class ExportAuditInterceptor {
+@CompileStatic
+class ExportAuditInterceptor extends AuditInterceptor {
 
-    AccessLogEntryResource accessLogService
-    AuthContext authContext
-
-    ExportAuditInterceptor(){
-        match(controller: ~/export/).excludes(action: ~/listJobs/)
+    ExportAuditInterceptor() {
+        match(controller: ~/export/,
+                action: ~/createJob|run|cancel|delete|get|download|jobStatus|dataFormats|fileFormats/)
     }
 
-    boolean after(){
-        def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
-        def ip = request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr
-
-        accessLogService.report(authContext.user, 'Export job operation',
-                eventMessage:  "User (IP: ${ip}) made an export request.",
-                requestURL: fullUrl)
-        true
+    boolean after() {
+        def ip = getIP()
+        report('Export job operation', "User (IP: ${ip}) made an export request.")
     }
 
 }

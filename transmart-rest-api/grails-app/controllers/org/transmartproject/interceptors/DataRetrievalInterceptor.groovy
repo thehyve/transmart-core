@@ -1,28 +1,22 @@
 package org.transmartproject.interceptors
 
-import org.transmartproject.rest.user.AuthContext
+import groovy.transform.CompileStatic
 
-class DataRetrievalInterceptor {
-    def accessLogService
-    AuthContext authContext
+@CompileStatic
+class DataRetrievalInterceptor extends AuditInterceptor {
 
-    DataRetrievalInterceptor(){
+    DataRetrievalInterceptor() {
         match(controller: ~/(observation|highDim)/)
     }
 
-    boolean before() {true}
+    boolean before() { true }
 
-    boolean after(){
-        def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
-        def ip = request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr
-
+    boolean after() {
+        def ip = getIP()
+        def fullUrl = getUrl()
         def dataType = controllerName == 'observation' ? 'low dim' : 'high dim'
 
-        accessLogService.report(authContext.user, 'REST API Data Retrieval',
-                eventMessage:  "User (IP: ${ip}) got ${dataType}. data with ${fullUrl}",
-                requestURL: fullUrl)
-        true
+        report('REST API Data Retrieval', "User (IP: ${ip}) got ${dataType}. data with ${fullUrl}")
     }
 
-    void afterView(){}
 }
