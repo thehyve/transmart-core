@@ -152,17 +152,24 @@ class SurveyTableViewSpec extends Specification {
 
         when: 'get row'
         def rows = transformedView.rows.toList()
+
         then: 'content matches expectations'
-        rows[0][columns[0]] == '2'
-        rows[0][columns[1]] == 'No description'
-        rows[0][columns[2]] == null
-        rows[0][columns[3]] <=> 169 == 0
-        rows[0][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2004-08-27 10:45:32')
-        rows[1][columns[0]] == '1'
-        rows[1][columns[1]] == 'Description about subject 1'
-        rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
-        rows[1][columns[3]] == -1
-        rows[1][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2005-05-24 13:40:00')
+
+        def firstSubjRow = rows.find { row ->  row[columns[0]] == '1' }
+        firstSubjRow
+        firstSubjRow[columns[0]] == '1'
+        firstSubjRow[columns[1]] == 'Description about subject 1'
+        firstSubjRow[columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
+        firstSubjRow[columns[3]] == -1
+        firstSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2005-05-24 13:40:00')
+
+        def secondSubjRow = rows.find { row ->  row[columns[0]] == '2' }
+        secondSubjRow
+        secondSubjRow[columns[0]] == '2'
+        secondSubjRow[columns[1]] == 'No description'
+        secondSubjRow[columns[2]] == null
+        secondSubjRow[columns[3]] <=> 169 == 0
+        secondSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2004-08-27 10:45:32')
 
         when: 'do not include MeasurementDateColumn'
         includeMeasurementDateColumns = false

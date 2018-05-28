@@ -33,9 +33,7 @@ class PatientSetsSpec extends RESTSpec {
         then: "a set is created and returned"
         assert responseData.id != null
         assert responseData.patients.size() == 2
-        responseData.patients.each {
-            assert [-67, -57].contains(it.id)
-        }
+        responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['SCSA:67', 'SCSA:57'] as Set
     }
 
     /**
@@ -64,9 +62,7 @@ class PatientSetsSpec extends RESTSpec {
         then: "a set is returned"
         assert responseData.id == id
         assert responseData.patients.size() == 2
-        responseData.patients.each {
-            assert [-67, -57].contains(it.id)
-        }
+        responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['SCSA:67', 'SCSA:57'] as Set
     }
 
 }

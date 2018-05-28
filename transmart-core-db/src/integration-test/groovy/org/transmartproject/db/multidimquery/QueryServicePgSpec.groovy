@@ -155,7 +155,7 @@ class QueryServicePgSpec extends Specification {
 
         hypercube.dimensionElements(ASSAY).size() == 1
         def patient = hypercube.dimensionElement(PATIENT, 0)
-        patient.id == -601
+        patient.subjectIds.get('SUBJ_ID') == 'CTHD:601'
         patient.age == 26
 
         cleanup:
@@ -346,7 +346,7 @@ class QueryServicePgSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(subjectIdConstraint, user)
         then:
         hypercube.dimensionElements(PATIENT).size() == 1
-        hypercube.dimensionElements(PATIENT).first().id == -3002L
+        hypercube.dimensionElements(PATIENT).first().subjectIds.get('SUBJ_ID') == '2'
 
         cleanup:
         if (hypercube) hypercube.close()

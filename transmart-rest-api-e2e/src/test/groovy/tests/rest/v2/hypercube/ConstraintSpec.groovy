@@ -214,7 +214,7 @@ class ConstraintSpec extends RESTSpec {
                 acceptType    : JSON,
                 'Content-Type': JSON,
                 query         : [name: 'test_PatientSetConstraint'],
-                body          : toJSON([type: PatientSetConstraint, patientIds: [-62]]),
+                body          : toJSON([type: PatientSetConstraint, subjectIds: ['EHR:62']]),
                 statusCode    : 201
 
         ]
@@ -239,7 +239,7 @@ class ConstraintSpec extends RESTSpec {
         request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: PatientSetConstraint, patientIds: [-62]])
+                query     : toQuery([type: PatientSetConstraint, subjectIds: ['EHR:62']])
         ]
         responseData = get(request)
         selector = newSelector(responseData)
@@ -262,7 +262,7 @@ class ConstraintSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : toQuery([
                         type: Negation,
-                        arg : [type: PatientSetConstraint, patientIds: [-62, -52, -42]]
+                        arg : [type: PatientSetConstraint, subjectIds: ['EHR:62', 'EHR:52', 'EHR:42']]
                 ])
         ]
 
@@ -289,7 +289,7 @@ class ConstraintSpec extends RESTSpec {
                         type    : Combination,
                         operator: AND,
                         args    : [
-                                [type: PatientSetConstraint, patientSetId: 0, patientIds: [-62]],
+                                [type: PatientSetConstraint, patientSetId: 0, subjectIds: ['EHR:62']],
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                         ]
                 ])
