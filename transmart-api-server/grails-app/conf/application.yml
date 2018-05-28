@@ -69,42 +69,42 @@ hibernate:
         region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
 
 dataSource:
-  url: jdbc:postgresql://localhost:5432/transmart
-  driverClassName: org.postgresql.Driver
-  username: biomart_user
-  password: biomart_user
-  dbCreate: none
-  pooled: true
-  jmxExport: true
-  logSql: false
-  formatql: false
-  properties:
-      jmxEnabled: true
-      initialSize: 5
-      maxActive: 50
-      minIdle: 5
-      maxIdle: 25
-      maxWait: 10000
-      maxAge: 600000
-      timeBetweenEvictionRunsMillis: 5000
-      minEvictableIdleTimeMillis: 60000
-      validationQuery: SELECT 1
-      validationQueryTimeout: 3
-      validationInterval: 15000
-      testOnBorrow: true
-      testWhileIdle: true
-      testOnReturn: false
-      jdbcInterceptors: ConnectionState
-      defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+    url: jdbc:postgresql://localhost:5432/transmart
+    driverClassName: org.postgresql.Driver
+    username: biomart_user
+    password: biomart_user
+    dbCreate: none
+    pooled: true
+    jmxExport: true
+    logSql: false
+    formatql: false
+    properties:
+        jmxEnabled: true
+        initialSize: 5
+        maxActive: 50
+        minIdle: 5
+        maxIdle: 25
+        maxWait: 10000
+        maxAge: 600000
+        timeBetweenEvictionRunsMillis: 5000
+        minEvictableIdleTimeMillis: 60000
+        validationQuery: SELECT 1
+        validationQueryTimeout: 3
+        validationInterval: 15000
+        testOnBorrow: true
+        testWhileIdle: true
+        testOnReturn: false
+        jdbcInterceptors: ConnectionState
+        defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
 
 security:
- oauth2:
-  client:
-   clientId: demo-oidc
-   clientSecret: !INSERT_YOUR_SECRET_HERE!
-   accessTokenUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/token
-   userAuthorizationUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/auth
-   clientAuthenticationScheme: header
-   scope: openid profile email
-  resource:
-   userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
+    oauth2:
+        client:
+            clientId: demo-oidc
+            clientSecret: !INSERT_YOUR_SECRET_HERE!
+            accessTokenUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/token
+            userAuthorizationUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/auth
+            clientAuthenticationScheme: header
+            scope: openid profile email
+        resource:
+            userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
