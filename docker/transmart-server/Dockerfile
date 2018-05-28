@@ -17,7 +17,7 @@ ENV JBOSS_WAR_DEPLOYMENTS="$JBOSS_HOME/standalone/deployments" \
     JBOSS_USER_HOME="/opt/jboss" \
     DB_URL="jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
 
-# pre-requisites: packages & wildfly config
+# pre-requisites: packages & wildfly config; copy sources
 USER root
 RUN sed -i 's/Xmx512m/Xmx2048m/g' $JBOSS_HOME/bin/standalone.conf && \
     sed -i 's/MaxMetaspaceSize=256m/MaxMetaspaceSize=1024m/g' $JBOSS_HOME/bin/standalone.conf && \
@@ -29,13 +29,13 @@ RUN sed -i 's/Xmx512m/Xmx2048m/g' $JBOSS_HOME/bin/standalone.conf && \
     mkdir /opt/gradle && \
     unzip -d /opt/gradle /tmp/gradle-bin.zip && \
     rm -f /tmp/gradle-bin.zip
+COPY ./ "$TRANSMART_SRC_DIR"
+RUN chown -R jboss:jboss "$TRANSMART_SRC_DIR"
 USER jboss
 ENV PATH="/opt/gradle/gradle-2.13/bin:$BUILD_SCRIPTS_FOLDER/bin:${PATH}"
 
-# copy sources & some configurations
-COPY ./ "$TRANSMART_SRC_DIR"
-RUN chown -R jboss:jboss "$TRANSMART_SRC_DIR" && \
-    cp "$TRANSMART_SRC_DIR/docker/transmart-server/entrypoint.sh" "$JBOSS_USER_HOME/" && \
+# configuration of sources
+RUN cp "$TRANSMART_SRC_DIR/docker/transmart-server/entrypoint.sh" "$JBOSS_USER_HOME/" && \
     chmod +x "$JBOSS_USER_HOME/entrypoint.sh" && \
     cp "$TRANSMART_SRC_DIR/docker/transmart-server/postgresql-42.1.4.jar" "$JBOSS_WAR_DEPLOYMENTS/" && \
     mkdir -p "$JBOSS_USER_HOME/searchIndex" "$JBOSS_USER_HOME/.grails/transmartConfig" && \
