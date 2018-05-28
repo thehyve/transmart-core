@@ -8,7 +8,7 @@ services:
             - db-network
 
     transmart-server:
-        image: thehyve/transmart-server:latest
+        image: thehyve/transmart-core:latest
         ports:
             - '8085:8080'
             - '9995:9990'

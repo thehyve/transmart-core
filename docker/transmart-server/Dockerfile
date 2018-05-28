@@ -33,8 +33,9 @@ USER jboss
 ENV PATH="/opt/gradle/gradle-2.13/bin:$BUILD_SCRIPTS_FOLDER/bin:${PATH}"
 
 # copy sources & some configurations
-COPY --chown=jboss:jboss ./ "$TRANSMART_SRC_DIR"
-RUN cp "$TRANSMART_SRC_DIR/docker/transmart-server/entrypoint.sh" "$JBOSS_USER_HOME/" && \
+COPY ./ "$TRANSMART_SRC_DIR"
+RUN chown -R jboss:jboss "$TRANSMART_SRC_DIR" && \
+    cp "$TRANSMART_SRC_DIR/docker/transmart-server/entrypoint.sh" "$JBOSS_USER_HOME/" && \
     chmod +x "$JBOSS_USER_HOME/entrypoint.sh" && \
     cp "$TRANSMART_SRC_DIR/docker/transmart-server/postgresql-42.1.4.jar" "$JBOSS_WAR_DEPLOYMENTS/" && \
     mkdir -p "$JBOSS_USER_HOME/searchIndex" "$JBOSS_USER_HOME/.grails/transmartConfig" && \
