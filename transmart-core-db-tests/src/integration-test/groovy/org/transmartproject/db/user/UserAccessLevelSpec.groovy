@@ -63,9 +63,9 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def adminUser = accessLevelTestData.users[0]
 
         expect:
-        adminUser.canPerform(API_READ, getStudy(STUDY1))
-        adminUser.canPerform(API_READ, getStudy(STUDY2))
-        adminUser.canPerform(API_READ, getStudy(STUDY3))
+        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY1))
+        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY2))
+        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY3))
     }
 
     void testEveryoneHasAccessToPublicStudy() {
