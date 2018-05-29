@@ -11,7 +11,7 @@ can be found at <https://github.com/transmart/>.
 
 All the instructions on how to install, build and run a private instance of tranSMART, get set up for developing or upgrade to the latest version of tranSMART from an older version are available [in the documentation.](https://USERNAME.github.io/transmart-core/.)  For details on contributing code changes via pull requests, [see the Contributing document.](CONTRIBUTING.md).
 
-For deployment using Docker, see [*Docker Deployment README*]{https://github.com/thehyve/transmart-core/blob/dev/docker/README.md}.
+For deployment using Docker, see [*Docker Deployment README*](https://github.com/thehyve/transmart-core/blob/dev/docker/README.md).
 
 ## Overview
 
