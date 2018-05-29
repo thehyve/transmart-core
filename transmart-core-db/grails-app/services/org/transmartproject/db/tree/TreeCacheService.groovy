@@ -6,6 +6,7 @@ import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.CachePut
 import grails.plugin.cache.Cacheable
 import groovy.transform.CompileStatic
+import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Order
@@ -17,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.tree.TreeNode
+import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
@@ -115,13 +118,9 @@ class TreeCacheService {
         forest[topLevel]
     }
 
-    List<TreeNode> fetchSubtree(boolean isAdmin = false, List<String> studyTokens = [], String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
+    List<TreeNode> fetchSubtree(User user, String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
         log.info "Fetching tree nodes ..."
         DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
-        if (!isAdmin) {
-            List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + studyTokens
-            criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
-        }
         if (rootPath != I2b2Secure.ROOT) {
             criteria.add(StringUtils.startsWith('fullName', rootPath))
         }
@@ -131,30 +130,35 @@ class TreeCacheService {
         criteria.addOrder(Order.desc('level'))
         criteria.addOrder(Order.desc('fullName'))
 
-        def t1 = new Date()
+        def stopWatch = new StopWatch('Collecting tree nodes.')
+        stopWatch.start('Fetching nodes from the database.')
         List<I2b2Secure> i2b2Nodes = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
-        def t2 = new Date()
-        log.info "Found ${i2b2Nodes.size()} nodes. Query took ${t2.time - t1.time} ms."
+        stopWatch.stop()
+        stopWatch.start('Filtering nodes user has access to.')
+        List<I2b2Secure> accessibleI2b2Nodes = i2b2Nodes.findAll { I2b2Secure i2b2Secure ->
+            accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS, i2b2Secure) }
+        stopWatch.stop()
+        log.debug("${accessibleI2b2Nodes.size()} from ${i2b2Nodes.size()} are accessible to ${user} user.")
+        stopWatch.start('Building the forest for accessible nodes.')
+        List<TreeNode> forest = buildForest(accessibleI2b2Nodes)
+        stopWatch.stop()
 
-        List<TreeNode> forest = buildForest(i2b2Nodes)
-        def t3 = new Date()
-        log.debug "Forest growing took ${t3.time - t2.time} ms."
+        log.debug('Fetching subtree report:\n' + stopWatch.prettyPrint())
 
         forest
     }
 
     @CachePut(value = 'org.transmartproject.db.tree.TreeCacheService',
-            key = '{ #isAdmin, #studyTokens, #rootPath, #maxLevel }')
-    List<TreeNode> updateSubtreeCache(boolean isAdmin = false, List<String> studyTokens = [], String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
-        fetchSubtree(isAdmin, studyTokens, rootPath, maxLevel)
+            key = '{ #user.username, #rootPath, #maxLevel }')
+    List<TreeNode> updateSubtreeCache(User user, String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
+        fetchSubtree(user, rootPath, maxLevel)
     }
 
     /**
      * Fetches a subtree for a user. Returns the list of to level tree nodes,
      * with the child nodes embedded.
      *
-     * @param isAdmin whether the user is admin or not.
-     * @param studyTokens Secure access tokens of the studies the user has access to.
+     * @param user current user
      * @param rootPath restricts to fetching only starting from the specified root element.
      *        (default: null, meaning no restriction.)
      * @param maxLevel restricts to fetching up to the specified level.
@@ -163,9 +167,9 @@ class TreeCacheService {
      * @return the list of top level tree nodes with child nodes embedded.
      */
     @Cacheable(value = 'org.transmartproject.db.tree.TreeCacheService',
-            key = '{ #isAdmin, #studyTokens, #rootPath, #maxLevel }')
-    List<TreeNode> fetchCachedSubtree(boolean isAdmin = false, List<String> studyTokens = [], String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
-        fetchSubtree(isAdmin, studyTokens, rootPath, maxLevel)
+            key = '{ #user.username, #rootPath, #maxLevel }')
+    List<TreeNode> fetchCachedSubtree(User user, String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
+        fetchSubtree(user, rootPath, maxLevel)
     }
 
     /**

@@ -8,17 +8,14 @@ import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.dataquery.TableConfig
-import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
-import org.transmartproject.db.user.User
+import org.transmartproject.core.users.User
+import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.rest.misc.CurrentUser
-import org.transmartproject.rest.serialization.ExportElement
+import org.transmartproject.rest.misc.AuthContext
 import org.transmartproject.rest.serialization.ExportJobRepresentation
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -30,9 +27,7 @@ class ExportController {
     @Autowired
     ExportAsyncJobService exportAsyncJobService
     @Autowired
-    CurrentUser currentUser
-    @Autowired
-    UsersResource usersResource
+    AuthContext authContext
     @Autowired
     MultiDimensionalDataResource multiDimService
 
@@ -48,7 +43,7 @@ class ExportController {
     def createJob(@RequestParam('name') String name) {
         checkForUnsupportedParams(params, ['name'])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def user = authContext.user
         checkJobNameUnique(name, user)
 
         def instance = exportAsyncJobService.createNewJob(user, name)
@@ -94,7 +89,7 @@ class ExportController {
                 throw new InvalidArgumentsException("No tableConfig provided.")
             }
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def user = authContext.user
         checkJobAccess(jobId, user)
 
         def job = exportAsyncJobService.exportData(exportJob, user, jobId)
@@ -145,8 +140,7 @@ class ExportController {
      */
     def download(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        checkJobAccess(jobId, user)
+        checkJobAccess(jobId, authContext.user)
 
         def job = exportAsyncJobService.getJobById(jobId)
         InputStream inputStream = restExportService.downloadFile(job)
@@ -179,8 +173,7 @@ class ExportController {
      */
     def listJobs() {
         checkForUnsupportedParams(params, [])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def results = exportAsyncJobService.getJobList(user)
+        def results = exportAsyncJobService.getJobList(authContext.user)
         render wrapExportJobs(results) as JSON
     }
 
@@ -195,10 +188,9 @@ class ExportController {
     def dataFormats() {
         def requestBody = request.JSON as Map
         checkForUnsupportedParams(params, ['constraint'])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         Constraint constraint = ConstraintFactory.create(requestBody.constraint)
-        def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, user)
+        def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, authContext.user)
         def results = [
                 dataFormats: formats
         ]

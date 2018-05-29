@@ -1,19 +1,12 @@
 package org.transmartproject.rest.dataExport
 
 import grails.transaction.Transactional
-import org.quartz.JobBuilder
-import org.quartz.JobDataMap
-import org.quartz.JobDetail
-import org.quartz.JobKey
-import org.quartz.Scheduler
-import org.quartz.TriggerBuilder
+import org.quartz.*
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.users.User
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
-import org.transmartproject.db.user.User
-import org.transmartproject.rest.serialization.ExportElement
 import org.transmartproject.rest.serialization.ExportJobRepresentation
 
 @Transactional

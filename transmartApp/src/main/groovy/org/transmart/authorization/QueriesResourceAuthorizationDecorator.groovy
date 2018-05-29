@@ -37,21 +37,21 @@ class QueriesResourceAuthorizationDecorator
                     "for building cohort based on $definition")
         }
 
-        delegate.runQuery definition
+        delegate.runQuery definition, currentUserBean
     }
 
     @Override
-    QueryResult runQuery(QueryDefinition definition, String username) throws InvalidRequestException {
+    QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
         if (!currentUserBean.canPerform(BUILD_COHORT, definition)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "for building cohort based on $definition")
         }
-        if (username != currentUserBean.username) {
+        if (user.username != currentUserBean.username) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "to building a cohort in name of ${username}")
+                    "to building a cohort in name of ${user.username}")
         }
 
-        delegate.runQuery definition, username
+        delegate.runQuery definition, user
     }
 
     @Override

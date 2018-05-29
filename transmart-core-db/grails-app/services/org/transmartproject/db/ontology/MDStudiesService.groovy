@@ -11,10 +11,8 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.User
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 
@@ -23,9 +21,6 @@ import java.util.concurrent.ConcurrentSkipListMap
 
 @Transactional
 class MDStudiesService implements MDStudiesResource, ApplicationRunner {
-
-    @Autowired
-    UsersResource usersResource
 
     @Autowired
     AccessControlChecks accessControlChecks
@@ -84,11 +79,9 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         log.info "Done loading studies. (took ${t2.time - t1.time} ms)"
     }
 
-
     @Override
     List<MDStudy> getStudies(User currentUser) {
-        def user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        accessControlChecks.getDimensionStudiesForUser(user).findAll { !isLegacyStudy(it) }
+        accessControlChecks.getDimensionStudiesForUser(currentUser).findAll { !isLegacyStudy(it) }
     }
 
     @Override
@@ -127,7 +120,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         if (isLegacyStudy(study)) {
             study = null
         }
-        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS, study)) {
             throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
         }
         fixLoad(study)

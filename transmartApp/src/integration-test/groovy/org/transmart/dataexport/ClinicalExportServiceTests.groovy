@@ -11,6 +11,7 @@ import org.junit.Test
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.core.users.User
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -96,7 +97,7 @@ class ClinicalExportServiceTests {
                 )
         ])
 
-        queryResult = queriesResourceService.runQuery(definition, 'test')
+        queryResult = queriesResourceService.runQuery(definition, [getUsername: { 'test' }] as User)
     }
 
     @Test

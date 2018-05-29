@@ -6,16 +6,17 @@ import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
-import org.transmartproject.core.dataquery.*
+import org.transmartproject.core.dataquery.DataColumn
+import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.ontology.VariableDataType
 import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.dataExport.WorkingDirectory
 
-import javax.transaction.NotSupportedException
 import java.text.SimpleDateFormat
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry

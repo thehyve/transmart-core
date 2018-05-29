@@ -1,6 +1,5 @@
 package org.transmartproject.rest.marshallers
 
-import grails.converters.JSON
 import org.transmartproject.db.arvados.SupportedWorkflow
 
 /**

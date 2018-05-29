@@ -21,7 +21,6 @@ package org.transmartproject.db.util
 
 import spock.lang.Specification
 import com.google.common.collect.ImmutableList
-import static org.hamcrest.Matchers.*
 
 class IndexedArraySetSpec extends Specification {
 

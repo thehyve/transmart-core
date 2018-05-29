@@ -10,29 +10,27 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
-import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User
+import org.transmartproject.db.TestData
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.TestData
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.serialization.DataTableSerializer
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
-import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
+import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.util.zip.ZipOutputStream
 
-import static spock.util.matcher.HamcrestSupport.that
 import static org.hamcrest.Matchers.*
-
+import static spock.util.matcher.HamcrestSupport.that
 
 /**
  * Created by piotrzakrzewski on 02/11/2016.

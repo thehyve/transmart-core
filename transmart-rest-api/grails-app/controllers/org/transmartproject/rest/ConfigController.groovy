@@ -1,12 +1,10 @@
 package org.transmartproject.rest
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.config.RuntimeConfigRepresentation
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.db.support.SystemService
-import org.transmartproject.db.user.User
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.misc.AuthContext
 
 import javax.validation.Valid
 import javax.validation.Validator
@@ -16,10 +14,7 @@ class ConfigController {
     static responseFormats = ['json']
 
     @Autowired
-    CurrentUser currentUser
-
-    @Autowired
-    UsersResource usersResource
+    AuthContext authContext
 
     @Autowired
     SystemService systemService
@@ -48,8 +43,7 @@ class ConfigController {
      * if the current user is not admin.
      */
     def index() {
-        User dbUser = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!dbUser.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         respond systemService.getRuntimeConfig()
@@ -66,8 +60,7 @@ class ConfigController {
      * if the current user is not admin.
      */
     def update(@Valid RuntimeConfigRepresentation config) {
-        User dbUser = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!dbUser.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         if (!validate(config, 'Invalid configuration')) {

@@ -6,8 +6,6 @@ import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
-import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.ServiceNotAvailableException
@@ -16,15 +14,13 @@ import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
+import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.AggregateDataService
-import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.core.users.User
 import org.transmartproject.db.util.SharedLock
-import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
 
@@ -94,32 +90,19 @@ class TreeService implements TreeResource {
         }
     }
 
-    private List<String> getStudyTokens(DbUser user) {
-        List<String> studyTokens = []
-        if (!user.admin) {
-            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user) as Collection<Study>
-            studyTokens = studies.collect { it.secureObjectToken }
-        }
-        studyTokens.sort().unique()
-    }
-
-    private I2b2Secure fetchRootNode(DbUser user, String rootKey) {
+    private I2b2Secure fetchRootNode(User user, String rootKey) {
         if (rootKey == I2b2Secure.ROOT) {
             return null
         }
-        DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
-                .add(StringUtils.like('fullName', rootKey))
-
-        if (!user.admin) {
-            List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + getStudyTokens(user)
-            criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
+        I2b2Secure i2b2Secure = (I2b2Secure) I2b2Secure.createCriteria().get {
+            eq('fullName', rootKey)
         }
-
-        I2b2Secure root = criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult() as I2b2Secure
-        if (!root) {
+        assert i2b2Secure : "Node with path ${rootKey} is not found."
+        if (accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS, i2b2Secure)) {
+            return i2b2Secure
+        } else {
             throw new AccessDeniedException("Access denied to path: ${rootKey}")
         }
-        root
     }
 
     /**
@@ -137,29 +120,28 @@ class TreeService implements TreeResource {
      * @return a forest, represented as a list of the top level nodes. Lower nodes will be children
      * of their ancestor nodes.
      */
-    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, org.transmartproject.core.users.User currentUser) {
-        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
+    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, User currentUser) {
         rootKey = rootKey ?: I2b2Secure.ROOT
         depth = depth ?: 0
         includeCounts = includeCounts ?: Boolean.FALSE
         includeTags = includeTags ?: Boolean.FALSE
 
-        I2b2Secure root = fetchRootNode(user, rootKey)
+        I2b2Secure root = fetchRootNode(currentUser, rootKey)
         int maxLevel = depth
         if (depth > 0 && root) {
             maxLevel += root.level
         }
-        List<TreeNode> forest = treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), rootKey, maxLevel)
+        List<TreeNode> forest = treeCacheService.fetchCachedSubtree(currentUser, rootKey, maxLevel)
 
         if (includeCounts) {
             def t3 = new Date()
-            enrichWithCounts(forest, user)
+            enrichWithCounts(forest, currentUser)
             def t4 = new Date()
             log.debug "Adding counts took ${t4.time - t3.time} ms."
         }
         if (includeTags) {
             def t5 = new Date()
-            enrichWithTags(forest, user)
+            enrichWithTags(forest, currentUser)
             def t6 = new Date()
             log.debug "Adding metadata tags took ${t6.time - t5.time} ms."
         }
@@ -176,8 +158,7 @@ class TreeService implements TreeResource {
      * @return true iff a cache rebuild task is active.
      */
     boolean isRebuildActive(User currentUser) {
-        DbUser dbUser = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        if (!dbUser.admin) {
+        if (!currentUser.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         if (lock.tryLock()) {
@@ -200,8 +181,7 @@ class TreeService implements TreeResource {
      * @throws ServiceNotAvailableException iff a rebuild operation is already in progress.
      */
     void rebuildCache(User currentUser) throws ServiceNotAvailableException {
-        DbUser dbUser = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        if (!dbUser.admin) {
+        if (!currentUser.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         if (!lock.tryLock()) {
@@ -214,12 +194,10 @@ class TreeService implements TreeResource {
                 log.debug "Task started (lock: ${lock.locked})"
                 session = sessionFactory.openSession()
                 def stopWatch = new StopWatch('Rebuild cache')
-                usersResource.getUsers().each {
-                    DbUser user = (DbUser)it
+                usersResource.getUsers().each { User user ->
                     log.info "Rebuilding the cache for user ${user.username} ..."
                     stopWatch.start("Rebuild the tree nodes cache for ${user.username}")
-                    def studyTokens = getStudyTokens(user)
-                    treeCacheService.updateSubtreeCache(user.admin, studyTokens, I2b2Secure.ROOT, 0)
+                    treeCacheService.updateSubtreeCache(user, I2b2Secure.ROOT, 0)
                     stopWatch.stop()
                     stopWatch.start("Rebuild the counts cache for ${user.username}")
                     // Update observations, patients counts

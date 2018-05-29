@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
-import org.transmartproject.db.user.User
+import org.transmartproject.core.users.User
+import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.DimensionElementSerializer
+
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 @Slf4j
@@ -37,12 +38,11 @@ class DimensionController extends AbstractQueryController {
         def args = getGetOrPostParams()
         checkForUnsupportedParams(args, ['dimensionName', 'constraint'])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def dimension = getDimension(dimensionName, user)
+        def dimension = getDimension(dimensionName, authContext.user)
 
         Constraint constraint = Strings.isNullOrEmpty(args.constraint) ? new TrueConstraint() : bindConstraint(args.constraint)
 
-        def results = multiDimService.getDimensionElements(dimension, constraint, user)
+        def results = multiDimService.getDimensionElements(dimension, constraint, authContext.user)
         render wrapElements(dimension, results) as JSON
     }
 

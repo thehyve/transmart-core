@@ -5,11 +5,9 @@ import grails.boot.config.GrailsAutoConfiguration
 import grails.plugins.metadata.PluginSource
 import grails.util.Environment
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.misc.AuthContext
 
 @PluginSource
 class Application extends GrailsAutoConfiguration {
@@ -23,19 +21,19 @@ class Application extends GrailsAutoConfiguration {
         if (Environment.current == Environment.TEST) {
             return { ->
                 //Override the current user with test one
-                currentUser(DummyTestAdministrator)
+                authContext(TestAuthContext)
             }
         }
     }
 
-    static class DummyTestAdministrator extends CurrentUser {
+    static class TestAuthContext extends AuthContext {
 
         @Autowired
         UsersResource usersResource
 
         @Delegate
         @Lazy
-        User delegate = {
+        User user = {
             usersResource.getUserFromUsername('user_-301')
         }()
     }

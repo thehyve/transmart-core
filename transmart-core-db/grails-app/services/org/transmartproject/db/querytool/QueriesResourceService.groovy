@@ -19,13 +19,17 @@
 
 package org.transmartproject.db.querytool
 
+import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.Multimap
 import grails.transaction.Transactional
 import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.*
-import org.transmartproject.db.user.User
+import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.ProtectedResource
+import org.transmartproject.core.users.User
 
 import java.sql.Connection
 
@@ -41,17 +45,18 @@ class QueriesResourceService implements QueriesResource {
     @Override
     @Deprecated
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        runQuery(definition,
-                (String) grailsApplication.config.org.transmartproject.i2b2.user_id)
+        String username = grailsApplication.config.org.transmartproject.i2b2.user_id
+        assert username : 'org.transmartproject.i2b2.user_id is not specified.'
+        User user = usersResourceService.getUserFromUsername(username)
+        runQuery(definition, user)
     }
 
     @Override
-    QueryResult runQuery(QueryDefinition definition,
-                         String username) throws InvalidRequestException {
+    QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
         // 1. Populate qt_query_master
         QtQueryMaster queryMaster = new QtQueryMaster(
             name           : definition.name,
-            userId         : username,
+            userId         : user.username,
             groupId        : grailsApplication.config.org.transmartproject.i2b2.group_id,
             createDate     : new Date(),
             generatedSql   : null,
@@ -63,7 +68,7 @@ class QueriesResourceService implements QueriesResource {
 
         // 2. Populate qt_query_instance
         QtQueryInstance queryInstance = new QtQueryInstance(
-                userId       : username,
+                userId       : user.username,
                 groupId      : grailsApplication.config.org.transmartproject.i2b2.group_id,
                 startDate    : new Date(),
                 statusTypeId : QueryStatus.PROCESSING.id,
@@ -102,7 +107,7 @@ class QueriesResourceService implements QueriesResource {
             } as Work)
 
             sql = patientSetQueryBuilderService.buildPatientSetQuery(
-                    resultInstance, definition, tryLoadingUser(username))
+                    resultInstance, definition, user)
 
             sessionFactory.currentSession.doWork ({ Connection conn ->
                 def statement = conn.prepareStatement(sql)
@@ -217,25 +222,4 @@ class QueriesResourceService implements QueriesResource {
         queryDefinitionXmlService.fromXml(new StringReader(requestXml))
     }
 
-    User tryLoadingUser(String user) {
-        /* this doesn't fail if the user doesn't exist. This is for historical
-         * reasons. The user associated with the query used to be an I2B2 user,
-         * not a tranSMART user. This lax behavior is to allow core-db to work
-         * under this old assumption (useful only for interoperability with
-         * i2b2). Though, arguably, this should not be supported in transmart
-         * as across trials queries and permission checks will fail if the
-         * user is not a tranSMART user. Log a warning.
-         */
-        if (user == null) {
-            throw new NullPointerException("Username not provided")
-        }
-        try {
-            usersResourceService.getUserFromUsername(user)
-        } catch (NoSuchResourceException unf) {
-            log.warn("User $user not found. This is permitted for " +
-                    "compatibility with i2b2, but tranSMART functionality " +
-                    "will be degraded, and this behavior is deprecated")
-            return null
-        }
-    }
 }

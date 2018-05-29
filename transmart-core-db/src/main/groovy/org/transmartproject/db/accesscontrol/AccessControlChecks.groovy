@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.accesscontrol
 
-import grails.gorm.DetachedCriteria
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
@@ -43,16 +42,16 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
 /**
- * Access control methods for use in {@link org.transmartproject.db.user.User}.
+ * Access control checks.
  *
  * Right now these are implemented in this same class.
  * If this list gets bigger or needs to be pluggable by other plugins, then

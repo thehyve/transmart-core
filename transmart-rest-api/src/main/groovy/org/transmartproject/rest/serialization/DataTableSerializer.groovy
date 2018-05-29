@@ -3,13 +3,7 @@ package org.transmartproject.rest.serialization
 import com.google.common.collect.Table
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.multidimquery.DataTable
-import org.transmartproject.core.multidimquery.DataTableColumn
-import org.transmartproject.core.multidimquery.DataTableRow
-import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.core.multidimquery.PagingDataTable
+import org.transmartproject.core.multidimquery.*
 
 import java.time.Instant
 

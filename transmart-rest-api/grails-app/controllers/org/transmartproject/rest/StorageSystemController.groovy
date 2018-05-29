@@ -5,10 +5,8 @@ package org.transmartproject.rest
 import grails.rest.RestfulController
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.storage.StorageSystem
-import org.transmartproject.db.user.User
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.misc.AuthContext
 
 /**
  * Created by piotrzakrzewski on 09/12/2016.
@@ -19,18 +17,14 @@ class StorageSystemController extends RestfulController<StorageSystem> {
         super(StorageSystem)
     }
 
-    @Autowired
-    UsersResource usersResource
-
     static responseFormats = ['json']
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     @Override
     def save() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Creating new storage system entry" +
                     "is an admin action")
         }
@@ -39,8 +33,7 @@ class StorageSystemController extends RestfulController<StorageSystem> {
 
     @Override
     def delete() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Removing a storage system entry " +
                     "is an admin action")
         }
@@ -49,8 +42,7 @@ class StorageSystemController extends RestfulController<StorageSystem> {
 
     @Override
     def update() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Removing a storage system entry " +
                     "is an admin action")
         }

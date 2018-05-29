@@ -11,10 +11,8 @@ import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
-import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.misc.AuthContext
 import org.transmartproject.rest.serialization.TreeJsonSerializer
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -25,10 +23,7 @@ class TreeController {
     static responseFormats = ['json', 'hal']
 
     @Autowired
-    CurrentUser currentUser
-
-    @Autowired
-    UsersResource usersResource
+    AuthContext authContext
 
     @Autowired
     TreeResource treeResource
@@ -68,7 +63,7 @@ class TreeController {
                 depth,
                 counts,
                 tags,
-                currentUser)
+                authContext.user)
         log.info "${nodes.size()} results."
         if (request.format == 'hal') {
             respond wrapNodes(apiVersion, root, depth, nodes)
@@ -95,8 +90,7 @@ class TreeController {
      */
     def clearCache() {
         checkForUnsupportedParams(params, [])
-        User dbUser = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!dbUser.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         systemResource.clearCaches()
@@ -116,7 +110,7 @@ class TreeController {
      */
     def rebuildCache() {
         checkForUnsupportedParams(params, [])
-        treeResource.rebuildCache(currentUser)
+        treeResource.rebuildCache(authContext.user)
         response.status = 200
     }
 
@@ -134,7 +128,7 @@ class TreeController {
      */
     def rebuildStatus() {
         checkForUnsupportedParams(params, [])
-        respond status: treeResource.isRebuildActive(currentUser) ? 'running' : 'stopped'
+        respond status: treeResource.isRebuildActive(authContext.user) ? 'running' : 'stopped'
     }
 
     private setVersion(String apiVersion, List<TreeNode> nodes) {

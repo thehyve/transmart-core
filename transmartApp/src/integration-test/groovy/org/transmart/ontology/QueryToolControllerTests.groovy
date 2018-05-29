@@ -71,4 +71,5 @@ class FakeQueryResult implements QueryResult {
     String description = null
     Set patients = [] as Set
     String username
+    QueryResultType queryResultType = null
 }
