@@ -14,7 +14,6 @@ docker-compose -f docker-compose.xxx.yml up
 ```
 
 Those commands will build or download the images, and run the containers.
-*Note*: you have to replace the `xxx` with the appropriate profile, see the section below.
 
 # Docker-compose profiles
 * `docker-compose.src.yml`: builds the different images from source, and starts `transmart-server`, `transmart-database` and `solr`
