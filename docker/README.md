@@ -7,7 +7,7 @@ In this directory, first initialise the database by running:
 docker-compose -f docker-compose.xxx.yml up transmart-database
 ```
 
-One the initialisation completed, stop it (with `Ctrl+C`), and run the full stack with:
+Once the initialisation completed, stop it (with `Ctrl+C`), and run the full stack with:
 ```
 docker-compose -f docker-compose.xxx.yml up
 ```
