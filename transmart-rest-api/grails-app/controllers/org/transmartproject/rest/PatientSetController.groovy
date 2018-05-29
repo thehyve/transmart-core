@@ -7,6 +7,7 @@ import grails.rest.render.util.AbstractLinkingRenderer
 import grails.web.mime.MimeType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
@@ -52,7 +53,9 @@ class PatientSetController {
     def show(Long id) {
         QueryResult queryResult = queriesResource.getQueryResultFromId(id)
 
-        currentUser.checkAccess(READ, queryResult)
+        if (!currentUser.canPerform(READ, queryResult)) {
+            throw new AccessDeniedException()
+        }
 
         respond new QueryResultWrapper(
                 apiVersion: VERSION,
@@ -80,7 +83,9 @@ class PatientSetController {
         QueryDefinition queryDefinition =
                 queryDefinitionXmlConverter.fromXml(request.reader)
 
-        currentUser.checkAccess(BUILD_COHORT, queryDefinition)
+        if (!currentUser.canPerform(READ, queryDefinition)) {
+            throw new AccessDeniedException()
+        }
 
         respond new QueryResultWrapper(
                 apiVersion: VERSION,

@@ -1,0 +1,110 @@
+---
+grails:
+    profile: rest-api
+    codegen:
+        defaultPackage: org.transmart.api.server
+    spring:
+        transactionManagement:
+            proxies: false
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    main:
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+
+# Spring Actuator Endpoints are Disabled by Default
+endpoints:
+    enabled: false
+    jmx:
+        enabled: true
+
+---
+grails:
+    mime:
+        disable:
+            accept:
+                header:
+                    userAgents:
+                        - Gecko
+                        - WebKit
+                        - Presto
+                        - Trident
+        types:
+            json:
+              - application/json
+              - text/json   
+            hal:
+              - application/hal+json
+              - application/hal+xml  
+            xml:
+              - text/xml
+              - application/xml                                 
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            js: text/javascript
+            rss: application/rss+xml
+            text: text/plain
+            all: '*/*'            
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+
+---
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: true
+        use_query_cache: false
+        region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+dataSource:
+    url: jdbc:postgresql://localhost:5432/transmart
+    driverClassName: org.postgresql.Driver
+    username: biomart_user
+    password: biomart_user
+    dbCreate: none
+    pooled: true
+    jmxExport: true
+    logSql: false
+    formatql: false
+    properties:
+        jmxEnabled: true
+        initialSize: 5
+        maxActive: 50
+        minIdle: 5
+        maxIdle: 25
+        maxWait: 10000
+        maxAge: 600000
+        timeBetweenEvictionRunsMillis: 5000
+        minEvictableIdleTimeMillis: 60000
+        validationQuery: SELECT 1
+        validationQueryTimeout: 3
+        validationInterval: 15000
+        testOnBorrow: true
+        testWhileIdle: true
+        testOnReturn: false
+        jdbcInterceptors: ConnectionState
+        defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+
+security:
+    oauth2:
+        client:
+            clientId: demo-oidc
+            clientSecret: !INSERT_YOUR_SECRET_HERE!
+            accessTokenUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/token
+            userAuthorizationUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/auth
+            clientAuthenticationScheme: header
+            scope: openid profile email
+        resource:
+            userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
