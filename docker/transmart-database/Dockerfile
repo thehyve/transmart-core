@@ -1,4 +1,4 @@
-FROM postgres:9.5
+FROM postgres:10
 
 ENV DEBIAN_FRONTEND=noninteractive \
     POSTGRES_USER=postgres \
@@ -25,11 +25,11 @@ PGUSER=${POSTGRES_USER} \
 PGPASSWORD=${POSTGRES_PASSWORD} \
 PGPORT=5432 \
 TABLESPACES=/var/lib/postgresql/tablespaces/ \
-PGSQL_BIN=/usr/lib/postgresql/9.5/bin/ \
+PGSQL_BIN=/usr/lib/postgresql/10/bin/ \
 export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN" > /tmp/transmart-core/transmart-data/vars
-RUN cd /tmp/transmart-core/transmart-data && \
-    mkdir -p /var/lib/postgresql/tablespaces/{biomart,deapp,indx,search_app,transmart} && \
-    chown -R postgres:postgres /var/lib/postgresql
+RUN mkdir -p /var/lib/postgresql/tablespaces/{biomart,deapp,indx,search_app,transmart} && \
+    chown -R postgres:postgres /var/lib/postgresql /tmp/transmart-core && \
+    echo "postgres ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN echo "cd /tmp/transmart-core/transmart-data && \
  source /tmp/transmart-core/transmart-data/vars && \
  make postgres_test" >> /docker-entrypoint-initdb.d/01-create.sh
