@@ -3,7 +3,7 @@ package org.transmartproject.rest
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 

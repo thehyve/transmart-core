@@ -12,7 +12,7 @@ import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 

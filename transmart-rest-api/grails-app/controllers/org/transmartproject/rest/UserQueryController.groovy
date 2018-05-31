@@ -11,7 +11,7 @@ import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.userquery.UserQuerySetResource
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 

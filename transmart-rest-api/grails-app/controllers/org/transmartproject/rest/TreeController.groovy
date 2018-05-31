@@ -12,7 +12,7 @@ import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.serialization.TreeJsonSerializer
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams

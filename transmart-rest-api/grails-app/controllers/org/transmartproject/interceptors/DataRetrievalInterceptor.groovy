@@ -1,6 +1,6 @@
 package org.transmartproject.interceptors
 
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 class DataRetrievalInterceptor {
     def accessLogService

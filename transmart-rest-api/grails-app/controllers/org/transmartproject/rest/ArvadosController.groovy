@@ -8,7 +8,7 @@ import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.db.arvados.SupportedWorkflow
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 import static org.springframework.http.HttpStatus.CREATED
 

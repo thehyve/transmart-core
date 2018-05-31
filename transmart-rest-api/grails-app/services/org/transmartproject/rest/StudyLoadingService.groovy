@@ -33,7 +33,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class StudyLoadingService {

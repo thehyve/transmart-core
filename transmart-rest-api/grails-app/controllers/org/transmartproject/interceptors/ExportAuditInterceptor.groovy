@@ -1,7 +1,7 @@
 package org.transmartproject.interceptors
 
 import org.transmartproject.core.log.AccessLogEntryResource
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 class ExportAuditInterceptor {
 

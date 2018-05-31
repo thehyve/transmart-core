@@ -7,7 +7,7 @@ import grails.util.Environment
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 @PluginSource
 class Application extends GrailsAutoConfiguration {

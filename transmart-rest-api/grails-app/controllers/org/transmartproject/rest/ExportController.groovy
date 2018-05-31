@@ -15,7 +15,7 @@ import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.serialization.ExportJobRepresentation
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams

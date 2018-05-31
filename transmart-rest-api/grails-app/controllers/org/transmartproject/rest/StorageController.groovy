@@ -10,7 +10,7 @@ import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.storage.LinkedFileCollection
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 import javax.annotation.Resource
 

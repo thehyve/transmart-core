@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.db.support.SystemService
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 import javax.validation.Valid
 import javax.validation.Validator

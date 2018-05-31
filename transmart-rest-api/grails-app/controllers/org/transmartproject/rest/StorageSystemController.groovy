@@ -6,7 +6,7 @@ import grails.rest.RestfulController
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.db.storage.StorageSystem
-import org.transmartproject.rest.misc.AuthContext
+import org.transmartproject.rest.user.AuthContext
 
 /**
  * Created by piotrzakrzewski on 09/12/2016.
