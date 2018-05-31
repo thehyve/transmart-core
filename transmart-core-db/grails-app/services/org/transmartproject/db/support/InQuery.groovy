@@ -11,11 +11,15 @@ import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.Disjunction
 import org.hibernate.criterion.Restrictions
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.db.support.DatabasePortabilityService.DatabaseType
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.POSTGRESQL
 
 /**
  * This class aimed to overcome oracle limitation on the number of items in IN clause:
  * Message: ORA-01795: maximum number of expressions in a list is 1000
+ *
+ * Similar issue exists for PostgreSQL with a limit of 32767 items
  *
  * This class constructs composite condition
  * Instead of making one condition
@@ -25,12 +29,18 @@ import static org.transmartproject.db.support.DatabasePortabilityService.Databas
  */
 class InQuery {
 
-    public static final int MAX_LIST_SIZE = 1000
+    static Map<DatabaseType, Integer> maxListSize = [
+            (ORACLE): 1000,
+            (POSTGRESQL): 32760 ].asImmutable() // limit for PostgreSQL is 32767
+
+    private static DatabaseType databaseType() {
+        Holders.applicationContext.getBean(DatabasePortabilityService).databaseType
+    }
 
     @CompileStatic
     static Criterion inValues(String property, Iterable values) {
-        if (databaseTypeIsOracle) {
-            def collatedValues = collateValues(values)
+        if (databaseType() == ORACLE || databaseType() == POSTGRESQL) {
+            def collatedValues = collateValues(values, databaseType())
             return inCollatedValues(property, collatedValues)
         } else {
             return Restrictions.in(property, values.collect().toArray())
@@ -41,24 +51,20 @@ class InQuery {
         return criteriaBuilder.add(inValues(property, values))
     }
 
+    @CompileStatic
     static Criteria addIn(Criteria criteria, String property, Iterable listOfItems) {
-        if (databaseTypeIsOracle) {
-            def choppedItems = collateValues(listOfItems)
+        if (databaseType() == ORACLE || databaseType() == POSTGRESQL) {
+            def choppedItems = collateValues(listOfItems, databaseType())
             addConstraintsToCriteriaByFieldName(criteria, property, choppedItems)
         } else {
             criteria.in(property, listOfItems)
         }
     }
 
-    private static boolean databaseTypeIsOracle = {
-        def dataSource = Holders.applicationContext.getBean(DatabasePortabilityService)
-        dataSource.databaseType == ORACLE
-    }
-
     @CompileStatic
-    static List<List> collateValues(Iterable inItems) {
+    static List<List> collateValues(Iterable inItems, DatabaseType databaseType) {
         if (!inItems) return [[]]
-        inItems.collate(MAX_LIST_SIZE)
+        inItems.collate(maxListSize[databaseType])
     }
 
     @CompileStatic
