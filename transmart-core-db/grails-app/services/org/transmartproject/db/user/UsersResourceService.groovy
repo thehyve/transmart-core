@@ -22,14 +22,15 @@ package org.transmartproject.db.user
 import grails.transaction.Transactional
 import org.hibernate.Query
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.users.User as CoreUser
 import org.transmartproject.core.users.UsersResource
+
+import java.security.Principal
 
 class UsersResourceService implements UsersResource {
 
     @Transactional(readOnly = true)
     @Override
-    CoreUser getUserFromUsername(String username)
+    org.transmartproject.core.users.User getUserFromUsername(String username)
             throws NoSuchResourceException {
 
         /* prefetch the roles so that the object can be used when detached.
@@ -42,14 +43,14 @@ class UsersResourceService implements UsersResource {
          * clear that the User implementation is an Hibernate object.
          */
 
-        def user = User.withSession { session ->
+        User user = User.withSession { session ->
             Query query = session.createQuery(
                     'FROM User u LEFT JOIN FETCH u.roles WHERE u.username = ?')
             query.setParameter 0, username
             def users = query.list()
 
             users[0]
-        } as CoreUser
+        }
 
         if (!user) {
             throw new NoSuchResourceException("No user with username " +
@@ -61,7 +62,7 @@ class UsersResourceService implements UsersResource {
 
     @Transactional(readOnly = true)
     @Override
-    List<CoreUser> getUsers() {
+    List<org.transmartproject.core.users.User> getUsers() {
         User.withSession { session ->
             session.createQuery('FROM User u LEFT JOIN FETCH u.roles').list()
         }.unique()
@@ -69,9 +70,14 @@ class UsersResourceService implements UsersResource {
 
     @Transactional(readOnly = true)
     @Override
-    List<CoreUser> getUsersWithEmailSpecified() {
+    List<org.transmartproject.core.users.User> getUsersWithEmailSpecified() {
         User.withSession { session ->
             session.createQuery('FROM User u WHERE u.email IS NOT NULL').list()
-        } as List<CoreUser>
+        } as List<org.transmartproject.core.users.User>
+    }
+
+    @Override
+    org.transmartproject.core.users.User getUserFromPrincipal(Principal principal) {
+        return getUserFromUsername(principal.name)
     }
 }
