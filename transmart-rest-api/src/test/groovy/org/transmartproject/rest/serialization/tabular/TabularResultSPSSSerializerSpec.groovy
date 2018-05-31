@@ -42,7 +42,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def columns = ImmutableList.copyOf([] as List<DataColumn>)
 
         when: 'producing spss files for empty table'
-        new TabularResultSPSSSerializer(Mock(User), Mock(ZipOutputStream), columns)
+        new TabularResultSPSSSerializer(Mock(User), Mock(ZipOutputStream), columns, 'testFile')
                 .writeParallel(table, 1)
         then: 'exception is thrown'
         def e3 = thrown(IllegalArgumentException)
