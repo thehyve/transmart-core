@@ -29,6 +29,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Dimension
@@ -40,8 +41,9 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
@@ -50,6 +52,8 @@ import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
+
+import static ProtectedOperation.WellKnownOperations.*
 /**
  * Access control checks.
  *
@@ -60,7 +64,7 @@ import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.
  */
 @Slf4j
 @Component
-class AccessControlChecks {
+class AccessControlChecks implements AuthorisationChecks {
 
     public static final String PUBLIC_SOT = 'EXP:PUBLIC'
     public static final Set<String> PUBLIC_TOKENS = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT]
@@ -110,7 +114,7 @@ class AccessControlChecks {
      * This is the <code>/v2</code> way of checking study based access.
      *
      * @param user the user to check access for.
-     * @param protectedOperation is ignored.
+     * @param protectedOperation operation user allowed to perform on the study
      * @param study the study object that is referred to from the trial visit dimension.
      * @return true iff a study exists that the user has access to.
      */
@@ -173,7 +177,7 @@ class AccessControlChecks {
     Set<Study> getAccessibleStudiesForUser(User user) {
         /* this method could benefit from caching */
         def studySet = studiesResource.studySet
-        def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
+        def mostLimitedOperation = SHOW_SUMMARY_STATISTICS
         studySet.findAll {
             OntologyTerm ontologyTerm = it.ontologyTerm
             assert ontologyTerm : "No ontology node found for study ${it.id}."
@@ -281,12 +285,17 @@ class AccessControlChecks {
     boolean canPerform(User user,
                        ProtectedOperation operation,
                        QueryDefinition definition) {
-        if (operation != ProtectedOperation.WellKnownOperations.BUILD_COHORT) {
-            log.warn "Requested protected operation different from " +
-                    "BUILD_COHORT on QueryDefinition $definition"
+        if (![BUILD_COHORT, READ].contains(operation)) {
+            log.error "Requested ${operation} operation on QueryDefinition ${definition}."
             throw new UnsupportedOperationException("Operation $operation ")
         }
 
+        if (user.admin) {
+            log.debug "Bypassing check for $operation on query definition for user ${user.username}" +
+                    ' because she is an administrator'
+            return true
+        }
+        
         // check there is at least one non-inverted panel for which the user
         // has permission in all the terms
         def res = definition.panels.findAll { !it.invert }.any { Panel panel ->
@@ -341,30 +350,13 @@ class AccessControlChecks {
     boolean canPerform(User user,
                        ProtectedOperation operation,
                        QueryResult result) {
-        if (operation != ProtectedOperation.WellKnownOperations.READ) {
+        if (operation != READ) {
             log.warn "Requested protected operation different from " +
                     "READ on QueryResult $result"
             throw new UnsupportedOperationException("Operation $operation ")
         }
 
-        /* Note that this check doesn't account for the fact that the user's
-         * permissions on the check from which the result was generated may
-         * have been revoked in the meantime. We could check again the access
-         * to the studies with:
-         *
-         * def qd = queryDefinitionXml.fromXml(new StringReader(
-         *         queryResult.queryInstance.queryMaster.requestXml))
-         * canPerform(user, BUILD_COHORT, qd)
-         *
-         * However, this would be less efficient and is not deemed necessary
-         * at this point.
-         *
-         * Another option would be to expire user's query results when his
-         * permissions change, but this can be tricky if the permissions
-         * are changed on a group or if the stuff is reimported.
-         *
-         */
-        def res = result.username == user.username
+        def res = result.username == user.username || user.admin
 
         if (!res) {
             log.warn "Denying $user access to query result $result because " +
@@ -377,4 +369,17 @@ class AccessControlChecks {
         res
     }
 
+    /**
+     * Groovy supports multiple dispatch. So other {@see canPerform} method has to be called.
+     * This class does not have to be @CompileStatic in order for this mechanism to work.
+     * @param user
+     * @param protectedOperation
+     * @param protectedResource
+     * @return
+     */
+    @Override
+    boolean canPerform(User user, ProtectedOperation protectedOperation, ProtectedResource protectedResource) {
+        throw new UnsupportedOperationException("Do not know how to check access for user $this," +
+                " operation $protectedOperation on $protectedResource")
+    }
 }

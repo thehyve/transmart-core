@@ -43,11 +43,12 @@ public interface User {
     /**
      * Returns true iif this user is authorized to perform the given operation
      * on the given object.
-     *
+     * @deprecated Use {@link AuthorisationChecks} instead.
      * @param operation
      * @param protectedResource
      * @return true iif access is granted
      */
+    @Deprecated
     boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource)
 
     /**
@@ -57,7 +58,7 @@ public interface User {
 
     /**
      * The key of the map is a study token. The study token is a string that give access to the study.
-     * Level of access specified by the value part of the map {@code ProtectedOperation}.
+     * Level of access specified by the value part of the map {@link ProtectedOperation}.
      */
     Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations()
 }

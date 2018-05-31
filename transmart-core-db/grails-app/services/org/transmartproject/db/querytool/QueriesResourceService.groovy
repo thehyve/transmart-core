@@ -19,16 +19,12 @@
 
 package org.transmartproject.db.querytool
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.Multimap
 import grails.transaction.Transactional
 import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.*
-import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.core.users.User
 
 import java.sql.Connection
@@ -40,14 +36,14 @@ class QueriesResourceService implements QueriesResource {
     def patientSetQueryBuilderService
     def queryDefinitionXmlService
     def sessionFactory
-    def usersResourceService
+    def usersResource
 
     @Override
     @Deprecated
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
         String username = grailsApplication.config.org.transmartproject.i2b2.user_id
         assert username : 'org.transmartproject.i2b2.user_id is not specified.'
-        User user = usersResourceService.getUserFromUsername(username)
+        User user = usersResource.getUserFromUsername(username)
         runQuery(definition, user)
     }
 

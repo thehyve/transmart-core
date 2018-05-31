@@ -122,28 +122,16 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         mapBuilder.build()
     }
 
+    /**
+     * @deprecated Use {@link org.transmartproject.db.accesscontrol.AccessControlChecks} instead.
+     * @param protectedOperation
+     * @param protectedResource
+     * @return
+     */
     @Override
     boolean canPerform(ProtectedOperation protectedOperation,
                        ProtectedResource protectedResource) {
-
-        if (!accessControlChecks.respondsTo('canPerform',
-                [User, ProtectedOperation, protectedResource.getClass()] as Object[])) {
-            throw new UnsupportedOperationException("Do not know how to check " +
-                    "access for user $this, operation $protectedOperation on " +
-                    "$protectedResource")
-        }
-
-        if (admin) {
-            /* administrators bypass all the checks */
-            log.debug "Bypassing check for $protectedOperation on " +
-                    "$protectedResource for user $this because he is an " +
-                    "administrator"
-            return true
-        }
-
-        accessControlChecks.canPerform(this,
-                                       protectedOperation,
-                                       protectedResource)
+        accessControlChecks.canPerform(this, protectedOperation, protectedResource)
     }
 
     /* not in API */

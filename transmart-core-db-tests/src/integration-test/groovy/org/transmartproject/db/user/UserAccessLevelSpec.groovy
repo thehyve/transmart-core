@@ -30,8 +30,8 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.ProtectedResource
-import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.TransmartSpecification
 
@@ -50,7 +50,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
     SessionFactory sessionFactory
 
     @Autowired
-    AccessControlChecks accessControlChecks
+    AuthorisationChecks accessControlChecks
 
     AccessLevelTestData accessLevelTestData = AccessLevelTestData.createDefault()
 
@@ -72,7 +72,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         setupData()
         // study1 is public
         expect:
-        accessLevelTestData.users.every { it.canPerform(API_READ, getStudy(STUDY1)) }
+        accessLevelTestData.users.every { accessControlChecks.canPerform(it, API_READ, getStudy(STUDY1)) }
     }
 
     void testPermissionViaGroup() {

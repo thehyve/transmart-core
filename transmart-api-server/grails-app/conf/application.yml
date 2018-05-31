@@ -101,7 +101,7 @@ security:
     oauth2:
         client:
             clientId: demo-oidc
-            clientSecret: !INSERT_YOUR_SECRET_HERE!
+            clientSecret: INSERT_YOUR_SECRET_HERE
             accessTokenUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/token
             userAuthorizationUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/auth
             clientAuthenticationScheme: header

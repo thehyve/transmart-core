@@ -18,11 +18,11 @@ import org.transmartproject.core.users.UsersResource
 class AuthContext {
 
     @Autowired
-    private UsersResource usersResourceService
+    private UsersResource usersResource
 
     @Lazy
     User user = { ->
-        usersResourceService.getUserFromPrincipal(SecurityContextHolder.context.authentication)
+        usersResource.getUserFromPrincipal(SecurityContextHolder.context.authentication)
     }()
 
     @Override
