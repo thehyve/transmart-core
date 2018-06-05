@@ -25,6 +25,7 @@ import org.transmartproject.db.util.SharedLock
 import javax.annotation.Resource
 
 import static grails.async.Promises.task
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 
 @Transactional(readOnly = true)
 @CompileStatic
@@ -94,15 +95,13 @@ class TreeService implements TreeResource {
         if (rootKey == I2b2Secure.ROOT) {
             return null
         }
-        I2b2Secure i2b2Secure = (I2b2Secure) I2b2Secure.createCriteria().get {
+        I2b2Secure root = (I2b2Secure) I2b2Secure.createCriteria().get {
             eq('fullName', rootKey)
         }
-        assert i2b2Secure : "Node with path ${rootKey} is not found."
-        if (accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS, i2b2Secure)) {
-            return i2b2Secure
-        } else {
+        if (!root || !accessControlChecks.canPerform(user, SHOW_SUMMARY_STATISTICS, root)) {
             throw new AccessDeniedException("Access denied to path: ${rootKey}")
         }
+        root
     }
 
     /**
