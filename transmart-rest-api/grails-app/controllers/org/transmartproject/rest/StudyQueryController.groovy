@@ -5,13 +5,12 @@ package org.transmartproject.rest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
-import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.StudyWrapper
 
-import static java.util.Objects.requireNonNull
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 import static org.transmartproject.rest.misc.RequestUtils.parseJson
 
@@ -31,7 +30,7 @@ class StudyQueryController extends AbstractQueryController {
      */
     def listStudies(@RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
-        def studies = studiesResource.getStudies(currentUser)
+        def studies = studiesResource.getStudies(authContext.user)
         respond wrapStudies(apiVersion, studies)
     }
 
@@ -52,7 +51,7 @@ class StudyQueryController extends AbstractQueryController {
         }
         checkForUnsupportedParams(params, ['id'])
 
-        def study = studiesResource.getStudyForUser(id, currentUser)
+        def study = studiesResource.getStudyForUser(id, authContext.user)
 
         respond new StudyWrapper(
                 study: study,
@@ -78,7 +77,7 @@ class StudyQueryController extends AbstractQueryController {
 
         checkForUnsupportedParams(params, ['studyId'])
 
-        def study = studiesResource.getStudyByStudyIdForUser(studyId, currentUser)
+        def study = studiesResource.getStudyByStudyIdForUser(studyId, authContext.user)
 
         respond new StudyWrapper(
                 study: study,
@@ -106,7 +105,7 @@ class StudyQueryController extends AbstractQueryController {
             throw new InvalidArgumentsException("List of study ids is empty.")
         }
 
-        def studies = studiesResource.getStudiesByStudyIdsForUser(studyIds, currentUser)
+        def studies = studiesResource.getStudiesByStudyIdsForUser(studyIds, authContext.user)
 
         respond wrapStudies(apiVersion, studies)
     }

@@ -1,4 +1,4 @@
-package org.transmartproject.rest.misc
+package org.transmartproject.rest.user
 
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,14 +16,13 @@ import org.transmartproject.core.users.UsersResource
 @Component
 @Scope(value = 'request', proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Slf4j
-class CurrentUser implements User {
+class AuthContext {
 
     @Autowired
     private UsersResource usersResourceService
 
     @Lazy
-    @Delegate
-    private User delegate = { ->
+    User user = { ->
         def userPrincipal = SecurityContextHolder.context.authentication?.principal
         if (!userPrincipal) {
             throw new AccessDeniedException('No user principal has found.')
@@ -49,7 +48,7 @@ class CurrentUser implements User {
 
     @Override
     String toString() {
-        "CurrentUser(${delegate.toString()})"
+        "AuthContext(${user.toString()})"
     }
 
 }

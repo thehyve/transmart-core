@@ -1,10 +1,10 @@
 package org.transmartproject.interceptors
 
-import org.transmartproject.core.users.User
+import org.transmartproject.rest.user.AuthContext
 
 class DataRetrievalInterceptor {
     def accessLogService
-    User currentUserBean
+    AuthContext authContext
 
     DataRetrievalInterceptor(){
         match(controller: ~/(observation|highDim)/)
@@ -18,7 +18,7 @@ class DataRetrievalInterceptor {
 
         def dataType = controllerName == 'observation' ? 'low dim' : 'high dim'
 
-        accessLogService.report(currentUserBean, 'REST API Data Retrieval',
+        accessLogService.report(authContext.user, 'REST API Data Retrieval',
                 eventMessage:  "User (IP: ${ip}) got ${dataType}. data with ${fullUrl}",
                 requestURL: fullUrl)
         true

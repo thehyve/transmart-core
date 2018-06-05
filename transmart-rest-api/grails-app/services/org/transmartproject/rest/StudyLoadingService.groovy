@@ -33,7 +33,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class StudyLoadingService {
@@ -44,7 +44,7 @@ class StudyLoadingService {
 
     def studiesResourceService
 
-    CurrentUser currentUser
+    AuthContext authContext
 
     private Study cachedStudy
 
@@ -74,10 +74,10 @@ class StudyLoadingService {
     }
 
     private boolean checkAccess(Study study) {
-        def result = currentUser.canPerform(
+        def result = authContext.user.canPerform(
                 ProtectedOperation.WellKnownOperations.API_READ, study)
         if (!result) {
-            def username = currentUser.username
+            def username = authContext.user.username
             log.warn "User $username denied access to study ${study.id}"
         }
 

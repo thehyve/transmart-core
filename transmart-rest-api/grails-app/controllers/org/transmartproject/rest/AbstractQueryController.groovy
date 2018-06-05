@@ -6,17 +6,15 @@ import grails.artefact.Controller
 import grails.converters.JSON
 import groovy.transform.CompileStatic
 import org.grails.web.converters.exceptions.ConverterException
-import org.grails.web.json.JSONArray
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PatientSetResource
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.misc.RequestUtils
 
 @CompileStatic
@@ -29,10 +27,7 @@ abstract class AbstractQueryController implements Controller {
     PatientSetResource patientSetResource
 
     @Autowired
-    CurrentUser currentUser
-
-    @Autowired
-    UsersResource usersResource
+    AuthContext authContext
 
     @Autowired
     HypercubeDataSerializationService hypercubeDataSerializationService

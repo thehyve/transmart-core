@@ -7,9 +7,9 @@ import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.rest.HypercubeDataSerializationService
 import org.transmartproject.rest.SurveyTableViewDataSerializationService
 import org.transmartproject.rest.serialization.DataSerializer
@@ -18,7 +18,8 @@ import org.transmartproject.rest.serialization.Format
 
 import java.util.zip.ZipOutputStream
 
-import static org.transmartproject.rest.serialization.Format.*
+import static org.transmartproject.rest.serialization.Format.SPSS
+import static org.transmartproject.rest.serialization.Format.TSV
 
 @Transactional
 @Component("restExportService")

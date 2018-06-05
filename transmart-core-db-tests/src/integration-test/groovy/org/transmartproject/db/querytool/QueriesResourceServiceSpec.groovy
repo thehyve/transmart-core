@@ -31,6 +31,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.db.user.User
 import org.transmartproject.db.TransmartSpecification
 
@@ -47,6 +48,7 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
 
     QueriesResource queriesResourceService
     def sessionFactory
+    AccessLevelTestData accessLevelTestData
 
     private void addObservationFact(Map extra,
                                     String conceptCd,
@@ -135,6 +137,9 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
 
         /* 4. Flush session so these objects are available from SQL */
         sessionFactory.currentSession.flush()
+
+        accessLevelTestData = new AccessLevelTestData()
+        accessLevelTestData.saveAuthorities()
     }
 
     void testBasic() {
@@ -149,15 +154,16 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
 
-        def result = queriesResourceService.runQuery(definition)
-        expect:
-        result allOf(
-                hasProperty("id", notNullValue()),
-                hasProperty("setSize", equalTo(7L /* 100-106 */)),
-                hasProperty("status", equalTo(QueryStatus.FINISHED)),
-                hasProperty("errorMessage", nullValue()),
-        )
+        when:
+        def result = queriesResourceService.runQuery(definition, user)
+        then:
+        result
+        result.id != null
+        result.setSize == 7L
+        result.status == QueryStatus.FINISHED
+        result.errorMessage == null
     }
 
     void testPanelInversion() {
@@ -179,9 +185,10 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
 
         when:
-        def result = queriesResourceService.runQuery(definition)
+        def result = queriesResourceService.runQuery(definition, user)
         then:
         result.setSize == 1L
         result.patients.size() == 1
@@ -212,9 +219,10 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
 
         when:
-        def result = queriesResourceService.runQuery(definition)
+        def result = queriesResourceService.runQuery(definition, user)
         then:
         result.setSize == 2L
         result.patients.size() == 2
@@ -240,9 +248,10 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
 
         when:
-        def result = queriesResourceService.runQuery(definition)
+        def result = queriesResourceService.runQuery(definition, user)
         then:
         result.setSize == 2L
         result.patients.size() == 2
@@ -266,9 +275,10 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
 
         when:
-        def result = queriesResourceService.runQuery(definition)
+        def result = queriesResourceService.runQuery(definition, user)
         then:
         result.setSize == 2L
         result.patients.size() == 2
@@ -292,8 +302,10 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
+
         when:
-        def result = queriesResourceService.runQuery(definition)
+        def result = queriesResourceService.runQuery(definition, user)
         then:
         result.setSize == 1L
         result.patients.size() == 1
@@ -311,9 +323,10 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
 
         when:
-        queriesResourceService.runQuery(definition)
+        queriesResourceService.runQuery(definition, user)
 
         then:
         thrown(InvalidRequestException)
@@ -335,62 +348,19 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                         ]
                 )
         ])
+        def user = accessLevelTestData.users[0]
+
         when:
-        def result = queriesResourceService.runQuery(inputDefinition)
+        def result = queriesResourceService.runQuery(inputDefinition, user)
         then:
-        result hasProperty('id', is(notNullValue()))
+        result.id != null
 
         when:
         def outputDefinition = queriesResourceService
                 .getQueryDefinitionForResult(result)
 
         then:
-        outputDefinition is(equalTo(inputDefinition))
-    }
-
-    void testFailingQuery() {
-        setupData()
-        def inputDefinition = new QueryDefinition([])
-
-        def orig = queriesResourceService.patientSetQueryBuilderService
-        queriesResourceService.patientSetQueryBuilderService = [
-                buildPatientSetQuery: {
-                    QtQueryResultInstance resultInstance,
-                    QueryDefinition definition,
-                    User user = null ->
-                        'fake query'
-                }
-        ] as PatientSetQueryBuilderService
-
-        when:
-        QueryResult result = queriesResourceService.runQuery(inputDefinition)
-        then:
-        result.status == QueryStatus.ERROR
-        cleanup:
-        queriesResourceService.patientSetQueryBuilderService = orig
-    }
-
-
-    void testFailingQueryBuilding() {
-        setupData()
-        def inputDefinition = new QueryDefinition([])
-
-        def orig = queriesResourceService.patientSetQueryBuilderService
-        queriesResourceService.patientSetQueryBuilderService = [
-                buildPatientSetQuery: {
-                    QtQueryResultInstance resultInstance,
-                    QueryDefinition definition,
-                    User user = null ->
-                        throw new RuntimeException('foo bar')
-                }
-        ] as PatientSetQueryBuilderService
-
-        when:
-        QueryResult result = queriesResourceService.runQuery(inputDefinition)
-        then:
-        result.status == QueryStatus.ERROR
-        cleanup:
-        queriesResourceService.patientSetQueryBuilderService = orig
+        outputDefinition == inputDefinition
     }
 
     void testGetQueryResultFromIdBasic() {
@@ -406,10 +376,8 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
                 savedResultInstance.id)
 
         expect:
-        result allOf(
-                hasProperty('id', is(savedResultInstance.id)),
-                hasProperty('setSize', is(1L) /* only patient #100 */),
-        )
+        result.id == savedResultInstance.id
+        result.setSize == 1L
     }
 
     void testQueryResultResultNonExistent() {
@@ -424,16 +392,17 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
 
     void testOverloadWithUsername() {
         setupData()
-        def username = 'bogus_username'
 
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(conceptKey: '\\\\i2b2tc\\a\\'),])])
+        def user = accessLevelTestData.users[0]
 
-        def result = queriesResourceService.runQuery(definition, username)
+        when:
+        def result = queriesResourceService.runQuery(definition, user)
 
-        expect:
-        result hasProperty('username', is(username))
+        then:
+        result.username == user.username
     }
 
 }

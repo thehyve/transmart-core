@@ -1,6 +1,7 @@
 package org.transmartproject.rest
 
 import grails.plugins.Plugin
+import org.springframework.aop.scope.ScopedProxyFactoryBean
 
 /*
  * Copyright 2014 Janssen Research & Development, LLC.
@@ -26,8 +27,6 @@ import grails.plugins.Plugin
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-import org.springframework.aop.scope.ScopedProxyFactoryBean
 import org.springframework.stereotype.Component
 import org.transmartproject.rest.http.BusinessExceptionResolver
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
