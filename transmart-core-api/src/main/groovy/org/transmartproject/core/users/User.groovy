@@ -9,7 +9,7 @@ public interface User {
 
     /**
      * An numerical identifier for the user.
-     * @deprecated Use {@code getUserame()} instead to identify the user.
+     * @deprecated Use {@link #getUsername()} instead to identify the user.
      * @return numeric unique identifier for the user
      */
     @Deprecated
