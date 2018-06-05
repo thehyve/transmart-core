@@ -45,18 +45,23 @@ class KeycloakUserResourceService implements UsersResource {
         assert principal instanceof OAuth2Authentication
         def authentication = principal.userAuthentication
         assert authentication: 'User is not authenticated.'
+
+        final String username = principal.name
+        List<String> authorities = principal.authorities*.authority
+        final boolean admin = authorities.remove('ROLE_ADMIN')
+        Multimap<String, ProtectedOperation> accessStudyTokenToOperations =
+                buildStudyTokenToOperationsMultimap(authorities, username)
+
         def details = authentication.details
-        assert details instanceof Map
-
-        final String username = details.sub
-        assert username
-
-        final String realName = details.name
-        final String email = details.email
-        Collection<String> roles = details.roles
-        final boolean admin = roles.remove('ROLE_ADMIN')
-        ImmutableMultimap<String, ProtectedOperation> accessStudyTokenToOperations =
-                buildStudyTokenToOperationsMultimap(roles, username)
+        final String realName
+        final String email
+        if (details instanceof Map) {
+            realName = details.name
+            email = details.email
+        } else {
+            realName = null
+            email = null
+        }
 
         new User() {
             @Override

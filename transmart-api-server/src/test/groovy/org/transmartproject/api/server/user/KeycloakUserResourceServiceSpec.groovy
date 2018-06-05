@@ -29,7 +29,12 @@ class KeycloakUserResourceServiceSpec extends Specification {
     void "test keycloak principal parsing"() {
         def requestParameters = [:]
         String clientId = 'test-client-id'
-        List<GrantedAuthority> authorities = [new SimpleGrantedAuthority('ROLE_TEST')]
+        List<GrantedAuthority> authorities = [
+                new SimpleGrantedAuthority('ROLE_ADMIN'),
+                new SimpleGrantedAuthority('READ|STUDY1_TOKEN'),
+                new SimpleGrantedAuthority('SHOW_SUMMARY_STATISTICS|STUDY1_TOKEN'),
+                new SimpleGrantedAuthority('SHOW_SUMMARY_STATISTICS|STUDY2_TOKEN'),
+        ]
         boolean approved = true
         Set<String> scopes = ['oidc', 'email']
         Set<String> resourceIds = []
@@ -37,13 +42,11 @@ class KeycloakUserResourceServiceSpec extends Specification {
         Set<String> responceTypes = []
         def extensionProperties = [:]
 
-
         def client = new OAuth2Request(requestParameters, clientId, authorities, approved, scopes, resourceIds,
                 redirectUri, responceTypes, extensionProperties)
-        def token = new UsernamePasswordAuthenticationToken('test-user', 'test-password')
+
+        def token = new UsernamePasswordAuthenticationToken('test-sub', 'test-password', authorities)
         token.setDetails([
-                sub  : 'test-sub',
-                roles: ['ROLE_ADMIN', 'READ|STUDY1_TOKEN', 'SHOW_SUMMARY_STATISTICS|STUDY1_TOKEN', 'SHOW_SUMMARY_STATISTICS|STUDY2_TOKEN'],
                 name : 'John Doe',
                 email: 'test@mail.com',
         ])
