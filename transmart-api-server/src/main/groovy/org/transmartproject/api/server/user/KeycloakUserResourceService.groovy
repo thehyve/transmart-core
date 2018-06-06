@@ -59,10 +59,19 @@ class KeycloakUserResourceService implements UsersResource {
             realName = details.name
             email = details.email
         } else {
+            log.warn("Unexpected user details object for ${username} user. Expected map but was ${details}. Hence email and name can't be parsed.")
             realName = null
             email = null
         }
 
+        createUser(username, realName, email, admin, accessStudyTokenToOperations)
+    }
+
+    private User createUser(final String username,
+                            final String realName,
+                            final String email,
+                            final boolean admin,
+                            final Multimap<String, ProtectedOperation> accessStudyTokenToOperations) {
         new User() {
             @Override
             Long getId() {
