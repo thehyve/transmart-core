@@ -109,19 +109,10 @@ server:
 security:
     oauth2:
         client:
-            clientId: client_1
-#        resource:
-#            userInfoUri: http://localhost:8080/auth/realms/transmart/protocol/openid-connect/userinfo
+            clientId: <your-client-id>
 
-#keycloak:
-#    enable-basic-auth: false  # basic auth is default true, we dont want that
-#    realm: transmart   # our keycloak realm this ressource service should be based in
-#    auth-server-url: http://localhost:8080/auth  # the url to our sso server (keycloak)
-#    ssl-required: external  # no ssl is ok for demo  - do not use this in production
-#    resource: tm_client  # the realm-client which accessing clients should be authenticate with
-#    use-resource-role-mappings: true # use this if you manage your roles in client scope not in realm scope
-#    public-client: false # we do not write a web-app - so no login page and redirects are necessary
-#    bearer-only: true  # authentification via accesstoken is fine
-#    credentials:
-#        secret: 7034b121-fdf1-4188-9ba2-c66bee4b9867
-
+keycloak:
+    clientId: <your-client-id>
+    offlineToken: <your-offline-token>
+    serverUrl: http://localhost:8080/auth
+    realm: <realm-name>
