@@ -23,18 +23,14 @@ import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.grails.core.util.StopWatch
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.SurveyTableColumnService
 import org.transmartproject.db.multidimquery.HypercubeDataColumn
 import org.transmartproject.db.multidimquery.SurveyTableView
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.rest.serialization.DataSerializer
 import org.transmartproject.rest.serialization.Format
@@ -63,12 +59,15 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
 
     Set<Format> supportedFormats = [Format.TSV, Format.SPSS] as Set<Format>
 
-    TabularResultSerializer getSerializer(Format format, User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
+    TabularResultSerializer getSerializer(Format format, User user,
+                                          ZipOutputStream zipOutputStream,
+                                          ImmutableList<DataColumn> columns,
+                                          String fileName) {
         switch(format) {
             case Format.TSV:
                 return new TabularResultTSVSerializer(user, zipOutputStream, columns)
             case Format.SPSS:
-                return new TabularResultSPSSSerializer(user, zipOutputStream, columns)
+                return new TabularResultSPSSSerializer(user, zipOutputStream, columns, fileName)
             default:
                 throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
         }
@@ -127,7 +126,7 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
                     .getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
         }
         final TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
-                ImmutableList.copyOf(columns as List<DataColumn>))
+                ImmutableList.copyOf(columns as List<DataColumn>), parameters.exportFileName)
 
         def taskParameters = new TaskParameters(parameters.constraint, user)
         parallelPatientSetTaskService.run(

@@ -21,10 +21,10 @@ package org.transmartproject.rest.serialization.tabular
 
 import com.google.common.collect.ImmutableList
 import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.ontology.Measure
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.ontology.Measure
+import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.ontology.VariableDataType
 import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
@@ -42,7 +42,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def columns = ImmutableList.copyOf([] as List<DataColumn>)
 
         when: 'producing spss files for empty table'
-        new TabularResultSPSSSerializer(Mock(User), Mock(ZipOutputStream), columns)
+        new TabularResultSPSSSerializer(Mock(User), Mock(ZipOutputStream), columns, 'testFile')
                 .writeParallel(table, 1)
         then: 'exception is thrown'
         def e3 = thrown(IllegalArgumentException)

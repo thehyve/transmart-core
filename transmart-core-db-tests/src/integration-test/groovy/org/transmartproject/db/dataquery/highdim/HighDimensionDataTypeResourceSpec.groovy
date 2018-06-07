@@ -32,6 +32,7 @@ import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.TabularStudyTestData
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.user.AccessLevelTestData
 
 import javax.annotation.Resource
 
@@ -46,6 +47,8 @@ class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
 
     @Resource
     HighDimensionDataTypeModule mrnaModule
+
+    AccessLevelTestData accessLevelTestData
 
     HighDimensionDataTypeResource resource
 
@@ -64,6 +67,8 @@ class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
         assert mrnaModule != null
 
         resource = new HighDimensionDataTypeResourceImpl(mrnaModule)
+        accessLevelTestData = new AccessLevelTestData()
+        accessLevelTestData.saveAuthorities()
     }
 
     void testBasic() {
@@ -78,7 +83,7 @@ class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
                 )
         ])
 
-        def result = queriesResourceService.runQuery(definition)
+        def result = queriesResourceService.runQuery(definition, accessLevelTestData.users[0])
         def ontologyTerms = resource.getAllOntologyTermsForDataTypeBy(result)
 
         expect:

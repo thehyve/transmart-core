@@ -10,22 +10,12 @@ import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.exceptions.OperationNotImplementedException
-import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
-import org.transmartproject.core.multidimquery.AggregateDataResource
-import org.transmartproject.core.multidimquery.CategoricalValueAggregates
-import org.transmartproject.core.multidimquery.DataRetrievalParameters
-import org.transmartproject.core.multidimquery.CrossTable
-import org.transmartproject.core.multidimquery.CrossTableResource
+import org.transmartproject.core.exceptions.*
+import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.NumericalValueAggregates
 import org.transmartproject.core.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.*
-import org.transmartproject.db.user.User
+import org.transmartproject.db.multidimquery.query.DimensionMetadata
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.serialization.CrossTableSerializer
 import org.transmartproject.rest.serialization.Format
@@ -119,7 +109,6 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         def sort = BindingHelper.readList(sort_text, sortListTypeReference)
 
@@ -127,7 +116,7 @@ class QueryController extends AbstractQueryController {
 
         try {
             def args = new DataRetrievalParameters(constraint: constraint, sort: sort)
-            hypercubeDataSerializationService.writeClinical(format, args, user, out)
+            hypercubeDataSerializationService.writeClinical(format, args, authContext.user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -173,7 +162,6 @@ class QueryController extends AbstractQueryController {
         }
 
         Constraint constraint = bindConstraint((String) args.constraint)
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         if (args.limit == null) {
             throw new InvalidArgumentsException("Parameter 'limit' is required")
@@ -206,7 +194,7 @@ class QueryController extends AbstractQueryController {
                 offset: offset
         )
         BindingHelper.validate(pagination)
-        hypercubeDataSerializationService.writeTablePage(Format.JSON, constraint, tableConfig, pagination, user, out)
+        hypercubeDataSerializationService.writeTablePage(Format.JSON, constraint, tableConfig, pagination, authContext.user, out)
     }
 
     /**
@@ -236,11 +224,10 @@ class QueryController extends AbstractQueryController {
         List<Constraint> columnConstraints = args.columnConstraints.collect { constraint -> bindConstraint((String) constraint) }
         Constraint subjectConstraint = bindConstraint((String) args.subjectConstraint)
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-
         OutputStream out = getLazyOutputStream(Format.JSON)
 
-        CrossTable crossTable = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, user)
+        CrossTable crossTable = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint,
+                authContext.user)
         new CrossTableSerializer().write(crossTable.rows, out)
     }
 
@@ -260,8 +247,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = aggregateDataResource.counts(constraint, user)
+        def counts = aggregateDataResource.counts(constraint, authContext.user)
         render counts as JSON
     }
 
@@ -281,8 +267,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = aggregateDataResource.countsPerConcept(constraint, user)
+        def counts = aggregateDataResource.countsPerConcept(constraint, authContext.user)
         def result = [countsPerConcept: counts]
         render result as JSON
     }
@@ -303,8 +288,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = aggregateDataResource.countsPerStudy(constraint, user)
+        def counts = aggregateDataResource.countsPerStudy(constraint, authContext.user)
         def result = [countsPerStudy: counts]
         render result as JSON
     }
@@ -326,8 +310,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = aggregateDataResource.countsPerStudyAndConcept(constraint, user)
+        def counts = aggregateDataResource.countsPerStudyAndConcept(constraint, authContext.user)
         counts.collectEntries { studyId, countsPerConcept ->
             [(studyId): [countsPerConcept: countsPerConcept]]
         }
@@ -352,11 +335,10 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = aggregateDataResource
-                .numericalValueAggregatesPerConcept(constraint, user)
+                .numericalValueAggregatesPerConcept(constraint, authContext.user)
         Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = aggregateDataResource
-                .categoricalValueAggregatesPerConcept(constraint, user)
+                .categoricalValueAggregatesPerConcept(constraint, authContext.user)
 
         Map resultMap = buildResultMap(numericalValueAggregatesPerConcept, categoricalValueAggregatesPerConcept)
         render resultMap as JSON
@@ -393,8 +375,6 @@ class QueryController extends AbstractQueryController {
      */
     private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-
         Constraint assayConstraint = getConstraintFromString(assay_constraint)
 
         BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
@@ -404,7 +384,8 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
+            hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection,
+                    authContext.user, out)
         } finally {
             out.close()
         }

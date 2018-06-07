@@ -27,7 +27,6 @@ package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
 import groovy.transform.Canonical
-import groovy.transform.TupleConstructor
 
 // wrapper for collections of core-api helper so we can target a marshaller to them
 class ContainerResponseWrapper {

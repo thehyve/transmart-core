@@ -19,12 +19,19 @@
 
 package org.transmartproject.db.user
 
+import com.google.common.collect.ImmutableMultimap
+import com.google.common.collect.Multimap
 import org.hibernate.FetchMode
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.accesscontrol.AccessLevel
+import org.transmartproject.db.accesscontrol.SecuredObject
+import org.transmartproject.db.accesscontrol.SecuredObjectAccessView
+
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class User extends PrincipalCoreDb implements org.transmartproject.core.users.User {
 
@@ -85,9 +92,34 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         //federatedId nullable: true, unique: true
     }
 
-    /* not in api */
+    @Override
     boolean isAdmin() {
         roles.find { it.authority == RoleCoreDb.ROLE_ADMIN_AUTHORITY }
+    }
+
+    @Override
+    Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations() {
+        List<Object[]> securedObjectWithaccessLevelPairs = SecuredObjectAccessView.createCriteria().list {
+            projections {
+                property('securedObject')
+                property('accessLevel')
+            }
+            createAlias('securedObject', 'so', INNER_JOIN)
+            or {
+                eq('user', this)
+                isNull('user')
+            }
+            eq('so.dataType', SecuredObject.STUDY_DATA_TYPE)
+        }
+        def mapBuilder = ImmutableMultimap. <String, ProtectedOperation> builder()
+        for (Object[] securedObjectWithaccessLevelPair: securedObjectWithaccessLevelPairs) {
+            def (SecuredObject securedObject, AccessLevel accessLevel) = securedObjectWithaccessLevelPair
+            String uid = securedObject.bioDataUniqueId
+            for (ProtectedOperation operation: accessLevel.correspondingProtectedOperations) {
+                mapBuilder.put(uid, operation)
+            }
+        }
+        mapBuilder.build()
     }
 
     @Override

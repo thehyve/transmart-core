@@ -302,8 +302,8 @@ class DataExportSpec extends RESTSpec {
                              ]]
         ])
         then:
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        assert downloadResponse.downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         filesLineNumbers['clinical_observations.tsv'] == 10
         filesLineNumbers['clinical_study.tsv'] == 2
         filesLineNumbers['clinical_concept.tsv'] == 2
@@ -328,8 +328,8 @@ class DataExportSpec extends RESTSpec {
                 includeMeasurementDateColumns: true,
         ])
         then:
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        assert downloadResponse.downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         filesLineNumbers.size() == 3
         filesLineNumbers['data.tsv'] == 15
         filesLineNumbers['variables.tsv'] == 16
@@ -350,9 +350,10 @@ class DataExportSpec extends RESTSpec {
                              ]],
                 includeMeasurementDateColumns: false,
         ])
+        String fileName = downloadResponse.jobName
         then:
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        assert downloadResponse.downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         filesLineNumbers.size() == 3
         filesLineNumbers['data.tsv'] == 15
         filesLineNumbers['variables.tsv'] == 9
@@ -373,15 +374,16 @@ class DataExportSpec extends RESTSpec {
                              ]],
                 includeMeasurementDateColumns: true,
         ])
+        String fileName = downloadResponse.jobName
         then:
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        assert downloadResponse.downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
-        filesLineNumbers['spss/data.tsv'] == 15
-        filesLineNumbers['spss/data.sps'] == 92
+        filesLineNumbers["${fileName}_spss/data.tsv"] == 15
+        filesLineNumbers["${fileName}_spss/data.sps"] == 92
         if (filesLineNumbers.size() == 3) {
-            assert filesLineNumbers.containsKey('spss/data.sav')
+            assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
     }
 
@@ -425,16 +427,17 @@ class DataExportSpec extends RESTSpec {
                              ]],
                 includeMeasurementDateColumns: true,
         ])
+        def fileName = downloadResponse.jobName
 
         then: 'the result contains the expected files with expected number of rows'
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
-        // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
+        assert downloadResponse.downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
+        // Number of files depends on pspp being installed. If so, a file ${fileName}_spss/${fileName}.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
-        filesLineNumbers['spss/data.tsv'] == 15
-        filesLineNumbers['spss/data.sps'] == 92
+        filesLineNumbers["${fileName}_spss/data.tsv"] == 15
+        filesLineNumbers["${fileName}_spss/data.sps"] == 92
         if (filesLineNumbers.size() == 3) {
-            assert filesLineNumbers.containsKey('spss/data.sav')
+            assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
     }
 
@@ -451,8 +454,8 @@ class DataExportSpec extends RESTSpec {
                              ]],
         ])
         then:
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        assert downloadResponse.downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         filesLineNumbers.size() == 2
         filesLineNumbers['data.tsv'] == 4
         filesLineNumbers['variables.tsv'] == 6
@@ -470,15 +473,16 @@ class DataExportSpec extends RESTSpec {
                                      dataView : 'surveyTable'
                              ]],
         ])
+        def fileName = downloadResponse.jobName
         then:
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
-        // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
+        assert downloadResponse.downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
+        // Number of files depends on pspp being installed. If so, a file ${fileName}_spss/${fileName}.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
-        filesLineNumbers['spss/data.tsv'] == 4
-        filesLineNumbers['spss/data.sps'] == 41
+        filesLineNumbers["${fileName}_spss/data.tsv"] == 4
+        filesLineNumbers["${fileName}_spss/data.sps"] == 41
         if (filesLineNumbers.size() == 3) {
-            assert filesLineNumbers.containsKey('spss/data.sav')
+            assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
     }
 
@@ -498,7 +502,7 @@ class DataExportSpec extends RESTSpec {
         assert 'SPSS' in responseData.fileFormats
     }
 
-    def runTypicalExport(body) {
+    private Map<String, Object> runTypicalExport(body) {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
@@ -545,7 +549,7 @@ class DataExportSpec extends RESTSpec {
         ]
         def downloadResponse = get(downloadRequest)
 
-        return downloadResponse
+        return [jobName: jobId, downloadResponse: downloadResponse]
     }
 
     @RequiresStudy(CATEGORICAL_VALUES_ID)
@@ -681,7 +685,7 @@ class DataExportSpec extends RESTSpec {
         filesLineNumbers['variables.tsv'] == 100 + 1 /*header*/ + 1 //subj id
     }
 
-    private Map<String, Integer> getFilesLineNumbers(byte[] content) {
+    static private Map<String, Integer> getFilesLineNumbers(byte[] content) {
         Map<String, Integer> result = [:]
         def zipInputStream
         try {

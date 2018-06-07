@@ -5,14 +5,13 @@ import groovy.json.JsonSlurper
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.userquery.UserQuerySetResource
-import org.transmartproject.core.userquery.SubscriptionFrequency
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
@@ -22,7 +21,7 @@ class UserQueryController {
     VersionController versionController
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     @Autowired
     UserQueryResource userQueryResource
@@ -35,13 +34,13 @@ class UserQueryController {
     static responseFormats = ['json']
 
     def index() {
-        List<UserQuery> queries = userQueryResource.list(currentUser)
+        List<UserQuery> queries = userQueryResource.list(authContext.user)
         respond([queries: queries.collect { toResponseMap(it) }])
     }
 
     def get(@PathVariable('id') Long id) {
         checkForUnsupportedParams(params, ['id'])
-        UserQuery query = userQueryResource.get(id, currentUser)
+        UserQuery query = userQueryResource.get(id, authContext.user)
         respond toResponseMap(query)
     }
 
@@ -57,7 +56,7 @@ class UserQueryController {
         validateJson(observationsQueryString)
         validateJson(queryBlobString)
 
-        UserQuery query = userQueryResource.create(currentUser)
+        UserQuery query = userQueryResource.create(authContext.user)
         query.apiVersion = versionController.currentVersion(apiVersion)
         query.with {
             name = requestJson.name
@@ -73,8 +72,8 @@ class UserQueryController {
             query.subscriptionFreq = SubscriptionFrequency.valueOf(requestJson.subscriptionFreq)
         }
 
-        userQueryResource.save(query, currentUser)
-        userQuerySetResource.createSetWithInstances(query, patientsQueryString, currentUser)
+        userQueryResource.save(query, authContext.user)
+        userQuerySetResource.createSetWithInstances(query, patientsQueryString, authContext.user)
 
         response.status = 201
         respond toResponseMap(query)
@@ -84,7 +83,7 @@ class UserQueryController {
                @PathVariable('id') Long id) {
         def requestJson = request.JSON as Map
         checkForUnsupportedParams(requestJson, ['name', 'bookmarked', 'subscribed', 'subscriptionFreq'])
-        UserQuery query = userQueryResource.get(id, currentUser)
+        UserQuery query = userQueryResource.get(id, authContext.user)
         if (requestJson.containsKey('name')) {
             query.name = requestJson.name
         }
@@ -98,12 +97,12 @@ class UserQueryController {
             validateSubscriptionFrequency(requestJson.subscriptionFreq)
             query.subscriptionFreq = SubscriptionFrequency.valueOf(requestJson.subscriptionFreq)
         }
-        userQueryResource.save(query, currentUser)
+        userQueryResource.save(query, authContext.user)
         response.status = 204
     }
 
     def delete(@PathVariable('id') Long id) {
-        userQueryResource.delete(id, currentUser)
+        userQueryResource.delete(id, authContext.user)
         response.status = 204
     }
 

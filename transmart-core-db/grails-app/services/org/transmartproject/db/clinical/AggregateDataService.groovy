@@ -36,7 +36,6 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.ParallelPatientSetTaskService
-import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
 
 import java.util.concurrent.ConcurrentHashMap
@@ -418,7 +417,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             return aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSet(constraint, user)
         }
 
-        Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
         final List<String> studyIds = studies*.studyId
         studyIds.sort()
 
@@ -489,7 +488,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         Constraint constraintToPreCache = new TrueConstraint()
         usersResource.getUsers().each { User user ->
             log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
-            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
             def studyIds = studies*.studyId as Set
             def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
             if (notFetchedStudyIds) {

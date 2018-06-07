@@ -52,7 +52,6 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.*
 import org.transmartproject.db.multidimquery.query.*
-import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
 
 import static java.util.Objects.requireNonNull
@@ -472,8 +471,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     private List<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
-        assert user instanceof DbUser
-
         Collection<Study> userStudies = accessControlChecks.getDimensionStudiesForUser(user)
         List<Study> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
         if (!assaySupportStudies) {

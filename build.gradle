@@ -90,8 +90,8 @@ subprojects { project ->
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
-    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-legacy-db|transmart-rest-api|transmartApp|transmart-server|transmart-oauth|transmart-solr-indexing|transmart-notifications)$/) {
-        if (project.name =~ /^(transmartApp|mock-ontology-server|transmart-server|transmart-solr-indexing)$/) {
+    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-legacy-db|transmart-rest-api|transmartApp|transmart-server|transmart-oauth|transmart-solr-indexing|transmart-notifications|transmart-api-server)$/) {
+        if (project.name =~ /^(transmartApp|mock-ontology-server|transmart-server|transmart-solr-indexing|transmart-api-server)$/) {
             apply plugin: 'war'
             apply plugin: 'org.grails.grails-web'
         } else {
@@ -107,7 +107,7 @@ subprojects { project ->
             applyMavenExclusions false
         }
     }
-    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch|transmart-copy)$/) {
+    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch|transmart-copy|transmart-api-server)$/) {
         apply plugin: 'net.linguica.maven-settings'
         apply plugin: 'maven-publish'
         publishing {

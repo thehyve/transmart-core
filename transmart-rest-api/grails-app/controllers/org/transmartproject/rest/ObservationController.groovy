@@ -32,8 +32,8 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.*
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult

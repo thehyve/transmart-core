@@ -26,7 +26,6 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.concept.ConceptKey
-import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
 
 abstract class AbstractAcrossTrialsOntologyTerm
@@ -173,24 +172,5 @@ abstract class AbstractAcrossTrialsOntologyTerm
         } else {
             "\\${conceptFullName[1..-1].join '\\'}\\"
         }
-    }
-
-    @Override
-    String postProcessQuery(String sql, User userInContext) {
-        if (userInContext == null) {
-            throw new NullPointerException(
-                    "Across trial nodes need to have the user provided")
-        }
-        def accessibleStudies = userInContext.accessibleStudies
-        if (!accessibleStudies) {
-            return "$sql AND FALSE"
-        }
-
-        sql += "AND sourcesystem_cd IN "
-        sql += '(' +
-                userInContext.accessibleStudies.collect {
-                    "\'${it.id.replaceAll('\'', '\'\'')}\'"
-                }.join(', ') + ')'
-        sql
     }
 }

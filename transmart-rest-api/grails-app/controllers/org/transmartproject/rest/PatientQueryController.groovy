@@ -12,10 +12,9 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.user.User
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
@@ -43,8 +42,7 @@ class PatientQueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, user)
+        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, authContext.user)
         respond wrapPatients(apiVersion, patients)
     }
 
@@ -67,8 +65,8 @@ class PatientQueryController extends AbstractQueryController {
         checkForUnsupportedParams(params, ['id'])
 
         Constraint constraint = new PatientSetConstraint(patientIds: [id])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def patient = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, user)[0]
+        def patient = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                constraint, authContext.user)[0]
         if (patient == null) {
             throw new NoSuchResourceException("Patient not found with id ${id}.")
         }
@@ -101,9 +99,7 @@ class PatientQueryController extends AbstractQueryController {
             @PathVariable('id') Long id) {
         checkForUnsupportedParams(params, ['id'])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-
-        QueryResult patientSet = patientSetResource.findQueryResult(id, user)
+        QueryResult patientSet = patientSetResource.findQueryResult(id, authContext.user)
         def version = patientSet.queryInstance.queryMaster.apiVersion
         def constraintText = patientSet.queryInstance.queryMaster.requestConstraints
 
@@ -126,8 +122,7 @@ class PatientQueryController extends AbstractQueryController {
             @RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Iterable<QueryResult> patientSets = patientSetResource.findPatientSetQueryResults(user)
+        Iterable<QueryResult> patientSets = patientSetResource.findPatientSetQueryResults(authContext.user)
 
         respond wrapPatientSets(patientSets)
     }
@@ -176,8 +171,6 @@ class PatientQueryController extends AbstractQueryController {
 
         checkForUnsupportedParams(params, ['name', 'constraint', 'reuse'])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        
         String currentVersion = VersionController.currentVersion(apiVersion)
 
         // Canonise the constraint, to enable reuse
@@ -187,7 +180,8 @@ class PatientQueryController extends AbstractQueryController {
             reuse = false
         }
 
-        QueryResult patientSet = patientSetResource.createPatientSetQueryResult(name, constraint, user, currentVersion, reuse)
+        QueryResult patientSet = patientSetResource.createPatientSetQueryResult(name, constraint, authContext.user,
+                currentVersion, reuse)
 
         response.status = 201
         render new QueryResultWrapper(

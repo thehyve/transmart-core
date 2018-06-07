@@ -8,11 +8,9 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.ontology.StudiesResource
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.storage.LinkedFileCollection
-import org.transmartproject.db.user.User
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 
 import javax.annotation.Resource
 
@@ -29,13 +27,10 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     static responseFormats = ['json']
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     @Resource
     StudiesResource studiesResourceService
-
-    @Autowired
-    UsersResource usersResource
 
     StorageController() {
         super(LinkedFileCollection)
@@ -49,15 +44,16 @@ class StorageController extends RestfulController<LinkedFileCollection> {
             notFound()
             return
         }
-        currentUser.checkAccess(READ, fileCollection.study)
+        if (!authContext.user.canPerform(READ, fileCollection.study)) {
+            throw new AccessDeniedException()
+        }
         respond fileCollection
     }
 
     @Override
     @Transactional
     def save() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Creating new Linked File Collections " +
                     "is an admin action")
         }
@@ -81,8 +77,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     @Override
     @Transactional(readOnly = true)
     def index() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Listing all Linked File Collections " +
                     "is an admin action")
         }
@@ -94,7 +89,9 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     @Transactional(readOnly = true)
     def indexStudy(String studyId) {
         def study = Study.findByStudyId(studyId)
-        currentUser.checkAccess(READ, study)
+        if (!authContext.user.canPerform(READ, study)) {
+            throw new AccessDeniedException()
+        }
         def filesInStudy = LinkedFileCollection.findAllByStudy(study)
         def response = ['files': filesInStudy  ]
         respond response
@@ -103,8 +100,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     @Override
     //Adding @Transactional here causes stack overflow.
     def delete() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Removing a linked file entry " +
                     "is an admin action")
         }
@@ -114,8 +110,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     @Override
     @Transactional
     def update() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("updating a linked file entry " +
                     "is an admin action")
         }

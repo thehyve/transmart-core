@@ -3,9 +3,7 @@ package org.transmartproject.rest
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.user.User
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
@@ -15,10 +13,7 @@ class SystemController {
     SystemResource systemResource
 
     @Autowired
-    CurrentUser currentUser
-
-    @Autowired
-    UsersResource usersResource
+    AuthContext authContext
 
     /**
      * Clears tree node, counts caches, patient sets and bitsets,
@@ -31,11 +26,10 @@ class SystemController {
      */
     def afterDataLoadingUpdate() {
         checkForUnsupportedParams(params, [])
-        User dbUser = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!dbUser.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
-        systemResource.updateAfterDataLoading(dbUser)
+        systemResource.updateAfterDataLoading(authContext.user)
         response.status = 200
     }
 }

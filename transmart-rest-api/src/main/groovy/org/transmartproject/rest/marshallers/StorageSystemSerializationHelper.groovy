@@ -1,6 +1,5 @@
 package org.transmartproject.rest.marshallers
 
-import org.transmartproject.db.storage.LinkedFileCollection
 import org.transmartproject.db.storage.StorageSystem
 
 /**

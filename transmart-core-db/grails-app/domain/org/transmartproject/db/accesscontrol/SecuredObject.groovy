@@ -21,6 +21,8 @@ package org.transmartproject.db.accesscontrol
 
 class SecuredObject {
 
+    public static final STUDY_DATA_TYPE = 'BIO_CLINICAL_TRIAL'
+
     Long   bioDataId
     String displayName
     String dataType

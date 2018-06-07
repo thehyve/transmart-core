@@ -5,13 +5,10 @@ package org.transmartproject.rest
 import grails.converters.JSON
 import grails.rest.RestfulController
 import grails.transaction.Transactional
-import grails.web.http.HttpHeaders
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.arvados.SupportedWorkflow
-import org.transmartproject.db.user.User
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 
 import static org.springframework.http.HttpStatus.CREATED
 
@@ -24,19 +21,15 @@ class ArvadosController extends RestfulController {
         super(SupportedWorkflow)
     }
 
-    @Autowired
-    UsersResource usersResource
-
     static responseFormats = ['json']
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     @Override
     @Transactional
     def save() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException('Creating a new supported workflow is an admin action')
         }
         def instance = resource.newInstance()
@@ -63,8 +56,7 @@ class ArvadosController extends RestfulController {
 
     @Override
     def delete() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Removing a new supported workflow entry " +
                     "is an admin action")
         }
@@ -73,8 +65,7 @@ class ArvadosController extends RestfulController {
 
     @Override
     def update() {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!authContext.user.admin) {
             throw new AccessDeniedException("Modifying a supported workflow entry " +
                     "is an admin action")
         }

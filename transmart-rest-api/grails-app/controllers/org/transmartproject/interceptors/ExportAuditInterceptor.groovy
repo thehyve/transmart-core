@@ -1,12 +1,12 @@
 package org.transmartproject.interceptors
 
 import org.transmartproject.core.log.AccessLogEntryResource
-import org.transmartproject.core.users.User
+import org.transmartproject.rest.user.AuthContext
 
 class ExportAuditInterceptor {
 
     AccessLogEntryResource accessLogService
-    User currentUserBean
+    AuthContext authContext
 
     ExportAuditInterceptor(){
         match(controller: ~/export/).excludes(action: ~/listJobs/)
@@ -16,7 +16,7 @@ class ExportAuditInterceptor {
         def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
         def ip = request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr
 
-        accessLogService.report(currentUserBean, 'Export job operation',
+        accessLogService.report(authContext.user, 'Export job operation',
                 eventMessage:  "User (IP: ${ip}) made an export request.",
                 requestURL: fullUrl)
         true

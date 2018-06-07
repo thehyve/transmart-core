@@ -22,13 +22,8 @@ import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.TableConfig
-import org.transmartproject.core.dataquery.TableRetrievalParameters
-import org.transmartproject.core.multidimquery.DataRetrievalParameters
-import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.StreamingDataTable
-import org.transmartproject.core.multidimquery.PatientSetResource
+import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.serialization.*
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer

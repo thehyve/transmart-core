@@ -4,14 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
 import org.transmartproject.core.userquery.UserQuerySetResource
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class UserQuerySetController {
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     @Autowired
     UserQuerySetResource userQuerySetResource
@@ -28,7 +28,7 @@ class UserQuerySetController {
      * @return number of sets that were updated, which is also a number of created querySets
      */
     def scan() {
-        Integer result = userQuerySetResource.scan(currentUser)
+        Integer result = userQuerySetResource.scan(authContext.user)
         response.status = 201
         respond([numberOfUpdatedSets: result])
     }
@@ -46,7 +46,7 @@ class UserQuerySetController {
         def maxNumberOfSets = params.maxNumberOfSets as Integer
 
         List<UserQuerySetChangesRepresentation> querySets = userQuerySetResource.getQueryChangeHistory(queryId,
-                currentUser, maxNumberOfSets)
+                authContext.user, maxNumberOfSets)
         respond respond([querySets: querySets])
     }
 

@@ -29,8 +29,8 @@ import grails.rest.Link
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory

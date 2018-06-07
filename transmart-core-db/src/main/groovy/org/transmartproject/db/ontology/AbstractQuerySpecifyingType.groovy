@@ -28,7 +28,6 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.support.InQuery
-import org.transmartproject.db.user.User
 
 /**
  * Properties that specify queries to be made in other tables. Used by
@@ -88,10 +87,5 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         }
 
         InQuery.addIn(PatientDimension.createCriteria(), 'id', patientIdList).list()
-    }
-
-    @Override
-    String postProcessQuery(String sql, User user) {
-        sql
     }
 }
