@@ -1,0 +1,10 @@
+{
+  "realm": "transmart",
+  "bearer-only": true,
+  "auth-server-url": "http://localhost:8080/auth",
+  "ssl-required": "external",
+  "resource": "tm_client",
+  "credentials": {
+    "secret": "7034b121-fdf1-4188-9ba2-c66bee4b9867"
+  }
+}

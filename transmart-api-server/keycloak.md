@@ -59,6 +59,23 @@ Set the fields as following:
     Token Claim Name: authorities
     Claim JSON Type: String
     
+## Create an offline token
+
+In order to access Keycloak offline (e.g. by offline quartz jobs from transmart-notifications), an offline_token has to be configured. To get the token on behalf of a user, the user needs to have the role mapping for the realm-level: `"offline_access"`.
+
+    curl \
+      -d 'client_id=<CLIENT_ID>' \
+      -d 'username=<USERNAME>' \
+      -d 'password=<PASSWORD>' \
+      -d 'grant_type=password' \
+      -d 'scope=offline_access' \
+      'https://YOUR_KEYCLOAK_SERVER_HOST/auth/realms/YOUR_REALM/protocol/openid-connect/token'
+
+
+This token is used as an Refresh token, but an offline token will never expire. The token has to be configured in `application.yml` file:
+
+       keycloak:
+           offlineToken: <your-offline-token>
 
 ## Point tranmsart to the keycloak
 
