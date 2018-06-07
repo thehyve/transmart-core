@@ -2,10 +2,12 @@ package org.transmartproject.api.server.user
 
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Primary
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.stereotype.Component
+import org.transmartproject.api.server.client.CustomRestTemplate
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.*
 
@@ -20,6 +22,15 @@ class KeycloakUserResourceService implements UsersResource {
     @Autowired
     LegacyAuthorisationChecks authorisationChecks
 
+    @Autowired
+    CustomRestTemplate restTemplate
+
+    @Value('${keycloak.realm}')
+    private String realm
+
+    @Value('${keycloak.serverUrl}')
+    private String keycloakServerUrl
+
     @Override
     User getUserFromUsername(String username) throws NoSuchResourceException {
         throw new UnsupportedOperationException()
@@ -27,12 +38,23 @@ class KeycloakUserResourceService implements UsersResource {
 
     @Override
     List<User> getUsers() {
-        throw new UnsupportedOperationException()
+        def result = restTemplate.getForEntity("$keycloakServerUrl/admin/realms/$realm/users", Object.class)
+        assert result.body instanceof List
+        result.body.collect { keycloakUser ->
+            Set<String> roles = getRolesForUser(keycloakUser.id)
+            final boolean admin = roles.remove('ROLE_ADMIN')
+            Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel = buildStudyToPatientDataAccessLevel(roles)
+            new SimpleUser(keycloakUser.username,
+                    "$keycloakUser.firstName $keycloakUser.lastName",
+                    keycloakUser.email,
+                    admin,
+                    studyToPatientDataAccessLevel)
+        }
     }
 
     @Override
     List<User> getUsersWithEmailSpecified() {
-        throw new UnsupportedOperationException()
+        getUsers()?.findAll { it.email != null }
     }
 
     @Override
@@ -48,8 +70,7 @@ class KeycloakUserResourceService implements UsersResource {
         final String realName
         final String email
         if (principal instanceof OAuth2Authentication
-                && principal.userAuthentication
-                && principal.userAuthentication.details instanceof Map) {
+                && principal.userAuthentication) {
             Map details = principal.userAuthentication.details
             realName = details.name
             email = details.email
@@ -96,9 +117,31 @@ class KeycloakUserResourceService implements UsersResource {
 
         String studyToken = studyTokenToAccLvlSplit[0]
         if (!studyToken) {
-            throw new IllegalArgumentException("Emtpy study: '${studyTokenToAccLvl}'.")
+            throw new IllegalArgumentException("Empty study: '${studyTokenToAccLvl}'.")
         }
         String accessLevel = studyTokenToAccLvlSplit[1]
         new Tuple2(studyToken, PatientDataAccessLevel.valueOf(accessLevel))
     }
+
+    private Set<String> getRolesForUser(String userId) {
+        def result = restTemplate.getForEntity("$keycloakServerUrl/admin/realms/$realm/users/$userId/role-mappings",
+                Object.class)
+
+        assert result.body instanceof Map
+
+        def rolesPerClient = result.body['clientMappings']
+        def roles = []
+        rolesPerClient.each{ client, roleMap ->
+            if( client != 'realmManagement') {
+                roles.add(roleMap.mappings*.name)
+            }
+        }
+        if(roles.size() == 0) {
+            log.warn("User with id: $userId has no roles specified.")
+            return []
+        }
+
+        roles.flatten() as Set<String>
+    }
 }
+
