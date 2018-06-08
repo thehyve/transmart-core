@@ -2,9 +2,10 @@
 
 package org.transmartproject.db.ontology
 
+import grails.plugin.cache.CacheEvict
+import grails.plugin.cache.Cacheable
 import groovy.transform.CompileStatic
 import org.hibernate.criterion.CriteriaSpecification
-import org.hibernate.criterion.MatchMode
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
@@ -81,6 +82,7 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
 
     @Override
     @CompileStatic
+    @Cacheable('org.transmartproject.db.ontology.OntologyTermTagsResourceService')
     Map<String, List<OntologyTermTag>> getTags(Set<String> ontologyTermPaths) {
         if (!ontologyTermPaths) {
             return [:]
@@ -93,4 +95,15 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
 
         orderedTags.groupBy { it.ontologyTermFullName }
     }
+
+    /**
+     * Clears the tags cache. This function should be called after loading, removing or updating
+     * tags in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.ontology.OntologyTermTagsResourceService',
+            allEntries = true)
+    void clearTagsCache() {
+        log.info 'Clearing tags cache ...'
+    }
+
 }

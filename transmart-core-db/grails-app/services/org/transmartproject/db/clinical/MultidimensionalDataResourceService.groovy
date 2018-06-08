@@ -3,21 +3,23 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import grails.transaction.Transactional
-import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
-import org.apache.commons.lang.NotImplementedException
-import org.hibernate.Criteria
 import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
-import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.dataquery.PaginationParameters
+import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.dataquery.TableRetrievalParameters
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -27,10 +29,12 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.OperationNotImplementedException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -39,9 +43,7 @@ import org.transmartproject.core.multidimquery.query.QueryBuilder
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.querytool.QueryResultType
-import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.User
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
@@ -50,11 +52,9 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.*
 import org.transmartproject.db.multidimquery.query.*
-import org.transmartproject.db.querytool.*
-import org.transmartproject.db.support.ParallelPatientSetTaskService
-import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
 
+import static java.util.Objects.requireNonNull
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class MultidimensionalDataResourceService extends AbstractDataResourceService implements MultiDimensionalDataResource {
@@ -65,8 +65,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Autowired
     MDStudiesResource studiesResource
 
-    @Autowired
-    ParallelPatientSetTaskService parallelPatientSetTaskService
 
     @Override Dimension getDimension(String name) {
         def dimension = getBuiltinDimension(name)
@@ -76,30 +74,18 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         dimension
     }
 
-    @Transactional(readOnly = true)
-    @Memoized
-    QtQueryResultType getPatientSetResultType() {
-        QtQueryResultType.findById(QueryResultType.PATIENT_SET_ID)
-    }
-
     /**
-     * @param user: The current user.
-     * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
-     * the appropriate identifier string (hdd is not yet implemented).
-     * @param constraints: (nullable) A list of Constraint-s. If null, selects all the data in the database.
-     * @param dimensions: (nullable) A list of Dimension-s to select. Only dimensions valid for the selected studies
-     * will actually be applied. If null, select all available dimensions.
-     *
-     * Not yet implemented:
-     * @param sort
-     *
-     * @return a Hypercube result
+     * See the documentation for {@link MultiDimensionalDataResource#retrieveData}
      */
-    @Override HypercubeImpl retrieveData(Map args, String dataType, User user) {
+    @Override
+    HypercubeImpl retrieveData(DataRetrievalParameters args, String dataType, User user) {
         // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
         // that has not been implemented, so we only support clinical data in this call. Instead there is the
         // highDimension call that uses the old high dim api and converts the tabular result to a hypercube.
-        if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
+        if (dataType != "clinical") {
+            throw new OperationNotImplementedException(
+                    "High dimension datatypes are not yet implemented for the native hypercube")
+        }
 
         Constraint constraint = args.constraint
         Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions.collect { toDimensionImpl(it) } ?: [])
@@ -108,17 +94,35 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         // only allow valid dimensions
         dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in supportedDimensions } ?: supportedDimensions
 
-        List<DimensionImpl> orderByDimensions = ImmutableList.copyOf(args.sort.collect { toDimensionImpl(it) } ?: [])
-        assert (orderByDimensions - dimensions).empty : 'Some dimensions were not found in this result set to sort by'
+        ImmutableMap<DimensionImpl,SortOrder> orderByDimensions = ImmutableMap.copyOf(parseSort(args.sort))
+        def orphanSortDims = (orderByDimensions.keySet() - dimensions)
+        if (orphanSortDims) throw new InvalidArgumentsException("Requested ordering on dimension(s) " +
+                "${orphanSortDims.collect {it.name}.join(', ')}, which are not part of this query")
 
-        CriteriaImpl hibernateCriteria = buildCriteria(dimensions, orderByDimensions)
+        Query query = buildCriteria(dimensions, orderByDimensions)
         HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user)
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
-        restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
+        restrictionsBuilder.applyToCriteria(query.criteriaImpl, [constraint])
 
         // session will be closed by the Hypercube
-        new HypercubeImpl(dimensions, hibernateCriteria)
+        new HypercubeImpl(dimensions, query)
+    }
+
+    /**
+     * @param sort is either an ordered map of dimension -> sort order, or a list where each item is either a
+     * dimension or a two-item list [dimension, sort order]. A dimension is either a Dimension object or a string
+     * with the dimension's name. A sort order is either a member of the SortOrder enum, or a string 'asc' or 'desc'
+     * (case insensitive).
+     * @return An ordered Map<DimensionImpl, SortOrder>
+     */
+    Map<DimensionImpl, SortOrder> parseSort(List<SortSpecification> sort) {
+        if (sort == null) {
+            return [:]
+        }
+        sort.collectEntries {
+            [toDimensionImpl(it.dimension), it.sortOrder]
+        }
     }
 
     @Memoized
@@ -127,27 +131,35 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         DimensionDescription.allDimensions
     }
 
-    Set<? extends Dimension> getSupportedDimensions(Constraint constraint) {
+    Set<MDStudy> getConstraintStudies(Constraint constraint) {
         // Add any studies that are being selected on
         def studyIds = findStudyNameConstraints(constraint)*.studyId
         Set studies = (studyIds.empty ? [] : studyIds.collect { studiesResource.getStudyByStudyId(it) }) +
                 findStudyObjectConstraints(constraint)*.study as Set
+        studies
+    }
 
+    Set<Dimension> getAvailableDimensions(Iterable<MDStudy> studies) {
         //TODO Remove after adding all the dimension, added to prevent e2e tests failing
         def notImplementedDimensions = [AssayDimension, BioMarkerDimension, ProjectionDimension]
         // This throws a LegacyStudyException for non-17.1 style studies
         // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
         // buggy. And usually the studies and dimensions will be cached in memory.
-        List<Dimension> availableDimensions = studies ? studies*.dimensions.flatten()
-                : allDimensions
+        List<Dimension> availableDimensions = studies ? studies*.dimensions.flatten() : allDimensions
         ImmutableSet.copyOf availableDimensions.findAll {
             !(it.class in notImplementedDimensions)
         }
     }
 
-    private CriteriaImpl buildCriteria(Set<DimensionImpl> dimensions, List<DimensionImpl> orderByDimensions) {
-        def nonSortableDimensions = orderByDimensions.findAll { !(it instanceof AliasAwareDimension) }
-        assert !nonSortableDimensions : 'Sorting over following dimensions is not supported: ' +  nonSortableDimensions
+    Set<? extends Dimension> getSupportedDimensions(Constraint constraint) {
+        getAvailableDimensions(getConstraintStudies(constraint))
+    }
+
+    private Query buildCriteria(Set<DimensionImpl> dimensions, ImmutableMap<DimensionImpl,SortOrder> orderDims) {
+        def nonSortableDimensions = orderDims.keySet().findAll { !(it instanceof AliasAwareDimension) }
+        if (nonSortableDimensions) throw new InvalidArgumentsException("Sorting over these dimensions is not " +
+                "supported: " + nonSortableDimensions.collect {it.name}.join(','))
+        ImmutableMap<AliasAwareDimension, SortOrder> orderByDimensions = (ImmutableMap) orderDims
 
         // We need methods from different interfaces that StatelessSessionImpl implements.
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
@@ -166,13 +178,24 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             }
         }
 
-        Query query = new Query(q, [modifierCodes: ['@']])
+        Query query = new Query(q, [modifierCodes: ['@']], null)
 
         dimensions.each {
             it.selectIDs(query)
         }
-        boolean hasModifiers = dimensions.any { it.implementationType == ImplementationType.MODIFIER }
+
+        def actualSortOrder = [:]
+
+        boolean hasModifiers = dimensions.any { it instanceof ModifierDimension }
         if (hasModifiers) {
+            def nonModifierSortableDimensions = orderByDimensions.keySet().collectMany {
+                (it in modifierSortableDimensions) ? [] : [it.name] }
+            if (nonModifierSortableDimensions) {
+                def modifier = dimensions.findAll {it instanceof ModifierDimension }.collect { it.name }.join(", ")
+                throw new UnsupportedByDataTypeException("Sorting over these dimensions is not supported when querying" +
+                        " $modifier dimensions:" + nonModifierSortableDimensions.join(", "))
+            }
+
             // Make sure all primary key dimension columns are selected, even if they are not part of the result
             primaryKeyDimensions.each {
                 if (!(it in dimensions)) {
@@ -180,43 +203,61 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 }
             }
 
+            Set<AliasAwareDimension> neededPrimaryKeyDimensions = primaryKeyDimensions as Set<AliasAwareDimension>
             q.with {
                 // instanceNum is not a dimension
                 property 'instanceNum', 'instanceNum'
 
-                // Modifier dimension does not implement AliasAwareDimension interface. So it's excluded from the list.
-                (orderByDimensions + primaryKeyDimensions).unique().each { AliasAwareDimension aaDim ->
-                    order aaDim.alias
+                orderByDimensions.each { AliasAwareDimension aaDim, SortOrder so ->
+                    order(aaDim.alias, so.string())
+                    actualSortOrder[aaDim] = so
+                    neededPrimaryKeyDimensions.remove(aaDim)
                 }
-                order 'trialVisit'
+                neededPrimaryKeyDimensions.each {
+                    order it.alias
+                    actualSortOrder[it] = SortOrder.ASC
+                }
+
                 order 'instanceNum'
             }
         } else {
             q.with {
-                orderByDimensions.each { AliasAwareDimension aaDim ->
-                    order aaDim.alias
+                orderByDimensions.each { AliasAwareDimension aaDim, SortOrder so ->
+                    order(aaDim.alias, so.string())
+                    actualSortOrder[aaDim] = so
                 }
             }
         }
+        query.actualSortOrder = ImmutableMap.copyOf(actualSortOrder)
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
         }
 
-        (CriteriaImpl)query.criteria.instance
+        query
     }
 
     static final List<AliasAwareDimension> primaryKeyDimensions = ImmutableList.of(
             // primary key columns excluding modifierCd and instanceNum
             CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME)
 
-    private static DimensionImpl toDimensionImpl(dimOrDimName) {
-        if(dimOrDimName instanceof DimensionImpl) {
+    static final List<Dimension> modifierSortableDimensions = ImmutableList.of(
+            // Primary key dimensions plus those on which sorting is compatible with modifiers. This compatibility is
+            // determined at data load time: to be compatible the values in the ObservationFact columns for these
+            // dimensions must be identical for all rows that have the same primary key excluding modifier_cd, in
+            // other words for an ObservationFact value row and its associated modifier rows.
+            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME, /*TRIAL_VISIT, STUDY, END_TIME*/)
+
+    private Dimension toDimensionImpl(dimOrDimName) {
+        if (dimOrDimName instanceof DimensionImpl) {
             return dimOrDimName
         }
-        if(dimOrDimName instanceof String) {
-            def dim = DimensionDescription.findByName(dimOrDimName)?.dimension
-            if(dim == null) throw new InvalidArgumentsException("Unknown dimension: $dimOrDimName")
+        if (dimOrDimName instanceof String) {
+            def dim = allDimensions.find { it.name == dimOrDimName }
+            //def dim = DimensionDescription.findByName(dimOrDimName)?.dimension
+            if (dim == null) {
+                throw new InvalidArgumentsException("Unknown dimension: $dimOrDimName")
+            }
             return dim
         }
         throw new InvalidArgumentsException("dimension $dimOrDimName is not a valid dimension or dimension name")
@@ -242,14 +283,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
     }
 
-    /**
-     * @description Function for getting a list of elements of a specified dimension
-     * that are meeting a specified criteria and the user has access to.
-     *
-     * @param dimensionName
-     * @param user
-     * @param constraint
-     */
     @Override
     IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
         if(constraint) checkAccess(constraint, user)
@@ -257,239 +290,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
 
         return getIterable(dimensionCriteria)
-    }
-
-    /**
-     * Synchronously executes the query and tracks its progress by saving the status.
-     * @param name meaningful text for the user to find back the query results.
-     * @param user user that executes the query
-     * @param constraintText textual representation of the constraint
-     * @param apiVersion v1 or v2
-     * @param queryResultType the type of the result set.
-     * Patient set and generic query result (no assoc set) are supported at the moment.
-     * @param queryExecutor closure that actually executes the query.
-     * It gets the query result object and returns the number of the result set.
-     * It also responsible for saving all actual results.
-     * @return the query result object that does not contains result as such but rather status of execution
-     * and result instance id you might use to fetch actual results.
-     */
-    QtQueryResultInstance createQueryResult(String name,
-                                            User user,
-                                            Constraint constraint,
-                                            String apiVersion,
-                                            QtQueryResultType queryResultType,
-                                            Closure<Long> queryExecutor) {
-        // 1. Populate or reuse qt_query_master
-        Object queryMaster = createOrReuseQueryMaster(user, constraint, name, apiVersion)
-        // 2. Populate qt_query_instance
-        def queryInstance = new QtQueryInstance()
-        queryInstance.userId = user.username
-        queryInstance.groupId = Holders.grailsApplication.config.org.transmartproject.i2b2.group_id
-        queryInstance.startDate = new Date()
-        queryInstance.statusTypeId = QueryStatus.PROCESSING.id
-        queryInstance.queryMaster = queryMaster
-        queryMaster.addToQueryInstances(queryInstance)
-        queryInstance.save(failOnError: true)
-        // 3. Populate qt_query_result_instance
-        def resultInstance = new QtQueryResultInstance()
-        resultInstance.statusTypeId = QueryStatus.PROCESSING.id
-        resultInstance.startDate = new Date()
-        resultInstance.queryInstance = queryInstance
-        resultInstance.queryResultType = queryResultType
-        resultInstance.description = name
-        resultInstance.save(failOnError: true, flush: true)
-        try {
-            // 4. Execute the query
-            resultInstance.setSize = queryExecutor(resultInstance)
-
-            // 5a. Update the result
-            resultInstance.endDate = new Date()
-            resultInstance.statusTypeId = QueryStatus.FINISHED.id
-            queryInstance.endDate = new Date()
-            queryInstance.statusTypeId = QueryStatus.FINISHED.id
-        } catch (Throwable t) {
-            // 5b. Update the result with the error message
-            resultInstance.setSize = resultInstance.realSetSize = -1
-            resultInstance.errorMessage = t.message
-            resultInstance.endDate = new Date()
-            resultInstance.statusTypeId = QueryStatus.ERROR.id
-            queryInstance.endDate = new Date()
-            queryInstance.statusTypeId = QueryStatus.ERROR.id
-        }
-        resultInstance
-    }
-
-    private QtQueryMaster createOrReuseQueryMaster(User user, Constraint constraint, name, apiVersion) {
-        def constraintText = constraint.toJson()
-        def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
-                .add(Restrictions.eq('qm.userId', user.username))
-                .add(Restrictions.eq('qm.deleteFlag', 'N'))
-                .add(Restrictions.eq('qm.requestConstraints', constraintText))
-                .addOrder(Order.desc('qm.createDate'))
-
-        QtQueryMaster queryMaster = getFirst(queryMasterCriteria)
-        if (queryMaster == null) {
-            queryMaster = new QtQueryMaster()
-            queryMaster.name = name
-            queryMaster.userId = user.username
-            queryMaster.groupId = Holders.grailsApplication.config.org.transmartproject.i2b2.group_id
-            queryMaster.createDate = new Date()
-            queryMaster.requestConstraints = constraintText
-            queryMaster.apiVersion = apiVersion
-            queryMaster.save(failOnError: true)
-        }
-        return queryMaster
-    }
-
-    /**
-     * Find a query result based on a constraint.
-     * @param user the creator of the query result.
-     * @param constraint the constraint used in the lookup.
-     * @param queryResultType
-     * @return the query result if it exists; null otherwise.
-     */
-    QueryResult findQueryResultByConstraint(User user,
-                                            Constraint constraint,
-                                            QtQueryResultType queryResultType) {
-        def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
-                .createCriteria('qri.queryInstance', 'qi')
-                .createCriteria('qi.queryMaster', 'qm')
-                .add(Restrictions.eq('qri.queryResultType', queryResultType))
-                .add(Restrictions.eq('qri.deleteFlag', 'N'))
-                .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
-                .add(Restrictions.eq('qi.userId', user.username))
-                .add(Restrictions.eq('qi.deleteFlag', 'N'))
-                .add(Restrictions.eq('qm.requestConstraints', constraint.toJson()))
-                .add(Restrictions.eq('qm.deleteFlag', 'N'))
-                .addOrder(Order.desc('qri.endDate'))
-        (QueryResult)getFirst(criteria)
-    }
-
-    /**
-     * Tries to reuse query result that satisfy provided constraint for the user before creating it.
-     * @return A new one or reused query result.
-     */
-    QueryResult createOrReuseQueryResult(String name,
-                                             User user,
-                                             Constraint constraint,
-                                             String apiVersion,
-                                             QtQueryResultType queryResultType,
-                                             Closure<Long> queryExecutor) {
-
-        QueryResult result = findQueryResultByConstraint(user, constraint, queryResultType) ?:
-                createQueryResult(name, user, constraint, apiVersion, queryResultType, queryExecutor)
-        if (result.status != QueryStatus.FINISHED) {
-            throw new UnexpectedResultException('Query not finished.')
-        }
-        result
-    }
-
-    /**
-     * @description Function for creating a patient set consisting of patients for which there are observations
-     * that are specified by <code>query</code>.
-     *
-     * FIXME: this implementation was copied from QueriesResourceService.runQuery and modified. The two copies should
-     * be folded together.
-     *
-     * @param query
-     * @param user
-     */
-    @Override
-    @Transactional
-    QueryResult createPatientSetQueryResult(String name,
-                                            Constraint constraint,
-                                            User user,
-                                            String apiVersion) {
-        checkAccess(constraint, user)
-
-        createQueryResult(
-                name,
-                user,
-                constraint,
-                apiVersion,
-                patientSetResultType,
-                { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
-        )
-    }
-
-    /**
-     * The same as {@link this.createPatientSetQueryResult}, but first ties to reuse existing patient set that satisfies
-     * provided constraints
-     * @return A new ore reused patient set.
-     */
-    @Override
-    @Transactional
-    QueryResult createOrReusePatientSetQueryResult(String name,
-                                            Constraint constraint,
-                                            User user,
-                                            String apiVersion) {
-        checkAccess(constraint, user)
-
-        createOrReuseQueryResult(
-                name,
-                user,
-                constraint,
-                apiVersion,
-                patientSetResultType,
-                { QtQueryResultInstance queryResult -> populatePatientSetQueryResult(queryResult, constraint, user) }
-        )
-    }
-
-    /**
-     * Populates given query result with patient set that satisfy provided constraints with regards with user access rights.
-     * @param queryResult query result to populate with patients
-     * @param constraint constraint to get results that satisfy it
-     * @param user user for whom to execute the patient set query. Result will depend on the user access rights.
-     * @return Number of patients inserted in the patient set
-     */
-    @CompileStatic
-    private Integer populatePatientSetQueryResult(QtQueryResultInstance queryResult, Constraint constraint, User user) {
-        assert queryResult
-        assert queryResult.id
-
-        DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user).buildCriteria(constraint)
-                .setProjection(
-                Projections.projectionList()
-                        .add(Projections.distinct(Projections.property('patient.id')), 'pid')
-                        .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
-                        [StandardBasicTypes.LONG] as org.hibernate.type.Type[])))
-
-        Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
-        return HibernateUtils
-                .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
-    }
-
-    @Override
-    QueryResult findQueryResult(Long queryResultId, User user) {
-        def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
-                .createCriteria('qri.queryInstance', 'qi')
-                .createCriteria('qi.queryMaster', 'qm')
-                .add(Restrictions.eq('qri.queryResultType.id', QueryResultType.PATIENT_SET_ID))
-                .add(Restrictions.eq('qri.deleteFlag', 'N'))
-                .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
-                .add(Restrictions.eq('qi.userId', user.username))
-                .add(Restrictions.eq('qi.deleteFlag', 'N'))
-                .add(Restrictions.eq('qm.deleteFlag', 'N'))
-                .add(Restrictions.eq('qri.id', queryResultId))
-        def queryResult = getFirst(criteria) as QtQueryResultInstance
-        if (queryResult == null) {
-            throw new NoSuchResourceException("Patient set not found with id ${queryResultId} for user ${user.username}.")
-        }
-        queryResult
-    }
-
-    @Override
-    Iterable<QueryResult> findPatientSetQueryResults(User user) {
-        def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
-                .createCriteria('qri.queryInstance', 'qi')
-                .createCriteria('qi.queryMaster', 'qm')
-                .add(Restrictions.eq('qri.queryResultType.id', QueryResultType.PATIENT_SET_ID))
-                .add(Restrictions.eq('qri.deleteFlag', 'N'))
-                .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
-                .add(Restrictions.eq('qi.userId', user.username))
-                .add(Restrictions.eq('qi.deleteFlag', 'N'))
-                .add(Restrictions.eq('qm.deleteFlag', 'N'))
-        return getIterable(criteria)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
@@ -582,7 +382,72 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    List retrieveHighDimDataTypes(Constraint assayConstraint, User user){
+    PagingDataTableImpl retrieveDataTablePage(TableConfig tableConfig, PaginationParameters pagination, String type, Constraint constraint, User user) {
+        TableRetrievalParameters args = parseDataTableArgs(tableConfig, type, constraint)
+        Hypercube cube = retrieveClinicalData(args.dataRetrievalParameters, user)
+        return new PagingDataTableImpl(args, pagination, cube)
+    }
+
+    @Override
+    FullDataTable retrieveStreamingDataTable(TableConfig tableConfig, String type, Constraint constraint, User user) {
+        TableRetrievalParameters args = parseDataTableArgs(tableConfig, type, constraint)
+        Hypercube cube = retrieveClinicalData(args.dataRetrievalParameters, user)
+        return new FullDataTable(args, cube)
+    }
+
+    private TableRetrievalParameters parseDataTableArgs(TableConfig tableConfig, String type, Constraint constraint) {
+        if (type != 'clinical') {
+            throw new OperationNotImplementedException("High dimensional data is not supported in data table format")
+        }
+
+        List<SortSpecification> rowSort = tableConfig.rowSort ?: []
+        List<SortSpecification> columnSort = tableConfig.columnSort ?: []
+        requireNonNull(tableConfig.rowDimensions)
+        def rowDimensions = tableConfig.rowDimensions
+        requireNonNull(tableConfig.columnDimensions)
+        def columnDimensions = tableConfig.columnDimensions
+
+        def rowSortDimensions = (rowSort ? rowSort.dimension : []) as Set
+        def invalidRowSorts = rowSort ? rowSortDimensions - rowDimensions : null
+        if (invalidRowSorts) {
+            throw new InvalidArgumentsException("Only dimensions specified in rowDimensions can be " +
+                    "specified in rowSort: "+invalidRowSorts.join(', '))
+        }
+        def columnSortDimensions = (columnSort ? columnSort.dimension : []) as Set
+        def invalidColumnSorts = columnSort ? columnSortDimensions - columnDimensions : null
+        if (invalidColumnSorts) {
+            throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
+                    " be specified in columnSort: ${invalidColumnSorts.join(', ')}")
+        }
+
+        def userSort = rowSort + columnSort
+
+        for (def dim : rowDimensions) {
+            if (!rowSortDimensions.contains(dim)) {
+                rowSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
+            }
+        }
+        for (def dim : columnDimensions) {
+            if (!columnSortDimensions.contains(dim)) {
+                columnSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
+            }
+        }
+
+        def sort = rowSort + columnSort
+        def dimensions = rowDimensions + columnDimensions
+        def dataRetrievalParameters = new DataRetrievalParameters(constraint: constraint, dimensions: dimensions, sort: sort)
+
+        new TableRetrievalParameters(
+                dataRetrievalParameters: dataRetrievalParameters,
+                rowDimensions: rowDimensions.collect { toDimensionImpl(it) },
+                columnDimensions: columnDimensions.collect { toDimensionImpl(it) },
+                userSort: userSort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] },
+                sort: sort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] }
+        )
+    }
+
+    @Override
+    List retrieveHighDimDataTypes(Constraint assayConstraint, User user) {
         assert assayConstraint instanceof Constraint
         checkAccess(assayConstraint, user)
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
@@ -606,8 +471,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     private List<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
-        assert user instanceof DbUser
-
         Collection<Study> userStudies = accessControlChecks.getDimensionStudiesForUser(user)
         List<Study> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
         if (!assaySupportStudies) {
@@ -636,11 +499,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     @Override
-    Hypercube retrieveClinicalData(Constraint constraint, User user, List<Dimension> orderByDimensions = []) {
-        assert constraint instanceof Constraint
-        checkAccess(constraint, user)
+    Hypercube retrieveClinicalData(Constraint constraint, User user) {
+        retrieveClinicalData(new DataRetrievalParameters(constraint: constraint), user)
+    }
+
+    @Override
+    Hypercube retrieveClinicalData(DataRetrievalParameters args, User user) {
+        checkAccess(args.constraint, user)
         def dataType = 'clinical'
-        retrieveData(dataType, user, constraint: constraint, sort: orderByDimensions)
+        retrieveData(args, dataType, user)
     }
 
 }
@@ -649,5 +516,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 class Query {
     HibernateCriteriaBuilder criteria
     Map params
+    ImmutableMap<DimensionImpl,SortOrder> actualSortOrder
+
+    CriteriaImpl getCriteriaImpl() { (CriteriaImpl) criteria.instance }
 }
 

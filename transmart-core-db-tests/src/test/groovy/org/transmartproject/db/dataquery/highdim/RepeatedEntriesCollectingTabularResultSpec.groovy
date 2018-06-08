@@ -61,14 +61,12 @@ class RepeatedEntriesCollectingTabularResultSpec extends Specification {
     }
 
     void testCollect() {
-        def result = new RepeatedEntriesCollectingTabularResult(
-                tabularResult: tabularResult,
-                collectBy: { it.label },
-                resultItem: { collection ->
-                    [getLabel: collection*.label.join('|')] as AbstractDataRow
-                }
-        )
-
+        def result = new RepeatedEntriesCollectingTabularResult(tabularResult) {
+            def collectBy(it) { it.label }
+            AbstractDataRow resultItem(List collection) {
+                [getLabel: collection*.label.join('|')] as AbstractDataRow
+            }
+        }
         def resultList = Lists.newArrayList result
 
         expect:

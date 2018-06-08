@@ -6,7 +6,10 @@ import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
-import org.transmartproject.core.dataquery.*
+import org.transmartproject.core.dataquery.DataColumn
+import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.ontology.VariableDataType
@@ -30,10 +33,11 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         label?.replaceAll(/[^a-zA-Z0-9_.]/, '_')
     }
 
-    static writeSavFile(ImmutableList<DataColumn> columns, File workingDir, File tsvDataFile, ZipOutputStream zipOutStream) {
+    static writeSavFile(ImmutableList<DataColumn> columns, File workingDir, File tsvDataFile,
+                        ZipOutputStream zipOutStream, String savFileName, String spssDirectoryName) {
         def stopWatch = new StopWatch('Converting to SAV')
         stopWatch.start('Write TSV to zip')
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.tsv'))
+        zipOutStream.putNextEntry(new ZipEntry("${spssDirectoryName}/data.tsv"))
         tsvDataFile.withInputStream { stream ->
             zipOutStream << stream
         }
@@ -44,9 +48,9 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         stopWatch.start('Write SPS')
         def spsFile = new File(workingDir, 'data.sps')
         spsFile.withOutputStream { outputStream ->
-            writeSpsFile(columns, outputStream, tsvDataFile.path, 'data.sav')
+            writeSpsFile(columns, outputStream, tsvDataFile.path, "${savFileName}.sav")
         }
-        zipOutStream.putNextEntry(new ZipEntry('spss/data.sps'))
+        zipOutStream.putNextEntry(new ZipEntry("${spssDirectoryName}/data.sps"))
         spsFile.withInputStream { stream ->
             zipOutStream << stream
         }
@@ -59,11 +63,11 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 def process = command.execute()
                 process.waitForProcessOutput()
                 if (process.exitValue() != 0) {
-                    log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+                    log.warn "PSPP not available. Skip saving of ${spssDirectoryName}/${savFileName}.sav."
                     return
                 }
             } catch(IOException e) {
-                log.warn 'PSPP not available. Skip saving of spss/data.sav.'
+                log.warn "PSPP not available. Skip saving of ${spssDirectoryName}/${savFileName}.sav."
                 return
             }
 
@@ -80,8 +84,8 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 throw new UnexpectedResultException("PSPP error: ${errStream.toString()}")
             }
             log.debug "PSPP completed."
-            def savFile = new File(workingDir, 'data.sav')
-            zipOutStream.putNextEntry(new ZipEntry('spss/data.sav'))
+            def savFile = new File(workingDir, "${savFileName}.sav")
+            zipOutStream.putNextEntry(new ZipEntry("${spssDirectoryName}/${savFileName}.sav"))
             savFile.withInputStream { inputStream ->
                 zipOutStream << inputStream
             }
@@ -115,7 +119,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                         32*1024),
                 COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
         Iterator<DataRow> rows = tabularResult.rows
-        while(rows.hasNext()) {
+        while (rows.hasNext()) {
             DataRow row = rows.next()
             List<Object> valuesRow = columns.stream().map({ DataColumn column -> row[column] }).collect(Collectors.toList())
             csvWriter.writeNext(formatRowValues(valuesRow))
@@ -133,7 +137,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             } else {
                 value.toString()
             }
-        }).toArray()
+        }).collect(Collectors.toList()).toArray(new String[0])
     }
 
     static writeSpsFile(List<DataColumn> columnList,
@@ -264,6 +268,8 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     final User user
     final ZipOutputStream zipOutputStream
     final File workingDir
+    final String fileName
+    final String spssDirectoryName
     final ImmutableList<DataColumn> columns
     final SortedMap<Integer, File> dataFiles = Collections.synchronizedSortedMap([:] as TreeMap)
     final SortedMap<Integer, File> errorFiles = Collections.synchronizedSortedMap([:] as TreeMap)
@@ -276,7 +282,8 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
      * will be used for temporary files.
      * @param zipOutStream the stream to write to.
      */
-    TabularResultSPSSSerializer(User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
+    TabularResultSPSSSerializer(User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns,
+                                String fileName) {
         this.user = user
         this.zipOutputStream = zipOutputStream
         if (!columns) {
@@ -284,6 +291,8 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         }
         this.columns = columns
         this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
+        this.fileName = fileName
+        this.spssDirectoryName = "${fileName}_spss"
     }
 
     @Override
@@ -326,13 +335,13 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                     }
                 }
             }
-            writeSavFile(columns, workingDir, tsvDataFile, zipOutputStream)
+            writeSavFile(columns, workingDir, tsvDataFile, zipOutputStream, fileName, spssDirectoryName)
         } catch(Exception e) {
-            zipOutputStream.putNextEntry(new ZipEntry('spss/data.sav.err'))
+            zipOutputStream.putNextEntry(new ZipEntry("${spssDirectoryName}/${fileName}.sav.err"))
             zipOutputStream << e.message
             zipOutputStream.closeEntry()
             for (File errorFile: errorFiles.values()) {
-                zipOutputStream.putNextEntry(new ZipEntry("spss/${errorFile.name}"))
+                zipOutputStream.putNextEntry(new ZipEntry("${spssDirectoryName}/${errorFile.name}"))
                 errorFile.withInputStream { inputStream ->
                     zipOutputStream << inputStream
                 }

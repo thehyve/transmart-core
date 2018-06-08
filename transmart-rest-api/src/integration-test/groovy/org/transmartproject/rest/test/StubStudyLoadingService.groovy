@@ -28,7 +28,6 @@ package org.transmartproject.rest.test
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.ontology.StudyAccess
 import org.transmartproject.db.ontology.StudyAccessImpl
 import org.transmartproject.rest.StudyLoadingService
 

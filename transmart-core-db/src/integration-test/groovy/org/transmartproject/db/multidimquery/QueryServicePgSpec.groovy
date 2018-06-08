@@ -26,7 +26,10 @@ import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryInstance
+import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
@@ -47,6 +50,8 @@ class QueryServicePgSpec extends Specification {
     @Autowired
     AggregateDataResource aggregateDataResource
 
+    @Autowired
+    PatientSetService patientSetResource
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
@@ -150,7 +155,7 @@ class QueryServicePgSpec extends Specification {
 
         hypercube.dimensionElements(ASSAY).size() == 1
         def patient = hypercube.dimensionElement(PATIENT, 0)
-        patient.id == -601
+        patient.subjectIds.get('SUBJ_ID') == 'CTHD:601'
         patient.age == 26
 
         cleanup:
@@ -341,7 +346,7 @@ class QueryServicePgSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(subjectIdConstraint, user)
         then:
         hypercube.dimensionElements(PATIENT).size() == 1
-        hypercube.dimensionElements(PATIENT).first().id == -3002L
+        hypercube.dimensionElements(PATIENT).first().subjectIds.get('SUBJ_ID') == '2'
 
         cleanup:
         if (hypercube) hypercube.close()
@@ -476,10 +481,11 @@ class QueryServicePgSpec extends Specification {
                 '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        QueryResult patientSetQueryResult = multiDimService.createPatientSetQueryResult("Test set",
+        QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult("Test set",
                 constraint,
                 user,
-                'v2')
+                'v2',
+                false)
 
         then:
         patientSetQueryResult.id > 0
@@ -501,20 +507,54 @@ class QueryServicePgSpec extends Specification {
         ConceptConstraint constraint = new ConceptConstraint(path:
                 '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
-        QueryResult patientSetQueryResult1 = multiDimService.createOrReusePatientSetQueryResult("Test set",
+        QueryResult patientSetQueryResult1 = patientSetResource.createPatientSetQueryResult("Test set",
                 constraint,
                 user,
-                'v2')
+                'v2',
+                true)
 
         when:
-        QueryResult patientSetQueryResult2 = multiDimService.createOrReusePatientSetQueryResult("Test set 2",
+        QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
                 constraint,
                 user,
-                'v2')
+                'v2',
+                true)
 
         then:
         patientSetQueryResult1 == patientSetQueryResult2
     }
+
+    void "clear all patient sets"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        patientSetResource.createPatientSetQueryResult("Test set", constraint, user,'v2', true)
+        def patientSetCollectionsCount = QtPatientSetCollection.findAll().size()
+        def queryResultInstancesCount = QtQueryResultInstance.findAll().size()
+        def queryInstancesCount = QtQueryInstance.findAll().size()
+        def queryMastersCount = QtQueryMaster.findAll().size()
+
+        when:
+        patientSetResource.clearPatientSets()
+        def newPatientSetCollectionsCount = QtPatientSetCollection.findAll().size()
+        def newQueryResultInstancesCount = QtQueryResultInstance.findAll().size()
+        def newQueryInstancesCount = QtQueryInstance.findAll().size()
+        def newQueryMastersCount = QtQueryMaster.findAll().size()
+
+        then:
+        newPatientSetCollectionsCount < patientSetCollectionsCount
+        newQueryResultInstancesCount < queryResultInstancesCount
+        newQueryInstancesCount < queryInstancesCount
+        newQueryMastersCount == queryMastersCount
+
+        newPatientSetCollectionsCount == 0
+        newQueryResultInstancesCount == 0
+        newQueryInstancesCount == 0
+        newQueryMastersCount > 0
+    }
+
 
     void "test large text values (raw data type)"() {
         def user = User.findByUsername('test-public-user-1')
@@ -608,6 +648,39 @@ class QueryServicePgSpec extends Specification {
         // in this case the selected patient sets (and, hence, the observation sets)
         // happen to be disjoint, so the result should equal to the sum of the separate queries
         multipleSubselectResult.size() == subselectResult1.size() + subselectResult2.size()
+    }
+
+    void 'test numerical constraints'() {
+        given: 'a constraint for temperature readings'
+        def user = User.findByUsername('test-public-user-2')
+
+        Constraint temperature = new ConceptConstraint('VSIGN:TEMP')
+
+        when: 'retrieving aggregates for the concept'
+        def aggregates = aggregateDataResource.numericalValueAggregatesPerConcept(temperature, user)
+
+        then: 'the aggregates match expected values'
+        aggregates['VSIGN:TEMP'].count == 7
+        aggregates['VSIGN:TEMP'].min == 55
+        aggregates['VSIGN:TEMP'].max == 89
+
+        when: 'restricting to values < 82'
+        Constraint lessThan = new AndConstraint([temperature, new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN, 82)])
+        def aggregates2 = aggregateDataResource.numericalValueAggregatesPerConcept(lessThan, user)
+
+        then: 'the aggregates differ from the previous accordingly'
+        aggregates2['VSIGN:TEMP'].count == 4
+        aggregates2['VSIGN:TEMP'].min == 55
+        aggregates2['VSIGN:TEMP'].max == 81
+
+        when: 'restricting to values <= 82'
+        Constraint lessThanOrEquals = new AndConstraint([temperature, new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN_OR_EQUALS, 82)])
+        def aggregates3 = aggregateDataResource.numericalValueAggregatesPerConcept(lessThanOrEquals, user)
+
+        then: 'the aggregates differ from the previous accordingly'
+        aggregates3['VSIGN:TEMP'].count == 6
+        aggregates3['VSIGN:TEMP'].min == 55
+        aggregates3['VSIGN:TEMP'].max == 82
     }
 
 }

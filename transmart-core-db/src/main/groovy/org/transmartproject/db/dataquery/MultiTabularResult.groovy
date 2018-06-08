@@ -19,6 +19,7 @@
 package org.transmartproject.db.dataquery
 
 import groovy.transform.CompileStatic
+import groovy.transform.InheritConstructors
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 
 /**
@@ -36,7 +37,8 @@ import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
  * @param < R > the type for the rows
  */
 @CompileStatic
-class MultiTabularResult<C, R extends ColumnOrderAwareDataRow> extends CollectingTabularResult {
+@InheritConstructors
+abstract class MultiTabularResult<C, R extends ColumnOrderAwareDataRow> extends CollectingTabularResult {
     final String columnEntityName = 'assay'
     protected void finalizeCollectedEntries(ArrayList collectedEntries) {
             return

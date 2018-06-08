@@ -4,18 +4,20 @@ import grails.converters.JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
-import org.transmartproject.db.user.User
+import org.transmartproject.core.users.User
+import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
+import org.transmartproject.rest.serialization.ExportJobRepresentation
+
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class ExportController {
@@ -25,9 +27,7 @@ class ExportController {
     @Autowired
     ExportAsyncJobService exportAsyncJobService
     @Autowired
-    CurrentUser currentUser
-    @Autowired
-    UsersResource usersResource
+    AuthContext authContext
     @Autowired
     MultiDimensionalDataResource multiDimService
 
@@ -43,7 +43,7 @@ class ExportController {
     def createJob(@RequestParam('name') String name) {
         checkForUnsupportedParams(params, ['name'])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def user = authContext.user
         checkJobNameUnique(name, user)
 
         def instance = exportAsyncJobService.createNewJob(user, name)
@@ -56,12 +56,18 @@ class ExportController {
      * Request body:
      * <code>
      * {
-     *      criteria: <criteria json>
+     *      constraint: <constraint json>
      *      elements: {
      *          dataType: "<clinical/mrna/...>" //supported data type
      *          format: "<TSV/SPSS/...>" //supported file format
      *          dataView: "<data view>" //optional
      *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
+     *      }
+     *      tableConfig: { //additional config, required for the data table export
+     *          rowDimensions: [ "<list of dimension names>" ] //specifies the row dimensions of the data table
+     *          columnDimensions: [ "<list of dimension names>" ] //specifies the column dimensions of the data table
+     *          rowSort: [ "<list of sort specifications>" ] // Json list of sort specifications for the row dimensions
+     *          columnSort: [ "<list of sort specifications>" ] // Json list of sort specifications for the column dimensions
      *      }
      * }
      * </code>
@@ -75,31 +81,18 @@ class ExportController {
      */
     def run(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        def requestBody = request.JSON as Map
-        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint', 'includeMeasurementDateColumns']
-        if (notSupportedFields) {
-            throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
+
+        def exportJob = BindingHelper.read(request.inputStream, ExportJobRepresentation.class)
+
+        if (exportJob.elements.any { it.dataView == 'dataTable' }) {
+            if (!exportJob.tableConfig) {
+                throw new InvalidArgumentsException("No tableConfig provided.")
+            }
         }
-        if (!requestBody.constraint) {
-            throw new InvalidArgumentsException("No constraint provided.")
-        }
-        if (!requestBody.elements) {
-            throw new InvalidArgumentsException("No elements provided.")
-        }
-        if ('includeMeasurementDateColumns' in requestBody
-                && !(requestBody.includeMeasurementDateColumns instanceof Boolean)) {
-            throw new InvalidArgumentsException("includeMeasurementDateColumns parameter has to be of boolean type.")
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def user = authContext.user
         checkJobAccess(jobId, user)
-        if (!requestBody.elements) {
-            throw new InvalidArgumentsException('Empty elements map.')
-        }
 
-        Constraint constraint = ConstraintFactory.create(requestBody.constraint).normalise()
-
-        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId,
-                includeMeasurementDateColumns: requestBody.includeMeasurementDateColumns)
+        def job = exportAsyncJobService.exportData(exportJob, user, jobId)
 
         render wrapExportJob(job) as JSON
     }
@@ -147,8 +140,7 @@ class ExportController {
      */
     def download(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        checkJobAccess(jobId, user)
+        checkJobAccess(jobId, authContext.user)
 
         def job = exportAsyncJobService.getJobById(jobId)
         InputStream inputStream = restExportService.downloadFile(job)
@@ -181,8 +173,7 @@ class ExportController {
      */
     def listJobs() {
         checkForUnsupportedParams(params, [])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def results = exportAsyncJobService.getJobList(user)
+        def results = exportAsyncJobService.getJobList(authContext.user)
         render wrapExportJobs(results) as JSON
     }
 
@@ -197,10 +188,9 @@ class ExportController {
     def dataFormats() {
         def requestBody = request.JSON as Map
         checkForUnsupportedParams(params, ['constraint'])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         Constraint constraint = ConstraintFactory.create(requestBody.constraint)
-        def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, user)
+        def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, authContext.user)
         def results = [
                 dataFormats: formats
         ]

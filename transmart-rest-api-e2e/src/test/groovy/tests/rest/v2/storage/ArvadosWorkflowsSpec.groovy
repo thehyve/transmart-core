@@ -98,7 +98,6 @@ class ArvadosWorkflowsSpec extends RESTSpec {
     /**
      *  post invalid
      */
-    //TODO: could do with a better error
     def "post invalid values"() {
         given:
         def request = [
@@ -111,7 +110,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                                     "arvadosVersion"    : null,
                                     "defaultParams"     : null
                 ]),
-                statusCode: 500,
+                statusCode: 422,
                 user      : ADMIN_USER
         ]
 
@@ -119,29 +118,24 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         def responseData = post(request)
 
         then:
-        assert responseData.httpStatus == 500
-//        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.ArvadosController'
-//        assert responseData.type == 'MissingPropertyException'
+        assert responseData.errors
     }
 
     /**
      *  post empty
      */
-    //TODO: could do with a better error
     def "post empty"() {
         when:
         def responseData = post([
                 path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: JSON,
                 body      : null,
-                statusCode: 500,
+                statusCode: 422,
                 user      : ADMIN_USER
         ])
 
         then:
-        assert responseData.httpStatus == 500
-//        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.ArvadosController'
-//        assert responseData.type == 'MissingPropertyException'
+        assert responseData.errors
     }
 
     /**
@@ -258,7 +252,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
 
         then:
         assert responseData.httpStatus == 403
-        assert responseData.message == 'Creating a new supported workflowis an admin action'
+        assert responseData.message == 'Creating a new supported workflow is an admin action'
         assert responseData.type == 'AccessDeniedException'
 
         when:

@@ -33,7 +33,6 @@ import org.transmartproject.core.multidimquery.query.TimeConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.db.querytool.QtQueryResultInstance
-import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -93,27 +92,29 @@ class AbstractDataResourceService {
             } else if (!constraint.conceptCode && !constraint.conceptCodes && !constraint.path) {
                 throw new InvalidQueryException("Expected one of path and conceptCode(s), got none.")
             } else if (constraint.conceptCode) {
-                if (!accessControlChecks.checkConceptAccess((DbUser)user, conceptCode: constraint.conceptCode)) {
+                if (!accessControlChecks.checkConceptAccess(user, conceptCode: constraint.conceptCode)) {
                     throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
                 }
             } else if (constraint.conceptCodes) {
                 for (String conceptCode: constraint.conceptCodes) {
-                    if (!accessControlChecks.checkConceptAccess((DbUser)user, conceptCode: conceptCode)) {
+                    if (!accessControlChecks.checkConceptAccess(user, conceptCode: conceptCode)) {
                         throw new AccessDeniedException("Access denied to concept code: ${conceptCode}")
                     }
                 }
             } else {
-                if (!accessControlChecks.checkConceptAccess((DbUser)user, conceptPath: constraint.path)) {
+                if (!accessControlChecks.checkConceptAccess(user, conceptPath: constraint.path)) {
                     throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
                 }
             }
         } else if (constraint instanceof StudyNameConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
-            if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+            def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
+            if (study == null || !user.canPerform(mostLimitedOperation, study)) {
                 throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
-            if (constraint.study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
+            def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
+            if (constraint.study == null || !user.canPerform(mostLimitedOperation, constraint.study)) {
                 throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.study?.name}")
             }
         } else {
@@ -122,9 +123,9 @@ class AbstractDataResourceService {
     }
 
     protected HibernateCriteriaQueryBuilder getCheckedQueryBuilder(User user) {
-        def unlimitedStudiesAccess = accessControlChecks.hasUnlimitedStudiesAccess((DbUser)user)
+        def unlimitedStudiesAccess = accessControlChecks.hasUnlimitedStudiesAccess(user)
         unlimitedStudiesAccess ? HibernateCriteriaQueryBuilder.forAllStudies() :
-                HibernateCriteriaQueryBuilder.forStudies(accessControlChecks.getDimensionStudiesForUser((DbUser)user))
+                HibernateCriteriaQueryBuilder.forStudies(accessControlChecks.getDimensionStudiesForUser(user))
     }
 
     protected Object getFirst(DetachedCriteria criteria) {

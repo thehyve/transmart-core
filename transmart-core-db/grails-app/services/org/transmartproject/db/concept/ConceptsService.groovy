@@ -13,7 +13,6 @@ import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
@@ -25,9 +24,6 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
-
-    @Autowired
-    UsersResource usersResource
 
     /**
      * This map is populated with a mapping from concept paths to concept codes
@@ -64,23 +60,21 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
 
     @Override
     List<Concept> getConcepts(User user) {
-        org.transmartproject.db.user.User dbUser = (org.transmartproject.db.user.User) usersResource.getUserFromUsername(user.username)
-        if (dbUser.admin) {
+        if (user.admin) {
             return ConceptDimension.findAll()
         } else {
-            return multiDimService.getDimensionElements(multiDimService.getDimension('concept'), new TrueConstraint(), dbUser).asList()
+            return multiDimService.getDimensionElements(multiDimService.getDimension('concept'), new TrueConstraint(), user).asList()
         }
     }
 
     @Override
     Concept getConceptByConceptCodeForUser(String conceptCode, User user) throws NoSuchResourceException {
-        org.transmartproject.db.user.User dbUser = (org.transmartproject.db.user.User) usersResource.getUserFromUsername(user.username)
         Concept concept = null
-        if (dbUser.admin) {
+        if (user.admin) {
             concept = ConceptDimension.findByConceptCode(conceptCode)
         } else {
             def constraint = new ConceptConstraint(conceptCode: conceptCode)
-            Iterable<Concept> concepts = multiDimService.getDimensionElements(multiDimService.getDimension('concept'), constraint, dbUser)
+            Iterable<Concept> concepts = multiDimService.getDimensionElements(multiDimService.getDimension('concept'), constraint, user)
             def iterator = concepts.iterator()
             if (iterator.hasNext()) {
                 concept = iterator.next()

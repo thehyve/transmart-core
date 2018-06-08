@@ -54,11 +54,11 @@ class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
 
     void testUserAdmin() {
         setupData()
-        def user = users[0].username // first user is admin
+        def admin = users[0]
         def definition = definitionForItem(
                 new Item(conceptKey: AGE_AT_DIAGNOSIS_NODE))
 
-        def result = queriesResourceService.runQuery definition, user
+        def result = queriesResourceService.runQuery definition, admin
         // has all patients
         expect:
         that(result.patients, containsInAnyOrder(
@@ -67,7 +67,7 @@ class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
 
     void testUserAdminWithConstraint() {
         setupData()
-        def user = users[0].username // first user is admin
+        def admin = users[0]
         def definition = definitionForItem(
                 new Item(conceptKey: AGE_AT_DIAGNOSIS_NODE,
                         constraint: new ConstraintByValue(
@@ -76,7 +76,7 @@ class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
                                 constraint: '2101 and 2201'
                         )))
 
-        def result = queriesResourceService.runQuery definition, user
+        def result = queriesResourceService.runQuery definition, admin
 
         def patients = testData.facts.findAll {
             it.numberValue == 2101.0 || it.numberValue == 2201.0
@@ -91,7 +91,7 @@ class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
     void testUserWithNoAccessToStudy2() {
         setupData()
         // 4th user has no access to study 2
-        def user = users[3].username
+        def user = users[3]
         def definition = definitionForItem(
                 new Item(conceptKey: AGE_AT_DIAGNOSIS_NODE))
 
@@ -105,18 +105,6 @@ class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
 
         result.patients
         containsInAnyOrder(patients.collect { is it })
-    }
-
-    void testAcrossTrialsQueryNeedsUser() {
-        setupData()
-        def definition = definitionForItem(
-                new Item(conceptKey: AGE_AT_DIAGNOSIS_NODE,))
-
-        def result = queriesResourceService.runQuery(definition)
-
-        expect:
-        result allOf(
-                hasProperty('status', equalTo(QueryStatus.ERROR)))
     }
 
     QueryDefinition definitionForItem(Item item) {

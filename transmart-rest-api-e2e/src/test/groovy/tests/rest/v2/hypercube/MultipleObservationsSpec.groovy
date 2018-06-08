@@ -29,7 +29,7 @@ class MultipleObservationsSpec extends RESTSpec {
                         type    : Combination,
                         operator: AND,
                         args    : [
-                                [type: PatientSetConstraint, patientIds: [-62]],
+                                [type: PatientSetConstraint, subjectIds: ['EHR:62']],
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                         ]
                 ])
@@ -144,7 +144,7 @@ class MultipleObservationsSpec extends RESTSpec {
                         type    : Combination,
                         operator: AND,
                         args    : [
-                                [type: PatientSetConstraint, patientIds: [-62, -42]],
+                                [type: PatientSetConstraint, subjectIds: ['EHR:62', 'EHR:42']],
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                         ]
                 ])
@@ -157,11 +157,10 @@ class MultipleObservationsSpec extends RESTSpec {
         then: "6 obsevations are returned"
 
         assert selector.cellCount == 6
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-            assert selector.select(it, "patient", "age", 'Int') == (it < 3 ? 30 : 52)
-            assert [60, 59, 80, 78, 56, 102].contains(selector.select(it) as int)
-        }
+        (0..<selector.cellCount).collect { selector.select(it, "concept", "conceptCode", 'String') } as Set == ['EHR:VSIGN:HR'] as Set
+        (0..<selector.cellCount).collect {
+            [selector.select(it, "patient", "age", 'Int'), selector.select(it) as int] } as Set ==
+                [[30, 60], [30, 59], [30, 80], [52, 78], [52, 56], [52, 102]] as Set
 
         where:
         acceptType | newSelector

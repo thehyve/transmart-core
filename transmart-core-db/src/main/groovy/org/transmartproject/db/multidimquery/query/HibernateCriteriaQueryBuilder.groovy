@@ -22,7 +22,6 @@ import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.ConstraintBuilder
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.multidimquery.query.FieldConstraint
@@ -235,8 +234,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      */
     Criterion build(ModifierConstraint constraint) {
         def observationFactAlias = getAlias('observation_fact')
-        def modifierCriterion
-        if (constraint.modifierCode != null) {
+        Criterion modifierCriterion = null
+        if (constraint.modifierCode == '@') {
+            // no need for a subquery
+        } else if (constraint.modifierCode != null) {
             modifierCriterion = Restrictions.eq('modifierCd', constraint.modifierCode)
         } else if (constraint.path != null) {
             String modifierAlias = 'modifier_dimension'
@@ -248,8 +249,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             DetachedCriteria subCriteria = DetachedCriteria.forClass(DimensionDescription, dimensionAlias)
             subCriteria.add(Restrictions.eq("${dimensionAlias}.name", constraint.dimensionName))
             modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("modifierCode")))
-        }
-        else {
+        } else {
             throw new QueryBuilderException("Modifier constraint shouldn't have a null value for all modifier path, code and dimension name")
         }
         def valueConstraint
@@ -263,17 +263,22 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             // match all records with the modifier
             valueConstraint = new TrueConstraint()
         }
-        def subQueryBuilder = subQueryBuilder()
-        DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
-                .add(Restrictions.eqProperty('encounterNum',    "${observationFactAlias}.encounterNum"))
-                .add(Restrictions.eqProperty('patient',         "${observationFactAlias}.patient"))
-                .add(Restrictions.eqProperty('conceptCode',     "${observationFactAlias}.conceptCode"))
-                .add(Restrictions.eqProperty('providerId',      "${observationFactAlias}.providerId"))
-                .add(Restrictions.eqProperty('startDate',       "${observationFactAlias}.startDate"))
-                .add(Restrictions.eqProperty('instanceNum',     "${observationFactAlias}.instanceNum"))
+        if (modifierCriterion == null) {
+            def valueCriterion = build(valueConstraint)
+            return Restrictions.and(valueCriterion, defaultModifierCriterion)
+        } else {
+            def subQueryBuilder = subQueryBuilder()
+            DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
+                    .add(Restrictions.eqProperty('encounterNum', "${observationFactAlias}.encounterNum"))
+                    .add(Restrictions.eqProperty('patient', "${observationFactAlias}.patient"))
+                    .add(Restrictions.eqProperty('conceptCode', "${observationFactAlias}.conceptCode"))
+                    .add(Restrictions.eqProperty('providerId', "${observationFactAlias}.providerId"))
+                    .add(Restrictions.eqProperty('startDate', "${observationFactAlias}.startDate"))
+                    .add(Restrictions.eqProperty('instanceNum', "${observationFactAlias}.instanceNum"))
 
-        subQuery = subQuery.setProjection(Projections.id())
-        Subqueries.exists(subQuery)
+            subQuery = subQuery.setProjection(Projections.id())
+            Subqueries.exists(subQuery)
+        }
     }
 
     /**
@@ -344,7 +349,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      * @return a {@link Criterion} object representing the operation.
      */
     static Criterion criterionForOperator(Operator operator, String propertyName, Type type, Object value) {
-        if(!operator.supportsNullValue() && (value == null || (value instanceof Collection && value.contains(null)))) {
+        if(!operator.supportsNullValue() && (value == null || (value instanceof Collection && ((Collection)value).contains(null)))) {
             throw new QueryBuilderException("Null value not supported for '${operator.symbol}' operator.")
         }
         switch(operator) {
@@ -369,7 +374,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             case Operator.BEFORE:
                 return Restrictions.lt(propertyName, value)
             case Operator.LESS_THAN_OR_EQUALS:
-                return Restrictions.lt(propertyName, value)
+                return Restrictions.le(propertyName, value)
             case Operator.BETWEEN:
                 def values = value as List<Date>
                 return Restrictions.between(propertyName, values[0], values[1])

@@ -4,7 +4,6 @@ package org.transmartproject.core.multidimquery.query
 
 import com.fasterxml.jackson.annotation.*
 import groovy.transform.*
-import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.ontology.MDStudy
 
 import javax.validation.Valid
@@ -397,7 +396,6 @@ class StudyNameConstraint extends Constraint {
 @Canonical
 @JsonTypeName('study')
 class StudyObjectConstraint extends Constraint {
-    static String constraintName = "study"
     @NotNull
     MDStudy study
 }
@@ -416,8 +414,6 @@ class NullConstraint extends Constraint {
 @CompileStatic
 @Canonical
 class RowValueConstraint extends Constraint {
-    static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
-
     Type valueType = Type.NONE
     Operator operator = Operator.NONE
     Object value
@@ -592,8 +588,6 @@ class Combination extends Constraint {
 @ToString(includeSuperProperties = true)
 @JsonTypeName('and')
 class AndConstraint extends Combination {
-    static String constraintName = "and"
-
     AndConstraint() {
         super(Operator.AND)
     }
@@ -611,8 +605,6 @@ class AndConstraint extends Combination {
 @ToString(includeSuperProperties = true)
 @JsonTypeName('or')
 class OrConstraint extends Combination {
-    static String constraintName = "or"
-
     OrConstraint() {
         super(Operator.OR)
     }
@@ -667,8 +659,6 @@ class SubSelectionConstraint extends Constraint {
 @CompileStatic
 @Canonical
 class MultipleSubSelectionsConstraint extends Constraint {
-    static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
-
     String dimension
 
     /**

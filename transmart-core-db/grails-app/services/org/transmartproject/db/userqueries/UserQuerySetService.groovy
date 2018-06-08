@@ -15,7 +15,7 @@ import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintBindingException
+import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SetType
@@ -30,17 +30,12 @@ import org.transmartproject.db.querytool.Query
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
 import org.transmartproject.db.querytool.QuerySetInstance
-import org.transmartproject.db.user.User as DbUser
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.PATIENT
 
 @Transactional
 class UserQuerySetService implements UserQuerySetResource {
-
-    @Autowired
-    UsersResource usersResource
 
     @Autowired
     PatientsResource patientsResource
@@ -60,9 +55,9 @@ class UserQuerySetService implements UserQuerySetResource {
 
     @Override
     Integer scan(User currentUser) {
+        log.info 'Scanning for subscribed user queries updates ...'
         int numberOfResults = 0
-        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        if (!user.admin) {
+        if (!currentUser.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         // get list of all not deleted queries per user
@@ -75,7 +70,7 @@ class UserQuerySetService implements UserQuerySetResource {
         for (query in userQueries) {
 
             List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(query.id)
-            ArrayList<Long> newPatientIds = getPatientsForQuery(query, user)
+            ArrayList<Long> newPatientIds = getPatientsForQuery(query, currentUser)
 
             if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
                 numberOfResults++
@@ -149,8 +144,7 @@ class UserQuerySetService implements UserQuerySetResource {
 
     @Override
     void createSetWithInstances(UserQuery query, String constraints, User currentUser) {
-        DbUser dbUser = (DbUser) usersResource.getUserFromUsername(currentUser.username)
-        ArrayList<Long> patientIds = getPatientsForQuery(query, dbUser)
+        ArrayList<Long> patientIds = getPatientsForQuery(query, currentUser)
         QuerySet querySet = new QuerySet(
                 query: (Query)query,
                 setType: SetType.PATIENT,
@@ -232,7 +226,7 @@ class UserQuerySetService implements UserQuerySetResource {
         }
     }
 
-    private ArrayList<Long> getPatientsForQuery(UserQuery query, DbUser user) {
+    private ArrayList<Long> getPatientsForQuery(UserQuery query, User user) {
         Constraint patientConstraint = createConstraints(query.patientsQuery)
         List<Patient> newPatients = multiDimService.getDimensionElements(PATIENT, patientConstraint, user).toList()
         return newPatients.id
@@ -241,7 +235,7 @@ class UserQuerySetService implements UserQuerySetResource {
     private static Constraint createConstraints(String constraintParam) {
         try {
             ConstraintFactory.read(constraintParam)
-        } catch (ConstraintBindingException c) {
+        } catch (BindingException c) {
             throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam", c)
         }
     }
@@ -272,7 +266,7 @@ class UserQuerySetService implements UserQuerySetResource {
     private String getPatientRepresentationByPatientNum(Long id){
         def patient = patientsResource.getPatientById(id)
         String patientMappingId = patient.subjectIds[SUBJ_ID_SOURCE]
-        String patientRepId = patientMappingId != null && patientMappingId != '' ? patientMappingId :
+        String patientRepId = patientMappingId ? patientMappingId :
                 patient.trial + ":" + patient.inTrialId
         return patientRepId
     }

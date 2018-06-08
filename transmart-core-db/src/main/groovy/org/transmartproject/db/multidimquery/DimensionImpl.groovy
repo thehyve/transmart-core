@@ -137,6 +137,8 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     abstract ELKey getElementKey(Map result)
 
+    abstract def getKey(element)
+
 
     /** The externally visible element type, only for serializable dimensions */
     abstract Class<? extends Serializable> getElementType()
@@ -251,6 +253,8 @@ trait SerializableElemDim<ELTKey> {
 
     abstract Class getElemType()
 
+    def getKey(element) { element }
+
     Class<? extends Serializable> getElementType() { getElemType() }
     DimensionImpl.ImplementationType getImplementationType() { DimensionImpl.ImplementationType.COLUMN }
     List getElemFields() { null }
@@ -277,6 +281,11 @@ trait CompositeElemDim<ELT,ELKey> {
 
     abstract Class getElemType()
     abstract Map<String,Property> getElementFields()
+    abstract String getKeyProperty()
+
+    def getKey(element) {
+        element?.getAt(getKeyProperty())
+    }
 
     Class<? extends Serializable> getElementType() { null }
 
@@ -329,7 +338,7 @@ trait CompositeElemDim<ELT,ELKey> {
     }
 }
 
-interface AliasAwareDimension {
+interface AliasAwareDimension extends Dimension {
     String getAlias()
 }
 
@@ -545,7 +554,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 @CompileStatic @InheritConstructors
 class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> implements CompositeElemDim<I2B2PatientDimension, Long> {
     Class elemType = I2B2PatientDimension
-    List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
+    List elemFields = ["id", "trial", "inTrialId", "subjectIds", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion", "sexCd",
                       new PropertyImpl('sex', 'sex', String) {
                           @Override def get(element) { super.get(element).toString() }
@@ -554,6 +563,25 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String name = 'patient'
     String alias = 'patientId'
     String columnName = 'patient.id'
+    String keyProperty = 'id'
+
+    final static String SOURCE_SUBJECT_KEY = 'SUBJ_ID'
+
+    // For patients there are several identifiers. The internal `id` is guaranteed unique, but only meaningful within
+    // the TM database. `inTrialId` and `subjectIds[SOURCE_SUBJECT_KEY]` are external identifiers, but therefore are
+    // not guaranteed to be unique, but they are much more useful for users. `subjectIds[SOURCE_SUBJECT_KEY]` is the
+    // newer way so that is preferred over `inTrialId` if it is available.
+    @Override def getKey(element) {
+        def patient = (I2B2PatientDimension) element
+        def source_subj_id = patient.subjectIds[SOURCE_SUBJECT_KEY]
+        if(source_subj_id) {
+            return "${patient.id}/$source_subj_id".toString()
+        } else if (patient.inTrialId) {
+            return "${patient.id}/${patient.trial}:${patient.inTrialId}".toString()
+        } else {
+            return patient.id
+        }
+    }
 
     @Override def selectIDs(Query query) {
         if(query.params.patientSelected) return
@@ -577,6 +605,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
     String nullValue = '@'
+    String keyProperty = 'conceptCode'
     // ObservationFact.conceptCode is a string, not an i2b2.ConceptDimension
     ImplementationType implementationType = ImplementationType.COLUMN
 
@@ -593,6 +622,7 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
+    String keyProperty = 'id'
     
     @CompileDynamic
     @Override
@@ -608,6 +638,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     String name = 'study'
     String alias = 'studyName'
     String getColumnName() {throw new UnsupportedOperationException()}
+    String keyProperty = 'name'
     ImplementationType implementationType = ImplementationType.STUDY
 
     @CompileDynamic
@@ -623,13 +654,21 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
     }
-
+    @Override
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not implemented.")
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+        criteria.setProjection(Projections.property('trialVisit'))
+
+        def dimensionCriteria = DetachedCriteria.forClass(I2B2Study, 'study')
+        dimensionCriteria.createAlias('trialVisits', 'trialVisits')
+        dimensionCriteria.add(Subqueries.propertyIn('trialVisits.id', criteria))
+        dimensionCriteria
+
     }
+
     @Override
     DetachedCriteria elementCount(DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not implemented.")
+        selectDimensionElements(criteria).setProjection(Projections.rowCount())
     }
 
 }
@@ -671,7 +710,18 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
                                       "locationCd"]
     String name = 'visit'
     String alias = 'encounterNum'
+    String keyProperty = null
     ImplementationType implementationType = ImplementationType.VISIT
+
+    /**
+     * This must return a unique key for this dimension, and it must be a number, string or date (used in e.g. json
+     * serialization) so VisitKey is not going to work here.
+     */
+    @Override
+    def getKey(element) {
+        def visit = (I2b2VisitDimension) element
+        visit ? "${visit.encounterNum}/${visit.patient.id}".toString() : null
+    }
 
     @Override def selectIDs(Query query) {
         query.criteria.with {
@@ -757,6 +807,7 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
     ]
     ImplementationType implementationType = ImplementationType.ASSAY
     String name = 'assay'
+    String keyProperty = 'id'
 }
 
 // TODO: Expose the other Assay properties as the proper dimensions. Their structure should as much as possible be
@@ -773,6 +824,7 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
     List elemFields = ['label', 'biomarker']
     ImplementationType implementationType = ImplementationType.BIOMARKER
     String name = 'biomarker'
+    String keyProperty = 'label'
 }
 
 @CompileStatic @InheritConstructors

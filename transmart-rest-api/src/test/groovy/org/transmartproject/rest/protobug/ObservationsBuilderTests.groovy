@@ -7,26 +7,30 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.PaginationParameters
+import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User
+import org.transmartproject.db.TestData
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.TestData
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
+import org.transmartproject.rest.serialization.DataTableSerializer
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
-import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
+import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.util.zip.ZipOutputStream
 
-import static spock.util.matcher.HamcrestSupport.that
 import static org.hamcrest.Matchers.*
-
+import static spock.util.matcher.HamcrestSupport.that
 
 /**
  * Created by piotrzakrzewski on 02/11/2016.
@@ -46,7 +50,7 @@ class ObservationsBuilderTests extends Specification {
 
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.clearAllDataInTransaction()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
@@ -59,7 +63,8 @@ class ObservationsBuilderTests extends Specification {
     public void testJsonSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', adminUser, constraint: constraint)
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def builder = new HypercubeJsonSerializer()
 
         when:
@@ -68,6 +73,7 @@ class ObservationsBuilderTests extends Specification {
         out.flush()
         def result = new JsonSlurper().parse(out.toByteArray())
         def declarations = result.dimensionDeclarations
+        def sort = result.sort
         def cells = result.cells
         def dimensionElements = result.dimensionElements
         def dimElementsSize = mockedCube.dimensions.findAll { it.density.isDense }.size()
@@ -78,6 +84,8 @@ class ObservationsBuilderTests extends Specification {
         declarations != null
         declarations.size() == mockedCube.dimensions.size()
         that declarations*.name, containsInAnyOrder(mockedCube.dimensions.collect{it.name}.toArray())
+        sort.size() > 0
+        sort[0] == [dimension: 'patient', sortOrder: 'asc']
         dimensionElements != null
         dimensionElements.size() == dimElementsSize
         that cells['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
@@ -87,7 +95,8 @@ class ObservationsBuilderTests extends Specification {
     public void testPackedDimsSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', adminUser, constraint: constraint)
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def patientDimension = DimensionImpl.PATIENT
         def builder = new HypercubeProtobufSerializer()
 
@@ -127,6 +136,7 @@ class ObservationsBuilderTests extends Specification {
         def inlinedDimensionsSize = dimensionDeclarations.findAll { it.inline }.size()
         def notPackedDimensions = dimensionDeclarations.findAll { !it.inline && !it.packed }
         def notPackedDimensionsSize = notPackedDimensions.size()
+        def firstSort = header.sortList[0]
 
         then:
         cells.size() == clinicalData.multidimsClinicalFacts.size()
@@ -135,6 +145,10 @@ class ObservationsBuilderTests extends Specification {
         that dimensionDeclarations['name'],
                 containsInAnyOrder(mockedCube.dimensions.collect{it.toString()}.toArray()
                 )
+        // sort order declaration for 'patient' exists
+        firstSort.dimensionIndex == dimensionDeclarations.indexOf { it.name == 'patient' }
+        firstSort.sortOrder.toString() == 'ASC'
+        firstSort.field == 0
         // at least one declaration of packed dimension exists
         that dimensionDeclarations['packed'], hasItem(true)
         that cells['stringValuesList'], hasSize(greaterThan(1))
@@ -147,7 +161,8 @@ class ObservationsBuilderTests extends Specification {
     public void testProtobufSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData('clinical', adminUser, constraint: constraint)
+        def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
+        def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def builder = new HypercubeProtobufSerializer()
 
         when:
@@ -188,8 +203,24 @@ class ObservationsBuilderTests extends Specification {
         then:
         header != null
         header.dimensionDeclarationsList.size() == mockedCube.dimensions.size()
+        header.sortList[0].dimensionIndex == header.dimensionDeclarationsList.findIndexOf { it.name == 'patient' }
+        header.sortList[0].sortOrder.toString() == 'ASC'
+        header.sortList[0].field == 0
         cells.size() == clinicalData.longitudinalClinicalFacts.size()
         footer != null
+
+        when:
+        def PATIENT = queryResource.getDimension('patient')
+        def fields = PATIENT.elementFields.keySet().asList()
+        def patientDimIndex = header.dimensionDeclarationsList.findIndexOf { it.name == 'patient' }
+        def idFieldIndex = header.dimensionDeclarationsList[patientDimIndex].fieldsList.findIndexOf { it.name == 'id' }
+        def patientElement = footer.dimensionList[patientDimIndex]
+        def patients = clinicalData.longitudinalClinicalFacts*.patient.sort {
+            patientElement.fieldsList[idFieldIndex].intValueList.indexOf(it.id) }
+
+        then:
+        patientElement.fieldsList[idFieldIndex].intValueList == patients*.id.unique()
+        // TODO: verify patient element fields better
     }
 
     public void testCSVSerialization() {
@@ -197,7 +228,8 @@ class ObservationsBuilderTests extends Specification {
         def dataType = 'clinical'
         def fileExtension = '.tsv'
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData(dataType, adminUser, constraint: constraint)
+        def args = new DataRetrievalParameters(constraint: constraint)
+        def mockedCube = queryResource.retrieveData(args, dataType, adminUser)
         def builder = new HypercubeCSVSerializer()
 
         when:
@@ -222,7 +254,8 @@ class ObservationsBuilderTests extends Specification {
         def dataType = 'clinical'
         def fileExtension = '.tsv'
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.retrieveData(dataType, adminUser, constraint: constraint)
+        def args = new DataRetrievalParameters(constraint: constraint)
+        def mockedCube = queryResource.retrieveData(args, dataType, adminUser)
         def builder = new HypercubeCSVSerializer()
 
         when:
@@ -240,6 +273,65 @@ class ObservationsBuilderTests extends Specification {
         then:
         out.xentries != null
         out.names.sort() == expectedEntries.sort()
+    }
+
+    void testDataTableSerialization() {
+        setupData()
+        def dataType = 'clinical'
+        def rowDimensions = ['patient', 'study']
+        def columnDimensions = ['concept', 'trial visit']
+        def limit = 10
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        def tableConfig = new TableConfig(
+                rowSort: [new SortSpecification(dimension: 'patient')],
+                rowDimensions: rowDimensions,
+                columnDimensions: columnDimensions
+        )
+        def pagination = new PaginationParameters(limit: limit)
+        def mockedDataTable = queryResource.retrieveDataTablePage(tableConfig, pagination, dataType, constraint, adminUser)
+
+        when:
+        def out = new ByteArrayOutputStream()
+        DataTableSerializer.write(mockedDataTable, out)
+        out.flush()
+        def result = new JsonSlurper().parse(out.toByteArray())
+        def rows = result.rows
+        def offset = result.offset
+        def sorting = result.sort
+        def columnHeaders = result.column_headers
+        def columnDim = result.column_dimensions
+        def rowDim = result.row_dimensions
+
+        then:
+        rows.size() < clinicalData.longitudinalClinicalFacts.size()
+        rows.size() <= limit
+        offset == 0
+
+        sorting.size() == columnDimensions.size() + rowDimensions.size()
+        sorting[0] == [dimension: 'patient', sortOrder: 'asc', user_requested: true]
+        sorting[1] == [dimension: 'study', sortOrder: 'asc']
+        sorting[2] == [dimension: 'concept', sortOrder: 'asc']
+        sorting[3] == [dimension: 'trial visit', sortOrder: 'asc']
+
+        columnHeaders*.dimension == columnDimensions
+        columnHeaders[0].keys == ['c5', 'c5', 'c5', 'c6', 'c6', 'c6']
+        // [4, 5, 6, 4, 5, 6] or something similar, but the id values can change between runs
+        columnHeaders[1].keys == clinicalData.longitudinalClinicalFacts*.trialVisit*.id.unique().sort() * 2
+
+        columnDim*.name == columnDimensions
+        columnDim[0].elements.size() == (columnHeaders[0].keys as Set).size()
+        columnDim[1].elements.size() == (columnHeaders[1].keys as Set).size()
+
+        rowDim*.name == rowDimensions
+        rowDim[0].elements.size() == 3
+        rowDim[1].elements.size() == 1
+
+        that rows*.dimensions, everyItem(hasSize(2))
+        that rows*.dimensions*.dimension, everyItem(contains('patient', 'study'))
+        (rows*.dimensions.collect{it[1].key} as Set).size() == rowDim[1].elements.size()
+        that rows*.row, everyItem(hasSize(6))
+        (rows*.dimensions.collect{it[0].key} as Set).size() == rowDim[0].elements.size()
+
     }
 
 }

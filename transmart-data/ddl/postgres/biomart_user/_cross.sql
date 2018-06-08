@@ -276,5 +276,9 @@ CREATE VIEW biomart_user.folder_study_mapping AS
      JOIN study_nodes s ON ((s.unique_id = upper((map.unique_id)::text))))
   WHERE (map.unique_id IS NOT NULL);
 
-
-SET default_with_oids = false;
+-- transmart-core/transmart-data/ddl/postgres is the working directory for the code that executes this sql script.
+\i biomart_user/functions/scale_bitset.sql
+\i biomart_user/views/patient_num_boundaries.sql
+\i biomart_user/materialized_views/study_concept_bitset.sql
+\i biomart_user/views/patient_set_bitset.sql
+\i biomart_user/views/study_concept_patient_set_bitset.sql

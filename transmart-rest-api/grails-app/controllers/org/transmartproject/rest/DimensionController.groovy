@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
-import org.transmartproject.db.user.User
+import org.transmartproject.core.users.User
+import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.DimensionElementSerializer
+
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 @Slf4j
@@ -29,20 +30,19 @@ class DimensionController extends AbstractQueryController {
     
     /**
      * Dimension endpoint:
-     * <code>GET /v2/dimensions/${dimensionName}/elements</code>
+     * <code>/v2/dimensions/${dimensionName}/elements</code>
      *
      * @return a list of all dimension elements that user has access to.
      */
     def list(@PathVariable('dimensionName') String dimensionName) {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['dimensionName', 'constraint'])
 
-        checkForUnsupportedParams(params, ['dimensionName', 'constraint'])
+        def dimension = getDimension(dimensionName, authContext.user)
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def dimension = getDimension(dimensionName, user)
+        Constraint constraint = Strings.isNullOrEmpty(args.constraint) ? new TrueConstraint() : bindConstraint(args.constraint)
 
-        Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? new TrueConstraint() : bindConstraint(params.constraint)
-
-        def results = multiDimService.getDimensionElements(dimension, constraint, user)
+        def results = multiDimService.getDimensionElements(dimension, constraint, authContext.user)
         render wrapElements(dimension, results) as JSON
     }
 

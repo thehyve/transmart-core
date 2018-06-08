@@ -31,8 +31,8 @@ import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
 
-import static spock.util.matcher.HamcrestSupport.that
 import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
 class OntologyTermsResourceTests extends ResourceSpec {
 

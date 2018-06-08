@@ -20,17 +20,24 @@ package org.transmartproject.rest
 
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.dataquery.PaginationParameters
+import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.serialization.*
+import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
+
+import java.util.zip.ZipOutputStream
 
 @Transactional
 class HypercubeDataSerializationService implements DataSerializer {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+
+    @Autowired
+    PatientSetResource patientSetService
 
     Map<Format, HypercubeSerializer> formatToSerializer = [
             (Format.JSON)    : new HypercubeJsonSerializer(),
@@ -41,12 +48,11 @@ class HypercubeDataSerializationService implements DataSerializer {
 
     @Override
     void writeClinical(Format format,
-                       Constraint constraint,
+                       DataRetrievalParameters parameters,
                        User user,
-                       OutputStream out,
-                       Map options = [:]) {
+                       OutputStream out) {
 
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
+        Hypercube hypercube = multiDimService.retrieveClinicalData(parameters, user)
 
         try {
             log.info "Writing to format: ${format}"
@@ -71,6 +77,47 @@ class HypercubeDataSerializationService implements DataSerializer {
             formatToSerializer[format].write(hypercube, out, dataType: type)
         } finally {
             hypercube.close()
+        }
+    }
+
+    @Override
+    void writeTable(Format format,
+                    Constraint constraint,
+                    TableConfig tableConfig,
+                    User user,
+                    OutputStream out) {
+        if (format == Format.TSV) {
+            StreamingDataTable datatable = multiDimService.retrieveStreamingDataTable(
+                    tableConfig, 'clinical', constraint, user)
+            try {
+                log.info "Writing tabular data in ${format} format."
+                def serializer = new DataTableTSVSerializer(user, (ZipOutputStream) out)
+                serializer.writeDataTableToZip(datatable)
+            } finally {
+                datatable.close()
+                log.info "Writing tabular data in ${format} format completed."
+            }
+        } else {
+            throw new UnsupportedOperationException("Unsupported format: ${format}")
+        }
+    }
+
+    @Override
+    void writeTablePage(Format format,
+                    Constraint constraint,
+                    TableConfig tableConfig,
+                    PaginationParameters pagination,
+                    User user,
+                    OutputStream out) {
+        if (format == Format.JSON) {
+            def datatable = multiDimService.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, user)
+            try {
+                DataTableSerializer.write(datatable, out)
+            } finally {
+                datatable.close()
+            }
+        } else {
+            throw new UnsupportedOperationException("Unsupported format: ${format}")
         }
     }
 

@@ -3,18 +3,23 @@ package org.transmartproject.rest.dataExport
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.db.job.AsyncJobCoreDb
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.users.User
+import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.rest.HypercubeDataSerializationService
 import org.transmartproject.rest.SurveyTableViewDataSerializationService
 import org.transmartproject.rest.serialization.DataSerializer
+import org.transmartproject.rest.serialization.ExportElement
 import org.transmartproject.rest.serialization.Format
 
 import java.util.zip.ZipOutputStream
 
-import static org.transmartproject.rest.serialization.Format.*
+import static org.transmartproject.rest.serialization.Format.SPSS
+import static org.transmartproject.rest.serialization.Format.TSV
 
 @Transactional
 @Component("restExportService")
@@ -23,11 +28,15 @@ class ExportService {
     @Autowired
     HypercubeDataSerializationService hypercubeDataSerializationService
 
+    Set<Format> exportFormats =  EnumSet.of(TSV, SPSS)
+
     @Autowired
     SurveyTableViewDataSerializationService surveyTableViewDataSerializationService
 
     Set<Format> getSupportedFormats(String dataView) {
-        getDataSerializerByDataView(dataView).supportedFormats
+        Set<Format> supportedExportFormats = new LinkedHashSet<Format>(exportFormats)
+        supportedExportFormats.retainAll(getDataSerializerByDataView(dataView).supportedFormats)
+        return supportedExportFormats
     }
 
     def downloadFile(AsyncJobCoreDb job) {
@@ -39,29 +48,37 @@ class ExportService {
         return exportJobExecutor.getExportJobFileStream(job.viewerURL)
     }
 
-    def exportData(Map jobDataMap, ZipOutputStream output) {
+    def exportData(Map jobDataMap, String fileName, ZipOutputStream output) {
 
-        List<Map> dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList.flatten()
-        org.transmartproject.core.users.User user = jobDataMap.user
+        List<ExportElement> dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList
+        User user = jobDataMap.user
         Constraint constraint = jobDataMap.constraint
 
-        dataTypeAndFormatList.each { typeFormatPair ->
-            Format outFormat = from(typeFormatPair.format)
-            String dataType = typeFormatPair.dataType
-            DataSerializer dataSerializer = getDataSerializerByDataView(typeFormatPair.dataView)
-            if (!dataSerializer.supportedFormats.contains(outFormat)) {
-                throw new InvalidRequestException("Export for ${outFormat} format is not supported.")
+        dataTypeAndFormatList.each { element ->
+            DataSerializer dataSerializer = getDataSerializerByDataView(element.dataView)
+            if (!dataSerializer.supportedFormats.contains(element.format)) {
+                throw new InvalidRequestException("Export for ${element.format} format is not supported.")
             }
 
-            if (dataType == 'clinical') {
+            if (element.dataType == 'clinical') {
                 try {
-                    dataSerializer.writeClinical(outFormat, constraint, user, output, jobDataMap)
+                    if (jobDataMap.tableConfig) {
+                        TableConfig tableConfig = jobDataMap.tableConfig
+                        dataSerializer.writeTable(element.format, constraint, tableConfig, user, output)
+                    } else {
+                        DataRetrievalParameters parameters = new DataRetrievalParameters(
+                                constraint: constraint,
+                                includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns,
+                                exportFileName: fileName
+                        )
+                        dataSerializer.writeClinical(element.format, parameters, user, output)
+                    }
                 } catch (LegacyStudyException e) {
                     throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
                 }
             } else {
                 try {
-                    dataSerializer.writeHighdim(outFormat, dataType, constraint, null, null, user, output)
+                    dataSerializer.writeHighdim(element.format, element.dataType, constraint, null, null, user, output)
                 } catch (LegacyStudyException e) {
                     throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
                 }

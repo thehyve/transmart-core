@@ -24,7 +24,7 @@ class ConceptController extends AbstractQueryController {
      */
     def index(@RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
-        respond wrapConcepts(apiVersion, conceptsResource.getConcepts(currentUser))
+        respond wrapConcepts(apiVersion, conceptsResource.getConcepts(authContext.user))
     }
 
     /**
@@ -39,7 +39,7 @@ class ConceptController extends AbstractQueryController {
         checkForUnsupportedParams(params, ['conceptCode'])
         respond new ConceptWrapper(
                 apiVersion: apiVersion,
-                concept: conceptsResource.getConceptByConceptCodeForUser(conceptCode, currentUser)
+                concept: conceptsResource.getConceptByConceptCodeForUser(conceptCode, authContext.user)
         )
     }
 

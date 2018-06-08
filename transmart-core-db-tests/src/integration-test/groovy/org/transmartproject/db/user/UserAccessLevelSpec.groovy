@@ -63,9 +63,9 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def adminUser = accessLevelTestData.users[0]
 
         expect:
-        adminUser.canPerform(API_READ, getStudy(STUDY1))
-        adminUser.canPerform(API_READ, getStudy(STUDY2))
-        adminUser.canPerform(API_READ, getStudy(STUDY3))
+        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY1))
+        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY2))
+        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY3))
     }
 
     void testEveryoneHasAccessToPublicStudy() {
@@ -125,10 +125,18 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
     void testEveryoneHasAccessViaEveryoneGroup() {
         setupData()
-        // EVERYONE_GROUP has access to study 3
 
         expect:
-        accessLevelTestData.users.every { it.canPerform(API_READ, getStudy(STUDY3)) }
+        accessControlChecks.canPerform(accessLevelTestData.users[userNumber], API_READ, getStudy(study))
+
+        where:
+        userNumber | study
+        0          | STUDY3
+        1          | STUDY3
+        2          | STUDY3
+        3          | STUDY3
+        4          | STUDY3
+        5          | STUDY3
     }
 
     void testWithUnsupportedProtectedResource() {
@@ -433,16 +441,16 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
     void 'test get dimension studies for regular user'() {
         setupData()
-        def secondUser = accessLevelTestData.users[1]
+        def thirdUser = accessLevelTestData.users[3]
 
         when:
-        def studies = accessControlChecks.getDimensionStudiesForUser(secondUser).toSorted { it.studyId }
+        def studies = accessControlChecks.getDimensionStudiesForUser(thirdUser).toSorted { it.studyId }
 
         then:
         studies.size() == 2
         studies[0].studyId == 'study1'
         studies[0].secureObjectToken == org.transmartproject.db.i2b2data.Study.PUBLIC
-        studies[1].studyId == 'study2'
+        studies[1].studyId == 'study3'
     }
 
     void 'test get dimension studies for admin'() {

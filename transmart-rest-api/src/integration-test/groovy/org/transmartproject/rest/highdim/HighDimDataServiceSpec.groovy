@@ -53,10 +53,10 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static org.thehyve.commons.test.FastMatchers.propsWith
 import static org.transmartproject.rest.highdim.HighDimResultHeaderMatcher.hasHeaderWithAssaysAndColumns
 import static org.transmartproject.rest.highdim.HighDimResultRowsMatcher.hasRowsMatchingSpecsAndDataRow
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback

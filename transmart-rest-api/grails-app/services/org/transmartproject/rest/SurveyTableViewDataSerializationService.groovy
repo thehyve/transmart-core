@@ -23,15 +23,14 @@ import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.grails.core.util.StopWatch
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.dataquery.*
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.SurveyTableColumnService
 import org.transmartproject.db.multidimquery.HypercubeDataColumn
 import org.transmartproject.db.multidimquery.SurveyTableView
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.rest.serialization.DataSerializer
 import org.transmartproject.rest.serialization.Format
@@ -60,12 +59,15 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
 
     Set<Format> supportedFormats = [Format.TSV, Format.SPSS] as Set<Format>
 
-    TabularResultSerializer getSerializer(Format format, User user, ZipOutputStream zipOutputStream, ImmutableList<DataColumn> columns) {
+    TabularResultSerializer getSerializer(Format format, User user,
+                                          ZipOutputStream zipOutputStream,
+                                          ImmutableList<DataColumn> columns,
+                                          String fileName) {
         switch(format) {
             case Format.TSV:
                 return new TabularResultTSVSerializer(user, zipOutputStream, columns)
             case Format.SPSS:
-                return new TabularResultSPSSSerializer(user, zipOutputStream, columns)
+                return new TabularResultSPSSSerializer(user, zipOutputStream, columns, fileName)
             default:
                 throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
         }
@@ -73,11 +75,13 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
 
     private writeClinicalSubtask(SubtaskParameters parameters,
             TabularResultSerializer serializer,
-            ImmutableList<MetadataAwareDataColumn> columns,
-            Dimension patientDimension) {
+            ImmutableList<MetadataAwareDataColumn> columns) {
         def stopWatch = new StopWatch("[Task ${parameters.task}] Write clinical data")
         stopWatch.start('Retrieve data')
-        def hypercube = multiDimService.retrieveClinicalData(parameters.constraint, parameters.user, [patientDimension])
+        def args = new DataRetrievalParameters(
+                constraint: parameters.constraint,
+                sort: [new SortSpecification(dimension: 'patient')])
+        def hypercube = multiDimService.retrieveClinicalData(args, parameters.user)
         stopWatch.stop()
         def tabularView = new SurveyTableView(columns, hypercube)
         try {
@@ -106,14 +110,13 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
      */
     @Override
     void writeClinical(Format format,
-                       Constraint constraint,
+                       DataRetrievalParameters parameters,
                        User user,
-                       OutputStream out,
-                       Map options = [:]) {
+                       OutputStream out) {
         log.info "Start parallel export ..."
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
-                constraint, user)
-        Boolean includeMeasurementDateColumns = options.includeMeasurementDateColumns
+                parameters.constraint, user)
+        Boolean includeMeasurementDateColumns = parameters.includeMeasurementDateColumns
         final ImmutableList<MetadataAwareDataColumn> columns
         if (includeMeasurementDateColumns == null) {
             columns = surveyTableColumnService
@@ -123,15 +126,24 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
                     .getMetadataAwareColumns(hypercubeColumns, includeMeasurementDateColumns)
         }
         final TabularResultSerializer serializer = getSerializer(format, user, (ZipOutputStream) out,
-                ImmutableList.copyOf(columns as List<DataColumn>))
-        final patientDimension = multiDimService.getDimension('patient')
+                ImmutableList.copyOf(columns as List<DataColumn>), parameters.exportFileName)
 
-        def parameters = new TaskParameters(constraint, user)
+        def taskParameters = new TaskParameters(parameters.constraint, user)
         parallelPatientSetTaskService.run(
-                parameters,
-                {SubtaskParameters params -> writeClinicalSubtask(params, serializer, columns, patientDimension)},
+                taskParameters,
+                {SubtaskParameters params -> writeClinicalSubtask(params, serializer, columns)},
                 {taskResults -> serializer.combine()}
         )
+    }
+
+    @Override
+    void writeTable(Format format, Constraint constraint, TableConfig tableConfig, User user, OutputStream out) {
+        throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
+    }
+
+    @Override
+    void writeTablePage(Format format, Constraint constraint, TableConfig tableConfig, PaginationParameters pagination, User user, OutputStream out) {
+        throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
     }
 
     @Override

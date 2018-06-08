@@ -11,25 +11,20 @@ import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import org.hibernate.criterion.*
+import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.config.SystemResource
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintFactory
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.QueryBuilder
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
-import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
@@ -38,14 +33,18 @@ import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.*
-import org.transmartproject.db.multidimquery.query.*
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.ParallelPatientSetTaskService
-import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.HibernateUtils
 
-import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+
+import static groovyx.gpars.GParsPool.withPool
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
+import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 
 class AggregateDataService extends AbstractDataResourceService implements AggregateDataResource {
 
@@ -64,11 +63,83 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Autowired
     UserQueryResource userQueryResource
 
+    @Autowired
+    SystemResource systemResource
+
+    @Autowired
+    AggregateDataOptimisationsService aggregateDataOptimisationsService
+
+    @Autowired
+    PatientSetResource patientSetResource
+
     /**
      * Instance of this object wrapped with the cache proxy.
      */
     @Lazy
     private AggregateDataService wrappedThis = { Holders.grailsApplication.mainContext.aggregateDataService }()
+
+
+    @CompileStatic
+    @Canonical
+    static class ConceptStudyCountRow {
+        String conceptCode
+        String studyId
+        Counts summary
+    }
+
+    @CompileStatic
+    @Immutable
+    static class ConceptStudyKey {
+        String conceptCode
+        String studyId
+    }
+
+    @CompileStatic
+    @Canonical
+    static class ConceptCountRow {
+        String conceptCode
+        Counts summary
+    }
+
+    @CompileStatic
+    static Map<String, Counts> mergeConceptCounts(Collection<ConceptCountRow> taskSummaries) {
+        Logger logger = LoggerFactory.getLogger(AggregateDataService.class)
+        logger.info "Merging counts per concept ..."
+        def t1 = new Date()
+        Map<String, Counts> summaryMap = [:].withDefault { new Counts(0L, 0L) }
+        for (ConceptCountRow row: taskSummaries) {
+            summaryMap[row.conceptCode].merge(row.summary)
+        }
+        def t2 = new Date()
+        logger.info "Merging counts per concept done. (took ${t2.time - t1.time} ms.)"
+        def result = new HashMap<String, Counts>()
+        result.putAll(summaryMap)
+        result
+    }
+
+    @CompileStatic
+    static Map<String, Map<String, Counts>> mergeSummaryTaskResults(Collection<ConceptStudyCountRow> taskSummaries) {
+        Logger logger = LoggerFactory.getLogger(AggregateDataService.class)
+        logger.info "Merging counts per study and concept ..."
+        def t1 = new Date()
+        Map<ConceptStudyKey, Counts> summaryMap = [:].withDefault { new Counts(0L, 0L) }
+        for (ConceptStudyCountRow row: taskSummaries) {
+            def key = new ConceptStudyKey(row.conceptCode, row.studyId)
+            summaryMap[key].merge(row.summary)
+        }
+        Map<String, Map<String, Counts>> result = [:]
+        for (Map.Entry<ConceptStudyKey, Counts> entry: summaryMap.entrySet()) {
+            def studyMap = result[entry.key.studyId]
+            if (!studyMap) {
+                studyMap = [:] as Map<String, Counts>
+                result[entry.key.studyId] = studyMap
+            }
+            studyMap[entry.key.conceptCode] = entry.value
+        }
+        def t2 = new Date()
+        logger.info "Merging counts per study and concept done. (took ${t2.time - t1.time} ms.)"
+        result
+    }
 
 
     @CompileStatic
@@ -108,8 +179,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             def constraintParts = ParallelPatientSetTaskService.getConstraintParts(constraint)
             if (!constraintParts.patientSetConstraint || !constraintParts.patientSetConstraint.patientSetId) {
                 // Try to combine the constraint a patient set for all accessible patients
-                def allPatientsSet = multidimensionalDataResourceService.findQueryResultByConstraint(
-                        user, new TrueConstraint(), multidimensionalDataResourceService.patientSetResultType)
+                def allPatientsSet = patientSetResource.findQueryResultByConstraint(
+                        user, new TrueConstraint())
                 if (allPatientsSet) {
                     // add patient set constraint
                     constraint = new AndConstraint([new PatientSetConstraint(allPatientsSet.id), constraint])
@@ -144,9 +215,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
-        QueryResult queryResult = multidimensionalDataResourceService.createPatientSetQueryResult(
+        QueryResult queryResult = patientSetResource.createPatientSetQueryResult(
                 'Automatically generated set',
-                constraint, user, 'v2')
+                constraint, user, 'v2', false)
         PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
         wrappedThis.updateCountsCache(patientSetConstraint, user)
         wrappedThis.updateCountsPerStudyCache(patientSetConstraint, user)
@@ -187,32 +258,58 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     @Transactional(readOnly = true)
-    Map<String, Counts> freshCountsPerConcept(Constraint constraint, User user) {
-        log.debug "Computing counts per concept ..."
+    @CompileStatic
+    List<ConceptCountRow> countsPerConceptTask(SubtaskParameters parameters) {
+        log.debug "Starting task ${parameters.task} for computing counts per concept ..."
         def t1 = new Date()
-        checkAccess(constraint, user)
-        QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria(constraint).setProjection(Projections.projectionList()
-                .add(Projections.groupProperty('conceptCode'), 'conceptCode')
-                .add(Projections.rowCount(), 'observationCount')
-                .add(Projections.countDistinct('patient'), 'patientCount'))
-                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-        List rows = getList(criteria)
-        def t2 = new Date()
-        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        rows.collectEntries { Map row ->
-            [(row.conceptCode as String):
-                     new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
+        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
+        try {
+            session.connection().autoCommit = false
+            HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
+            CriteriaImpl criteria = (CriteriaImpl) q.instance
+
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user)
+
+            criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+            criteria.setProjection(Projections.projectionList()
+                    .add(Projections.groupProperty('conceptCode'), 'conceptCode')
+                    .add(Projections.rowCount(), 'observationCount')
+                    .add(Projections.countDistinct('patient'), 'patientCount')
+            )
+            builder.applyToCriteria(criteria, [parameters.constraint])
+            criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+
+            List rows = criteria.list() as List<Map>
+
+            def t2 = new Date()
+            log.debug "Task ${parameters.task} completed. (took ${t2.time - t1.time} ms.)"
+            rows.collect { Map row ->
+                new ConceptCountRow(row.conceptCode as String,
+                        new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long))
+            }
+        } finally {
+            session.close()
         }
     }
 
+    @CompileStatic
+    @Transactional(readOnly = true)
+    Map<String, Counts> parallelCountsPerConcept(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        def parameters = new TaskParameters(constraint, user)
+        parallelPatientSetTaskService.run(parameters,
+                {SubtaskParameters params -> countsPerConceptTask(params)},
+                {List<ConceptCountRow> taskResults -> mergeConceptCounts(taskResults)})
+    }
+
     @Override
-    @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
-            key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
     Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
-        freshCountsPerConcept(constraint, user)
+        //parallelCountsPerConcept(constraint, user)
+        def taskParameters = new SubtaskParameters(1, constraint, user)
+        def counts = countsPerConceptTask(taskParameters)
+        mergeConceptCounts(counts)
     }
 
     @Transactional(readOnly = true)
@@ -254,21 +351,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     @CompileStatic
-    @Canonical
-    static class ConceptStudyCountRow {
-        String conceptCode
-        String studyId
-        Counts summary
-    }
-
-    @CompileStatic
-    @Immutable
-    static class ConceptStudyKey {
-        String conceptCode
-        String studyId
-    }
-
-    @CompileStatic
     private List<ConceptStudyCountRow> countsPerStudyAndConceptTask(SubtaskParameters parameters) {
         def t1 = new Date()
         log.debug "Start task ${parameters.task} ..."
@@ -307,29 +389,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     @CompileStatic
-    private Map<String, Map<String, Counts>> mergeSummaryTaskResults(Collection<ConceptStudyCountRow> taskSummaries) {
-        log.info "Merging counts per study and concept ..."
-        def t1 = new Date()
-        Map<ConceptStudyKey, Counts> summaryMap = [:].withDefault { new Counts(0L, 0L) }
-        for (ConceptStudyCountRow row: taskSummaries) {
-            def key = new ConceptStudyKey(row.conceptCode, row.studyId)
-            summaryMap[key].merge(row.summary)
-        }
-        Map<String, Map<String, Counts>> result = [:]
-        for (Map.Entry<ConceptStudyKey, Counts> entry: summaryMap.entrySet()) {
-            def studyMap = result[entry.key.studyId]
-            if (!studyMap) {
-                studyMap = [:] as Map<String, Counts>
-                result[entry.key.studyId] = studyMap
-            }
-            studyMap[entry.key.conceptCode] = entry.value
-        }
-        def t2 = new Date()
-        log.info "Merging counts per study and concept done. (took ${t2.time - t1.time} ms.)"
-        result
-    }
-
-    @CompileStatic
     @Transactional(readOnly = true)
     Map<String, Map<String, Counts>> parallelCountsPerStudyAndConcept(Constraint constraint, User user) {
         checkAccess(constraint, user)
@@ -339,13 +398,63 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                 {List<ConceptStudyCountRow> taskResults -> mergeSummaryTaskResults(taskResults)})
     }
 
+    private Map<String, Counts> getConceptCountsForStudy(String studyId, Constraint constraint, User user) {
+        def studyConstraint = new AndConstraint([new StudyNameConstraint(studyId), constraint]).canonise()
+        return wrappedThis.countsPerConcept(studyConstraint, user)
+    }
+
     @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
             key = '{ #constraint.toJson(), #user.username }')
     @Transactional(readOnly = true)
     Map<String, Map<String, Counts>> countsPerStudyAndConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per per study per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
-        parallelCountsPerStudyAndConcept(constraint, user)
+        checkAccess(constraint, user)
+        //parallelCountsPerStudyAndConcept(constraint, user)
+
+        if (constraint instanceof PatientSetConstraint && constraint.patientSetId != null &&
+                aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSetEnabled) {
+            return aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSet(constraint, user)
+        }
+
+        Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
+        final List<String> studyIds = studies*.studyId
+        studyIds.sort()
+
+        def t1 = new Date()
+        log.info "Fetching counts per study and concept for ${studyIds.size()} studies ..."
+
+        int workers = systemResource.runtimeConfig.numberOfWorkers
+        int numTasks = studyIds.size()
+        final result = new ConcurrentHashMap<String, Map<String, Counts>>()
+        final error = new AtomicBoolean(false)
+        final numCompleted = new AtomicInteger(0)
+        if (numTasks) {
+            withPool(workers) {
+                (1..numTasks).eachParallel { int i ->
+                    def start = new Date()
+                    try {
+                        // Fetch the counts per concept for a specific study
+                        def studyId = studyIds[i - 1]
+                        result[studyId] = getConceptCountsForStudy(studyId, constraint, user)
+                    } catch (Throwable e) {
+                        error.set(true)
+                        log.error "Error in task ${i}: ${e.message}", e
+                    }
+                    log.info "${numCompleted.incrementAndGet()} / ${numTasks} tasks completed. (took ${new Date().time - start.time} ms.)"
+                }
+            }
+        }
+
+        def t2 = new Date()
+
+        if (error.get()) {
+            log.error "Task failed after ${t2.time - t1.time} ms."
+            throw new UnexpectedResultException('Task failed.')
+        }
+
+        log.info "Fetching counts per study and concept done. (took ${t2.time - t1.time} ms.)"
+        result
     }
 
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
@@ -379,7 +488,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         Constraint constraintToPreCache = new TrueConstraint()
         usersResource.getUsers().each { User user ->
             log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
-            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
             def studyIds = studies*.studyId as Set
             def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
             if (notFetchedStudyIds) {
@@ -517,26 +626,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     /**
-     * Clears the patient count cache. This function should be called after loading, removing or updating
-     * observations in the database.
-     */
-    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.cachedPatientCount',
-            allEntries = true)
-    void clearPatientCountCache() {
-        log.info 'Clearing patient count cache ...'
-    }
-
-    /**
-     * Clears the counts per concept cache. This function should be called after loading, removing or updating
-     * observations in the database.
-     */
-    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
-            allEntries = true)
-    void clearCountsPerConceptCache() {
-        log.info 'Clearing counts per concept count cache ...'
-    }
-
-    /**
      * Clears the counts per study and concept cache. This function should be called after loading, removing or updating
      * observations in the database.
      */
@@ -544,16 +633,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             allEntries = true)
     void clearCountsPerStudyAndConceptCache() {
         log.info 'Clearing counts per study and concept count cache ...'
-    }
-
-    /**
-     * Clears the counts per study cache. This function should be called after loading, removing or updating
-     * observations in the database.
-     */
-    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
-            allEntries = true)
-    void clearCountsPerStudyCache() {
-        log.info 'Clearing counts per study count cache ...'
     }
 
 }

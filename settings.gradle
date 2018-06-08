@@ -10,4 +10,5 @@ include 'transmartApp', 'transmart-core-db', 'transmart-core-db-tests', 'transma
         'transmart-server',
         'transmart-oauth',
         'transmart-solr-indexing',
-        'transmart-notifications'
+        'transmart-notifications',
+        'transmart-api-server'

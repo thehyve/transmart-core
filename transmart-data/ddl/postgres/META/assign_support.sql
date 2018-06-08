@@ -98,7 +98,7 @@ BEGIN
             JOIN pg_namespace n ON (c.relnamespace = n.oid)
             JOIN pg_roles r ON (c.relowner = r.oid)
         WHERE
-            c.relkind IN ('r','S','v')
+            c.relkind IN ('r','S','v', 'm')
         ORDER BY c.relkind = 'S'
     )
     UNION

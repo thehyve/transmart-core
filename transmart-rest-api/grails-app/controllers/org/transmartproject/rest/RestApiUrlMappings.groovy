@@ -44,11 +44,22 @@ class RestApiUrlMappings {
             "/studies/$id"(method: 'GET', controller: 'studyQuery', action: 'findStudy') {
                 apiVersion = 'v2'
             }
+            "/studies/studyIds"(method: 'GET', controller: 'studyQuery', action: 'findStudiesByStudyIds') {
+                apiVersion = 'v2'
+            }
             "/studies/studyId/$studyId"(method: 'GET', controller: 'studyQuery', action: 'findStudyByStudyId') {
                 apiVersion = 'v2'
             }
             "/observations"(controller: 'query') {
                 action = [GET: 'observations', POST: 'observations']
+                apiVersion = 'v2'
+            }
+            "/observations/table"(controller: 'query') {
+                action = [GET: 'table', POST: 'table']
+                apiVersion = 'v2'
+            }
+            "/observations/crosstable"(controller: 'query') {
+                action = [GET: 'crosstable', POST: 'crosstable']
                 apiVersion = 'v2'
             }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
@@ -101,6 +112,9 @@ class RestApiUrlMappings {
                 apiVersion = 'v2'
             }
             "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
+                apiVersion = 'v2'
+            }
+            "/system/after_data_loading_update"(method: 'GET', controller: 'system', action: 'afterDataLoadingUpdate') {
                 apiVersion = 'v2'
             }
             "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
@@ -157,7 +171,8 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
+            "/dimensions/$dimensionName/elements"(controller: 'dimension') {
+                action = [GET: 'list', POST: 'list']
                 apiVersion = 'v2'
             }
             "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {

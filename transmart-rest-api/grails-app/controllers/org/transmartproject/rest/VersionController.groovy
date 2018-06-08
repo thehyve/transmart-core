@@ -62,7 +62,7 @@ class VersionController {
                 version: '1.1'
             ],[
                 id: 'v2',
-                version: '2.2-dev',
+                version: '2.4-dev',
                 features: [
                         'versioning',
                         'and-or-constraints',
@@ -72,6 +72,8 @@ class VersionController {
                         'pedigree',
                         'survey-table-view',
                         'query-subscription',
+                        'crosstable',
+                        'after_data_loading_update',
                 ]
             ]
     ])

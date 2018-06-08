@@ -76,8 +76,7 @@ class CohortSpec extends RESTSpec {
 
         then: "1 patient is returned"
 
-        def expected = [age: 26, birthDate: null, deathDate: null, id: -60, inTrialId: '1', maritalStatus: null, race: 'Caucasian', religion: null, sex: 'MALE', subjectIds:[:], trial: 'CATEGORICAL_VALUES']
-        assert responseData.patients.size() == 1
-        assert responseData.patients[0].equals(expected)
+        responseData.patients.size() == 1
+        responseData.patients[0].subjectIds['SUBJ_ID'] == 'CV:60'
     }
 }

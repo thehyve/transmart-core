@@ -18,24 +18,59 @@
  */
 package org.transmartproject.rest.serialization
 
+import org.transmartproject.core.dataquery.PaginationParameters
+import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 
 interface DataSerializer {
+
     /**
      * Write clinical data to the output stream
      *
      * @param format
-     * @param constraint
+     * @param parameters
      * @param user The user accessing the data
      * @param out
      * @param options
      */
     void writeClinical(Format format,
-                       Constraint constraint,
+                       DataRetrievalParameters parameters,
                        User user,
-                       OutputStream out,
-                       Map options)
+                       OutputStream out)
+
+    /**
+     * Write tabular data to the output stream.
+     *
+     * @param format
+     * @param constraint
+     * @param tableConfig
+     * @param user
+     * @param out
+     */
+    void writeTable(Format format,
+                    Constraint constraint,
+                    TableConfig tableConfig,
+                    User user,
+                    OutputStream out)
+
+    /**
+     * Write tabular data page to the output stream.
+     *
+     * @param format
+     * @param constraint
+     * @param tableConfig
+     * @param pagination
+     * @param user
+     * @param out
+     */
+    void writeTablePage(Format format,
+                    Constraint constraint,
+                    TableConfig tableConfig,
+                    PaginationParameters pagination,
+                    User user,
+                    OutputStream out)
 
     /**
      * Write high dimensional data to the output stream
@@ -60,4 +95,5 @@ interface DataSerializer {
      * @return Supported file formats by this implementation.
      */
     Set<Format> getSupportedFormats()
+
 }

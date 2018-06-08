@@ -21,14 +21,14 @@
 // You should have received a copy of the GNU General Public License along
 // with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
+syntax = "proto2";
 package highdim;
 
 option java_package = "org.transmartproject.rest.protobuf";
 option java_outer_classname = "HighDimProtos";
 
 //command to compile this file, from the transmart-rest-api base folder:
-//protoc --java_out=src/java src/protobuf/highdim/highdim.proto
+//protoc --java_out=src/main/groovy src/protobuf/highdim/highdim.proto
 message HighDimHeader {
 
     repeated Assay assay = 1;
