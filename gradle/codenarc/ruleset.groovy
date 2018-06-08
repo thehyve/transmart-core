@@ -95,15 +95,15 @@ ruleset {
 	// rulesets/design.xml
 	AbstractClassWithPublicConstructor
 	AbstractClassWithoutAbstractMethod
-	BooleanMethodReturnsNull
+	// BooleanMethodReturnsNull
 	// BuilderMethodWithSideEffects
 	CloneableWithoutClone
-	CloseWithoutCloseable
+	// CloseWithoutCloseable
 	CompareToWithoutComparable
 	ConstantsOnlyInterface
 	EmptyMethodInAbstractClass
 	FinalClassWithProtectedMember
-	ImplementationAsType
+	// ImplementationAsType
 	PrivateFieldCouldBeFinal
 	PublicInstanceField
 	ReturnsNullInsteadOfEmptyArray
@@ -112,7 +112,7 @@ ruleset {
 	StatelessSingleton
 
 	// rulesets/dry.xml
-	DuplicateListLiteral
+	// DuplicateListLiteral
 	DuplicateMapLiteral
 //	DuplicateNumberLiteral
 //	DuplicateStringLiteral
@@ -125,7 +125,7 @@ ruleset {
 	CatchIndexOutOfBoundsException
 	CatchNullPointerException
 	CatchRuntimeException
-	CatchThrowable
+	// CatchThrowable
 	ConfusingClassNamedException
 	ExceptionExtendsError
 	MissingNewInThrowStatement
@@ -139,7 +139,7 @@ ruleset {
 
 	// rulesets/formatting.xml
 	BracesForClass
-	BracesForForLoop
+	// BracesForForLoop
 	BracesForIfElse
 	BracesForMethod
 	BracesForTryCatchFinally
@@ -165,7 +165,7 @@ ruleset {
 	// rulesets/groovyism.xml
 	AssignCollectionSort
 	AssignCollectionUnique
-	ClosureAsLastMethodParameter
+	// ClosureAsLastMethodParameter
 	CollectAllIsDeprecated
 	ConfusingMultipleReturns
 	ExplicitArrayListInstantiation
@@ -201,11 +201,11 @@ ruleset {
 	ImportFromSunPackages
 	// MisorderedStaticImports we prefer static after
 	UnnecessaryGroovyImport
-	UnusedImport
+	// UnusedImport
 
 	// rulesets/jdbc.xml
 	DirectConnectionManagement
-	JdbcConnectionReference
+	// JdbcConnectionReference
 	// JdbcResultSetReference
 	// JdbcStatementReference
 
@@ -237,7 +237,7 @@ ruleset {
 	LoggingSwallowsStacktrace
 	MultipleLoggers
 	PrintStackTrace
-	Println
+	// Println
 	SystemErrPrint
 	SystemOutPrint
 
@@ -258,12 +258,12 @@ ruleset {
 	// rulesets/security.xml
 	FileCreateTempFile
 	InsecureRandom
-	JavaIoPackageAccess
+	// JavaIoPackageAccess
 	NonFinalPublicField
 	NonFinalSubclassOfSensitiveInterface
 	ObjectFinalize
 	PublicFinalizeMethod
-	SystemExit
+	// SystemExit
 	UnsafeArrayDeclaration
 
 	// rulesets/serialization.xml
@@ -291,7 +291,7 @@ ruleset {
 	UnnecessaryCallForLastElement
 	UnnecessaryCallToSubstring
 	UnnecessaryCatchBlock
-	UnnecessaryCollectCall
+	// UnnecessaryCollectCall
 	UnnecessaryCollectionCall
 	UnnecessaryConstructor
 	UnnecessaryDefInFieldDeclaration
