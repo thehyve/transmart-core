@@ -24,6 +24,10 @@ import java.sql.Connection
 import java.sql.ResultSet
 import java.time.Instant
 
+/**
+ * Wrapper around a database connection that provides functions for
+ * fetching metadata about the database and for inserting of fetching records.
+ */
 @Slf4j
 @CompileStatic
 class Database implements AutoCloseable {
@@ -34,32 +38,32 @@ class Database implements AutoCloseable {
         } else {
             switch(dataTypeName.trim().toLowerCase()) {
                 case 'bool':
-                    return Boolean.class
+                    return Boolean
                 case 'numeric':
-                    return BigDecimal.class
+                    return BigDecimal
                 case 'integer':
                 case 'int8':
                 case 'int4':
-                    return Integer.class
+                    return Integer
                 case 'bigint':
                 case 'serial':
-                    return Long.class
+                    return Long
                 case 'varchar':
                 case 'text':
                 case 'char':
                 case 'bpchar':
-                    return String.class
+                    return String
                 case 'timestamp':
-                    return Instant.class
+                    return Instant
                 default:
                     throw new IllegalArgumentException("Unknown data type name: ${dataTypeName}.")
             }
         }
     }
 
-    static final int defaultBatchSize = 500
-    static final int defaultFlushSize = 1000
-    static final DefaultTransactionDefinition transactionDefinition =
+    static final int DEFAULT_BATCH_SIZE = 500
+    static final int DEFAULT_FLUSH_SIZE = 1000
+    static final DefaultTransactionDefinition TRANSACTION_DEFINITION =
             new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED)
 
     final HikariConfig config = new HikariConfig()
@@ -105,7 +109,7 @@ class Database implements AutoCloseable {
     }
 
     TransactionStatus beginTransaction() {
-        transactionManager.getTransaction(transactionDefinition)
+        transactionManager.getTransaction(TRANSACTION_DEFINITION)
     }
 
     void commit(TransactionStatus tx) {
@@ -197,14 +201,14 @@ class Database implements AutoCloseable {
             JOIN pg_catalog.pg_namespace cn ON (c.relnamespace=cn.oid)
             JOIN pg_class as p ON (inhparent=p.oid)
             JOIN pg_catalog.pg_namespace pn ON (p.relnamespace=pn.oid)
-            WHERE pn.nspname || '.' || p.relname='${parentTable}';
+            WHERE pn.nspname || '.' || p.relname='${parentTable}'
         """)
 
-        HashSet<Table> tables = new HashSet<>()
+        def tables = [] as HashSet<Table>
         for (Map<String, Object> resultRow : queryResult) {
             tables.add(new Table(resultRow.childSchema.toString(), resultRow.childTable.toString()))
         }
-        return tables
+        tables
     }
 
     void dropTable(Table tableToDrop, boolean ifExists = false) {
@@ -213,7 +217,7 @@ class Database implements AutoCloseable {
 
     Set<String> indexesForTable(Table table) {
         Set<String> indxNames = [] as Set
-        ResultSet rs = connection.getMetaData().getIndexInfo(null, table.schema, table.name, false, false)
+        ResultSet rs = connection.metaData.getIndexInfo(null, table.schema, table.name, false, false)
         try  {
             while (rs.next()) {
                 indxNames << rs.getString('INDEX_NAME')
@@ -221,7 +225,7 @@ class Database implements AutoCloseable {
         } finally {
             rs.close()
         }
-        return indxNames
+        indxNames
     }
 
     @Override

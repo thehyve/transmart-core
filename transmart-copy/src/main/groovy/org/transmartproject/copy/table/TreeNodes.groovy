@@ -16,11 +16,14 @@ import org.transmartproject.copy.Util
 import java.sql.ResultSet
 import java.sql.SQLException
 
+/**
+ * Fetching and loading of tree nodes.
+ */
 @Slf4j
 @CompileStatic
 class TreeNodes {
 
-    static final Table table = new Table('i2b2metadata', 'i2b2_secure')
+    static final Table TABLE = new Table('i2b2metadata', 'i2b2_secure')
 
     final Database database
 
@@ -36,7 +39,7 @@ class TreeNodes {
         this.database = database
         this.studies = studies
         this.concepts = concepts
-        this.columns = this.database.getColumnMetadata(table)
+        this.columns = this.database.getColumnMetadata(TABLE)
     }
 
     @CompileStatic
@@ -52,7 +55,7 @@ class TreeNodes {
     void fetch() {
         def treeNodeHandler = new TreeNodeRowHandler()
         database.jdbcTemplate.query(
-                "select c_fullname from ${table}".toString(),
+                "select c_fullname from ${TABLE}".toString(),
                 treeNodeHandler
         )
         paths.addAll(treeNodeHandler.paths)
@@ -60,7 +63,41 @@ class TreeNodes {
         log.debug "Paths: ${paths}"
     }
 
-    static final Set<String> operators = ['=', 'like'] as Set
+    static final Set<String> OPERATORS = ['=', 'like'] as Set
+
+    void validateConceptNode(String path, String columnName, String operator, String dimCode, boolean isLeafNode) {
+        if (!(operator in OPERATORS)) {
+            throw new IllegalStateException("Unexpected operator for node ${path}: ${operator}.")
+        }
+        if (columnName == 'concept_cd') {
+            if (!(dimCode in concepts.conceptCodes)) {
+                throw new IllegalStateException("Unknown concept code for node ${path}: ${dimCode}.")
+            }
+        } else if (columnName == 'concept_path') {
+            if (!(dimCode in concepts.conceptPaths) && isLeafNode) {
+                throw new IllegalStateException("Unknown concept path for node ${path}: ${dimCode}.")
+            }
+        } else {
+            throw new IllegalStateException("Unexpected column name for concept node ${path}: ${columnName}.")
+        }
+    }
+
+    void validateStudyNode(String path, String columnName, String operator, String dimCode) {
+        if (!(operator in OPERATORS)) {
+            throw new IllegalStateException("Unexpected operator for node ${path}: ${operator}.")
+        }
+        if (columnName == 'study_id') {
+            if (!(dimCode in studies.studyIdToStudyNum.keySet())) {
+                throw new IllegalStateException("Unknown study id for node ${path}: ${dimCode}.")
+            }
+        } else {
+            throw new IllegalStateException("Unexpected column name for study node ${path}: ${columnName}.")
+        }
+    }
+
+    static String getLowercaseProperty(Map<String, Object> treeNode, String name) {
+        (treeNode[name] as String)?.trim()?.toLowerCase()
+    }
 
     void validateNode(Map<String, Object> treeNode) {
         def path = (treeNode['c_fullname'] as String)?.trim()
@@ -68,12 +105,13 @@ class TreeNodes {
             throw new IllegalStateException("Invalid path: ${path}")
         }
         def visualAttributes = treeNode['c_visualattributes'] as String
-        def tableName = (treeNode['c_tablename'] as String)?.trim()?.toLowerCase()
-        def columnName = (treeNode['c_columnname'] as String)?.trim()?.toLowerCase()
-        def operator = (treeNode['c_operator'] as String)?.trim()?.toLowerCase()
+        def tableName = getLowercaseProperty(treeNode, 'c_tablename')
+        def columnName = getLowercaseProperty(treeNode,'c_columnname')
+        def operator = getLowercaseProperty(treeNode,'c_operator')
         def dimCode = treeNode['c_dimcode'] as String
         if (visualAttributes?.length() > 3) {
-            throw new IllegalStateException("Invalid visual attributes for ${path}: '${visualAttributes}' (maximum length is 3).")
+            throw new IllegalStateException(
+                    "Invalid visual attributes for ${path}: '${visualAttributes}' (maximum length is 3).")
         }
         if (visualAttributes?.startsWith('C')) {
             log.debug "Container: ${path}"
@@ -83,38 +121,16 @@ class TreeNodes {
         def isLeafNode = visualAttributes?.startsWith('L')
         def isStudyNode = visualAttributes?.length() == 3 && visualAttributes[2] == 'S'
         if (tableName == 'concept_dimension') {
-            if (!(operator in operators)) {
-                throw new IllegalStateException("Unexpected operator for node ${path}: ${operator}.")
-            }
-            if (columnName == 'concept_cd') {
-                if (!(dimCode in concepts.conceptCodes)) {
-                    throw new IllegalStateException("Unknown concept code for node ${path}: ${dimCode}.")
-                }
-            } else if (columnName == 'concept_path') {
-                if (!(dimCode in concepts.conceptPaths) && isLeafNode) {
-                    throw new IllegalStateException("Unknown concept path for node ${path}: ${dimCode}.")
-                }
-            } else {
-                throw new IllegalStateException("Unexpected column name for concept node ${path}: ${columnName}.")
-            }
+            validateConceptNode(path, columnName, operator, dimCode, isLeafNode)
         } else if (isStudyNode && tableName == 'study') {
-            if (!(operator in operators)) {
-                throw new IllegalStateException("Unexpected operator for node ${path}: ${operator}.")
-            }
-            if (columnName == 'study_id') {
-                if (!(dimCode in studies.studyIdToStudyNum.keySet())) {
-                    throw new IllegalStateException("Unknown study id for node ${path}: ${dimCode}.")
-                }
-            } else {
-                throw new IllegalStateException("Unexpected column name for study node ${path}: ${columnName}.")
-            }
+            validateStudyNode(path, columnName, operator, dimCode)
         } else if (isLeafNode || isStudyNode) {
             throw new IllegalStateException("Unexpected table name for node ${path}: ${tableName}.")
         }
     }
 
     void load(String rootPath) {
-        def treeNodesFile = new File(rootPath, table.fileName)
+        def treeNodesFile = new File(rootPath, TABLE.fileName)
         def tx = database.beginTransaction()
         updateTreeNodePaths(concepts.oldToNewConceptPath)
         treeNodesFile.withReader { reader ->
@@ -125,7 +141,7 @@ class TreeNodes {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    header = Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(TABLE.fileName, data, columns)
                     return
                 }
                 try {
@@ -139,11 +155,11 @@ class TreeNodes {
                     } else {
                         insertCount++
                         log.debug "Inserting new tree node: ${path} ..."
-                        database.insertEntry(table, header, treeNodeData)
+                        database.insertEntry(TABLE, header, treeNodeData)
                         paths.add(path)
                     }
-                } catch (Exception e) {
-                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
+                } catch (Throwable e) {
+                    log.error "Error on line ${i} of ${TABLE.fileName}: ${e.message}."
                     throw e
                 }
             }
@@ -166,19 +182,26 @@ class TreeNodes {
             } as Map<String, ?>[]
             int[] removedRowsBatch = database.namedParameterJdbcTemplate.batchUpdate(
                     """delete from ${
-                        table
-                    } where c_fullname = :oldPath and c_dimcode = :oldPath and c_columnname ilike 'concept_path' and c_tablename ilike 'concept_dimension'""".toString(),
+                        TABLE
+                    }
+                    where c_fullname = :oldPath
+                    and c_dimcode = :oldPath
+                    and c_columnname ilike 'concept_path'
+                    and c_tablename ilike 'concept_dimension'""".toString(),
                     params)
             for (int i = 0; i < removedRowsBatch.length; i++) {
                 log.info("${removedRowsBatch[i]} node with '${params[i].oldPath}' path was removed.")
                 paths.remove(params[i].oldPath)
             }
             int[] updatedRowsBatch = database.namedParameterJdbcTemplate.batchUpdate(
-                    """update ${table} set c_dimcode = :newPath
-                       where c_dimcode = :oldPath and c_columnname ilike 'concept_path' and c_tablename ilike 'concept_dimension'""".toString(),
+                    """update ${TABLE} set c_dimcode = :newPath
+                       where c_dimcode = :oldPath
+                       and c_columnname ilike 'concept_path'
+                       and c_tablename ilike 'concept_dimension'""".toString(),
                     params)
             for (int i = 0; i < updatedRowsBatch.length; i++) {
-                log.info("${updatedRowsBatch[i]} nodes with reference to '${params[i].oldPath}' concept path were updated to point to '${params[i].newPath}'.")
+                log.info("${updatedRowsBatch[i]} nodes with reference to '${params[i].oldPath}' concept path " +
+                        "were updated to point to '${params[i].newPath}'.")
             }
         } else {
             log.debug("No paths to update. Exit.")

@@ -9,6 +9,7 @@ package org.transmartproject.copy.table
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.Counts
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -16,11 +17,14 @@ import org.transmartproject.copy.Util
 import java.sql.ResultSet
 import java.sql.SQLException
 
+/**
+ * Fetching and loading of concepts.
+ */
 @Slf4j
 @CompileStatic
 class Concepts {
 
-    static final Table table = new Table('i2b2demodata', 'concept_dimension')
+    static final Table TABLE = new Table('i2b2demodata', 'concept_dimension')
 
     final Database database
 
@@ -37,7 +41,7 @@ class Concepts {
 
     Concepts(Database database, updateConceptPath = false) {
         this.database = database
-        this.columns = this.database.getColumnMetadata(table)
+        this.columns = this.database.getColumnMetadata(TABLE)
         this.updateConceptPath = updateConceptPath
     }
 
@@ -57,7 +61,8 @@ class Concepts {
                 log.warn "Duplicate concept code in the database: ${conceptCode}"
                 def knownPath = conceptCodeToConceptPath[conceptCode]
                 if (knownPath != conceptPath) {
-                    log.warn "Inconsistent data in the database: concept code ${conceptCode} associated with multiple paths:"
+                    log.warn "Inconsistent data in the database: concept code ${conceptCode}" +
+                            " associated with multiple paths:"
                     log.warn " - ${knownPath}"
                     log.warn " - ${conceptPath}"
                 }
@@ -69,7 +74,7 @@ class Concepts {
     void fetch() {
         def rowHandler = new ConceptRowHandler()
         database.jdbcTemplate.query(
-                "select concept_path, concept_cd from ${table}".toString(),
+                "select concept_path, concept_cd from ${TABLE}".toString(),
                 rowHandler
         )
         conceptPaths.addAll(rowHandler.conceptPaths)
@@ -79,70 +84,82 @@ class Concepts {
         log.debug "Concept codes: ${conceptCodes}"
     }
 
+    void updatePathForConcept(
+            String conceptCode, String conceptPath, Map conceptData, LinkedHashMap<String, Class> header) {
+        log.info "Updating concept path from '${conceptCodeToConceptPath[conceptCode]}' to '${conceptPath}'."
+        int records = database.namedParameterJdbcTemplate.update(
+                "delete from ${TABLE} where concept_cd = :conceptCode and concept_path = :conceptPath",
+                [conceptPath: conceptCodeToConceptPath[conceptCode],
+                 conceptCode: conceptCode])
+        conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
+        log.debug "${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path were removed." +
+                " Inserting '${conceptPath}' instead."
+        database.insertEntry(TABLE, header, conceptData)
+        conceptPaths.add(conceptPath)
+        oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
+        conceptCodeToConceptPath[conceptCode] = conceptPath
+    }
+
+    private void loadConceptData(LinkedHashMap<String, Class> header, Map conceptData, Counts counts) {
+        def conceptCode = conceptData['concept_cd'] as String
+        def conceptPath = conceptData['concept_path'] as String
+        if (conceptCode in conceptCodes) {
+            def knownConceptPath = conceptCodeToConceptPath[conceptCode]
+            if (conceptPath != knownConceptPath) {
+                if (updateConceptPath) {
+                    updatePathForConcept(conceptCode, conceptPath, conceptData, header)
+                    counts.updatedCount++
+                } else {
+                    log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},\n" +
+                            "but concept with that code already exists with path ${knownConceptPath}."
+                    throw new IllegalStateException(
+                            "Cannot load concept with code ${conceptCode}. " +
+                                    "Other concept already exists with that code.")
+                }
+            } else {
+                counts.existingCount++
+                log.debug "Found existing concept: ${conceptCode}."
+            }
+        } else if (conceptPath in conceptPaths) {
+            log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
+            log.error "but concept with that path already exists with another code."
+            throw new IllegalStateException(
+                    "Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
+        } else {
+            counts.insertCount++
+            log.debug "Inserting new concept: ${conceptCode} ..."
+            database.insertEntry(TABLE, header, conceptData)
+            conceptCodes.add(conceptCode)
+            conceptPaths.add(conceptPath)
+            conceptCodeToConceptPath[conceptCode] = conceptPath
+        }
+    }
+
     void load(String rootPath) {
-        def conceptsFile = new File(rootPath, table.fileName)
+        def conceptsFile = new File(rootPath, TABLE.fileName)
         def tx = database.beginTransaction()
         conceptsFile.withReader { reader ->
             log.info "Reading concepts from file ..."
-            def insertCount = 0
-            def updatedCount = 0
-            def existingCount = 0
+            def counts = new Counts()
             def tsvReader = Util.tsvReader(reader)
             LinkedHashMap<String, Class> header = columns
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    header = Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(TABLE.fileName, data, columns)
                     return
                 }
                 try {
                     def conceptData = Util.asMap(header, data)
-                    def conceptCode = conceptData['concept_cd'] as String
-                    def conceptPath = conceptData['concept_path'] as String
-                    if (conceptCode in conceptCodes) {
-                        if (conceptPath != conceptCodeToConceptPath[conceptCode]) {
-                            if (updateConceptPath) {
-                                log.info("Updating concept path from '${conceptCodeToConceptPath[conceptCode]}' to '${conceptPath}'.")
-                                int records = database.namedParameterJdbcTemplate.update(
-                                        "delete from ${table} where concept_cd = :conceptCode and concept_path = :conceptPath",
-                                        [conceptPath: conceptCodeToConceptPath[conceptCode],
-                                         conceptCode: conceptCode])
-                                conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
-                                log.debug("${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path were removed. Inserting '${conceptPath}' instead.")
-                                database.insertEntry(table, header, conceptData)
-                                conceptPaths.add(conceptPath)
-                                oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
-                                conceptCodeToConceptPath[conceptCode] = conceptPath
-                                updatedCount++
-                            } else {
-                                log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
-                                log.error "but concept with that code already exists with path ${conceptCodeToConceptPath[conceptCode]}."
-                                throw new IllegalStateException("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
-                            }
-                        } else {
-                            existingCount++
-                            log.debug "Found existing concept: ${conceptCode}."
-                        }
-                    } else if (conceptPath in conceptPaths) {
-                        log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
-                        log.error "but concept with that path already exists with another code."
-                        throw new IllegalStateException("Cannot load concept with code ${conceptCode}. Other concept already exists with that code.")
-                    } else {
-                        insertCount++
-                        log.debug "Inserting new concept: ${conceptCode} ..."
-                        database.insertEntry(table, header, conceptData)
-                        conceptCodes.add(conceptCode)
-                        conceptPaths.add(conceptPath)
-                        conceptCodeToConceptPath[conceptCode] = conceptPath
-                    }
-                } catch (Exception e) {
-                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}"
+                    loadConceptData(header, conceptData, counts)
+                } catch (Throwable e) {
+                    log.error "Error on line ${i} of ${TABLE.fileName}: ${e.message}"
                     throw e
                 }
             }
             database.commit(tx)
-            log.info "${existingCount} existing concepts found."
-            log.info "${insertCount} concepts inserted."
-            log.info "${updatedCount} concepts updated."
+            log.info "${counts.existingCount} existing concepts found."
+            log.info "${counts.insertCount} concepts inserted."
+            log.info "${counts.updatedCount} concepts updated."
         }
     }
 

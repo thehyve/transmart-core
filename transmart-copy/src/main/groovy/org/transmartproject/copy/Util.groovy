@@ -21,6 +21,9 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+/**
+ * Collection of utility functions for transmart-copy.
+ */
 @Slf4j
 @CompileStatic
 class Util {
@@ -48,7 +51,8 @@ class Util {
      * @param columns The column names and types as defined in the database table.
      * @return a map from column name to type, where the columns are ordered as in {@code header}.
      */
-    static LinkedHashMap<String, Class> verifyHeader(String filename, String[] header, LinkedHashMap<String, Class> columns) {
+    static LinkedHashMap<String, Class> verifyHeader(
+            String filename, String[] header, LinkedHashMap<String, Class> columns) {
         List<String> columnNames = columns.collect { it.key }
         if ((header as Set) != (columnNames as Set)) {
             log.error "Expected: ${columnNames}"
@@ -70,11 +74,11 @@ class Util {
         }
     }
 
-    static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss')
+    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss')
     static final ZoneId UTC = ZoneId.of('UTC')
 
     static final Timestamp parseDate(String value) {
-        LocalDateTime localDateTime = LocalDateTime.from(dateFormat.parse(value))
+        LocalDateTime localDateTime = LocalDateTime.from(DATE_FORMAT.parse(value))
         ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, UTC)
         def result = Timestamp.from(Instant.from(zonedDateTime))
         log.debug "${value} -> ${localDateTime} -> ${zonedDateTime} -> ${result}"
@@ -94,30 +98,31 @@ class Util {
 
     static final Map<String, Object> asMap(final LinkedHashMap<String, Class> columns, final String[] data) {
         if (columns.size() != data.length) {
-            throw new IllegalArgumentException("Data row length (${data.length}) does not match number of columns (${columns.size()}).")
+            throw new IllegalArgumentException(
+                    "Data row length (${data.length}) does not match number of columns (${columns.size()}).")
         }
         def result = [:] as Map<String, Object>
         columns.eachWithIndex{ String columnName, Class columnType, int i ->
             switch(columnType) {
-                case String.class:
+                case String:
                     result[columnName] = parseIfNotEmpty(data[i], { it })
                     break
-                case Integer.class:
+                case Integer:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> Integer.parseInt(value) })
                     break
-                case Long.class:
+                case Long:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> Long.parseLong(value) })
                     break
-                case Double.class:
+                case Double:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> Double.parseDouble(value) })
                     break
-                case BigDecimal.class:
+                case BigDecimal:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> new BigDecimal(value) })
                     break
-                case Instant.class:
+                case Instant:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> parseDate(value) })
                     break
-                case Boolean.class:
+                case Boolean:
                     result[columnName] = parseIfNotEmpty(data[i], { String value -> parseBoolean(value) })
                     break
                 default:

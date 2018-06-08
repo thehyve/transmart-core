@@ -7,24 +7,27 @@ import org.apache.commons.cli.Options
 import org.transmartproject.copy.table.*
 import spock.lang.Specification
 
+/**
+ * Test the data loading functionality of transmart-copy.
+ */
 class CopySpec extends Specification {
 
-    static String TEST_STUDY = 'SURVEY0'
-    static String STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY
-    static String CORRUPTED_STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY + '_corrupted'
-    static Map<String, String> DATABASE_CREDENTIALS = [
+    static final String TEST_STUDY = 'SURVEY0'
+    static final String STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY
+    static final String CORRUPTED_STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY + '_corrupted'
+    static final Map<String, String> DATABASE_CREDENTIALS = [
             PGHOST    : 'localhost',
-            PGPORT    : 5432,
+            PGPORT    : '5432',
             PGDATABASE: 'transmart',
             PGUSER    : 'i2b2demodata',
             PGPASSWORD: 'i2b2demodata'
     ]
 
     def studySpecificTables = [
-            Observations.table,
-            Studies.trial_visit_table,
-            Studies.study_table,
-            Studies.study_dimensions_table,
+            Observations.TABLE,
+            Studies.TRIAL_VISIT_TABLE,
+            Studies.STUDY_TABLE,
+            Studies.STUDY_DIMENSIONS_TABLE,
     ]
 
     Copy copy
@@ -46,10 +49,11 @@ class CopySpec extends Specification {
         ensureTestStudyUnloaded()
         Map beforeCounts = count(studySpecificTables)
         Map fileRowCounts = count(STUDY_FOLDER, studySpecificTables)
-        def expectedConceptPaths = readFieldsFromFile(STUDY_FOLDER, Concepts.table, 'concept_path')
-        def expectedModifierPaths = readFieldsFromFile(STUDY_FOLDER, Modifiers.table, 'modifier_path')
-        def expectedSubjectIds = readFieldsFromFile(STUDY_FOLDER, Patients.patient_mapping_table, 'patient_ide')
-        def expectedTreeNodePaths = readFieldsFromFile(STUDY_FOLDER, TreeNodes.table, 'c_fullname')
+        def expectedConceptPaths = readFieldsFromFile(STUDY_FOLDER, Concepts.TABLE, 'concept_path')
+        def expectedModifierPaths = readFieldsFromFile(STUDY_FOLDER, Modifiers.TABLE, 'modifier_path')
+        def expectedSubjectIds =
+                readFieldsFromFile(STUDY_FOLDER, Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def expectedTreeNodePaths = readFieldsFromFile(STUDY_FOLDER, TreeNodes.TABLE, 'c_fullname')
 
         when: 'Loading example study data'
         copy.uploadStudy(STUDY_FOLDER, defaultConfig)
@@ -57,14 +61,14 @@ class CopySpec extends Specification {
         Map afterCounts = count(studySpecificTables)
         Map expectedCounts = fileRowCounts
                 .collectEntries { Table table, Number rows -> [table, beforeCounts[table] + rows] }
-        def inDbConceptPaths = readFieldsFromDb(Concepts.table, 'concept_path')
-        def inDbModifierPaths = readFieldsFromDb(Modifiers.table, 'modifier_path')
-        def inDbSubjectIds = readFieldsFromDb(Patients.patient_mapping_table, 'patient_ide')
-        def inDbTreeNodePaths = readFieldsFromDb(TreeNodes.table, 'c_fullname')
+        def inDbConceptPaths = readFieldsFromDb(Concepts.TABLE, 'concept_path')
+        def inDbModifierPaths = readFieldsFromDb(Modifiers.TABLE, 'modifier_path')
+        def inDbSubjectIds = readFieldsFromDb(Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def inDbTreeNodePaths = readFieldsFromDb(TreeNodes.TABLE, 'c_fullname')
 
 
         then: 'Expect the study to be loaded'
-        getTestStudyDbIdentifier()
+        testStudyDbIdentifier
         expectedCounts == afterCounts
         inDbConceptPaths.containsAll(expectedConceptPaths)
         inDbModifierPaths.containsAll(expectedModifierPaths)
@@ -75,14 +79,14 @@ class CopySpec extends Specification {
     def 'test loading the relations data'() {
         given: 'Test database is available, the study is not loaded'
 
-        def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
+        def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.RELATION_TABLE, 'label')
 
         when: 'Loading the pedigree data'
         copy.uploadPedigree(STUDY_FOLDER, defaultConfig)
 
         then: 'Expect the study to be loaded'
-        def inDbRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.relation_table, 'label')
-        count([Relations.relation_table]) == count(STUDY_FOLDER, [Relations.relation_table])
+        def inDbRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.RELATION_TABLE, 'label')
+        count([Relations.RELATION_TABLE]) == count(STUDY_FOLDER, [Relations.RELATION_TABLE])
         inDbRelationTypeLabels.containsAll(expectedRelationTypeLabels)
     }
 
@@ -114,7 +118,7 @@ class CopySpec extends Specification {
         !tableBarExists
 
         when: 'Checking for an existing table'
-        def observationsTableExists = copy.database.tableExists(Observations.table)
+        def observationsTableExists = copy.database.tableExists(Observations.TABLE)
         then: 'The result is true'
         observationsTableExists
     }
@@ -122,12 +126,12 @@ class CopySpec extends Specification {
     def 'test index management'() {
         when: 'dropping and restore indexes'
         copy.dropIndexes()
-        def afterDropIndexes = copy.database.indexesForTable(Observations.table)
+        def afterDropIndexes = copy.database.indexesForTable(Observations.TABLE)
         copy.restoreIndexes()
 
         then:
         afterDropIndexes == ['observation_fact_pkey'] as Set
-        copy.database.indexesForTable(Observations.table) == [
+        copy.database.indexesForTable(Observations.TABLE) == [
                 'observation_fact_pkey',
                 'idx_fact_patient_num',
                 'idx_fact_trial_visit_num',
@@ -179,7 +183,7 @@ class CopySpec extends Specification {
     def 'test re-upload in single transaction'() {
         given: 'there is a study'
         ensureTestStudyLoaded()
-        def studyId1 = getTestStudyDbIdentifier()
+        def studyId1 = testStudyDbIdentifier
         Options options = new Options()
         options.addOption(new Option('d', 'directory', true, ''))
 
@@ -189,13 +193,13 @@ class CopySpec extends Specification {
         Copy.runCopy(cli1, DATABASE_CREDENTIALS)
         then: 'transaction has rolled back'
         thrown(FileNotFoundException)
-        getTestStudyDbIdentifier() == studyId1
+        testStudyDbIdentifier == studyId1
 
         when: 'load is successful'
         CommandLine cli2 = new DefaultParser().parse(options, ['--directory', STUDY_FOLDER] as String[])
         Copy.runCopy(cli2, DATABASE_CREDENTIALS)
         then: 'new data have been uploaded'
-        getTestStudyDbIdentifier() > studyId1
+        testStudyDbIdentifier > studyId1
     }
 
 
@@ -207,14 +211,14 @@ class CopySpec extends Specification {
         options.addOption(new Option('p', 'partition', false, ''))
         options.addOption(new Option('D', 'delete', true, ''))
         options.addOption(new Option('u', 'unlogged', false, ''))
-        Set<Table> childTablesBefore = copy.database.getChildTables(Observations.table)
+        Set<Table> childTablesBefore = copy.database.getChildTables(Observations.TABLE)
 
         when: 'loading data with partitioning'
         CommandLine cli1 = new DefaultParser()
                 .parse(options, ['--directory', STUDY_FOLDER, '--partition'] as String[])
         Copy.runCopy(cli1, DATABASE_CREDENTIALS)
-        Set<Table> childTablesAfterLoad = copy.database.getChildTables(Observations.table)
-        def studyId1 = getTestStudyDbIdentifier()
+        Set<Table> childTablesAfterLoad = copy.database.getChildTables(Observations.TABLE)
+        def studyId1 = testStudyDbIdentifier
         def addedChildTables = (childTablesAfterLoad - childTablesBefore)
 
         then: 'partitions created'
@@ -227,8 +231,8 @@ class CopySpec extends Specification {
         CommandLine cli2 = new DefaultParser()
                 .parse(options, ['--directory', STUDY_FOLDER, '--partition', '--unlogged'] as String[])
         Copy.runCopy(cli2, DATABASE_CREDENTIALS)
-        def studyId2 = getTestStudyDbIdentifier()
-        Set<Table> childTablesAfterReupload = copy.database.getChildTables(Observations.table)
+        def studyId2 = testStudyDbIdentifier
+        Set<Table> childTablesAfterReupload = copy.database.getChildTables(Observations.TABLE)
         then:
         studyId2 != null
         studyId1 != studyId2
@@ -240,7 +244,7 @@ class CopySpec extends Specification {
                 .parse(options, ['--delete', TEST_STUDY] as String[])
         Copy.runCopy(cli3, DATABASE_CREDENTIALS)
         then:
-        copy.database.getChildTables(Observations.table) == childTablesBefore
+        copy.database.getChildTables(Observations.TABLE) == childTablesBefore
         noTestStudyInDb()
 
         cleanup:
@@ -253,14 +257,17 @@ class CopySpec extends Specification {
         Options options = new Options()
         options.addOption(new Option('d', 'directory', true, ''))
         options.addOption(new Option('n', 'base-on-max-instance-num', false, ''))
-        def maxInstanceNum = readFieldsFromDb(Observations.table, 'instance_num').max() ?: 0
+        def maxInstanceNum = readFieldsFromDb(Observations.TABLE, 'instance_num').max() ?: 0
 
         when: 'study loaded with instance num calculation on'
         CommandLine cli1 = new DefaultParser()
                 .parse(options, ['--directory', STUDY_FOLDER, '--base-on-max-instance-num'] as String[])
         Copy.runCopy(cli1, DATABASE_CREDENTIALS)
         then: 'instance_num starts from base'
-        def instanceNums = readFieldsFromDb(Observations.table, 'instance_num', "where trial_visit_num in (${testTrialVisitsDbIdentifiers.join(',')})")
+        def instanceNums = readFieldsFromDb(
+                Observations.TABLE,
+                'instance_num',
+                "where trial_visit_num in (${testTrialVisitsDbIdentifiers.join(',')})")
         instanceNums.min() > maxInstanceNum
 
         when: 'study loaded with instance num calculation off'
@@ -268,35 +275,41 @@ class CopySpec extends Specification {
                 .parse(options, ['--directory', STUDY_FOLDER] as String[])
         Copy.runCopy(cli2, DATABASE_CREDENTIALS)
         then: 'instance_num starts from base'
-        def zeroBasedInstanceNums = readFieldsFromDb(Observations.table, 'instance_num', "where trial_visit_num in (${testTrialVisitsDbIdentifiers.join(',')})")
+        def zeroBasedInstanceNums = readFieldsFromDb(
+                Observations.TABLE,
+                'instance_num',
+                "where trial_visit_num in (${testTrialVisitsDbIdentifiers.join(',')})")
         zeroBasedInstanceNums.min() == 1
     }
 
     List<Number> getTestTrialVisitsDbIdentifiers() {
-        readFieldsFromDb(Studies.trial_visit_table, 'trial_visit_num', "where study_num='${getTestStudyDbIdentifier()}'")
+        readFieldsFromDb(
+                Studies.TRIAL_VISIT_TABLE,
+                'trial_visit_num',
+                "where study_num='${testStudyDbIdentifier}'")
     }
 
     Number getTestStudyDbIdentifier() {
-        def list = readFieldsFromDb(Studies.study_table, 'study_num', "where study_id='${TEST_STUDY}'")
+        def list = readFieldsFromDb(Studies.STUDY_TABLE, 'study_num', "where study_id='${TEST_STUDY}'")
         list ? list.first() : null
     }
 
     void ensureTestStudyLoaded() {
         if (noTestStudyInDb()) {
             copy.uploadStudy(STUDY_FOLDER, defaultConfig)
-            assert getTestStudyDbIdentifier()
+            assert testStudyDbIdentifier
         }
     }
 
     void ensureTestStudyUnloaded() {
-        if (getTestStudyDbIdentifier()) {
+        if (testStudyDbIdentifier) {
             copy.deleteStudyById(TEST_STUDY)
             assert noTestStudyInDb()
         }
     }
 
     boolean noTestStudyInDb() {
-        getTestStudyDbIdentifier() == null
+        testStudyDbIdentifier == null
     }
 
     Map<Table, Number> count(Iterable<Table> tables) {
@@ -326,7 +339,8 @@ class CopySpec extends Specification {
     }
 
     List<Map> readFieldsFromDb(Table table, List<String> selectFields, String where = '') {
-        copy.database.jdbcTemplate.queryForList("SELECT ${selectFields.join(', ')} FROM ${table}" + (where ? ' ' + where : ''))
+        copy.database.jdbcTemplate.queryForList(
+                "SELECT ${selectFields.join(', ')} FROM ${table}" + (where ? ' ' + where : ''))
     }
 
     List readFieldsFromFile(String folder, Table table, String selectField) {
