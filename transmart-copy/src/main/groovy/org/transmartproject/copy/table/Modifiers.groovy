@@ -16,11 +16,14 @@ import org.transmartproject.copy.Util
 import java.sql.ResultSet
 import java.sql.SQLException
 
+/**
+ * Fetching and loading of custom dimensions as modifiers.
+ */
 @Slf4j
 @CompileStatic
 class Modifiers {
 
-    static final Table table = new Table('i2b2demodata', 'modifier_dimension')
+    static final Table TABLE = new Table('i2b2demodata', 'modifier_dimension')
 
     final Database database
 
@@ -30,7 +33,7 @@ class Modifiers {
 
     Modifiers(Database database) {
         this.database = database
-        this.columns = this.database.getColumnMetadata(table)
+        this.columns = this.database.getColumnMetadata(TABLE)
     }
 
     @CompileStatic
@@ -46,7 +49,7 @@ class Modifiers {
     void fetch() {
         def modifierHandler = new ModifierRowHandler()
         database.jdbcTemplate.query(
-                "select modifier_cd from ${table}".toString(),
+                "select modifier_cd from ${TABLE}".toString(),
                 modifierHandler
         )
         modifierCodes.addAll(modifierHandler.modifierCodes)
@@ -55,9 +58,9 @@ class Modifiers {
     }
 
     void load(String rootPath) {
-        def modifiersFile = new File(rootPath, table.fileName)
+        def modifiersFile = new File(rootPath, TABLE.fileName)
         if (!modifiersFile.exists()) {
-            log.info "Skip loading of modifiers. No file ${table.fileName} found."
+            log.info "Skip loading of modifiers. No file ${TABLE.fileName} found."
             return
         }
         def tx = database.beginTransaction()
@@ -66,7 +69,7 @@ class Modifiers {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    header = Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(TABLE.fileName, data, columns)
                     return
                 }
                 try {
@@ -76,11 +79,11 @@ class Modifiers {
                         log.info "Found existing modifier: ${modifierCode}."
                     } else {
                         log.info "Inserting new modifier: ${modifierCode} ..."
-                        database.insertEntry(table, header, modifierData)
+                        database.insertEntry(TABLE, header, modifierData)
                         modifierCodes.add(modifierCode)
                     }
-                } catch(Exception e) {
-                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
+                } catch(Throwable e) {
+                    log.error "Error on line ${i} of ${TABLE.fileName}: ${e.message}."
                     throw e
                 }
             }

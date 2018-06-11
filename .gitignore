@@ -5,7 +5,6 @@ Thumbs.db
 # Gradle
 .gradle
 build/
-gradle/
 gradlew*
 
 # IDEs

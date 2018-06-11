@@ -24,28 +24,45 @@ class Copy implements AutoCloseable {
     @Immutable
     static class Config {
         boolean write
-        boolean temporaryTable
         String outputFile
         int batchSize
         int flushSize
         boolean updateConceptPaths
+        boolean partition
+        boolean unlogged
+        boolean baseOnMaxInstanceNum
     }
 
     static Options options = new Options()
     static {
-        options.addOption('h', 'help', false, 'Help.')
-        options.addOption('D', 'delete', true, 'Delete study by id.')
-        options.addOption('r', 'restore-indexes', false, 'Restore indexes.')
-        options.addOption('v', 'vacuum-analyze', false, 'Run vacuum analyze on the database.')
-        options.addOption('i', 'drop-indexes', false, 'Drop indexes when loading.')
-        options.addOption('u', 'unlogged', false, 'Set observations table to unlogged when loading.')
-        options.addOption('t', 'temporary-table', false, 'Use a temporary table when loading.')
-        options.addOption('b', 'batch-size', true, 'Number of observation to insert in a batch (default: 500).')
-        options.addOption('f', 'flush-size', true, 'Number of batches to flush to the database (default: 1000).')
-        options.addOption('w', 'write', true, 'Write observations to TSV file.')
-        options.addOption('d', 'directory', true, 'Specifies a data directory.')
-        options.addOption('m', 'mode', true, 'Load mode (e.g. \'study\' or \'pedigree\').')
-        options.addOption('U', 'update-concept-paths', false, 'Updates concept paths and tree nodes when there is concept code collision.')
+        options.addOption('h', 'help', false,
+                'Help.')
+        options.addOption('D', 'delete', true,
+                'Delete study by id.')
+        options.addOption('r', 'restore-indexes', false,
+                'Restore indexes.')
+        options.addOption('v', 'vacuum-analyze', false,
+                'Run vacuum analyze on the database.')
+        options.addOption('i', 'drop-indexes', false,
+                'Drop indexes when loading.')
+        options.addOption('u', 'unlogged', false,
+                'Set observations table to unlogged when loading.')
+        options.addOption('b', 'batch-size', true,
+                'Number of observation to insert in a batch (default: 500).')
+        options.addOption('f', 'flush-size', true,
+                'Number of batches to flush to the database (default: 1000).')
+        options.addOption('w', 'write', true,
+                'Write observations to TSV file.')
+        options.addOption('d', 'directory', true,
+                'Specifies a data directory.')
+        options.addOption('m', 'mode', true,
+                'Load mode (e.g. \'study\' or \'pedigree\').')
+        options.addOption('U', 'update-concept-paths', false,
+                'Updates concept paths and tree nodes when there is concept code collision.')
+        options.addOption('p', 'partition', false,
+                'Partition observation_fact table based on trial_visit_num.')
+        options.addOption('n', 'base-on-max-instance-num', false,
+                'Adds to each instance num a base. The base detected as max(observation_fact.incstance_num).')
     }
 
     static printHelp() {
@@ -72,11 +89,6 @@ class Copy implements AutoCloseable {
     void dropIndexes() {
         def observations = new Observations(database, null, null, null, null)
         observations.dropTableIndexesIfExist()
-    }
-
-    void setLoggedMode(boolean logged) {
-        def observations = new Observations(database, null, null, null, null)
-        observations.setLoggedMode(logged)
     }
 
     void uploadStudy(String rootPath, Config config) {
@@ -158,7 +170,7 @@ class Copy implements AutoCloseable {
             println()
             printHelp()
             System.exit(2)
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error e.message, e
             System.exit(1)
         }
@@ -188,18 +200,19 @@ class Copy implements AutoCloseable {
                     directory = '.'
                 }
                 copy.deleteStudy(directory, false)
-                if (cl.hasOption('unlogged')) {
-                    copy.setLoggedMode(false)
-                }
-                int batchSize = cl.hasOption('batch-size') ? cl.getOptionValue('batch-size') as int : Database.defaultBatchSize
-                int flushSize = cl.hasOption('flush-size') ? cl.getOptionValue('flush-size') as int : Database.defaultFlushSize
+                int batchSize = cl.hasOption('batch-size') ?
+                        cl.getOptionValue('batch-size') as int : Database.DEFAULT_BATCH_SIZE
+                int flushSize = cl.hasOption('flush-size') ?
+                        cl.getOptionValue('flush-size') as int : Database.DEFAULT_FLUSH_SIZE
                 def config = new Config(
-                        temporaryTable: cl.hasOption('temporary-table'),
                         batchSize: batchSize,
                         flushSize: flushSize,
                         write: cl.hasOption('write'),
                         outputFile: cl.getOptionValue('write'),
-                        updateConceptPaths: cl.hasOption('update-concept-paths')
+                        updateConceptPaths: cl.hasOption('update-concept-paths'),
+                        partition: cl.hasOption('partition'),
+                        unlogged: cl.hasOption('unlogged'),
+                        baseOnMaxInstanceNum: cl.hasOption('base-on-max-instance-num')
                 )
                 def modes = cl.getOptionValues('mode')
                 log.debug("Load modes specified: ${modes}")
@@ -209,9 +222,6 @@ class Copy implements AutoCloseable {
                 if (!modes || 'study' in modes) {
                     copy.uploadStudy(directory, config)
                 }
-                if (cl.hasOption('unlogged')) {
-                    copy.setLoggedMode(true)
-                }
             }
             if (cl.hasOption('restore-indexes')) {
                 copy.restoreIndexes()
@@ -220,7 +230,7 @@ class Copy implements AutoCloseable {
             if (cl.hasOption('vacuum-analyze')) {
                 copy.database.vacuumAnalyze()
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             copy.database.rollback(tx)
             throw e
         }

@@ -52,4 +52,11 @@ publishing {
         }
     }
 }
+
+codenarc {
+    configFile = new File("${project.parent.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
+
+    reportFormat = 'html'
+}
+
 test.testLogging.exceptionFormat = 'full'

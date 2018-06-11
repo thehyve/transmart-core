@@ -17,6 +17,9 @@ import org.transmartproject.copy.Util
 import java.sql.ResultSet
 import java.sql.SQLException
 
+/**
+ * Fetching and loading of metadata tags.
+ */
 @Slf4j
 @CompileStatic
 class Tags {
@@ -33,7 +36,7 @@ class Tags {
         }
     }
 
-    static final Table table = new Table('i2b2metadata', 'i2b2_tags')
+    static final Table TABLE = new Table('i2b2metadata', 'i2b2_tags')
 
     final Database database
 
@@ -48,7 +51,7 @@ class Tags {
     Tags(Database database, TreeNodes treeNodes) {
         this.database = database
         this.treeNodes = treeNodes
-        this.columns = this.database.getColumnMetadata(table)
+        this.columns = this.database.getColumnMetadata(TABLE)
     }
 
     @CompileStatic
@@ -74,7 +77,7 @@ class Tags {
     void fetch() {
         def tagHandler = new TagRowHandler()
         database.jdbcTemplate.query(
-                "select tag_id, path, tag_type, tags_idx from ${table}".toString(),
+                "select tag_id, path, tag_type, tags_idx from ${TABLE}".toString(),
                 tagHandler
         )
         tags.putAll(tagHandler.tags)
@@ -83,9 +86,9 @@ class Tags {
     }
 
     void load(String rootPath) {
-        def tagsFile = new File(rootPath, table.fileName)
+        def tagsFile = new File(rootPath, TABLE.fileName)
         if (!tagsFile.exists()) {
-            log.info "Skip loading of tags. No file ${table.fileName} found."
+            log.info "Skip loading of tags. No file ${TABLE.fileName} found."
             return
         }
         def tx = database.beginTransaction()
@@ -97,14 +100,15 @@ class Tags {
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    header = Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(TABLE.fileName, data, columns)
                     return
                 }
                 try {
                     def tagData = Util.asMap(header, data)
                     def path = tagData['path'] as String
                     if (!(path in treeNodes.pathsFromFile)) {
-                        throw new IllegalStateException("Tag found for tree path ${path} that does not exist in ${TreeNodes.table.fileName}.")
+                        throw new IllegalStateException(
+                                "Tag found for tree path ${path} that does not exist in ${TreeNodes.TABLE.fileName}.")
                     } else {
                         def tagType = tagData['tag_type'] as String
                         def index = tagData['tags_idx'] as int
@@ -117,12 +121,12 @@ class Tags {
                             tagData['tags_idx'] = (maxIndexes[path] ?: 0) + index + 1
                             insertCount++
                             log.debug "Inserting new tag ${key} ..."
-                            Long id = database.insertEntry(table, header, 'tag_id', tagData)
+                            Long id = database.insertEntry(TABLE, header, 'tag_id', tagData)
                             tags.put(key, id)
                         }
                     }
-                } catch(Exception e) {
-                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
+                } catch(Throwable e) {
+                    log.error "Error on line ${i} of ${TABLE.fileName}: ${e.message}."
                     throw e
                 }
             }
