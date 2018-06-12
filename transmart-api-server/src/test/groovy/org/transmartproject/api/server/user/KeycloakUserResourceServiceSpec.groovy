@@ -13,8 +13,8 @@ import spock.lang.Specification
 
 import java.text.ParseException
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
+import static org.transmartproject.core.users.AccessLevel.AGGREGATE_WITH_THRESHOLD
+import static org.transmartproject.core.users.AccessLevel.OWN
 
 class KeycloakUserResourceServiceSpec extends Specification {
 
@@ -31,9 +31,8 @@ class KeycloakUserResourceServiceSpec extends Specification {
         String clientId = 'test-client-id'
         List<GrantedAuthority> authorities = [
                 new SimpleGrantedAuthority('ROLE_ADMIN'),
-                new SimpleGrantedAuthority('READ|STUDY1_TOKEN'),
-                new SimpleGrantedAuthority('SHOW_SUMMARY_STATISTICS|STUDY1_TOKEN'),
-                new SimpleGrantedAuthority('SHOW_SUMMARY_STATISTICS|STUDY2_TOKEN'),
+                new SimpleGrantedAuthority('STUDY1_TOKEN|OWN'),
+                new SimpleGrantedAuthority('STUDY2_TOKEN|AGGREGATE_WITH_THRESHOLD'),
         ]
         boolean approved = true
         Set<String> scopes = ['oidc', 'email']
@@ -59,9 +58,9 @@ class KeycloakUserResourceServiceSpec extends Specification {
         user.realName == 'John Doe'
         user.email == 'test@mail.com'
         user.admin
-        user.accessStudyTokenToOperations.keySet() == ['STUDY1_TOKEN', 'STUDY2_TOKEN'] as Set
-        user.accessStudyTokenToOperations.get('STUDY1_TOKEN') as Set == [READ, SHOW_SUMMARY_STATISTICS] as Set
-        user.accessStudyTokenToOperations.get('STUDY2_TOKEN') as Set == [SHOW_SUMMARY_STATISTICS] as Set
+        user.studyTokenToAccessLevel.keySet() == ['STUDY1_TOKEN', 'STUDY2_TOKEN'] as Set
+        user.studyTokenToAccessLevel['STUDY1_TOKEN'] == OWN
+        user.studyTokenToAccessLevel['STUDY2_TOKEN'] == AGGREGATE_WITH_THRESHOLD
 
         when: 'we get deprecated id field'
         user.id
@@ -74,19 +73,19 @@ class KeycloakUserResourceServiceSpec extends Specification {
         canPeform
     }
 
-    void 'test parse study token to operation'() {
+    void 'test parse study token to access level corner cases'() {
         when:
-        testee.parseStudyTokenToOperation(opToTok)
+        testee.parseStudyTokenToAccessLevel(accLvlToTok)
         then:
         def pe = thrown(exception)
         pe.message == message
 
         where:
-        opToTok                      | exception                | message
-        '|'                          | ParseException           | "Can't parse permission '${opToTok}'."
-        'UNEXISTING_OP|STUDY1_TOKEN' | IllegalArgumentException | 'No enum constant org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.UNEXISTING_OP'
-        'READ|'                      | ParseException           | "Can't parse permission '${opToTok}'."
-        '|||'                        | ParseException           | "Can't parse permission '${opToTok}'."
-        ''                           | ParseException           | "Can't parse permission '${opToTok}'."
+        accLvlToTok                  | exception                | message
+        '|'                          | ParseException           | "Can't parse permission '${accLvlToTok}'."
+        'STUDY1_TOKEN|UNEXISTING_OP' | IllegalArgumentException | 'No enum constant org.transmartproject.core.users.AccessLevel.UNEXISTING_OP'
+        '|VIEW'                      | IllegalArgumentException | "Emtpy study token: '${accLvlToTok}'."
+        '|||'                        | ParseException           | "Can't parse permission '${accLvlToTok}'."
+        ''                           | ParseException           | "Can't parse permission '${accLvlToTok}'."
     }
 }

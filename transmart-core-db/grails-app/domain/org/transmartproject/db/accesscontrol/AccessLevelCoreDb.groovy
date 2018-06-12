@@ -19,27 +19,40 @@
 
 package org.transmartproject.db.accesscontrol
 
-import org.transmartproject.db.user.PrincipalCoreDb
+import org.transmartproject.core.users.AccessLevel
 
-class SecuredObjectAccess {
+import static java.lang.Enum.valueOf
 
-    static belongsTo = [
-            principal:     PrincipalCoreDb,
-            securedObject: SecuredObject,
-            accessLevel:   AccessLevelCoreDb]
+class AccessLevelCoreDb {
+
+    String name
+    Long value
+
+    static hasMany = [searchAuthSecObjectAccesses: SecuredObjectAccess]
 
     static mapping = {
-        table   schema: 'searchapp', name: 'search_auth_sec_object_access'
+        table schema: 'searchapp', name: 'search_sec_access_level'
 
-        id            column: 'auth_sec_obj_access_id', generator: 'assigned'
-        principal     column: 'auth_principal_id'
-        securedObject column: 'secure_object_id'
-        accessLevel   column: 'secure_access_level_id'
+        id column: 'search_sec_access_level_id', generator: 'assigned'
+        name column: 'access_level_name'
+        value column: 'access_level_value'
 
         version false
     }
 
     static constraints = {
-        principal nullable: true
+        name nullable: false, maxSize: 200
+        value nullable: true
+    }
+
+    @Override
+    String toString() {
+        com.google.common.base.Objects.toStringHelper(this)
+                .add("name", name)
+                .add("value", value).toString()
+    }
+
+    AccessLevel getAccessLevel() {
+        valueOf(AccessLevel, name)
     }
 }

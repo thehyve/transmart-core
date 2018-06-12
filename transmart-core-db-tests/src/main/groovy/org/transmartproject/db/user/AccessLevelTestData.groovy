@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.user
 
-import org.transmartproject.db.accesscontrol.AccessLevel
+import org.transmartproject.db.accesscontrol.AccessLevelCoreDb
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccess
 import org.transmartproject.db.i2b2data.Study
@@ -127,14 +127,14 @@ class AccessLevelTestData {
         }
     }()
 
-    List<AccessLevel> accessLevels = {
+    List<AccessLevelCoreDb> accessLevels = {
         long id = -600L
         [
                 [name: 'OWN', value: 255],
                 [name: 'EXPORT', value: 8],
                 [name: 'VIEW', value: 1],
         ].collect {
-            def accessLevel = new AccessLevel()
+            def accessLevel = new AccessLevelCoreDb()
             it.each { k, v ->
                 accessLevel."$k" = v
             }

@@ -42,7 +42,7 @@ class SecuredObjectAccessView implements Serializable {
     SecuredObjectAccess  securedObjectAccess
     User                 user
     SecuredObject        securedObject
-    AccessLevel          accessLevel
+    AccessLevelCoreDb accessLevel
 
 
 
