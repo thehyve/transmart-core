@@ -10,6 +10,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
 import org.transmartproject.rest.user.AuthContext
@@ -27,6 +28,9 @@ class PatientSetController {
 
     @Autowired
     private QueriesResource queriesResource
+
+    @Autowired
+    AuthorisationChecks authorisationChecks
 
     @Autowired
     QueryDefinitionXmlConverter queryDefinitionXmlConverter
@@ -52,7 +56,7 @@ class PatientSetController {
     def show(Long id) {
         QueryResult queryResult = queriesResource.getQueryResultFromId(id)
 
-        if (!authContext.user.canPerform(READ, queryResult)) {
+        if (!authorisationChecks.canPerform(authContext.user, READ, queryResult)) {
             throw new AccessDeniedException()
         }
 
@@ -82,7 +86,7 @@ class PatientSetController {
         QueryDefinition queryDefinition =
                 queryDefinitionXmlConverter.fromXml(request.reader)
 
-        if (!authContext.user.canPerform(READ, queryDefinition)) {
+        if (!authorisationChecks.canPerform(authContext.user, READ, queryDefinition)) {
             throw new AccessDeniedException()
         }
 

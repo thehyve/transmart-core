@@ -25,6 +25,7 @@
 
 package org.transmartproject.rest
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.exceptions.AccessDeniedException
@@ -32,6 +33,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.ontology.OntologyTermCategory
@@ -44,7 +46,11 @@ class StudyLoadingService {
 
     def studiesResourceService
 
+    @Autowired
     AuthContext authContext
+
+    @Autowired
+    AuthorisationChecks authorisationChecks
 
     private Study cachedStudy
 
@@ -74,7 +80,7 @@ class StudyLoadingService {
     }
 
     private boolean checkAccess(Study study) {
-        def result = authContext.user.canPerform(
+        def result = authorisationChecks.canPerform(authContext.user,
                 ProtectedOperation.WellKnownOperations.API_READ, study)
         if (!result) {
             def username = authContext.user.username

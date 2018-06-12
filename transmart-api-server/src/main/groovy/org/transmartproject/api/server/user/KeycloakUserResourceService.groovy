@@ -59,50 +59,7 @@ class KeycloakUserResourceService implements UsersResource {
             email = null
         }
 
-        createUser(username, realName, email, admin, accessStudyTokenToAccessLevel)
-    }
-
-    private User createUser(final String username,
-                            final String realName,
-                            final String email,
-                            final boolean admin,
-                            final Map<String, AccessLevel> studyTknToAccLvl) {
-        new User() {
-            @Override
-            Long getId() {
-                throw new UnsupportedOperationException()
-            }
-
-            @Override
-            String getUsername() {
-                username
-            }
-
-            @Override
-            String getRealName() {
-                realName
-            }
-
-            @Override
-            String getEmail() {
-                email
-            }
-
-            @Override
-            boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource) {
-                authorisationChecks.canPerform(this, operation, protectedResource)
-            }
-
-            @Override
-            boolean isAdmin() {
-                admin
-            }
-
-            @Override
-            Map<String, AccessLevel> getStudyTokenToAccessLevel() {
-                studyTknToAccLvl
-            }
-        }
+        new SimpleUser(username, realName, email, admin, accessStudyTokenToAccessLevel)
     }
 
     private static Map<String, AccessLevel> buildStudyTokenToAccessLevel(Collection<String> roles) {

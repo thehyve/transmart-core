@@ -28,6 +28,7 @@ import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
@@ -52,10 +53,13 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
     @Autowired
     SessionFactory sessionFactory
 
+    @Autowired
+    AuthorisationChecks authorisationChecks
+
     AcrossTrialsTestData testData = AcrossTrialsTestData.createDefault()
 
     void testQueryDefinitionAllowAcrossTrialNodes() {
-        def secondUser = testData.accessLevelTestData.users[1]
+        User secondUser = testData.accessLevelTestData.users[1]
 
         def acrossTrialsTestData = AcrossTrialsTestData.createDefault()
         acrossTrialsTestData.saveAll()
@@ -79,7 +83,7 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
         ])
 
         expect:
-        secondUser.canPerform(BUILD_COHORT, definition)
+        authorisationChecks.canPerform(secondUser, BUILD_COHORT, definition)
     }
 
 

@@ -13,6 +13,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultSummary
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.User
 
 import javax.annotation.Resource
@@ -28,11 +29,14 @@ class QueriesResourceAuthorizationDecorator
     User currentUserBean
 
     @Autowired
+    AuthorisationChecks authorisationChecks
+
+    @Autowired
     QueriesResource delegate
 
     @Override
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        if (!currentUserBean.canPerform(BUILD_COHORT, definition)) {
+        if (!authorisationChecks.canPerform(currentUserBean, BUILD_COHORT, definition)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "for building cohort based on $definition")
         }
@@ -42,7 +46,7 @@ class QueriesResourceAuthorizationDecorator
 
     @Override
     QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
-        if (!currentUserBean.canPerform(BUILD_COHORT, definition)) {
+        if (!authorisationChecks.canPerform(currentUserBean, BUILD_COHORT, definition)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "for building cohort based on $definition")
         }
@@ -58,7 +62,7 @@ class QueriesResourceAuthorizationDecorator
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
         def res = delegate.getQueryResultFromId id
 
-        if (!currentUserBean.canPerform(READ, res)) {
+        if (!authorisationChecks.canPerform(currentUserBean, READ, res)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "to query result with id $id")
         }
