@@ -5,9 +5,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.oauth2.provider.OAuth2Request
-import org.transmartproject.core.users.AuthorisationChecks
-import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.core.users.User
 import spock.lang.Specification
 
@@ -22,8 +19,6 @@ class KeycloakUserResourceServiceSpec extends Specification {
 
     def setup() {
         testee = new KeycloakUserResourceService()
-        testee.authorisationChecks = Mock(AuthorisationChecks)
-        testee.authorisationChecks.canPerform(_, _, _) >> true
     }
 
     void "test keycloak principal parsing"() {
@@ -61,16 +56,6 @@ class KeycloakUserResourceServiceSpec extends Specification {
         user.studyTokenToAccessLevel.keySet() == ['STUDY1_TOKEN', 'STUDY2_TOKEN'] as Set
         user.studyTokenToAccessLevel['STUDY1_TOKEN'] == OWN
         user.studyTokenToAccessLevel['STUDY2_TOKEN'] == AGGREGATE_WITH_THRESHOLD
-
-        when: 'we get deprecated id field'
-        user.id
-        then: 'unsupported exception is thrown'
-        thrown(UnsupportedOperationException)
-
-        when: 'canPeform is called'
-        def canPeform = user.canPerform([:] as ProtectedOperation, [:] as ProtectedResource)
-        then: 'it returns true as it is delegated to the athorisation service'
-        canPeform
     }
 
     void 'test parse study token to access level corner cases'() {

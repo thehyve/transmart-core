@@ -30,6 +30,7 @@ import grails.rest.render.util.AbstractLinkingRenderer
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.db.ontology.StudyAccessImpl
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.user.AuthContext
@@ -49,6 +50,9 @@ class StudyController {
     @Autowired
     AuthContext authContext
 
+    @Autowired
+    AuthorisationChecks authorisationChecks
+
     private static final String VERSION = "v1"
 
     /** GET request on /v1/studies/
@@ -60,8 +64,8 @@ class StudyController {
         def studies = studiesResourceService.studySet
         //Checks to which studies the user has access.
         studies.each { study ->
-            boolean view = authContext.user.canPerform(API_READ, study)
-            boolean export = authContext.user.canPerform(EXPORT, study)
+            boolean view = authorisationChecks.canPerform(authContext.user, API_READ, study)
+            boolean export = authorisationChecks.canPerform(authContext.user, EXPORT, study)
             //Possibility of adding more access types.
             Map accessibleByUser = [
                     view:view,
@@ -83,8 +87,8 @@ class StudyController {
     def show(String id) {
         def studyImpl =  studiesResourceService.getStudyById(id)
         //Check if the user has access to the specific study.
-        boolean view = authContext.user.canPerform(API_READ, studyImpl)
-        boolean export = authContext.user.canPerform(EXPORT, studyImpl)
+        boolean view = authorisationChecks.canPerform(authContext.user, API_READ, studyImpl)
+        boolean export = authorisationChecks.canPerform(authContext.user, EXPORT, studyImpl)
         //Possibility of adding more access types.
         Map accessibleByUser = [
                 view:view,

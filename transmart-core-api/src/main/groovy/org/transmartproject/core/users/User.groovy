@@ -6,14 +6,6 @@ package org.transmartproject.core.users
 interface User {
 
     /**
-     * An numerical identifier for the user.
-     * @deprecated Use {@link #getUsername()} instead to identify the user.
-     * @return numeric unique identifier for the user
-     */
-    @Deprecated
-    Long getId()
-
-    /**
      * The name for the user. Has to be unique in the system.
      *
      * In case of the basic local identity provider this field is stored in the database.
@@ -37,17 +29,6 @@ interface User {
      * @return the user email
      */
     String getEmail()
-
-    /**
-     * Returns true iif this user is authorized to perform the given operation
-     * on the given object.
-     * @deprecated Use {@link AuthorisationChecks} instead.
-     * @param operation
-     * @param protectedResource
-     * @return true iif access is granted
-     */
-    @Deprecated
-    boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource)
 
     /**
      * @return true if user is admin, otherwise false

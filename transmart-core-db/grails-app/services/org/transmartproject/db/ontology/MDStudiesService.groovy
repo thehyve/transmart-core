@@ -120,7 +120,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         if (isLegacyStudy(study)) {
             study = null
         }
-        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS, study)) {
+        if (study == null || !accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS, study)) {
             throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
         }
         fixLoad(study)
