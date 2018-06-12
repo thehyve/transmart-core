@@ -41,19 +41,15 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.AuthorisationChecks
-import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.core.users.ProtectedResource
-import org.transmartproject.core.users.User
+import org.transmartproject.core.users.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.util.StringUtils
 
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
-
-import static ProtectedOperation.WellKnownOperations.*
 /**
  * Access control checks.
  *
@@ -85,25 +81,7 @@ class AccessControlChecks implements AuthorisationChecks {
     boolean canPerform(User user,
                        ProtectedOperation protectedOperation,
                        I2b2Secure secure) {
-
-        if (user.admin) {
-            log.debug "Bypassing check for $protectedOperation on " +
-                    "${secure.fullName} for user ${user.username} because she is an " +
-                    "administrator"
-            return true
-        }
-
-        String token = secure.secureObjectToken
-        if (!token) {
-            throw new UnexpectedResultException("Found i2b2secure object with empty token")
-        }
-        log.debug "Token for ${secure.fullName} is $token"
-
-        if (token in PUBLIC_TOKENS) {
-            return true
-        }
-
-        protectedOperation in user.accessStudyTokenToOperations.get(token)
+        isTokenAllowUserToDoOperation(user, protectedOperation, secure.secureObjectToken)
     }
 
     /**
@@ -121,23 +99,7 @@ class AccessControlChecks implements AuthorisationChecks {
     boolean canPerform(User user,
                        ProtectedOperation protectedOperation,
                        org.transmartproject.db.i2b2data.Study study) {
-        if (user.admin) {
-            log.debug "Bypassing check for $protectedOperation on ${study.studyId} for user ${user.username}" +
-                    ' because she is an administrator'
-            return true
-        }
-
-        String token = study.secureObjectToken
-        if (!token) {
-            throw new UnexpectedResultException("${study.studyId} study has empty token.")
-        }
-        log.debug "Token for ${study.studyId} is $token"
-
-        if (token in PUBLIC_TOKENS) {
-            return true
-        }
-
-        protectedOperation in user.accessStudyTokenToOperations.get(study.secureObjectToken)
+        isTokenAllowUserToDoOperation(user, protectedOperation, study.secureObjectToken)
     }
 
     /**
@@ -174,13 +136,14 @@ class AccessControlChecks implements AuthorisationChecks {
     }
 
     /* Study is included if the user has ANY kind of access */
+
     Set<Study> getAccessibleStudiesForUser(User user) {
         /* this method could benefit from caching */
         def studySet = studiesResource.studySet
         def mostLimitedOperation = SHOW_SUMMARY_STATISTICS
         studySet.findAll {
             OntologyTerm ontologyTerm = it.ontologyTerm
-            assert ontologyTerm : "No ontology node found for study ${it.id}."
+            assert ontologyTerm: "No ontology node found for study ${it.id}."
             I2b2Secure i2b2Secure = ontologyTerm instanceof I2b2Secure ? ontologyTerm : I2b2Secure.findByFullName(ontologyTerm.fullName)
             if (!i2b2Secure) {
                 log.debug("No secure record for ${ontologyTerm.fullName} path found. Study treated as public.")
@@ -211,7 +174,7 @@ class AccessControlChecks implements AuthorisationChecks {
      * @param user
      */
     private static Set<String> getAccessibleStudyTokensForUser(User user) {
-        user.accessStudyTokenToOperations.keySet() + PUBLIC_TOKENS
+        user.studyTokenToAccessLevel.keySet() + PUBLIC_TOKENS
     }
 
     private boolean exists(org.hibernate.criterion.DetachedCriteria criteria) {
@@ -382,4 +345,54 @@ class AccessControlChecks implements AuthorisationChecks {
         throw new UnsupportedOperationException("Do not know how to check access for user $this," +
                 " operation $protectedOperation on $protectedResource")
     }
+
+    /**
+     * Checks whether user has right to perform given opertion on the resource with the given token
+     * @param user
+     * @param protectedOperation
+     * @param token
+     * @return
+     */
+    private boolean isTokenAllowUserToDoOperation(User user, ProtectedOperation protectedOperation, String token) {
+        if (!token) {
+            throw new UnexpectedResultException('Token is null.')
+        }
+
+        if (user.admin) {
+            log.debug "Bypassing check for $protectedOperation on ${token} for user ${user.username}" +
+                    ' because she is an administrator'
+            return true
+        }
+
+        if (token in PUBLIC_TOKENS) {
+            return true
+        }
+
+        operationToMinimalAccessLevel(protectedOperation) <= user.studyTokenToAccessLevel[token]
+    }
+
+    /**
+     * Maps operation to access level
+     * @param operation
+     * @return
+     */
+    //TODO Has to be removed completely after ProtectedOperation
+    private static AccessLevel operationToMinimalAccessLevel(ProtectedOperation operation) {
+        switch (operation) {
+            case BUILD_COHORT:
+            case SHOW_SUMMARY_STATISTICS:
+            case RUN_ANALYSIS:
+                return AccessLevel.VIEW
+            case READ:
+            case API_READ:
+            case EXPORT:
+            case SHOW_IN_TABLE:
+                return AccessLevel.EXPORT
+            default:
+                throw new IllegalArgumentException(operation.toString())
+        }
+    }
+
+
+
 }

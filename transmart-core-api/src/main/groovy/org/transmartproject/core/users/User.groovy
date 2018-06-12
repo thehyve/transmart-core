@@ -1,11 +1,9 @@
 package org.transmartproject.core.users
 
-import com.google.common.collect.Multimap
-
 /**
  * Represents a tranSMART user.
  */
-public interface User {
+interface User {
 
     /**
      * An numerical identifier for the user.
@@ -58,7 +56,7 @@ public interface User {
 
     /**
      * The key of the map is a study token. The study token is a string that give access to the study.
-     * Level of access specified by the value part of the map {@link ProtectedOperation}.
+     * Level of access specified by the value part of the map {@link AccessLevel}.
      */
-    Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations()
+    Map<String, AccessLevel> getStudyTokenToAccessLevel()
 }

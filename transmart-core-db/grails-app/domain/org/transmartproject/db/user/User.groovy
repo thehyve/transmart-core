@@ -19,15 +19,14 @@
 
 package org.transmartproject.db.user
 
-import com.google.common.collect.ImmutableMultimap
-import com.google.common.collect.Multimap
 import org.hibernate.FetchMode
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.accesscontrol.AccessLevel
+import org.transmartproject.db.accesscontrol.AccessLevelCoreDb
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccessView
 
@@ -98,7 +97,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     }
 
     @Override
-    Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations() {
+    Map<String, AccessLevel> getStudyTokenToAccessLevel() {
         List<Object[]> securedObjectWithaccessLevelPairs = SecuredObjectAccessView.createCriteria().list {
             projections {
                 property('securedObject')
@@ -111,15 +110,24 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             }
             eq('so.dataType', SecuredObject.STUDY_DATA_TYPE)
         }
-        def mapBuilder = ImmutableMultimap. <String, ProtectedOperation> builder()
-        for (Object[] securedObjectWithaccessLevelPair: securedObjectWithaccessLevelPairs) {
-            def (SecuredObject securedObject, AccessLevel accessLevel) = securedObjectWithaccessLevelPair
-            String uid = securedObject.bioDataUniqueId
-            for (ProtectedOperation operation: accessLevel.correspondingProtectedOperations) {
-                mapBuilder.put(uid, operation)
+        Map<String, AccessLevel> result = [:]
+        for (Object[] securedObjectWithaccessLevelPair : securedObjectWithaccessLevelPairs) {
+            def (SecuredObject securedObject, AccessLevelCoreDb accessLevelDb) = securedObjectWithaccessLevelPair
+            String studyToken = securedObject.bioDataUniqueId
+            if (result.containsKey(studyToken)) {
+                AccessLevel memorisedAccLvl = result.get(studyToken)
+                if (accessLevelDb.accessLevel > memorisedAccLvl) {
+                    log.debug("Use ${accessLevelDb.accessLevel} access level instead of ${memorisedAccLvl} for ${username} user on ${studyToken} study token.")
+                    result.put(studyToken, accessLevelDb.accessLevel)
+                } else {
+                    log.debug("Keep ${memorisedAccLvl} access level and ignore ${accessLevelDb.accessLevel} for ${username} user on ${studyToken} study token.")
+                }
+            } else {
+                result.put(studyToken, accessLevelDb.accessLevel)
+                log.debug("${username} user has ${accessLevelDb.accessLevel} access level on ${studyToken} study token.")
             }
         }
-        mapBuilder.build()
+        result
     }
 
     /**

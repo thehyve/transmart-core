@@ -1,46 +1,33 @@
 package org.transmartproject.core.users
 
 /**
- * Describes a set of operations that can be performed on a certain resource.
+ * Describes a level of access that can be performed on a certain resource.
  *
- * At this point, the only available permissions are:
- *
- * <ul>
- *     <li><code>OWN</code></li>
- *     <li><code>EXPORT</code></li>
- *     <li><code>VIEW</code></li>
- * </ul>
- *
- * Note: even though this interface doesn't make it explicit, a
- * <code>Permission</code> object is bound to a specific
- * {@link ProtectedResource}. A method may be added in the future to retrieve
- * this resource.
- *
+ * Enum values declaration order specifies {@link Enum#compareTo(AccessLevel acclvl)} how high is the access level.
+ * AGGREGATE_WITH_THRESHOLD < VIEW < EXPORT < OWN
  */
-public interface Permission {
+enum AccessLevel {
 
     /**
-     * The name of the permission. Typically, client code is not interested in
-     * the permissions themselves, but instead on the set of operations that
-     * a user can perform.
-     *
-     * Therefore, this type will be more useful for introspection or for
-     * assigning permissions to users, which is still not supported by this API.
-     *
-     * @return the name of this permission
+     * Only access to aggregates, with resolution limited by the configured
+     * threshold. {@see Config}.
      */
-    String getName()
-
+    AGGREGATE_WITH_THRESHOLD,
     /**
-     * Returns true iif this permission cover the operation described by the
-     * argument.
-     *
-     * This overrides the Groovy <code>in</code> operator
-     *
-     * @param operation the operation one wants to test for inclusion in this
-     * permission
-     * @return true iif this permission includes the passed operation
+     * Access to all aggregates, and all data.
      */
-    boolean isCase(ProtectedOperation operation)
-
+            VIEW,
+    /**
+     * Access to aggregates, and all data with possibility to export.
+     *
+     * LEGACY: Old transmart code distinguishes VIEW and EXPORT levels.
+     * VIEW being a access level that does not allow explicit data exports.
+     * Supporting this difference in the new code is highly not recommended.
+     */
+            @Deprecated
+            EXPORT,
+    /**
+     * The highest access level.
+     */
+            OWN
 }
