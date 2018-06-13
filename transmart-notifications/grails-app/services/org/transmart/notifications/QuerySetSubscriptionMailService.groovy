@@ -3,6 +3,7 @@ package org.transmart.notifications
 import grails.plugins.mail.MailService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
 import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuerySetResource
@@ -22,7 +23,8 @@ import org.transmartproject.core.userquery.SetType
 @Slf4j
 class QuerySetSubscriptionMailService {
 
-    def grailsApplication
+    @Value('${org.transmart.notifications.maxNumberOfSets}')
+    def maxNumberOfSets
 
     MailService mailService
 
@@ -109,7 +111,7 @@ class QuerySetSubscriptionMailService {
      */
     private List<UserQuerySetChangesRepresentation> getPatientSetChangesRepresentation(SubscriptionFrequency frequency,
                                                                                        String username) {
-        Integer maxNumberOfSets = grailsApplication.config.org.transmart.notifications.maxNumberOfSets
+        assert maxNumberOfSets instanceof Integer
         List<UserQuerySetChangesRepresentation> querySetsChanges =
                 userQueryDiffResource.getQueryChangeHistoryByUsernameAndFrequency(frequency, username, maxNumberOfSets)
         return querySetsChanges.findAll { it.setType == SetType.PATIENT }?.sort { it.queryId }
