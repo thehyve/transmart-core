@@ -8,8 +8,8 @@ import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
+import static org.transmartproject.core.users.AccessLevel.EXPORT
+import static org.transmartproject.core.users.AccessLevel.VIEW
 
 @Rollback
 @Integration
@@ -27,15 +27,15 @@ class AccessControlChecksSpec extends Specification {
         )
 
         where:
-        user                 | operation               | node                                                                 | canPerformReadOnTheNode
-        'test-public-user-1' | SHOW_SUMMARY_STATISTICS | '\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\Demography\\Age\\'       | true
-        'test-public-user-1' | READ                    | '\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\Demography\\Age\\'       | true
-        'test-public-user-1' | SHOW_SUMMARY_STATISTICS | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | false
-        'test-public-user-1' | READ                    | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | false
-        'test-public-user-2' | SHOW_SUMMARY_STATISTICS | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | true
-        'test-public-user-2' | READ                    | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | false
-        'admin'              | SHOW_SUMMARY_STATISTICS | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | true
-        'admin'              | READ                    | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | true
+        user                 | operation | node                                                                 | canPerformReadOnTheNode
+        'test-public-user-1' | VIEW      | '\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\Demography\\Age\\'       | true
+        'test-public-user-1' | EXPORT    | '\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\Demography\\Age\\'       | true
+        'test-public-user-1' | VIEW      | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | false
+        'test-public-user-1' | EXPORT    | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | false
+        'test-public-user-2' | VIEW      | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | true
+        'test-public-user-2' | EXPORT    | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | false
+        'admin'              | VIEW      | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | true
+        'admin'              | EXPORT    | '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\' | true
     }
 
     def 'check access to a study'() {
@@ -47,14 +47,14 @@ class AccessControlChecksSpec extends Specification {
         )
 
         where:
-        user                 | operation               | studyId                        | canPerformReadOnTheStudy
-        'test-public-user-1' | SHOW_SUMMARY_STATISTICS | 'SHARED_CONCEPTS_STUDY_A'      | true
-        'test-public-user-1' | READ                    | 'SHARED_CONCEPTS_STUDY_A'      | true
-        'test-public-user-1' | SHOW_SUMMARY_STATISTICS | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
-        'test-public-user-1' | READ                    | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
-        'test-public-user-2' | SHOW_SUMMARY_STATISTICS | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
-        'test-public-user-2' | READ                    | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
-        'admin'              | SHOW_SUMMARY_STATISTICS | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
-        'admin'              | READ                    | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
+        user                 | operation | studyId                        | canPerformReadOnTheStudy
+        'test-public-user-1' | VIEW      | 'SHARED_CONCEPTS_STUDY_A'      | true
+        'test-public-user-1' | EXPORT    | 'SHARED_CONCEPTS_STUDY_A'      | true
+        'test-public-user-1' | VIEW      | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
+        'test-public-user-1' | EXPORT    | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
+        'test-public-user-2' | VIEW      | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
+        'test-public-user-2' | EXPORT    | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
+        'admin'              | VIEW      | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
+        'admin'              | EXPORT    | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
     }
 }

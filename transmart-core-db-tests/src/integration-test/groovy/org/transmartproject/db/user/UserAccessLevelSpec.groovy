@@ -30,14 +30,13 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
+import static org.transmartproject.core.users.AccessLevel.*
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
 @Integration
@@ -64,16 +63,16 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def adminUser = accessLevelTestData.users[0]
 
         expect:
-        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY1))
-        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY2))
-        accessControlChecks.canPerform(adminUser, API_READ, getStudy(STUDY3))
+        accessControlChecks.canPerform(adminUser, EXPORT, getStudy(STUDY1))
+        accessControlChecks.canPerform(adminUser, EXPORT, getStudy(STUDY2))
+        accessControlChecks.canPerform(adminUser, EXPORT, getStudy(STUDY3))
     }
 
     void testEveryoneHasAccessToPublicStudy() {
         setupData()
         // study1 is public
         expect:
-        accessLevelTestData.users.every { accessControlChecks.canPerform(it, API_READ, getStudy(STUDY1)) }
+        accessLevelTestData.users.every { accessControlChecks.canPerform(it, EXPORT, getStudy(STUDY1)) }
     }
 
     void testPermissionViaGroup() {
@@ -82,7 +81,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def secondUser = accessLevelTestData.users[1]
 
         expect:
-        accessControlChecks.canPerform(secondUser, API_READ, getStudy(STUDY2))
+        accessControlChecks.canPerform(secondUser, EXPORT, getStudy(STUDY2))
     }
 
     void testDirectPermissionAssignment() {
@@ -91,7 +90,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def thirdUser = accessLevelTestData.users[2]
 
         expect:
-        accessControlChecks.canPerform(thirdUser, API_READ, getStudy(STUDY2))
+        accessControlChecks.canPerform(thirdUser, EXPORT, getStudy(STUDY2))
     }
 
     void testAccessDeniedToUserWithoutPermission() {
@@ -100,7 +99,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def fourthUser = accessLevelTestData.users[3]
 
         expect:
-        !accessControlChecks.canPerform(fourthUser, API_READ, getStudy(STUDY2))
+        !accessControlChecks.canPerform(fourthUser, EXPORT, getStudy(STUDY2))
     }
 
     void testAccessDeniedWhenOnlyViewPermission() {
@@ -109,7 +108,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def fifthUser = accessLevelTestData.users[4]
 
         expect:
-        !accessControlChecks.canPerform(fifthUser, API_READ, getStudy(STUDY2))
+        !accessControlChecks.canPerform(fifthUser, EXPORT, getStudy(STUDY2))
     }
 
     void testAccessGrantedWhenExportAndViewPermissionsExist() {
@@ -121,14 +120,14 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def sixthUser = accessLevelTestData.users[5]
 
         expect:
-        accessControlChecks.canPerform(sixthUser, API_READ, getStudy(STUDY2))
+        accessControlChecks.canPerform(sixthUser, EXPORT, getStudy(STUDY2))
     }
 
     void testEveryoneHasAccessViaEveryoneGroup() {
         setupData()
 
         expect:
-        accessControlChecks.canPerform(accessLevelTestData.users[userNumber], API_READ, getStudy(study))
+        accessControlChecks.canPerform(accessLevelTestData.users[userNumber], EXPORT, getStudy(study))
 
         where:
         userNumber | study
@@ -149,7 +148,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         // only when a non-admin is used when by mistake where's checking
         // access for an unsupported ProtectedResource
         when:
-        accessControlChecks.canPerform(adminUser, API_READ, Mock(ProtectedResource))
+        accessControlChecks.canPerform(adminUser, EXPORT, Mock(ProtectedResource))
         then:
         thrown(UnsupportedOperationException)
     }
@@ -169,7 +168,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def fifthUser = accessLevelTestData.users[4]
 
         expect:
-        !accessControlChecks.canPerform(fifthUser, SHOW_IN_TABLE, getStudy(STUDY2))
+        !accessControlChecks.canPerform(fifthUser, EXPORT, getStudy(STUDY2))
     }
 
     void testViewPermissionAndShowInSummaryStatisticsOperation() {
@@ -178,7 +177,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def fifthUser = accessLevelTestData.users[4]
 
         expect:
-        accessControlChecks.canPerform(fifthUser, SHOW_SUMMARY_STATISTICS, getStudy(STUDY2))
+        accessControlChecks.canPerform(fifthUser, VIEW, getStudy(STUDY2))
     }
 
     void testStudyWithoutI2b2Secure() {
@@ -191,7 +190,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
                 delete(flush: true)
 
         expect:
-        accessControlChecks.canPerform(fourthUser, API_READ, getStudy(STUDY2))
+        accessControlChecks.canPerform(fourthUser, EXPORT, getStudy(STUDY2))
     }
 
     void testStudyWithEmptyToken() {
@@ -204,7 +203,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         i2b2Secure.secureObjectToken = null
 
         when:
-        accessControlChecks.canPerform(fourthUser, API_READ, getStudy(STUDY2))
+        accessControlChecks.canPerform(fourthUser, EXPORT, getStudy(STUDY2))
         then:
         thrown(UnexpectedResultException)
     }
@@ -294,7 +293,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         ])
 
         expect:
-        accessControlChecks.canPerform(fourthUser, BUILD_COHORT, definition)
+        accessControlChecks.canPerform(fourthUser, VIEW, definition)
     }
 
     void testQueryDefinitionUserHasNoAccessToAnyPanel() {
@@ -311,7 +310,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         ])
 
         expect:
-        !accessControlChecks.canPerform(fourthUser, BUILD_COHORT, definition)
+        !accessControlChecks.canPerform(fourthUser, VIEW, definition)
     }
 
     void testQueryDefinitionNonTopNode() {
@@ -328,7 +327,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         ])
 
         expect:
-        accessControlChecks.canPerform(thirdUser, BUILD_COHORT, definition)
+        accessControlChecks.canPerform(thirdUser, VIEW, definition)
     }
 
     void testDoNotAllowInvertedPanel() {
@@ -343,7 +342,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         ])
 
         expect:
-        !accessControlChecks.canPerform(secondUser, BUILD_COHORT, definition)
+        !accessControlChecks.canPerform(secondUser, VIEW, definition)
     }
 
     void testAllowInvertedPanelIfThereIsAnotherWithAccess() {
@@ -360,7 +359,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         ])
 
         expect:
-        accessControlChecks.canPerform(secondUser, BUILD_COHORT, definition)
+        accessControlChecks.canPerform(secondUser, VIEW, definition)
     }
 
     void testQueryDefinitionAlwaysAllowAdministrator() {
@@ -376,7 +375,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         ])
 
         expect:
-        accessControlChecks.canPerform(firstUser, BUILD_COHORT, definition)
+        accessControlChecks.canPerform(firstUser, VIEW, definition)
     }
 
     void testQueryDefinitionNonStudyNodeIsDenied() {
@@ -393,7 +392,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         ])
 
         expect:
-        !accessControlChecks.canPerform(secondUser, BUILD_COHORT, definition)
+        !accessControlChecks.canPerform(secondUser, VIEW, definition)
     }
 
     void testQueryResultMismatch() {
@@ -406,7 +405,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         res.username >> secondUser.username
 
         when:
-        def can = accessControlChecks.canPerform(thirdUser, READ, res)
+        def can = accessControlChecks.canPerform(thirdUser, EXPORT, res)
 
         then:
         (1.._) * res.username
@@ -424,20 +423,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         res.username >> secondUser.username
 
         expect:
-        accessControlChecks.canPerform(secondUser, READ, res)
-    }
-
-    void testQueryResultNonReadOperation() {
-        setupData()
-        def secondUser = accessLevelTestData.users[1]
-
-        QueryResult res = Mock(QueryResult)
-        res.getClass() >> QueryResult
-
-        when:
-        accessControlChecks.canPerform(secondUser, API_READ, res)
-        then:
-        thrown(UnsupportedOperationException)
+        accessControlChecks.canPerform(secondUser, EXPORT, res)
     }
 
     void 'test get dimension studies for regular user'() {

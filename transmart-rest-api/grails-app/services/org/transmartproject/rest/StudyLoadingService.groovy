@@ -33,6 +33,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.rest.user.AuthContext
@@ -81,7 +82,7 @@ class StudyLoadingService {
 
     private boolean checkAccess(Study study) {
         def result = authorisationChecks.canPerform(authContext.user,
-                ProtectedOperation.WellKnownOperations.API_READ, study)
+                AccessLevel.EXPORT, study)
         if (!result) {
             def username = authContext.user.username
             log.warn "User $username denied access to study ${study.id}"

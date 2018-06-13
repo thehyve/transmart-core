@@ -7,12 +7,12 @@ interface AuthorisationChecks {
      * exists to which the user has access.
      *
      * @param user the user to check access for.
-     * @param protectedOperation is ignored.
+     * @param accessLevel level of access
      * @param study the study object that is referred to from the trial visit dimension.
      * @return true iff a study exists that the user has access to.
      */
     boolean canPerform(User user,
-                       ProtectedOperation protectedOperation,
+                       AccessLevel accessLevel,
                        ProtectedResource protectedResource)
 
 }

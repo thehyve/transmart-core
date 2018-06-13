@@ -28,6 +28,7 @@ import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
@@ -35,7 +36,6 @@ import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.ModifierDimensionView
 import org.transmartproject.db.TransmartSpecification
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
 /*
@@ -83,7 +83,7 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
         ])
 
         expect:
-        authorisationChecks.canPerform(secondUser, BUILD_COHORT, definition)
+        authorisationChecks.canPerform(secondUser, AccessLevel.VIEW, definition)
     }
 
 

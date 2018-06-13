@@ -7,10 +7,9 @@ import groovy.json.JsonSlurper
 import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.User
-
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
 
 @Transactional
 class DataExportService {
@@ -264,7 +263,7 @@ class DataExportService {
             collect { studiesResourceService.getStudyById it }
 
         Study forbiddenExportStudy = studies.find { Study study ->
-            if (!authorisationChecks.canPerform(user, EXPORT, study)) {
+            if (!authorisationChecks.canPerform(user, AccessLevel.EXPORT, study)) {
                 return true
             }
         }

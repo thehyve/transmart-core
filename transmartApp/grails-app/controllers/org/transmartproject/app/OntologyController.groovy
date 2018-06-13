@@ -14,13 +14,13 @@ import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.User
 
 import javax.annotation.Resource
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 
 class OntologyController {
 
@@ -133,7 +133,7 @@ class OntologyController {
         model.userName = springSecurityService.principal.username;
 
         //access
-        model.hasAccess = authorisationChecks.canPerform(currentUserBean, BUILD_COHORT, term.study)
+        model.hasAccess = authorisationChecks.canPerform(currentUserBean, AccessLevel.AGGREGATE_WITH_THRESHOLD, term.study)
 
         render template: 'showDefinition', model: model
     }

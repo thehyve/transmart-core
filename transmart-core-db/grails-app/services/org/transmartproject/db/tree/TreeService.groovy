@@ -14,7 +14,7 @@ import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
-import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.AggregateDataService
@@ -25,7 +25,6 @@ import org.transmartproject.db.util.SharedLock
 import javax.annotation.Resource
 
 import static grails.async.Promises.task
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 
 @Transactional(readOnly = true)
 @CompileStatic
@@ -98,7 +97,7 @@ class TreeService implements TreeResource {
         I2b2Secure root = (I2b2Secure) I2b2Secure.createCriteria().get {
             eq('fullName', rootKey)
         }
-        if (!root || !accessControlChecks.canPerform(user, SHOW_SUMMARY_STATISTICS, root)) {
+        if (!root || !accessControlChecks.canPerform(user, AccessLevel.AGGREGATE_WITH_THRESHOLD, root)) {
             throw new AccessDeniedException("Access denied to path: ${rootKey}")
         }
         root

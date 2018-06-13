@@ -17,7 +17,6 @@ import javax.annotation.Resource
 
 import static org.springframework.http.HttpStatus.CREATED
 import static org.springframework.http.HttpStatus.OK
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 /**
  * Created by piotrzakrzewski on 02/12/2016.

@@ -41,13 +41,15 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.*
+import org.transmartproject.core.users.AccessLevel
+import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.ProtectedResource
+import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.util.StringUtils
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
 /**
@@ -79,9 +81,9 @@ class AccessControlChecks implements AuthorisationChecks {
     }
 
     boolean canPerform(User user,
-                       ProtectedOperation protectedOperation,
+                       AccessLevel minAccessLevel,
                        I2b2Secure secure) {
-        isTokenAllowUserToDoOperation(user, protectedOperation, secure.secureObjectToken)
+        hasPermission(user, minAccessLevel, secure.secureObjectToken)
     }
 
     /**
@@ -92,14 +94,14 @@ class AccessControlChecks implements AuthorisationChecks {
      * This is the <code>/v2</code> way of checking study based access.
      *
      * @param user the user to check access for.
-     * @param protectedOperation operation user allowed to perform on the study
+     * @param minAccessLevel minimal access level user has to have on the study
      * @param study the study object that is referred to from the trial visit dimension.
      * @return true iff a study exists that the user has access to.
      */
     boolean canPerform(User user,
-                       ProtectedOperation protectedOperation,
+                       AccessLevel minAccessLevel,
                        org.transmartproject.db.i2b2data.Study study) {
-        isTokenAllowUserToDoOperation(user, protectedOperation, study.secureObjectToken)
+        hasPermission(user, minAccessLevel, study.secureObjectToken)
     }
 
     /**
@@ -111,7 +113,7 @@ class AccessControlChecks implements AuthorisationChecks {
      * <code>/v2</code> code!
      *
      * @param user the user to check access for.
-     * @param protectedOperation is ignored.
+     * @param minAccessLevel minimal access level user has to have on the study
      * @param study the core API study object representing the study.
      * @return true iff
      * - a study node does not exist in I2b2Secure
@@ -119,7 +121,7 @@ class AccessControlChecks implements AuthorisationChecks {
      */
     @Deprecated
     boolean canPerform(User user,
-                       ProtectedOperation protectedOperation,
+                       AccessLevel minAccessLevel,
                        Study study) {
         /* Get the study's "token" */
         I2b2Secure secure =
@@ -132,7 +134,7 @@ class AccessControlChecks implements AuthorisationChecks {
             return true
         }
 
-        canPerform(user, protectedOperation, secure)
+        canPerform(user, minAccessLevel, secure)
     }
 
     /* Study is included if the user has ANY kind of access */
@@ -140,7 +142,7 @@ class AccessControlChecks implements AuthorisationChecks {
     Set<Study> getAccessibleStudiesForUser(User user) {
         /* this method could benefit from caching */
         def studySet = studiesResource.studySet
-        def mostLimitedOperation = SHOW_SUMMARY_STATISTICS
+        final AccessLevel minAccessLevel = AccessLevel.values().min()
         studySet.findAll {
             OntologyTerm ontologyTerm = it.ontologyTerm
             assert ontologyTerm: "No ontology node found for study ${it.id}."
@@ -149,8 +151,7 @@ class AccessControlChecks implements AuthorisationChecks {
                 log.debug("No secure record for ${ontologyTerm.fullName} path found. Study treated as public.")
                 return true
             }
-
-            canPerform(user, mostLimitedOperation, i2b2Secure)
+            canPerform(user, minAccessLevel, i2b2Secure)
         }
     }
 
@@ -210,7 +211,7 @@ class AccessControlChecks implements AuthorisationChecks {
      * or conceptCode.
      * @throws AccessDeniedException iff none or both of conceptCode and conceptPath are provided.
      */
-    public boolean checkConceptAccess(Map args, User user) {
+     boolean checkConceptAccess(Map args, User user) {
         def conceptPath = args.conceptPath as String
         def conceptCode = conceptPath ? null : args.conceptCode as String
         if (conceptPath == null || conceptPath.empty) {
@@ -246,15 +247,10 @@ class AccessControlChecks implements AuthorisationChecks {
     }
 
     boolean canPerform(User user,
-                       ProtectedOperation operation,
+                       AccessLevel minAccessLevel,
                        QueryDefinition definition) {
-        if (![BUILD_COHORT, READ].contains(operation)) {
-            log.error "Requested ${operation} operation on QueryDefinition ${definition}."
-            throw new UnsupportedOperationException("Operation $operation ")
-        }
-
         if (user.admin) {
-            log.debug "Bypassing check for $operation on query definition for user ${user.username}" +
+            log.debug "Bypassing check for $minAccessLevel on query definition for user ${user.username}" +
                     ' because she is an administrator'
             return true
         }
@@ -294,7 +290,7 @@ class AccessControlChecks implements AuthorisationChecks {
                 if (study1 == null) {
                     return false
                 }
-                canPerform user, operation, study1
+                canPerform user, minAccessLevel, study1
             }
         }
 
@@ -311,13 +307,8 @@ class AccessControlChecks implements AuthorisationChecks {
     }
 
     boolean canPerform(User user,
-                       ProtectedOperation operation,
+                       AccessLevel minAccessLevel,
                        QueryResult result) {
-        if (operation != READ) {
-            log.warn "Requested protected operation different from " +
-                    "READ on QueryResult $result"
-            throw new UnsupportedOperationException("Operation $operation ")
-        }
 
         def res = result.username == user.username || user.admin
 
@@ -336,30 +327,29 @@ class AccessControlChecks implements AuthorisationChecks {
      * Groovy supports multiple dispatch. So other {@see canPerform} method has to be called.
      * This class does not have to be @CompileStatic in order for this mechanism to work.
      * @param user
-     * @param protectedOperation
+     * @param minAccessLevel minimal access level
      * @param protectedResource
      * @return
      */
     @Override
-    boolean canPerform(User user, ProtectedOperation protectedOperation, ProtectedResource protectedResource) {
-        throw new UnsupportedOperationException("Do not know how to check access for user $this," +
-                " operation $protectedOperation on $protectedResource")
+    boolean canPerform(User user, AccessLevel minAccessLevel, ProtectedResource protectedResource) {
+        throw new UnsupportedOperationException("Do not know how to check access on $protectedResource")
     }
 
     /**
      * Checks whether user has right to perform given opertion on the resource with the given token
      * @param user
-     * @param protectedOperation
+     * @param minAccessLevel minimal access level
      * @param token
      * @return
      */
-    private boolean isTokenAllowUserToDoOperation(User user, ProtectedOperation protectedOperation, String token) {
+    private boolean hasPermission(User user, AccessLevel minAccessLevel, String token) {
         if (!token) {
             throw new UnexpectedResultException('Token is null.')
         }
 
         if (user.admin) {
-            log.debug "Bypassing check for $protectedOperation on ${token} for user ${user.username}" +
+            log.debug "Bypassing check for $minAccessLevel on ${token} for user ${user.username}" +
                     ' because she is an administrator'
             return true
         }
@@ -368,31 +358,7 @@ class AccessControlChecks implements AuthorisationChecks {
             return true
         }
 
-        operationToMinimalAccessLevel(protectedOperation) <= user.studyTokenToAccessLevel[token]
+        minAccessLevel <= user.studyTokenToAccessLevel[token]
     }
-
-    /**
-     * Maps operation to access level
-     * @param operation
-     * @return
-     */
-    //TODO Has to be removed completely after ProtectedOperation
-    private static AccessLevel operationToMinimalAccessLevel(ProtectedOperation operation) {
-        switch (operation) {
-            case BUILD_COHORT:
-            case SHOW_SUMMARY_STATISTICS:
-            case RUN_ANALYSIS:
-                return AccessLevel.VIEW
-            case READ:
-            case API_READ:
-            case EXPORT:
-            case SHOW_IN_TABLE:
-                return AccessLevel.EXPORT
-            default:
-                throw new IllegalArgumentException(operation.toString())
-        }
-    }
-
-
 
 }

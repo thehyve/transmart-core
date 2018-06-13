@@ -10,7 +10,7 @@ import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
@@ -70,7 +70,7 @@ class AbstractDataResourceService {
         } else if (constraint instanceof PatientSetConstraint) {
             if (constraint.patientSetId) {
                 QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
-                if (queryResult == null || !accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+                if (queryResult == null || !accessControlChecks.canPerform(user, AccessLevel.EXPORT, queryResult)) {
                     throw new AccessDeniedException("Access denied to patient set or patient set does not exist: ${constraint.patientSetId}")
                 }
             }
@@ -108,13 +108,11 @@ class AbstractDataResourceService {
             }
         } else if (constraint instanceof StudyNameConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
-            def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
-            if (study == null || !accessControlChecks.canPerform(user, mostLimitedOperation, study)) {
+            if (study == null || !accessControlChecks.canPerform(user, AccessLevel.AGGREGATE_WITH_THRESHOLD, study)) {
                 throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
-            def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
-            if (constraint.study == null || !accessControlChecks.canPerform(user, mostLimitedOperation, constraint.study)) {
+            if (constraint.study == null || !accessControlChecks.canPerform(user, AccessLevel.AGGREGATE_WITH_THRESHOLD, constraint.study)) {
                 throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.study?.name}")
             }
         } else {
