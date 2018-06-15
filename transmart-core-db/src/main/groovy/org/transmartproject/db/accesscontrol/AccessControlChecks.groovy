@@ -20,6 +20,7 @@
 package org.transmartproject.db.accesscontrol
 
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
@@ -33,17 +34,14 @@ import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.OntologyTermsResource
-import org.transmartproject.core.ontology.StudiesResource
-import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.ontology.*
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.AuthorisationChecks
-import org.transmartproject.core.users.ProtectedResource
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
@@ -55,17 +53,15 @@ import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.
 /**
  * Access control checks.
  *
- * Right now these are implemented in this same class.
- * If this list gets bigger or needs to be pluggable by other plugins, then
- * this should be refactored into a different solution (e.g. each check
- * implemented in a different Spring bean).
+ * It implements checks for 17.1 data model and legacy one.
  */
 @Slf4j
 @Component
-class AccessControlChecks implements AuthorisationChecks {
+@CompileStatic
+class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChecks {
 
     public static final String PUBLIC_SOT = 'EXP:PUBLIC'
-    public static final Set<String> PUBLIC_TOKENS = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT]
+    public static final Set<String> PUBLIC_TOKENS = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT] as Set
 
     @Autowired
     OntologyTermsResource conceptsResource
@@ -75,16 +71,6 @@ class AccessControlChecks implements AuthorisationChecks {
 
     @Autowired
     SessionFactory sessionFactory
-
-    Session getSession() {
-        sessionFactory.currentSession
-    }
-
-    boolean canPerform(User user,
-                       AccessLevel minAccessLevel,
-                       I2b2Secure secure) {
-        hasPermission(user, minAccessLevel, secure.secureObjectToken)
-    }
 
     /**
      * Checks if a {@link org.transmartproject.db.i2b2data.Study} (in the i2b2demodata schema)
@@ -98,10 +84,95 @@ class AccessControlChecks implements AuthorisationChecks {
      * @param study the study object that is referred to from the trial visit dimension.
      * @return true iff a study exists that the user has access to.
      */
-    boolean canPerform(User user,
-                       AccessLevel minAccessLevel,
-                       org.transmartproject.db.i2b2data.Study study) {
-        hasPermission(user, minAccessLevel, study.secureObjectToken)
+    @Override
+    boolean canReadPatientData(User user, PatientDataAccessLevel patientDataAccessLevel, MDStudy study) {
+        assert study instanceof org.transmartproject.db.i2b2data.Study
+        hasAtLeastAccessLevel(user, patientDataAccessLevel, study.secureObjectToken)
+    }
+
+    @Override
+    boolean hasAccess(User user, MDStudy study) {
+        canReadPatientData(user, PatientDataAccessLevel.minimalAccessLevel, study)
+    }
+
+    @Override
+    boolean hasAccess(User user, QueryResult result) {
+
+        def res = result.username == user.username || user.admin
+
+        if (!res) {
+            log.warn "Denying $user access to query result $result because " +
+                    "its creator (${result.username}) doesn't match the user " +
+                    "(${user.username}) and requesting user is not an admin"
+        } else {
+            log.debug "Granting ${user.username} access to $result"
+        }
+
+        res
+    }
+
+    @Override
+    boolean hasAccess(User user, OntologyTerm term) {
+        hasAtLeastAccessLevelForTheSecureNode(user, PatientDataAccessLevel.minimalAccessLevel, term)
+    }
+
+    @Override
+    boolean canRun(User user, QueryDefinition definition) {
+        if (user.admin) {
+            log.debug "Bypassing check on query definition for user ${user.username}  because she is an administrator"
+            return true
+        }
+
+        // check there is at least one non-inverted panel for which the user
+        // has permission in all the terms
+        def res = definition.panels.findAll { !it.invert }.any { Panel panel ->
+            Set<Study> foundStudies = panel.items.findAll { Item item ->
+                /* always permit across trial nodes.
+                 * Across trial terms have no study, so they have to be
+                 * handled especially */
+                new ConceptKey(item.conceptKey).tableCode !=
+                        ACROSS_TRIALS_TABLE_CODE
+            }.collect { Item item ->
+                /* this could be optimized by adding a new method in
+                 * StudiesResource */
+                OntologyTerm concept = conceptsResource.getByKey(item.conceptKey)
+                if (concept instanceof AbstractI2b2Metadata) {
+                    def dimensionCode = ((AbstractI2b2Metadata) concept).dimensionCode
+                    if (dimensionCode != concept.fullName) {
+                        log.warn "Shared concepts not supported. Term: ${concept.fullName}, concept: ${dimensionCode}"
+                        throw new AccessDeniedException("Shared concepts cannot be used for cohort selection.")
+                    }
+                } else {
+                    throw new AccessDeniedException("Node type not supported: ${concept?.class?.simpleName}.")
+                }
+
+                def study = concept.study
+
+                if (study == null) {
+                    log.info "User included concept with no study: ${concept.fullName}"
+                }
+
+                study
+            } as Set
+
+            foundStudies.every { Study study1 ->
+                if (study1 == null) {
+                    return false
+                }
+                hasAccess(user, study1)
+            }
+        }
+
+        if (!res) {
+            log.warn "User ${user.username} defined access for definition ${definition.name} " +
+                    "because it doesn't include one non-inverted panel for" +
+                    "which the user has permission in all the terms' studies"
+        } else {
+            log.debug "Granting access to user ${user.username} to use " +
+                    "query definition ${definition.name}"
+        }
+
+        res
     }
 
     /**
@@ -119,22 +190,18 @@ class AccessControlChecks implements AuthorisationChecks {
      * - a study node does not exist in I2b2Secure
      * - or a study node exists in I2b2Secure that the user has access to.
      */
-    @Deprecated
-    boolean canPerform(User user,
-                       AccessLevel minAccessLevel,
-                       Study study) {
-        /* Get the study's "token" */
-        I2b2Secure secure =
-                I2b2Secure.findByFullName study.ontologyTerm.fullName
-        if (!secure) {
-            log.warn "Could not find object '${study.ontologyTerm.fullName}' " +
-                    "in i2b2_secure; allowing access"
-            // must be true for backwards compatibility reasons
-            // see I2b2HelperService::getAccess
-            return true
-        }
+    @Override
+    boolean canReadPatientData(User user, PatientDataAccessLevel patientDataAccessLevel, Study study) {
+        hasAtLeastAccessLevelForTheSecureNode(user, patientDataAccessLevel, study.ontologyTerm)
+    }
 
-        canPerform(user, minAccessLevel, secure)
+    @Override
+    boolean hasAccess(User user, Study study) {
+        canReadPatientData(user, PatientDataAccessLevel.minimalAccessLevel, study)
+    }
+
+    Session getSession() {
+        sessionFactory.currentSession
     }
 
     /* Study is included if the user has ANY kind of access */
@@ -142,16 +209,15 @@ class AccessControlChecks implements AuthorisationChecks {
     Set<Study> getAccessibleStudiesForUser(User user) {
         /* this method could benefit from caching */
         def studySet = studiesResource.studySet
-        final AccessLevel minAccessLevel = AccessLevel.values().min()
         studySet.findAll {
             OntologyTerm ontologyTerm = it.ontologyTerm
             assert ontologyTerm: "No ontology node found for study ${it.id}."
-            I2b2Secure i2b2Secure = ontologyTerm instanceof I2b2Secure ? ontologyTerm : I2b2Secure.findByFullName(ontologyTerm.fullName)
+            I2b2Secure i2b2Secure = getSecureNodeIfExists(ontologyTerm)
             if (!i2b2Secure) {
                 log.debug("No secure record for ${ontologyTerm.fullName} path found. Study treated as public.")
                 return true
             }
-            canPerform(user, minAccessLevel, i2b2Secure)
+            hasAccess(user, i2b2Secure)
         }
     }
 
@@ -160,6 +226,7 @@ class AccessControlChecks implements AuthorisationChecks {
     }
 
     /* Study is included if the user has ANY kind of access */
+
     @Transactional(readOnly = true)
     Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
         if (hasUnlimitedStudiesAccess(user)) {
@@ -167,7 +234,8 @@ class AccessControlChecks implements AuthorisationChecks {
         }
 
         def accessibleStudyTokens = getAccessibleStudyTokensForUser(user)
-        org.transmartproject.db.i2b2data.Study.findAllBySecureObjectTokenInList(accessibleStudyTokens)
+        (Collection<org.transmartproject.db.i2b2data.Study>) org.transmartproject.db.i2b2data.Study
+                .createCriteria().list { inList('secureObjectToken', accessibleStudyTokens) }
     }
 
     /**
@@ -175,7 +243,7 @@ class AccessControlChecks implements AuthorisationChecks {
      * @param user
      */
     private static Set<String> getAccessibleStudyTokensForUser(User user) {
-        user.studyTokenToAccessLevel.keySet() + PUBLIC_TOKENS
+        user.studyToPatientDataAccessLevel.keySet() + PUBLIC_TOKENS
     }
 
     private boolean exists(org.hibernate.criterion.DetachedCriteria criteria) {
@@ -211,9 +279,9 @@ class AccessControlChecks implements AuthorisationChecks {
      * or conceptCode.
      * @throws AccessDeniedException iff none or both of conceptCode and conceptPath are provided.
      */
-     boolean checkConceptAccess(Map args, User user) {
-        def conceptPath = args.conceptPath as String
-        def conceptCode = conceptPath ? null : args.conceptCode as String
+    boolean checkConceptAccess(Map args, User user) {
+        String conceptPath = args.conceptPath as String
+        String conceptCode = conceptPath ? null : args.conceptCode as String
         if (conceptPath == null || conceptPath.empty) {
             if (conceptCode == null || conceptCode.empty) {
                 throw new AccessDeniedException("Either concept path or concept code is required.")
@@ -246,94 +314,14 @@ class AccessControlChecks implements AuthorisationChecks {
         exists(criteria)
     }
 
-    boolean canPerform(User user,
-                       AccessLevel minAccessLevel,
-                       QueryDefinition definition) {
-        if (user.admin) {
-            log.debug "Bypassing check for $minAccessLevel on query definition for user ${user.username}" +
-                    ' because she is an administrator'
+    private
+    static boolean hasAtLeastAccessLevelForTheSecureNode(User user, PatientDataAccessLevel minAccessLevel, OntologyTerm term) {
+        I2b2Secure secureNode = getSecureNodeIfExists(term)
+        if (!secureNode) {
+            log.warn "Could not find object '${term.fullName}' in i2b2_secure; allowing access"
             return true
         }
-        
-        // check there is at least one non-inverted panel for which the user
-        // has permission in all the terms
-        def res = definition.panels.findAll { !it.invert }.any { Panel panel ->
-            Set<Study> foundStudies = panel.items.findAll { Item item ->
-                /* always permit across trial nodes.
-                 * Across trial terms have no study, so they have to be
-                 * handled especially */
-                new ConceptKey(item.conceptKey).tableCode !=
-                       ACROSS_TRIALS_TABLE_CODE
-            }.collect { Item item ->
-                /* this could be optimized by adding a new method in
-                 * StudiesResource */
-                def concept = conceptsResource.getByKey(item.conceptKey)
-                if (concept instanceof AbstractI2b2Metadata) {
-                    if (concept.dimensionCode != concept.fullName) {
-                        log.warn "Shared concepts not supported. Term: ${concept.fullName}, concept: ${concept.dimensionCode}"
-                        throw new AccessDeniedException("Shared concepts cannot be used for cohort selection.")
-                    }
-                } else {
-                    throw new AccessDeniedException("Node type not supported: ${concept?.class?.simpleName}.")
-                }
-
-                def study = concept.study
-
-                if (study == null) {
-                    log.info "User included concept with no study: ${concept.fullName}"
-                }
-
-                study
-            } as Set
-
-            foundStudies.every { Study study1 ->
-                if (study1 == null) {
-                    return false
-                }
-                canPerform user, minAccessLevel, study1
-            }
-        }
-
-        if (!res) {
-            log.warn "User ${user.username} defined access for definition ${definition.name} " +
-                    "because it doesn't include one non-inverted panel for" +
-                    "which the user has permission in all the terms' studies"
-        } else {
-            log.debug "Granting access to user ${user.username} to use " +
-                    "query definition ${definition.name}"
-        }
-
-        res
-    }
-
-    boolean canPerform(User user,
-                       AccessLevel minAccessLevel,
-                       QueryResult result) {
-
-        def res = result.username == user.username || user.admin
-
-        if (!res) {
-            log.warn "Denying $user access to query result $result because " +
-                    "its creator (${result.username}) doesn't match the user " +
-                    "(${user.username})"
-        } else {
-            log.debug "Granting ${user.username} access to $result (usernames match)"
-        }
-
-        res
-    }
-
-    /**
-     * Groovy supports multiple dispatch. So other {@see canPerform} method has to be called.
-     * This class does not have to be @CompileStatic in order for this mechanism to work.
-     * @param user
-     * @param minAccessLevel minimal access level
-     * @param protectedResource
-     * @return
-     */
-    @Override
-    boolean canPerform(User user, AccessLevel minAccessLevel, ProtectedResource protectedResource) {
-        throw new UnsupportedOperationException("Do not know how to check access on $protectedResource")
+        return hasAtLeastAccessLevel(user, minAccessLevel, secureNode.secureObjectToken)
     }
 
     /**
@@ -343,7 +331,7 @@ class AccessControlChecks implements AuthorisationChecks {
      * @param token
      * @return
      */
-    private boolean hasPermission(User user, AccessLevel minAccessLevel, String token) {
+    private static boolean hasAtLeastAccessLevel(User user, PatientDataAccessLevel minAccessLevel, String token) {
         if (!token) {
             throw new UnexpectedResultException('Token is null.')
         }
@@ -358,7 +346,18 @@ class AccessControlChecks implements AuthorisationChecks {
             return true
         }
 
-        minAccessLevel <= user.studyTokenToAccessLevel[token]
+        minAccessLevel <= user.studyToPatientDataAccessLevel[token]
+    }
+
+    private static I2b2Secure getSecureNodeIfExists(OntologyTerm term) {
+        if (term instanceof I2b2Secure) {
+            return (I2b2Secure) term
+        }
+        Collection<I2b2Secure> secureNodes = (Collection<I2b2Secure>) I2b2Secure.createCriteria()
+                .list { eq('fullName', term.fullName) }
+        if (secureNodes) {
+            return secureNodes.iterator().next()
+        }
     }
 
 }

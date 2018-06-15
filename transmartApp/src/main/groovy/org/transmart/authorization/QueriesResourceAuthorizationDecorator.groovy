@@ -13,8 +13,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultSummary
-import org.transmartproject.core.users.AccessLevel
-import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.User
 
 import javax.annotation.Resource
@@ -27,14 +26,14 @@ class QueriesResourceAuthorizationDecorator
     User currentUserBean
 
     @Autowired
-    AuthorisationChecks authorisationChecks
+    LegacyAuthorisationChecks authorisationChecks
 
     @Autowired
     QueriesResource delegate
 
     @Override
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        if (!authorisationChecks.canPerform(currentUserBean, AccessLevel.AGGREGATE_WITH_THRESHOLD, definition)) {
+        if (!authorisationChecks.canRun(currentUserBean, definition)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "for building cohort based on $definition")
         }
@@ -44,7 +43,7 @@ class QueriesResourceAuthorizationDecorator
 
     @Override
     QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
-        if (!authorisationChecks.canPerform(currentUserBean, AccessLevel.AGGREGATE_WITH_THRESHOLD, definition)) {
+        if (!authorisationChecks.canRun(currentUserBean, definition)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "for building cohort based on $definition")
         }
@@ -60,7 +59,7 @@ class QueriesResourceAuthorizationDecorator
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
         def res = delegate.getQueryResultFromId id
 
-        if (!authorisationChecks.canPerform(currentUserBean, AccessLevel.EXPORT, res)) {
+        if (!authorisationChecks.hasAccess(currentUserBean, res)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "to query result with id $id")
         }

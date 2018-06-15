@@ -1,18 +1,25 @@
 package org.transmartproject.core.users
 
+import org.transmartproject.core.ontology.MDStudy
+
+/**
+ * 17.1 data model (study entity, hypercube, constraints language) authorisation checks.
+ */
 interface AuthorisationChecks {
 
     /**
-     * Checks if a {@link org.transmartproject.core.ontology.MDStudy} (in the i2b2demodata schema)
-     * exists to which the user has access.
-     *
-     * @param user the user to check access for.
-     * @param accessLevel level of access
-     * @param study the study object that is referred to from the trial visit dimension.
-     * @return true iff a study exists that the user has access to.
+     * Check whether user has to the study patient data of the given level.
+     * @param user - user we check read permission for
+     * @param patientDataAccessLevel - minimal access level user has to have
+     * @param study - study we check user permission for
+     * @return true if user has access to the data
      */
-    boolean canPerform(User user,
-                       AccessLevel accessLevel,
-                       ProtectedResource protectedResource)
+    boolean canReadPatientData(User user, PatientDataAccessLevel patientDataAccessLevel, MDStudy study)
+
+    /**
+     * Check whether user has any access to the study
+     * @return true if user has access to the study
+     */
+    boolean hasAccess(User user, MDStudy study)
 
 }

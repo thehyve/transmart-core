@@ -8,8 +8,7 @@ import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.AccessLevel
-import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.User
 
 import javax.annotation.Resource
@@ -25,7 +24,7 @@ class ResultInstanceIdsHolder {
     QueriesResource queriesResource
 
     @Resource
-    AuthorisationChecks authorisationChecks
+    LegacyAuthorisationChecks authorisationChecks
 
     @Resource
     User currentUserBean
@@ -53,7 +52,7 @@ class ResultInstanceIdsHolder {
     @Lazy List<QueryResult> queryResults = {
         resultInstanceIds.collect { id ->
             def queryResult = queriesResource.getQueryResultFromId id
-            if (!authorisationChecks.canPerform(currentUserBean, AccessLevel.EXPORT, queryResult)) {
+            if (!authorisationChecks.hasAccess(currentUserBean, queryResult)) {
                 throw new AccessDeniedException("Current user doesn't have " +
                         "access to result instance with id $id")
             }

@@ -20,7 +20,7 @@
 package org.transmartproject.db.user
 
 import org.hibernate.FetchMode
-import org.transmartproject.core.users.AccessLevel
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.db.accesscontrol.AccessLevelCoreDb
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccessView
@@ -89,7 +89,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     }
 
     @Override
-    Map<String, AccessLevel> getStudyTokenToAccessLevel() {
+    Map<String, PatientDataAccessLevel> getStudyToPatientDataAccessLevel() {
         List<Object[]> securedObjectWithaccessLevelPairs = SecuredObjectAccessView.createCriteria().list {
             projections {
                 property('securedObject')
@@ -102,12 +102,12 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             }
             eq('so.dataType', SecuredObject.STUDY_DATA_TYPE)
         }
-        Map<String, AccessLevel> result = [:]
+        Map<String, PatientDataAccessLevel> result = [:]
         for (Object[] securedObjectWithaccessLevelPair : securedObjectWithaccessLevelPairs) {
             def (SecuredObject securedObject, AccessLevelCoreDb accessLevelDb) = securedObjectWithaccessLevelPair
             String studyToken = securedObject.bioDataUniqueId
             if (result.containsKey(studyToken)) {
-                AccessLevel memorisedAccLvl = result.get(studyToken)
+                PatientDataAccessLevel memorisedAccLvl = result.get(studyToken)
                 if (accessLevelDb.accessLevel > memorisedAccLvl) {
                     log.debug("Use ${accessLevelDb.accessLevel} access level instead of ${memorisedAccLvl} for ${username} user on ${studyToken} study token.")
                     result.put(studyToken, accessLevelDb.accessLevel)

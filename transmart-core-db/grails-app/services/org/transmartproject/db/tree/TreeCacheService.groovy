@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.tree.TreeNode
-import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.metadata.DimensionDescription
@@ -135,7 +134,7 @@ class TreeCacheService {
         stopWatch.stop()
         stopWatch.start('Filtering nodes user has access to.')
         List<I2b2Secure> accessibleI2b2Nodes = i2b2Nodes.findAll { I2b2Secure i2b2Secure ->
-            accessControlChecks.canPerform(user, AccessLevel.AGGREGATE_WITH_THRESHOLD, i2b2Secure) }
+            accessControlChecks.hasAccess(user, i2b2Secure) }
         stopWatch.stop()
         log.debug("${accessibleI2b2Nodes.size()} from ${i2b2Nodes.size()} are accessible to ${user} user.")
         stopWatch.start('Building the forest for accessible nodes.')

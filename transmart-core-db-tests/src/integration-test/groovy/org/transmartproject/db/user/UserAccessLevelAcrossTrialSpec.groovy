@@ -28,8 +28,7 @@ import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.core.users.AccessLevel
-import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
@@ -54,7 +53,7 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
     SessionFactory sessionFactory
 
     @Autowired
-    AuthorisationChecks authorisationChecks
+    LegacyAuthorisationChecks authorisationChecks
 
     AcrossTrialsTestData testData = AcrossTrialsTestData.createDefault()
 
@@ -83,7 +82,7 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
         ])
 
         expect:
-        authorisationChecks.canPerform(secondUser, AccessLevel.VIEW, definition)
+        authorisationChecks.canRun(secondUser, definition)
     }
 
 

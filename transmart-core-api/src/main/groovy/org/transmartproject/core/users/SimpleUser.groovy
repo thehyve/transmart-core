@@ -11,5 +11,5 @@ class SimpleUser implements User {
     String realName
     String email
     boolean admin
-    Map<String, AccessLevel> studyTokenToAccessLevel
+    Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel
 }

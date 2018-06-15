@@ -36,8 +36,8 @@ interface User {
     boolean isAdmin()
 
     /**
-     * The key of the map is a study token. The study token is a string that give access to the study.
-     * Level of access specified by the value part of the map {@link AccessLevel}.
+     * The key of the map is a study token (could be study id). The study token is a string that give access to the study.
+     * Patient data access level of access specified by the value part of the map {@link PatientDataAccessLevel}.
      */
-    Map<String, AccessLevel> getStudyTokenToAccessLevel()
+    Map<String, PatientDataAccessLevel> getStudyToPatientDataAccessLevel()
 }

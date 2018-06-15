@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.accesscontrol
 
-import org.transmartproject.core.users.AccessLevel
+import org.transmartproject.core.users.PatientDataAccessLevel
 
 import static java.lang.Enum.valueOf
 
@@ -52,7 +52,7 @@ class AccessLevelCoreDb {
                 .add("value", value).toString()
     }
 
-    AccessLevel getAccessLevel() {
-        valueOf(AccessLevel, name)
+    PatientDataAccessLevel getAccessLevel() {
+        valueOf(PatientDataAccessLevel, name)
     }
 }

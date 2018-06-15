@@ -14,7 +14,6 @@ import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
-import org.transmartproject.core.users.AccessLevel
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.AggregateDataService
@@ -97,7 +96,7 @@ class TreeService implements TreeResource {
         I2b2Secure root = (I2b2Secure) I2b2Secure.createCriteria().get {
             eq('fullName', rootKey)
         }
-        if (!root || !accessControlChecks.canPerform(user, AccessLevel.AGGREGATE_WITH_THRESHOLD, root)) {
+        if (!root || !accessControlChecks.hasAccess(user, root)) {
             throw new AccessDeniedException("Access denied to path: ${rootKey}")
         }
         root

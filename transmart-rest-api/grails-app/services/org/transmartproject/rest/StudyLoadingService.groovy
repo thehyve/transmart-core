@@ -33,9 +33,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.users.AccessLevel
-import org.transmartproject.core.users.AuthorisationChecks
-import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
@@ -51,7 +49,7 @@ class StudyLoadingService {
     AuthContext authContext
 
     @Autowired
-    AuthorisationChecks authorisationChecks
+    LegacyAuthorisationChecks authorisationChecks
 
     private Study cachedStudy
 
@@ -73,22 +71,11 @@ class StudyLoadingService {
 
         def study = studiesResourceService.getStudyById(studyId)
 
-        if (!checkAccess(study)) {
+        if (!authorisationChecks.hasAccess(authContext.user, study)) {
             throw new AccessDeniedException("Denied access to study ${study.id}")
         }
 
         study
-    }
-
-    private boolean checkAccess(Study study) {
-        def result = authorisationChecks.canPerform(authContext.user,
-                AccessLevel.EXPORT, study)
-        if (!result) {
-            def username = authContext.user.username
-            log.warn "User $username denied access to study ${study.id}"
-        }
-
-        result
     }
 
     String getStudyLowercase() {

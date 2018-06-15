@@ -10,7 +10,7 @@ import spock.lang.Specification
 
 import java.text.ParseException
 
-import static org.transmartproject.core.users.AccessLevel.*
+import static org.transmartproject.core.users.PatientDataAccessLevel.*
 
 class KeycloakUserResourceServiceSpec extends Specification {
 
@@ -26,7 +26,7 @@ class KeycloakUserResourceServiceSpec extends Specification {
         List<GrantedAuthority> authorities = [
                 new SimpleGrantedAuthority('ROLE_ADMIN'),
                 new SimpleGrantedAuthority('STUDY1_TOKEN|OWN'),
-                new SimpleGrantedAuthority('STUDY2_TOKEN|AGGREGATE_WITH_THRESHOLD'),
+                new SimpleGrantedAuthority('STUDY2_TOKEN|COUNTS_WITH_THRESHOLD'),
         ]
         boolean approved = true
         Set<String> scopes = ['oidc', 'email']
@@ -52,9 +52,9 @@ class KeycloakUserResourceServiceSpec extends Specification {
         user.realName == 'John Doe'
         user.email == 'test@mail.com'
         user.admin
-        user.studyTokenToAccessLevel.keySet() == ['STUDY1_TOKEN', 'STUDY2_TOKEN'] as Set
-        user.studyTokenToAccessLevel['STUDY1_TOKEN'] == OWN
-        user.studyTokenToAccessLevel['STUDY2_TOKEN'] == AGGREGATE_WITH_THRESHOLD
+        user.studyToPatientDataAccessLevel.keySet() == ['STUDY1_TOKEN', 'STUDY2_TOKEN'] as Set
+        user.studyToPatientDataAccessLevel['STUDY1_TOKEN'] == MEASUREMENTS
+        user.studyToPatientDataAccessLevel['STUDY2_TOKEN'] == COUNTS_WITH_THRESHOLD
     }
 
     void 'test parse study token to access level corner cases'() {
@@ -67,8 +67,8 @@ class KeycloakUserResourceServiceSpec extends Specification {
         where:
         accLvlToTok                  | exception                | message
         '|'                          | ParseException           | "Can't parse permission '${accLvlToTok}'."
-        'STUDY1_TOKEN|UNEXISTING_OP' | IllegalArgumentException | 'No enum constant org.transmartproject.core.users.AccessLevel.UNEXISTING_OP'
-        '|VIEW'                      | IllegalArgumentException | "Emtpy study token: '${accLvlToTok}'."
+        'STUDY1_TOKEN|UNEXISTING_OP' | IllegalArgumentException | 'No enum constant org.transmartproject.core.users.PatientDataAccessLevel.UNEXISTING_OP'
+        '|SUMMARY'                      | IllegalArgumentException | "Emtpy study token: '${accLvlToTok}'."
         '|||'                        | ParseException           | "Can't parse permission '${accLvlToTok}'."
         ''                           | ParseException           | "Can't parse permission '${accLvlToTok}'."
     }
@@ -79,7 +79,7 @@ class KeycloakUserResourceServiceSpec extends Specification {
 
         where:
         roles                                                            | result
-        ['STUDY1|AGGREGATE_WITH_THRESHOLD', 'STUDY1|VIEW']               | ['STUDY1': VIEW]
-        ['STUDY1|AGGREGATE_WITH_THRESHOLD', 'STUDY1|OWN', 'STUDY1|VIEW'] | ['STUDY1': OWN]
+        ['STUDY1|COUNTS_WITH_THRESHOLD', 'STUDY1|SUMMARY']               | ['STUDY1': SUMMARY]
+        ['STUDY1|COUNTS_WITH_THRESHOLD', 'STUDY1|MEASUREMENTS', 'STUDY1|SUMMARY'] | ['STUDY1': MEASUREMENTS]
     }
 }

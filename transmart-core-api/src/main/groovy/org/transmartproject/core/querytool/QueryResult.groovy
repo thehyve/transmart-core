@@ -1,7 +1,6 @@
 package org.transmartproject.core.querytool
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.users.ProtectedResource
 
 /**
  * A query result instance contains information about a specific run of a
@@ -9,7 +8,7 @@ import org.transmartproject.core.users.ProtectedResource
  *
  * All query results are assumed to be of PATIENTSET type.
  */
-interface QueryResult extends ProtectedResource {
+interface QueryResult {
 
     /**
      * The query result instance id.

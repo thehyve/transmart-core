@@ -24,14 +24,14 @@ The prerequisite is to have admin credentials to a keycloak instance. https://<d
         
     -Study permissions
     
-        EXP:SCSCP|AGGREGATE_WITH_THRESHOLD
-        EXP:SCSCP|OWN
+        EXP:SCSCP|COUNTS_WITH_THRESHOLD
+        EXP:SCSCP|MEASUREMENTS
         
-    The convention is to represent study permissions as `study token|minimal access level`
-    See `org.transmartproject.core.users.AccessLevel` for the list of supported levels.
-    The study token is picked during data uploading.
+    The convention is to represent study permissions as `study token|patient data access level`
+    See `org.transmartproject.core.users.PatientDataAccessLevel` for the list of supported levels.
+    The study token is loaded with study.
     Here `EXP:SCSCP` is token for `SHARED_CONCEPTS_STUDY_C_PRIV` test study.
-    The token could be simply the study id. 
+    But the token could be simply the study id. 
     
         
 4. Add user

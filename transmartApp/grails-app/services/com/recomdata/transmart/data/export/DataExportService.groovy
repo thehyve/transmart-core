@@ -7,8 +7,8 @@ import groovy.json.JsonSlurper
 import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.users.AccessLevel
-import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 
 @Transactional
@@ -29,7 +29,7 @@ class DataExportService {
     def queriesResourceAuthorizationDecorator
     def studiesResourceService
     @Autowired
-    AuthorisationChecks authorisationChecks
+    LegacyAuthorisationChecks authorisationChecks
 
     @Transactional(readOnly = true)
     def exportData(jobDataMap) {
@@ -262,11 +262,8 @@ class DataExportService {
             inject([] as Set, { a, b -> a + b.trial }).
             collect { studiesResourceService.getStudyById it }
 
-        Study forbiddenExportStudy = studies.find { Study study ->
-            if (!authorisationChecks.canPerform(user, AccessLevel.EXPORT, study)) {
-                return true
-            }
+        studies.every { Study study ->
+            authorisationChecks.canReadPatientData(user, PatientDataAccessLevel.MEASUREMENTS, study)
         }
-        !forbiddenExportStudy
     }
 }

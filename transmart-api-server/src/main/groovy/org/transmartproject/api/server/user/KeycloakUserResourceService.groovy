@@ -18,7 +18,7 @@ import java.text.ParseException
 class KeycloakUserResourceService implements UsersResource {
 
     @Autowired
-    AuthorisationChecks authorisationChecks
+    LegacyAuthorisationChecks authorisationChecks
 
     @Override
     User getUserFromUsername(String username) throws NoSuchResourceException {
@@ -42,8 +42,8 @@ class KeycloakUserResourceService implements UsersResource {
         final String username = principal.name
         List<String> authorities = principal.authorities*.authority
         final boolean admin = authorities.remove('ROLE_ADMIN')
-        Map<String, AccessLevel> accessStudyTokenToAccessLevel =
-                buildStudyTokenToAccessLevel(authorities)
+        Map<String, PatientDataAccessLevel> studyToAccLvl =
+                buildStudyToPatientDataAccessLevel(authorities)
 
         final String realName
         final String email
@@ -59,36 +59,36 @@ class KeycloakUserResourceService implements UsersResource {
             email = null
         }
 
-        new SimpleUser(username, realName, email, admin, accessStudyTokenToAccessLevel)
+        new SimpleUser(username, realName, email, admin, studyToAccLvl)
     }
 
-    private static Map<String, AccessLevel> buildStudyTokenToAccessLevel(Collection<String> roles) {
-        Map<String, AccessLevel> result = [:]
+    private static Map<String, PatientDataAccessLevel> buildStudyToPatientDataAccessLevel(final Collection<String> roles) {
+        Map<String, PatientDataAccessLevel> result = [:]
         for (String studyTokenToAccLvl : roles) {
             try {
-                Tuple2<String, AccessLevel> studyTokenToAccessLevel = parseStudyTokenToAccessLevel(studyTokenToAccLvl)
+                Tuple2<String, PatientDataAccessLevel> studyTokenToAccessLevel = parseStudyTokenToAccessLevel(studyTokenToAccLvl)
                 String studyToken = studyTokenToAccessLevel.first
-                AccessLevel accLvl = studyTokenToAccessLevel.second
+                PatientDataAccessLevel accLvl = studyTokenToAccessLevel.second
                 if (result.containsKey(studyToken)) {
-                    AccessLevel memorisedAccLvl = result.get(studyToken)
+                    PatientDataAccessLevel memorisedAccLvl = result.get(studyToken)
                     if (accLvl > memorisedAccLvl) {
-                        log.debug("Use ${accLvl} access level instead of ${memorisedAccLvl} on ${studyToken} study token.")
+                        log.debug("Use ${accLvl} access level instead of ${memorisedAccLvl} on ${studyToken} study.")
                         result.put(studyToken, accLvl)
                     } else {
-                        log.debug("Keep ${memorisedAccLvl} access level and ignore ${accLvl} on ${studyToken} study token.")
+                        log.debug("Keep ${memorisedAccLvl} access level and ignore ${accLvl} on ${studyToken} study.")
                     }
                 } else {
                     result.put(studyToken, accLvl)
-                    log.debug("Found ${accLvl} access level on ${studyToken} study token.")
+                    log.debug("Found ${accLvl} access level on ${studyToken} study.")
                 }
             } catch (Exception e) {
                 log.error("Can't parse permission '${studyTokenToAccLvl}'.", e)
             }
         }
-        result
+        Collections.unmodifiableMap(result)
     }
 
-    private static Tuple2<String, AccessLevel> parseStudyTokenToAccessLevel(String studyTokenToAccLvl) {
+    private static Tuple2<String, PatientDataAccessLevel> parseStudyTokenToAccessLevel(String studyTokenToAccLvl) {
         String[] studyTokenToAccLvlSplit = studyTokenToAccLvl.split('\\|')
         if (studyTokenToAccLvlSplit.length != 2) {
             throw new ParseException("Can't parse permission '${studyTokenToAccLvl}'.", 0)
@@ -96,9 +96,9 @@ class KeycloakUserResourceService implements UsersResource {
 
         String studyToken = studyTokenToAccLvlSplit[0]
         if (!studyToken) {
-            throw new IllegalArgumentException("Emtpy study token: '${studyTokenToAccLvl}'.")
+            throw new IllegalArgumentException("Emtpy study: '${studyTokenToAccLvl}'.")
         }
         String accessLevel = studyTokenToAccLvlSplit[1]
-        new Tuple2(studyToken, AccessLevel.valueOf(accessLevel))
+        new Tuple2(studyToken, PatientDataAccessLevel.valueOf(accessLevel))
     }
 }
