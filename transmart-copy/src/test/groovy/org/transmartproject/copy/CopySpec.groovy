@@ -13,8 +13,8 @@ import spock.lang.Specification
 class CopySpec extends Specification {
 
     static final String TEST_STUDY = 'SURVEY0'
-    static final String STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY
-    static final String CORRUPTED_STUDY_FOLDER = './src/main/resources/examples/' + TEST_STUDY + '_corrupted'
+    static final String STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY
+    static final String CORRUPTED_STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY + '_corrupted'
     static final Map<String, String> DATABASE_CREDENTIALS = [
             PGHOST    : 'localhost',
             PGPORT    : '5432',
