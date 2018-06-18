@@ -10,9 +10,8 @@ class SystemAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
         report("After data loading update ",
-                "User (IP: ${ip}) requested clearing of tree node, counts caches, " +
+                "User (IP: ${IP}) requested clearing of tree node, counts caches, " +
                         "patient sets and bitsets, update of data for subscribed user queries.")
     }
 

@@ -11,8 +11,7 @@ class ExportAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
-        report('Export job operation', "User (IP: ${ip}) made an export request.")
+        report('Export job operation', "User (IP: ${IP}) made an export request.")
     }
 
 }

@@ -11,14 +11,13 @@ class PatientQueryAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
         if (actionName in ['listPatients', 'findPatient']) {
-            return report("Patients data retrieval", "User (IP: ${ip}) made a patients data request.")
+            return report("Patients data retrieval", "User (IP: ${IP}) made a patients data request.")
         } else if (actionName == 'createPatientSet') {
-            return report("Patient set creation", "User (IP: ${ip}) created a new patient set.")
+            return report("Patient set creation", "User (IP: ${IP}) created a new patient set.")
         } else {
             return report("Patient sets data retrieval",
-                    "User (IP: ${ip}) made a patient sets data request.")
+                    "User (IP: ${IP}) made a patient sets data request.")
         }
     }
 

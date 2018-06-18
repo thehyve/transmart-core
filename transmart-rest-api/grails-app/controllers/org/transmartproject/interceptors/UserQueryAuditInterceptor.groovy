@@ -11,8 +11,7 @@ class UserQueryAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
-        Map<String, String> event = getEventMessage(ip)
+        Map<String, String> event = getEventMessage(IP)
         report(event.event, event.eventMessage)
     }
 

@@ -31,6 +31,11 @@ dependencies {
     testCompile 'org.grails:grails-datastore-rest-client'
     compile "com.opencsv:opencsv:${openCsvVersion}"
     compile "org.grails.plugins:quartz:${quartzVersion}"
+    compile "commons-io:commons-io:2.5"
+    compile "commons-fileupload:commons-fileupload:1.3.1"
+    compile 'log4j:apache-log4j-extras:1.2.17'
+    compile 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
+    compile 'ch.qos.logback.contrib:logback-jackson:0.1.5'
 
     compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
     compile project(':transmart-core-api')

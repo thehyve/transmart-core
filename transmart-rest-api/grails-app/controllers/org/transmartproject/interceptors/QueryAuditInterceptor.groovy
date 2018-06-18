@@ -11,8 +11,7 @@ class QueryAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
-        Map<String, String> event = getEventMessage(ip)
+        Map<String, String> event = getEventMessage(IP)
         report(event.event, event.eventMessage)
     }
 
@@ -50,8 +49,10 @@ class QueryAuditInterceptor extends AuditInterceptor {
             case 'supportedFields':
                 return [event       : 'Supported fields view retrieval',
                         eventMessage: "User (IP: ${ip}) made a supported fields request."] as Map<String, String>
+            default:
+                return [event: 'Query request', eventMessage: 'User (IP: ${ip}) made a query request.'] as Map<String, String>
         }
-        [event: '', eventMessage: ''] as Map<String, String>
+
     }
 
 }

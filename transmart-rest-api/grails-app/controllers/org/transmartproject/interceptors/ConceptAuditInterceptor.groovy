@@ -10,7 +10,6 @@ class ConceptAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
-        report('Concepts retrieval', "User (IP: ${ip}) made a concept request.")
+        report('Concepts retrieval', "User (IP: ${IP}) made a concept request.")
     }
 }

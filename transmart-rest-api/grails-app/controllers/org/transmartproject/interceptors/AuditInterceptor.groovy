@@ -6,7 +6,7 @@ import org.transmartproject.core.users.User
 import org.transmartproject.rest.user.AuthContext
 
 @CompileStatic
-class AuditInterceptor {
+abstract class AuditInterceptor {
 
     AccessLogEntryResource accessLogService
     AuthContext authContext

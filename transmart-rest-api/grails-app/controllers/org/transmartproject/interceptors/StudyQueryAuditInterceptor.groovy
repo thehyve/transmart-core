@@ -10,8 +10,7 @@ class StudyQueryAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
-        report('Studies data retrieval', "User (IP: ${ip}) made a studies data request.")
+        report('Studies data retrieval', "User (IP: ${IP}) made a studies data request.")
     }
 
 }

@@ -27,8 +27,8 @@ class UserLandingInterceptor {
         accessLogService.report(
                 authContext.user,
                 "User Access",
-                eventMessage: eventMessage,
-                accessTime: new Date())
+                eventMessage: eventMessage as Object,
+                accessTime: new Date() as Object)
         true
     }
 

@@ -17,18 +17,19 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.server.logging
+package org.transmartproject.rest.logging
 
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.contrib.json.classic.JsonLayout
+import ch.qos.logback.core.AppenderBase
+import ch.qos.logback.core.Layout
 import com.google.common.base.Charsets
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
-import org.apache.log4j.AppenderSkeleton
-import org.apache.log4j.spi.LoggingEvent
-import org.apache.log4j.helpers.LogLog
-import org.transmart.server.logging.JsonLayout
+import org.grails.web.json.JSONObject
 
-import static java.lang.ProcessBuilder.Redirect.*
+import static java.lang.ProcessBuilder.Redirect.INHERIT
 
 
 /**
@@ -63,12 +64,13 @@ import static java.lang.ProcessBuilder.Redirect.*
  */
 @CompileStatic
 @Slf4j
-class ChildProcessAppender extends AppenderSkeleton {
+class ChildProcessAppender extends AppenderBase<ILoggingEvent> {
 
     List<String> command
+    boolean throwOnFailure = false
     int restartLimit = 15
     int restartWindow = 1800
-    boolean throwOnFailure = false
+    Layout<ILoggingEvent> layout
 
     protected long starttime
     protected int failcount = 0
@@ -79,29 +81,34 @@ class ChildProcessAppender extends AppenderSkeleton {
     protected boolean broken = false
 
     private ThreadLocal<int[]> recursionCount = [
-        initialValue: { [0] as int[] }
+            initialValue: { [0] as int[] }
     ] as ThreadLocal<int[]>
 
     void setRestartLimit(int l) {
-        if (l < 0) throw new IllegalArgumentException("restartLimit cannot be negative (use 0 to disable the limit)")
+        if (l < 0) {
+            throw new IllegalArgumentException("restartLimit cannot be negative (use 0 to disable the limit)")
+        }
         this.restartLimit = l
     }
 
     void setRestartWindow(int w) {
-        if (w <= 0) throw new IllegalArgumentException("restartWindow must be larger than 0")
+        if (w <= 0) {
+            throw new IllegalArgumentException("restartWindow must be larger than 0")
+        }
         this.restartWindow = w
     }
 
     boolean isBroken() { return broken }
 
     ChildProcessAppender() {
-        layout = new JsonLayout(singleLine: true)
+        this.layout = new JsonLayout()
     }
 
     /* We cannot call into the normal logging system while we have this appender locked (that risks deadlock), so use
      * the backup logging system.*/
+
     private void debug(String msg) {
-        LogLog.debug("${this.class.name}(name: $name): $msg")
+        log.debug("${this.class.name}(name: $name): $msg")
     }
 
     private synchronized startProcess() {
@@ -115,7 +122,9 @@ class ChildProcessAppender extends AppenderSkeleton {
     }
 
     synchronized boolean getChildAlive() {
-        if (process == null) return false
+        if (process == null) {
+            return false
+        }
         try {
             process.exitValue()
             return false
@@ -138,8 +147,10 @@ class ChildProcessAppender extends AppenderSkeleton {
 
         try {
             input.close()
-        } catch (IOException e) { /* ignore. Can happen if the implementation already closed its underlying stream
-        when the child closed its inputstream */ }
+        } catch (IOException e) {
+            /* ignore. Can happen if the implementation already closed its underlying stream
+                   when the child closed its inputstream */
+        }
 
         if (!inWindow) {
             starttime = now
@@ -156,7 +167,9 @@ class ChildProcessAppender extends AppenderSkeleton {
         try {
             rc[0]++
             // Recursive call, ignore
-            if (rc[0] > 1) return
+            if (rc[0] > 1) {
+                return
+            }
 
             if (broken) {
                 String msg = "Attempting to write to broken external log handling process"
@@ -199,20 +212,26 @@ class ChildProcessAppender extends AppenderSkeleton {
     }
 
     @Override
-    void append(LoggingEvent event) {
-        // Check for recursive invocation
-        if (recursionCount.get()[0] > 0) return;
-
-        write(layout.format(event))
+    void start() {
+        if (this.layout == null) {
+            addError("No layout set for the appender named [" + name + "].")
+            return
+        }
+        super.start()
     }
 
     @Override
-    boolean requiresLayout() { return true }
+    void append(ILoggingEvent event) {
+        // Check for recursive invocation
+        if (recursionCount.get()[0] <= 0) {
+            write(layout.doLayout(event))
+        }
+    }
 
     @Override
-    synchronized void close() {
-        closed = true
+    synchronized void stop() {
         input?.close()
+        super.stop()
     }
 
     @InheritConstructors

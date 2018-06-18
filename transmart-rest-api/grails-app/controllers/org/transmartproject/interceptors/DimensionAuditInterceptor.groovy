@@ -10,8 +10,7 @@ class DimensionAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        def ip = getIP()
-        report('Dimension elements retrieval', "User (IP: ${ip}) made a dimension elements request.")
+        report('Dimension elements retrieval', "User (IP: ${IP}) made a dimension elements request.")
     }
 
 }
