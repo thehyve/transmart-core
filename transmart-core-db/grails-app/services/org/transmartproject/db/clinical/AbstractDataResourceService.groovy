@@ -8,30 +8,14 @@ import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.BioMarkerDimension
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
-import org.transmartproject.core.multidimquery.query.ModifierConstraint
-import org.transmartproject.core.multidimquery.query.Negation
-import org.transmartproject.core.multidimquery.query.NullConstraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.RelationConstraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
-import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.core.multidimquery.query.TemporalConstraint
-import org.transmartproject.core.multidimquery.query.TimeConstraint
-import org.transmartproject.core.multidimquery.query.TrueConstraint
-import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
@@ -70,7 +54,7 @@ class AbstractDataResourceService {
         } else if (constraint instanceof PatientSetConstraint) {
             if (constraint.patientSetId) {
                 QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
-                if (queryResult == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+                if (queryResult == null || !accessControlChecks.hasAccess(user, queryResult)) {
                     throw new AccessDeniedException("Access denied to patient set or patient set does not exist: ${constraint.patientSetId}")
                 }
             }
@@ -108,13 +92,11 @@ class AbstractDataResourceService {
             }
         } else if (constraint instanceof StudyNameConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
-            def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
-            if (study == null || !user.canPerform(mostLimitedOperation, study)) {
+            if (study == null || !accessControlChecks.hasAccess(user, study)) {
                 throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
-            def mostLimitedOperation = ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
-            if (constraint.study == null || !user.canPerform(mostLimitedOperation, constraint.study)) {
+            if (constraint.study == null || !accessControlChecks.hasAccess(user, constraint.study)) {
                 throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.study?.name}")
             }
         } else {

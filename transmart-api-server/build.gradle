@@ -28,8 +28,9 @@ dependencies {
     compile project(':transmart-rest-api')
     compile project(':transmart-notifications')
 
-    compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.security.oauth:spring-security-oauth2"
+
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 }
 
 bootRun {

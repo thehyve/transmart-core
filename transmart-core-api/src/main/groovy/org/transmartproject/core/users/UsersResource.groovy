@@ -2,6 +2,8 @@ package org.transmartproject.core.users
 
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
+import java.security.Principal
+
 /**
  * Resource related with users.
  */
@@ -26,4 +28,11 @@ interface UsersResource {
      * @return the list of users.
      */
     List<User> getUsersWithEmailSpecified()
+
+    /**
+     *
+     * @param principal
+     * @return
+     */
+    User getUserFromPrincipal(Principal principal)
 }

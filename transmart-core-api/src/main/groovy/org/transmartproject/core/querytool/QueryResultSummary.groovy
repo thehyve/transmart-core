@@ -1,11 +1,9 @@
 package org.transmartproject.core.querytool
 
-import org.transmartproject.core.users.ProtectedResource
-
 /**
  * Created by ewelina on 30-8-16.
  */
-interface QueryResultSummary extends ProtectedResource {
+interface QueryResultSummary {
 
     /**
      * The query result instance id.

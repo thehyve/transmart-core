@@ -97,14 +97,18 @@ dataSource:
         jdbcInterceptors: ConnectionState
         defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
 
+grails:
+    cors:
+        enabled: true
+        allowedOrigins:
+            - http://localhost:4200
+
+server:
+  port: 8081
+
 security:
     oauth2:
         client:
             clientId: demo-oidc
-            clientSecret: !INSERT_YOUR_SECRET_HERE!
-            accessTokenUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/token
-            userAuthorizationUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/auth
-            clientAuthenticationScheme: header
-            scope: openid profile email
         resource:
             userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo

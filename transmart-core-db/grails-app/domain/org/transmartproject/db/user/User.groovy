@@ -19,15 +19,9 @@
 
 package org.transmartproject.db.user
 
-import com.google.common.collect.ImmutableMultimap
-import com.google.common.collect.Multimap
 import org.hibernate.FetchMode
-import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.core.users.ProtectedResource
-import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.accesscontrol.AccessLevel
+import org.transmartproject.core.users.PatientDataAccessLevel
+import org.transmartproject.db.accesscontrol.AccessLevelCoreDb
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccessView
 
@@ -35,48 +29,45 @@ import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class User extends PrincipalCoreDb implements org.transmartproject.core.users.User {
 
-    @Autowired
-    AccessControlChecks accessControlChecks
-
-    String  email
+    String email
     Boolean emailShow
-    String  hash
-    String  realName
-    String  username
+    String hash
+    String realName
+    String username
 
     /* not mapped (only on thehyve/master) */
     //String federatedId
 
     static hasMany = [
-            roles:  RoleCoreDb,
+            roles : RoleCoreDb,
             groups: Group
     ]
 
-    static transients = ['accessControlChecks', 'admin', 'accessibleStudies']
+    static transients = ['admin']
 
     static mapping = {
         //table   schema: 'searchapp', name: 'search_auth_user'
         // ^^ Bug! doesn't work
-        table   name: 'searchapp.search_auth_user'
+        table name: 'searchapp.search_auth_user'
 
-        hash    column: 'passwd'
+        hash column: 'passwd'
 
         // no way to fetch the roles' properties themselves :(
         // http://stackoverflow.com/questions/4208728
-        roles   joinTable: [//name:   'search_role_auth_user',
-                            name:   'searchapp.search_role_auth_user',
-                            key:    'authorities_id',
-                            column: 'people_id'], // insane column naming!
+        roles joinTable: [//name:   'search_role_auth_user',
+                          name  : 'searchapp.search_role_auth_user',
+                          key   : 'authorities_id',
+                          column: 'people_id'], // insane column naming!
                 fetch: FetchMode.JOIN
 
-        groups  joinTable: [//name:   'search_auth_group_member',
-                            name:   'searchapp.search_auth_group_member',
-                            key:    'auth_user_id',
-                            column: 'auth_group_id']
+        groups joinTable: [//name:   'search_auth_group_member',
+                           name  : 'searchapp.search_auth_group_member',
+                           key   : 'auth_user_id',
+                           column: 'auth_group_id']
 
         discriminator name: 'USER', column: 'unique_id'
 
-        cache   usage: 'read-only', include: 'non-lazy' /* don't cache groups */
+        cache usage: 'read-only', include: 'non-lazy' /* don't cache groups */
 
         realName column: 'user_real_name'
 
@@ -84,11 +75,11 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     }
 
     static constraints = {
-        email        nullable: true, maxSize: 255
-        emailShow    nullable: true
-        hash         nullable: true, maxSize: 255
-        realName     nullable: true, maxSize: 255
-        username     nullable: true, maxSize: 255
+        email nullable: true, maxSize: 255
+        emailShow nullable: true
+        hash nullable: true, maxSize: 255
+        realName nullable: true, maxSize: 255
+        username nullable: true, maxSize: 255
         //federatedId nullable: true, unique: true
     }
 
@@ -98,7 +89,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     }
 
     @Override
-    Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations() {
+    Map<String, PatientDataAccessLevel> getStudyToPatientDataAccessLevel() {
         List<Object[]> securedObjectWithaccessLevelPairs = SecuredObjectAccessView.createCriteria().list {
             projections {
                 property('securedObject')
@@ -111,45 +102,23 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             }
             eq('so.dataType', SecuredObject.STUDY_DATA_TYPE)
         }
-        def mapBuilder = ImmutableMultimap. <String, ProtectedOperation> builder()
-        for (Object[] securedObjectWithaccessLevelPair: securedObjectWithaccessLevelPairs) {
-            def (SecuredObject securedObject, AccessLevel accessLevel) = securedObjectWithaccessLevelPair
-            String uid = securedObject.bioDataUniqueId
-            for (ProtectedOperation operation: accessLevel.correspondingProtectedOperations) {
-                mapBuilder.put(uid, operation)
+        Map<String, PatientDataAccessLevel> result = [:]
+        for (Object[] securedObjectWithaccessLevelPair : securedObjectWithaccessLevelPairs) {
+            def (SecuredObject securedObject, AccessLevelCoreDb accessLevelDb) = securedObjectWithaccessLevelPair
+            String studyToken = securedObject.bioDataUniqueId
+            if (result.containsKey(studyToken)) {
+                PatientDataAccessLevel memorisedAccLvl = result.get(studyToken)
+                if (accessLevelDb.accessLevel > memorisedAccLvl) {
+                    log.debug("Use ${accessLevelDb.accessLevel} access level instead of ${memorisedAccLvl} for ${username} user on ${studyToken} study token.")
+                    result.put(studyToken, accessLevelDb.accessLevel)
+                } else {
+                    log.debug("Keep ${memorisedAccLvl} access level and ignore ${accessLevelDb.accessLevel} for ${username} user on ${studyToken} study token.")
+                }
+            } else {
+                result.put(studyToken, accessLevelDb.accessLevel)
+                log.debug("${username} user has ${accessLevelDb.accessLevel} access level on ${studyToken} study token.")
             }
         }
-        mapBuilder.build()
-    }
-
-    @Override
-    boolean canPerform(ProtectedOperation protectedOperation,
-                       ProtectedResource protectedResource) {
-
-        if (!accessControlChecks.respondsTo('canPerform',
-                [User, ProtectedOperation, protectedResource.getClass()] as Object[])) {
-            throw new UnsupportedOperationException("Do not know how to check " +
-                    "access for user $this, operation $protectedOperation on " +
-                    "$protectedResource")
-        }
-
-        if (admin) {
-            /* administrators bypass all the checks */
-            log.debug "Bypassing check for $protectedOperation on " +
-                    "$protectedResource for user $this because he is an " +
-                    "administrator"
-            return true
-        }
-
-        accessControlChecks.canPerform(this,
-                                       protectedOperation,
-                                       protectedResource)
-    }
-
-    /* not in API */
-    Set<Study> getAccessibleStudies() {
-        def studies = accessControlChecks.getAccessibleStudiesForUser this
-        log.debug "User $this has access to studies: ${studies*.id}"
-        studies
+        result
     }
 }

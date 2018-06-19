@@ -4,13 +4,11 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import spock.lang.Specification
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
+import static org.transmartproject.core.users.PatientDataAccessLevel.SUMMARY
 
 @Rollback
 @Integration
 class UserSpec extends Specification {
-
-    static viewOperations = [BUILD_COHORT, SHOW_SUMMARY_STATISTICS, RUN_ANALYSIS]
 
     def 'test admin flag'() {
         expect:
@@ -22,15 +20,13 @@ class UserSpec extends Specification {
         'test-public-user-1' | false
     }
 
-    def 'test study tokens and operations'() {
-        when:
-        def accessStudyTokenToOperations = User.findByUsername(username).accessStudyTokenToOperations
-        then:
-        accessStudyTokenToOperations.asMap() == expectedAccessStudyTokenToOperations
+    def 'test study tokens and access levels'() {
+        expect:
+        User.findByUsername(username).studyToPatientDataAccessLevel == expectedAccessStudyTokenToAccLvl
 
         where:
-        username             | expectedAccessStudyTokenToOperations
+        username             | expectedAccessStudyTokenToAccLvl
         'test-public-user-1' | [:]
-        'test-public-user-2' | ['EXP:SHDCSCP': viewOperations, 'EXP:SCSCP': viewOperations]
+        'test-public-user-2' | ['EXP:SHDCSCP': SUMMARY, 'EXP:SCSCP': SUMMARY]
     }
 }
