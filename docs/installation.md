@@ -83,12 +83,12 @@ popd
 
 ## 4. Build and run tranSMART Server
 
-### From a source code
+### From source code
 
 The project is built using [gradle](https://gradle.org/).
 To build the project, run:
 ```
-gradle :transmart-server:bootRepackage
+gradle :transmart-server:assemble
 ```
 This should create the file `transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war`.
 Run it in production mode with:
