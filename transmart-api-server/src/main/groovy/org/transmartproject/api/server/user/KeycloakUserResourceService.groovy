@@ -1,13 +1,18 @@
 package org.transmartproject.api.server.user
 
 import groovy.util.logging.Slf4j
+import org.keycloak.representations.idm.ClientMappingsRepresentation
+import org.keycloak.representations.idm.MappingsRepresentation
+import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Primary
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.stereotype.Component
-import org.transmartproject.api.server.client.CustomRestTemplate
+import org.springframework.web.client.RestOperations
+
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.*
 
@@ -23,7 +28,7 @@ class KeycloakUserResourceService implements UsersResource {
     LegacyAuthorisationChecks authorisationChecks
 
     @Autowired
-    CustomRestTemplate restTemplate
+    RestOperations restOperations
 
     @Value('${keycloak.realm}')
     private String realm
@@ -38,9 +43,8 @@ class KeycloakUserResourceService implements UsersResource {
 
     @Override
     List<User> getUsers() {
-        def result = restTemplate.getForEntity("$keycloakServerUrl/admin/realms/$realm/users", Object.class)
-        assert result.body instanceof List
-        result.body.collect { keycloakUser ->
+        def result = restOperations.getForEntity("$keycloakServerUrl/admin/realms/$realm/users", UserRepresentation[].class)
+        result.body.collect { UserRepresentation keycloakUser ->
             Set<String> roles = getRolesForUser(keycloakUser.id)
             final boolean admin = roles.remove('ROLE_ADMIN')
             Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel = buildStudyToPatientDataAccessLevel(roles)
@@ -124,16 +128,15 @@ class KeycloakUserResourceService implements UsersResource {
     }
 
     private Set<String> getRolesForUser(String userId) {
-        def result = restTemplate.getForEntity("$keycloakServerUrl/admin/realms/$realm/users/$userId/role-mappings",
-                Object.class)
+        ResponseEntity<MappingsRepresentation> result = restOperations.getForEntity(
+                "$keycloakServerUrl/admin/realms/$realm/users/$userId/role-mappings",
+                MappingsRepresentation.class)
 
-        assert result.body instanceof Map
-
-        def rolesPerClient = result.body['clientMappings']
+        def rolesPerClient = result.body.clientMappings
         def roles = []
-        rolesPerClient.each{ client, roleMap ->
-            if( client != 'realmManagement') {
-                roles.add(roleMap.mappings*.name)
+        for (Map.Entry<String, ClientMappingsRepresentation> role : rolesPerClient.entrySet()){
+            if( role.key != 'realmManagement') {
+                roles.add(role.value.mappings*.name)
             }
         }
         if(roles.size() == 0) {

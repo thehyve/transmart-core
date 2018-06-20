@@ -24,7 +24,7 @@ import org.transmartproject.core.userquery.SetType
 class QuerySetSubscriptionMailService {
 
     @Value('${org.transmart.notifications.maxNumberOfSets}')
-    def maxNumberOfSets
+    Integer maxNumberOfSets
 
     MailService mailService
 
@@ -111,7 +111,6 @@ class QuerySetSubscriptionMailService {
      */
     private List<UserQuerySetChangesRepresentation> getPatientSetChangesRepresentation(SubscriptionFrequency frequency,
                                                                                        String username) {
-        assert maxNumberOfSets instanceof Integer
         List<UserQuerySetChangesRepresentation> querySetsChanges =
                 userQueryDiffResource.getQueryChangeHistoryByUsernameAndFrequency(frequency, username, maxNumberOfSets)
         return querySetsChanges.findAll { it.setType == SetType.PATIENT }?.sort { it.queryId }

@@ -1,6 +1,8 @@
 package org.transmartproject.api.server.client
 
 import org.apache.http.client.methods.HttpUriRequest
+import org.keycloak.representations.AccessTokenResponse
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
@@ -14,7 +16,7 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-class CustomClientRequestFactory extends HttpComponentsClientHttpRequestFactory implements ClientHttpRequestFactory {
+class OfflineTokenClientRequestFactory extends HttpComponentsClientHttpRequestFactory implements ClientHttpRequestFactory {
 
     @Value('${keycloak.clientId}')
     private String clientId
@@ -33,8 +35,8 @@ class CustomClientRequestFactory extends HttpComponentsClientHttpRequestFactory 
 
     @Override
     protected void postProcessHttpRequest(HttpUriRequest request) {
-        String offlineToken = getOfflineAccessToken()
-        request.setHeader(AUTHORIZATION_HEADER, "Bearer " + offlineToken)
+        String accessToken = getNewAccessTokenByOfflineTokenAndClientId()
+        request.setHeader(AUTHORIZATION_HEADER, "Bearer " + accessToken)
     }
 
     /**
@@ -42,7 +44,7 @@ class CustomClientRequestFactory extends HttpComponentsClientHttpRequestFactory 
      * Offline token is a type of a classic Refresh token, but it never expires.
      * @return access token
      */
-    private String getOfflineAccessToken(){
+    private String getNewAccessTokenByOfflineTokenAndClientId(){
 
         HttpHeaders headers = new HttpHeaders()
         headers.setAccept([MediaType.APPLICATION_JSON])
@@ -55,10 +57,9 @@ class CustomClientRequestFactory extends HttpComponentsClientHttpRequestFactory 
 
         def url = URI.create("$keycloakServerUrl/realms/$realm/protocol/openid-connect/token")
         HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers)
-        ResponseEntity<Object> response = new RestTemplate().exchange(url, HttpMethod.POST, httpEntity, Object.class)
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>)response.getBody()
+        ResponseEntity<Object> response = new RestTemplate().exchange(url, HttpMethod.POST, httpEntity, AccessTokenResponse.class)
 
-        map?.access_token
+        response.body.token
     }
 
 }
