@@ -16,11 +16,14 @@ import org.transmartproject.copy.Util
 import java.sql.ResultSet
 import java.sql.SQLException
 
+/**
+ * Fetching and loading of dimension descriptions.
+ */
 @Slf4j
 @CompileStatic
 class Dimensions {
 
-    static final Table table = new Table('i2b2metadata', 'dimension_description')
+    static final Table TABLE = new Table('i2b2metadata', 'dimension_description')
 
     final Database database
 
@@ -32,7 +35,7 @@ class Dimensions {
 
     Dimensions(Database database) {
         this.database = database
-        this.columns = this.database.getColumnMetadata(table)
+        this.columns = this.database.getColumnMetadata(TABLE)
     }
 
     @CompileStatic
@@ -55,7 +58,7 @@ class Dimensions {
     void fetch() {
         def dimensionHandler = new DimensionRowHandler()
         database.jdbcTemplate.query(
-                "select id, name, modifier_code from ${table}".toString(),
+                "select id, name, modifier_code from ${TABLE}".toString(),
                 dimensionHandler
         )
         dimensionNameToId.putAll(dimensionHandler.dimensionNameToId)
@@ -65,7 +68,7 @@ class Dimensions {
     }
 
     void load(String rootPath) {
-        def dimensionsFile = new File(rootPath, table.fileName)
+        def dimensionsFile = new File(rootPath, TABLE.fileName)
         dimensionsFile.withReader { reader ->
             log.info "Reading dimension descriptions from file ..."
             def tx = database.beginTransaction()
@@ -75,14 +78,15 @@ class Dimensions {
             LinkedHashMap<String, Class> header = columns
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    header = Util.verifyHeader(table.fileName, data, columns)
+                    header = Util.verifyHeader(TABLE.fileName, data, columns)
                     return
                 }
                 try {
                     def dimensionData = Util.asMap(header, data)
                     def dimensionIndex = dimensionData['id'] as long
                     if (i != dimensionIndex + 1) {
-                        throw new IllegalStateException("The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")
+                        throw new IllegalStateException(
+                                "The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")
                     }
                     def dimensionName = dimensionData['name'] as String
                     def dimensionId = dimensionNameToId[dimensionName]
@@ -91,17 +95,20 @@ class Dimensions {
                     } else {
                         def modifierCode = dimensionData['modifier_code'] as String
                         if (modifierCode && modifierDimensionCodes.contains(modifierCode)) {
-                            throw new IllegalStateException("Cannot insert dimension description '${dimensionName}'. Another dimension description already exists for modifier code ${modifierCode}.")
+                            throw new IllegalStateException(
+                                    "Cannot insert dimension description '${dimensionName}'. " +
+                                            "Another dimension description already exists " +
+                                            "for modifier code ${modifierCode}.")
                         }
                         insertCount++
                         log.info "Inserting dimension description: ${dimensionName}."
-                        dimensionId = database.insertEntry(table, header, 'id', dimensionData)
+                        dimensionId = database.insertEntry(TABLE, header, 'id', dimensionData)
                         log.debug "Dimension description inserted [id: ${dimensionId}]."
                     }
                     indexToDimensionId.add(dimensionId)
                     log.debug "Registered dimension at index ${dimensionIndex}: ${dimensionName} [${dimensionId}]."
-                } catch(Exception e) {
-                    log.error "Error on line ${i} of ${table.fileName}: ${e.message}."
+                } catch(Throwable e) {
+                    log.error "Error on line ${i} of ${TABLE.fileName}: ${e.message}."
                     throw e
                 }
             }

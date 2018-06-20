@@ -1,14 +1,13 @@
 package org.transmartproject.core.querytool
 
 import groovy.transform.EqualsAndHashCode
-import org.transmartproject.core.users.ProtectedResource
 
 /**
  * A query definition is a set of panels. The data it represents is the
  * intersection of all the panels.
  */
 @EqualsAndHashCode
-final class QueryDefinition implements ProtectedResource {
+final class QueryDefinition {
 
     /**
      * The query name. This is a user friendly name and has no bearing on the

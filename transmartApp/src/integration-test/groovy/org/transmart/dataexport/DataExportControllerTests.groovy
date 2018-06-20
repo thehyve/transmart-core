@@ -2,7 +2,6 @@ package org.transmart.dataexport
 
 import com.recomdata.transmart.data.export.DataExportController
 import grails.plugin.springsecurity.SpringSecurityService
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.json.JsonSlurper
@@ -103,7 +102,7 @@ class DataExportControllerTests {
 
     @Test
     void testGetMetadataOnlyViewAccess() {
-        // 5 fifth user has only VIEW permissions on study 2
+        // 5 fifth user has only SUMMARY permissions on study 2
         def user = accessLevelTestData.users[4]
 
         def exception = shouldFail AccessDeniedException, {
@@ -113,12 +112,12 @@ class DataExportControllerTests {
         }
 
         assertThat exception.message, startsWith(
-                "User user_${user.id} has no EXPORT permission on one of the result set")
+                "User user_${user.id} has no export permission on one of the result set")
     }
 
     @Test
     void testGetMetadataExportAccess() {
-        // 6 sixth user has both VIEW and EXPORT permissions on study2
+        // 6 sixth user has both SUMMARY and MEASUREMENTS permissions on study2
         def user = accessLevelTestData.users[5]
 
         mockCurrentUser(user.username) {
@@ -147,7 +146,7 @@ class DataExportControllerTests {
         }
 
         assertThat exception.message, startsWith(
-                "User ${accessLevelTestData.users[4].username} has no EXPORT permission on one of the result set")
+                "User ${accessLevelTestData.users[4].username} has no export permission on one of the result set")
     }
 
     @Test

@@ -3,6 +3,9 @@ package org.transmartproject.copy
 import groovy.transform.CompileStatic
 import me.tongfei.progressbar.ProgressBar
 
+/**
+ * Enables progress reporting on the command line based on number of lines read.
+ */
 @CompileStatic
 class ProgressReportingReader extends LineNumberReader {
 

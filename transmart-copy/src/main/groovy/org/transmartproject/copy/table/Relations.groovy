@@ -18,19 +18,22 @@ import org.transmartproject.copy.Util
 import java.sql.ResultSet
 import java.sql.SQLException
 
+/**
+ * Fetching and loading of relation types and relations.
+ */
 @Slf4j
 @CompileStatic
 class Relations {
 
-    static final Table relation_type_table = new Table('i2b2demodata', 'relation_type')
-    static final Table relation_table = new Table('i2b2demodata', 'relation')
+    static final Table RELATION_TYPE_TABLE = new Table('i2b2demodata', 'relation_type')
+    static final Table RELATION_TABLE = new Table('i2b2demodata', 'relation')
 
     final Database database
     final Patients patients
     final Copy.Config config
 
-    final LinkedHashMap<String, Class> relation_type_columns
-    final LinkedHashMap<String, Class> relation_columns
+    final LinkedHashMap<String, Class> relationTypeColumns
+    final LinkedHashMap<String, Class> relationColumns
     final int relationTypeIdIndex
     final int leftSubjectIdIndex
     final int rightSubjectIdIndex
@@ -44,24 +47,24 @@ class Relations {
         this.database = database
         this.patients = patients
         this.config = config
-        if (!database.tableExists(relation_type_table)) {
-            log.warn "Table ${relation_type_table} does not exist. Skip loading of relations."
+        if (!database.tableExists(RELATION_TYPE_TABLE)) {
+            log.warn "Table ${RELATION_TYPE_TABLE} does not exist. Skip loading of relations."
             tablesExists = false
-        } else if (!database.tableExists(relation_table)) {
-            log.warn "Table ${relation_table} does not exist. Skip loading of relations."
+        } else if (!database.tableExists(RELATION_TABLE)) {
+            log.warn "Table ${RELATION_TABLE} does not exist. Skip loading of relations."
             tablesExists = false
         } else {
             tablesExists = true
         }
         if (tablesExists) {
-            this.relation_type_columns = this.database.getColumnMetadata(relation_type_table)
-            this.relation_columns = this.database.getColumnMetadata(relation_table)
-            this.relationTypeIdIndex = relation_columns.collect { it.key }.indexOf('relation_type_id')
-            this.leftSubjectIdIndex = relation_columns.collect { it.key }.indexOf('left_subject_id')
-            this.rightSubjectIdIndex = relation_columns.collect { it.key }.indexOf('right_subject_id')
+            this.relationTypeColumns = this.database.getColumnMetadata(RELATION_TYPE_TABLE)
+            this.relationColumns = this.database.getColumnMetadata(RELATION_TABLE)
+            this.relationTypeIdIndex = relationColumns.collect { it.key }.indexOf('relation_type_id')
+            this.leftSubjectIdIndex = relationColumns.collect { it.key }.indexOf('left_subject_id')
+            this.rightSubjectIdIndex = relationColumns.collect { it.key }.indexOf('right_subject_id')
         } else {
-            this.relation_type_columns = [:]
-            this.relation_columns = [:]
+            this.relationTypeColumns = [:]
+            this.relationColumns = [:]
             this.relationTypeIdIndex = -1
             this.leftSubjectIdIndex = -1
             this.rightSubjectIdIndex = -1
@@ -87,7 +90,7 @@ class Relations {
         }
         def relationTypeHandler = new RelationTypeRowHandler()
         database.jdbcTemplate.query(
-                "select id, label from ${relation_type_table}".toString(),
+                "select id, label from ${RELATION_TYPE_TABLE}".toString(),
                 relationTypeHandler
         )
         relationTypeLabelToId.putAll(relationTypeHandler.relationTypeLabelToId)
@@ -97,44 +100,47 @@ class Relations {
 
     void transformRow(Map<String, Object> row) {
         // replace patient index with patient num
-        def relationTypeIndex = row.relation_type_id as int
+        int relationTypeIndex = ((BigDecimal) row.relation_type_id).intValueExact()
         if (relationTypeIndex >= indexToRelationTypeId.size()) {
-            throw new IllegalStateException("Invalid relation type index (${relationTypeIndex}). Only ${indexToRelationTypeId.size()} relation types found.")
+            throw new IllegalStateException(
+                    "Invalid relation type index (${relationTypeIndex}). " +
+                            "Only ${indexToRelationTypeId.size()} relation types found.")
         }
-        def leftSubjectIndex = row.left_subject_id as int
+        int leftSubjectIndex = ((BigDecimal) row.left_subject_id).intValueExact()
         if (leftSubjectIndex >= patients.indexToPatientNum.size()) {
-            throw new IllegalStateException("Invalid patient index (${leftSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
+            throw new IllegalStateException(
+                    "Invalid patient index (${leftSubjectIndex}). " +
+                            "Only ${patients.indexToPatientNum.size()} patients found.")
         }
-        def rightSubjectIndex = row.right_subject_id as int
+        int rightSubjectIndex = ((BigDecimal) row.right_subject_id).intValueExact()
         if (rightSubjectIndex >= patients.indexToPatientNum.size()) {
-            throw new IllegalStateException("Invalid patient index (${rightSubjectIndex}). Only ${patients.indexToPatientNum.size()} patients found.")
+            throw new IllegalStateException(
+                    "Invalid patient index (${rightSubjectIndex}). " +
+                            "Only ${patients.indexToPatientNum.size()} patients found.")
         }
         row.relation_type_id = indexToRelationTypeId[relationTypeIndex]
         row.left_subject_id = patients.indexToPatientNum[leftSubjectIndex]
         row.right_subject_id = patients.indexToPatientNum[rightSubjectIndex]
     }
 
-    void load(String rootPath) {
-        if (!tablesExists) {
-            log.debug "Skip loading of relation types and relations. No relation tables available."
-            return
-        }
-        def tx = database.beginTransaction()
-        def relationTypesFile = new File(rootPath, relation_type_table.fileName)
+    private void loadRelationTypes(String rootPath) {
+        def relationTypesFile = new File(rootPath, RELATION_TYPE_TABLE.fileName)
         // Insert relation types
         relationTypesFile.withReader { reader ->
-            LinkedHashMap<String, Class> header = relation_type_columns
+            LinkedHashMap<String, Class> header = relationTypeColumns
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
-                    header = Util.verifyHeader(relation_type_table.fileName, data, relation_type_columns)
+                    header = Util.verifyHeader(RELATION_TYPE_TABLE.fileName, data, relationTypeColumns)
                     return
                 }
                 try {
                     def relationTypeData = Util.asMap(header, data)
                     def relationTypeIndex = relationTypeData['id'] as long
                     if (i != relationTypeIndex + 1) {
-                        throw new IllegalStateException("The relation types are not in order. (Found ${relationTypeIndex} on line ${i}.)")
+                        throw new IllegalStateException(
+                                "The relation types are not in order. " +
+                                        "(Found ${relationTypeIndex} on line ${i}.)")
                     }
 
                     def label = relationTypeData['label'] as String
@@ -143,28 +149,28 @@ class Relations {
                         log.info "Found relation type ${label}."
                     } else {
                         log.info "Inserting relation type ${label} ..."
-                        id = database.insertEntry(relation_type_table, header, 'id', relationTypeData)
+                        id = database.insertEntry(RELATION_TYPE_TABLE, header, 'id', relationTypeData)
                         relationTypeLabelToId[label] = id
                     }
                     indexToRelationTypeId.add(id)
-                } catch (Exception e) {
-                    log.error "Error on line ${i} of ${relation_type_table.fileName}: ${e.message}."
+                } catch (Throwable e) {
+                    log.error "Error on line ${i} of ${RELATION_TYPE_TABLE.fileName}: ${e.message}."
                     throw e
                 }
             }
         }
-        database.commit(tx)
+    }
 
-        def relationsFile = new File(rootPath, relation_table.fileName)
+    private void loadRelations(String rootPath) {
+        def relationsFile = new File(rootPath, RELATION_TABLE.fileName)
         if (!relationsFile.exists()) {
-            log.info "Skip loading of relations. No file ${relation_table.fileName} found."
+            log.info "Skip loading of relations. No file ${RELATION_TABLE.fileName} found."
             return
         }
 
-        tx = database.beginTransaction()
         // Remove relations
         log.info "Deleting relations ..."
-        int relationCount = database.jdbcTemplate.update("truncate ${relation_table}".toString())
+        int relationCount = database.jdbcTemplate.update("truncate ${RELATION_TABLE}".toString())
         log.info "${relationCount} relations deleted."
 
         // Count number of rows
@@ -184,9 +190,9 @@ class Relations {
             String[] data = tsvReader.readNext()
             if (data != null) {
                 int i = 1
-                LinkedHashMap<String, Class> header = Util.verifyHeader(relation_table.fileName, data, relation_columns)
-                def insert = database.getInserter(relation_table, header)
-                final progressBar = new ProgressBar("Insert into ${relation_table}", rowCount - 1)
+                LinkedHashMap<String, Class> header = Util.verifyHeader(RELATION_TABLE.fileName, data, relationColumns)
+                def insert = database.getInserter(RELATION_TABLE, header)
+                def progressBar = new ProgressBar("Insert into ${RELATION_TABLE}", rowCount - 1)
                 progressBar.start()
                 ArrayList<Map> batch = []
                 data = tsvReader.readNext()
@@ -194,7 +200,9 @@ class Relations {
                 while (data != null) {
                     try {
                         if (header.size() != data.length) {
-                            throw new IllegalStateException("Data row length (${data.length}) does not match number of columns (${header.size()}).")
+                            throw new IllegalStateException(
+                                    "Data row length (${data.length}) does not match " +
+                                            "number of columns (${header.size()}).")
                         }
                         def row = Util.asMap(header, data)
                         transformRow(row)
@@ -204,9 +212,9 @@ class Relations {
                             insert.executeBatch(batch.toArray() as Map[])
                             batch = []
                         }
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         progressBar.stop()
-                        log.error "Error processing row ${i} of ${relation_table.fileName}", e
+                        log.error "Error processing row ${i} of ${RELATION_TABLE.fileName}", e
                         throw e
                     }
                     data = tsvReader.readNext()
@@ -219,6 +227,18 @@ class Relations {
                 return
             }
         }
+    }
+
+    void load(String rootPath) {
+        if (!tablesExists) {
+            log.debug "Skip loading of relation types and relations. No relation tables available."
+            return
+        }
+        def tx = database.beginTransaction()
+        loadRelationTypes(rootPath)
+        database.commit(tx)
+        tx = database.beginTransaction()
+        loadRelations(rootPath)
         database.commit(tx)
         log.info 'Done loading relations data.'
     }

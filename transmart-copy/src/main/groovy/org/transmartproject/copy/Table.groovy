@@ -4,6 +4,9 @@ import groovy.transform.Immutable
 
 import java.nio.file.FileSystems
 
+/**
+ * Captures the schema and name of a database table.
+ */
 @Immutable
 class Table {
     String schema

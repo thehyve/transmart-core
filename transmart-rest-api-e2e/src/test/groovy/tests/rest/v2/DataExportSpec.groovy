@@ -679,7 +679,7 @@ class DataExportSpec extends RESTSpec {
         ])
         then:
         assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         filesLineNumbers.size() == 2
         filesLineNumbers['data.tsv'] == patientSet.setSize + 1
         filesLineNumbers['variables.tsv'] == 100 + 1 /*header*/ + 1 //subj id

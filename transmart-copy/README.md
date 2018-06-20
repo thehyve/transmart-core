@@ -25,7 +25,6 @@ _Parameters:_
 - `-r`, `--restore-indexes`: Restore indexes.
 - `-i`, `--drop-indexes`: Drop indexes when loading, restore them afterwards.
 - `-u`, `--unlogged`: Set observations table to unlogged when loading.
-- `-t`, `--temporary-table`: Use a temporary table when loading.
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
 - `-v`, `--vacuum-analyze`: Vacuum analyze the `observation_fact` table.
 - `-d`, `--directory`: Specifies a data directory.

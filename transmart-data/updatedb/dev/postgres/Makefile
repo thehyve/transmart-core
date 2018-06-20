@@ -1,2 +1,2 @@
 migrate:
-	$(PGSQL_BIN)/psql -f ../common/migrate.sql -f migrate.sql
+	$(PGSQL_BIN)/psql --single-transaction -f ../common/migrate.sql

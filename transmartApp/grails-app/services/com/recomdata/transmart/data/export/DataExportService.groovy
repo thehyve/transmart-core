@@ -5,10 +5,11 @@ import com.recomdata.transmart.data.export.exception.DataNotFoundException
 import grails.transaction.Transactional
 import groovy.json.JsonSlurper
 import org.apache.commons.lang.StringUtils
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
-
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
 
 @Transactional
 class DataExportService {
@@ -27,6 +28,8 @@ class DataExportService {
     def dataSource
     def queriesResourceAuthorizationDecorator
     def studiesResourceService
+    @Autowired
+    LegacyAuthorisationChecks authorisationChecks
 
     @Transactional(readOnly = true)
     def exportData(jobDataMap) {
@@ -259,11 +262,8 @@ class DataExportService {
             inject([] as Set, { a, b -> a + b.trial }).
             collect { studiesResourceService.getStudyById it }
 
-        Study forbiddenExportStudy = studies.find { Study study ->
-            if (!user.canPerform(EXPORT, study)) {
-                return true
-            }
+        studies.every { Study study ->
+            authorisationChecks.canReadPatientData(user, PatientDataAccessLevel.MEASUREMENTS, study)
         }
-        !forbiddenExportStudy
     }
 }

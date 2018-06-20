@@ -39,12 +39,11 @@ class ExportController {
 
             } else if (sectokens.containsKey(it)) {
                 log.debug("checking found key:" + it + ":" + sectokens[it])
-                log.debug("equals own:" + sectokens[it].equals("OWN"))
-                log.debug("equals export:" + sectokens[it].equals("EXPORT"))
-                if (!(sectokens[it].equals("OWN")) & !(sectokens[it].equals("EXPORT"))) //if not export or own then also return false
+                log.debug("equals measurements:" + sectokens[it].equals("MEASUREMENTS"))
+                if (!(sectokens[it].equals("MEASUREMENTS")))
                 {
                     log.debug("in return false inner")
-                    return false;
+                    return false
                 }
             }
         }

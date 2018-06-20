@@ -187,7 +187,7 @@ task functionalTest(type: Test) {
 }
 
 codenarc {
-    configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
+    configFile = new File("${project.parent.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
 
     reportFormat = 'html'
 }

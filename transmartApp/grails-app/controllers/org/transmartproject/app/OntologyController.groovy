@@ -3,6 +3,7 @@ package org.transmartproject.app
 import annotation.AmTagItem
 import annotation.AmTagTemplate
 import grails.converters.JSON
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
 import org.transmartproject.browse.fm.FmFolder
@@ -13,12 +14,12 @@ import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.User
 
 import javax.annotation.Resource
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 
 class OntologyController {
 
@@ -34,6 +35,10 @@ class OntologyController {
 
     @Resource
     User currentUserBean
+
+    @Autowired
+    LegacyAuthorisationChecks authorisationChecks
+
     HighDimensionResource highDimensionResourceService
 
     def showOntTagFilter = {
@@ -127,7 +132,7 @@ class OntologyController {
         model.userName = springSecurityService.principal.username;
 
         //access
-        model.hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
+        model.hasAccess = authorisationChecks.hasAccess(currentUserBean, term.study)
 
         render template: 'showDefinition', model: model
     }

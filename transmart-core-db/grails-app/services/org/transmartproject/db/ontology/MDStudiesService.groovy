@@ -9,7 +9,6 @@ import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
@@ -120,7 +119,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         if (isLegacyStudy(study)) {
             study = null
         }
-        if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS, study)) {
+        if (study == null || !accessControlChecks.hasAccess(user, study)) {
             throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
         }
         fixLoad(study)
