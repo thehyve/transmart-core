@@ -2,7 +2,7 @@
 grails:
     profile: rest-api
     codegen:
-        defaultPackage: org.transmart.api.server
+        defaultPackage: org.transmartproject.api.server
     spring:
         transactionManagement:
             proxies: false
@@ -104,11 +104,13 @@ grails:
             - http://localhost:4200
 
 server:
-  port: 8081
+    port: 8081
 
-security:
-    oauth2:
-        client:
-            clientId: demo-oidc
-        resource:
-            userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
+environments:
+    development:
+        security:
+            oauth2:
+                client:
+                    clientId: demo-oidc
+                resource:
+                    userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
