@@ -100,8 +100,6 @@ dataSource:
 grails:
     cors:
         enabled: true
-        allowedOrigins:
-            - http://localhost:4200
 
 server:
     port: 8081
