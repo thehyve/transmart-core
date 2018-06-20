@@ -17,7 +17,7 @@ Let's assume these will be running at `https://transmart-api.example.com` and
 
 Below are steps on how to set up Keycloak for TranSMART using the admin console.
 The prerequisite is to have admin credentials to a Keycloak instance. 
-Login to `https://<domain>/auth/admin/` and:
+Login to `https://idp.example.com/auth/admin/` and:
 
 1. Create a realm, e.g., `dev`
 2. Create a client, e.g., `transmart`
@@ -86,10 +86,10 @@ security:
 
 Start `transmart-api-server` with this configuration file:
 ```bash
-java -jar transmart-api-server.war --spring.config.location=transmart-api-server.config.yml
+java -jar -Dspring.config.location=transmart-api-server.config.yml transmart-api-server.war
 ```
 
 
-[OpenID Connect](https://openid.net/connect/)
-[Keycloak](https://www.keycloak.org/)
-[PatientDataAccessLevel](https://github.com/thehyve/transmart-core/blob/dev/transmart-core-api/src/main/groovy/org/transmartproject/core/users/PatientDataAccessLevel.groovy)
+[OpenID Connect]: https://openid.net/connect
+[Keycloak]: https://www.keycloak.org
+[PatientDataAccessLevel]: https://github.com/thehyve/transmart-core/blob/dev/transmart-core-api/src/main/groovy/org/transmartproject/core/users/PatientDataAccessLevel.groovy
