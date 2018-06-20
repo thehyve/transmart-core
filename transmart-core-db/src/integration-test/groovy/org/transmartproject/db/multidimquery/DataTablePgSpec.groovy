@@ -9,6 +9,7 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PagingDataTable
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.User
+import spock.lang.Ignore
 import spock.lang.Specification
 
 @Rollback
@@ -48,4 +49,30 @@ class DataTablePgSpec extends Specification {
         table.columnKeys*.elements.collect{columns -> columns.getAt(0)}.contains(null) == true // visit dimension elements
         table.columnKeys*.elements.collect{columns -> columns.getAt(1)}.contains(null) == false // concept dimension elements
     }
+
+    // FIXME: only the dimension elements contained in the current page needs to be sent, currently
+    // all dimensions elements for the complete query are sent.
+    @Ignore
+    def 'test data table pagination'() {
+        given: 'the admin user, study constraint for 1000 patients'
+        User user = User.findByUsername('admin')
+        StudyNameConstraint studyConstraint = new StudyNameConstraint('ORACLE_1000_PATIENT')
+        def tableConfig = new TableConfig(
+                rowDimensions: ['study', 'patient'],
+                columnDimensions: ['concept']
+        )
+        def pagination = new PaginationParameters(limit: 10)
+
+        when: 'fetching data table with patient, study and concept dimensions, limited to 10 rows'
+        PagingDataTable page = multiDimService.retrieveDataTablePage(
+                tableConfig, pagination, 'clinical', studyConstraint, user)
+
+        then: 'the result should be limited to 10 rows and associated dimension elements'
+        page.rowDimensions.collect { it.name } == ['study', 'patient']
+        page.columnDimensions.collect { it.name } == ['concept']
+        page.rowKeys.size() == 10
+        def patientDimension = page.rowDimensions.find { it.name == 'patient'}
+        page.hypercube.dimensionElements(patientDimension).size() <= 10
+    }
+
 }
