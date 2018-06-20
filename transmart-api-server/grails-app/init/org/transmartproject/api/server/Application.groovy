@@ -1,4 +1,4 @@
-package org.transmart.api.server
+package org.transmartproject.api.server
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration

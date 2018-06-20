@@ -1,4 +1,4 @@
-package org.transmart.api.server
+package org.transmartproject.api.server
 
 class BootStrap {
 

@@ -2,7 +2,7 @@
 grails:
     profile: rest-api
     codegen:
-        defaultPackage: org.transmart.api.server
+        defaultPackage: org.transmartproject.api.server
     spring:
         transactionManagement:
             proxies: false
