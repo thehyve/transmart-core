@@ -109,6 +109,10 @@ server:
 security:
     oauth2:
         client:
-            clientId: demo-oidc
-        resource:
-            userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
+            clientId: <your-client-id>
+
+keycloak:
+    clientId: <your-client-id>
+    offlineToken: <your-offline-token>
+    serverUrl: http://localhost:8080/auth
+    realm: <realm-name>
