@@ -15,7 +15,7 @@ Below are the installation instructions for tranSMART version 17.1.
 ## 1. Prerequisites
 
 Supported operating systems (some others are likely supported, but not tested):
-* Ubuntu 16.04
+* Ubuntu 16.04 and 18.04
 * CentOS 7
 * MacOS Sierra
 
@@ -26,9 +26,7 @@ as well.
 * For all components:
     * JDK 8
 * For building tranSMART from sources:    
-    * Gradle 2.13 (any version `> 2.12` and `< 2.3` should do)
-    * Grails 3.3.2
-    * Groovy 2.4
+    * [gradle] 2.13. Any version `> 2.12` and `<= 3.5.1` should suffice (version `3.5.1` is recommended). Other versions may cause some build issues.
 * For transmart-rserve (names of ubuntu packages, adapt to your OS):
     * libpng12
     * cairo
@@ -85,7 +83,7 @@ popd
 
 ### From source code
 
-The project is built using [gradle](https://gradle.org/).
+The project is built using [gradle].
 To build the project, run:
 ```
 gradle :transmart-server:assemble
@@ -140,3 +138,6 @@ sudo apt-get update
 sudo apt-get install transmart-r
 ```
 For `yum`, use the following repository url with `gpgcheck=0`: `https://repo.thehyve.nl/content/repositories/releases`.
+
+
+[gradle](https://gradle.org)
