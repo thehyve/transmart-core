@@ -1,14 +1,12 @@
 package org.transmartproject.api.server.client
 
-import org.apache.http.client.methods.HttpUriRequest
 import org.keycloak.representations.AccessTokenResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.http.*
 import org.springframework.http.client.ClientHttpRequestFactory
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -16,7 +14,7 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-class OfflineTokenClientRequestFactory extends HttpComponentsClientHttpRequestFactory implements ClientHttpRequestFactory {
+class OfflineTokenClientRequestFactory extends SimpleClientHttpRequestFactory implements ClientHttpRequestFactory {
 
     @Value('${keycloak.clientId}')
     private String clientId
@@ -34,9 +32,10 @@ class OfflineTokenClientRequestFactory extends HttpComponentsClientHttpRequestFa
 
 
     @Override
-    protected void postProcessHttpRequest(HttpUriRequest request) {
+    protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws IOException {
+        super.prepareConnection(connection, httpMethod)
         String accessToken = getNewAccessTokenByOfflineTokenAndClientId()
-        request.setHeader(AUTHORIZATION_HEADER, "Bearer " + accessToken)
+        connection.setRequestProperty(AUTHORIZATION_HEADER, "Bearer " + accessToken)
     }
 
     /**
