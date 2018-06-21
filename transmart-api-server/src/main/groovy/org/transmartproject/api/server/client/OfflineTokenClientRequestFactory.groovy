@@ -1,5 +1,6 @@
 package org.transmartproject.api.server.client
 
+import groovy.transform.CompileStatic
 import org.keycloak.representations.AccessTokenResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@CompileStatic
 class OfflineTokenClientRequestFactory extends SimpleClientHttpRequestFactory implements ClientHttpRequestFactory {
 
     @Value('${keycloak.clientId}')
@@ -56,7 +58,8 @@ class OfflineTokenClientRequestFactory extends SimpleClientHttpRequestFactory im
 
         def url = URI.create("$keycloakServerUrl/realms/$realm/protocol/openid-connect/token")
         HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers)
-        ResponseEntity<Object> response = new RestTemplate().exchange(url, HttpMethod.POST, httpEntity, AccessTokenResponse.class)
+        ResponseEntity<AccessTokenResponse> response = new RestTemplate().exchange(url,
+                HttpMethod.POST, httpEntity, AccessTokenResponse.class)
 
         response.body.token
     }
