@@ -23,11 +23,13 @@ buildscript {
         classpath "com.google.protobuf:protobuf-java-util:${protobufVersion}"
         classpath 'org.grails.plugins:views-gradle:1.0.12'
         classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
+        classpath 'org.owasp:dependency-check-gradle:3.2.1'
     }
 }
 
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
+apply plugin: 'org.owasp.dependencycheck'
 
 ext {
     transmartVersion = '17.1-HYVE-5-SNAPSHOT'
@@ -36,10 +38,10 @@ ext {
     gradleWrapperVersion = '2.13'
     grailsVersion = '3.2.3'
     guavaVersion = '19.0'
-    jacksonVersion = '2.9.1'
-    modelMapperVersion = '1.1.0'
+    jacksonVersion = '2.9.5'
+    modelMapperVersion = '1.1.3'
     ojdb7Version = '12.1.0.1'
-    openCsvVersion = '4.0'
+    openCsvVersion = '4.2'
     postgresqlVersion = '42.1.4'
     protobufVersion = '3.1.0'
     quartzVersion = '2.0.8'
