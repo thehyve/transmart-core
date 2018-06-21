@@ -7,6 +7,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter
+import org.springframework.web.client.RestTemplate
+import org.transmartproject.api.server.client.OfflineTokenClientRequestFactory
 import org.transmartproject.api.server.user.keycloak.SubPrincipalExtractor
 
 @Configuration
@@ -23,6 +25,11 @@ class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     PrincipalExtractor principalExtractor() {
         new SubPrincipalExtractor()
+    }
+
+    @Bean
+    RestTemplate offlineTokenBasedRestTemplate(OfflineTokenClientRequestFactory factory) {
+        new RestTemplate(factory)
     }
 
 }

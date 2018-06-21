@@ -1,10 +1,17 @@
 package org.transmartproject.api.server.user
 
+import org.keycloak.representations.idm.ClientMappingsRepresentation
+import org.keycloak.representations.idm.MappingsRepresentation
+import org.keycloak.representations.idm.RoleRepresentation
+import org.keycloak.representations.idm.UserRepresentation
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.oauth2.provider.OAuth2Request
+import org.springframework.web.client.RestOperations
 import org.transmartproject.core.users.User
 import spock.lang.Specification
 
@@ -68,7 +75,7 @@ class KeycloakUserResourceServiceSpec extends Specification {
         accLvlToTok                  | exception                | message
         '|'                          | ParseException           | "Can't parse permission '${accLvlToTok}'."
         'STUDY1_TOKEN|UNEXISTING_OP' | IllegalArgumentException | 'No enum constant org.transmartproject.core.users.PatientDataAccessLevel.UNEXISTING_OP'
-        '|SUMMARY'                      | IllegalArgumentException | "Emtpy study: '${accLvlToTok}'."
+        '|SUMMARY'                      | IllegalArgumentException | "Empty study: '${accLvlToTok}'."
         '|||'                        | ParseException           | "Can't parse permission '${accLvlToTok}'."
         ''                           | ParseException           | "Can't parse permission '${accLvlToTok}'."
     }
@@ -81,5 +88,74 @@ class KeycloakUserResourceServiceSpec extends Specification {
         roles                                                            | result
         ['STUDY1|COUNTS_WITH_THRESHOLD', 'STUDY1|SUMMARY']               | ['STUDY1': SUMMARY]
         ['STUDY1|COUNTS_WITH_THRESHOLD', 'STUDY1|MEASUREMENTS', 'STUDY1|SUMMARY'] | ['STUDY1': MEASUREMENTS]
+    }
+
+    void "test fetch users with roles"() {
+
+        def keycloakMockUsers = [
+                new UserRepresentation (
+                id       : "user_1",
+                username : "user1",
+                firstName: "testName1",
+                lastName : "testLastName1",
+                email    : "user1@test.nl"
+                ),
+                new UserRepresentation(
+                id       : "user_2",
+                username : "user2",
+                firstName: "testName2",
+                lastName : "testLastName2",
+                email    : "user2@test.nl"
+                )]
+        def keycloakMockUser1Roles = new MappingsRepresentation(
+                clientMappings: [
+                        "client1": new ClientMappingsRepresentation(
+                                mappings: [ new RoleRepresentation(name: 'STUDY1_TOKEN|SUMMARY'),
+                                            new RoleRepresentation(name: 'INVALID')]),
+                        "client2": new ClientMappingsRepresentation(
+                                mappings: [ new RoleRepresentation(name: 'ROLE_ADMIN')])
+                        ]
+                )
+
+        def keycloakMockUser2Roles = new MappingsRepresentation(
+                        clientMappings: [
+                                "client1": new ClientMappingsRepresentation(
+                                        mappings: []),
+                                "client2": new ClientMappingsRepresentation(
+                                        mappings: [])
+                        ]
+                )
+
+        ResponseEntity userResponse = new ResponseEntity(keycloakMockUsers, HttpStatus.OK)
+        ResponseEntity user1RolesResponse = new ResponseEntity(keycloakMockUser1Roles, HttpStatus.OK)
+        ResponseEntity user2RolesResponse = new ResponseEntity(keycloakMockUser2Roles, HttpStatus.OK)
+
+        def restOperations = Mock(RestOperations, {
+            getForEntity("$testee.realm/admin/realms/$testee.realm/users", UserRepresentation[].class) >> userResponse
+            getForEntity(
+                    "$testee.realm/admin/realms/$testee.realm/users/user_1/role-mappings", MappingsRepresentation.class) >> user1RolesResponse
+            getForEntity(
+                    "$testee.realm/admin/realms/$testee.realm/users/user_2/role-mappings", MappingsRepresentation.class) >> user2RolesResponse
+        })
+        testee.restOperations = restOperations
+
+        when:
+        def result = testee.getUsers()
+
+        then:
+        result.size() == 2
+
+        result[0].admin == true
+        result[0].username == keycloakMockUsers[0].username
+        result[0].realName == "${keycloakMockUsers[0].firstName} ${keycloakMockUsers[0].lastName}"
+        result[0].email == keycloakMockUsers[0].email
+        result[0].studyToPatientDataAccessLevel == ["STUDY1_TOKEN": SUMMARY]
+
+        result[1].admin == false
+        result[1].username == keycloakMockUsers[1].username
+        result[1].realName == "${keycloakMockUsers[1].firstName} ${keycloakMockUsers[1].lastName}"
+        result[1].email == keycloakMockUsers[1].email
+        result[1].studyToPatientDataAccessLevel == [:]
+
     }
 }
