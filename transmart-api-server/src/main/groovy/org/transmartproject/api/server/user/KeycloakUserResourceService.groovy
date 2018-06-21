@@ -1,18 +1,21 @@
 package org.transmartproject.api.server.user
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount
+import org.keycloak.representations.AccessToken
 import org.keycloak.representations.idm.ClientMappingsRepresentation
 import org.keycloak.representations.idm.MappingsRepresentation
+import org.keycloak.representations.idm.RoleRepresentation
 import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Primary
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
-import org.springframework.security.oauth2.provider.OAuth2Authentication
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
-
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.*
 
@@ -22,7 +25,10 @@ import java.text.ParseException
 @Component
 @Primary
 @Slf4j
+@CompileStatic
 class KeycloakUserResourceService implements UsersResource {
+
+    public static final String ROLE_ADMIN = 'ROLE_ADMIN'
 
     @Autowired
     LegacyAuthorisationChecks authorisationChecks
@@ -31,63 +37,71 @@ class KeycloakUserResourceService implements UsersResource {
     RestOperations restOperations
 
     @Value('${keycloak.realm}')
-    private String realm
+    String realm
 
-    @Value('${keycloak.serverUrl}')
-    private String keycloakServerUrl
+    @Value('${keycloak.resource}')
+    String clientId
+
+    @Value('${keycloak.auth-server-url}')
+    String keycloakServerUrl
 
     @Override
     User getUserFromUsername(String username) throws NoSuchResourceException {
-        throw new UnsupportedOperationException()
+        User user = getUsers()?.find { it.username == username }
+        if (!user) {
+            throw new NoSuchResourceException("No user with '${username}' username found.")
+        }
+        user
     }
 
     @Override
     List<User> getUsers() {
-        def result = restOperations.getForEntity("$keycloakServerUrl/admin/realms/$realm/users", UserRepresentation[].class)
-        result.body.collect { UserRepresentation keycloakUser ->
+        ResponseEntity<UserRepresentation> response = restOperations
+                .getForEntity("$keycloakServerUrl/admin/realms/$realm/users", UserRepresentation[].class)
+        response.body.collect { UserRepresentation keycloakUser ->
             Set<String> roles = getRolesForUser(keycloakUser.id)
-            final boolean admin = roles.remove('ROLE_ADMIN')
-            Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel = buildStudyToPatientDataAccessLevel(roles)
-            new SimpleUser(keycloakUser.username,
-                    "$keycloakUser.firstName $keycloakUser.lastName",
-                    keycloakUser.email,
-                    admin,
-                    studyToPatientDataAccessLevel)
+            createUser(keycloakUser, roles)
         }
     }
 
     @Override
     List<User> getUsersWithEmailSpecified() {
-        getUsers()?.findAll { it.email != null }
+        getUsers()?.findAll { it.email }
     }
 
     @Override
     User getUserFromPrincipal(Principal principal) {
         assert principal instanceof Authentication
+        if (!principal.authenticated) {
+            throw new IllegalArgumentException("${principal.name} principal has authenticated flag set to false.")
+        }
 
         final String username = principal.name
-        List<String> authorities = principal.authorities*.authority
-        final boolean admin = authorities.remove('ROLE_ADMIN')
+        List<String> authorities = principal.authorities.collect { GrantedAuthority ga -> ga.authority }
+        final boolean admin = authorities.remove(ROLE_ADMIN)
         Map<String, PatientDataAccessLevel> studyToAccLvl =
                 buildStudyToPatientDataAccessLevel(authorities)
 
-        final String realName
-        final String email
-        if (principal instanceof OAuth2Authentication
-                && principal.userAuthentication) {
-            Map details = principal.userAuthentication.details
-            realName = details.name
-            email = details.email
+        String realName = null
+        String email = null
+        if (principal.details instanceof SimpleKeycloakAccount) {
+            def context = ((SimpleKeycloakAccount) principal.details).keycloakSecurityContext
+            if (context?.token) {
+                AccessToken token = context.token
+                realName = token.name
+                email = token.email
+            } else {
+                log.debug("No token in the security context. Giving up on getting email and name.")
+            }
         } else {
-            log.warn("Unexpected or incomplete authentication object ${principal}. Hence email and name can't be fetched.")
-            realName = null
-            email = null
+            log.debug("The details field of unexpected type: ${principal.details.class}. Giving up on getting email and name.")
         }
 
         new SimpleUser(username, realName, email, admin, studyToAccLvl)
     }
 
-    private static Map<String, PatientDataAccessLevel> buildStudyToPatientDataAccessLevel(final Collection<String> roles) {
+    private static Map<String, PatientDataAccessLevel> buildStudyToPatientDataAccessLevel(
+            final Collection<String> roles) {
         Map<String, PatientDataAccessLevel> result = [:]
         for (String studyTokenToAccLvl : roles) {
             try {
@@ -132,19 +146,28 @@ class KeycloakUserResourceService implements UsersResource {
                 "$keycloakServerUrl/admin/realms/$realm/users/$userId/role-mappings",
                 MappingsRepresentation.class)
 
-        def rolesPerClient = result.body.clientMappings
-        def roles = []
-        for (Map.Entry<String, ClientMappingsRepresentation> role : rolesPerClient.entrySet()){
-            if( role.key != 'realmManagement') {
-                roles.add(role.value.mappings*.name)
+        Map<String, ClientMappingsRepresentation> rolesPerClient = result.body.clientMappings
+        Set<String> roles = []
+        ClientMappingsRepresentation clientMappings = rolesPerClient.get(clientId)
+        if (clientMappings) {
+            for (RoleRepresentation roleRepresentation: clientMappings.mappings) {
+                roles.add(roleRepresentation.name)
             }
+        } else {
+            log.debug("No client role mappings for $clientId client were found.")
         }
-        if(roles.size() == 0) {
-            log.warn("User with id: $userId has no roles specified.")
-            return []
-        }
+        log.debug("${userId} user has following roles on ${clientId} client: ${roles}.")
 
-        roles.flatten() as Set<String>
+        roles
+    }
+
+    private static User createUser(UserRepresentation keycloakUser, Set<String> roles) {
+        final boolean admin = roles.remove(ROLE_ADMIN)
+        Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel = buildStudyToPatientDataAccessLevel(roles)
+        new SimpleUser(keycloakUser.id,
+                "$keycloakUser.firstName $keycloakUser.lastName",
+                keycloakUser.email,
+                admin,
+                studyToPatientDataAccessLevel)
     }
 }
-

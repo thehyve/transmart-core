@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class OfflineTokenClientRequestFactory extends SimpleClientHttpRequestFactory implements ClientHttpRequestFactory {
 
-    @Value('${keycloak.clientId}')
+    @Value('${keycloak.resource}')
     private String clientId
 
     @Value('${keycloak.offlineToken}')
@@ -25,7 +25,7 @@ class OfflineTokenClientRequestFactory extends SimpleClientHttpRequestFactory im
     @Value('${keycloak.realm}')
     private String realm
 
-    @Value('${keycloak.serverUrl}')
+    @Value('${keycloak.auth-server-url}')
     private String keycloakServerUrl
 
     public static final String AUTHORIZATION_HEADER = "Authorization"
