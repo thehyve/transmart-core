@@ -109,6 +109,11 @@ environments:
         security:
             oauth2:
                 client:
-                    clientId: demo-oidc
+                    clientId: transmart
                 resource:
-                    userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
+                    userInfoUri: http://localhost:8080/auth/realms/dev/protocol/openid-connect/userinfo
+        keycloak:
+            clientId: transmart
+#            offlineToken: <set your offline token here>
+            serverUrl: http://localhost:8080/auth
+            realm: dev
