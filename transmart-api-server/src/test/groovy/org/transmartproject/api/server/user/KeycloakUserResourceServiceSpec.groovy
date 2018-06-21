@@ -25,7 +25,7 @@ class KeycloakUserResourceServiceSpec extends Specification {
         String clientId = 'test-client-id'
         List<GrantedAuthority> authorities = [
                 new SimpleGrantedAuthority('ROLE_ADMIN'),
-                new SimpleGrantedAuthority('STUDY1_TOKEN|OWN'),
+                new SimpleGrantedAuthority('STUDY1_TOKEN|MEASUREMENTS'),
                 new SimpleGrantedAuthority('STUDY2_TOKEN|COUNTS_WITH_THRESHOLD'),
         ]
         boolean approved = true
@@ -68,14 +68,14 @@ class KeycloakUserResourceServiceSpec extends Specification {
         accLvlToTok                  | exception                | message
         '|'                          | ParseException           | "Can't parse permission '${accLvlToTok}'."
         'STUDY1_TOKEN|UNEXISTING_OP' | IllegalArgumentException | 'No enum constant org.transmartproject.core.users.PatientDataAccessLevel.UNEXISTING_OP'
-        '|SUMMARY'                      | IllegalArgumentException | "Emtpy study token: '${accLvlToTok}'."
+        '|SUMMARY'                      | IllegalArgumentException | "Emtpy study: '${accLvlToTok}'."
         '|||'                        | ParseException           | "Can't parse permission '${accLvlToTok}'."
         ''                           | ParseException           | "Can't parse permission '${accLvlToTok}'."
     }
 
     void 'test choose the higher access level in case of collision'() {
         expect:
-        result == testee.buildStudyTokenToAccessLevel(roles)
+        result == testee.buildStudyToPatientDataAccessLevel(roles)
 
         where:
         roles                                                            | result
