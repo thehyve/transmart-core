@@ -13,8 +13,8 @@ import static groovyx.net.http.HttpVerb.GET
 class Config {
     //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
     public static
-    final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8080/'
-//    public static final AuthAdapter authAdapter = new AuthAdapterOauth()
+    final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8081/'
+    public static final boolean IS_USING_KEYCLOAK = true
 
     //Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
     public static final TestContext testContext = new TestContext().setHttpBuilder(configure {
@@ -33,9 +33,19 @@ class Config {
         }
     }).setAuthAdapter(new OauthAdapter())
 
+    // Keycloak configuration
+    public static final String AUTH_SERVER_URL = 'http://localhost:8080/'
+    public static final String REALM = 'test'
+    public static final String RESOURCE = 'transmart'
+
+
     public static final String DEFAULT_USER = 'test-public-user-1'
     public static final String UNRESTRICTED_USER = 'test-public-user-2'
     public static final String ADMIN_USER = 'admin'
+
+    public static final String DEFAULT_USER_ID = '01ec82a4-dd7d-45ff-ac14-c5e10c20eb44'
+    public static final String UNRESTRICTED_USER_ID = '01ec82a4-dd7d-45ff-ac14-c5e10c20eb44'
+    public static final String ADMIN_USER_ID = '75154b3b-fff2-4727-8d9a-96dfdbae39bb'
 
     public static final String VERSIONS_PATH = '/versions'
     public static final String NON_EXISTING_API_VERSION = 'v0'
@@ -71,7 +81,6 @@ class Config {
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'
     public static final String GSE8581_ID = 'GSE8581'
-    public static final String CELL_LINE_ID = 'CELL-LINE'
     public static final String EHR_ID = 'EHR'
     public static final String EHR_HIGHDIM_ID = 'EHR_HIGHDIM'
     public static final String CLINICAL_TRIAL_ID = 'CLINICAL_TRIAL'

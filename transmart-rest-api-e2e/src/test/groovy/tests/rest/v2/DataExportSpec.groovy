@@ -35,7 +35,7 @@ class DataExportSpec extends RESTSpec {
         assert responseData.jobName == id.toString()
         assert responseData.jobStatus == "Created"
         assert responseData.jobStatusTime != null
-        assert responseData.userId == DEFAULT_USER
+        assert responseData.userId == DEFAULT_USER_ID
         assert responseData.viewerUrl == null
 
         when: "Export job name is specified"
@@ -50,7 +50,7 @@ class DataExportSpec extends RESTSpec {
         assert responseData.jobName == name
         assert responseData.jobStatus == "Created"
         assert responseData.jobStatusTime != null
-        assert responseData.userId == DEFAULT_USER
+        assert responseData.userId == DEFAULT_USER_ID
         assert responseData.viewerUrl == null
     }
 
@@ -119,7 +119,7 @@ class DataExportSpec extends RESTSpec {
         responseData.exportJob.id == jobId
         responseData.exportJob.jobStatus == 'Started'
         responseData.exportJob.jobStatusTime != null
-        responseData.exportJob.userId == DEFAULT_USER
+        responseData.exportJob.userId == DEFAULT_USER_ID
         responseData.viewerUrl == null
 
         when: "Check the status of the job"
@@ -183,7 +183,7 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.exportJob.id == jobId
         assert runResponse.exportJob.jobStatus == 'Started'
         assert runResponse.exportJob.jobStatusTime != null
-        assert runResponse.exportJob.userId == 'admin'
+        assert runResponse.exportJob.userId == ADMIN_USER_ID
         assert runResponse.viewerUrl == null
 
         when: "Check the status of the job"
@@ -521,7 +521,7 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.exportJob.id == jobId
         assert runResponse.exportJob.jobStatus == 'Started'
         assert runResponse.exportJob.jobStatusTime != null
-        assert runResponse.exportJob.userId == DEFAULT_USER
+        assert runResponse.exportJob.userId == DEFAULT_USER_ID
         assert runResponse.viewerUrl == null
 
         int maxAttemptNumber = 50 // max number of status check attempts
