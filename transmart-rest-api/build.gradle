@@ -27,6 +27,8 @@ dependencies {
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
     testCompile "org.grails:grails-plugin-testing"
+    testCompile "org.grails:grails-test-mixins:3.3.0"
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     testCompile 'org.grails:grails-datastore-rest-client'
     compile "com.opencsv:opencsv:${openCsvVersion}"

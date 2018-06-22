@@ -4,6 +4,7 @@ package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
@@ -18,6 +19,7 @@ import org.transmartproject.core.users.User
 import java.sql.Connection
 import java.util.stream.Collectors
 
+@Slf4j
 class AggregateDataOptimisationsService {
 
     @Autowired

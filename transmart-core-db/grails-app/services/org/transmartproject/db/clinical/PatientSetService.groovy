@@ -7,6 +7,7 @@ import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
+import groovy.util.logging.Slf4j
 import org.hibernate.Criteria
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
@@ -54,6 +55,7 @@ import org.transmartproject.db.util.HibernateUtils
 import java.util.function.Function
 
 @CompileStatic
+@Slf4j
 class PatientSetService extends AbstractDataResourceService implements PatientSetResource {
 
     @Autowired

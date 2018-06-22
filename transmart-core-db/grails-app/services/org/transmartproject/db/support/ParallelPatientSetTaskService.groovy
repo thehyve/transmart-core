@@ -2,6 +2,7 @@ package org.transmartproject.db.support
 
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -21,6 +22,7 @@ import java.util.function.Function
 
 import static groovyx.gpars.GParsPool.withPool
 
+@Slf4j
 class ParallelPatientSetTaskService {
 
     @Autowired

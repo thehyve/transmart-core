@@ -15,7 +15,6 @@ import org.hibernate.engine.spi.QueryParameters
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.internal.CriteriaImpl
-import org.hibernate.internal.SessionImpl
 import org.hibernate.loader.criteria.CriteriaJoinWalker
 import org.hibernate.loader.criteria.CriteriaQueryTranslator
 import org.hibernate.persister.entity.OuterJoinLoadable
@@ -95,6 +94,7 @@ class HibernateUtils {
      * @param cls the class of which fix the property getter
      */
     static void fixupClassPropertyFetcher(Class cls) {
+        /*
         ClassPropertyFetcher cpf = ClassPropertyFetcher.forClass(cls)
         Map<String, ClassPropertyFetcher.PropertyFetcher> instanceFetchers = cpf.instanceFetchers
 
@@ -105,6 +105,7 @@ class HibernateUtils {
         toFix.each {
             instanceFetchers[it.substring(3)] = instanceFetchers.remove(it)
         }
+        */
     }
 
     static class NativeSQLQueryDetails {

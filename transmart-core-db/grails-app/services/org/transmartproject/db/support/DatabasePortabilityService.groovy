@@ -19,9 +19,8 @@
 
 package org.transmartproject.db.support
 
-import grails.orm.HibernateCriteriaBuilder
-import org.hibernate.Criteria
-import org.hibernate.criterion.LikeExpression
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -34,6 +33,8 @@ import java.sql.DatabaseMetaData
  * Helper service to make it easier to write code that works on both Oracle and
  * PostgreSQL. Of course, the best option in this respect is to use Hibernate.
  */
+@Slf4j
+// FIXME: @CompileStatic
 class DatabasePortabilityService {
 
     @Autowired

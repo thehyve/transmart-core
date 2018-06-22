@@ -4,6 +4,7 @@ package org.transmartproject.db.tree
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +26,7 @@ import javax.annotation.Resource
 
 import static grails.async.Promises.task
 
+@Slf4j
 @Transactional(readOnly = true)
 @CompileStatic
 class TreeService implements TreeResource {

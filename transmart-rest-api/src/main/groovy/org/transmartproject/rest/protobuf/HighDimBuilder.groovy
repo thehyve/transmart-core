@@ -31,6 +31,7 @@ import com.google.common.collect.Iterators
 import com.google.common.collect.Maps
 import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -61,12 +62,14 @@ class HighDimBuilder {
     private Row.Builder rowBuilder = Row.newBuilder()
 
     // class is either Double or String
-    @Lazy private SortedMap<String, ? extends Class> dataColumns = getDataProperties(projection)
+    @Lazy
+    private SortedMap<String, ? extends Class> dataColumns = getDataProperties(projection)
 
     // closures that take a data row and return a column builder
     // each closure is associated with a column
     // the order is that of the columns as given in the sorted map dataColumns
-    @Lazy private List<Closure> columnValueBuilderCreators = {
+    @Lazy
+    private List<Closure<ColumnValue.Builder>> columnValueBuilderCreators = {
 
         boolean multiValuedProjection = projection instanceof MultiValueProjection
 
@@ -74,10 +77,10 @@ class HighDimBuilder {
             // the builder will be reused across rows
             def builder = ColumnValue.newBuilder()
             if (clazz == Double) {
-                this.&columnValueBuilderSetupForDouble.curry(builder,
+                return (Closure<ColumnValue.Builder>)this.&columnValueBuilderSetupForDouble.curry(builder,
                         multiValuedProjection ? dataProperty : null)
             } else {
-                this.&columnValueBuilderSetupForString.curry(builder,
+                return (Closure<ColumnValue.Builder>)this.&columnValueBuilderSetupForString.curry(builder,
                         multiValuedProjection ? dataProperty : null)
             }
         }
@@ -94,8 +97,8 @@ class HighDimBuilder {
         }
     }
 
-    private HighDimProtos.ColumnValue.Builder columnValueBuilderSetupForDouble(
-            HighDimProtos.ColumnValue.Builder builder, String dataProperty, ColumnOrderAwareDataRow<AssayColumn, ?> row) {
+    private ColumnValue.Builder columnValueBuilderSetupForDouble(
+            ColumnValue.Builder builder, String dataProperty, ColumnOrderAwareDataRow<AssayColumn, ?> row) {
         builder.clear()
         builder.addAllDoubleValue tabularResult.indicesList.collect { AssayColumn col ->
             def cell = row.getAt col
@@ -107,8 +110,8 @@ class HighDimBuilder {
         builder
     }
 
-    private HighDimProtos.ColumnValue.Builder columnValueBuilderSetupForString(
-            HighDimProtos.ColumnValue.Builder builder, String dataProperty, ColumnOrderAwareDataRow<AssayColumn, ?> row) {
+    private ColumnValue.Builder columnValueBuilderSetupForString(
+            ColumnValue.Builder builder, String dataProperty, ColumnOrderAwareDataRow<AssayColumn, ?> row) {
         builder.clear()
         builder.addAllStringValue tabularResult.indicesList.collect { AssayColumn col ->
             def cell = row.getAt col
@@ -156,11 +159,11 @@ class HighDimBuilder {
         headerBuilder.build()
     }
 
-    public static ColumnType typeForClass(Class clazz) {
+    static ColumnType typeForClass(Class clazz) {
         Number.isAssignableFrom(clazz) ? ColumnType.DOUBLE : ColumnType.STRING
     }
 
-    @CompileStatic(groovy.transform.TypeCheckingMode.SKIP)
+    @CompileStatic(TypeCheckingMode.SKIP)
     private SortedMap<String, Class> getDataProperties(Projection projection) {
         if (projection instanceof MultiValueProjection) {
             MultiValueProjection mvp = projection as MultiValueProjection
@@ -176,7 +179,7 @@ class HighDimBuilder {
         }
     }
     //TODO: extract to a separate utils class
-    public static Class decideColumnValueType(Class originalClass) {
+    static Class decideColumnValueType(Class originalClass) {
         if (originalClass in [double, float, long, int, short, byte] || originalClass in Number) {
             return Double
         } else {
@@ -192,16 +195,16 @@ class HighDimBuilder {
             rowBuilder.bioMarker = safeString(((BioMarkerDataRow) inputRow).bioMarker)
         }
 
-        columnValueBuilderCreators.each {
-                Closure<HighDimProtos.ColumnValue.Builder> builderClosure ->
-            rowBuilder.addValue builderClosure.call(inputRow)
+        columnValueBuilderCreators.each { Closure<ColumnValue.Builder> builderClosure ->
+            def columnValue = builderClosure.call(inputRow)
+            rowBuilder.addValue(columnValue)
         }
 
         rowBuilder.build()
     }
 
 
-    @CompileStatic(groovy.transform.TypeCheckingMode.SKIP) // work around CLOV-1863
+    @CompileStatic(TypeCheckingMode.SKIP) // work around CLOV-1863
     private Assay createAssay(Assay.Builder builder, AssayColumn col) {
         builder.clear()
         builder.assayId = col.id

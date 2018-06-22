@@ -21,6 +21,7 @@ package org.transmartproject.rest
 import com.google.common.collect.ImmutableList
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.*
@@ -43,6 +44,7 @@ import java.util.zip.ZipOutputStream
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 
+@Slf4j
 @Transactional
 @CompileStatic
 class SurveyTableViewDataSerializationService implements DataSerializer {

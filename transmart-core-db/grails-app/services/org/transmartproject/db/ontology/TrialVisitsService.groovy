@@ -16,7 +16,7 @@ class TrialVisitsService {
     @Autowired
     SessionFactory sessionFactory
 
-    @Cacheable(value = 'org.transmartproject.db.ontology.TrialVisitsService', key = '#study.name')
+    @Cacheable(value = 'org.transmartproject.db.ontology.TrialVisitsService', key = { study.name })
     List<TrialVisit> findTrialVisitsForStudy(MDStudy study) {
         def session = sessionFactory.openStatelessSession()
         try {

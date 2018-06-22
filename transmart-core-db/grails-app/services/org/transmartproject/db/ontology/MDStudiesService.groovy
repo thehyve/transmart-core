@@ -2,6 +2,9 @@ package org.transmartproject.db.ontology
 
 import grails.plugin.cache.CacheEvict
 import grails.transaction.Transactional
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -10,15 +13,17 @@ import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.User
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.i2b2data.Study
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 
 @Transactional
+@Slf4j
+@CompileStatic
 class MDStudiesService implements MDStudiesResource, ApplicationRunner {
 
     @Autowired
@@ -80,17 +85,21 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
 
     @Override
     List<MDStudy> getStudies(User currentUser) {
-        accessControlChecks.getDimensionStudiesForUser(currentUser).findAll { !isLegacyStudy(it) }
+        accessControlChecks.getDimensionStudiesForUser(currentUser)
+                .findAll { !isLegacyStudy(it) }
+                .collect { it as MDStudy }
     }
 
     @Override
+    @CompileDynamic
     MDStudy getStudyForUser(Long id, User currentUser) throws NoSuchResourceException {
         def study = Study.findById(id)
-        checkAccessToStudy(study, currentUser, id)
+        checkAccessToStudy(study, currentUser, id.toString())
         study
     }
 
     @Override
+    @CompileDynamic
     MDStudy getStudyByStudyIdForUser(String studyId, User currentUser) throws NoSuchResourceException {
         def study = Study.findByStudyId(studyId)
         checkAccessToStudy(study, currentUser, studyId)
@@ -98,6 +107,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     }
 
     @Override
+    @CompileDynamic
     List<MDStudy> getStudiesByStudyIdsForUser(List<String> studyIds, User currentUser) throws NoSuchResourceException {
         def studies = Study.findAllByStudyIdInList(studyIds)
         def studiesForUser = []
@@ -115,23 +125,24 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         studiesForUser
     }
 
-    private void checkAccessToStudy(Study study, User user, id) {
+    private void checkAccessToStudy(Study study, User user, String studyId) {
         if (isLegacyStudy(study)) {
             study = null
         }
         if (study == null || !accessControlChecks.hasAccess(user, study)) {
-            throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
+            throw new NoSuchResourceException("Access denied to study or study does not exist: ${studyId}")
         }
         fixLoad(study)
     }
 
-    private Study fixLoad(Study study) {
+    private void fixLoad(MDStudy study) {
         // Ensure study dimensions are loaded in the same hibernate session as the study object itself. This is
         // needed for parallel query processing where each parallel thread has its own hibernate session.
         study.dimensions.size()
         study
     }
 
+    @CompileDynamic
     MDStudy getStudyByStudyId(String studyId) {
         MDStudy study = studyIdToStudy[studyId]
         if (!study) {
@@ -145,6 +156,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         study
     }
 
+    @CompileDynamic
     MDStudy getStudyById(Long id) {
         MDStudy study = idToStudy[id]
         if (!study) {
@@ -158,6 +170,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         study
     }
 
+    @CompileDynamic
     MDStudy getStudyByTrialVisitId(Long trialVisitId) {
         MDStudy study = trialVisitIdToStudy[trialVisitId]
         if (!study) {
@@ -171,6 +184,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         study
     }
 
+    @CompileDynamic
     @Override
     @Cacheable('org.transmartproject.db.ontology.MDStudiesService')
     String getStudyIdById(Long id) throws NoSuchResourceException {

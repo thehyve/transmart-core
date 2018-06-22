@@ -78,7 +78,7 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
 
             def row = table.row(rowHeader)
 
-            for(def hv : rows[i]) {
+            for (HypercubeValue hv : rows[i]) {
                 elems.clear()
                 keys.clear()
                 for(def dim: columnDimensions) {
@@ -87,8 +87,10 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
                 }
                 def column = newDataTableColumnImpl(elems, keys)
 
-                def vals = (List) row[column]
-                if(vals == null) vals = row[column] = []
+                List<HypercubeValue> vals = (List) row[column]
+                if (vals == null) {
+                    vals = row[column] = [] as List<HypercubeValue>
+                }
                 vals.add(hv)
             }
         }

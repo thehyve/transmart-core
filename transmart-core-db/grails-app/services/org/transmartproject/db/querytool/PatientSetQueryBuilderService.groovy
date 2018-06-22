@@ -19,6 +19,10 @@
 
 package org.transmartproject.db.querytool
 
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -32,19 +36,26 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
+import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
+// FIXME: @CompileStatic
+@Slf4j
 class PatientSetQueryBuilderService {
 
+    @Autowired
     OntologyTermsResource ontologyTermsResourceService
 
-    def databasePortabilityService
+    @Autowired
+    DatabasePortabilityService databasePortabilityService
 
-    def sessionFactory
+    @Autowired
+    SessionFactory sessionFactory
 
+    @Autowired
     AccessControlChecks accessControlChecks
 
     String buildPatientIdListQuery(QueryDefinition definition,

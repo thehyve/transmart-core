@@ -20,6 +20,8 @@
 package org.transmartproject.db.querytool
 
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -30,6 +32,8 @@ import org.transmartproject.core.users.User
 import java.sql.Connection
 
 @Transactional
+@Slf4j
+// FIXME: @CompileStatic
 class QueriesResourceService implements QueriesResource {
 
     def grailsApplication

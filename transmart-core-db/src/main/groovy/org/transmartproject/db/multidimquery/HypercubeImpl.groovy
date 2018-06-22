@@ -154,6 +154,7 @@ class HypercubeImpl implements Hypercube {
      * ResultIterator (and the derived DimensionsLoaderIterator) make intimate use of private HypercubeImpl data and
      * private methods.
      */
+    @CompileStatic
     private class ResultIterator extends AbstractIterator<HypercubeValueImpl> implements PeekingIterator<HypercubeValueImpl> {
 
         private final ScrollableResults results
@@ -258,6 +259,7 @@ class HypercubeImpl implements Hypercube {
      */
     // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
     // ResultIterator constructor. (Groovy 3.1.10)
+    @CompileStatic
     static class ModifierResultIterator extends UnmodifiableIterator<Map<String, Object>> {
 
         static final List<String> primaryKey = ImmutableList.of(
@@ -329,10 +331,16 @@ class HypercubeImpl implements Hypercube {
         }
     }
 
-    @TupleConstructor
+    @CompileStatic
     static class ProjectionMapIterator extends AbstractIterator<ProjectionMap> {
         final Map<String, Integer> aliases
         final ScrollableResults results
+
+        ProjectionMapIterator(Map<String, Integer> aliases, ScrollableResults results) {
+            super()
+            this.aliases = aliases
+            this.results = results
+        }
 
         ProjectionMap computeNext() {
             if (!results.next()) {

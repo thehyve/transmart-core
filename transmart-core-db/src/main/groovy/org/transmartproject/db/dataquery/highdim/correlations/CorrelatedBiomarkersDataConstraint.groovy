@@ -22,23 +22,15 @@ package org.transmartproject.db.dataquery.highdim.correlations
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.util.logging.Slf4j
-import org.grails.orm.hibernate.persister.entity.GroovyAwareSingleTableEntityPersister
 import org.hibernate.Criteria
 import org.hibernate.HibernateException
-import org.hibernate.Session
-import org.hibernate.SessionFactory
 import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.SQLCriterion
-import org.hibernate.internal.SessionFactoryImpl
-import org.hibernate.persister.entity.AbstractEntityPersister
 import org.hibernate.type.LongType
 import org.hibernate.type.StringType
 import org.hibernate.type.Type
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.search.SearchKeywordCoreDb
-
-import javax.persistence.Column
-import java.lang.reflect.Field
 
 /*
  * Search for biomarkers in this fashion:

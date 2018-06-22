@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.DataColumn
@@ -25,6 +26,7 @@ import org.transmartproject.db.support.ParallelPatientSetTaskService
 import static org.transmartproject.core.ontology.Measure.NOMINAL
 import static org.transmartproject.core.ontology.VariableDataType.STRING
 
+@Slf4j
 class SurveyTableColumnService {
 
     @Autowired

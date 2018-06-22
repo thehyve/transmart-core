@@ -1,7 +1,7 @@
 buildscript {
     ext {
         assetPipelineVersion = '2.11.6'
-        grailsVersion = '3.2.3'
+        grailsVersion = '3.3.6'
         guavaVersion = '19.0'
         protobufVersion = '3.1.0'
     }
@@ -34,20 +34,21 @@ apply plugin: 'org.owasp.dependencycheck'
 ext {
     transmartVersion = '17.1-HYVE-5-SNAPSHOT'
 
-    assetPipelineVersion = '2.11.6'
-    gradleWrapperVersion = '2.13'
-    grailsVersion = '3.2.3'
+    aspectjVersion = '1.5.4'
+    assetPipelineVersion = '2.14.1'
+    gparsVersion = '1.2.0'
+    gradleWrapperVersion = '4.8'
+    grailsVersion = '3.3.6'
     guavaVersion = '19.0'
     jacksonVersion = '2.9.5'
     modelMapperVersion = '1.1.3'
     ojdb7Version = '12.1.0.1'
     openCsvVersion = '4.2'
     postgresqlVersion = '42.1.4'
-    protobufVersion = '3.1.0'
+    protobufVersion = '3.5.1'
     quartzVersion = '2.0.8'
-    springSecurityOauth2PluginVersion = '3.0.0-RC2'
-    springSecurityPluginVersion = '3.1.1'
-    springSecurityVersion = '3.2.3.RELEASE'
+    springSecurityPluginVersion = '3.2.1'
+    springSecurityVersion = '4.2.7.RELEASE'
 }
 
 task wrapper(type: Wrapper) {
@@ -59,7 +60,9 @@ group = 'org.transmartproject'
 
 allprojects {
     ext {
+        aspectjVersion = aspectjVersion
         assetPipelineVersion = assetPipelineVersion
+        gparsVersion = gparsVersion
         guavaVersion = guavaVersion
         jacksonVersion = jacksonVersion
         modelMapperVersion = modelMapperVersion
@@ -68,7 +71,6 @@ allprojects {
         postgresqlVersion = postgresqlVersion
         protobufVersion = protobufVersion
         quartzVersion = quartzVersion
-        springSecurityOauth2PluginVersion = springSecurityOauth2PluginVersion
         springSecurityPluginVersion = springSecurityPluginVersion
         springSecurityVersion = springSecurityVersion
     }
@@ -92,8 +94,8 @@ subprojects { project ->
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
-    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-legacy-db|transmart-rest-api|transmartApp|transmart-server|transmart-oauth|transmart-solr-indexing|transmart-notifications|transmart-api-server)$/) {
-        if (project.name =~ /^(transmartApp|mock-ontology-server|transmart-server|transmart-solr-indexing|transmart-api-server)$/) {
+    if (project.name =~ /^(mock-ontology-server|transmart-core-db-tests|transmart-core-db|transmart-rest-api|transmart-notifications|transmart-api-server)$/) {
+        if (project.name =~ /^(mock-ontology-server|transmart-api-server)$/) {
             apply plugin: 'war'
             apply plugin: 'org.grails.grails-web'
         } else {
@@ -110,9 +112,11 @@ subprojects { project ->
             applyMavenExclusions false
         }
     }
-    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch|transmart-copy|transmart-api-server)$/) {
+    if (project.name =~ /^(transmart-core-api|transmart-data|transmart-batch|transmart-copy|transmart-api-server)$/) {
         apply plugin: 'net.linguica.maven-settings'
         apply plugin: 'maven-publish'
+        apply plugin: 'org.owasp.dependencycheck'
+
         publishing {
             repositories {
                 maven {

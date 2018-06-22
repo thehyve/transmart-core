@@ -2,7 +2,10 @@ package org.transmartproject.db.concept
 
 import com.google.common.io.CountingOutputStream
 import grails.transaction.Transactional
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.transform.Memoized
+import groovy.util.logging.Slf4j
 import org.grails.io.support.DevNullPrintStream
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
@@ -20,6 +23,8 @@ import org.transmartproject.core.multidimquery.query.TrueConstraint
 import java.util.concurrent.ConcurrentHashMap
 
 @Transactional
+@Slf4j
+@CompileStatic
 class ConceptsService implements ConceptsResource, ApplicationRunner {
 
     @Autowired
@@ -61,13 +66,14 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
     @Override
     List<Concept> getConcepts(User user) {
         if (user.admin) {
-            return ConceptDimension.findAll()
+            return ConceptDimension.findAll().collect { it as Concept }
         } else {
             return multiDimService.getDimensionElements(multiDimService.getDimension('concept'), new TrueConstraint(), user).asList()
         }
     }
 
     @Override
+    @CompileDynamic
     Concept getConceptByConceptCodeForUser(String conceptCode, User user) throws NoSuchResourceException {
         Concept concept = null
         if (user.admin) {
@@ -87,6 +93,7 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
     }
 
     @Memoized
+    @CompileDynamic
     Concept getConceptByConceptCode(String conceptCode) throws NoSuchResourceException {
         Concept concept = conceptCodeToConcept[conceptCode]
         if (!concept) {
@@ -100,6 +107,7 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
     }
 
     @Override
+    @CompileDynamic
     Concept getConceptByConceptPath(String conceptPath) throws NoSuchResourceException {
         Concept result = ConceptDimension.findByConceptPath(conceptPath)
         if (!result) {

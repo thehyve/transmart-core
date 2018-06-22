@@ -13,8 +13,9 @@ dependencies {
     provided "org.grails:grails-plugin-domain-class"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-test"
-    testCompile "org.grails.plugins:geb"
+    testCompile "org.grails:grails-test-mixins:3.3.0"
     testCompile "org.grails.plugins:hibernate5"
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     compile project(':transmart-core-api')

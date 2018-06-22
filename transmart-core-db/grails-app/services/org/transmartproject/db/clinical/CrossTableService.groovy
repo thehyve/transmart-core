@@ -1,6 +1,7 @@
 package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.multidimquery.CrossTable
@@ -12,6 +13,7 @@ import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.CrossTableImpl
 
+@Slf4j
 @CompileStatic
 class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
 
