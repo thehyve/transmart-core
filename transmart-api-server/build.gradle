@@ -28,8 +28,8 @@ dependencies {
     compile project(':transmart-rest-api')
     compile project(':transmart-notifications')
 
-    compile "org.springframework.security.oauth:spring-security-oauth2"
-    compile "org.keycloak:keycloak-core:4.0.0.Final"
+    compile "org.keycloak:keycloak-spring-boot-starter:4.0.0.Final"
+    compile "org.springframework.boot:spring-boot-starter-security"
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 }

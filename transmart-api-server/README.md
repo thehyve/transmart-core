@@ -57,21 +57,6 @@ Login to `https://<domain>/auth/admin/` and:
     Go to `Role Mappings` tab. Then select `Client Roles` to be `transmart` and
     assign some roles.
 
-7. Set up authorities mapping.
-
-    This has to be done once per client.
-    
-    Go to `Clients > transmart > Mappers > Create Protocol Mappers`
-    Set the fields as following:
-
-    - Name: `authorities`
-    - Mapper Type: `User Client Role`
-    - Client: `transmart`
-    - Multivalued: `On`
-    - Token Claim Name: `authorities`
-    - Claim JSON Type: `String`
-    
-
 ## Configure TranSMART to accept tokens from Keycloak
 
 Create an offline token in order to access Keycloak offline (e.g. by offline quartz jobs from transmart-notifications). To get the token on behalf of a user, the user needs to have the role mapping for the realm-level: `"offline_access"`.
@@ -90,18 +75,16 @@ This token is used as an Refresh token, but an offline token will never expire.
 
 Create a file `transmart-api-server.config.yml` with the following settings (replace names in brackets with your data):
 ```yaml
-security:
-   oauth2:
-       client:
-           clientId: {transmart}
-       resource:
-           userInfoUri: https://{idp.example.com}/auth/realms/{dev}/protocol/openid-connect/userinfo
-
 keycloak:
-    clientId: {transmart}
-    offlineToken: {offlineToken}
-    serverUrl: https://{idp.example.com}/auth
+    resource: {transmart}
+    auth-server-url: https://{idp.example.com}/auth
     realm: {dev}
+    bearer-only: true
+    use-resource-role-mappings: true
+
+# to enable use of keycloak API to fetch list of users for jobs
+keycloakOffline:
+    offlineToken: {offlineToken}
 ```
 
 Start `transmart-api-server` with this configuration file:
