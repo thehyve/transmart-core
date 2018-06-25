@@ -51,6 +51,7 @@ grails:
             js: text/javascript
             rss: application/rss+xml
             text: text/plain
+            protobuf: application/x-protobuf
             all: '*/*'            
     urlmapping:
         cache:
