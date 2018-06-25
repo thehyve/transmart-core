@@ -19,7 +19,7 @@ class OfflineTokenClientRequestFactory extends SimpleClientHttpRequestFactory im
     @Value('${keycloak.resource}')
     private String clientId
 
-    @Value('${keycloak.offlineToken}')
+    @Value('${keycloakOffline.offlineToken}')
     private String offlineToken
 
     @Value('${keycloak.realm}')

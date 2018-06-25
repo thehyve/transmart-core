@@ -81,7 +81,9 @@ keycloak:
     realm: {dev}
     bearer-only: true
     use-resource-role-mappings: true
-    # to enable use of keycloak API to fetch list of users for jobs
+
+# to enable use of keycloak API to fetch list of users for jobs
+keycloakOffline:
     offlineToken: {offlineToken}
 ```
 

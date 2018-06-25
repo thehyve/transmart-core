@@ -112,3 +112,5 @@ environments:
             auth-server-url: http://localhost:8080/auth
             resource: transmart
             use-resource-role-mappings: true
+#        keycloakOffline:
+#            offlineToken: <offline token>
