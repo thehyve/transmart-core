@@ -55,11 +55,11 @@ class RestApiUrlMappings {
                 apiVersion = 'v2'
             }
             "/observations/table"(controller: 'query') {
-                action = [GET: 'table', POST: 'table']
+                action = [POST: 'table']
                 apiVersion = 'v2'
             }
             "/observations/crosstable"(controller: 'query') {
-                action = [GET: 'crosstable', POST: 'crosstable']
+                action = [POST: 'crosstable']
                 apiVersion = 'v2'
             }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
