@@ -24,6 +24,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
@@ -228,14 +229,14 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
     /* Study is included if the user has ANY kind of access */
 
     @Transactional(readOnly = true)
-    Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
+    Collection<MDStudy> getDimensionStudiesForUser(User user) {
         if (hasUnlimitedStudiesAccess(user)) {
-            return org.transmartproject.db.i2b2data.Study.findAll()
+            return org.transmartproject.db.i2b2data.Study.findAll() as List<MDStudy>
         }
-
         def accessibleStudyTokens = getAccessibleStudyTokensForUser(user)
-        (Collection<org.transmartproject.db.i2b2data.Study>) org.transmartproject.db.i2b2data.Study
-                .createCriteria().list { inList('secureObjectToken', accessibleStudyTokens) }
+        def criteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.Study)
+            .add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
+        criteria.getExecutableCriteria(sessionFactory.currentSession).list()
     }
 
     /**
