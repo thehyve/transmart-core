@@ -157,7 +157,11 @@ class QueryController extends AbstractQueryController {
         checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions',
                                          'rowSort', 'columnSort', 'limit', 'offset'])
 
-        if (args.type != 'clinical') { throw new OperationNotImplementedException("High dimensional data is not yet " +
+        if ((!args.type)) {
+            throw new InvalidArgumentsException("No data type provided.")
+        }
+        if (args.type != 'clinical') {
+            throw new OperationNotImplementedException("High dimensional data is not yet " +
                 "implemented for the data table")
         }
 

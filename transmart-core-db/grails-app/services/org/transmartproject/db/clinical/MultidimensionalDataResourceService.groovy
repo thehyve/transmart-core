@@ -409,12 +409,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
         def userSort = rowSort + columnSort
 
+        def sortableDimensions = allDimensions.findAll { it instanceof AliasAwareDimension }.name
         for (def dim : rowDimensions) {
+            if (!sortableDimensions.contains(dim)) {
+                throw new InvalidArgumentsException("Only sortable dimensions can be selected as row dimension. ${dim} is not sortable.")
+            }
             if (!rowSortDimensions.contains(dim)) {
                 rowSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
             }
         }
-        def sortableDimensions = primaryKeyDimensions.name
         for (def dim : columnDimensions) {
             if (!columnSortDimensions.contains(dim) && sortableDimensions.contains(dim)) {
                 columnSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))

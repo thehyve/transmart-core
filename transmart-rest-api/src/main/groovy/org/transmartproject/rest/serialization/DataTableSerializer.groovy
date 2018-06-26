@@ -3,6 +3,7 @@ package org.transmartproject.rest.serialization
 import com.google.common.collect.Table
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
 
 import java.time.Instant
@@ -17,51 +18,44 @@ class DataTableSerializer {
         new DataTableSerializer().writeData(table, out)
     }
 
-    void writeColumnHeaders() {
-        writer.name('column_headers').beginArray()
-        for(int i=0; i<table.columnDimensions.size(); i++) {
-            def dim = table.columnDimensions[i]
-            writer.beginObject()
-
-            writer.name('dimension').value(dim.name)
-
-            if(dim.elementsSerializable) {
-                writer.name('elements').beginArray()
-                for(def columnHeader : table.columnKeys) {
-                    writeValue(columnHeader.elements[i])
-                }
-                writer.endArray()
-            } else {
-                writer.name('keys').beginArray()
-                for(def columnHeader : table.columnKeys) {
-                    writeValue(dim.getKey(columnHeader.elements[i]))
-                }
-                writer.endArray()
-            }
-            writer.endObject()
-        }
-
-        writer.endArray()
-    }
-
-    void writeRows() {
-        writer.name('rows').beginArray()
-        for(DataTableRow rowHeader : table.rowKeys) {
-            writeRow(rowHeader)
-        }
-        writer.endArray()
-    }
-
-    void writeRow(DataTableRow rowHeader) {
+    void writeColumnHeader(Dimension dimension, int i) {
         writer.beginObject()
+        writer.name('dimension').value(dimension.name)
+        if (dimension.elementsSerializable) {
+            writer.name('elements').beginArray()
+            for(def columnHeader : table.columnKeys) {
+                writeValue(columnHeader.elements[i])
+            }
+            writer.endArray()
+        } else {
+            writer.name('keys').beginArray()
+            for(def columnHeader : table.columnKeys) {
+                writeValue(dimension.getKey(columnHeader.elements[i]))
+            }
+            writer.endArray()
+        }
+        writer.endObject()
+    }
 
-        writer.name('dimensions').beginArray()
-        for(int i=0; i<table.rowDimensions.size(); i++) {
+    void writeColumnHeaders() {
+        writer.name('columnHeaders').beginArray()
+        for (int i=0; i<table.columnDimensions.size(); i++) {
+            def dimension = table.columnDimensions[i]
+            writeColumnHeader(dimension, i)
+        }
+
+        writer.endArray()
+    }
+
+    void writeRowHeaders(DataTableRow row) {
+        writer.name('rowHeaders')
+        writer.beginArray()
+        for (int i=0; i<table.rowDimensions.size(); i++) {
             def rowDim = table.rowDimensions[i]
-            def element = rowHeader.elements[i]
+            def element = row.elements[i]
             writer.beginObject()
             writer.name('dimension').value(rowDim.name)
-            if(rowDim.elementsSerializable) {
+            if (rowDim.elementsSerializable) {
                 writer.name('element')
                 writeValue(element)
             } else {
@@ -71,19 +65,25 @@ class DataTableSerializer {
             writer.endObject()
         }
         writer.endArray()
+    }
 
-        writer.name('row').beginArray()
-        def row = ((Table<DataTableRow, DataTableColumn, Collection<HypercubeValue>> /*work around compiler bug*/)
-                        table).row(rowHeader)
-        for(def column : table.columnKeys) {
-            def cells = row[column]
-            if(cells == null || cells.size() == 0) {
+    void writeRow(DataTableRow row) {
+        writer.beginObject()
+        writeRowHeaders(row)
+
+        writer.name('cells')
+        writer.beginArray()
+        def cells = ((Table<DataTableRow, DataTableColumn, Collection<HypercubeValue>> /*work around compiler bug*/)
+                        table).row(row)
+        for (def column : table.columnKeys) {
+            def values = cells[column]
+            if (values == null || values.size() == 0) {
                 writer.nullValue()
-            } else if(cells.size() == 1) {
-                writeValue(cells[0].value)
+            } else if(values.size() == 1) {
+                writeValue(values[0].value)
             } else {
                 writer.beginArray()
-                for(def hv : cells) {
+                for(def hv : values) {
                     writeValue(hv?.value)
                 }
                 writer.endArray()
@@ -94,35 +94,49 @@ class DataTableSerializer {
         writer.endObject()
     }
 
-    void writeDimensions(String type, List<Dimension> dimensions) {
-        writer.name("${type}_dimensions").beginArray()
-        for(def dim : dimensions) {
-            writer.beginObject()
-            writer.name('name').value(dim.name)
-            if(!dim.elementsSerializable) {
-                writer.name('elements').beginObject()
-                for(def element: table.hypercube.dimensionElements(dim)) {
-                    def key = dim.getKey(element)
-                    writer.name(key.toString())
-                    Map value = (Map) dim.asSerializable(element)
-                    value.label = key
-                    writeValue(value)
-                }
-                writer.endObject()
+    void writeRows() {
+        writer.name('rows')
+        writer.beginArray()
+        for  (DataTableRow row : table.rowKeys) {
+            writeRow(row)
+        }
+        writer.endArray()
+    }
+
+    void writeDimension(Dimension dimension) {
+        writer.beginObject()
+        writer.name('name').value(dimension.name)
+        if (!dimension.elementsSerializable) {
+            writer.name('elements').beginObject()
+            for (def element: table.hypercube.dimensionElements(dimension)) {
+                def key = dimension.getKey(element)
+                writer.name(key.toString())
+                Map value = (Map) dimension.asSerializable(element)
+                value.label = key
+                writeValue(value)
             }
             writer.endObject()
+        }
+        writer.endObject()
+    }
+
+    void writeDimensions(String type, List<Dimension> dimensions) {
+        writer.name("${type}Dimensions")
+        writer.beginArray()
+        for (def dimension : dimensions) {
+            writeDimension(dimension)
         }
         writer.endArray()
     }
 
     void writeSorting() {
         writer.name('sort').beginArray()
-        for(def entry : table.sort) {
+        for (def entry : table.sort) {
             writer.beginObject()
             writer.name('dimension').value(entry.key.name)
             writer.name('sortOrder').value(entry.value.string())
             if(entry.key in table.requestedSort) {
-                writer.name('user_requested').value(true)
+                writer.name('userRequested').value(true)
             }
             writer.endObject()
         }
@@ -131,8 +145,8 @@ class DataTableSerializer {
 
     void writeOtherKeys() {
         writer.name('offset').value(table.offset)
-        if(table.totalRowCount != null) {
-            writer.name('row count').value(table.totalRowCount)
+        if (table.totalRowCount != null) {
+            writer.name('rowCount').value(table.totalRowCount)
         }
     }
 
@@ -174,7 +188,7 @@ class DataTableSerializer {
             }
             writer.endObject()
         } else {
-            throw new IllegalArgumentException("Expected a String, Number, Date or Map, got a ${value.class}: $value")
+            throw new UnexpectedResultException("Unexpected value of type ${value.class.simpleName}: $value")
         }
     }
 }

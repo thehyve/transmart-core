@@ -24,7 +24,7 @@ interface Dimension {
         DENSE(true),
         SPARSE(false)
 
-        boolean isDense
+        public boolean isDense
 
         boolean isIsSparse() {
             !isDense
@@ -39,7 +39,7 @@ interface Dimension {
         PACKABLE(true),
         NOT_PACKABLE(false)
 
-        boolean packable
+        public boolean packable
 
         Packable(boolean packable) {
             this.packable = packable

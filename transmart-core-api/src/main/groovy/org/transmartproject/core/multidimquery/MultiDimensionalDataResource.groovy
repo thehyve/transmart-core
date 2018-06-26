@@ -6,6 +6,7 @@ import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortOrder
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.ontology.MDStudy
@@ -30,8 +31,11 @@ interface MultiDimensionalDataResource {
 
     /**
      * Translate a dimension name to the dimension object
+     *
+     * @return the dimension object, if it exists
+     * @throw NoSuchResourceException if the dimension cannot be found.
      */
-    Dimension getDimension(String name)
+    Dimension getDimension(String name) throws NoSuchResourceException
 
     /**
      * @description Function for getting a list of elements of a specified dimension

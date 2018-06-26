@@ -93,7 +93,7 @@ class DataTablePgSpec extends Specification {
 
         then: 'an exception is thrown'
         def e = thrown(InvalidArgumentsException)
-        e.message == 'Sorting over these dimensions is not supported: sample_type'
+        e.message == 'Only sortable dimensions can be selected as row dimension. sample_type is not sortable.'
     }
 
     def 'test data table with modifiers'() {

@@ -7,9 +7,7 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
@@ -20,7 +18,6 @@ import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
-import org.transmartproject.rest.serialization.DataTableSerializer
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
@@ -60,7 +57,7 @@ class ObservationsBuilderTests extends Specification {
         adminUser = accessLevelTestData.users[0]
     }
 
-    public void testJsonSerialization() {
+    void testJsonSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
@@ -92,7 +89,7 @@ class ObservationsBuilderTests extends Specification {
     }
 
     @Ignore("packing is not yet implemented in the serializer")
-    public void testPackedDimsSerialization() {
+    void testPackedDimsSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
@@ -158,7 +155,7 @@ class ObservationsBuilderTests extends Specification {
         that cells['dimensionIndexesList'].findAll(), everyItem(hasSize(notPackedDimensionsSize))
     }
 
-    public void testProtobufSerialization() {
+    void testProtobufSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
@@ -223,19 +220,19 @@ class ObservationsBuilderTests extends Specification {
         // TODO: verify patient element fields better
     }
 
-    public void testCSVSerialization() {
+    void testCSVSerialization() {
         setupData()
         def dataType = 'clinical'
         def fileExtension = '.tsv'
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def args = new DataRetrievalParameters(constraint: constraint)
-        def mockedCube = queryResource.retrieveData(args, dataType, adminUser)
+        def cube = queryResource.retrieveData(args, dataType, adminUser)
         def builder = new HypercubeCSVSerializer()
 
         when:
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
         ZipOutputStream out = new ZipOutputStream(byteArrayOutputStream)
-        builder.write([dataType : dataType], mockedCube, out)
+        builder.write([dataType : dataType], cube, out)
         out.close()
         out.flush()
         List expectedEntries = ["${dataType}_observations$fileExtension",
@@ -247,91 +244,6 @@ class ObservationsBuilderTests extends Specification {
         then:
         out.xentries != null
         out.names.sort() == expectedEntries.sort()
-    }
-
-    void testWideFormatCSVSerialization() {
-        setupData()
-        def dataType = 'clinical'
-        def fileExtension = '.tsv'
-        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def args = new DataRetrievalParameters(constraint: constraint)
-        def mockedCube = queryResource.retrieveData(args, dataType, adminUser)
-        def builder = new HypercubeCSVSerializer()
-
-        when:
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
-        ZipOutputStream out = new ZipOutputStream(byteArrayOutputStream)
-        builder.write([dataType : dataType], mockedCube, out)
-        out.close()
-        out.flush()
-        List expectedEntries = ["${dataType}_observations$fileExtension",
-                                "${dataType}_concept$fileExtension",
-                                "${dataType}_patient$fileExtension",
-                                "${dataType}_study$fileExtension",
-                                "${dataType}_trial_visit$fileExtension"]
-
-        then:
-        out.xentries != null
-        out.names.sort() == expectedEntries.sort()
-    }
-
-    void testDataTableSerialization() {
-        setupData()
-        def dataType = 'clinical'
-        def rowDimensions = ['patient', 'study']
-        def columnDimensions = ['concept', 'trial visit']
-        def limit = 10
-        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def tableConfig = new TableConfig(
-                rowSort: [new SortSpecification(dimension: 'patient')],
-                rowDimensions: rowDimensions,
-                columnDimensions: columnDimensions
-        )
-        def pagination = new PaginationParameters(limit: limit)
-        def mockedDataTable = queryResource.retrieveDataTablePage(tableConfig, pagination, dataType, constraint, adminUser)
-
-        when:
-        def out = new ByteArrayOutputStream()
-        DataTableSerializer.write(mockedDataTable, out)
-        out.flush()
-        def result = new JsonSlurper().parse(out.toByteArray())
-        def rows = result.rows
-        def offset = result.offset
-        def sorting = result.sort
-        def columnHeaders = result.column_headers
-        def columnDim = result.column_dimensions
-        def rowDim = result.row_dimensions
-
-        then:
-        rows.size() < clinicalData.longitudinalClinicalFacts.size()
-        rows.size() <= limit
-        offset == 0
-
-        sorting.size() == columnDimensions.size() + rowDimensions.size()
-        sorting[0] == [dimension: 'patient', sortOrder: 'asc', user_requested: true]
-        sorting[1] == [dimension: 'study', sortOrder: 'asc']
-        sorting[2] == [dimension: 'concept', sortOrder: 'asc']
-        sorting[3] == [dimension: 'trial visit', sortOrder: 'asc']
-
-        columnHeaders*.dimension == columnDimensions
-        columnHeaders[0].keys == ['c5', 'c5', 'c5', 'c6', 'c6', 'c6']
-        // [4, 5, 6, 4, 5, 6] or something similar, but the id values can change between runs
-        columnHeaders[1].keys == clinicalData.longitudinalClinicalFacts*.trialVisit*.id.unique().sort() * 2
-
-        columnDim*.name == columnDimensions
-        columnDim[0].elements.size() == (columnHeaders[0].keys as Set).size()
-        columnDim[1].elements.size() == (columnHeaders[1].keys as Set).size()
-
-        rowDim*.name == rowDimensions
-        rowDim[0].elements.size() == 3
-        rowDim[1].elements.size() == 1
-
-        that rows*.dimensions, everyItem(hasSize(2))
-        that rows*.dimensions*.dimension, everyItem(contains('patient', 'study'))
-        (rows*.dimensions.collect{it[1].key} as Set).size() == rowDim[1].elements.size()
-        that rows*.row, everyItem(hasSize(6))
-        (rows*.dimensions.collect{it[0].key} as Set).size() == rowDim[0].elements.size()
-
     }
 
 }

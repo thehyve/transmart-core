@@ -251,12 +251,20 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
-    Set<Dimension> getInaccessibleDimensions(Collection<Dimension> dimensions, User user) {
+    /**
+     * Checks if the user has access to the (study-linked) dimensions in the list.
+     * @param dimensions
+     * @param user
+     * @throws AccessDeniedException if there are any dimensions in the list that the user does not have access to.
+     */
+    void checkDimensionsAccess(Collection<Dimension> dimensions, User user) throws AccessDeniedException {
         def studies = getDimensionStudiesForUser(user)
-        def validDimensions = studies*.dimensions?.flatten() as Set
-        def result = new LinkedHashSet(dimensions)
-        result.removeAll validDimensions
-        result
+        def allowedDimensionNames = studies.collectMany { it.dimensions.collect { it.name }} as Set<String>
+        def dimensionNames = dimensions*.name as Set<String>
+        def deniedDimensions = dimensionNames - allowedDimensionNames
+        if (!deniedDimensions.empty) {
+            throw new AccessDeniedException("Access denied to dimensions: ${deniedDimensions.join(', ')}")
+        }
     }
 
     /**
