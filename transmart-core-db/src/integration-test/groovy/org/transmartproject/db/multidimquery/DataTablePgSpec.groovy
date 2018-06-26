@@ -5,8 +5,12 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.DataTableColumn
+import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PagingDataTable
+import org.transmartproject.core.multidimquery.StreamingDataTable
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.User
 import spock.lang.Ignore
@@ -73,6 +77,76 @@ class DataTablePgSpec extends Specification {
         page.rowKeys.size() == 10
         def patientDimension = page.rowDimensions.find { it.name == 'patient'}
         page.hypercube.dimensionElements(patientDimension).size() <= 10
+    }
+
+    def 'test data table does not allow modifier dimensions as row dimensions'() {
+        given: 'the admin user, study constraint for tumor/normal samples'
+        User user = User.findByUsername('admin')
+        StudyNameConstraint studyConstraint = new StudyNameConstraint('TUMOR_NORMAL_SAMPLES')
+        def tableConfig = new TableConfig(
+                rowDimensions: ['patient', 'sample_type'],
+                columnDimensions: ['study', 'concept']
+        )
+
+        when: 'fetching data table with patient and sample_type as row dimensions'
+        multiDimService.retrieveStreamingDataTable(tableConfig, 'clinical', studyConstraint, user)
+
+        then: 'an exception is thrown'
+        def e = thrown(InvalidArgumentsException)
+        e.message == 'Sorting over these dimensions is not supported: sample_type'
+    }
+
+    def 'test data table with modifiers'() {
+        given: 'the admin user, study constraint for tumor/normal samples'
+        User user = User.findByUsername('admin')
+        StudyNameConstraint studyConstraint = new StudyNameConstraint('TUMOR_NORMAL_SAMPLES')
+        def tableConfig = new TableConfig(
+                rowDimensions: ['patient'],
+                columnDimensions: ['concept', 'sample_type']
+        )
+
+        when: 'fetching data table with patient, concept and sample_type dimensions'
+        StreamingDataTable stream = multiDimService.retrieveStreamingDataTable(
+                tableConfig, 'clinical', studyConstraint, user)
+        List<FullDataTableRow> rows = []
+        for (FullDataTableRow row: stream) {
+            rows.add(row)
+        }
+
+        then: 'the result should contain patients as rows and concepts as columns'
+        stream.rowDimensions.collect { it.name } == ['patient']
+        stream.columnDimensions.collect { it.name } == ['concept', 'sample_type']
+
+        and: 'the result should contain a row for each patient'
+        rows.size() == 3
+        def patientDimension = stream.rowDimensions.find { it.name == 'patient'}
+        def patients = stream.hypercube.dimensionElements(patientDimension) as
+                List<org.transmartproject.db.i2b2data.PatientDimension>
+        patients.size() == 3
+        patients.collect { patient -> patient.subjectIds['SUBJ_ID'] } == ['TNS:63', 'TNS:53', 'TNS:43']
+        rows.collect { row -> row.rowHeader.elements.subjectIds['SUBJ_ID'] } == [['TNS:63'], ['TNS:53'], ['TNS:43']]
+
+        and: 'the result should contain a column for each concept, sample_type combination'
+        stream.columnKeys.collect { columnKey ->
+            [concept: columnKey.elements[0].conceptCode, sampleType: columnKey.elements[1]]
+        } as Set ==
+                [[concept: 'TNS:DEM:AGE', sampleType: null],
+                 [concept: 'TNS:LAB:CELLCNT', sampleType: 'Normal'],
+                 [concept: 'TNS:LAB:CELLCNT', sampleType: 'Tumor'],
+                 [concept: 'TNS:HD:EXPBREAST', sampleType: 'Normal'],
+                 [concept: 'TNS:HD:EXPBREAST', sampleType: 'Tumor'],
+                 [concept: 'TNS:HD:EXPLUNG', sampleType: 'Normal'],
+                 [concept: 'TNS:HD:EXPLUNG', sampleType: 'Tumor']
+                ] as Set
+
+        and: 'the result should contain have a value for a patient, for a combination of concept and sample_type'
+        DataTableColumn lungNormalColumn = stream.columnKeys.find { it.elements[0].conceptCode == 'TNS:HD:EXPLUNG' && it.elements[1] == 'Normal' }
+        def lungNormalValue = rows[0].multimap.get(lungNormalColumn)
+        lungNormalValue[0].availableDimensions.collect { it.name } as Set == ['patient', 'concept', 'sample_type'] as Set
+        def sampleTypeDimension = lungNormalValue[0].availableDimensions.find { it.name == 'sample_type' }
+        sampleTypeDimension != null
+        lungNormalValue.size() == 1
+        lungNormalValue[0].value == 'sample1'
     }
 
 }
