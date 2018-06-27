@@ -1,11 +1,19 @@
 ---
-# max number of query sets returned in a subscription email
-org.transmart.notifications.maxNumberOfSets: 20
+
+org.transmart.notifications:
+    # enable daily and weekly notification jobs
+    enabled: true
+    # max number of query sets returned in a subscription email
+    maxNumberOfSets: 20
+    # daily cron job trigger time in format: hh-mm
+    # hh: Hour, range: 0-23;
+    # mm: Minute, range: 0-59;
+    dailyJobTriggerTime: 0-0
 
 # Quartz plugin configuration - job for query subscription
-# To disable the email sending job, change this to false
+# Controls automatic startup of the Quartz scheduler during application bootstrap
 quartz:
-    jobEnabled: false
+    autoStartup: true
 
 grails:
     profile: plugin
@@ -15,18 +23,11 @@ grails:
         transactionManagement:
             proxies: false
     mail:
-        host: localhost:25
+        host: localhost
         'default':
-            from: <default_email>
-        port: 465
-        username: <username>
-        password: <password>
-        props:
-           "mail.smtp.auth": true
-           "mail.smtp.ssl.enable": true
-           "mail.smtp.socketFactory.port": 465
-           "mail.smtp.socketFactory.class": javax.net.ssl.SSLSocketFactory
-           "mail.smtp.socketFactory.fallback": false
+            from: noreply@thehyve.nl
+        port: 25
+
 info:
     app:
         name: '@info.app.name@'
