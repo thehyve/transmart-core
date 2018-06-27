@@ -143,6 +143,14 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         DimensionDescription.allDimensions
     }
 
+    @Memoized
+    Set<String> getSortableDimensionNames() {
+        allDimensions.stream()
+            .filter({ Dimension dimension -> dimension instanceof AliasAwareDimension })
+            .map({ Dimension dimension -> dimension.name })
+            .collect(Collectors.toSet())
+    }
+
     Set<MDStudy> getConstraintStudies(Constraint constraint) {
         // Add any studies that are being selected on
         def studyIds = findStudyNameConstraints(constraint)*.studyId
@@ -205,12 +213,14 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
         boolean hasModifiers = dimensions.any { it instanceof ModifierDimension }
         if (hasModifiers) {
-            def nonModifierSortableDimensions = orderByDimensions.keySet().collectMany {
-                (it in primaryKeyDimensions) ? [] : [it.name] }
+            def nonModifierSortableDimensions = orderByDimensions.keySet().stream()
+                    .filter({dimension -> !(dimension.name in sortableDimensionNames) })
+                    .map({dimension -> dimension.name})
+                    .collect(Collectors.joining(', '))
             if (nonModifierSortableDimensions) {
-                def modifier = dimensions.findAll {it instanceof ModifierDimension }.collect { it.name }.join(", ")
+                def modifierDimensions = dimensions.findAll { it instanceof ModifierDimension }.collect { it.name }.join(", ")
                 throw new UnsupportedByDataTypeException("Sorting over these dimensions is not supported when querying" +
-                        " $modifier dimensions:" + nonModifierSortableDimensions.join(", "))
+                        " the $modifierDimensions dimensions: ${nonModifierSortableDimensions}")
             }
 
             // Make sure all primary key dimension columns are selected, even if they are not part of the result
@@ -409,9 +419,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
         def userSort = rowSort + columnSort
 
-        def sortableDimensions = allDimensions.findAll { it instanceof AliasAwareDimension }.name
         for (def dim : rowDimensions) {
-            if (!sortableDimensions.contains(dim)) {
+            if (!sortableDimensionNames.contains(dim)) {
                 throw new InvalidArgumentsException("Only sortable dimensions can be selected as row dimension. ${dim} is not sortable.")
             }
             if (!rowSortDimensions.contains(dim)) {
@@ -419,7 +428,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             }
         }
         for (def dim : columnDimensions) {
-            if (!columnSortDimensions.contains(dim) && sortableDimensions.contains(dim)) {
+            if (!columnSortDimensions.contains(dim) && sortableDimensionNames.contains(dim)) {
                 columnSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
             }
         }

@@ -149,4 +149,59 @@ class DataTablePgSpec extends Specification {
         lungNormalValue[0].value == 'sample1'
     }
 
+    def 'test data table with modifiers and study dimension'() {
+        given: 'the admin user, study constraint for tumor/normal samples'
+        User user = User.findByUsername('admin')
+        StudyNameConstraint studyConstraint = new StudyNameConstraint('TUMOR_NORMAL_SAMPLES')
+        def tableConfig = new TableConfig(
+                rowDimensions: ['patient'],
+                columnDimensions: ['study', 'concept', 'sample_type']
+        )
+
+        when: 'fetching data table with patient, concept and sample_type dimensions'
+        StreamingDataTable stream = multiDimService.retrieveStreamingDataTable(
+                tableConfig, 'clinical', studyConstraint, user)
+        List<FullDataTableRow> rows = []
+        for (FullDataTableRow row: stream) {
+            rows.add(row)
+        }
+
+        then: 'the result should contain patients as rows and concepts as columns'
+        stream.rowDimensions.collect { it.name } == ['patient']
+        stream.columnDimensions.collect { it.name } == ['study', 'concept', 'sample_type']
+
+        and: 'the result should contain a row for each patient'
+        rows.size() == 3
+        def patientDimension = stream.rowDimensions.find { it.name == 'patient'}
+        def patients = stream.hypercube.dimensionElements(patientDimension) as
+                List<org.transmartproject.db.i2b2data.PatientDimension>
+        patients.size() == 3
+        patients.collect { patient -> patient.subjectIds['SUBJ_ID'] } == ['TNS:63', 'TNS:53', 'TNS:43']
+        rows.collect { row -> row.rowHeader.elements.subjectIds['SUBJ_ID'] } == [['TNS:63'], ['TNS:53'], ['TNS:43']]
+
+        and: 'the result should contain a column for each concept, sample_type combination'
+        stream.columnKeys.collect { columnKey ->
+            [study: columnKey.elements[0].studyId,
+             concept: columnKey.elements[1].conceptCode,
+             sampleType: columnKey.elements[2]]
+        } as Set ==
+                [[study: 'TUMOR_NORMAL_SAMPLES', concept: 'TNS:DEM:AGE', sampleType: null],
+                 [study: 'TUMOR_NORMAL_SAMPLES', concept: 'TNS:LAB:CELLCNT', sampleType: 'Normal'],
+                 [study: 'TUMOR_NORMAL_SAMPLES', concept: 'TNS:LAB:CELLCNT', sampleType: 'Tumor'],
+                 [study: 'TUMOR_NORMAL_SAMPLES', concept: 'TNS:HD:EXPBREAST', sampleType: 'Normal'],
+                 [study: 'TUMOR_NORMAL_SAMPLES', concept: 'TNS:HD:EXPBREAST', sampleType: 'Tumor'],
+                 [study: 'TUMOR_NORMAL_SAMPLES', concept: 'TNS:HD:EXPLUNG', sampleType: 'Normal'],
+                 [study: 'TUMOR_NORMAL_SAMPLES', concept: 'TNS:HD:EXPLUNG', sampleType: 'Tumor']
+                ] as Set
+
+        and: 'the result should contain have a value for a patient, for a combination of concept and sample_type'
+        DataTableColumn lungNormalColumn = stream.columnKeys.find { it.elements[1].conceptCode == 'TNS:HD:EXPLUNG' && it.elements[2] == 'Normal' }
+        def lungNormalValue = rows[0].multimap.get(lungNormalColumn)
+        lungNormalValue[0].availableDimensions.collect { it.name } as Set == ['patient', 'study', 'concept', 'sample_type'] as Set
+        def sampleTypeDimension = lungNormalValue[0].availableDimensions.find { it.name == 'sample_type' }
+        sampleTypeDimension != null
+        lungNormalValue.size() == 1
+        lungNormalValue[0].value == 'sample1'
+    }
+
 }
