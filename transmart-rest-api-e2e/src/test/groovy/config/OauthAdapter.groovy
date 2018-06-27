@@ -1,6 +1,7 @@
 package config
 
 import base.AuthAdapter
+import base.AuthMethod
 import groovyx.net.http.HttpConfig
 
 import static groovyx.net.http.HttpBuilder.configure
@@ -23,7 +24,11 @@ class OauthAdapter implements AuthAdapter {
     static String getToken(String userID) {
         def user = getUser(userID)
         if (!user.token) {
-            user.token = Config.IS_USING_KEYCLOAK ? requestTokenFromKeycloak(user) : requestToken(user)
+            if (Config.authMethod == AuthMethod.OIDC) {
+                user.token = requestTokenFromKeycloak(user)
+            } else if (Config.authMethod == AuthMethod.OAuth2) {
+                user.token = requestToken(user)
+            }
         }
         user.token
     }
