@@ -47,7 +47,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
             notFound()
             return
         }
-        if (!authorisationChecks.hasAccess(authContext.user, fileCollection.study)) {
+        if (!authorisationChecks.hasAnyAccess(authContext.user, fileCollection.study)) {
             throw new AccessDeniedException()
         }
         respond fileCollection
@@ -92,7 +92,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     @Transactional(readOnly = true)
     def indexStudy(String studyId) {
         def study = Study.findByStudyId(studyId)
-        if (!authorisationChecks.hasAccess(authContext.user, study)) {
+        if (!authorisationChecks.hasAnyAccess(authContext.user, study)) {
             throw new AccessDeniedException()
         }
         def filesInStudy = LinkedFileCollection.findAllByStudy(study)

@@ -10,16 +10,24 @@ interface AuthorisationChecks {
     /**
      * Check whether user has to the study patient data of the given level.
      * @param user - user we check read permission for
-     * @param patientDataAccessLevel - minimal access level user has to have
+     * @param requiredAccessLevel - minimal access level user has to have
      * @param study - study we check user permission for
      * @return true if user has access to the data
      */
-    boolean canReadPatientData(User user, PatientDataAccessLevel patientDataAccessLevel, MDStudy study)
+    boolean canReadPatientData(User user, PatientDataAccessLevel requiredAccessLevel, MDStudy study)
 
     /**
      * Check whether user has any access to the study
      * @return true if user has access to the study
      */
-    boolean hasAccess(User user, MDStudy study)
+    boolean hasAnyAccess(User user, MDStudy study)
+
+    /**
+     * Fetches all studies  that the user has at least the specified minimal level of access to.
+     * @param user
+     * @param requiredAccessLevel the minimal required level of access
+     * @return the collection of studies.
+     */
+    Collection<MDStudy> getStudiesForUser(User user, PatientDataAccessLevel requiredAccessLevel)
 
 }

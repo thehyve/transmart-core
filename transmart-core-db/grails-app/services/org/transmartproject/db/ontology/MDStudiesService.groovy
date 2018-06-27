@@ -2,6 +2,8 @@ package org.transmartproject.db.ontology
 
 import grails.plugin.cache.CacheEvict
 import grails.transaction.Transactional
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -9,26 +11,28 @@ import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 
 @Transactional
+@CompileStatic
 class MDStudiesService implements MDStudiesResource, ApplicationRunner {
 
     @Autowired
-    AccessControlChecks accessControlChecks
+    AuthorisationChecks authorisationChecks
 
-    static private isLegacyStudy(Study study) {
-        if (study == null) {
+    static private boolean isLegacyStudy(MDStudy study) {
+        if (study == null || !(study instanceof Study)) {
             false
         } else {
-            return study.dimensionDescriptions.any { it.name == DimensionDescription.LEGACY_MARKER }
+            ((Study)study).dimensionDescriptions.any { it.name == DimensionDescription.LEGACY_MARKER }
         }
     }
 
@@ -79,10 +83,11 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     }
 
     @Override
-    List<MDStudy> getStudies(User currentUser) {
-        accessControlChecks.getDimensionStudiesForUser(currentUser).findAll { !isLegacyStudy(it) }
+    List<MDStudy> getStudies(User currentUser, PatientDataAccessLevel requiredAccessLevel) {
+        authorisationChecks.getStudiesForUser(currentUser, requiredAccessLevel).findAll { !isLegacyStudy(it) }.asList()
     }
 
+    @CompileDynamic
     @Override
     MDStudy getStudyForUser(Long id, User currentUser) throws NoSuchResourceException {
         def study = Study.findById(id)
@@ -90,6 +95,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         study
     }
 
+    @CompileDynamic
     @Override
     MDStudy getStudyByStudyIdForUser(String studyId, User currentUser) throws NoSuchResourceException {
         def study = Study.findByStudyId(studyId)
@@ -97,6 +103,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         study
     }
 
+    @CompileDynamic
     @Override
     List<MDStudy> getStudiesByStudyIdsForUser(List<String> studyIds, User currentUser) throws NoSuchResourceException {
         def studies = Study.findAllByStudyIdInList(studyIds)
@@ -119,19 +126,20 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         if (isLegacyStudy(study)) {
             study = null
         }
-        if (study == null || !accessControlChecks.hasAccess(user, study)) {
+        if (study == null || !authorisationChecks.hasAnyAccess(user, study)) {
             throw new NoSuchResourceException("Access denied to study or study does not exist: ${id}")
         }
         fixLoad(study)
     }
 
-    private Study fixLoad(Study study) {
+    private static Study fixLoad(Study study) {
         // Ensure study dimensions are loaded in the same hibernate session as the study object itself. This is
         // needed for parallel query processing where each parallel thread has its own hibernate session.
         study.dimensions.size()
         study
     }
 
+    @CompileDynamic
     MDStudy getStudyByStudyId(String studyId) {
         MDStudy study = studyIdToStudy[studyId]
         if (!study) {
@@ -145,6 +153,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         study
     }
 
+    @CompileDynamic
     MDStudy getStudyById(Long id) {
         MDStudy study = idToStudy[id]
         if (!study) {
@@ -158,19 +167,7 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
         study
     }
 
-    MDStudy getStudyByTrialVisitId(Long trialVisitId) {
-        MDStudy study = trialVisitIdToStudy[trialVisitId]
-        if (!study) {
-            study = TrialVisit.findById(trialVisitId)?.study
-            if (!study) {
-                throw new NoSuchResourceException("Study could not be found for trial visit ${trialVisitId}.")
-            }
-            fixLoad(study)
-            trialVisitIdToStudy[trialVisitId] = study
-        }
-        study
-    }
-
+    @CompileDynamic
     @Override
     @Cacheable('org.transmartproject.db.ontology.MDStudiesService')
     String getStudyIdById(Long id) throws NoSuchResourceException {

@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.ontology.*
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -48,6 +47,8 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.util.StringUtils
+
+import java.util.stream.Collectors
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
@@ -73,6 +74,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
     @Autowired
     SessionFactory sessionFactory
 
+
     /**
      * Checks if a {@link org.transmartproject.db.i2b2data.Study} (in the i2b2demodata schema)
      * exists to which the user has access.
@@ -92,7 +94,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
     }
 
     @Override
-    boolean hasAccess(User user, MDStudy study) {
+    boolean hasAnyAccess(User user, MDStudy study) {
         canReadPatientData(user, PatientDataAccessLevel.minimalAccessLevel, study)
     }
 
@@ -207,7 +209,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
 
     /* Study is included if the user has ANY kind of access */
 
-    Set<Study> getAccessibleStudiesForUser(User user) {
+    Set<Study> getLegacyStudiesForUser(User user) {
         /* this method could benefit from caching */
         def studySet = studiesResource.studySet
         studySet.findAll {
@@ -222,99 +224,53 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         }
     }
 
-    boolean hasUnlimitedStudiesAccess(User user) {
-        user.admin
-    }
-
-    /* Study is included if the user has ANY kind of access */
-
     @Transactional(readOnly = true)
-    Collection<MDStudy> getDimensionStudiesForUser(User user) {
-        if (hasUnlimitedStudiesAccess(user)) {
+    Collection<MDStudy> getStudiesForUser(User user, PatientDataAccessLevel level) {
+        if (user.admin) {
             return org.transmartproject.db.i2b2data.Study.findAll() as List<MDStudy>
         }
-        def accessibleStudyTokens = getAccessibleStudyTokensForUser(user)
+
+        def accessibleStudyTokens = getAccessibleStudyTokensForUser(user, level)
         def criteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.Study)
-            .add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
-        criteria.getExecutableCriteria(sessionFactory.currentSession).list()
+        criteria.add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
+        criteria.getExecutableCriteria(sessionFactory.currentSession).list() as List<MDStudy>
     }
 
     /**
-     * Gets all tokens to the studies user have access to including PUBLIC tokens.
+     * Retrieves study ids for the studies to which the user has at least the required access level.
      * @param user
+     * @param requiredAccessLevel
+     * @return the set of study ids.
      */
-    private static Set<String> getAccessibleStudyTokensForUser(User user) {
-        user.studyToPatientDataAccessLevel.keySet() + PUBLIC_TOKENS
+    private static Set<String> getAccessibleStudyTokensForUser(User user, PatientDataAccessLevel requiredAccessLevel) {
+        user.studyToPatientDataAccessLevel.entrySet().stream()
+                .filter({ Map.Entry<String, PatientDataAccessLevel> entry ->
+                    entry.value >= requiredAccessLevel
+                })
+                .map({ Map.Entry<String, PatientDataAccessLevel> entry -> entry.key })
+                .collect(Collectors.toSet()) + PUBLIC_TOKENS
     }
 
-    private boolean exists(org.hibernate.criterion.DetachedCriteria criteria) {
+    private boolean exists(DetachedCriteria criteria) {
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
-    /**
-     * Checks if the user has access to the (study-linked) dimensions in the list.
-     * @param dimensions
-     * @param user
-     * @throws AccessDeniedException if there are any dimensions in the list that the user does not have access to.
-     */
-    void checkDimensionsAccess(Collection<Dimension> dimensions, User user) throws AccessDeniedException {
-        def studies = getDimensionStudiesForUser(user)
-        def allowedDimensionNames = studies.collectMany { it.dimensions.collect { it.name }} as Set<String>
-        def dimensionNames = dimensions*.name as Set<String>
-        def deniedDimensions = dimensionNames - allowedDimensionNames
-        if (!deniedDimensions.empty) {
-            throw new AccessDeniedException("Access denied to dimensions: ${deniedDimensions.join(', ')}")
-        }
-    }
-
-    /**
-     * Checks if a concept exists with the provided concept path or concept code
-     * that is being referred to from a node {@link I2b2Secure} table that the user
-     * has access to.
-     * Only one of conceptPath or conceptCode should be provided.
-     *
-     * Example:
-     * <code>checkConceptAccess(conceptPath: '\foo\bar\', user)</code>
-     *
-     * TODO:
-     * This query does not cover many cases, e.g., where {@link I2b2Secure} points
-     * to concepts using concept_cd, uses other operators than 'like' or uses prefixes
-     * instead of exact matches.
-     *
-     * @param args the map that should contain either a conceptCode or a conceptPath entry.
-     * @param user the user to check access for.
-     * @return true iff an entry in {@link I2b2Secure} exists that the user has access to
-     * and that refers to a concept in the concept dimension with the provided conceptPath
-     * or conceptCode.
-     * @throws AccessDeniedException iff none or both of conceptCode and conceptPath are provided.
-     */
-    boolean checkConceptAccess(Map args, User user) {
-        String conceptPath = args.conceptPath as String
-        String conceptCode = conceptPath ? null : args.conceptCode as String
-        if (conceptPath == null || conceptPath.empty) {
-            if (conceptCode == null || conceptCode.empty) {
-                throw new AccessDeniedException("Either concept path or concept code is required.")
-            }
-        } else if (conceptCode != null && !conceptCode.empty) {
-            throw new AccessDeniedException("Got both concept path and concept code. Only one is allowed.")
+    boolean canAccessConceptByCode(User user, PatientDataAccessLevel requiredAccessLevel, String conceptCode) {
+        if (conceptCode == null || conceptCode.empty) {
+            throw new AccessDeniedException('No concept code provided.')
         }
 
         if (user.admin) {
             return true
         }
 
-        Set<String> tokens = getAccessibleStudyTokensForUser(user)
+        Set<String> tokens = getAccessibleStudyTokensForUser(user, requiredAccessLevel)
 
-        org.hibernate.criterion.DetachedCriteria conceptCriteria =
-                org.hibernate.criterion.DetachedCriteria.forClass(ConceptDimension)
-        if (conceptPath) {
-            conceptCriteria = conceptCriteria.add(StringUtils.like('conceptPath', conceptPath, MatchMode.EXACT))
-        } else {
-            conceptCriteria = conceptCriteria.add(StringUtils.like('conceptCode', conceptCode, MatchMode.EXACT))
-        }
+        def conceptCriteria = DetachedCriteria.forClass(ConceptDimension)
+        conceptCriteria = conceptCriteria.add(StringUtils.like('conceptCode', conceptCode, MatchMode.EXACT))
         conceptCriteria = conceptCriteria.setProjection(Projections.property('conceptPath'))
 
-        org.hibernate.criterion.DetachedCriteria criteria = org.hibernate.criterion.DetachedCriteria.forClass(I2b2Secure)
+        def criteria = DetachedCriteria.forClass(I2b2Secure)
                 .add(Restrictions.in('secureObjectToken', tokens))
                 .add(Restrictions.ilike('dimensionTableName', 'concept_dimension'))
                 .add(Restrictions.ilike('columnName', 'concept_path'))
@@ -322,6 +278,31 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
                 .add(Subqueries.propertyIn('dimensionCode', conceptCriteria))
         exists(criteria)
     }
+
+    boolean canAccessConceptByPath(User user, PatientDataAccessLevel requiredAccessLevel, String conceptPath) {
+        if (conceptPath == null || conceptPath.empty) {
+            throw new AccessDeniedException('No concept path provided.')
+        }
+
+        if (user.admin) {
+            return true
+        }
+
+        Set<String> tokens = getAccessibleStudyTokensForUser(user, requiredAccessLevel)
+
+        def conceptCriteria = DetachedCriteria.forClass(ConceptDimension)
+        conceptCriteria = conceptCriteria.add(StringUtils.like('conceptPath', conceptPath, MatchMode.EXACT))
+        conceptCriteria = conceptCriteria.setProjection(Projections.property('conceptPath'))
+
+        def criteria = DetachedCriteria.forClass(I2b2Secure)
+                .add(Restrictions.in('secureObjectToken', tokens))
+                .add(Restrictions.ilike('dimensionTableName', 'concept_dimension'))
+                .add(Restrictions.ilike('columnName', 'concept_path'))
+                .add(Restrictions.ilike('operator', 'like'))
+                .add(Subqueries.propertyIn('dimensionCode', conceptCriteria))
+        exists(criteria)
+    }
+
 
     private
     static boolean hasAtLeastAccessLevelForTheSecureNode(User user, PatientDataAccessLevel minAccessLevel, OntologyTerm term) {

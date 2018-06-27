@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.StudyWrapper
 
@@ -30,7 +31,7 @@ class StudyQueryController extends AbstractQueryController {
      */
     def listStudies(@RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
-        def studies = studiesResource.getStudies(authContext.user)
+        def studies = studiesResource.getStudies(authContext.user, PatientDataAccessLevel.minimalAccessLevel)
         respond wrapStudies(apiVersion, studies)
     }
 

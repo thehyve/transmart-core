@@ -34,15 +34,49 @@ interface LegacyAuthorisationChecks {
     /**
      * Check whether user has to the study patient data of the given level.
      * @param user - user we check read permission for
-     * @param patientDataAccessLevel - minimal access level user has to have
+     * @param requiredAccessLevel - minimal access level user has to have
      * @param study - study we check user permission for
      * @return true if user has access to the data
      */
-    boolean canReadPatientData(User user, PatientDataAccessLevel patientDataAccessLevel, Study study)
+    boolean canReadPatientData(User user, PatientDataAccessLevel requiredAccessLevel, Study study)
 
     /**
      * Check whether user has any access to the study
      * @return true if user has access to the study
      */
     boolean hasAccess(User user, Study study)
+
+    /**
+     *
+     * @param user
+     * @return
+     */
+    Set<Study> getLegacyStudiesForUser(User user)
+
+    /**
+     * Checks if a concept exists with the provided concept code
+     * that is being referred to from a tree node that the user has access to.
+     *
+     * @param user the user to check access for.
+     * @param requiredAccessLevel the required level of access for the tree node.
+     * @param conceptCode the concept code.
+     * @return true iff a tree node exists that the user has access to
+     * and that refers to a concept in the concept dimension with the provided concept code.
+     * @throws org.transmartproject.core.exceptions.AccessDeniedException iff no concept code is provided.
+     */
+    boolean canAccessConceptByCode(User user, PatientDataAccessLevel requiredAccessLevel, String conceptCode)
+
+    /**
+     * Checks if a concept exists with the provided concept path
+     * that is being referred to from a tree node that the user has access to.
+     *
+     * @param user the user to check access for.
+     * @param requiredAccessLevel the required level of access for the tree node.
+     * @param conceptCode the concept path.
+     * @return true iff a tree node exists that the user has access to
+     * and that refers to a concept in the concept dimension with the provided concept path.
+     * @throws org.transmartproject.core.exceptions.AccessDeniedException iff no concept path is provided.
+     */
+    boolean canAccessConceptByPath(User user, PatientDataAccessLevel requiredAccessLevel, String conceptPath)
+
 }

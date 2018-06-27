@@ -13,11 +13,13 @@ import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 
 import java.sql.Connection
 import java.util.stream.Collectors
 
+@CompileStatic
 class AggregateDataOptimisationsService {
 
     @Autowired
@@ -57,12 +59,11 @@ class AggregateDataOptimisationsService {
      * @param user
      * @return
      */
-    @CompileStatic
     Map<String, Map<String, Counts>> countsPerStudyAndConceptForPatientSet(PatientSetConstraint constraint, User user) {
         def resultInstanceId = constraint.patientSetId
         log.info "Counts per study and concept for patient set ${resultInstanceId} using bitsets ..."
 
-        Set<String> studyIds = studiesResource.getStudies(user).stream()
+        Set<String> studyIds = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY).stream()
                 .map({ MDStudy study -> study.name })
                 .collect(Collectors.toSet())
 

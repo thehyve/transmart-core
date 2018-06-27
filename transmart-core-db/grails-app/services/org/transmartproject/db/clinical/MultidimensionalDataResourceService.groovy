@@ -45,6 +45,7 @@ import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
@@ -112,7 +113,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
 
         Query query = buildCriteria(dimensions, orderByDimensions)
-        HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user)
+        HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
         restrictionsBuilder.applyToCriteria(query.criteriaImpl, [constraint])
@@ -283,8 +284,10 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     @Override
     IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
-        if(constraint) checkAccess(constraint, user)
-        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user)
+        if (constraint) {
+            checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
+        }
+        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
         DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
 
         return getIterable(dimensionCriteria)
@@ -338,7 +341,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             User user,
             String type) {
         projectionName = projectionName ?: Projection.ALL_DATA_PROJECTION
-        checkAccess(assayConstraint, user)
+        checkAccess(assayConstraint, user, PatientDataAccessLevel.MEASUREMENTS)
 
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
         if(!oldAssayConstraints) {
@@ -449,7 +452,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Override
     List retrieveHighDimDataTypes(Constraint assayConstraint, User user) {
         assert assayConstraint instanceof Constraint
-        checkAccess(assayConstraint, user)
+        checkAccess(assayConstraint, user, PatientDataAccessLevel.MEASUREMENTS)
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
         if(!oldAssayConstraints) {
             return []
@@ -471,7 +474,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     private List<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
-        Collection<MDStudy> userStudies = accessControlChecks.getDimensionStudiesForUser(user)
+        def userStudies = authorisationChecks.getStudiesForUser(user, PatientDataAccessLevel.MEASUREMENTS) as Collection<MDStudy>
         List<MDStudy> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
         if (!assaySupportStudies) {
             log.debug("No studies with assay dimension for user ${user.username} were found.")
@@ -505,7 +508,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     @Override
     Hypercube retrieveClinicalData(DataRetrievalParameters args, User user) {
-        checkAccess(args.constraint, user)
+        checkAccess(args.constraint, user, PatientDataAccessLevel.MEASUREMENTS)
         def dataType = 'clinical'
         retrieveData(args, dataType, user)
     }

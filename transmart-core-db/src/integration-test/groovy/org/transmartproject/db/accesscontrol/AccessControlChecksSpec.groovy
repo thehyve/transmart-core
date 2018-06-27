@@ -22,7 +22,7 @@ class AccessControlChecksSpec extends Specification {
 
     def 'check access to a study'() {
         expect:
-        canPerformReadOnTheStudy == authorisationChecks.hasAccess(
+        canPerformReadOnTheStudy == authorisationChecks.hasAnyAccess(
                 User.findByUsername(user),
                 Study.findByStudyId(studyId)
         )

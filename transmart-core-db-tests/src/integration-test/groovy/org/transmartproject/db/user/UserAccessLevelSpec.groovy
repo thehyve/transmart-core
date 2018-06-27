@@ -30,6 +30,7 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.I2b2Secure
@@ -206,7 +207,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         setupData()
         def adminUser = accessLevelTestData.users[0]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(adminUser)
+        def studies = accessControlChecks.getLegacyStudiesForUser(adminUser)
         expect:
         studies hasItems(
                 hasProperty('id', equalTo(STUDY1)),
@@ -218,7 +219,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         setupData()
         def fourthUser = accessLevelTestData.users[3]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = accessControlChecks.getLegacyStudiesForUser(fourthUser)
         expect:
         studies hasItem(hasProperty('id', equalTo(STUDY3)))
     }
@@ -227,7 +228,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         setupData()
         def fourthUser = accessLevelTestData.users[3]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = accessControlChecks.getLegacyStudiesForUser(fourthUser)
         expect:
         studies hasItem(hasProperty('id', equalTo(STUDY1)))
     }
@@ -237,7 +238,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = accessControlChecks.getLegacyStudiesForUser(fourthUser)
         expect:
         studies not(hasItem(
                 hasProperty('id', equalTo(STUDY2))))
@@ -251,7 +252,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName).
                 delete(flush: true)
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = accessControlChecks.getLegacyStudiesForUser(fourthUser)
         expect:
         studies hasItem(
                 hasProperty('id', equalTo(STUDY2)))
@@ -266,7 +267,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         i2b2Secure.secureObjectToken = null
 
         when:
-        accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        accessControlChecks.getLegacyStudiesForUser(fourthUser)
         then:
         thrown(UnexpectedResultException)
     }
@@ -425,7 +426,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def thirdUser = accessLevelTestData.users[3]
 
         when:
-        def studies = accessControlChecks.getDimensionStudiesForUser(thirdUser).toSorted { it.studyId }
+        def studies = accessControlChecks.getStudiesForUser(thirdUser, minimalAccessLevel).toSorted { it.studyId }
 
         then:
         studies.size() == 2
@@ -439,7 +440,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def adminUser = accessLevelTestData.users[0]
 
         when:
-        def studies = accessControlChecks.getDimensionStudiesForUser(adminUser)
+        def studies = accessControlChecks.getStudiesForUser(adminUser, minimalAccessLevel)
         then:
         studies.size() == 3
     }

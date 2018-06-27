@@ -9,6 +9,7 @@ import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.CrossTableImpl
 
@@ -44,7 +45,7 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
         def constraints = [rowConstraint, columnConstraint, subjectConstraint] as List<Constraint>
         for(Constraint constraint in constraints) {
             try {
-                checkAccess(constraint, user)
+                checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
             } catch(AccessDeniedException e) {
                 log.warn e.message
                 return 0

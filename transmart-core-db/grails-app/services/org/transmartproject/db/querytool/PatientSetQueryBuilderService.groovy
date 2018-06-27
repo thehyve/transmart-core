@@ -335,7 +335,7 @@ class PatientSetQueryBuilderService {
     }
 
     private String postProcessAcrossTrialQuery(String sql, User userInContext) {
-        def accessibleStudies = accessControlChecks.getAccessibleStudiesForUser(userInContext)
+        def accessibleStudies = accessControlChecks.getLegacyStudiesForUser(userInContext)
         if (!accessibleStudies) {
             return "$sql AND FALSE"
         }
