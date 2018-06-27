@@ -598,7 +598,8 @@
     },
     "/v2/studies/studyIds": {
       "get": {
-        "description": "Gets the studies with study ids `studyIds`.\n",
+        "description": "Gets the studies with study ids `studyIds`. Deprecated: use `/v2/studies` and `/v2/studies/studyId/{studyId}` instead.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -2254,6 +2255,7 @@
     "/v2/export/{jobId}/status": {
       "get": {
         "description": "Gets a status of specified data export job. Deprecated. Use /v2/export/{jobId} instead.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],

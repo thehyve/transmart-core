@@ -94,7 +94,10 @@ class StudyQueryController extends AbstractQueryController {
      *
      * @return a list of the {@link org.transmartproject.db.i2b2data.Study}
      * if all of them exist and the user has access; null otherwise.
+     *
+     * @deprecated Use the /v2/studies and /v2/studies/studyId/${studyId} endpoints instead.
      */
+    @Deprecated
     def findStudiesByStudyIds(@RequestParam('api_version') String apiVersion) {
         if (params.studyIds == null) {
             throw new InvalidArgumentsException("Parameter 'studyIds' is missing.")
