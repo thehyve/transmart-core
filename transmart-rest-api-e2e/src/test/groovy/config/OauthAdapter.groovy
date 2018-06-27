@@ -1,6 +1,7 @@
 package config
 
 import base.AuthAdapter
+import base.AuthMethod
 import groovyx.net.http.HttpConfig
 
 import static groovyx.net.http.HttpBuilder.configure
@@ -23,7 +24,11 @@ class OauthAdapter implements AuthAdapter {
     static String getToken(String userID) {
         def user = getUser(userID)
         if (!user.token) {
-            user.token = requestToken(user)
+            if (Config.authMethod == AuthMethod.OIDC) {
+                user.token = requestTokenFromKeycloak(user)
+            } else if (Config.authMethod == AuthMethod.OAuth2) {
+                user.token = requestToken(user)
+            }
         }
         user.token
     }
@@ -34,6 +39,16 @@ class OauthAdapter implements AuthAdapter {
         }.post() {
             request.uri.path = '/oauth/token'
             request.uri.query = ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': user.username, 'password': user.password]
+        }.access_token
+    }
+
+    static String requestTokenFromKeycloak(User user) {
+        configure {
+            request.uri = Config.AUTH_SERVER_URL
+        }.post() {
+            request.uri.path = "/auth/realms/$Config.REALM/protocol/openid-connect/token"
+            request.contentType = "application/x-www-form-urlencoded"
+            request.body = ['grant_type': 'password', 'client_id': Config.RESOURCE, 'username': user.username, 'password': user.password]
         }.access_token
     }
 

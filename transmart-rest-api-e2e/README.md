@@ -6,6 +6,8 @@ The tests are expecting specific [test data](../transmart-data/test_data) to be 
 
 Scripts and instructions of how to clean the database and load the test data, both for Oracle and Postgres, are a part of [transmart-data component](../transmart-data/test_data).
 
+If using Keycloak as an external identity provider, test users needs to be added to the Keycloak database. See the instruction and the test data [here](../transmart-data/test_data/keycloak).
+
 ## How to run
 These tests are designed to run against a live environment. By default it is pointed at localhost:8080
 
