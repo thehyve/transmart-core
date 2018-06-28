@@ -1,7 +1,7 @@
 package org.transmartproject.rest.serialization.tabular
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.opencsv.CSVWriter
-import grails.converters.JSON
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.multidimquery.Dimension
@@ -12,6 +12,8 @@ import java.util.zip.ZipEntry
 @InheritConstructors
 @CompileStatic
 class DataTableTSVSerializer extends AbstractTSVSerializer {
+
+    private ObjectMapper objectMapper = new ObjectMapper()
 
     /**
      * Writes a data table to the output stream.
@@ -38,10 +40,9 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
             zipOutStream.closeEntry()
         }
 
-        rowElements.indices.each { i ->
-            Dimension dim = dataTable.rowDimensions[i]
-            def elems = rowElements[i]
-            if(elems != null) {
+        rowElements.eachWithIndex{ Set elems, int i ->
+            Dimension dim = dataTable.rowDimensions.get(i)
+            if (elems != null) {
                 zipOutStream.putNextEntry(new ZipEntry("${dim.name}.tsv"))
                 writeDimensionElements(dim, elems)
                 zipOutStream.closeEntry()
@@ -59,7 +60,7 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
                             (dataTable.requestedSort.containsKey(dim) ? [user_requested: true] : [:])
                 }
         ]
-        writer.write((description as JSON).toString(true))
+        writer.write(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(description))
         writer.flush()
     }
 

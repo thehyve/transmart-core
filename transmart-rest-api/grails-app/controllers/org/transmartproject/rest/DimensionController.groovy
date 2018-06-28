@@ -5,6 +5,7 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -47,16 +48,19 @@ class DimensionController extends AbstractQueryController {
     }
 
     private Dimension getDimension(String dimensionName, User user) {
-        def dimension = multiDimensionalDataResource.getDimension(dimensionName)
-        // We need to return the same response for nonexisting dimensions and for inaccessible dimensions to prevent
-        // an information leak. Users should not be able to find out if a certain (modifier-)dimension exists in a
-        // study they don't have access to.
-        if(dimension != null &&
-                accessControlChecks.getInaccessibleDimensions([dimension], user).empty) {
-            return dimension
+        Dimension dimension
+        try {
+            dimension = multiDimensionalDataResource.getDimension(dimensionName)
+            if (dimension != null) {
+                accessControlChecks.checkDimensionsAccess([dimension], user)
+            }
+        } catch (NoSuchResourceException|AccessDeniedException e) {
+            // We need to return the same response for nonexisting dimensions and for inaccessible dimensions to prevent
+            // an information leak. Users should not be able to find out if a certain (modifier-)dimension exists in a
+            // study they don't have access to.
+            throw new NoSuchResourceException("Dimension '$dimensionName' is not valid or you don't have access")
         }
-
-        throw new NoSuchResourceException("Dimension '$dimensionName' is not valid or you don't have access")
+        dimension
     }
 
     private ContainerResponseWrapper wrapElements(Dimension dim, Iterable elements) {

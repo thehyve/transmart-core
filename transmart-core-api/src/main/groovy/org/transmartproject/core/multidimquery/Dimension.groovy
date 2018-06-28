@@ -21,21 +21,29 @@ interface Dimension {
     }
 
     enum Density {
-        DENSE(isDense: true),
-        SPARSE(isDense: false),
+        DENSE(true),
+        SPARSE(false)
 
-        boolean isDense
+        public boolean isDense
 
         boolean isIsSparse() {
             !isDense
         }
+
+        Density(boolean isDense) {
+            this.isDense = isDense
+        }
     }
 
     enum Packable {
-        PACKABLE(packable: true),
-        NOT_PACKABLE(packable: false);
+        PACKABLE(true),
+        NOT_PACKABLE(false)
 
-        boolean packable
+        public boolean packable
+
+        Packable(boolean packable) {
+            this.packable = packable
+        }
     }
 
 

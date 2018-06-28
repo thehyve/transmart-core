@@ -24,6 +24,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
@@ -228,14 +229,14 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
     /* Study is included if the user has ANY kind of access */
 
     @Transactional(readOnly = true)
-    Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
+    Collection<MDStudy> getDimensionStudiesForUser(User user) {
         if (hasUnlimitedStudiesAccess(user)) {
-            return org.transmartproject.db.i2b2data.Study.findAll()
+            return org.transmartproject.db.i2b2data.Study.findAll() as List<MDStudy>
         }
-
         def accessibleStudyTokens = getAccessibleStudyTokensForUser(user)
-        (Collection<org.transmartproject.db.i2b2data.Study>) org.transmartproject.db.i2b2data.Study
-                .createCriteria().list { inList('secureObjectToken', accessibleStudyTokens) }
+        def criteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.Study)
+            .add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
+        criteria.getExecutableCriteria(sessionFactory.currentSession).list()
     }
 
     /**
@@ -250,12 +251,20 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
-    Set<Dimension> getInaccessibleDimensions(Collection<Dimension> dimensions, User user) {
+    /**
+     * Checks if the user has access to the (study-linked) dimensions in the list.
+     * @param dimensions
+     * @param user
+     * @throws AccessDeniedException if there are any dimensions in the list that the user does not have access to.
+     */
+    void checkDimensionsAccess(Collection<Dimension> dimensions, User user) throws AccessDeniedException {
         def studies = getDimensionStudiesForUser(user)
-        def validDimensions = studies*.dimensions?.flatten() as Set
-        def result = new LinkedHashSet(dimensions)
-        result.removeAll validDimensions
-        result
+        def allowedDimensionNames = studies.collectMany { it.dimensions.collect { it.name }} as Set<String>
+        def dimensionNames = dimensions*.name as Set<String>
+        def deniedDimensions = dimensionNames - allowedDimensionNames
+        if (!deniedDimensions.empty) {
+            throw new AccessDeniedException("Access denied to dimensions: ${deniedDimensions.join(', ')}")
+        }
     }
 
     /**

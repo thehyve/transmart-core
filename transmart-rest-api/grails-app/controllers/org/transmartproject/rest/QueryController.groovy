@@ -136,28 +136,37 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Data table endpoint:
-     * <code>/v2/observations/table?type=${type}&constraint=${constraint}&rowDimensions=${rowDimensions}&
-     * columnDimensions=${columnDimensions}&rowSort=${rowSort}&columnSort=${columnSort}&limit={limit}&offset={offset}</code>
+     * <code>POST /v2/observations/table</code>
+     * Body:
+     * <code>{
+     *      "type": ${type},
+     *      "constraint": ${constraint},
+     *      "rowDimensions": ${rowDimensions},
+     *      "columnDimensions": ${columnDimensions},
+     *      "rowSort": ${rowSort},
+     *      "columnSort": ${columnSort},
+     *      "limit": ${limit},
+     *      "offset": ${offset}
+     * }</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
-     *
-     * The type should be the data type name of a high dimension type, or 'autodetect'.
      * Only 'clinical' type is currently supported.
-     *
      * Expects columnDimensions and rowDimensions parameters.
-     *
      * Optional rowSort and columnSort parameters allow to define the sorting.
-     *
      * Pagination is supported via limit and offset parameters.
      *
-     * @return a tabular representation of hypercube in a json format.
+     * @return a tabular representation of hypercube in JSON format.
      */
     def table() {
         def args = getGetOrPostParams()
         checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions',
                                          'rowSort', 'columnSort', 'limit', 'offset'])
 
-        if (args.type != 'clinical') { throw new OperationNotImplementedException("High dimensional data is not yet " +
+        if ((!args.type)) {
+            throw new InvalidArgumentsException("No data type provided.")
+        }
+        if (args.type != 'clinical') {
+            throw new OperationNotImplementedException("High dimensional data is not yet " +
                 "implemented for the data table")
         }
 
@@ -199,8 +208,13 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Cross table endpoint:
-     * <code>/v2/observations/crosstable?rowConstraints=${rowConstraints}&columnConstraints=${columnConstraints}&
-     * subjectConstraint=&{subjectConstraint}</code>
+     * <code>POST /v2/observations/crosstable</code>
+     * Body:
+     * <code>{
+     *      "rowConstraints": ${rowConstraints},
+     *      "columnConstraints": ${columnConstraints},
+     *      "subjectConstraint": {subjectConstraint}
+ *      }</code>
      *
      * Expects a list of {@link Constraint} <code>rowConstraints</code>
      * and a list of {@link Constraint} <code>columnConstraints</code>.
@@ -209,7 +223,7 @@ class QueryController extends AbstractQueryController {
      * In particular, subjectConstraint can be of type {@link org.transmartproject.core.multidimquery.query.PatientSetConstraint}
      * in order to explicitly specify the id of the set of patients.
      *
-     * @return a tabular representation of counts in a json format.
+     * @return a tabular representation of counts in JSON format.
      */
     def crosstable() {
         def args = getGetOrPostParams()
