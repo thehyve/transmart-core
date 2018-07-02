@@ -3,6 +3,7 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.util.logging.Slf4j
+import representations.ExportJob
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -26,8 +27,8 @@ class DataExportSpec extends RESTSpec {
         ]
 
         when: "Export job name is NOT specified"
-        def response = post(request)
-        def responseData = response.exportJob
+        def response = post(request) as Map
+        def responseData = ExportJob.from(response.exportJob as Map)
         def id = responseData.id
 
         then: "A new job with default name is returned"
@@ -42,8 +43,8 @@ class DataExportSpec extends RESTSpec {
         name = 'test_job_name' + id
         request.path = "$PATH_DATA_EXPORT/job"
         request.query = [name: name]
-        response = post(request)
-        responseData = response.exportJob
+        response = post(request) as Map
+        responseData = ExportJob.from(response.exportJob as Map)
 
         then: "A new job with specified name is returned "
         assert responseData.id != null
@@ -60,12 +61,12 @@ class DataExportSpec extends RESTSpec {
         def getDataFormatsResponse = post([
                 path      : "$PATH_DATA_EXPORT/data_formats",
                 acceptType: JSON,
-                body      : toJSON([
+                body      : [
                         constraint: [
                                 type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                         ],
-                ]),
+                ],
         ])
 
         then: "I get data formats for both clinical and highDim types"
@@ -79,14 +80,14 @@ class DataExportSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'export_test_set'],
-                body      : toJSON([
+                body      : [
                         type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
-                ]),
+                ],
                 user      : ADMIN_USER,
                 statusCode: 201
         ]
-        def createPatientSetResponse = post(patientSetRequest)
+        def createPatientSetResponse = post(patientSetRequest) as Map
         def patientSetId = createPatientSetResponse.id
 
         def newJobRequest = [
@@ -94,13 +95,13 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
                 user      : DEFAULT_USER
         ]
-        def newJobResponse = post(newJobRequest)
-        def jobId = newJobResponse.exportJob.id
+        def newJobResponse = post(newJobRequest) as Map
+        def jobId = ExportJob.from(newJobResponse.exportJob as Map).id
 
         when: "I run a newly created job asynchronously"
-        def responseData = post([
+        def response = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON([
+                body      : [
                         constraint: [type: PatientSetConstraint, patientSetId: patientSetId],
                         elements  :
                                 [[
@@ -111,15 +112,16 @@ class DataExportSpec extends RESTSpec {
                                          dataType: 'mrna',
                                          format  : 'TSV'
                                  ]],
-                ]),
+                ],
                 user      : DEFAULT_USER
-        ])
+        ]) as Map
+        def responseData = ExportJob.from(response.exportJob as Map)
+
         then: "Job instance with status: 'Started' is returned"
-        responseData != null
-        responseData.exportJob.id == jobId
-        responseData.exportJob.jobStatus == 'Started'
-        responseData.exportJob.jobStatusTime != null
-        responseData.exportJob.userId == getUsername(DEFAULT_USER)
+        responseData.id == jobId
+        responseData.jobStatus == 'Started'
+        responseData.jobStatusTime != null
+        responseData.userId == getUsername(DEFAULT_USER)
         responseData.viewerUrl == null
 
         when: "Check the status of the job"
@@ -129,21 +131,22 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
                 user      : DEFAULT_USER
         ]
-        def statusResponse = get(statusRequest)
+        response = get(statusRequest) as Map
+        responseData = ExportJob.from(response.exportJob as Map)
 
         then: "Returned status is 'Error'"
-        statusResponse != null
-        def status = statusResponse.exportJob.jobStatus
+        def status = responseData.jobStatus
 
         // waiting for async process to end (increase number of attempts if needed)
         for (int attempNum = 0; status != 'Error' && status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
             sleep(500)
-            statusResponse = get(statusRequest)
-            status = statusResponse.exportJob.jobStatus
+            response = get(statusRequest) as Map
+            responseData = ExportJob.from(response.exportJob as Map)
+            status = responseData.jobStatus
         }
 
         status == 'Error'
-        statusResponse.exportJob.message == "Access denied to patient set or patient set does not exist: ${patientSetId}"
+        responseData.message == "Access denied to patient set or patient set does not exist: ${patientSetId}"
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
@@ -153,14 +156,15 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
                 user      : ADMIN_USER
         ]
-        def newJobResponse = post(newJobRequest)
-        def jobId = newJobResponse.exportJob.id
-        def jobName = newJobResponse.exportJob.jobName
+        def newJobResponse = post(newJobRequest) as Map
+        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobId = jobData.id
+        def jobName = jobData.jobName
 
         when: "I run a newly created job asynchronously"
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON([
+                body      : [
                         constraint: [
                                 type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
@@ -173,18 +177,18 @@ class DataExportSpec extends RESTSpec {
                                              dataType: 'mrna',
                                              format  : 'TSV'
                                      ]],
-                ]),
+                ],
                 acceptType: JSON,
                 user      : ADMIN_USER
-        ])
+        ]) as Map
+        jobData = ExportJob.from(runResponse.exportJob as Map)
 
         then: "Job instance with status: 'Started' is returned"
-        assert runResponse != null
-        assert runResponse.exportJob.id == jobId
-        assert runResponse.exportJob.jobStatus == 'Started'
-        assert runResponse.exportJob.jobStatusTime != null
-        assert runResponse.exportJob.userId == getUsername(ADMIN_USER)
-        assert runResponse.viewerUrl == null
+        assert jobData.id == jobId
+        assert jobData.jobStatus == 'Started'
+        assert jobData.jobStatusTime != null
+        assert jobData.userId == getUsername(ADMIN_USER)
+        assert jobData.viewerUrl == null
 
         when: "Check the status of the job"
         int maxAttemptNumber = 10 // max number of status check attempts
@@ -193,17 +197,18 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
                 user      : ADMIN_USER
         ]
-        def statusResponse = get(statusRequest)
+        def statusResponse = get(statusRequest) as Map
+        jobData = ExportJob.from(statusResponse.exportJob as Map)
 
         then: "Returned status is 'Completed'"
-        assert statusResponse != null
-        def status = statusResponse.exportJob.jobStatus
+        def status = jobData.jobStatus
 
         // waiting for async process to end (increase number of attempts if needed)
         for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
             sleep(500)
-            statusResponse = get(statusRequest)
-            status = statusResponse.exportJob.jobStatus
+            statusResponse = get(statusRequest) as Map
+            jobData = ExportJob.from(statusResponse.exportJob as Map)
+            status = jobData.jobStatus
         }
 
         assert status == 'Completed'
@@ -218,6 +223,7 @@ class DataExportSpec extends RESTSpec {
 
         then: "ZipStream is returned"
         assert downloadResponse != null
+
 
         when: "Try to download the file"
         def downloadRequest2 = [
@@ -238,17 +244,21 @@ class DataExportSpec extends RESTSpec {
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
         ]
-        def createJobResponse = post(createJobRequest)
+        def createJobResponse = post(createJobRequest) as Map
+        def jobData = ExportJob.from(createJobResponse.exportJob as Map)
 
         when: "I try to fetch list of all export jobs"
         def getJobsResponse = get([
                 path      : "$PATH_DATA_EXPORT/jobs",
                 acceptType: JSON,
-        ])
+        ]) as Map
+        def jobsData = getJobsResponse.exportJobs as List<Map>
+        def jobs = jobsData.collect { Map job -> ExportJob.from(job) }
 
         then: "The list of all data export job, including the newly created one is returned"
-        assert getJobsResponse != null
-        assert createJobResponse.exportJob in getJobsResponse.exportJobs
+        jobs != null
+        !jobs.empty
+        jobs.contains(jobData)
     }
 
     def "get supported file formats"() {
@@ -271,21 +281,23 @@ class DataExportSpec extends RESTSpec {
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
         ]
-        def newJobResponse = post(newJobRequest)
-        def jobId = newJobResponse.exportJob.id
+        def newJobResponse = post(newJobRequest) as Map
+        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobId = jobData.id
 
         when: "I run a newly created job without id nor constraint parameter supplied."
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON([
+                body      : [
                         elements: [[
                                            dataType: 'clinical',
                                            format  : 'TSV'
                                    ]],
-                ]),
+                ],
                 acceptType: JSON,
                 statusCode: 400,
-        ])
+        ]) as Map
+
         then: "I get the error."
         runResponse.message == '1 error(s): constraint: may not be null'
     }
@@ -301,6 +313,7 @@ class DataExportSpec extends RESTSpec {
                                      format  : 'TSV'
                              ]]
         ])
+
         then:
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
@@ -327,6 +340,7 @@ class DataExportSpec extends RESTSpec {
                              ]],
                 includeMeasurementDateColumns: true,
         ])
+
         then:
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
@@ -351,6 +365,7 @@ class DataExportSpec extends RESTSpec {
                 includeMeasurementDateColumns: false,
         ])
         String fileName = downloadResponse.jobName
+
         then:
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
@@ -375,6 +390,7 @@ class DataExportSpec extends RESTSpec {
                 includeMeasurementDateColumns: true,
         ])
         String fileName = downloadResponse.jobName
+
         then:
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
@@ -398,7 +414,7 @@ class DataExportSpec extends RESTSpec {
                              studyId: SURVEY1_ID],
                 statusCode: 201
         ]
-        def responseData = post(request)
+        def responseData = post(request) as Map
 
         then: 'I get a patientset with 14 patients'
         responseData.id != null
@@ -453,6 +469,7 @@ class DataExportSpec extends RESTSpec {
                                      dataView : 'surveyTable'
                              ]],
         ])
+
         then:
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
@@ -474,6 +491,7 @@ class DataExportSpec extends RESTSpec {
                              ]],
         ])
         def fileName = downloadResponse.jobName
+
         then:
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
@@ -502,49 +520,50 @@ class DataExportSpec extends RESTSpec {
         assert 'SPSS' in responseData.fileFormats
     }
 
-    private Map<String, Object> runTypicalExport(body) {
+    private Map<String, Object> runTypicalExport(Map body) {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
         ]
-        def newJobResponse = post(newJobRequest)
-        def jobId = newJobResponse.exportJob.id
-        def jobName = newJobResponse.exportJob.jobName
+        def newJobResponse = post(newJobRequest) as Map
+        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobId = jobData.id
+        def jobName = jobData.jobName
 
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON(body),
+                body      : body,
                 acceptType: JSON,
-        ])
+        ]) as Map
+        jobData = ExportJob.from(runResponse.exportJob as Map)
 
-        assert runResponse != null
-        assert runResponse.exportJob.id == jobId
-        assert runResponse.exportJob.jobStatus == 'Started'
-        assert runResponse.exportJob.jobStatusTime != null
-        assert runResponse.exportJob.userId == getUsername(DEFAULT_USER)
-        assert runResponse.viewerUrl == null
+        assert jobData.id == jobId
+        assert jobData.jobStatus == 'Started'
+        assert jobData.jobStatusTime != null
+        assert jobData.userId == getUsername(DEFAULT_USER)
+        assert jobData.viewerUrl == null
 
         int maxAttemptNumber = 50 // max number of status check attempts
         def statusRequest = [
-                path      : "$PATH_DATA_EXPORT/$jobId/status",
+                path      : "$PATH_DATA_EXPORT/${jobId}/status",
                 acceptType: JSON,
         ]
-        def statusResponse = get(statusRequest)
-
-        assert statusResponse != null
-        def status = statusResponse.exportJob.jobStatus
+        def statusResponse = get(statusRequest) as Map
+        jobData = ExportJob.from(statusResponse.exportJob as Map)
+        def status = jobData.jobStatus
 
         // waiting for async process to end (increase number of attempts if needed)
         for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
             sleep(500)
-            statusResponse = get(statusRequest)
-            status = statusResponse.exportJob.jobStatus
+            statusResponse = get(statusRequest) as Map
+            jobData = ExportJob.from(statusResponse.exportJob as Map)
+            status = jobData.jobStatus
         }
 
         assert status == 'Completed'
 
         def downloadRequest = [
-                path      : "$PATH_DATA_EXPORT/$jobId/download",
+                path      : "$PATH_DATA_EXPORT/${jobId}/download",
                 acceptType: ZIP,
         ]
         def downloadResponse = get(downloadRequest)
@@ -558,7 +577,7 @@ class DataExportSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_cancelation_job'],
-                body      : toJSON([type  : StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID]),
+                body      : [type  : StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID],
                 statusCode: 201
         ]
         def createPatientSetResponse = post(patientSetRequest)
@@ -568,27 +587,11 @@ class DataExportSpec extends RESTSpec {
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
         ]
-        def newJobResponse = post(newJobRequest)
-        def jobId = newJobResponse.exportJob.id
+        def newJobResponse = post(newJobRequest) as Map
+        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobId = jobData.id
 
-        when: "I run a newly created job asynchronously"
-        def responseData = post([
-                path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON([
-                        constraint: [type: PatientSetConstraint, patientSetId: patientSetId],
-                        elements  :
-                                [[
-                                         dataType: 'clinical',
-                                         format  : 'TSV'
-                                 ]],
-                ]),
-        ])
-        then: "Job instance with status: 'Started' is returned"
-        responseData != null
-        responseData.exportJob.id == jobId
-        responseData.exportJob.jobStatus == 'Started'
-
-        when:
+        when: 'I cancel the job'
         post([
                 path      : "$PATH_DATA_EXPORT/$jobId/cancel",
                 statusCode: 200
@@ -598,11 +601,11 @@ class DataExportSpec extends RESTSpec {
                 path      : "$PATH_DATA_EXPORT/$jobId",
                 acceptType: JSON,
         ]
-        def statusResponse = get(statusRequest)
+        def statusResponse = get(statusRequest) as Map
+        jobData = ExportJob.from(statusResponse.exportJob as Map)
 
         then: "Returned status is 'Canceled'"
-        statusResponse != null
-        statusResponse.exportJob.jobStatus == 'Cancelled'
+        jobData.jobStatus == 'Cancelled'
     }
 
     @RequiresStudy(CATEGORICAL_VALUES_ID)
@@ -611,7 +614,7 @@ class DataExportSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_cancelation_job'],
-                body      : toJSON([type  : StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID]),
+                body      : [type  : StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID],
                 statusCode: 201
         ]
         def createPatientSetResponse = post(patientSetRequest)
@@ -621,25 +624,27 @@ class DataExportSpec extends RESTSpec {
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
         ]
-        def newJobResponse = post(newJobRequest)
-        def jobId = newJobResponse.exportJob.id
+        def newJobResponse = post(newJobRequest) as Map
+        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobId = jobData.id
 
         when: "I run a newly created job asynchronously"
         def responseData = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON([
+                body      : [
                         constraint: [type: PatientSetConstraint, patientSetId: patientSetId],
                         elements  :
                                 [[
                                          dataType: 'clinical',
                                          format  : 'TSV'
                                  ]],
-                ]),
-        ])
+                ],
+        ]) as Map
+        jobData = ExportJob.from(responseData.exportJob as Map)
+
         then: "Job instance with status: 'Started' is returned"
-        responseData != null
-        responseData.exportJob.id == jobId
-        responseData.exportJob.jobStatus == 'Started'
+        jobData.id == jobId
+        jobData.jobStatus == 'Started'
 
         when:
         delete([
@@ -661,7 +666,7 @@ class DataExportSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'all_patients'],
-                body      : toJSON([type: StudyNameConstraint, studyId: ORACLE_1000_PATIENT_ID]),
+                body      : [type: StudyNameConstraint, studyId: ORACLE_1000_PATIENT_ID],
                 statusCode: 201
         ]
         def createPatientSetResponse = post(patientSetRequest)
@@ -677,6 +682,7 @@ class DataExportSpec extends RESTSpec {
                                      dataView: 'surveyTable'
                              ]],
         ])
+
         then:
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])

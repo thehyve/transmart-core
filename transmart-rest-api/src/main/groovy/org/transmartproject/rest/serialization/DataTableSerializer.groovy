@@ -75,7 +75,7 @@ class DataTableSerializer {
         writer.beginArray()
         def cells = ((Table<DataTableRow, DataTableColumn, Collection<HypercubeValue>> /*work around compiler bug*/)
                         table).row(row)
-        for (def column : table.columnKeys) {
+        for (def column: table.columnKeys) {
             def values = cells[column]
             if (values == null || values.size() == 0) {
                 writer.nullValue()
