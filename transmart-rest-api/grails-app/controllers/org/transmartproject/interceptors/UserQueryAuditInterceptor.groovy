@@ -11,28 +11,7 @@ class UserQueryAuditInterceptor extends AuditInterceptor {
     }
 
     boolean after() {
-        Map<String, String> event = getEventMessage(IP)
-        report(event.event, event.eventMessage)
+        report("User query related call.", "User (IP: $IP) made a user query related call. Action: $actionName.")
     }
 
-    private Map<String, String> getEventMessage(ip) {
-        switch (actionName) {
-            case 'delete':
-                return [event       : "User query deletion",
-                        eventMessage: "User (IP: ${ip}) deleted a user query."] as Map<String, String>
-            case 'save':
-                return [event       : "User query creation",
-                        eventMessage: "User (IP: ${ip}) created a new user query."] as Map<String, String>
-            case 'update':
-                return [event       : "User query update",
-                        eventMessage: "User (IP: ${ip}) updated a user query."] as Map<String, String>
-            case 'scan':
-                return [event       : "User query changes scan",
-                        eventMessage: "User (IP: ${ip}) started a scan for changes in results " +
-                                "of the stored queries."] as Map<String, String>
-            default:
-                return [event       : "User query retrieval",
-                        eventMessage: "User (IP: ${ip}) made a user query request."] as Map<String, String>
-        }
-    }
 }
