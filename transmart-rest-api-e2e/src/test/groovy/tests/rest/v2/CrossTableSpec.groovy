@@ -43,13 +43,16 @@ class CrossTableSpec extends RESTSpec {
                                     toJSON([type: TrueConstraint])],
                 subjectConstraint: toJSON(type: PatientSetConstraint, patientSetId: patientSetId),
         ]
+
         def request = [
                 path      : PATH_CROSSTABLE,
                 acceptType: JSON,
-                user      : ADMIN_USER
+                user      : ADMIN_USER,
+                body      : params
         ]
+
         when: "I specify a list of row and column constraints and their intersections create table cells"
-        def responseData = getOrPostRequest(method, request, params)
+        def responseData = post(request)
 
         then: "for each of cells the number of subjects is computed properly"
         assert responseData.rows.size() == 2
@@ -59,7 +62,7 @@ class CrossTableSpec extends RESTSpec {
         when: "I do not have an access to the specified patient set"
         def request2 = request
         request2.user = DEFAULT_USER
-        def responseData2 = getOrPostRequest(method, request2, params)
+        def responseData2 = post(request2)
 
         then: "Returned counts for all cells equal zero"
         assert responseData2.rows.size() == 2
@@ -88,17 +91,13 @@ class CrossTableSpec extends RESTSpec {
         def subjectConstraint2 = toJSON(type: PatientSetConstraint, patientSetId: patientSetId2)
         def params2 = params
         params2.subjectConstraint = subjectConstraint2
-        def responseData3 = getOrPostRequest(method, request2, params2)
+        request2.body = params2
+        def responseData3 = post(request2)
 
         then: "Returned count for the first cell equals zero"
         assert responseData3.rows.size() == 2
         assert responseData3.rows[0] == [0, 5]
         assert responseData3.rows[1] == [0, 3]
-
-        where:
-        method | _
-        "POST" | _
-        "GET"  | _
     }
 
 }
