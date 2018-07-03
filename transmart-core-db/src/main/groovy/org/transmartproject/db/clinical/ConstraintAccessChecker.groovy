@@ -106,17 +106,7 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
     Void build(ModifierConstraint constraint) { }
 
     @Override
-    Void build(FieldConstraint constraint) {
-        if (constraint.field.dimension == 'concept') {
-            throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
-        } else if (constraint.field.dimension == 'study') {
-            throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
-        } else if (constraint.field.dimension == 'trial visit') {
-            if (constraint.field.fieldName == 'study') {
-                throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
-            }
-        }
-    }
+    Void build(FieldConstraint constraint) { }
 
     @Override
     Void build(ValueConstraint constraint) { }

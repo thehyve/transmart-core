@@ -353,6 +353,22 @@ class FieldConstraint extends Constraint implements Comparable<FieldConstraint> 
     boolean hasNotListOperatorOrListValue() {
         !(operator in [Operator.IN, Operator.BETWEEN]) || value instanceof Collection
     }
+
+    @AssertTrue(message = 'Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.')
+    boolean hasNoConceptDimension() {
+        field.dimension != 'concept'
+    }
+
+    @AssertTrue(message = 'Study dimension not allowed in field constraints. Use a StudyConstraint instead.')
+    boolean hasNoStudyDimension() {
+        field.dimension != 'study'
+    }
+
+    @AssertTrue(message = 'Field \'study\' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.')
+    boolean hasNoTrialVisitStudyField() {
+        !(field.dimension == 'trial visit' && field.fieldName == 'study')
+    }
+
 }
 
 @CompileStatic
