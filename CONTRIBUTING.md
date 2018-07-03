@@ -127,7 +127,10 @@ All Pull Requests are automatically tested on [Travis CI](https://travis-ci.org/
 * Tests for transmart-core-db module against H2 database, 
 * Tests for transmart-rest-api module, 
 * Tests for transmart-core-db module against Postgres database,
-* Tests for transmart-batch module.
+* Tests for transmart-api-server module,
+* Tests for transmart-batch module,
+* Tests for transmart-solr-indexing module against Postgres database,
+* Tests for transmart-copy data uploader tool against Postgres database.
 
 ## <a name="rules"></a> Coding Rules
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
