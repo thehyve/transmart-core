@@ -1,7 +1,7 @@
 ---
 
 org.transmart.notifications:
-    # enable daily and weekly notification jobs
+    # enable the notifications plugin and the execution of daily and weekly notification jobs
     enabled: true
     # max number of query sets returned in a subscription email
     maxNumberOfSets: 20
