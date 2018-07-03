@@ -40,6 +40,7 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
     @CompileStatic
     static class FisNumberColumn implements ValueFetchingDataColumn<String, HypercubeDataRow>, MetadataAwareDataColumn {
         final String label = 'FISNumber'
+        // FIXME: do not rely on hardcoded id source
         static final String SUBJ_ID_SOURCE = 'SUBJ_ID'
 
         VariableMetadata metadata = new VariableMetadata(
