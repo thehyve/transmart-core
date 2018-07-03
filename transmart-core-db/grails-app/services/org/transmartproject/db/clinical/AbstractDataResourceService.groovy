@@ -8,15 +8,15 @@ import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
-import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
-import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
 @CompileStatic
@@ -31,17 +31,20 @@ class AbstractDataResourceService {
     @Autowired
     LegacyAuthorisationChecks legacyAuthorisationChecks
 
+    @Autowired
+    ConceptsResource conceptsResource
 
     @Transactional(readOnly = true)
     protected void checkAccess(Constraint constraint, User user, PatientDataAccessLevel requiredAccessLevel) throws AccessDeniedException {
-        assert user, 'user is required'
-        assert constraint, 'constraint is required'
-
-        if (constraint instanceof BioMarkerDimension) {
-            throw new InvalidQueryException("Not supported yet: ${constraint?.class?.simpleName}.")
+        if (!user) {
+            throw new AccessDeniedException("No user specified")
+        }
+        if (!constraint) {
+            throw new InvalidArgumentsException("No constraint specified")
         }
 
-        new ConstraintAccessChecker(user, requiredAccessLevel, authorisationChecks, legacyAuthorisationChecks)
+        new ConstraintAccessChecker(user, requiredAccessLevel,
+                authorisationChecks, legacyAuthorisationChecks, conceptsResource)
                 .build(constraint)
     }
 

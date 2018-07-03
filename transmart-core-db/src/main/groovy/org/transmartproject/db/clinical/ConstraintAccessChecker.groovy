@@ -2,7 +2,10 @@ package org.transmartproject.db.clinical
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.transmartproject.core.concept.Concept
+import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
@@ -44,6 +47,7 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
     AuthorisationChecks authorisationChecks
     // FIXME: Get rid of the legacy checks in this class.
     LegacyAuthorisationChecks legacyAuthorisationChecks
+    ConceptsResource conceptsResource
 
     User user
     PatientDataAccessLevel requiredAccessLevel
@@ -52,12 +56,14 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
             User user,
             PatientDataAccessLevel requiredAccessLevel,
             AuthorisationChecks authorisationChecks,
-            LegacyAuthorisationChecks legacyAuthorisationChecks
+            LegacyAuthorisationChecks legacyAuthorisationChecks,
+            ConceptsResource conceptsResource
     ) {
         this.user = user
         this.requiredAccessLevel = requiredAccessLevel
         this.authorisationChecks = authorisationChecks
         this.legacyAuthorisationChecks = legacyAuthorisationChecks
+        this.conceptsResource = conceptsResource
     }
 
 
@@ -92,7 +98,9 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
     Void build(NullConstraint constraint) { }
 
     @Override
-    Void build(BiomarkerConstraint constraint) { }
+    Void build(BiomarkerConstraint constraint) {
+        throw new InvalidQueryException("Not supported yet: ${constraint?.class?.simpleName}.")
+    }
 
     @Override
     Void build(ModifierConstraint constraint) { }
@@ -137,25 +145,35 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
 
     @Override
     Void build(ConceptConstraint constraint) {
-        constraint = (ConceptConstraint)constraint
-        if (constraint.conceptCode && (constraint.conceptCodes || constraint.path) ||
-                (constraint.conceptCodes && constraint.path)) {
-            throw new InvalidQueryException("Expected one of path and conceptCode(s), got both.")
-        } else if (!constraint.conceptCode && !constraint.conceptCodes && !constraint.path) {
-            throw new InvalidQueryException("Expected one of path and conceptCode(s), got none.")
-        } else if (constraint.conceptCode) {
-            if (!legacyAuthorisationChecks.canAccessConceptByCode(user, requiredAccessLevel, constraint.conceptCode)) {
-                throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
+        Concept concept
+        if (constraint.path) {
+            try {
+                concept = conceptsResource.getConceptByConceptPath(constraint.path)
+            } catch (NoSuchResourceException e) {
+                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
+            }
+            if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
+                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
             }
         } else if (constraint.conceptCodes) {
             for (String conceptCode: constraint.conceptCodes) {
-                if (!legacyAuthorisationChecks.canAccessConceptByCode(user, requiredAccessLevel, conceptCode)) {
+                try {
+                    concept = conceptsResource.getConceptByConceptCode(constraint.conceptCode)
+                } catch (NoSuchResourceException e) {
+                    throw new AccessDeniedException("Access denied to concept code: ${conceptCode}")
+                }
+                if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
                     throw new AccessDeniedException("Access denied to concept code: ${conceptCode}")
                 }
             }
         } else {
-            if (!legacyAuthorisationChecks.canAccessConceptByPath(user, requiredAccessLevel, constraint.path)) {
-                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
+            try {
+                concept = conceptsResource.getConceptByConceptCode(constraint.conceptCode)
+            } catch (NoSuchResourceException e) {
+                throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
+            }
+            if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
+                throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
             }
         }
     }

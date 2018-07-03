@@ -31,6 +31,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -255,9 +256,9 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
-    boolean canAccessConceptByCode(User user, PatientDataAccessLevel requiredAccessLevel, String conceptCode) {
-        if (conceptCode == null || conceptCode.empty) {
-            throw new AccessDeniedException('No concept code provided.')
+    boolean canAccessConcept(User user, PatientDataAccessLevel requiredAccessLevel, Concept concept) {
+        if (concept == null || concept.conceptCode == null || concept.conceptCode.empty) {
+            throw new AccessDeniedException('No valid concept provided.')
         }
 
         if (user.admin) {
@@ -267,7 +268,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         Set<String> tokens = getAccessibleStudyTokensForUser(user, requiredAccessLevel)
 
         def conceptCriteria = DetachedCriteria.forClass(ConceptDimension)
-        conceptCriteria = conceptCriteria.add(StringUtils.like('conceptCode', conceptCode, MatchMode.EXACT))
+        conceptCriteria = conceptCriteria.add(StringUtils.like('conceptCode', concept.conceptCode, MatchMode.EXACT))
         conceptCriteria = conceptCriteria.setProjection(Projections.property('conceptPath'))
 
         def criteria = DetachedCriteria.forClass(I2b2Secure)
@@ -278,31 +279,6 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
                 .add(Subqueries.propertyIn('dimensionCode', conceptCriteria))
         exists(criteria)
     }
-
-    boolean canAccessConceptByPath(User user, PatientDataAccessLevel requiredAccessLevel, String conceptPath) {
-        if (conceptPath == null || conceptPath.empty) {
-            throw new AccessDeniedException('No concept path provided.')
-        }
-
-        if (user.admin) {
-            return true
-        }
-
-        Set<String> tokens = getAccessibleStudyTokensForUser(user, requiredAccessLevel)
-
-        def conceptCriteria = DetachedCriteria.forClass(ConceptDimension)
-        conceptCriteria = conceptCriteria.add(StringUtils.like('conceptPath', conceptPath, MatchMode.EXACT))
-        conceptCriteria = conceptCriteria.setProjection(Projections.property('conceptPath'))
-
-        def criteria = DetachedCriteria.forClass(I2b2Secure)
-                .add(Restrictions.in('secureObjectToken', tokens))
-                .add(Restrictions.ilike('dimensionTableName', 'concept_dimension'))
-                .add(Restrictions.ilike('columnName', 'concept_path'))
-                .add(Restrictions.ilike('operator', 'like'))
-                .add(Subqueries.propertyIn('dimensionCode', conceptCriteria))
-        exists(criteria)
-    }
-
 
     private
     static boolean hasAtLeastAccessLevelForTheSecureNode(User user, PatientDataAccessLevel minAccessLevel, OntologyTerm term) {

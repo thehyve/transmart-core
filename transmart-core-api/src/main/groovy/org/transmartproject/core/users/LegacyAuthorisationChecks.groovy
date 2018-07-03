@@ -1,5 +1,6 @@
 package org.transmartproject.core.users
 
+import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryDefinition
@@ -54,29 +55,16 @@ interface LegacyAuthorisationChecks {
     Set<Study> getLegacyStudiesForUser(User user)
 
     /**
-     * Checks if a concept exists with the provided concept code
+     * Checks if a concept exists
      * that is being referred to from a tree node that the user has access to.
      *
      * @param user the user to check access for.
      * @param requiredAccessLevel the required level of access for the tree node.
-     * @param conceptCode the concept code.
+     * @param concept the concept dimension object.
      * @return true iff a tree node exists that the user has access to
-     * and that refers to a concept in the concept dimension with the provided concept code.
-     * @throws org.transmartproject.core.exceptions.AccessDeniedException iff no concept code is provided.
+     * and that refers to the concept in the concept dimension.
+     * @throws org.transmartproject.core.exceptions.AccessDeniedException iff no concept is provided.
      */
-    boolean canAccessConceptByCode(User user, PatientDataAccessLevel requiredAccessLevel, String conceptCode)
-
-    /**
-     * Checks if a concept exists with the provided concept path
-     * that is being referred to from a tree node that the user has access to.
-     *
-     * @param user the user to check access for.
-     * @param requiredAccessLevel the required level of access for the tree node.
-     * @param conceptCode the concept path.
-     * @return true iff a tree node exists that the user has access to
-     * and that refers to a concept in the concept dimension with the provided concept path.
-     * @throws org.transmartproject.core.exceptions.AccessDeniedException iff no concept path is provided.
-     */
-    boolean canAccessConceptByPath(User user, PatientDataAccessLevel requiredAccessLevel, String conceptPath)
+    boolean canAccessConcept(User user, PatientDataAccessLevel requiredAccessLevel, Concept concept)
 
 }
