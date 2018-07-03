@@ -22,34 +22,36 @@ class CrossTableSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'crosstable_test_set'],
-                body      : toJSON([
+                body      : [
                         type    : Combination,
                         operator: OR,
                         args    : [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
                                 [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
                         ]
-                ]),
+                ],
                 user      : ADMIN_USER,
                 statusCode: 201
         ]
-        def patientSetResponse = post(patientSetRequest)
+        def patientSetResponse = post(patientSetRequest) as Map
         def patientSetId = patientSetResponse.id
         def restrictedConceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
         def params = [
-                rowConstraints   : [toJSON([type: TrueConstraint]),
-                                    toJSON([type: StudyNameConstraint, studyId: EHR_ID])],
-                columnConstraints: [toJSON([type: ConceptConstraint, path: restrictedConceptPath]),
-                                    toJSON([type: TrueConstraint])],
-                subjectConstraint: toJSON(type: PatientSetConstraint, patientSetId: patientSetId),
+                rowConstraints   : [[type: TrueConstraint],
+                                    [type: StudyNameConstraint, studyId: EHR_ID]],
+                columnConstraints: [[type: ConceptConstraint, path: restrictedConceptPath],
+                                    [type: TrueConstraint]],
+                subjectConstraint: [type: PatientSetConstraint, patientSetId: patientSetId],
         ]
         def request = [
-                path      : PATH_CROSSTABLE,
+                path: PATH_CROSSTABLE,
                 acceptType: JSON,
-                user      : ADMIN_USER
+                user: ADMIN_USER,
+                body: params
         ]
+
         when: "I specify a list of row and column constraints and their intersections create table cells"
-        def responseData = getOrPostRequest(method, request, params)
+        def responseData = post(request) as Map
 
         then: "for each of cells the number of subjects is computed properly"
         assert responseData.rows.size() == 2
@@ -59,7 +61,7 @@ class CrossTableSpec extends RESTSpec {
         when: "I do not have an access to the specified patient set"
         def request2 = request
         request2.user = DEFAULT_USER
-        def responseData2 = getOrPostRequest(method, request2, params)
+        def responseData2 = post(request2) as Map
 
         then: "Returned counts for all cells equal zero"
         assert responseData2.rows.size() == 2
@@ -71,34 +73,29 @@ class CrossTableSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'crosstable_test_set'],
-                body      : toJSON([
+                body      : [
                         type    : Combination,
                         operator: OR,
                         args    : [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
                                 [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID]
                         ]
-                ]),
+                ],
                 user      : ADMIN_USER,
                 statusCode: 201
         ]
         patientSetRequest2.user = DEFAULT_USER
-        def patientSetResponse2 = post(patientSetRequest2)
+        def patientSetResponse2 = post(patientSetRequest2) as Map
         def patientSetId2 = patientSetResponse2.id
-        def subjectConstraint2 = toJSON(type: PatientSetConstraint, patientSetId: patientSetId2)
-        def params2 = params
-        params2.subjectConstraint = subjectConstraint2
-        def responseData3 = getOrPostRequest(method, request2, params2)
+        def subjectConstraint2 = [type: PatientSetConstraint, patientSetId: patientSetId2]
+        def request3 = request2
+        request3.body.subjectConstraint = subjectConstraint2
+        def responseData3 = post(request3) as Map
 
         then: "Returned count for the first cell equals zero"
         assert responseData3.rows.size() == 2
         assert responseData3.rows[0] == [0, 5]
         assert responseData3.rows[1] == [0, 3]
-
-        where:
-        method | _
-        "POST" | _
-        "GET"  | _
     }
 
 }
