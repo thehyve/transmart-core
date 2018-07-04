@@ -24,6 +24,7 @@ import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.Item
@@ -43,7 +44,10 @@ import static org.transmartproject.db.user.AccessLevelTestData.*
 class UserAccessLevelSpec extends TransmartSpecification {
 
     @Autowired
-    StudiesResource studiesResource
+    StudiesResource legacyStudiesResource
+
+    @Autowired
+    MDStudiesResource studiesResource
 
     @Autowired
     SessionFactory sessionFactory
@@ -62,23 +66,23 @@ class UserAccessLevelSpec extends TransmartSpecification {
         User adminUser = accessLevelTestData.users[0]
 
         expect:
-        accessControlChecks.canReadPatientData(adminUser, MEASUREMENTS, getStudy(STUDY1))
-        accessControlChecks.canReadPatientData(adminUser, MEASUREMENTS, getStudy(STUDY2))
-        accessControlChecks.canReadPatientData(adminUser, MEASUREMENTS, getStudy(STUDY3))
+        accessControlChecks.canReadPatientData(adminUser, MEASUREMENTS, getLegacyStudy(STUDY1))
+        accessControlChecks.canReadPatientData(adminUser, MEASUREMENTS, getLegacyStudy(STUDY2))
+        accessControlChecks.canReadPatientData(adminUser, MEASUREMENTS, getLegacyStudy(STUDY3))
     }
 
     void testEveryoneHasAccessToPublicStudy() {
         setupData()
         // study1 is public
         expect:
-        accessLevelTestData.users.every { accessControlChecks.canReadPatientData(it, MEASUREMENTS, getStudy(STUDY1)) }
+        accessLevelTestData.users.every { accessControlChecks.canReadPatientData(it, MEASUREMENTS, getLegacyStudy(STUDY1)) }
     }
 
     void testPermissionViaGroup() {
         setupData()
         // second user is in group test_-201, which has access to study 2
         User secondUser = accessLevelTestData.users[1]
-        def study2 = getStudy(STUDY2)
+        def study2 = getLegacyStudy(STUDY2)
 
         expect:
         accessControlChecks.hasAccess(secondUser, study2)
@@ -91,7 +95,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         User thirdUser = accessLevelTestData.users[2]
 
         expect:
-        canRead == accessControlChecks.canReadPatientData(thirdUser, accLvl, getStudy(STUDY2))
+        canRead == accessControlChecks.canReadPatientData(thirdUser, accLvl, getLegacyStudy(STUDY2))
 
         where:
         accLvl                | canRead
@@ -103,7 +107,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         setupData()
         // fourth user has no access to study 2
         User fourthUser = accessLevelTestData.users[3]
-        Study study2 = getStudy(STUDY2)
+        Study study2 = getLegacyStudy(STUDY2)
 
         expect:
         !accessControlChecks.hasAccess(fourthUser, study2)
@@ -116,7 +120,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         User fifthUser = accessLevelTestData.users[4]
 
         expect:
-        !accessControlChecks.canReadPatientData(fifthUser, MEASUREMENTS, getStudy(STUDY2))
+        !accessControlChecks.canReadPatientData(fifthUser, MEASUREMENTS, getLegacyStudy(STUDY2))
     }
 
     void testAccessGrantedWhenExportAndViewPermissionsExist() {
@@ -128,14 +132,14 @@ class UserAccessLevelSpec extends TransmartSpecification {
         User sixthUser = accessLevelTestData.users[5]
 
         expect:
-        accessControlChecks.canReadPatientData(sixthUser, MEASUREMENTS, getStudy(STUDY2))
+        accessControlChecks.canReadPatientData(sixthUser, MEASUREMENTS, getLegacyStudy(STUDY2))
     }
 
     void testEveryoneHasAccessViaEveryoneGroup() {
         setupData()
 
         expect:
-        accessControlChecks.canReadPatientData(accessLevelTestData.users[userNumber], MEASUREMENTS, getStudy(study))
+        accessControlChecks.canReadPatientData(accessLevelTestData.users[userNumber], MEASUREMENTS, getLegacyStudy(study))
 
         where:
         userNumber | study
@@ -153,7 +157,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         User fifthUser = accessLevelTestData.users[4]
 
         expect:
-        !accessControlChecks.canReadPatientData(fifthUser, MEASUREMENTS, getStudy(STUDY2))
+        !accessControlChecks.canReadPatientData(fifthUser, MEASUREMENTS, getLegacyStudy(STUDY2))
     }
 
     void testViewPermissionAndShowInTableOperation() {
@@ -162,7 +166,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         User fifthUser = accessLevelTestData.users[4]
 
         expect:
-        !accessControlChecks.canReadPatientData(fifthUser, MEASUREMENTS, getStudy(STUDY2))
+        !accessControlChecks.canReadPatientData(fifthUser, MEASUREMENTS, getLegacyStudy(STUDY2))
     }
 
     void testViewPermissionAndShowInSummaryStatisticsOperation() {
@@ -171,7 +175,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         User fifthUser = accessLevelTestData.users[4]
 
         expect:
-        accessControlChecks.canReadPatientData(fifthUser, SUMMARY, getStudy(STUDY2))
+        accessControlChecks.canReadPatientData(fifthUser, SUMMARY, getLegacyStudy(STUDY2))
     }
 
     void testStudyWithoutI2b2Secure() {
@@ -180,11 +184,11 @@ class UserAccessLevelSpec extends TransmartSpecification {
         // fourth user has no access to study 2
         User fourthUser = accessLevelTestData.users[3]
 
-        I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName).
+        I2b2Secure.findByFullName(getLegacyStudy(STUDY2).ontologyTerm.fullName).
                 delete(flush: true)
 
         expect:
-        accessControlChecks.canReadPatientData(fourthUser, MEASUREMENTS, getStudy(STUDY2))
+        accessControlChecks.canReadPatientData(fourthUser, MEASUREMENTS, getLegacyStudy(STUDY2))
     }
 
     void testStudyWithEmptyToken() {
@@ -193,20 +197,20 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
         User fourthUser = accessLevelTestData.users[3]
 
-        def i2b2Secure = I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName)
+        def i2b2Secure = I2b2Secure.findByFullName(getLegacyStudy(STUDY2).ontologyTerm.fullName)
         i2b2Secure.secureObjectToken = null
 
         when:
-        accessControlChecks.canReadPatientData(fourthUser, MEASUREMENTS, getStudy(STUDY2))
+        accessControlChecks.canReadPatientData(fourthUser, MEASUREMENTS, getLegacyStudy(STUDY2))
         then:
-        thrown(UnexpectedResultException)
+        thrown(IllegalArgumentException)
     }
 
     void testGetAccessibleStudiesAdmin() {
         setupData()
         def adminUser = accessLevelTestData.users[0]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(adminUser)
+        def studies = legacyStudiesResource.getStudies(adminUser)
         expect:
         studies hasItems(
                 hasProperty('id', equalTo(STUDY1)),
@@ -218,7 +222,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         setupData()
         def fourthUser = accessLevelTestData.users[3]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = legacyStudiesResource.getStudies(fourthUser)
         expect:
         studies hasItem(hasProperty('id', equalTo(STUDY3)))
     }
@@ -227,7 +231,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         setupData()
         def fourthUser = accessLevelTestData.users[3]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = legacyStudiesResource.getStudies(fourthUser)
         expect:
         studies hasItem(hasProperty('id', equalTo(STUDY1)))
     }
@@ -237,7 +241,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = legacyStudiesResource.getStudies(fourthUser)
         expect:
         studies not(hasItem(
                 hasProperty('id', equalTo(STUDY2))))
@@ -248,10 +252,10 @@ class UserAccessLevelSpec extends TransmartSpecification {
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
 
-        I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName).
+        I2b2Secure.findByFullName(getLegacyStudy(STUDY2).ontologyTerm.fullName).
                 delete(flush: true)
 
-        def studies = accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        def studies = legacyStudiesResource.getStudies(fourthUser)
         expect:
         studies hasItem(
                 hasProperty('id', equalTo(STUDY2)))
@@ -262,13 +266,13 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def fourthUser = accessLevelTestData.users[3]
 
         def i2b2Secure =
-                I2b2Secure.findByFullName getStudy(STUDY2).ontologyTerm.fullName
+                I2b2Secure.findByFullName getLegacyStudy(STUDY2).ontologyTerm.fullName
         i2b2Secure.secureObjectToken = null
 
         when:
-        accessControlChecks.getAccessibleStudiesForUser(fourthUser)
+        legacyStudiesResource.getStudies(fourthUser)
         then:
-        thrown(UnexpectedResultException)
+        thrown(IllegalArgumentException)
     }
 
     void testQueryDefinitionUserHasAccessToOnePanelButNotAnother() {
@@ -279,10 +283,10 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
         QueryDefinition definition = new QueryDefinition([
                 new Panel(items: [new Item(
-                        conceptKey: getStudy(STUDY2).ontologyTerm.key,
+                        conceptKey: getLegacyStudy(STUDY2).ontologyTerm.key,
                 )]),
                 new Panel(items: [new Item(
-                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                        conceptKey: getLegacyStudy(STUDY1).ontologyTerm.key,
                 )]),
         ])
 
@@ -299,7 +303,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         QueryDefinition definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
-                                conceptKey: getStudy(STUDY2).ontologyTerm.key
+                                conceptKey: getLegacyStudy(STUDY2).ontologyTerm.key
                         )]),
         ])
 
@@ -331,7 +335,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
         QueryDefinition definition = new QueryDefinition([
                 new Panel(invert: true, items: [new Item(
-                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                        conceptKey: getLegacyStudy(STUDY1).ontologyTerm.key,
                 )]),
         ])
 
@@ -345,10 +349,10 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
         QueryDefinition definition = new QueryDefinition([
                 new Panel(invert: true, items: [new Item(
-                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                        conceptKey: getLegacyStudy(STUDY1).ontologyTerm.key,
                 )]),
                 new Panel(items: [new Item(
-                        conceptKey: getStudy(STUDY2).ontologyTerm.key,
+                        conceptKey: getLegacyStudy(STUDY2).ontologyTerm.key,
                 )]),
         ])
 
@@ -364,7 +368,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         // normally would not be allowed because it's a single inverted panel
         QueryDefinition definition = new QueryDefinition([
                 new Panel(invert: true, items: [new Item(
-                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                        conceptKey: getLegacyStudy(STUDY1).ontologyTerm.key,
                 )]),
         ])
 
@@ -425,7 +429,7 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def thirdUser = accessLevelTestData.users[3]
 
         when:
-        def studies = accessControlChecks.getDimensionStudiesForUser(thirdUser).toSorted { it.studyId }
+        def studies = studiesResource.getStudies(thirdUser, minimalAccessLevel).toSorted { it.studyId }
 
         then:
         studies.size() == 2
@@ -439,12 +443,13 @@ class UserAccessLevelSpec extends TransmartSpecification {
         def adminUser = accessLevelTestData.users[0]
 
         when:
-        def studies = accessControlChecks.getDimensionStudiesForUser(adminUser)
+        def studies = studiesResource.getStudies(adminUser, minimalAccessLevel)
         then:
         studies.size() == 3
     }
 
-    private Study getStudy(String id) {
-        studiesResource.getStudyById id
+    private Study getLegacyStudy(String id) {
+        legacyStudiesResource.getStudyById(id)
     }
+
 }

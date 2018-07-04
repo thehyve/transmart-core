@@ -38,6 +38,7 @@ import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
@@ -225,7 +226,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
                                             User user,
                                             String apiVersion,
                                             boolean reusePatientSet) {
-        checkAccess(constraint, user)
+        checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
 
         createOrReuseQueryResult(
                 name,
@@ -251,7 +252,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.MEASUREMENTS)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.setProjection(Projections.projectionList().add(
@@ -601,7 +602,8 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         if (constraint instanceof TrueConstraint) {
             // Creating patient set for all patients, execute single query
             log.info "Saving patient set for the True constraint."
-            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user).buildCriteria(constraint)
+            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
+                    .buildCriteria(constraint)
                     .setProjection(
                     Projections.projectionList()
                             .add(Projections.distinct(Projections.property('patient.id')), 'pid')

@@ -19,33 +19,42 @@
 
 package org.transmartproject.db.querytool
 
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermsResource
+import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.users.User
-import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
+import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
+/**
+ * Legacy patient set builder service.
+ * @deprecated Use {@link org.transmartproject.core.multidimquery.PatientSetResource} instead.
+ */
+@Deprecated
 class PatientSetQueryBuilderService {
 
     OntologyTermsResource ontologyTermsResourceService
 
-    def databasePortabilityService
+    DatabasePortabilityService databasePortabilityService
 
-    def sessionFactory
+    StudiesResource studiesResourceService
 
-    AccessControlChecks accessControlChecks
+    SessionFactory sessionFactory
+
 
     String buildPatientIdListQuery(QueryDefinition definition,
                                    User user = null)
@@ -335,7 +344,7 @@ class PatientSetQueryBuilderService {
     }
 
     private String postProcessAcrossTrialQuery(String sql, User userInContext) {
-        def accessibleStudies = accessControlChecks.getAccessibleStudiesForUser(userInContext)
+        def accessibleStudies = studiesResourceService.getStudies(userInContext)
         if (!accessibleStudies) {
             return "$sql AND FALSE"
         }

@@ -23,16 +23,23 @@ import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.Restrictions
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.core.users.User
 import org.transmartproject.db.util.StringUtils
 
 class StudiesResourceService implements StudiesResource {
 
+    @Autowired
     SessionFactory sessionFactory
+
+    @Autowired
+    LegacyAuthorisationChecks legacyAuthorisationChecks
 
     @Override
     Set<Study> getStudySet() {
@@ -43,6 +50,35 @@ class StudiesResourceService implements StudiesResource {
         studyNodes.collect { I2b2 studyNode ->
             new StudyImpl(ontologyTerm: studyNode, id: studyNode.studyId)
         } as Set
+    }
+
+    private I2b2Secure getSecureNodeIfExists(OntologyTerm term) {
+        if (term instanceof I2b2Secure) {
+            return (I2b2Secure) term
+        }
+        def criteria = DetachedCriteria.forClass(I2b2Secure)
+                .add(Restrictions.eq('fullName', term.fullName))
+        List<I2b2Secure> studyNodes = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
+        if (studyNodes.empty) {
+            return null
+        }
+        studyNodes.first()
+    }
+
+    @Override
+    Set<Study> getStudies(User user) {
+        studySet.findAll {
+            OntologyTerm ontologyTerm = it.ontologyTerm
+            if (!ontologyTerm) {
+                throw new NoSuchResourceException("No ontology node found for study ${it.id}.")
+            }
+            I2b2Secure i2b2Secure = getSecureNodeIfExists(ontologyTerm)
+            if (!i2b2Secure) {
+                log.debug("No secure record for ${ontologyTerm.fullName} path found. Study treated as public.")
+                return true
+            }
+            legacyAuthorisationChecks.hasAccess(user, i2b2Secure)
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.StudyWrapper
 
@@ -30,7 +31,7 @@ class StudyQueryController extends AbstractQueryController {
      */
     def listStudies(@RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
-        def studies = studiesResource.getStudies(authContext.user)
+        def studies = studiesResource.getStudies(authContext.user, PatientDataAccessLevel.minimalAccessLevel)
         respond wrapStudies(apiVersion, studies)
     }
 
@@ -93,7 +94,10 @@ class StudyQueryController extends AbstractQueryController {
      *
      * @return a list of the {@link org.transmartproject.db.i2b2data.Study}
      * if all of them exist and the user has access; null otherwise.
+     *
+     * @deprecated Use the /v2/studies and /v2/studies/studyId/${studyId} endpoints instead.
      */
+    @Deprecated
     def findStudiesByStudyIds(@RequestParam('api_version') String apiVersion) {
         if (params.studyIds == null) {
             throw new InvalidArgumentsException("Parameter 'studyIds' is missing.")
