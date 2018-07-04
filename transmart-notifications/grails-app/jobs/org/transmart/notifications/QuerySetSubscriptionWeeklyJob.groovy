@@ -1,5 +1,6 @@
 package org.transmart.notifications
 
+import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.transmart.notifications.QuerySetSubscriptionMailService
 import org.transmartproject.core.userquery.SubscriptionFrequency
@@ -11,6 +12,8 @@ import org.transmartproject.core.userquery.SubscriptionFrequency
  */
 @Slf4j
 class QuerySetSubscriptionWeeklyJob {
+
+    static jobEnabled =  Holders.config.org.transmart.notifications.enabled
 
     QuerySetSubscriptionMailService querySetSubscriptionMailService
     /**

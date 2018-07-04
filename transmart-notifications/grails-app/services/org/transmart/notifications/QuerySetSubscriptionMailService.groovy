@@ -1,6 +1,7 @@
 package org.transmart.notifications
 
 import grails.plugins.mail.MailService
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -21,6 +22,7 @@ import org.transmartproject.core.userquery.SetType
  *
  */
 @Slf4j
+@CompileStatic
 class QuerySetSubscriptionMailService {
 
     @Value('${org.transmart.notifications.maxNumberOfSets}')
