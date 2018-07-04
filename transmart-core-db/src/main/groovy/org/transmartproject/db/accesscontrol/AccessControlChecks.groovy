@@ -19,10 +19,8 @@
 
 package org.transmartproject.db.accesscontrol
 
-import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
@@ -34,13 +32,13 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.*
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.AuthorisationHelper
 import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
@@ -48,8 +46,6 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.util.StringUtils
-
-import java.util.stream.Collectors
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
@@ -62,9 +58,6 @@ import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.
 @Component
 @CompileStatic
 class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChecks {
-
-    public static final String PUBLIC_SOT = 'EXP:PUBLIC'
-    public static final Set<String> PUBLIC_TOKENS = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT] as Set
 
     @Autowired
     OntologyTermsResource conceptsResource
@@ -90,8 +83,14 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
      */
     @Override
     boolean canReadPatientData(User user, PatientDataAccessLevel patientDataAccessLevel, MDStudy study) {
-        assert study instanceof org.transmartproject.db.i2b2data.Study
-        hasAtLeastAccessLevel(user, patientDataAccessLevel, study.secureObjectToken)
+        if (study == null) {
+            throw new IllegalArgumentException("No study provided")
+        }
+        if (!(study instanceof org.transmartproject.db.i2b2data.Study)) {
+            throw new IllegalArgumentException("Class not supported: ${study.class.simpleName}")
+        }
+        def studyToken = ((org.transmartproject.db.i2b2data.Study)study).secureObjectToken
+        AuthorisationHelper.hasAtLeastAccessLevel(user, patientDataAccessLevel, studyToken)
     }
 
     @Override
@@ -204,58 +203,11 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         canReadPatientData(user, PatientDataAccessLevel.minimalAccessLevel, study)
     }
 
-    Session getSession() {
-        sessionFactory.currentSession
-    }
-
-    /* Study is included if the user has ANY kind of access */
-
-    Set<Study> getLegacyStudiesForUser(User user) {
-        /* this method could benefit from caching */
-        def studySet = studiesResource.studySet
-        studySet.findAll {
-            OntologyTerm ontologyTerm = it.ontologyTerm
-            assert ontologyTerm: "No ontology node found for study ${it.id}."
-            I2b2Secure i2b2Secure = getSecureNodeIfExists(ontologyTerm)
-            if (!i2b2Secure) {
-                log.debug("No secure record for ${ontologyTerm.fullName} path found. Study treated as public.")
-                return true
-            }
-            hasAccess(user, i2b2Secure)
-        }
-    }
-
-    @Transactional(readOnly = true)
-    Collection<MDStudy> getStudiesForUser(User user, PatientDataAccessLevel level) {
-        if (user.admin) {
-            return org.transmartproject.db.i2b2data.Study.findAll() as List<MDStudy>
-        }
-
-        def accessibleStudyTokens = getAccessibleStudyTokensForUser(user, level)
-        def criteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.Study)
-        criteria.add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
-        criteria.getExecutableCriteria(sessionFactory.currentSession).list() as List<MDStudy>
-    }
-
-    /**
-     * Retrieves study ids for the studies to which the user has at least the required access level.
-     * @param user
-     * @param requiredAccessLevel
-     * @return the set of study ids.
-     */
-    private static Set<String> getAccessibleStudyTokensForUser(User user, PatientDataAccessLevel requiredAccessLevel) {
-        user.studyToPatientDataAccessLevel.entrySet().stream()
-                .filter({ Map.Entry<String, PatientDataAccessLevel> entry ->
-                    entry.value >= requiredAccessLevel
-                })
-                .map({ Map.Entry<String, PatientDataAccessLevel> entry -> entry.key })
-                .collect(Collectors.toSet()) + PUBLIC_TOKENS
-    }
-
     private boolean exists(DetachedCriteria criteria) {
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
+    @Override
     boolean canAccessConcept(User user, PatientDataAccessLevel requiredAccessLevel, Concept concept) {
         if (concept == null || concept.conceptCode == null || concept.conceptCode.empty) {
             throw new AccessDeniedException('No valid concept provided.')
@@ -265,7 +217,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
             return true
         }
 
-        Set<String> tokens = getAccessibleStudyTokensForUser(user, requiredAccessLevel)
+        Set<String> tokens = AuthorisationHelper.getStudyTokensForUser(user, requiredAccessLevel)
 
         def conceptCriteria = DetachedCriteria.forClass(ConceptDimension)
         conceptCriteria = conceptCriteria.add(StringUtils.like('conceptCode', concept.conceptCode, MatchMode.EXACT))
@@ -287,32 +239,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
             log.warn "Could not find object '${term.fullName}' in i2b2_secure; allowing access"
             return true
         }
-        return hasAtLeastAccessLevel(user, minAccessLevel, secureNode.secureObjectToken)
-    }
-
-    /**
-     * Checks whether user has right to perform given opertion on the resource with the given token
-     * @param user
-     * @param minAccessLevel minimal access level
-     * @param token
-     * @return
-     */
-    private static boolean hasAtLeastAccessLevel(User user, PatientDataAccessLevel minAccessLevel, String token) {
-        if (!token) {
-            throw new UnexpectedResultException('Token is null.')
-        }
-
-        if (user.admin) {
-            log.debug "Bypassing check for $minAccessLevel on ${token} for user ${user.username}" +
-                    ' because she is an administrator'
-            return true
-        }
-
-        if (token in PUBLIC_TOKENS) {
-            return true
-        }
-
-        minAccessLevel <= user.studyToPatientDataAccessLevel[token]
+        return AuthorisationHelper.hasAtLeastAccessLevel(user, minAccessLevel, secureNode.secureObjectToken)
     }
 
     private static I2b2Secure getSecureNodeIfExists(OntologyTerm term) {
@@ -324,6 +251,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         if (secureNodes) {
             return secureNodes.iterator().next()
         }
+        null
     }
 
 }

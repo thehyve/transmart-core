@@ -48,13 +48,6 @@ interface LegacyAuthorisationChecks {
     boolean hasAccess(User user, Study study)
 
     /**
-     *
-     * @param user
-     * @return
-     */
-    Set<Study> getLegacyStudiesForUser(User user)
-
-    /**
      * Checks if a concept exists
      * that is being referred to from a tree node that the user has access to.
      *

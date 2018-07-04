@@ -26,6 +26,7 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
@@ -42,6 +43,7 @@ import org.transmartproject.db.util.HibernateUtils
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.stream.Collectors
 
 import static groovyx.gpars.GParsPool.withPool
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
@@ -417,8 +419,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             return aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSet(constraint, user)
         }
 
-        Collection<Study> studies = authorisationChecks.getStudiesForUser(user, PatientDataAccessLevel.SUMMARY)
-        final List<String> studyIds = studies*.studyId
+        Collection<MDStudy> studies = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY)
+        final List<String> studyIds = studies*.name
         studyIds.sort()
 
         def t1 = new Date()
@@ -488,8 +490,10 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         Constraint constraintToPreCache = new TrueConstraint()
         usersResource.getUsers().each { User user ->
             log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
-            Collection<Study> studies = authorisationChecks.getStudiesForUser(user, PatientDataAccessLevel.SUMMARY)
-            def studyIds = studies*.studyId as Set
+            Set<String> studyIds = user.studyToPatientDataAccessLevel.entrySet().stream()
+                .filter({ entry -> entry.value >= PatientDataAccessLevel.SUMMARY })
+                .map({ entry -> entry.key })
+                .collect(Collectors.toSet())
             def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
             if (notFetchedStudyIds) {
                 Map<String, Map<String, Counts>> freshCounts = parallelCountsPerStudyAndConcept(constraintToPreCache, user)

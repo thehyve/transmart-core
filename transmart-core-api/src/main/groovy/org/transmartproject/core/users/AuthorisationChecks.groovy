@@ -22,12 +22,4 @@ interface AuthorisationChecks {
      */
     boolean hasAnyAccess(User user, MDStudy study)
 
-    /**
-     * Fetches all studies  that the user has at least the specified minimal level of access to.
-     * @param user
-     * @param requiredAccessLevel the minimal required level of access
-     * @return the collection of studies.
-     */
-    Collection<MDStudy> getStudiesForUser(User user, PatientDataAccessLevel requiredAccessLevel)
-
 }

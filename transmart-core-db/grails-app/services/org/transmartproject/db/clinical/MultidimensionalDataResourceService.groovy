@@ -474,7 +474,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     private List<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
-        def userStudies = authorisationChecks.getStudiesForUser(user, PatientDataAccessLevel.MEASUREMENTS) as Collection<MDStudy>
+        def userStudies = studiesResource.getStudies(user, PatientDataAccessLevel.MEASUREMENTS) as Collection<MDStudy>
         List<MDStudy> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
         if (!assaySupportStudies) {
             log.debug("No studies with assay dimension for user ${user.username} were found.")

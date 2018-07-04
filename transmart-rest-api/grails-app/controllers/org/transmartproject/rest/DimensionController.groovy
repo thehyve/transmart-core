@@ -11,6 +11,7 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.PatientDataAccessLevel
@@ -30,7 +31,10 @@ class DimensionController extends AbstractQueryController {
 
     @Autowired
     MultiDimensionalDataResource multiDimensionalDataResource
-    
+
+    @Autowired
+    MDStudiesResource studiesResource
+
     static responseFormats = ['json', 'hal']
     
     /**
@@ -53,7 +57,7 @@ class DimensionController extends AbstractQueryController {
 
     @CompileStatic
     private Dimension getDimension(String dimensionName, User user) {
-        Set<String> dimensionNames = authorisationChecks.getStudiesForUser(user, PatientDataAccessLevel.MEASUREMENTS).stream()
+        Set<String> dimensionNames = studiesResource.getStudies(user, PatientDataAccessLevel.MEASUREMENTS).stream()
                 .flatMap({ MDStudy study ->
                     study.dimensions.stream().map({ Dimension dimension -> dimension.name }) })
                 .collect(Collectors.toSet())

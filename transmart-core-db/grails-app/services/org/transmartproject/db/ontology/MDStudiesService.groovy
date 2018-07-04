@@ -4,6 +4,9 @@ import grails.plugin.cache.CacheEvict
 import grails.transaction.Transactional
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.hibernate.SessionFactory
+import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -12,6 +15,7 @@ import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.AuthorisationHelper
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.TrialVisit
@@ -20,6 +24,7 @@ import org.transmartproject.db.i2b2data.Study
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
+import java.util.stream.Collectors
 
 @Transactional
 @CompileStatic
@@ -28,11 +33,14 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     @Autowired
     AuthorisationChecks authorisationChecks
 
+    @Autowired
+    SessionFactory sessionFactory
+
     static private boolean isLegacyStudy(MDStudy study) {
         if (study == null || !(study instanceof Study)) {
             false
         } else {
-            ((Study)study).dimensionDescriptions.any { it.name == DimensionDescription.LEGACY_MARKER }
+            ((Study)study).dimensionDescriptions?.any { it.name == DimensionDescription.LEGACY_MARKER } ?: false
         }
     }
 
@@ -83,8 +91,19 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     }
 
     @Override
-    List<MDStudy> getStudies(User currentUser, PatientDataAccessLevel requiredAccessLevel) {
-        authorisationChecks.getStudiesForUser(currentUser, requiredAccessLevel).findAll { !isLegacyStudy(it) }.asList()
+    List<MDStudy> getStudies(User user, PatientDataAccessLevel requiredAccessLevel) {
+        List<MDStudy> studies
+        if (user.admin) {
+            studies = Study.findAll() as List<MDStudy>
+        } else {
+            def accessibleStudyTokens = AuthorisationHelper.getStudyTokensForUser(user, requiredAccessLevel)
+            def criteria = DetachedCriteria.forClass(Study)
+            criteria.add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
+            studies = criteria.getExecutableCriteria(sessionFactory.currentSession).list() as List<MDStudy>
+        }
+        studies.stream()
+                .filter({MDStudy study -> !isLegacyStudy(study) })
+                .collect(Collectors.toList())
     }
 
     @CompileDynamic

@@ -7,9 +7,11 @@ import org.transmartproject.core.users.User
 interface MDStudiesResource {
 
     /**
-     * Returns all studies the user has access to.
+     * Returns all studies that the user has at least the specified minimal level of access to.
      *
-     * @return the studies.
+     * @param user
+     * @param requiredAccessLevel the minimal required level of access
+     * @return the collection of studies.
      */
     List<MDStudy> getStudies(User user, PatientDataAccessLevel requiredAccessLevel)
 

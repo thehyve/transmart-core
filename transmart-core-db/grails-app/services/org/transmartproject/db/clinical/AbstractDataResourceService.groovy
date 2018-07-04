@@ -12,6 +12,7 @@ import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.query.*
+import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.PatientDataAccessLevel
@@ -34,6 +35,9 @@ class AbstractDataResourceService {
     @Autowired
     ConceptsResource conceptsResource
 
+    @Autowired
+    MDStudiesResource studiesResource
+
     @Transactional(readOnly = true)
     protected void checkAccess(Constraint constraint, User user, PatientDataAccessLevel requiredAccessLevel) throws AccessDeniedException {
         if (!user) {
@@ -53,7 +57,7 @@ class AbstractDataResourceService {
         if (user.admin) {
             return HibernateCriteriaQueryBuilder.forAllStudies()
         }
-        HibernateCriteriaQueryBuilder.forStudies(authorisationChecks.getStudiesForUser(user, requiredAccessLevel))
+        HibernateCriteriaQueryBuilder.forStudies(studiesResource.getStudies(user, requiredAccessLevel))
     }
 
     protected Object getFirst(DetachedCriteria criteria) {
