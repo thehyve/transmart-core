@@ -1,8 +1,8 @@
 package org.transmartproject.interceptors
 
 import groovy.transform.CompileStatic
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.log.AccessLogEntryResource
-import org.transmartproject.core.users.User
 import org.transmartproject.rest.user.AuthContext
 
 @CompileStatic
@@ -33,30 +33,37 @@ class ApiAuditInterceptor {
     boolean before() { true }
 
     boolean after() {
-        report("$controllerName request.",
-                "User (IP: ${IP}) made a $controllerName request. Action: $actionName")
-    }
-
-    protected String getUrl() {
-        return "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
+        report("$controllerName request", eventMessage)
     }
 
     protected boolean report(String event, String eventMessage) {
-        def fullUrl = getUrl()
-        if ("POST".equalsIgnoreCase(request.getMethod())) {
-            eventMessage += " Request body: ${request.JSON}."
-        }
 
         accessLogService.report(
                 authContext.user,
                 event,
                 eventMessage: eventMessage as Object,
-                requestURL: fullUrl as Object)
+                requestURL: url as Object)
 
         return true
     }
 
     protected String getIP() {
         return request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr
+    }
+
+    protected String getUrl() {
+        return "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
+    }
+
+    protected String getEventMessage() {
+        Map<String, Object> message = [
+                ip    : IP as Object,
+                action: actionName as Object
+        ]
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+            message.put("body", request.JSON as Map)
+        }
+
+        return BindingHelper.objectMapper.writeValueAsString(message)
     }
 }

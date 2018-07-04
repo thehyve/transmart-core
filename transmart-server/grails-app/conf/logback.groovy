@@ -1,8 +1,8 @@
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.contrib.jackson.JacksonJsonFormatter
-import ch.qos.logback.contrib.json.classic.JsonLayout
 import grails.util.BuildSettings
 import grails.util.Environment
+import org.transmartproject.rest.logging.ApiAuditLogJsonLayout
 import org.transmartproject.rest.logging.ChildProcessAppender
 
 // See http://logback.qos.ch/manual/groovy.html for details on configuration
@@ -71,7 +71,7 @@ appender('fileAuditLogger', RollingFileAppender) {
          */
     }
     encoder(LayoutWrappingEncoder) {
-        layout(JsonLayout) {
+        layout(ApiAuditLogJsonLayout) {
             jsonFormatter(JacksonJsonFormatter) {
                 prettyPrint = true
             }

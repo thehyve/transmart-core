@@ -1,10 +1,10 @@
 import ch.qos.logback.contrib.jackson.JacksonJsonFormatter
-import ch.qos.logback.contrib.json.classic.JsonLayout
 import grails.util.BuildSettings
 import grails.util.Environment
 import org.springframework.boot.logging.logback.ColorConverter
 import org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter
 import org.transmartproject.rest.logging.ChildProcessAppender
+import org.transmartproject.rest.logging.ApiAuditLogJsonLayout
 
 import java.nio.charset.Charset
 
@@ -69,7 +69,7 @@ appender('fileAuditLogger', RollingFileAppender) {
          */
     }
     encoder(LayoutWrappingEncoder) {
-        layout(JsonLayout) {
+        layout(ApiAuditLogJsonLayout) {
             jsonFormatter(JacksonJsonFormatter) {
                 prettyPrint = true
             }
