@@ -3,6 +3,7 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.util.logging.Slf4j
+import org.junit.Ignore
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -552,6 +553,12 @@ class DataExportSpec extends RESTSpec {
         return [jobName: jobId, downloadResponse: downloadResponse]
     }
 
+    /**
+     * This test fails randomly, because sometimes job runs too fast and it is already completed
+     * while the test is trying to cancel it
+     * Fix will be covered by: https://jira.thehyve.nl/browse/TMT-301
+     */
+    @Ignore
     @RequiresStudy(CATEGORICAL_VALUES_ID)
     def "cancel job"() {
         def patientSetRequest = [
