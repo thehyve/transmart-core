@@ -5,8 +5,11 @@ import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.FullDataTableRow
+import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.StreamingDataTable
 
+import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 
 @InheritConstructors
@@ -77,26 +80,34 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         }
     }
 
-    private List<Set> writeValues(StreamingDataTable dataTable) {
+    private List<Set> writeValues(StreamingDataTable table) {
         CSVWriter csvWriter = getCSVWriter()
 
-        writeHeaders(csvWriter, dataTable)
+        writeHeaders(csvWriter, table)
 
-        List<Set> rowElements = dataTable.rowDimensions.collect { it.elementsSerializable ? null : [] as Set }
+        List<Set> rowElements = table.rowDimensions.collect { it.elementsSerializable ? null : [] as Set }
 
-        for (row in dataTable) {
-            for(int i=0; i<rowElements.size(); i++) {
-                if(rowElements[i] == null) continue
-                rowElements[i].add(row.rowHeader.elements[i])
+        for (FullDataTableRow row in table) {
+            for (int i=0; i<rowElements.size(); i++) {
+                if (rowElements[i] != null) {
+                    rowElements[i].add(row.rowHeader.elements[i])
+                }
             }
-
-            List values = row.headerValues
-            for(def cells : row.dataValues) {
-                def joiner = new StringJoiner(';')
-                for(val in cells) { joiner.add(val.toString()) }
-                values.add(joiner.toString())
+            List csvValues = row.headerValues
+            for (def column: table.columnKeys) {
+                def values = row.multimap.get(column)
+                if (values == null || values.size() == 0) {
+                    csvValues << null
+                } else if(values.size() == 1) {
+                    csvValues << values[0].value
+                } else {
+                    List<String> concatenatedValues = values.stream()
+                            .map({ HypercubeValue hv -> hv.value?.toString() ?: '' })
+                            .collect(Collectors.toList())
+                    csvValues << concatenatedValues.join(';')
+                }
             }
-            csvWriter.writeNext(formatRowValues(values))
+            csvWriter.writeNext(formatRowValues(csvValues))
         }
         csvWriter.flush()
 

@@ -4,58 +4,20 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import com.fasterxml.jackson.databind.ObjectMapper
-import groovy.transform.EqualsAndHashCode
-import groovy.util.logging.Slf4j
+import com.opencsv.CSVReader
+import groovy.transform.CompileStatic
+import representations.DataTable
+import representations.ExportJob
+
+import java.util.stream.Collectors
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 
 import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.ZIP
 import static config.Config.*
 
-@Slf4j
 class DataTableSpec extends RESTSpec {
-
-    @EqualsAndHashCode
-    static class ColumnHeader {
-        String dimension
-        List<Object> elements
-        List<Object> keys
-    }
-
-    @EqualsAndHashCode
-    static class Dimension {
-        String name
-        Map<String, Object> elements
-    }
-
-    @EqualsAndHashCode
-    static class RowHeader {
-        String dimension
-        Object element
-        Object key
-    }
-
-    @EqualsAndHashCode
-    static class Row {
-        List<RowHeader> rowHeaders
-        List<Object> cells
-    }
-
-    @EqualsAndHashCode
-    static class SortSpecification {
-        String dimension
-        String sortOrder
-        Boolean userRequested
-    }
-
-    @EqualsAndHashCode
-    static class DataTable {
-        List<ColumnHeader> columnHeaders
-        List<Dimension> rowDimensions
-        List<Dimension> columnDimensions
-        Integer rowCount
-        List<Row> rows
-        Integer offset
-        List<SortSpecification> sort
-    }
 
     /**
      *  given: study EHR is loaded
@@ -147,7 +109,6 @@ class DataTableSpec extends RESTSpec {
         def mapper = new ObjectMapper()
         def responseData = post(request)
         String responseBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseData)
-        log.info "RESPONSE: ${responseBody}"
         DataTable dataTable = new ObjectMapper().readValue(responseBody, DataTable)
 
         then: 'the table contains the expected data'
@@ -185,6 +146,158 @@ class DataTableSpec extends RESTSpec {
                  [380, 240],
                  28
         ]
+    }
+
+    final static char COLUMN_SEPARATOR = '\t' as char
+
+    @CompileStatic
+    private static List<List<String>> readExportData(byte[] bytes) {
+        def zipInputStream
+        try {
+            zipInputStream = new ZipInputStream(new ByteArrayInputStream(bytes))
+            ZipEntry entry
+            while (entry = zipInputStream.nextEntry) {
+                if (entry.name == 'data.tsv') {
+                    def reader = new BufferedReader(new InputStreamReader(zipInputStream))
+                    def csvReader = new CSVReader(reader, COLUMN_SEPARATOR)
+                    return csvReader.readAll().stream()
+                            .map({ String[] line -> Arrays.asList(line) })
+                            .collect(Collectors.toList())
+                }
+            }
+        } finally {
+            if (zipInputStream) zipInputStream.close()
+        }
+        throw new RuntimeException('No export data found.')
+    }
+
+    /**
+     *  given: study TUMOR_NORMAL_SAMPLES is loaded
+     *  when: for that study I export all observations in table format
+     *  then: the export contains the expected data
+     */
+    @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
+    def 'export data table with a modifier dimension'() {
+        given: "study TUMOR_NORMAL_SAMPLES is loaded"
+        def exportParams = [
+                constraint: [type: 'and', args: [
+                        [type: 'subselection', dimension: 'patient',
+                                constraint: [type: 'study_name', studyId: 'TUMOR_NORMAL_SAMPLES']],
+                        [type: 'or', args: [
+                                [type: 'and', args: [[type: "concept", conceptCode: "TNS:DEM:AGE"], [type: "study_name", studyId: "TUMOR_NORMAL_SAMPLES"]]],
+                                [type: 'and', args: [[type: "concept", conceptCode: "TNS:HD:EXPBREAST"], [type: "study_name", studyId: "TUMOR_NORMAL_SAMPLES"]]],
+                                [type: 'and', args: [[type: "concept", conceptCode: "TNS:HD:EXPLUNG"], [type: "study_name", studyId: "TUMOR_NORMAL_SAMPLES"]]],
+                                [type: 'and', args: [[type: "concept", conceptCode: "TNS:LAB:CELLCNT"], [type: "study_name", studyId: "TUMOR_NORMAL_SAMPLES"]]]
+                        ]]
+                ]],
+                elements: [
+                        [dataType: 'clinical',
+                         format: 'TSV',
+                         dataView: 'dataTable'
+                        ]
+                ],
+                includeMeasurementDateColumns: true,
+                tableConfig: [
+                        rowDimensions: ["patient"],
+                        columnDimensions: ["study","concept","sample_type"],
+                        rowSort: [],
+                        columnSort: []
+                ]
+        ]
+
+        when: 'I create an export job'
+        def createJobRequest = [
+                path: "${PATH_DATA_EXPORT}/job",
+                acceptType: JSON,
+                user: ADMIN_USER
+        ]
+        def response = post(createJobRequest)
+        def jobData = ExportJob.from(response.exportJob)
+        def jobId = jobData.id
+        def jobName = jobData.jobName
+
+        def exportRequest = [
+                path: "${PATH_DATA_EXPORT}/${jobId}/run",
+                body: exportParams,
+                acceptType: JSON,
+                user: ADMIN_USER
+        ]
+
+        response = post(exportRequest)
+        jobData = ExportJob.from(response.exportJob)
+
+        then: "job has been started"
+        assert jobData != null
+
+        assert jobData.id == jobId
+        assert jobData.userId == getUsername(ADMIN_USER)
+        assert jobData.jobStatus == 'Started'
+
+        when: "checking the status of the job"
+        int maxAttemptNumber = 10 // max number of status check attempts
+        def statusRequest = [
+                path: "$PATH_DATA_EXPORT/$jobId/status",
+                acceptType: JSON,
+                user: ADMIN_USER
+        ]
+        response = get(statusRequest)
+        jobData = ExportJob.from(response.exportJob)
+
+        then: 'eventually status is Completed'
+        assert jobData != null
+        def status = jobData.jobStatus
+
+        // waiting for async process to end (increase number of attempts if needed)
+        for (int attemptNum = 0; status != 'Completed' && attemptNum < maxAttemptNumber; attemptNum++) {
+            sleep(500)
+            response = get(statusRequest)
+            jobData = ExportJob.from(response.exportJob)
+            status = jobData.jobStatus
+        }
+        assert status == 'Completed'
+
+        when: 'I download the exported file'
+        def downloadRequest = [
+                path: "${PATH_DATA_EXPORT}/${jobId}/download",
+                acceptType: ZIP,
+                user: ADMIN_USER
+        ]
+        byte[] downloadResponse = get(downloadRequest)
+        def exportData = readExportData(downloadResponse)
+        println "Export data: ${exportData}"
+
+        then: 'it contains the correct data'
+        exportData != null
+        exportData.size() == 3 + 3
+        exportData.each { row ->
+            assert row.size() == 8
+        }
+        exportData[0] == ['', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES']
+        exportData[1] == ['', 'TNS:DEM:AGE', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPLUNG', 'TNS:HD:EXPLUNG', 'TNS:LAB:CELLCNT', 'TNS:LAB:CELLCNT']
+        exportData[2] == ['', '', 'Normal', 'Tumor', 'Normal', 'Tumor', 'Normal', 'Tumor']
+        // Patient TNS:63
+        exportData[3] == [
+                '-63/TNS:63',
+                '40.00000',
+                '',
+                'sample3',
+                'sample1',
+                'sample2',
+                '203.00000',
+                '100.00000'
+        ]
+        // Patient TNS:43
+        exportData[5] == [
+                '-43/TNS:43',
+                '52.00000',
+                'sample9',
+                '',
+                'sample7;sample8',
+                'sample6',
+                '380.00000;240.00000',
+                '28.00000'
+        ]
+
     }
 
 }
