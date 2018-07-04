@@ -3,8 +3,9 @@ package org.transmartproject.interceptors
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class DataRetrievalInterceptor extends AuditInterceptor {
+class DataRetrievalInterceptor extends ApiAuditInterceptor {
 
+    // /v1 interceptor
     DataRetrievalInterceptor() {
         match(controller: ~/(observation|highDim)/)
     }

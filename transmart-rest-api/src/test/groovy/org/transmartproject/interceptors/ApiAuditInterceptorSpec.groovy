@@ -7,8 +7,25 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 
-@TestFor(ConceptAuditInterceptor)
-class ConceptAuditInterceptorSpec extends Specification {
+@TestFor(ApiAuditInterceptor)
+class ApiAuditInterceptorSpec extends Specification {
+
+    void "Test arvados interceptor matching"() {
+        when:
+        "A request is made to the $action action"
+        withRequest(controller: "arvados", action: action)
+
+        then: "The interceptor does match"
+        interceptor.doesMatch()
+
+        where:
+        action         | _
+        "save"         | _
+        "delete"       | _
+        "update"       | _
+        "index"        | _
+        "anyNewAction" | _
+    }
 
     void "Test concept interceptor matching"() {
         when:
@@ -19,42 +36,40 @@ class ConceptAuditInterceptorSpec extends Specification {
         interceptor.doesMatch()
 
         where:
-        action  | _
-        "index" | _
-        "show"  | _
+        action         | _
+        "index"        | _
+        "show"         | _
+        "anyNewAction" | _
     }
 
-    void "Test concept interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "concept", action: 'invalid')
-
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
-    }
-}
-
-@TestFor(DimensionAuditInterceptor)
-class DimensionAuditInterceptorSpec extends Specification {
-
-    void "Test dimension interceptor matching"() {
-        when: "A request is made to the list action"
-        withRequest(controller: "dimension", action: 'list')
+    void "Test config interceptor matching"() {
+        when:
+        "A request is made to the $action action"
+        withRequest(controller: "config", action: action)
 
         then: "The interceptor does match"
         interceptor.doesMatch()
+
+        where:
+        action         | _
+        "index"        | _
+        "update"       | _
+        "anyNewAction" | _
     }
 
-    void "Test dimension interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "dimension", action: 'invalid')
+    void "Test dimension interceptor matching"() {
+        when:
+        "A request is made to the $action action"
+        withRequest(controller: "dimension", action: action)
 
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
+        then: "The interceptor does match"
+        interceptor.doesMatch()
+
+        where:
+        action         | _
+        "list"         | _
+        "anyNewAction" | _
     }
-}
-
-@TestFor(ExportAuditInterceptor)
-class ExportAuditInterceptorSpec extends Specification {
 
     void "Test export interceptor matching"() {
         when:
@@ -65,16 +80,17 @@ class ExportAuditInterceptorSpec extends Specification {
         interceptor.doesMatch()
 
         where:
-        action        | _
-        "createJob"   | _
-        "run"         | _
-        "cancel"      | _
-        "delete"      | _
-        "get"         | _
-        "download"    | _
-        "jobStatus"   | _
-        "dataFormats" | _
-        "fileFormats" | _
+        action         | _
+        "createJob"    | _
+        "run"          | _
+        "cancel"       | _
+        "delete"       | _
+        "get"          | _
+        "download"     | _
+        "jobStatus"    | _
+        "dataFormats"  | _
+        "fileFormats"  | _
+        "anyNewAction" | _
     }
 
     void "Test export interceptor not matching"() {
@@ -84,10 +100,6 @@ class ExportAuditInterceptorSpec extends Specification {
         then: "The interceptor does not match"
         !interceptor.doesMatch()
     }
-}
-
-@TestFor(PatientQueryAuditInterceptor)
-class PatientQueryAuditInterceptorSpec extends Specification {
 
     void "Test patientQuery interceptor matching"() {
         when:
@@ -104,19 +116,8 @@ class PatientQueryAuditInterceptorSpec extends Specification {
         "findPatientSet"   | _
         "findPatientSets"  | _
         "createPatientSet" | _
+        "anyNewAction"     | _
     }
-
-    void "Test patientQuery interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "patientQuery", action: 'invalid')
-
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
-    }
-}
-
-@TestFor(QueryAuditInterceptor)
-class QueryAuditInterceptorSpec extends Specification {
 
     void "Test query interceptor matching"() {
         when:
@@ -137,19 +138,8 @@ class QueryAuditInterceptorSpec extends Specification {
         "crosstable"               | _
         "table"                    | _
         "supportedFields"          | _
+        "anyNewAction"             | _
     }
-
-    void "Test query interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "query", action: 'invalid')
-
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
-    }
-}
-
-@TestFor(StudyQueryAuditInterceptor)
-class StudyQueryAuditInterceptorSpec extends Specification {
 
     void "Test studyQuery interceptor matching"() {
         when:
@@ -165,40 +155,72 @@ class StudyQueryAuditInterceptorSpec extends Specification {
         "findStudy"             | _
         "findStudyByStudyId"    | _
         "findStudiesByStudyIds" | _
+        "anyNewAction"          | _
     }
 
-    void "Test studyQuery interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "studyQuery", action: 'invalid')
-
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
-    }
-}
-
-@TestFor(SystemAuditInterceptor)
-class SystemAuditInterceptorSpec extends Specification {
-
-    void "Test system interceptor matching"() {
+    void "Test relationType interceptor matching"() {
         when:
-        "A request is made to the afterDataLoadingUpdate action"
-        withRequest(controller: "system", action: 'afterDataLoadingUpdate')
+        "A request is made to the $action action"
+        withRequest(controller: "relationType", action: action)
 
         then: "The interceptor does match"
         interceptor.doesMatch()
+
+        where:
+        action         | _
+        "index"        | _
+        "anyNewAction" | _
     }
 
-    void "Test system interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "system", action: 'invalid')
+    void "Test storage interceptor matching"() {
+        when:
+        "A request is made to the $action action"
+        withRequest(controller: "storage", action: action)
 
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
+        then: "The interceptor does match"
+        interceptor.doesMatch()
+
+        where:
+        action         | _
+        "show"         | _
+        "save"         | _
+        "index"        | _
+        "indexStudy"   | _
+        "delete"       | _
+        "update"       | _
+        "anyNewAction" | _
     }
-}
 
-@TestFor(TreeAuditInterceptor)
-class TreeAuditInterceptorSpec extends Specification {
+    void "Test storageSystem interceptor matching"() {
+        when:
+        "A request is made to the $action action"
+        withRequest(controller: "storageSystem", action: action)
+
+        then: "The interceptor does match"
+        interceptor.doesMatch()
+
+        where:
+        action         | _
+        "save"         | _
+        "delete"       | _
+        "update"       | _
+        "index"        | _
+        "anyNewAction" | _
+    }
+
+    void "Test system interceptor matching"() {
+        when:
+        "A request is made to the $action action"
+        withRequest(controller: "system", action: action)
+
+        then: "The interceptor does match"
+        interceptor.doesMatch()
+
+        where:
+        action                   | _
+        "afterDataLoadingUpdate" | _
+        "anyNewAction"           | _
+    }
 
     void "Test tree interceptor matching"() {
         when:
@@ -214,19 +236,8 @@ class TreeAuditInterceptorSpec extends Specification {
         "clearCache"    | _
         "rebuildCache"  | _
         "rebuildStatus" | _
+        "anyNewAction"  | _
     }
-
-    void "Test tree interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "tree", action: 'invalid')
-
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
-    }
-}
-
-@TestFor(UserQueryAuditInterceptor)
-class UserQueryAuditInterceptorSpec extends Specification {
 
     void "Test userQuery interceptor matching"() {
         when:
@@ -237,20 +248,13 @@ class UserQueryAuditInterceptorSpec extends Specification {
         interceptor.doesMatch()
 
         where:
-        action   | _
-        "index"  | _
-        "get"    | _
-        "save"   | _
-        "update" | _
-        "delete" | _
-    }
-
-    void "Test userQuery interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "userQuery", action: 'invalid')
-
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
+        action         | _
+        "index"        | _
+        "get"          | _
+        "save"         | _
+        "update"       | _
+        "delete"       | _
+        "anyNewAction" | _
     }
 
     void "Test userQuerySet interceptor matching"() {
@@ -265,14 +269,22 @@ class UserQueryAuditInterceptorSpec extends Specification {
         action                   | _
         "scan"                   | _
         "getSetChangesByQueryId" | _
+        "anyNewAction"           | _
     }
 
-    void "Test userQuerySet interceptor not matching"() {
-        when: "A request is made to an invalid action"
-        withRequest(controller: "userQuerySet", action: 'invalid')
+    void "Test version interceptor matching"() {
+        when:
+        "A request is made to the $action action"
+        withRequest(controller: "version", action: action)
 
-        then: "The interceptor does not match"
-        !interceptor.doesMatch()
+        then: "The interceptor does match"
+        interceptor.doesMatch()
+
+        where:
+        action         | _
+        "index"        | _
+        "show"         | _
+        "anyNewAction" | _
     }
 }
 
