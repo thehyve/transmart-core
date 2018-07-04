@@ -40,6 +40,11 @@ import org.transmartproject.db.util.StringUtils
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
+/**
+ * Legacy patient set builder service.
+ * @deprecated Use {@link org.transmartproject.core.multidimquery.PatientSetResource} instead.
+ */
+@Deprecated
 class PatientSetQueryBuilderService {
 
     OntologyTermsResource ontologyTermsResourceService

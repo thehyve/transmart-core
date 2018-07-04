@@ -3,9 +3,13 @@ package org.transmartproject.core.ontology
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
 /**
- * The ConceptsResource represent i2b2 concepts, that is,
+ * Legacy ontology terms resource for retrieving i2b2 tree nodes / concepts, that is,
  * classes of data. These concepts are organized in a hierarchical fashion.
+ *
+ * @deprecated Use {@link org.transmartproject.core.tree.TreeResource} instead for tree nodes
+ * or {@link org.transmartproject.core.concept.ConceptsResource} for concepts.
  */
+@Deprecated
 interface OntologyTermsResource {
 
     /**

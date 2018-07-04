@@ -4,8 +4,11 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.User
 
 /**
- * The studies resource represents the set of all the studies.
+ * Legacy studies resource represents the set of all the studies.
+ *
+ * @deprecated Use {@link MDStudiesResource} instead.
  */
+@Deprecated
 interface StudiesResource {
 
     /**
