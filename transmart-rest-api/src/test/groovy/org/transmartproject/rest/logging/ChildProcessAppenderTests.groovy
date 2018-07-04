@@ -17,13 +17,14 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.server.logging
+package org.transmartproject.rest.logging
 
-import org.apache.log4j.Level
-import org.apache.log4j.spi.LoggingEvent
-import org.apache.log4j.Category
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.LoggingEvent
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import ch.qos.logback.classic.Level
+import org.slf4j.LoggerFactory
 import spock.lang.Specification
 
 import java.nio.charset.StandardCharsets
@@ -33,21 +34,21 @@ import static org.apache.commons.io.FileUtils.writeStringToFile
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-import static ChildProcessAppender.ChildFailedException
+import static org.transmartproject.rest.logging.ChildProcessAppender.ChildFailedException
 
 class ChildProcessAppenderTests extends Specification {
    
     @Rule
     TemporaryFolder temp = new TemporaryFolder()
     
-    static String TESTSTRING = "hello world! testing org.transmart.server.logging.ChildProcessAppender\n"
+    static String TESTSTRING = "hello world! testing ChildProcessAppender\n"
 
     static sh(cmd) { return ['sh', '-c', cmd] }
     // escape shell strings, based on http://stackoverflow.com/a/1250279/264177
     static path(File file) { "'${file.path.replaceAll("'", "'\"'\"'")}'" }
 
     static void waitForChild(ChildProcessAppender a) {
-        a.input.close()
+        a.input?.close()
         a.process.waitFor()
     }
     
@@ -55,15 +56,18 @@ class ChildProcessAppenderTests extends Specification {
         setup:
         File output = temp.newFile('output')
         def p = new ChildProcessAppender(command: sh("cat >"+path(output)))
-        LoggingEvent e = new LoggingEvent("", new Category('debug'), Level.DEBUG, [foo: 'bar', baz: 'quux'], null)
-        
+        Logger logger=(Logger)LoggerFactory.getLogger(this.getClass())
+        String message = '{"foo": "bar", "baz": "quux"}'
+        LoggingEvent e = new LoggingEvent("", logger, Level.DEBUG, message, null, null)
+
         when:
+        p.start()
         p.doAppend(e)
-        p.close()
         waitForChild(p)
-        
+        p.stop()
+
         then:
-        readFileToString(output) == '{"foo":"bar","baz":"quux"}\n'
+        readFileToString(output).contains("message=$message")
     }
 
     void testOutput() {
@@ -98,7 +102,12 @@ class ChildProcessAppenderTests extends Specification {
     }
 
     void testRestart() {
-        do_testRestart(3, 15)
+        when:
+        def output = do_testRestart(3, 15)
+        then:
+        // restarting a child process may lose some messages, so we can not be sure of how many copies of TESTSTRING
+        // there are
+        assertThat readFileToString(output), containsString(TESTSTRING)
     }
     
     void testRestartLimit() {
@@ -108,7 +117,7 @@ class ChildProcessAppenderTests extends Specification {
         thrown ChildFailedException
     }
 
-    void do_testRestart(int restarts, int limit) {
+    File do_testRestart(int restarts, int limit) {
         File runcount = temp.newFile('count')
         File output = temp.newFile('output')
         writeStringToFile(runcount, '0\n', StandardCharsets.US_ASCII)
@@ -130,11 +139,9 @@ class ChildProcessAppenderTests extends Specification {
             if (countstr) count = Integer.parseInt(countstr)
         }
         p.write(TESTSTRING)
-        p.close()
+        p.stop()
         waitForChild(p)
 
-        // restarting a child process may lose some messages, so we can not be sure of how many copies of TESTSTRING
-        // there are
-        assertThat readFileToString(output), containsString(TESTSTRING)
+        return output
     }
 }

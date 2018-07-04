@@ -1,9 +1,4 @@
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
-import ch.qos.logback.core.ConsoleAppender
-import ch.qos.logback.core.FileAppender
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
-import ch.qos.logback.core.rolling.RollingFileAppender
-import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
 import grails.util.BuildSettings
 import grails.util.Environment
 
@@ -49,36 +44,6 @@ if (productionMode && logDirectory) {
     }
     root(WARN, ['transmart'])
 }
-
-/**
- * Configuration for writing audit metrics.
- * This needs to be placed in the out-of-tree Config.groovy, as the log4j config there will override this.
- * (and don't forget to 'import org.apache.log4j.DailyRollingFileAppender',
- * 'import org.transmart.server.logging.ChildProcessAppender' and 'import org.transmart.server.logging.JsonLayout'.)
- */
-/*
-
-// default log directory is either the tomcat root directory or the
-// current working directory.
-def catalinaBase = System.getProperty('catalina.base') ?: '.'
-def logDirectory = "${catalinaBase}/logs".toString()
-
-// Use layout: JsonLayout(conversionPattern: '%m%n', singleLine: true) to get each message as a single line
-// json the same way as ChildProcessAppender sends it.
-appender('fileAuditLogger', DailyRollingFileAppender) {
-    datePattern = "'.'yyyy-MM-dd",
-    fileName = "${logDirectory}/audit.log",
-    layout = JsonLayout(conversionPattern:'%d %m%n')
-}
-// the default layout is a JsonLayout(conversionPattern: '%m%n, singleLine: true)
-appender('processAuditLogger', ChildProcessAppender) {
-        command = ['/usr/bin/your/command/here', 'arg1', 'arg2']
-}
-
-logger('org.transmart.audit', TRACE, ['fileAuditLogger'])
-logger('org.transmart.audit', TRACE, ['processAuditLogger'])
-logger('org.transmart.audit', TRACE, ['stdout'])
-*/
 
 if (Environment.current in [Environment.DEVELOPMENT, Environment.TEST]) {
     logger('org.grails.spring', WARN)

@@ -17,7 +17,7 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.server
+package org.transmartproject.app
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

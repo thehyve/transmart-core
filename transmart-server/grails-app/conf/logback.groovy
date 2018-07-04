@@ -1,11 +1,9 @@
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
-import ch.qos.logback.core.ConsoleAppender
-import ch.qos.logback.core.FileAppender
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
-import ch.qos.logback.core.rolling.RollingFileAppender
-import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
+import ch.qos.logback.contrib.jackson.JacksonJsonFormatter
 import grails.util.BuildSettings
 import grails.util.Environment
+import org.transmartproject.rest.logging.ApiAuditLogJsonLayout
+import org.transmartproject.rest.logging.ChildProcessAppender
 
 // See http://logback.qos.ch/manual/groovy.html for details on configuration
 appender('stdout', ConsoleAppender) {
@@ -52,33 +50,43 @@ if (productionMode && logDirectory) {
 
 /**
  * Configuration for writing audit metrics.
- * This needs to be placed in the out-of-tree Config.groovy, as the log4j config there will override this.
- * (and don't forget to 'import org.apache.log4j.DailyRollingFileAppender',
- * 'import org.transmart.server.logging.ChildProcessAppender' and 'import org.transmart.server.logging.JsonLayout'.)
+ * This could be placed in the out-of-tree Config.groovy and will override the configuration below.
+ * See https://logback.qos.ch/manual/appenders.html for details on configuration
  */
-/*
 
-// default log directory is either the tomcat root directory or the
-// current working directory.
-def catalinaBase = System.getProperty('catalina.base') ?: '.'
-def logDirectory = "${catalinaBase}/logs".toString()
+appender('fileAuditLogger', RollingFileAppender) {
 
-// Use layout: JsonLayout(conversionPattern: '%m%n', singleLine: true) to get each message as a single line
-// json the same way as ChildProcessAppender sends it.
-appender('fileAuditLogger', DailyRollingFileAppender) {
-    datePattern = "'.'yyyy-MM-dd",
-    fileName = "${logDirectory}/audit.log",
-    layout = JsonLayout(conversionPattern:'%d %m%n')
+    file = "${logDirectory}/audit.log"
+    rollingPolicy(SizeAndTimeBasedRollingPolicy) {
+        // daily rollover
+        fileNamePattern = "${logDirectory}/audit.%d{yyyy-MM-dd}.%i.log"
+        // size limit on the log files
+        maxFileSize = '100MB'
+        /* // optional parameters
+        // maxHistory controls the maximum number of archive files to keep, asynchronously deleting older files.
+        maxHistory = 30
+        // totalSizeCap controls the total size of all archive files.
+        // Oldest archives are deleted asynchronously when the total size cap is exceeded
+        totalSizeCap = '3GB'
+         */
+    }
+    encoder(LayoutWrappingEncoder) {
+        layout(ApiAuditLogJsonLayout) {
+            jsonFormatter(JacksonJsonFormatter) {
+                prettyPrint = true
+            }
+            appendLineSeparator = true
+        }
+    }
 }
-// the default layout is a JsonLayout(conversionPattern: '%m%n, singleLine: true)
+
 appender('processAuditLogger', ChildProcessAppender) {
-        command = ['/usr/bin/your/command/here', 'arg1', 'arg2']
+    // specify the command as in the example below
+    //    command = ['/usr/bin/your/command/here', 'arg1', 'arg2']
 }
 
-logger('org.transmart.server', TRACE, ['fileAuditLogger'])
-logger('org.transmart.server', TRACE, ['processAuditLogger'])
-logger('org.transmart.server', TRACE, ['stdout'])
-*/
+logger('org.transmartproject.db.log', TRACE, ['fileAuditLogger'], true)
+logger('org.transmartproject.db.log', TRACE, ['processAuditLogger'], true)
 
 if (Environment.current in [Environment.DEVELOPMENT, Environment.TEST]) {
     logger('org.grails.spring', WARN)
