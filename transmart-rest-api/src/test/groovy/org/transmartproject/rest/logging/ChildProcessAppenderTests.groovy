@@ -102,11 +102,6 @@ class ChildProcessAppenderTests extends Specification {
         thrown ChildFailedException
     }
 
-    /**
-     * This test is failing randomly on Travis, so is temporarily ignored.
-     * The fix will be covered by: https://jira.thehyve.nl/browse/TMT-318.
-     */
-    @Ignore
     void testRestart() {
         when:
         def output = do_testRestart(3, 15)
