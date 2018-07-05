@@ -1,8 +1,7 @@
 package transmart.core.db.tests
 
 import grails.plugins.Plugin
-
-import org.transmartproject.db.test.H2DatabaseCreator
+import org.transmartproject.db.test.H2Views
 
 /*
  * Copyright © 2013-2014 The Hyve B.V.
@@ -47,7 +46,7 @@ class TransmartCoreDbTestsGrailsPlugin extends Plugin {
     @Override
     Closure doWithSpring() {
         return { ->
-            h2DatabaseCreator(H2DatabaseCreator)
+            h2Views(H2Views)
         }
     }
 }

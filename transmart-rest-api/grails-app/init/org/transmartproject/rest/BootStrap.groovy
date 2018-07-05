@@ -26,6 +26,7 @@ package org.transmartproject.rest
 
 import grails.util.Environment
 import groovy.util.logging.Slf4j
+import org.transmartproject.db.Dictionaries
 import org.transmartproject.db.TestData
 import org.transmartproject.db.user.AccessLevelTestData
 
@@ -36,6 +37,8 @@ class BootStrap {
     static AccessLevelTestData accessLevelTestData
 
     static setupTestData() {
+        new Dictionaries().saveAll()
+
         testData = TestData.createDefault()
         testData.saveAll()
         new org.transmartproject.rest.test.TestData().createTestData()

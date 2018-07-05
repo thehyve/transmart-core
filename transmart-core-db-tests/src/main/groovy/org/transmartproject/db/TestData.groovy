@@ -19,12 +19,10 @@
 
 package org.transmartproject.db
 
-import grails.core.GrailsApplication
 import grails.util.Holders
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.exception.GenericJDBCException
-import org.springframework.context.ApplicationContext
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.arvados.ArvadosTestData
@@ -36,7 +34,6 @@ import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.storage.StorageTestData
-import org.transmartproject.db.test.H2DatabaseCreator
 
 class TestData {
 
@@ -135,7 +132,6 @@ class TestData {
     }
 
 
-
     void saveAll() {
         conceptData?.saveAll()
         i2b2Data?.saveAll()
@@ -174,7 +170,7 @@ class TestData {
      * @param currentTransactionOnly false. When true, deletes only happen in the current transaction, but then you
      * should use clearAllDataInTransaction() instead.
      */
-    static void clearAllData(boolean currentTransactionOnly=false) {
+    static void clearAllData(boolean currentTransactionOnly = false) {
         reset()
 
         Session session = Holders.applicationContext.getBean(SessionFactory).currentSession
@@ -183,7 +179,7 @@ class TestData {
         allTables.each {
             try {
                 session.createSQLQuery(currentTransactionOnly ? "DELETE FROM $it;" : "TRUNCATE TABLE $it;").executeUpdate()
-            } catch(GenericJDBCException e) {
+            } catch (GenericJDBCException e) {
                 //ignore CANNOT TRUNCATE xxx, as several domain classes are backed by views
             }
         }
@@ -193,8 +189,6 @@ class TestData {
 
         SystemResource systemResource = Holders.applicationContext.getBean(SystemResource)
         systemResource.clearCaches()
-        H2DatabaseCreator h2DatabaseCreator = Holders.applicationContext.getBean(H2DatabaseCreator)
-        h2DatabaseCreator.fillDictionaries()
     }
 
 }

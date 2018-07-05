@@ -19,17 +19,14 @@
 
 package org.transmartproject.db.test
 
-import groovy.sql.Sql
 import groovy.util.logging.Slf4j
+import org.hibernate.Session
+import org.hibernate.SessionFactory
+import org.hibernate.engine.spi.SessionImplementor
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import org.transmartproject.core.querytool.QueryResultType
 
 import javax.annotation.PostConstruct
-import javax.sql.DataSource
-
-import static H2DatabaseCreator.ObjectStatus.*
+import javax.annotation.PreDestroy
 
 /**
  * This class is for integration test purposes, but has to be here due to
@@ -38,82 +35,66 @@ import static H2DatabaseCreator.ObjectStatus.*
  * the test classpath.
  */
 @Slf4j
-class H2DatabaseCreator {
+class H2Views {
 
     @Autowired
-    @Qualifier('dataSource')
-    DataSource dataSource
-
-    private Sql sql
+    SessionFactory sessionFactory
 
     @PostConstruct
-    void init() {
-        this.sql = new Sql(dataSource.connection)
+    protected void init() {
+        Session session = sessionFactory.openSession()
 
         try {
-            if (!isH2()) {
+            if (session instanceof SessionImplementor && !isH2(session)) {
+                log.warn 'Skip test resources creation as database is not H2.'
+                return
+            }
+            log.info 'Executing H2Views init actions'
+
+            createSearchBioMkrCorrelView(session)
+            createSearchAuthUserSecAccessV(session)
+            createBioMarkerCorrelMv(session)
+            createSubPathwayCorrelView(session)
+            createSuperPathwayCorrelView(session)
+            createModifierDimensionView(session)
+            createDeVariantSummaryDetailGene(session)
+        } finally {
+            session.flush()
+            session.close()
+        }
+    }
+
+
+    @PreDestroy
+    protected void destroy() {
+        Session session = sessionFactory.openSession()
+
+        try {
+            if (session instanceof SessionImplementor && !isH2(session)) {
+                log.warn 'Skip test resources cleanup as the database is not H2.'
                 return
             }
 
-            log.info 'Executing H2DatabaseCreator init actions'
+            log.info 'Cleaning resources created in H2Views'
 
-            createSearchBioMkrCorrelView()
-            createSearchAuthUserSecAccessV()
-            createBioMarkerCorrelMv()
-            createSubPathwayCorrelView()
-            createSuperPathwayCorrelView()
-            createModifierDimensionView()
-            createDeVariantSummaryDetailGene()
-            fillDictionaries()
+            dropViewIfExists(session, 'SEARCHAPP', 'SEARCH_BIO_MKR_CORREL_VIEW')
+            dropViewIfExists(session, 'SEARCHAPP', 'SEARCH_AUTH_USER_SEC_ACCESS_V')
+            dropViewIfExists(session, 'BIOMART', 'BIO_MARKER_CORREL_MV')
+            dropViewIfExists(session, 'BIOMART', 'BIO_METAB_SUBPATHWAY_VIEW')
+            dropViewIfExists(session, 'BIOMART', 'BIO_METAB_SUPERPATHWAY_VIEW')
+            dropViewIfExists(session, 'I2B2DEMODATA', 'MODIFIER_DIMENSION_VIEW')
+            dropViewIfExists(session, 'DEAPP', 'DE_VARIANT_SUMMARY_DETAIL_GENE')
+
         } finally {
-            this.sql.close()
+            session.flush()
+            session.close()
         }
     }
 
-    void fillDictionaries() {
-        new SimpleJdbcInsert(dataSource)
-                .withSchemaName('i2b2demodata')
-                .withTableName('qt_query_result_type')
-                .executeBatch(
-                [
-                        result_type_id: QueryResultType.PATIENT_SET_ID,
-                        description   : 'Patient set',
-                ],
-                [
-                        result_type_id: QueryResultType.GENERIC_QUERY_RESULT_ID,
-                        description   : 'Generic query result',
-                ],
-        )
+    protected static createBioMarkerCorrelMv(Session session) {
+        dropTableIfExist(session, 'BIOMART', 'BIO_MARKER_CORREL_MV')
 
-        new SimpleJdbcInsert(dataSource)
-                .withSchemaName('i2b2metadata')
-                .withTableName('dimension_description')
-                .executeBatch(
-                [name: 'study'],
-                [name: 'concept'],
-                [name: 'patient'],
-                [name: 'visit'],
-                [name: 'start time'],
-                [name: 'end time'],
-                [name: 'location'],
-                [name: 'trial visit'],
-                [name: 'provider'],
-                [name: 'biomarker'],
-                [name: 'assay'],
-                [name: 'projection'],
-                [name: 'sample_type',
-                 density: 'DENSE', modifier_code: 'TNS:SMPL', value_type: 'T', packable: 'NOT_PACKABLE', size_cd: 'SMALL'],
-                [name: 'original_variable',
-                 density: 'DENSE', modifier_code: 'TRANSMART:ORIGINAL_VARIABLE', value_type: 'T', packable: 'NOT_PACKABLE', size_cd: 'SMALL'],
-        )
-    }
-
-    void createBioMarkerCorrelMv() {
-        if (handleCurrentState('BIOMART', 'BIO_MARKER_CORREL_MV')) {
-            return
-        }
-
-        sql.execute '''
+        session.createSQLQuery('''
             CREATE VIEW BIOMART.BIO_MARKER_CORREL_MV (
                 BIO_MARKER_ID,
                 ASSO_BIO_MARKER_ID,
@@ -251,18 +232,16 @@ class H2DatabaseCreator {
             WHERE
                 b.bio_marker_id = c.bio_data_id
                 AND c.bio_data_correl_descr_id = d.bio_data_correl_descr_id
-                AND d.correlation = 'GENE TO TRANSCRIPT';'''
+                AND d.correlation = 'GENE TO TRANSCRIPT';''').executeUpdate()
 
     }
 
-    void createSearchAuthUserSecAccessV() {
-        if (handleCurrentState('SEARCHAPP', 'SEARCH_AUTH_USER_SEC_ACCESS_V')) {
-            return
-        }
+    protected static createSearchAuthUserSecAccessV(Session session) {
+        dropTableIfExist(session, 'SEARCHAPP', 'SEARCH_AUTH_USER_SEC_ACCESS_V')
 
         log.info 'Creating SEARCHAPP.SEARCH_AUTH_USER_SEC_ACCESS_V'
 
-        sql.execute '''
+        session.createSQLQuery('''
             CREATE VIEW SEARCHAPP.SEARCH_AUTH_USER_SEC_ACCESS_V(
                 search_auth_user_sec_access_id,
                 search_auth_user_id,
@@ -301,17 +280,15 @@ class H2DatabaseCreator {
                 INNER JOIN searchapp.search_auth_sec_object_access sasoa
                     ON sag.id = sasoa.auth_principal_id
             WHERE
-                sag.group_category = 'EVERYONE_GROUP';'''
+                sag.group_category = 'EVERYONE_GROUP';''').executeUpdate()
     }
 
-    void createSearchBioMkrCorrelView() {
-        if (handleCurrentState('SEARCHAPP', 'SEARCH_BIO_MKR_CORREL_VIEW')) {
-            return
-        }
+    protected static createSearchBioMkrCorrelView(Session session) {
+        dropTableIfExist(session, 'SEARCHAPP', 'SEARCH_BIO_MKR_CORREL_VIEW')
 
         log.info 'Creating SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW'
 
-        sql.execute '''
+        session.createSQLQuery('''
             CREATE VIEW SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW (
                 DOMAIN_OBJECT_ID,
                 ASSO_BIO_MARKER_ID,
@@ -360,17 +337,15 @@ class H2DatabaseCreator {
                         i.SEARCH_GENE_SIGNATURE_ID = gs.SEARCH_GENE_SIGNATURE_ID
                         AND gs.DELETED_FLAG IS FALSE
                         AND bada.bio_assay_feature_group_id = i.bio_assay_feature_group_id
-                        AND i.bio_assay_feature_group_id IS NOT NULL ) A; '''
+                        AND i.bio_assay_feature_group_id IS NOT NULL ) A; ''').executeUpdate()
     }
 
-    void createSubPathwayCorrelView() {
-        if (handleCurrentState('BIOMART', 'BIO_METAB_SUBPATHWAY_VIEW')) {
-            return
-        }
+    protected static createSubPathwayCorrelView(Session session) {
+        dropTableIfExist(session, 'BIOMART', 'BIO_METAB_SUBPATHWAY_VIEW')
 
         log.info 'Creating BIOMART.BIO_METAB_SUBPATHWAY_VIEW'
 
-        sql.execute '''
+        session.createSQLQuery('''
             CREATE VIEW BIOMART.BIO_METAB_SUBPATHWAY_VIEW(
                 SUBPATHWAY_ID,
                 ASSO_BIO_MARKER_ID,
@@ -385,17 +360,15 @@ class H2DatabaseCreator {
                 INNER JOIN deapp.de_metabolite_annotation M ON (M.id = J.metabolite_id)
                 INNER JOIN biomart.bio_marker B ON (
                     B.bio_marker_type = 'METABOLITE' AND
-                    B.primary_external_id = M.hmdb_id);'''
+                    B.primary_external_id = M.hmdb_id);''').executeUpdate()
     }
 
-    void createSuperPathwayCorrelView() {
-        if (handleCurrentState('BIOMART', 'BIO_METAB_SUPERPATHWAY_VIEW')) {
-            return
-        }
+    protected static createSuperPathwayCorrelView(Session session) {
+        dropTableIfExist(session, 'BIOMART', 'BIO_METAB_SUPERPATHWAY_VIEW')
 
         log.info 'Creating BIOMART.BIO_METAB_SUPERPATHWAY_VIEW'
 
-        sql.execute '''
+        session.createSQLQuery('''
             CREATE VIEW BIOMART.BIO_METAB_SUPERPATHWAY_VIEW(
                 SUPERPATHWAY_ID,
                 ASSO_BIO_MARKER_ID,
@@ -411,17 +384,15 @@ class H2DatabaseCreator {
                 INNER JOIN deapp.de_metabolite_annotation M ON (M.id = J.metabolite_id)
                 INNER JOIN biomart.bio_marker B ON (
                     B.bio_marker_type = 'METABOLITE' AND
-                    B.primary_external_id = M.hmdb_id);'''
+                    B.primary_external_id = M.hmdb_id);''').executeUpdate()
     }
 
-    void createModifierDimensionView() {
-        if (handleCurrentState('I2B2DEMODATA', 'MODIFIER_DIMENSION_VIEW')) {
-            return
-        }
+    protected static createModifierDimensionView(Session session) {
+        dropTableIfExist(session, 'I2B2DEMODATA', 'MODIFIER_DIMENSION_VIEW')
 
         log.info 'Creating I2B2DEMODATA.MODIFIER_DIMENSION_VIEW'
 
-        sql.execute '''
+        session.createSQLQuery('''
             CREATE VIEW I2B2DEMODATA.MODIFIER_DIMENSION_VIEW AS
             SELECT
                 MD.modifier_path,
@@ -436,17 +407,15 @@ class H2DatabaseCreator {
             FROM
                 I2B2DEMODATA.MODIFIER_DIMENSION MD
                 LEFT JOIN I2B2DEMODATA.MODIFIER_METADATA MM ON (
-                    MD.modifier_cd = MM.modifier_cd)'''
+                    MD.modifier_cd = MM.modifier_cd)''').executeUpdate()
     }
 
-    void createDeVariantSummaryDetailGene() {
-        if (handleCurrentState('DEAPP', 'DE_VARIANT_SUMMARY_DETAIL_GENE')) {
-            return
-        }
+    protected static createDeVariantSummaryDetailGene(Session session) {
+        dropTableIfExist(session, 'DEAPP', 'DE_VARIANT_SUMMARY_DETAIL_GENE')
 
         log.info 'Creating DEAPP.DE_VARIANT_SUMMARY_DETAIL_GENE'
 
-        sql.execute '''
+        session.createSQLQuery('''
             CREATE OR REPLACE VIEW DEAPP.DE_VARIANT_SUMMARY_DETAIL_GENE AS
             SELECT summary.variant_subject_summary_id,
                 summary.chr,
@@ -485,57 +454,18 @@ class H2DatabaseCreator {
                 geneid.dataset_id = summary.dataset_id AND
                 geneid.chr = summary.chr AND
                 geneid.pos = summary.pos AND
-                geneid.info_name = 'GID' '''
+                geneid.info_name = 'GID' ''').executeUpdate()
     }
 
-    enum ObjectStatus {
-        IS_VIEW,
-        IS_TABLE,
-        DOES_NOT_EXIST
+    protected static boolean dropTableIfExist(Session session, String schema, String tableName) {
+        session.createSQLQuery("DROP TABLE IF EXISTS $schema.$tableName" as String).executeUpdate()
     }
 
-    ObjectStatus getCurrentStatus(String schema, String viewName) {
-        def res
-
-        res = sql.firstRow """
-            SELECT EXISTS(
-                SELECT TABLE_NAME
-                FROM INFORMATION_SCHEMA.VIEWS
-                WHERE TABLE_SCHEMA = $schema AND TABLE_NAME = $viewName)"""
-        if (res[0]) {
-            log.debug "Object $schema.$viewName is a already view"
-            return IS_VIEW
-        }
-
-        res = sql.firstRow """
-            SELECT EXISTS(
-                SELECT TABLE_NAME
-                FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_SCHEMA = $schema AND TABLE_NAME = $viewName)"""
-        if (res[0]) {
-            log.debug "Object $schema.$viewName is a table"
-            return IS_TABLE
-        }
-
-        log.debug "Object $schema.$viewName does not exist"
-        DOES_NOT_EXIST
+    protected static boolean dropViewIfExists(Session session, String schema, String viewName) {
+        session.createSQLQuery("DROP VIEW IF EXISTS $schema.$viewName" as String).executeUpdate()
     }
 
-    Boolean handleCurrentState(String schema, String viewName) {
-        switch (getCurrentStatus(schema, viewName)) {
-            case DOES_NOT_EXIST:
-                return false
-            case IS_TABLE:
-                log.info "Dropping table $schema.$viewName because we are " +
-                        "creating a view with that name"
-                sql.execute("DROP TABLE $schema.$viewName" as String)
-                return false
-            case IS_VIEW:
-                return true
-        }
-    }
-
-    Boolean isH2() {
-        sql.connection.metaData.databaseProductName.equalsIgnoreCase('h2')
+    protected static boolean isH2(SessionImplementor session) {
+        session.connection().metaData.databaseProductName.equalsIgnoreCase('h2')
     }
 }
