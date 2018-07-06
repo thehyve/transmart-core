@@ -30,7 +30,7 @@ import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.mapWith
 import static spock.util.matcher.HamcrestSupport.that
 
-class ObservationsResourceTests extends ResourceSpec {
+class ObservationsResourceSpec extends ResourceSpec {
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"

@@ -42,9 +42,4 @@ class TransmartCoreDbTestsGrailsPlugin extends Plugin {
             [name: "Peter Kok", email: "peter@thehyve.nl"]
     ]
 
-    @Override
-    Closure doWithSpring() {
-        return { ->
-        }
-    }
 }

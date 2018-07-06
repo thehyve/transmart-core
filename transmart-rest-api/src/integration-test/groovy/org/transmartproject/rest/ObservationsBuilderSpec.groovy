@@ -1,9 +1,8 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package org.transmartproject.rest.protobug
+package org.transmartproject.rest
 
 import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,9 +32,8 @@ import static spock.util.matcher.HamcrestSupport.that
  * Created by piotrzakrzewski on 02/11/2016.
  */
 @Integration
-@Rollback
 @Slf4j
-class ObservationsBuilderTests extends Specification {
+class ObservationsBuilderSpec extends Specification {
 
     TestData testData
     ClinicalTestData clinicalData

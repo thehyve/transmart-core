@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 import static spock.util.matcher.HamcrestSupport.that
 
-class PatientSetResourceTests extends ResourceSpec {
+class PatientSetResourceSpec extends ResourceSpec {
 
 
     public static final String QUERY_DEFINITION = '''

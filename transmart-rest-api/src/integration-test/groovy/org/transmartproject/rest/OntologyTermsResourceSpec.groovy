@@ -34,7 +34,7 @@ import org.hamcrest.Matcher
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
-class OntologyTermsResourceTests extends ResourceSpec {
+class OntologyTermsResourceSpec extends ResourceSpec {
 
     public static final String VERSION = "v1"
     def studyId = 'study_id_1'

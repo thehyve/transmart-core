@@ -35,7 +35,6 @@ import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.storage.StorageTestData
-import org.transmartproject.db.test.H2DatabaseCreator
 
 class TestData {
 
@@ -49,10 +48,6 @@ class TestData {
     ArvadosTestData arvadosTestData
     TrialVisit trialVisit
     ClinicalTestData clinicalData
-
-    static void reset() {
-        ClinicalTestData.reset()
-    }
 
     static TestData createDefault() {
         def conceptData = ConceptTestData.createDefault()
@@ -141,7 +136,6 @@ class TestData {
     }
 
 
-
     void saveAll() {
         conceptData?.saveAll()
         i2b2Data?.saveAll()
@@ -181,16 +175,14 @@ class TestData {
      * @param currentTransactionOnly false. When true, deletes only happen in the current transaction, but then you
      * should use clearAllDataInTransaction() instead.
      */
-    static void clearAllData(boolean currentTransactionOnly=false) {
-        reset()
-
+    static void clearAllData(boolean currentTransactionOnly = false) {
         Session session = Holders.applicationContext.getBean(SessionFactory).currentSession
         session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate()
 
         allTables.each {
             try {
                 session.createSQLQuery(currentTransactionOnly ? "DELETE FROM $it;" : "TRUNCATE TABLE $it;").executeUpdate()
-            } catch(GenericJDBCException e) {
+            } catch (GenericJDBCException e) {
                 //ignore CANNOT TRUNCATE xxx, as several domain classes are backed by views
             }
         }
@@ -200,7 +192,6 @@ class TestData {
 
         SystemResource systemResource = Holders.applicationContext.getBean(SystemResource)
         systemResource.clearCaches()
-        H2DatabaseCreator.initDatabase()
     }
 
 }

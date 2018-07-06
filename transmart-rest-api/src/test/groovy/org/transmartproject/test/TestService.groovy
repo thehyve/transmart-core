@@ -6,10 +6,10 @@ import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.db.Dictionaries
 import org.transmartproject.db.TestData
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.querytool.QtQueryResultType
-import org.transmartproject.db.test.H2DatabaseCreator
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.TestResource
 
@@ -20,6 +20,8 @@ class TestService implements TestResource {
     @Autowired
     SessionFactory sessionFactory
 
+    final Dictionaries dictionaries = new Dictionaries()
+
     @Transactional
     void createTestData() {
         log.info "Setup test data ..."
@@ -28,7 +30,7 @@ class TestService implements TestResource {
         def resultTypes = DetachedCriteria.forClass(QtQueryResultType).getExecutableCriteria(session).list() as List<QtQueryResultType>
         if (resultTypes.size() == 0) {
             log.info "Setup test database"
-            H2DatabaseCreator.initDatabase()
+            this.dictionaries.saveAll()
         }
         // Check if test data has been created before
         def nodes = DetachedCriteria.forClass(I2b2Secure).getExecutableCriteria(session).list() as List<I2b2Secure>

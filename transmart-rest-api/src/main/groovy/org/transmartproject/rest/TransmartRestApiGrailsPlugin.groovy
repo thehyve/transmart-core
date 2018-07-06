@@ -1,7 +1,9 @@
 package org.transmartproject.rest
 
 import grails.plugins.Plugin
+import grails.util.Environment
 import org.springframework.aop.scope.ScopedProxyFactoryBean
+import org.springframework.stereotype.Component
 
 /*
  * Copyright 2014 Janssen Research & Development, LLC.
@@ -27,11 +29,11 @@ import org.springframework.aop.scope.ScopedProxyFactoryBean
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import org.springframework.stereotype.Component
 import org.transmartproject.rest.http.BusinessExceptionResolver
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.rest.misc.HandleAllExceptionsBeanFactoryPostProcessor
+import org.transmartproject.rest.user.SpringSecurityAuthContext
 
 class TransmartRestApiGrailsPlugin extends Plugin {
     def grailsVersion = "3.1.10 > *"
