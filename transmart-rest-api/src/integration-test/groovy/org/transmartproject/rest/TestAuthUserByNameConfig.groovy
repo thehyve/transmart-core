@@ -11,7 +11,7 @@ import org.transmartproject.rest.user.AuthContext
 /**
  * Used to specify authorised user that exists in the database.
  */
-@Configuration
+//@Configuration
 class TestAuthUserByNameConfig {
 
     @Bean

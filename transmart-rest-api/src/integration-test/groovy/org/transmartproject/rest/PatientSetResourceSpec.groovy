@@ -3,12 +3,13 @@
 package org.transmartproject.rest
 
 import grails.web.mime.MimeType
+import org.transmartproject.mock.MockUser
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 import static spock.util.matcher.HamcrestSupport.that
 
-class PatientSetResourceTests extends ResourceSpec {
+class PatientSetResourceSpec extends ResourceSpec {
 
 
     public static final String QUERY_DEFINITION = '''
@@ -25,6 +26,10 @@ class PatientSetResourceTests extends ResourceSpec {
     public static final String VERSION = "v1"
 
     void testSave() {
+        given:
+        testDataSetup()
+        selectUser(new MockUser('test_user'))
+
         when:
         def response = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL
@@ -39,7 +44,7 @@ class PatientSetResourceTests extends ResourceSpec {
                 status: 'FINISHED',
                 description: 'My query',
                 id: isA(Number),
-                username: 'user_-301',)
+                username: 'test_user',)
         that response.json, hasSelfLink("/${VERSION}/patient_sets/${response.json['id']}")
         that response.json, hasEntry(is('_embedded'),
                 hasEntry(is('patients'),
@@ -50,7 +55,11 @@ class PatientSetResourceTests extends ResourceSpec {
                                         inTrialId: 'SUBJ_ID_1',),
                                 hasSelfLink("/${VERSION}/studies/study_id_1/subjects/-101")))))
     }
+
     void testSaveAndLoad() {
+        given:
+        testDataSetup()
+
         when:
         def response1 = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL

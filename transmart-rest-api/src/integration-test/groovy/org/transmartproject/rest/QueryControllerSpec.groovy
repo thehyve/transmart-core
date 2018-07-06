@@ -8,7 +8,6 @@ import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.transmartproject.rest.marshallers.MarshallerSpec
-import spock.lang.Ignore
 
 @Slf4j
 class QueryControllerSpec extends MarshallerSpec {

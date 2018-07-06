@@ -1,6 +1,6 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package org.transmartproject.rest.protobug
+package org.transmartproject.rest
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
@@ -26,7 +26,7 @@ import static spock.util.matcher.HamcrestSupport.that
 @Integration
 @Rollback
 @Slf4j
-class DataTableTests extends Specification {
+class DataTableSpec extends Specification {
 
     @Autowired
     MultidimensionalDataResourceService queryResource

@@ -1,9 +1,8 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package org.transmartproject.rest.protobug
+package org.transmartproject.rest
 
 import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,9 +32,8 @@ import static spock.util.matcher.HamcrestSupport.that
  * Created by piotrzakrzewski on 02/11/2016.
  */
 @Integration
-@Rollback
 @Slf4j
-class ObservationsBuilderTests extends Specification {
+class ObservationsBuilderSpec extends Specification {
 
     TestData testData
     ClinicalTestData clinicalData
@@ -59,7 +57,7 @@ class ObservationsBuilderTests extends Specification {
 
     void testJsonSerialization() {
         setupData()
-        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: 'longitudinal study')
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
         def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def builder = new HypercubeJsonSerializer()
@@ -76,7 +74,7 @@ class ObservationsBuilderTests extends Specification {
         def dimElementsSize = mockedCube.dimensions.findAll { it.density.isDense }.size()
 
         then:
-        cells.size() == clinicalData.longitudinalClinicalFacts.size()
+        cells.size() == 18
         that cells, everyItem(hasKey('dimensionIndexes'))
         declarations != null
         declarations.size() == mockedCube.dimensions.size()
@@ -91,7 +89,7 @@ class ObservationsBuilderTests extends Specification {
     @Ignore("packing is not yet implemented in the serializer")
     void testPackedDimsSerialization() {
         setupData()
-        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: 'multidimensional study')
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
         def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def patientDimension = DimensionImpl.PATIENT
@@ -115,7 +113,7 @@ class ObservationsBuilderTests extends Specification {
         int count = 0
         while(true) {
             count++
-            if (count > clinicalData.multidimsClinicalFacts.size()) {
+            if (count > 18) {
                 throw new Exception("Expected previous message to be marked as 'last'.")
             }
             log.info "Reading cell..."
@@ -136,7 +134,7 @@ class ObservationsBuilderTests extends Specification {
         def firstSort = header.sortList[0]
 
         then:
-        cells.size() == clinicalData.multidimsClinicalFacts.size()
+        cells.size() == 18
         // declarations for all dimensions exist
         that dimensionDeclarations, hasSize(mockedCube.dimensions.size())
         that dimensionDeclarations['name'],
@@ -157,7 +155,7 @@ class ObservationsBuilderTests extends Specification {
 
     void testProtobufSerialization() {
         setupData()
-        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: 'longitudinal study')
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
         def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def builder = new HypercubeProtobufSerializer()
@@ -180,9 +178,9 @@ class ObservationsBuilderTests extends Specification {
         def cells = []
         int count = 0
         while(!last) {
-            if (count >= clinicalData.longitudinalClinicalFacts.size()) {
+            if (count >= 18) {
                 throw new Exception("Expected previous message to be marked as 'last'. Found at least $count cells " +
-                        "for ${clinicalData.longitudinalClinicalFacts.size()} observations")
+                        "for 18 observations")
             }
             log.info "Reading cell..."
             def cell = ObservationsProto.Cell.parseDelimitedFrom(s_in)
@@ -195,7 +193,6 @@ class ObservationsBuilderTests extends Specification {
         }
         log.info "Reading footer..."
         def footer = ObservationsProto.Footer.parseDelimitedFrom(s_in)
-        println "PROTOBUF TEST: Clinical facts: ${clinicalData.longitudinalClinicalFacts.toListString()}"
 
         then:
         header != null
@@ -203,7 +200,7 @@ class ObservationsBuilderTests extends Specification {
         header.sortList[0].dimensionIndex == header.dimensionDeclarationsList.findIndexOf { it.name == 'patient' }
         header.sortList[0].sortOrder.toString() == 'ASC'
         header.sortList[0].field == 0
-        cells.size() == clinicalData.longitudinalClinicalFacts.size()
+        cells.size() == 18
         footer != null
 
         when:
@@ -212,19 +209,16 @@ class ObservationsBuilderTests extends Specification {
         def patientDimIndex = header.dimensionDeclarationsList.findIndexOf { it.name == 'patient' }
         def idFieldIndex = header.dimensionDeclarationsList[patientDimIndex].fieldsList.findIndexOf { it.name == 'id' }
         def patientElement = footer.dimensionList[patientDimIndex]
-        def patients = clinicalData.longitudinalClinicalFacts*.patient.sort {
-            patientElement.fieldsList[idFieldIndex].intValueList.indexOf(it.id) }
 
         then:
-        patientElement.fieldsList[idFieldIndex].intValueList == patients*.id.unique()
-        // TODO: verify patient element fields better
+        patientElement.fieldsList[idFieldIndex].intValueList as Set<Long> == [-101, -102, -103] as Set<Long>
     }
 
     void testCSVSerialization() {
         setupData()
         def dataType = 'clinical'
         def fileExtension = '.tsv'
-        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: 'longitudinal study')
         def args = new DataRetrievalParameters(constraint: constraint)
         def cube = queryResource.retrieveData(args, dataType, adminUser)
         def builder = new HypercubeCSVSerializer()

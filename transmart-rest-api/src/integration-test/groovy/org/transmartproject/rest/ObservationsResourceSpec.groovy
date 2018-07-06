@@ -25,12 +25,15 @@
 
 package org.transmartproject.rest
 
+import org.springframework.http.HttpStatus
+import org.transmartproject.mock.MockUser
+
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.mapWith
 import static spock.util.matcher.HamcrestSupport.that
 
-class ObservationsResourceTests extends ResourceSpec {
+class ObservationsResourceSpec extends ResourceSpec {
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
@@ -55,16 +58,20 @@ class ObservationsResourceTests extends ResourceSpec {
     ]
 
     void testListAllObservationsForStudy() {
-        def response = get("/$VERSION/studies/${studyId}/observations")
+        given:
+        testDataSetup()
 
         when:
-        response.status == 200
+        def response = get("/$VERSION/studies/${studyId}/observations")
 
         then:
+        response.status == 200
         that response.json, listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testListAllObservationsForSubject() {
+        given:
+        testDataSetup()
         def subjectId = -101
 
         when:
@@ -93,6 +100,8 @@ class ObservationsResourceTests extends ResourceSpec {
     }
 
     void testListAllObservationsForConcept() {
+        given:
+        testDataSetup()
         def conceptId = 'bar'
 
         when:
@@ -104,6 +113,9 @@ class ObservationsResourceTests extends ResourceSpec {
     }
 
     void testVariablesAreNormalized() {
+        given:
+        testDataSetup()
+
         when:
         def response = get("/$VERSION/studies/study_id_2/concepts/sex/observations")
 
@@ -120,17 +132,33 @@ class ObservationsResourceTests extends ResourceSpec {
     }
 
     void testIndexStandalonePatientSet() {
+        given:
+        testDataSetup()
+        selectUser(new MockUser('fake-user'))
+
+        when: 'fetching all patient sets'
+        def patientSetsResponse = get("/${VERSION}/patient_sets")
+
+        then: 'the response contains the clinical patient set from the test data'
+        patientSetsResponse.statusCode == HttpStatus.OK
+        def patientSets = (patientSetsResponse.json as Map).subjects as List<Map>
+        def clinicalPatientSet = patientSets.find { it.name == 'clinical-patients-set' }
+        clinicalPatientSet != null
+
         when:
         def response = get("/$VERSION/observations?patient_sets={patient_sets}&concept_paths={concept_paths}") {
-            urlVariables patient_sets: '1', concept_paths: '\\foo\\study1\\bar\\'
+            urlVariables patient_sets: clinicalPatientSet.id, concept_paths: '\\foo\\study1\\bar\\'
         }
 
         then:
-        response.status == 200
+        response.statusCode == HttpStatus.OK
         that response.json, listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testIndexStandalone() {
+        given:
+        testDataSetup()
+
         when:
         def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
             urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
@@ -144,6 +172,9 @@ class ObservationsResourceTests extends ResourceSpec {
     }
 
     void testIndexStandaloneDefaultIsNormalizedLeaves() {
+        given:
+        testDataSetup()
+
         when:
         def response = get(("/$VERSION/observations" +
                 '?patients=-201' +
@@ -165,7 +196,10 @@ class ObservationsResourceTests extends ResourceSpec {
     }
 
     void testIndexStandaloneDifferentVariableType() {
+        given:
+        testDataSetup()
         def conceptPath = '\\foo\\study2\\sex\\'
+
         when:
         def response = get(("/$VERSION/observations?variable_type=terminal_concept_variable" +
                 '&patients=-201' +
@@ -179,6 +213,9 @@ class ObservationsResourceTests extends ResourceSpec {
     }
 
     void testHalStandalone() {
+        given:
+        testDataSetup()
+
         when:
         def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
             header 'Accept', contentTypeForHAL

@@ -32,10 +32,8 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.user.AccessLevelTestData
-import org.transmartproject.db.user.User
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
-import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FLAG
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
@@ -44,7 +42,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-class QueriesResourceServiceSpec extends TransmartSpecification {
+class QueriesResourceServiceIntegrationSpec extends Specification {
 
     QueriesResource queriesResourceService
     def sessionFactory
@@ -365,7 +363,7 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
 
     void testGetQueryResultFromIdBasic() {
         setupData()
-        def queryMaster = QueryResultData.createQueryResult([
+        def queryMaster = QueryResultData.createQueryResult('query-resource-test-set', [
                 PatientDimension.load(100) // see setUp()
         ])
         queryMaster.save(failOnError: true)

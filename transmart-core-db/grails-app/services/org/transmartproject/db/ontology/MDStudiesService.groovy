@@ -92,7 +92,6 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
 
     @Override
     List<MDStudy> getStudies(User user, PatientDataAccessLevel requiredAccessLevel) {
-        log.info "GET_STUDIES called for user: ${user} [${user?.username}]"
         List<MDStudy> studies
         if (user.admin) {
             studies = Study.findAll() as List<MDStudy>
@@ -102,7 +101,6 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             criteria.add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
             studies = criteria.getExecutableCriteria(sessionFactory.currentSession).list() as List<MDStudy>
         }
-        log.info "RESULT STUDIES: ${studies.collect {it.name}}"
         studies.stream()
                 .filter({MDStudy study -> !isLegacyStudy(study) })
                 .collect(Collectors.toList())

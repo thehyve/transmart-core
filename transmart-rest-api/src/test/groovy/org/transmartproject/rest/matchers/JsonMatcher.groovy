@@ -1,6 +1,6 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package org.transmartproject.rest
+package org.transmartproject.rest.matchers
 
 import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONElement
@@ -23,7 +23,7 @@ class JsonMatcher extends DiagnosingMatcher<JSONObject> {
     String jsonPath
     Matcher matcher
 
-    public static JsonMatcher matching(String jsonPath, Matcher matcher) {
+    static JsonMatcher matching(String jsonPath, Matcher matcher) {
         new JsonMatcher(jsonPath: jsonPath, matcher: matcher)
     }
 

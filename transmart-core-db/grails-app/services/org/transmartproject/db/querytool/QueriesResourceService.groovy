@@ -21,7 +21,6 @@ package org.transmartproject.db.querytool
 
 import grails.transaction.Transactional
 import org.hibernate.jdbc.Work
-import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.*
@@ -164,15 +163,9 @@ class QueriesResourceService implements QueriesResource {
         resultInstance
     }
 
-    QueryResult disablingQuery(Long id,
-                               String username) throws InvalidRequestException
-    {
-        QtQueryResultInstance resultInstance = getQueryResultFromId(id)
+    QueryResult disableQuery(Long id, User user) throws InvalidRequestException {
+        QtQueryResultInstance resultInstance = (QtQueryResultInstance)getQueryResultFromId(id, user)
 
-        if (resultInstance.queryInstance.userId != username) {
-            throw new AccessDeniedException("User ${username} has no permission" +
-                    " to disable query result instance with id $id")
-        }
         resultInstance.deleteFlag = "Y"
 
         def newResultInstance = resultInstance.save()
@@ -186,22 +179,22 @@ class QueriesResourceService implements QueriesResource {
     }
 
     @Override
-    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
-        QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
-        if (!qtQueryResultInstance) {
+    QueryResult getQueryResultFromId(Long id, User user) throws NoSuchResourceException {
+        QtQueryResultInstance resultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
+        if (!resultInstance || resultInstance.queryInstance.userId != user.username) {
             throw new NoSuchResourceException(
-                    "Could not find query result instance with id $id and delete_flag = 'N'")
+                    "Could not find query result instance with id ${id} and delete_flag = 'N' for user ${user.username}")
         }
-        qtQueryResultInstance
+        resultInstance
     }
 
     @Override
-    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username) {
+    List<QueryResultSummary> getQueryResults(User user) {
         def query = QtQueryResultInstance.where {
-            queryInstance.userId == username
+            queryInstance.userId == user.username
             deleteFlag == 'N'
         }
-        query.collect { new QueryResultSummaryImplementation(it)}
+        query.collect { it }
     }
 
     @Override

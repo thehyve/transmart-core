@@ -13,6 +13,9 @@ class ArvadosControllerSpec extends ResourceSpec {
     public static final String COLLECTION_NAME = 'supportedWorkflows'
 
     void workflowsIndexTest() {
+        given:
+        testDataSetup()
+
         when:
         def response = get "/$VERSION/arvados/workflows"
         then:
@@ -40,6 +43,7 @@ class ArvadosControllerSpec extends ResourceSpec {
             json bodyContent
         }
         def getResponse = get "/$VERSION/arvados/workflows/${postResponse.json.id}"
+
         then:
         postResponse.status == 201
         getResponse.status == 200

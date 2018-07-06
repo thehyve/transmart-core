@@ -29,24 +29,45 @@ import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import grails.rest.render.RendererRegistry
 import grails.test.mixin.integration.Integration
-import grails.test.runtime.FreshRuntime
 import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.hamcrest.Matcher
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.TestRestTemplate
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import org.springframework.web.client.RestTemplate
+import org.springframework.test.annotation.DirtiesContext
+import org.transmartproject.config.RestApiTestConfiguration
+import org.transmartproject.core.users.User
+import org.transmartproject.mock.MockAdmin
+import org.transmartproject.mock.MockAuthContext
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
+import org.transmartproject.rest.user.AuthContext
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
-@FreshRuntime
 @Integration
+@DirtiesContext
+@Import([RestApiTestConfiguration])
 @Slf4j
 abstract class ResourceSpec extends Specification {
+
+    @Autowired
+    AuthContext authContext
+
+    void selectUser(User user) {
+        if (authContext instanceof MockAuthContext) {
+            authContext.currentUser = user
+        }
+    }
+
+    void testDataSetup() {
+        get('/test/createData')
+        selectUser(new MockAdmin('Some user'))
+    }
 
     void setup() {
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
@@ -67,7 +88,7 @@ abstract class ResourceSpec extends Specification {
 
     RestBuilder rest = new RestBuilder()
 
-    RestTemplate restTemplate = new TestRestTemplate()
+    TestRestTemplate restTemplate = new TestRestTemplate()
 
     RestResponse get(String path, Closure paramSetup = {}) {
         rest.get("${baseURL}${path}", paramSetup)

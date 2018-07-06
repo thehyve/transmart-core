@@ -20,6 +20,7 @@
 package org.transmartproject.db
 
 import org.slf4j.LoggerFactory
+import org.transmartproject.core.exceptions.UnexpectedResultException
 
 /**
  * Helper class for dealing with test data.
@@ -37,8 +38,13 @@ class TestDataHelper {
         }
 
         objects.forEach({ object ->
-            object.save(flush: true)
-            LoggerFactory.getLogger(TestDataHelper).info "Saved ${object.class.simpleName}: ${object}"
+            try {
+                object.save(flush: true, failOnError: true)
+                LoggerFactory.getLogger(TestDataHelper).info "Saved ${object.class.simpleName}: ${object}"
+            } catch (Exception e) {
+                LoggerFactory.getLogger(TestDataHelper).error "Error while saving ${object.class.simpleName}: ${object}"
+                throw new UnexpectedResultException("Cannot save object of type ${object.class.simpleName}", e)
+            }
         })
     }
 

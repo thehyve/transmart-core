@@ -37,7 +37,7 @@ import static org.hamcrest.Matchers.*
 
 import static org.transmartproject.rest.logging.ChildProcessAppender.ChildFailedException
 
-class ChildProcessAppenderTests extends Specification {
+class ChildProcessAppenderSpec extends Specification {
    
     @Rule
     TemporaryFolder temp = new TemporaryFolder()

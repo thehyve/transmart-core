@@ -25,7 +25,6 @@
 
 package org.transmartproject.rest.protobug
 
-import org.junit.Test
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -34,11 +33,12 @@ import org.transmartproject.core.dataquery.highdim.projections.MultiValueProject
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos.Row
+import spock.lang.Specification
 
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
-class HighDimBuilderTests {
+class HighDimBuilderSpec extends Specification {
 
     HighDimBuilder builder
 
@@ -58,13 +58,15 @@ class HighDimBuilderTests {
                 ] as TabularResult)
     }
 
-    @Test
     void "test single field projection - Double"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [1d, 2d])
         createBuilder inputDataRow
+
+        when:
         Row row = builder.createRow inputDataRow
 
-        assertThat row, allOf(
+        then:
+        that row, allOf(
                 hasProperty('label', is('test label')),
                 hasProperty('bioMarker', is('test biomarker')),
                 hasProperty('valueList', contains(
@@ -73,13 +75,15 @@ class HighDimBuilderTests {
         )
     }
 
-    @Test
     void "test single field projection - Any number"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [1, 2l])
         createBuilder inputDataRow
+
+        when:
         Row row = builder.createRow(inputDataRow)
 
-        assertThat row, allOf(
+        then:
+        that row, allOf(
                 hasProperty('label', is('test label')),
                 hasProperty('bioMarker', is('test biomarker')),
                 hasProperty('valueList', contains(
@@ -88,13 +92,15 @@ class HighDimBuilderTests {
         )
     }
 
-    @Test
     void "test single field projection - String"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: ['A', 'B'])
         createBuilder inputDataRow
+
+        when:
         Row row = builder.createRow(inputDataRow)
 
-        assertThat row, allOf(
+        then:
+        that row, allOf(
                 hasProperty('label', is('test label')),
                 hasProperty('bioMarker', is('test biomarker')),
                 hasProperty('valueList', contains(
@@ -103,14 +109,16 @@ class HighDimBuilderTests {
         )
     }
 
-    @Test
     void "test multiple field projection"() {
         def projection = new TestProjection(dataProperties: [a: Integer, b: String])
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [[a: 1, b: 'text1'], [a: 2, b: 'text2']])
         createBuilder inputDataRow, projection
+
+        when:
         Row row = builder.createRow(inputDataRow)
 
-        assertThat row, allOf(
+        then:
+        that row, allOf(
                 hasProperty('label', is('test label')),
                 hasProperty('bioMarker', is('test biomarker')),
                 hasProperty('valueList', containsInAnyOrder(
@@ -118,21 +126,21 @@ class HighDimBuilderTests {
                         hasProperty('stringValueList', contains('text1', 'text2')))))
     }
 
-    @Test
     void "test column type choice"() {
-        assertThat HighDimBuilder.decideColumnValueType(String), sameInstance(String)
-        assertThat HighDimBuilder.decideColumnValueType(Object), sameInstance(String)
-        assertThat HighDimBuilder.decideColumnValueType(HighDimBuilder), sameInstance(String)
+        expect:
+        that HighDimBuilder.decideColumnValueType(String), sameInstance(String)
+        that HighDimBuilder.decideColumnValueType(Object), sameInstance(String)
+        that HighDimBuilder.decideColumnValueType(HighDimBuilder), sameInstance(String)
 
-        assertThat HighDimBuilder.decideColumnValueType(double), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(byte), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(int), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(float), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(Double), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(Float), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(BigDecimal), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(Number), sameInstance(Double)
-        assertThat HighDimBuilder.decideColumnValueType(BigInteger), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(double), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(byte), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(int), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(float), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(Double), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(Float), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(BigDecimal), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(Number), sameInstance(Double)
+        that HighDimBuilder.decideColumnValueType(BigInteger), sameInstance(Double)
     }
 
     class TestProjection implements MultiValueProjection, Projection {
@@ -142,7 +150,7 @@ class HighDimBuilderTests {
         Object doWithResult(Object o) {}
     }
 
-    class TestDataRow implements BioMarkerDataRow {
+    class TestDataRow implements BioMarkerDataRow<Object> {
 
         List<AssayColumn> assayColumns = []
         List<Object> data = []
