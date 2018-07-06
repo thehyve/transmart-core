@@ -19,7 +19,7 @@ class StorageTestData {
         save linkedFileCollectionList
     }
 
-    public static StorageTestData createDefault() {
+    static StorageTestData createDefault() {
         def storageTestData = new StorageTestData()
         def study1 = StudyTestData.createStudy "storage_study"
         def study2 = StudyTestData.createStudy "storage_study2"

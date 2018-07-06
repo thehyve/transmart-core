@@ -30,7 +30,7 @@ import org.transmartproject.db.i2b2data.PatientDimension
 /* not scanned; explicit bean definition */
 class InnerClinicalTabularResultFactory {
 
-    public Collection<TerminalClinicalVariablesTabularResult> createIntermediateResults(
+    Collection<TerminalClinicalVariablesTabularResult> createIntermediateResults(
             SessionImplementor session,
             Iterable<PatientDimension> patients,
             List<TerminalClinicalVariable> flattenedVariables) {
@@ -40,7 +40,7 @@ class InnerClinicalTabularResultFactory {
                 }
     }
 
-    public TerminalClinicalVariablesTabularResult createForGroup(
+    TerminalClinicalVariablesTabularResult createForGroup(
             String group,
             SessionImplementor session,
             Iterable<PatientDimension> patients,
