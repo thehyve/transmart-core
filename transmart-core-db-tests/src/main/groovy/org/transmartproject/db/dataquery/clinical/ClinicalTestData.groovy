@@ -48,6 +48,8 @@ class ClinicalTestData {
     public static final BigDecimal DUMMY_ENCOUNTER_ID = -1
     public static final long DUMMY_INSTANCE_ID = 1
 
+    Study                   defaultStudy
+    TrialVisit              defaultTrialVisit
     List<PatientDimension>  patients
     List<VisitDimension>    visits
     List<ObservationFact>   facts
@@ -67,11 +69,11 @@ class ClinicalTestData {
         longitudinalClinicalFacts + sampleClinicalFacts + ehrClinicalFacts + multidimsClinicalFacts
     }
     List<Study> getAllHypercubeStudies() {
-        [longitudinalStudy, sampleStudy, ehrStudy, multidimsStudy]
+        [defaultStudy, longitudinalStudy, sampleStudy, ehrStudy, multidimsStudy]
     }
 
     @Lazy
-    QtQueryMaster patientsQueryMaster = createQueryResult patients
+    QtQueryMaster patientsQueryMaster = createQueryResult 'clinical-patients-set', patients
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
@@ -83,8 +85,7 @@ class ClinicalTestData {
     }
 
     static ClinicalTestData createHypercubeDefault(List<ConceptDimension> conceptDims,
-                                                   List<PatientDimension> patients,
-                                                   TrialVisit trialVisit) {
+                                                   List<PatientDimension> patients) {
 
         assert conceptDims.size() >= 7
         assert patients.size() >= 3
@@ -117,6 +118,9 @@ class ClinicalTestData {
 
         def visits = createTestVisit(3, patients[2], sdf.parse('2016-10-17 10:00:00'), sdf.parse('2016-10-27 10:00:00')) + createTestVisit(3, patients[1], sdf.parse('2016-11-09 10:30:00'), sdf.parse('2016-12-27 10:00:00'))
 
+        def defaultStudy = StudyTestData.createDefaultTabularStudy()
+        def trialVisit = new TrialVisit(study: defaultStudy, relTimeUnit: 'week', relTime: 3, relTimeLabel: '3 weeks')
+
         def facts = createTabularFacts(conceptDims, patients, trialVisit)
 
         def multidimsStudy = StudyTestData.createStudy "multidimensional study", ["patient", "concept", "study", "visit", "trial visit",
@@ -146,6 +150,8 @@ class ClinicalTestData {
                 code:'TEST:DOSE', nodeType: 'F')
 
         new ClinicalTestData(
+                defaultStudy: defaultStudy,
+                defaultTrialVisit: trialVisit,
                 patients: patients,
                 facts: facts,
                 visits: visits,
@@ -491,11 +497,6 @@ class ClinicalTestData {
         study.addToTrialVisits(tv)
         tv
     }
-
-    static TrialVisit createDefaultTrialVisit(String relTimeUnit, int relTime) {
-        createTrialVisit(relTimeUnit, relTime, null, StudyTestData.createDefaultTabularStudy())
-    }
-
 
     static List<VisitDimension> createTestVisit(int n, PatientDimension patient, Date startDate, Date endDate) {
         (1..n).collect { int i ->

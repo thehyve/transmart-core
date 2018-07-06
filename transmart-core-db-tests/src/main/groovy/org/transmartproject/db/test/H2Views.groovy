@@ -64,7 +64,6 @@ class H2Views {
         }
     }
 
-
     @PreDestroy
     protected void destroy() {
         Session session = sessionFactory.openSession()

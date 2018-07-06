@@ -56,8 +56,8 @@ class QueriesResourceAuthorizationDecorator
     }
 
     @Override
-    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
-        def res = delegate.getQueryResultFromId id
+    QueryResult getQueryResultFromId(Long id, User user) throws NoSuchResourceException {
+        def res = delegate.getQueryResultFromId id, user
 
         if (!authorisationChecks.hasAccess(currentUserBean, res)) {
             throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
@@ -68,10 +68,9 @@ class QueriesResourceAuthorizationDecorator
     }
 
     @Override
-    QueryResult disablingQuery(Long id,
-                               String username) throws InvalidRequestException
+    QueryResult disableQuery(Long id, User user) throws InvalidRequestException
     {
-        delegate.disablingQuery(id, username)
+        delegate.disableQuery(id, user)
     }
 
 
@@ -138,7 +137,7 @@ class QueriesResourceAuthorizationDecorator
     }
 
     @Override
-    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username) {
-        delegate.getQueryResultsSummaryByUsername(username)
+    List<QueryResultSummary> getQueryResults(User user) {
+        delegate.getQueryResults(user)
     }
 }

@@ -18,12 +18,13 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.test.annotation.DirtiesContext
 import org.transmartproject.config.RestApiTestConfiguration
 import org.transmartproject.core.users.UsersResource
 import spock.lang.Specification
 
-
 @Integration
+@DirtiesContext
 @Import([RestApiTestConfiguration])
 @Slf4j
 abstract class MarshallerSpec extends Specification {
@@ -39,7 +40,6 @@ abstract class MarshallerSpec extends Specification {
     }
 
     void setup() {
-        log.info "SETUP"
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
             log.info "RendererRegistry bean: ${it}"
         }

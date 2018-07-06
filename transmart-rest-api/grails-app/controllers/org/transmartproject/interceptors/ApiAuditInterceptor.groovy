@@ -39,7 +39,7 @@ class ApiAuditInterceptor {
     protected boolean report(String event, String eventMessage) {
 
         accessLogService.report(
-                authContext.user,
+                authContext?.user,
                 event,
                 eventMessage: eventMessage as Object,
                 requestURL: url as Object)

@@ -42,7 +42,7 @@ class PatientSetController {
      * GET /v1/patient_sets
      */
     def index() {
-        List result = queriesResource.getQueryResultsSummaryByUsername(authContext.user.username)
+        List result = queriesResource.getQueryResults(authContext.user)
         respond wrapPatients(result)
     }
 
@@ -52,11 +52,7 @@ class PatientSetController {
      * GET /v1/patient_sets/<result_instance_id>
      */
     def show(Long id) {
-        QueryResult queryResult = queriesResource.getQueryResultFromId(id)
-
-        if (!authorisationChecks.hasAccess(authContext.user, queryResult)) {
-            throw new AccessDeniedException()
-        }
+        QueryResult queryResult = queriesResource.getQueryResultFromId(id, authContext.user)
 
         respond new QueryResultWrapper(
                 apiVersion: VERSION,
@@ -102,7 +98,7 @@ class PatientSetController {
      * DELETE /patient_sets/<result_instance_id>
      */
     def disable(Long id) {
-        queriesResource.disablingQuery(id, authContext.user.username)
+        queriesResource.disableQuery(id, authContext.user)
         respond status: 204
     }
 

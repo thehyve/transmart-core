@@ -25,11 +25,9 @@
 
 package org.transmartproject.rest
 
-import org.grails.web.json.JSONArray
-import org.grails.web.json.JSONObject
-import org.hamcrest.Description
-import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
+import org.transmartproject.rest.matchers.MetadataTagsMatcher
+import org.transmartproject.rest.matchers.NavigationLinksMatcher
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -69,6 +67,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     ]
 
     void testIndexAsJson() {
+        given:
+        testDataSetup()
+
         when:
         def response = get conceptListUrl, {
             header 'Accept', contentTypeForJSON
@@ -82,6 +83,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testIndexAsHal() {
+        given:
+        testDataSetup()
+
         when:
         def response = get conceptListUrl, {
             header 'Accept', contentTypeForHAL
@@ -100,6 +104,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowAsJson() {
+        given:
+        testDataSetup()
+
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -111,6 +118,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowAsHal() {
+        given:
+        testDataSetup()
+
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -122,6 +132,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowRootConceptAsJson() {
+        given:
+        testDataSetup()
+
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -133,6 +146,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowRootConceptAsHal() {
+        given:
+        testDataSetup()
+
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -144,6 +160,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testPathOfLongConcept() {
+        given:
+        testDataSetup()
+
         when:
         def response = get study2ConceptListUrl, {
             header 'Accept', contentTypeForHAL
@@ -158,6 +177,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testCanHitLongConcept() {
+        given:
+        testDataSetup()
+
         when:
         def response = get longConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -174,6 +196,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testNavigableConceptRoot() {
+        given:
+        testDataSetup()
+
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -185,6 +210,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testNavigableConceptLeaf() {
+        given:
+        testDataSetup()
+
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -196,6 +224,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testMetadataTagsAsJson() {
+        given:
+        testDataSetup()
+
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -207,6 +238,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testMetadataTagsAsHal() {
+        given:
+        testDataSetup()
+
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -218,10 +252,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeStudy() {
-        // unfortunately the test data has no concept with the study
-        // visual attribute. This is detected as a study because the ontology
-        // term is the same as the one studyLoadingService.study.ot returns
-        // See OntologyTermWrapper
+        given:
+        testDataSetup()
+
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -233,6 +266,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeHighDimensional() {
+        given:
+        testDataSetup()
+
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -244,6 +280,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeNumeric() {
+        given:
+        testDataSetup()
+
         when:
         def response = get longConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -255,6 +294,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeCategoricalOption() {
+        given:
+        testDataSetup()
+
         when:
         def response = get femaleConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -266,6 +308,9 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeUnknown() {
+        given:
+        testDataSetup()
+
         when:
         def response = get sexConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -307,180 +352,5 @@ class OntologyTermsResourceSpec extends ResourceSpec {
 
 }
 
-class NavigationLinksMatcher extends DiagnosingMatcher<JSONObject> {
 
-    Matcher selfLinkMatcher
-    Matcher parentLinkMatcher
-    Matcher childrenMatcher
 
-    static NavigationLinksMatcher hasNavigationLinks(String selfLink,
-                                                     String parentLink,
-                                                     String... children) {
-
-        def slm = LinkMatcher.hasLink(selfLink, null)
-        def plm = parentLink ? LinkMatcher.hasLink(parentLink, null) : null
-
-        def baseUrl = selfLink.endsWith('ROOT') ? selfLink.substring(0, selfLink.indexOf('/ROOT')) : selfLink
-        List<Matcher> childrenMatchers = children.collect {
-            LinkMatcher.hasLink("$baseUrl/$it", it)
-        }
-
-        def cm = childrenMatchers.isEmpty() ? null : containsInAnyOrder(childrenMatchers.collect { it })
-
-        new NavigationLinksMatcher(selfLinkMatcher: slm, parentLinkMatcher: plm, childrenMatcher: cm)
-    }
-
-    @Override
-    protected boolean matches(Object item, Description mismatchDescription) {
-
-        JSONObject obj = item
-        if (!obj.has('_links')) {
-            mismatchDescription.appendText("no '_links' was found")
-            return false
-        }
-        JSONObject links = obj.getJSONObject('_links')
-
-        JSONObject self = links.getJSONObject('self')
-        if (!self) {
-            mismatchDescription.appendText("no 'self' was found")
-            return false
-        }
-
-        boolean result = selfLinkMatcher.matches(self, mismatchDescription)
-
-        if (!result) {
-            return false
-        }
-
-        if (parentLinkMatcher) {
-            JSONObject parent = links.getJSONObject('parent')
-            if (!parent) {
-                mismatchDescription.appendText("no 'parent' was found")
-                result = false
-            } else {
-                result = parentLinkMatcher.matches(parent, mismatchDescription)
-            }
-        }
-
-        if (!result) {
-            return false
-        }
-
-        def hasChildren = links.has('children')
-
-        if (childrenMatcher) {
-            if (hasChildren) {
-                JSONArray children = links.getJSONArray('children')
-                result = childrenMatcher.matches(children)
-            } else {
-                mismatchDescription.appendText("no 'children' was found")
-                result = false
-            }
-        } else if (hasChildren) {
-            mismatchDescription.appendText("not expected 'children' was found")
-            result = false
-        }
-
-        return result
-    }
-
-    @Override
-    void describeTo(Description description) {
-        description.appendText("'self' with ")
-        selfLinkMatcher.describeTo(description)
-        if (parentLinkMatcher) {
-            description.appendText(" and 'parent' with ")
-            parentLinkMatcher.describeTo(description)
-        }
-        if (childrenMatcher) {
-            description.appendText(" and 'children' with ")
-            childrenMatcher.describeTo(description)
-        }
-    }
-}
-
-class LinkMatcher extends DiagnosingMatcher<JSONObject> {
-
-    String expectedUrl
-    String expectedTitle
-
-    static LinkMatcher hasLink(String url, String title) {
-        new LinkMatcher(expectedUrl: url, expectedTitle: title)
-    }
-
-    @Override
-    protected boolean matches(Object item, Description mismatchDescription) {
-
-        JSONObject obj = item
-        String url = obj.get('href')
-
-        if (expectedUrl != url) {
-            mismatchDescription.appendText("link href did not match:")
-            mismatchDescription.appendText(" expecting ").appendValue(expectedUrl)
-            mismatchDescription.appendText(" was ").appendValue(url)
-            return false
-        }
-
-        if (expectedTitle) {
-            String title = obj.get('title')
-            if (expectedTitle != title) {
-                mismatchDescription.appendText("link title did not match:")
-                mismatchDescription.appendText(" expecting ").appendValue(expectedTitle)
-                mismatchDescription.appendText(" was ").appendValue(title)
-                return false
-            }
-        }
-
-        return true
-    }
-
-    @Override
-    void describeTo(Description description) {
-        description.appendText('link with href ').appendValue(expectedUrl)
-        if (expectedTitle) {
-            description.appendText(' and with title ').appendValue(expectedTitle)
-        }
-    }
-
-}
-
-class MetadataTagsMatcher extends DiagnosingMatcher<JSONObject> {
-    Map<String, String> expectedTags
-
-    static MetadataTagsMatcher hasTags(Map<String, String> tags) {
-        new MetadataTagsMatcher(expectedTags: tags)
-    }
-
-    @Override
-    protected boolean matches(Object item, Description mismatchDescription) {
-
-        JSONObject obj = item
-        def hasMetadata = obj.has('metadata')
-
-        if (expectedTags.isEmpty()) {
-            if (hasMetadata) {
-                mismatchDescription.appendText(" was not expecting any metadata tags, but got them")
-                return false
-            } else {
-                return true
-            }
-        }
-
-        JSONObject md = obj.getJSONObject('metadata')
-
-        Map map = md as Map
-        if (map != expectedTags) {
-            mismatchDescription.appendText(" tags did not match")
-            mismatchDescription.appendText(" expecting ").appendValue(expectedTags)
-            mismatchDescription.appendText(" was ").appendValue(map)
-            return false
-        }
-
-        return true
-    }
-
-    @Override
-    void describeTo(Description description) {
-        description.appendText(' concept with metadata tags ').appendValue(expectedTags)
-    }
-}

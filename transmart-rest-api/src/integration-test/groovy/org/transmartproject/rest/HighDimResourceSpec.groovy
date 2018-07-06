@@ -28,8 +28,10 @@ package org.transmartproject.rest
 import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
+import org.transmartproject.rest.matchers.HighDimResult
 import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
+import spock.lang.Ignore
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
@@ -58,6 +60,9 @@ class HighDimResourceSpec extends ResourceSpec {
     ]
 
     void testSummaryAsJson() {
+        given:
+        testDataSetup()
+
         when:
         def response = get indexUrlMap['mrna'], {
             header 'Accept', contentTypeForJSON
@@ -71,6 +76,9 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testSummaryAsHal() {
+        given:
+        testDataSetup()
+
         String url = indexUrlMap['mrna']
         Map summary = getExpectedMrnaSummary()
         summary['_links'] = getExpectedMrnaHalLinks()
@@ -95,6 +103,9 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMrna() {
+        given:
+        testDataSetup()
+
         when:
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
 
@@ -105,6 +116,9 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMrnaDefaultRealProjection() {
+        given:
+        testDataSetup()
+
         when:
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.DEFAULT_REAL_PROJECTION))
 
@@ -115,6 +129,9 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMrnaAllDataProjection() {
+        given:
+        testDataSetup()
+
         Map<String, Class> dataColumns = [
                 trialName   : String,
                 rawIntensity: Double,
@@ -131,7 +148,11 @@ class HighDimResourceSpec extends ResourceSpec {
         that result.rows*.label, containsInAnyOrder(expectedMrnaRowLabels.toArray())
     }
 
-    void ignored_testAcgh() {
+    @Ignore
+    void testAcgh() {
+        given:
+        testDataSetup()
+
         Map<String, Class> dataColumns = new AcghValuesProjection().dataProperties
 
         when:
@@ -144,6 +165,8 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testAssayConstraints() {
+        given:
+        testDataSetup()
         def assayConstraints = '{assay_id_list: { ids: [-3002] }}'
 
         when:
@@ -156,6 +179,8 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMultipleAssayConstraintsOfTheSameType() {
+        given:
+        testDataSetup()
         def assayConstraints =
                 '{ assay_id_list: [ { ids: [-3001, -3002] }, { ids: [-3002] } ] }'
 
@@ -170,6 +195,8 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testDataConstraint() {
+        given:
+        testDataSetup()
         def dataConstraints = '{ genes: [ { names: ["ADIRF"] } ] }'
 
         when:
@@ -223,7 +250,7 @@ class HighDimResourceSpec extends ResourceSpec {
         }
     }
 
-    private Matcher columnSpecMatcher(Map<String, Class> dataProperties) {
+    private static Matcher columnSpecMatcher(Map<String, Class> dataProperties) {
 
         listOf(dataProperties.collect {
             propsWith([
@@ -248,11 +275,6 @@ class HighDimResourceSpec extends ResourceSpec {
         }
 
         result
-    }
-
-    class HighDimResult {
-        HighDimProtos.HighDimHeader header
-        List<HighDimProtos.Row> rows = []
     }
 
 }

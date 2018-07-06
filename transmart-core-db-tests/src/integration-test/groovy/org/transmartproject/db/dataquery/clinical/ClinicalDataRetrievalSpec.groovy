@@ -158,7 +158,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
         results = clinicalDataResource.retrieveData(
                 testData.i2b2Data.patients[0..1].collect {
-                    QtQueryMaster result = createQueryResult([it])
+                    QtQueryMaster result = createQueryResult('clinical-patient-set', [it])
                     result.save()
                     getQueryResultFromMaster(result)
                 },
@@ -451,7 +451,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     }
 
     QueryResult getEmptyQueryResult() {
-        def result = createQueryResult([])
+        def result = createQueryResult('clinical-test-set', [])
         result.save(flush: true)
         getQueryResultFromMaster(result)
     }

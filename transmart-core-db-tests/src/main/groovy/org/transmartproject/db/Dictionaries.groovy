@@ -1,6 +1,7 @@
 package org.transmartproject.db
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.querytool.QtQueryResultType
@@ -8,6 +9,7 @@ import org.transmartproject.db.querytool.QtQueryResultType
 import static org.transmartproject.db.TestDataHelper.save
 
 @CompileStatic
+@Slf4j
 class Dictionaries {
 
     final Set<DimensionDescription> dimensionDescriptions
@@ -19,6 +21,7 @@ class Dictionaries {
     }
 
     private static Set<DimensionDescription> createDimensionDescriptions() {
+        log.info "Creating dimension descriptions!"
         [
                 new DimensionDescription(name: 'study'),
                 new DimensionDescription(name: 'concept'),

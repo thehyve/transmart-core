@@ -5,7 +5,6 @@ package org.transmartproject.rest
 import grails.converters.JSON
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.storage.StorageSystem
 import spock.lang.Ignore
 
 /**
@@ -21,15 +20,18 @@ class StorageControllerSpec extends ResourceSpec {
     @Autowired
     SessionFactory sessionFactory
 
-    StorageSystem testStorageSystem() {
-        BootStrap.testData.storageTestData.storageSystemList[0]
-    }
-
-    StorageSystem testStorageSystem2() {
-        BootStrap.testData.storageTestData.storageSystemList[1]
+    List<Map> getStorageSystems() {
+        def response = get "/${VERSION}/storage"
+        assert response.status == 200
+        def systems = response.json[STORAGE_SYSTEM_COLLECTION_NAME] as List<Map>
+        assert systems.size() == 2
+        systems
     }
 
     void storageIndexTest() {
+        given:
+        testDataSetup()
+
         when:
         def response = get "/$VERSION/files"
         then:
@@ -39,7 +41,7 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[FILES_COLLECTION_NAME][0].name == '1000 genemes VCFs'
         response.json[FILES_COLLECTION_NAME][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
         response.json[FILES_COLLECTION_NAME][0].study == 'storage_study'
-        response.json[FILES_COLLECTION_NAME][0].sourceSystem == testStorageSystem().id
+        response.json[FILES_COLLECTION_NAME][0].sourceSystem == storageSystems[0].id
     }
 
     /**
@@ -51,7 +53,7 @@ class StorageControllerSpec extends ResourceSpec {
     void postFileLinkTest() {
         when:
         def bodyContent = ['name'        : 'new file Link',
-                           'sourceSystem': testStorageSystem().id,
+                           'sourceSystem': storageSystems[0].id,
                            'study'       : 'storage_study2',
                            'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc'] as JSON
         def postResponse = post "/$VERSION/files", {
@@ -66,23 +68,30 @@ class StorageControllerSpec extends ResourceSpec {
         indexResponse.json[FILES_COLLECTION_NAME][1].name == 'new file Link'
         indexResponse.json[FILES_COLLECTION_NAME][1].uuid == 'aaaaa-bbbbb-ccccccccccccccc'
         indexResponse.json[FILES_COLLECTION_NAME][1].study == 'storage_study2'
-        indexResponse.json[FILES_COLLECTION_NAME][1].sourceSystem == testStorageSystem().id
+        indexResponse.json[FILES_COLLECTION_NAME][1].sourceSystem == storageSystems[0].id
     }
 
     def singleGetTest() {
+        given:
+        testDataSetup()
+
         when:
         def indexResponse = get("/$VERSION/files")
         int fileId = indexResponse.json[FILES_COLLECTION_NAME][0].id
         def response = get("/$VERSION/files/$fileId")
+
         then:
         response.status == 200
         response.json['name'] == '1000 genemes VCFs'
         response.json['uuid'] == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
         response.json['study'] == 'storage_study'
-        response.json['sourceSystem'] == testStorageSystem().id
+        response.json['sourceSystem'] == storageSystems[0].id
     }
 
     void indexByStudyTest() {
+        given:
+        testDataSetup()
+
         when:
         def response = get "/$VERSION/studies/storage_study/files"
         String expectedCollectionName = 'files'
@@ -93,7 +102,7 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[expectedCollectionName][0].name == '1000 genemes VCFs'
         response.json[expectedCollectionName][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
         response.json[expectedCollectionName][0].study == 'storage_study'
-        response.json[expectedCollectionName][0].sourceSystem == testStorageSystem().id
+        response.json[expectedCollectionName][0].sourceSystem == storageSystems[0].id
     }
 
     /**
@@ -103,6 +112,9 @@ class StorageControllerSpec extends ResourceSpec {
      */
     @Ignore
     void storageSystemPostTest() {
+        given:
+        testDataSetup()
+
         when:
         def indexResponseBefore = get("/$VERSION/storage")
         def bodyContent = [
@@ -150,11 +162,14 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     def linkUpdateTest() {
+        given:
+        testDataSetup()
+
         when:
         def indexResponse = get("/$VERSION/files")
         int fileId = indexResponse.json[FILES_COLLECTION_NAME][0].id
         def bodyContent = ['name'        : 'updated name',
-                           'sourceSystem': testStorageSystem().id,
+                           'sourceSystem': storageSystems[0].id,
                            'study'       : 'storage_study2',
                            'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc'] as JSON
         def before = get "/$VERSION/files/$fileId"
@@ -178,6 +193,9 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     def storageSystemGetTest() {
+        given:
+        testDataSetup()
+
         when:
         def indexResponse = get("/$VERSION/storage")
         int storageId = indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][0].id
@@ -192,8 +210,11 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     def storageSystemDeleteTest() {
+        given:
+        testDataSetup()
+
         when:
-        def storageId = testStorageSystem2().id
+        def storageId = storageSystems[1].id
         def beforeResponse = get("/$VERSION/storage/${storageId}")
         def deleteResponse = delete("/$VERSION/storage/${storageId}")
         def afterResponse = get("/$VERSION/storage/${storageId}")

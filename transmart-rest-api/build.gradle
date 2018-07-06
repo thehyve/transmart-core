@@ -59,3 +59,4 @@ integrationTest.outputs.upToDateWhen {false}
 
 // Uncomment to show standard out/error output
 //test.testLogging.showStandardStreams = true
+

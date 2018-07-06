@@ -31,9 +31,9 @@ class QueryResultData {
         QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)
     }
 
-    static QtQueryMaster createQueryResult(List<PatientDimension> patients) {
+    static QtQueryMaster createQueryResult(String name, List<PatientDimension> patients) {
         QtQueryMaster queryMaster = new QtQueryMaster(
-                name: 'test-fake-query-1',
+                name: name,
                 userId: 'fake-user',
                 groupId: 'fake group',
                 createDate: new Date(),
@@ -45,7 +45,7 @@ class QueryResultData {
                 groupId: 'fake group',
                 startDate: new Date(),
                 statusTypeId: QueryStatus.COMPLETED.id,
-                queryMaster: queryMaster,
+                queryMaster: queryMaster
         )
         queryMaster.addToQueryInstances(queryInstance)
 
@@ -56,10 +56,11 @@ class QueryResultData {
                 setSize: patients.size(),
                 realSetSize: patients.size(),
                 queryResultType: patientSetResultType,
+                description: name
         )
         queryInstance.addToQueryResults(resultInstance)
 
-        def i = 0;
+        def i = 0
         patients.each { patient ->
             resultInstance.addToPatientSet(new QtPatientSetCollection(
                     setIndex: i++,

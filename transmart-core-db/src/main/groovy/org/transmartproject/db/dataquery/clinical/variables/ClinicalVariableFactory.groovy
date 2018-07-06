@@ -136,7 +136,7 @@ class ClinicalVariableFactory {
         def children = descendantDimensions[1..-1]
         def parentNumSlashes = parent.conceptPath.count('\\')
 
-        def innerVariables = children.collect97961d984fdc113fbdfaace7631dcff6298c111d {
+        def innerVariables = children.collect {
             def thisCount = it.conceptPath.count('\\')
             if (thisCount != parentNumSlashes + 1) {
                 throw new InvalidArgumentsException("Concept with path " +

@@ -68,7 +68,7 @@ class DataExportControllerTests {
     }
 
     def createQueryResult() {
-        def queryMaster = QueryResultData.createQueryResult i2b2Data.patients
+        def queryMaster = QueryResultData.createQueryResult 'export-data-set', i2b2Data.patients
         queryMaster.save(failOnError: true)
         study2QueryResult =
                 QueryResultData.getQueryResultFromMaster(queryMaster)
