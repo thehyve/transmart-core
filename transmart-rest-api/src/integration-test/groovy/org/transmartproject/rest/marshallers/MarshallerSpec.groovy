@@ -4,28 +4,42 @@ package org.transmartproject.rest.marshallers
 
 import grails.rest.render.RendererRegistry
 import grails.test.mixin.integration.Integration
-import grails.test.runtime.FreshRuntime
-import grails.transaction.Rollback
 import grails.util.Holders
 import groovy.util.logging.Slf4j
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.TestRestTemplate
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.client.RestTemplate
+import org.transmartproject.config.RestApiTestConfiguration
+import org.transmartproject.core.users.UsersResource
 import spock.lang.Specification
 
-@FreshRuntime
+
 @Integration
-@Rollback
+@Import([RestApiTestConfiguration])
 @Slf4j
-class MarshallerSpec extends Specification {
+abstract class MarshallerSpec extends Specification {
+
+    @Autowired
+    UsersResource usersResource
+
+    @Autowired
+    SessionFactory sessionFactory
+
+    void testDataSetup() {
+        getJson(baseURL + '/test/createData')
+    }
 
     void setup() {
+        log.info "SETUP"
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
             log.info "RendererRegistry bean: ${it}"
         }
@@ -33,17 +47,17 @@ class MarshallerSpec extends Specification {
         assert rendererRegistry.class == TransmartRendererRegistry
     }
 
-    RestTemplate restTemplate = new TestRestTemplate()
+    TestRestTemplate restTemplate = new TestRestTemplate()
 
     String getBaseURL() { "http://localhost:${serverPort}" }
 
     @Value('${local.server.port}')
     Integer serverPort
 
-    ResponseEntity<Resource> postJson(url, object) {
+    ResponseEntity<Resource> postJson(String url, object) {
         HttpHeaders headers = new HttpHeaders()
-        headers.set(HttpHeaders.ACCEPT, 'application/json')
-        headers.set(HttpHeaders.CONTENT_TYPE, 'application/json')
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         HttpEntity requestEntity = new HttpEntity(object, headers)
         ResponseEntity<Resource> response = restTemplate.exchange(
                 url, HttpMethod.POST, requestEntity,
@@ -51,23 +65,23 @@ class MarshallerSpec extends Specification {
         response
     }
 
-    ResponseEntity<Resource> getJson(url) {
+    ResponseEntity<Resource> getJson(String url) {
         HttpHeaders headers = new HttpHeaders()
-        headers.set(HttpHeaders.ACCEPT, 'application/json')
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         HttpEntity requestEntity = new HttpEntity(headers)
         ResponseEntity<Resource> response = restTemplate.exchange(
                 url, HttpMethod.GET, requestEntity,
-                new ParameterizedTypeReference<Resource>() {});
+                new ParameterizedTypeReference<Resource>() {})
         response
     }
 
-    ResponseEntity<Resource> getHal(url) {
+    ResponseEntity<Resource> getHal(String url) {
         HttpHeaders headers = new HttpHeaders()
         headers.set(HttpHeaders.ACCEPT, 'application/hal+json')
         HttpEntity requestEntity = new HttpEntity(headers)
         ResponseEntity<Resource> response = restTemplate.exchange(
                 url, HttpMethod.GET, requestEntity,
-                new ParameterizedTypeReference<Resource>() {});
+                new ParameterizedTypeReference<Resource>() {})
         response
     }
 

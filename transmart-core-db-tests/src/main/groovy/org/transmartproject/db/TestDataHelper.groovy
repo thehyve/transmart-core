@@ -19,11 +19,7 @@
 
 package org.transmartproject.db
 
-import grails.util.Pair
-
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.everyItem
-import static org.hamcrest.Matchers.isA
+import org.slf4j.LoggerFactory
 
 /**
  * Helper class for dealing with test data.
@@ -40,14 +36,10 @@ class TestDataHelper {
             return //shortcut for no objects to save
         }
 
-        List<Pair> result = objects.collect { new Pair(it.save(flush: true), it) }
-        result.each {
-            if (it.aValue == null) {
-                throw new RuntimeException("Could not save ${it.bValue}. Errors: ${it.bValue?.errors}")
-            }
-        }
-
-        if(result) assertThat result.collect { it.aValue }, everyItem(isA(result[0].bValue.getClass()))
+        objects.forEach({ object ->
+            object.save(flush: true)
+            LoggerFactory.getLogger(TestDataHelper).info "Saved ${object.class.simpleName}: ${object}"
+        })
     }
 
 }

@@ -6,7 +6,7 @@ import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import grails.test.mixin.integration.Integration
 import grails.test.runtime.FreshRuntime
-import grails.transaction.Rollback
+import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TableConfig
@@ -28,7 +28,6 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 @FreshRuntime
-@Rollback
 @Integration
 @Slf4j
 class DataTableViewDataSerializationServiceSpec extends Specification {
@@ -40,6 +39,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     @Autowired
     HypercubeDataSerializationService serializationService
 
+    @Transactional
     void setupData() {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

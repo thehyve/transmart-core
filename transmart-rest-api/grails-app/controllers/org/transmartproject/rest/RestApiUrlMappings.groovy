@@ -24,6 +24,8 @@ package org.transmartproject.rest
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import grails.util.Environment
+
 class RestApiUrlMappings {
 
     // grails url-mappings-report can come handy here...
@@ -282,5 +284,8 @@ class RestApiUrlMappings {
             }
         }
 
+        if (Environment.current.name == 'test') {
+            '/test/createData'(controller: 'test', action: 'createData')
+        }
     }
 }

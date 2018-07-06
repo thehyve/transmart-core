@@ -27,7 +27,6 @@ package org.transmartproject.rest.highdim
 
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
 import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
@@ -59,7 +58,6 @@ import static org.transmartproject.rest.highdim.HighDimResultRowsMatcher.hasRows
 import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
-@Rollback
 class HighDimDataServiceSpec extends Specification {
 
     @Autowired

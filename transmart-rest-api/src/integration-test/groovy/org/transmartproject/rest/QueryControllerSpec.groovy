@@ -15,8 +15,10 @@ class QueryControllerSpec extends MarshallerSpec {
 
     public static final String VERSION = 'v2'
 
-    @Ignore
     void 'test JSON (de)serialisation'() {
+        given:
+        testDataSetup()
+
         def constraint = [
                 type: 'field',
                 operator: '=',
@@ -43,6 +45,9 @@ class QueryControllerSpec extends MarshallerSpec {
     }
 
     void 'test_sorting'() {
+        given:
+        testDataSetup()
+
         def constraint = URLEncoder.encode(([
                 type: 'true',
         ] as JSON).toString(false), 'UTF-8')
@@ -80,6 +85,9 @@ class QueryControllerSpec extends MarshallerSpec {
     }
 
     void 'test invalid constraint'() {
+        given:
+        testDataSetup()
+
         // invalid constraint with an operator that is not supported for the value type.
         def constraint = [
                 type: 'value',
@@ -103,6 +111,9 @@ class QueryControllerSpec extends MarshallerSpec {
     }
 
     void 'test invalid JSON'() {
+        given:
+        testDataSetup()
+
         def constraint = [
                 type: 'true'
         ] as JSON
@@ -124,6 +135,9 @@ class QueryControllerSpec extends MarshallerSpec {
     }
 
     void 'test getSupportedFields'() {
+        given:
+        testDataSetup()
+
         when:
         def url = "${baseURL}/$VERSION/supported_fields"
         ResponseEntity<Resource> response = getJson(url)

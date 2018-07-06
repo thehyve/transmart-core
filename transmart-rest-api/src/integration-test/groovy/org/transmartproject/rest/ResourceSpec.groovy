@@ -30,7 +30,6 @@ import grails.plugins.rest.client.RestResponse
 import grails.rest.render.RendererRegistry
 import grails.test.mixin.integration.Integration
 import grails.test.runtime.FreshRuntime
-import grails.transaction.Rollback
 import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.hamcrest.Matcher
@@ -45,7 +44,6 @@ import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
 @FreshRuntime
-@Rollback
 @Integration
 @Slf4j
 abstract class ResourceSpec extends Specification {

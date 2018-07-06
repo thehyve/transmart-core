@@ -1,4 +1,4 @@
-package org.transmartproject.rest.test
+package org.transmartproject.rest
 
 import org.transmartproject.core.dataquery.Sex
 import org.transmartproject.db.i2b2data.PatientDimension
