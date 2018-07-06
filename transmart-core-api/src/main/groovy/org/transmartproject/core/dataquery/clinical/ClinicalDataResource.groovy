@@ -9,7 +9,7 @@ import org.transmartproject.core.querytool.QueryResult
 /**
  * Entry point for retrieving clinical data.
  */
-public interface ClinicalDataResource {
+interface ClinicalDataResource {
 
     /**
      * Equivalent to {@link #retrieveData(java.util.List, java.util.List)}

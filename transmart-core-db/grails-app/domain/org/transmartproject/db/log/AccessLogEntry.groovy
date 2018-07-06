@@ -22,7 +22,7 @@ package org.transmartproject.db.log
  * Provides access to the logging table
  */
 
-public class AccessLogEntry implements org.transmartproject.core.log.AccessLogEntry {
+class AccessLogEntry implements org.transmartproject.core.log.AccessLogEntry {
 
     String username
     String event
@@ -43,10 +43,10 @@ public class AccessLogEntry implements org.transmartproject.core.log.AccessLogEn
     }
 
     static constraints = {
-        username(blank: false)
-        event(nullable: false)
-        eventMessage(nullable: true)
-        requestURL(nullable: true)
-        accessTime(nullable: false)
+        username blank: false, maxSize: 255
+        event nullable: false, maxSize: 255
+        eventMessage nullable: true
+        requestURL nullable: true, maxSize: 255
+        accessTime nullable: false
     }
 }

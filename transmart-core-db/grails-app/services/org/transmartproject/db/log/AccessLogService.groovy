@@ -3,7 +3,7 @@
 package org.transmartproject.db.log
 
 import grails.transaction.Transactional
-import groovy.json.JsonBuilder
+import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.transmartproject.core.binding.BindingHelper
@@ -11,24 +11,28 @@ import org.transmartproject.core.log.AccessLogEntryResource
 import org.transmartproject.core.users.User
 
 @Transactional
+@CompileStatic
 class AccessLogService implements AccessLogEntryResource {
 
     static final Logger log = LoggerFactory.getLogger(AccessLogService.class)
 
     @Override
     AccessLogEntry report(Map<String, Object> additionalParams = [:], User user, String event) {
+        def eventMessage = additionalParams?.eventMessage as String
+        def requestURL = additionalParams?.requestURL as String
+        def accessTime = additionalParams?.accessTime as Date ?: new Date()
         log.trace(BindingHelper.objectMapper.writeValueAsString([
                 username:       user?.username,
                 event:          event,
-                eventMessage:   additionalParams?.eventMessage,
-                requestURL:     additionalParams?.requestURL,
-                accessTime:     additionalParams?.accessTime ?: new Date()]))
+                eventMessage:   eventMessage,
+                requestURL:     requestURL,
+                accessTime:     accessTime]))
         new AccessLogEntry(
                 username:       user?.username,
-                event:          event,
-                eventMessage:   additionalParams?.eventMessage,
-                requestURL:     additionalParams?.requestURL,
-                accessTime:     additionalParams?.accessTime ?: new Date(),
+                event:          event.take(255),
+                eventMessage:   eventMessage,
+                requestURL:     requestURL?.take(255),
+                accessTime:     accessTime,
         ).save()
     }
 
@@ -47,6 +51,7 @@ class AccessLogService implements AccessLogEntryResource {
             } else if (endDate) {
                 lte 'accessTime', endDate
             }
-        }
+        } as List<AccessLogEntry>
     }
+
 }

@@ -37,6 +37,13 @@ import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
+/**
+ * Service that retrieves the current study based on the study id in the request path.
+ *
+ * @deprecated Study ids should be passed explicitly to controllers and services when required,
+ * instead of prefixing every request with a study path.
+ */
+@Deprecated
 class StudyLoadingService {
 
     static scope = 'request'
