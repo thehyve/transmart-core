@@ -19,14 +19,12 @@
 
 package org.transmartproject.db.test
 
+import grails.util.Holders
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.core.querytool.QueryResultType
 
-import javax.annotation.PostConstruct
 import javax.sql.DataSource
 
 import static H2DatabaseCreator.ObjectStatus.*
@@ -40,13 +38,19 @@ import static H2DatabaseCreator.ObjectStatus.*
 @Slf4j
 class H2DatabaseCreator {
 
-    @Autowired
-    @Qualifier('dataSource')
-    DataSource dataSource
-
+    private DataSource dataSource
     private Sql sql
 
-    @PostConstruct
+    H2DatabaseCreator(DataSource dataSource) {
+        this.dataSource = dataSource
+    }
+
+    static initDatabase() {
+        def dataSource = Holders.applicationContext.getBean('dataSource', DataSource)
+        def h2DatabaseCreator = new H2DatabaseCreator(dataSource)
+        h2DatabaseCreator.init()
+    }
+
     void init() {
         this.sql = new Sql(dataSource.connection)
 

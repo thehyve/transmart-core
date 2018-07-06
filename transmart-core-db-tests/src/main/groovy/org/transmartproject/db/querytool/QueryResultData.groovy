@@ -20,12 +20,18 @@
 package org.transmartproject.db.querytool
 
 import com.google.common.collect.Iterables
+import grails.util.Holders
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.i2b2data.PatientDimension
 
 class QueryResultData {
+
+    static QtQueryResultType getPatientSetResultType() {
+        def patientSetService = Holders.applicationContext.getBean(PatientSetService)
+        patientSetService?.patientSetResultType
+    }
 
     static QtQueryMaster createQueryResult(List<PatientDimension> patients) {
         QtQueryMaster queryMaster = new QtQueryMaster(
@@ -51,7 +57,7 @@ class QueryResultData {
                 queryInstance: queryInstance,
                 setSize: patients.size(),
                 realSetSize: patients.size(),
-                queryResultType: QtQueryResultType.load(QueryResultType.PATIENT_SET_ID),
+                queryResultType: patientSetResultType,
         )
         queryInstance.addToQueryResults(resultInstance)
 

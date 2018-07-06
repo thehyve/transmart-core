@@ -143,8 +143,8 @@ class HighDimTestData {
                         "$left.type with $right.type")
             }
 
-            BioDataCorrelDescr descr =
-                    BioDataCorrelDescr.findByCorrelation(correlationType.name)
+            BioDataCorrelDescr descr = null
+                    // BioDataCorrelDescr.findByCorrelation(correlationType.name)
             if (!descr) {
                 descr = new BioDataCorrelDescr(
                         correlation: correlationType.name,

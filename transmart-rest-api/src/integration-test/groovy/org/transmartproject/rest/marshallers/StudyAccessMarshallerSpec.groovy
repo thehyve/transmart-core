@@ -43,6 +43,9 @@ class StudyAccessMarshallerSpec extends MarshallerSpec {
                                                     export : true ]
 
     void basicTest() {
+        given:
+        testDataSetup()
+
         when:
         def url = "${baseURL}/${VERSION}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
         ResponseEntity<Resource> response = getJson(url)
@@ -66,6 +69,9 @@ class StudyAccessMarshallerSpec extends MarshallerSpec {
     }
 
     void testHal() {
+        given:
+        testDataSetup()
+
         when:
         def url = "${baseURL}/${VERSION}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
         ResponseEntity<Resource> response = getHal(url)

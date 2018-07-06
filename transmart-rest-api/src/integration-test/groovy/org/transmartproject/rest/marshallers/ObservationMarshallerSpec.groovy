@@ -18,6 +18,9 @@ class ObservationMarshallerSpec extends MarshallerSpec {
     def concept_paths = '\\foo\\study1\\bar\\'
 
     void basicTest() {
+        given:
+        testDataSetup()
+
         when:
         def url = "${baseURL}/$VERSION/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
         ResponseEntity<Resource> response = getJson(url)
@@ -28,12 +31,15 @@ class ObservationMarshallerSpec extends MarshallerSpec {
         response.statusCode.value() == 200
         response.headers.getFirst('Content-Type').split(';')[0]  == 'application/json'
         result != null
-        that result as List, contains(
-                hasEntry(is('subject'),
-                        hasEntry('id', -101)))
+        (result as List).any { Map observation ->
+            observation.subject && observation.subject.id == -101
+        }
     }
 
     void testHal() {
+        given:
+        testDataSetup()
+
         when:
         def url = "${baseURL}/$VERSION/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
         ResponseEntity<Resource> response = getHal(url)

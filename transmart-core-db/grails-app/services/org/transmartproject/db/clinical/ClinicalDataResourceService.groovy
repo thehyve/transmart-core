@@ -20,7 +20,9 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
+import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
+import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -38,9 +40,11 @@ import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVaria
 import org.transmartproject.db.i2b2data.PatientDimension
 
 @Slf4j
+@Transactional
 class ClinicalDataResourceService implements ClinicalDataResource {
 
-    def sessionFactory
+    @Autowired
+    SessionFactory sessionFactory
 
     @Autowired
     ClinicalVariableFactory clinicalVariableFactory
@@ -131,7 +135,8 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     @Override
     ClinicalVariable createClinicalVariable(Map<String, Object> params,
                                             String type) throws InvalidArgumentsException {
-
+        log.info "CLINICAL DATA RESOURCE SERVICE"
+        log.info "SESSION: ${sessionFactory.currentSession}"
         clinicalVariableFactory.createClinicalVariable params, type
     }
 }

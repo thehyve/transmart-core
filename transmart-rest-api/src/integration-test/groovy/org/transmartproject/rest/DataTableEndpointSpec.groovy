@@ -14,6 +14,9 @@ class DataTableEndpointSpec extends MarshallerSpec {
     public static final String VERSION = 'v2'
 
     void 'test data table'() {
+        given:
+        testDataSetup()
+
         def constraint = [
                 type: 'true',
         ]

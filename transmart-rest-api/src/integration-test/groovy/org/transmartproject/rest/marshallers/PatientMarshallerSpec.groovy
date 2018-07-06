@@ -28,7 +28,7 @@ package org.transmartproject.rest.marshallers
 import groovy.json.JsonSlurper
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
-import org.transmartproject.rest.test.TestData
+import org.transmartproject.rest.TestData
 
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -41,6 +41,9 @@ class PatientMarshallerSpec extends MarshallerSpec {
     public static final String VERSION = "v1"
 
     void basicTest() {
+        given:
+        testDataSetup()
+
         when:
         def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
         ResponseEntity<Resource> response = getJson(url)
@@ -71,6 +74,9 @@ class PatientMarshallerSpec extends MarshallerSpec {
     }
 
     void testHal() {
+        given:
+        testDataSetup()
+
         when:
         def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
         ResponseEntity<Resource> response = getHal(url)

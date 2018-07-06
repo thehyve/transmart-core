@@ -24,30 +24,9 @@ package org.transmartproject.rest
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import grails.util.Environment
-import groovy.util.logging.Slf4j
-import org.transmartproject.db.TestData
-import org.transmartproject.db.user.AccessLevelTestData
-
-@Slf4j
 class BootStrap {
 
-    static TestData testData
-    static AccessLevelTestData accessLevelTestData
-
-    static setupTestData() {
-        testData = TestData.createDefault()
-        testData.saveAll()
-        new org.transmartproject.rest.test.TestData().createTestData()
-        accessLevelTestData = AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
-        accessLevelTestData.saveAll()
-    }
-
     def init = { servletContext ->
-        if (Environment.current == Environment.TEST) {
-            log.info "Setting up test data..."
-            setupTestData()
-        }
     }
 
 }
