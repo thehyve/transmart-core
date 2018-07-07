@@ -31,7 +31,7 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.TabularStudyTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.user.AccessLevelTestData
 
 import javax.annotation.Resource
@@ -40,7 +40,7 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
+class HighDimensionDataTypeResourceSpec extends Specification {
 
     @Autowired
     QueriesResource queriesResourceService

@@ -24,11 +24,11 @@ import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 @Integration
 @Rollback
-class DeChromosomalRegionSpec extends TransmartSpecification {
+class DeChromosomalRegionSpec extends Specification {
 
     AcghTestData testData
 

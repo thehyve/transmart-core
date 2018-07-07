@@ -6,14 +6,14 @@ import org.hibernate.SessionFactory
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
 import org.transmartproject.db.querytool.QuerySetInstance
 
 @Integration
 @Rollback
-class UserQuerySetServiceSpec extends TransmartSpecification {
+class UserQuerySetServiceSpec extends Specification {
 
 
     UserQuerySetService userQuerySetService

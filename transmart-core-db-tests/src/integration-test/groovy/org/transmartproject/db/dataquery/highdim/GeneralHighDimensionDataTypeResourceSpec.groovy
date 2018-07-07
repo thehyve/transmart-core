@@ -10,7 +10,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
@@ -18,7 +18,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class GeneralHighDimensionDataTypeResourceSpec extends TransmartSpecification {
+class GeneralHighDimensionDataTypeResourceSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService
 

@@ -31,7 +31,7 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.I2b2Data
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
@@ -39,7 +39,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-class I2b2Spec extends TransmartSpecification {
+class I2b2Spec extends Specification {
 
     void setupData() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',

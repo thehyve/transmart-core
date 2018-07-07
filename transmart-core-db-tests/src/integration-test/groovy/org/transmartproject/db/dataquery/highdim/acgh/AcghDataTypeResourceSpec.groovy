@@ -29,7 +29,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -39,7 +39,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Integration
 @Rollback
-class AcghDataTypeResourceSpec extends TransmartSpecification {
+class AcghDataTypeResourceSpec extends Specification {
 
     @Autowired
     HighDimensionResource highDimensionResourceService

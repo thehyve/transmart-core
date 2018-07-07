@@ -24,14 +24,14 @@ import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.containsInAnyOrder
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-class AssayIdListConstraintSpec extends TransmartSpecification {
+class AssayIdListConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
 

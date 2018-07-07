@@ -10,7 +10,7 @@ import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
@@ -22,7 +22,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Integration
 @Rollback
-class HypercubeIntegrationSpec extends TransmartSpecification {
+class HypercubeIntegrationSpec extends Specification {
 
     @Autowired
     SessionFactory sessionFactory

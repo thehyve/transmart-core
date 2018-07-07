@@ -9,13 +9,13 @@ import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.user.AccessLevelTestData
 
 @Integration
 @Rollback
-class CrossTableSpec extends TransmartSpecification {
+class CrossTableSpec extends Specification {
 
     @Autowired
     SessionFactory sessionFactory

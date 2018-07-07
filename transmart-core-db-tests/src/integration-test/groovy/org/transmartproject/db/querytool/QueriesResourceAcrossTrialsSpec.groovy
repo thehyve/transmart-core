@@ -26,7 +26,7 @@ import org.transmartproject.core.querytool.*
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
 import org.transmartproject.db.ontology.AcrossTrialsTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.BETWEEN
@@ -35,7 +35,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
+class QueriesResourceAcrossTrialsSpec extends Specification {
     private static final String AGE_AT_DIAGNOSIS_NODE =
             '\\\\xtrials\\Across Trials\\Demographics\\Age at Diagnosis\\'
 
