@@ -52,6 +52,18 @@ interface QueriesResource {
     QueryResult getQueryResultFromId(Long id, User user) throws NoSuchResourceException
 
     /**
+     * Fetches a {@link QueryResult} using its id.
+     *
+     * @param id the id of the query result to be fetched
+     * @return the query result requested
+     * @throws NoSuchResourceException if there is no query result with
+     * the given id or the user does not have access to the query.
+     * @deprecated Use {@link #getQueryResultFromId(Long, User)} instead.
+     */
+    @Deprecated
+    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException
+
+    /**
      * Fetches the {@link QueryDefinition} used to obtain the passed in result.
      *
      * @param result the result whose generating definition is requested

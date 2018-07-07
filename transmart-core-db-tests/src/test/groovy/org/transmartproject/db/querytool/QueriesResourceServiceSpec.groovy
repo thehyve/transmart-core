@@ -19,7 +19,7 @@ class QueriesResourceServiceSpec extends Specification {
         service.runQuery(queryDefinition)
 
         then:
-        def e = thrown(AssertionError)
+        def e = thrown(IllegalStateException)
         e.message.contains('org.transmartproject.i2b2.user_id is not specified.')
     }
 }
