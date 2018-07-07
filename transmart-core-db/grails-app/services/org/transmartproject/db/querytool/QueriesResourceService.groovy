@@ -19,40 +19,61 @@
 
 package org.transmartproject.db.querytool
 
+import grails.core.GrailsApplication
 import grails.transaction.Transactional
+import grails.util.Environment
+import grails.util.Holders
+import org.hibernate.SessionFactory
 import org.hibernate.jdbc.Work
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.*
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.User
+import org.transmartproject.core.users.UsersResource
 
 import java.sql.Connection
 
 @Transactional
 class QueriesResourceService implements QueriesResource {
 
-    def grailsApplication
-    def patientSetQueryBuilderService
-    def queryDefinitionXmlService
-    def sessionFactory
-    def usersResource
+    GrailsApplication grailsApplication
+    PatientSetQueryBuilderService patientSetQueryBuilderService
+    QueryDefinitionXmlService queryDefinitionXmlService
+    SessionFactory sessionFactory
+    UsersResource usersResource
+    LegacyAuthorisationChecks authorisationChecks
+
 
     @Override
     @Deprecated
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        String username = grailsApplication.config.org.transmartproject.i2b2.user_id
-        assert username : 'org.transmartproject.i2b2.user_id is not specified.'
+        if (Environment.current.name != 'test') {
+            // This functionality is not secured.
+            throw new RuntimeException("Functionality is disabled.")
+        }
+        String username = Holders.config.org.transmartproject.i2b2.user_id
+        if (!username) {
+            throw new IllegalStateException('org.transmartproject.i2b2.user_id is not specified.')
+        }
         User user = usersResource.getUserFromUsername(username)
         runQuery(definition, user)
     }
 
     @Override
     QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
+        if (!authorisationChecks.canRun(user, definition)) {
+            throw new AccessDeniedException("Denied ${user.username} access " +
+                    "for building cohort based on $definition")
+        }
+
         // 1. Populate qt_query_master
         QtQueryMaster queryMaster = new QtQueryMaster(
             name           : definition.name,
             userId         : user.username,
-            groupId        : grailsApplication.config.org.transmartproject.i2b2.group_id,
+            groupId        : Holders.config.org.transmartproject.i2b2.group_id,
             createDate     : new Date(),
             generatedSql   : null,
             requestXml     : queryDefinitionXmlService.toXml(definition),
@@ -64,7 +85,7 @@ class QueriesResourceService implements QueriesResource {
         // 2. Populate qt_query_instance
         QtQueryInstance queryInstance = new QtQueryInstance(
                 userId       : user.username,
-                groupId      : grailsApplication.config.org.transmartproject.i2b2.group_id,
+                groupId      : Holders.config.org.transmartproject.i2b2.group_id,
                 startDate    : new Date(),
                 statusTypeId : QueryStatus.PROCESSING.id,
                 queryMaster  : queryMaster,
@@ -182,6 +203,20 @@ class QueriesResourceService implements QueriesResource {
     QueryResult getQueryResultFromId(Long id, User user) throws NoSuchResourceException {
         QtQueryResultInstance resultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
         if (!resultInstance || resultInstance.queryInstance.userId != user.username) {
+            throw new NoSuchResourceException(
+                    "Could not find query result instance with id ${id} and delete_flag = 'N' for user ${user.username}")
+        }
+        resultInstance
+    }
+
+    @Override
+    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
+        if (Environment.current.name != 'test') {
+            // This functionality is not secured.
+            throw new RuntimeException("Functionality is disabled.")
+        }
+        QtQueryResultInstance resultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
+        if (!resultInstance) {
             throw new NoSuchResourceException(
                     "Could not find query result instance with id ${id} and delete_flag = 'N' for user ${user.username}")
         }

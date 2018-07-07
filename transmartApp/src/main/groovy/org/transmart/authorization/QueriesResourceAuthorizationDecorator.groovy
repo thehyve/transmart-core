@@ -33,38 +33,22 @@ class QueriesResourceAuthorizationDecorator
 
     @Override
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        if (!authorisationChecks.canRun(currentUserBean, definition)) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "for building cohort based on $definition")
-        }
-
         delegate.runQuery definition, currentUserBean
     }
 
     @Override
     QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
-        if (!authorisationChecks.canRun(currentUserBean, definition)) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "for building cohort based on $definition")
-        }
-        if (user.username != currentUserBean.username) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "to building a cohort in name of ${user.username}")
-        }
-
         delegate.runQuery definition, user
     }
 
     @Override
     QueryResult getQueryResultFromId(Long id, User user) throws NoSuchResourceException {
-        def res = delegate.getQueryResultFromId id, user
+        delegate.getQueryResultFromId id, user
+    }
 
-        if (!authorisationChecks.hasAccess(currentUserBean, res)) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "to query result with id $id")
-        }
-
-        res
+    @Override
+    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
+        delegate.getQueryResultFromId id, currentUserBean
     }
 
     @Override

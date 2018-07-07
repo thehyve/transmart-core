@@ -28,6 +28,7 @@ import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.dataquery.highdim.assayconstraints.*
 
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.*
@@ -40,6 +41,9 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
 
     @Autowired
     QueriesResource queriesResource
+
+    @Autowired
+    UsersResource usersResource
 
     private DisjunctionConstraintFactory disjunctionConstraintFactory =
             new DisjunctionConstraintFactory(DisjunctionAssayCriteriaConstraint, NoopAssayCriteriaConstraint)

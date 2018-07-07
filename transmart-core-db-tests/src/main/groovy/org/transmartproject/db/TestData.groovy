@@ -192,6 +192,9 @@ class TestData {
 
         SystemResource systemResource = Holders.applicationContext.getBean(SystemResource)
         systemResource.clearCaches()
+
+        def dictionaries = new Dictionaries()
+        dictionaries.saveAll()
     }
 
 }
