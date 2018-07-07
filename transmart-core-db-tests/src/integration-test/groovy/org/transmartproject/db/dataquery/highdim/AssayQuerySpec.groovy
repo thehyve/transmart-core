@@ -23,7 +23,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameCriteriaConstraint
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
@@ -34,7 +34,7 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-class AssayQuerySpec extends TransmartSpecification {
+class AssayQuerySpec extends Specification {
 
     AssayTestData testData
 

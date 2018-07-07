@@ -27,7 +27,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -39,7 +39,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class MrnaEndToEndRetrievalSpec extends TransmartSpecification {
+class MrnaEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
     HighDimensionResource highDimensionResourceService

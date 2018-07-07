@@ -26,14 +26,14 @@ import org.transmartproject.core.dataquery.assay.SampleType
 import org.transmartproject.core.dataquery.assay.Timepoint
 import org.transmartproject.core.dataquery.assay.TissueType
 import org.transmartproject.core.dataquery.highdim.Platform
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class DeSubjectSampleMappingSpec extends TransmartSpecification {
+class DeSubjectSampleMappingSpec extends Specification {
 
     SampleHighDimTestData testData
 

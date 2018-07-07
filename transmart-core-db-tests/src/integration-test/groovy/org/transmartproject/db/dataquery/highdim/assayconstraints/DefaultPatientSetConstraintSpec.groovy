@@ -28,7 +28,7 @@ import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QueryResultData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*

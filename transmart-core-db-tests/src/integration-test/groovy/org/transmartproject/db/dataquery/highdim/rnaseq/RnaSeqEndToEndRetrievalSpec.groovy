@@ -37,7 +37,7 @@ import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
 import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqModule.RNASEQ_VALUES_PROJECTION
@@ -47,7 +47,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
+class RnaSeqEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
 

@@ -21,7 +21,7 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
@@ -36,7 +36,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Rollback
 @Integration
-class QueryServiceSpec extends TransmartSpecification {
+class QueryServiceSpec extends Specification {
 
     @Autowired
     SessionFactory sessionFactory

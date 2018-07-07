@@ -22,13 +22,13 @@ package org.transmartproject.db.dataquery.highdim
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class DeGplInfoSpec extends TransmartSpecification {
+class DeGplInfoSpec extends Specification {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()
 

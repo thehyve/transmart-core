@@ -23,11 +23,11 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 @Integration
 @Rollback
-class StudyImplSpec extends TransmartSpecification {
+class StudyImplSpec extends Specification {
 
     // Making studyTestData @Lazy is a workaround to get this test to work on Travis Trusty environment. Probably it
     // is some bug in (some versions of) grails, but this is difficult to pin down.

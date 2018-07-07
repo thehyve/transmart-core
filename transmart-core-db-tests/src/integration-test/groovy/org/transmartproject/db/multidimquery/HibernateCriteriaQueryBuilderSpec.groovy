@@ -23,14 +23,14 @@ import org.transmartproject.core.multidimquery.query.TemporalConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.multidimquery.query.*
 
 @Slf4j
 @Rollback
 @Integration
-class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
+class HibernateCriteriaQueryBuilderSpec extends Specification {
 
     @Autowired
     SessionFactory sessionFactory

@@ -25,7 +25,7 @@ import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.ontology.AcrossTrialsTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.AcrossTrialsTestData.MODIFIER_AGE_AT_DIAGNOSIS
@@ -33,7 +33,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class AcrossTrialsDataRetrievalSpec extends TransmartSpecification {
+class AcrossTrialsDataRetrievalSpec extends Specification {
     public static final String AGE_AT_DIAGNOSIS_PATH =
             '\\Across Trials\\Demographics\\Age at Diagnosis\\'
 
