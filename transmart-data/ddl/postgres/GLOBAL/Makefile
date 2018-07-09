@@ -94,8 +94,8 @@ pg_bitcount-master: pg_bitcount-master.tar.gz
 	tar -xvzf pg_bitcount-master.tar.gz
 
 install_pg_bitcount: pg_bitcount-master postgresql-server-dev-all
-	$(MAKE) -C pg_bitcount-master PG_CONFIG=`pg_config --bindir`/pg_config
-	sudo $(MAKE) -C pg_bitcount-master PG_CONFIG=`pg_config --bindir`/pg_config install
+	$(MAKE) -C pg_bitcount-master $(PGCONFIG_PARAMS)
+	sudo $(MAKE) -C pg_bitcount-master $(PGCONFIG_PARAMS) install
 
 pg_bitcount_extension: install_pg_bitcount
 	$(PSQL_COMMAND_NO_TRANSACTION) -d $(PGDATABASE) -c "CREATE EXTENSION IF NOT EXISTS pg_bitcount;"
