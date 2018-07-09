@@ -148,7 +148,7 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
         } else if (constraint.conceptCodes) {
             for (String conceptCode: constraint.conceptCodes) {
                 try {
-                    concept = conceptsResource.getConceptByConceptCode(constraint.conceptCode)
+                    concept = conceptsResource.getConceptByConceptCode(conceptCode)
                 } catch (NoSuchResourceException e) {
                     throw new AccessDeniedException("Access denied to concept code: ${conceptCode}")
                 }
