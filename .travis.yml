@@ -10,6 +10,7 @@ php:
 env:
   global:
     - TERM=dumb
+    - PGCONFIG_PARAMS="PG_CONFIG=/usr/lib/postgresql/9.6/bin/pg_config"
   matrix:
     - DIR=transmart-core-api; TEST=check
     - DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
