@@ -17,29 +17,29 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.unit
+package org.transmartproject.db.clinical
 
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.db.clinical.ClinicalDataResourceService
-import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
-import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
-import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore // FIXME
+@Integration
+@Rollback
 class TerminalConceptVariableCreationSpec extends Specification {
 
     public static final String SAMPLE_CONCEPT_CODE = 'my concept code'
     public static final String SAMPLE_CONCEPT_PATH = '\\foo\\bar\\'
 
-    ClinicalDataResourceService service = new ClinicalDataResourceService(
-            clinicalVariableFactory: new ClinicalVariableFactory(),
-            innerResultFactory: new InnerClinicalTabularResultFactory())
+    @Autowired
+    ClinicalDataResource clinicalDataResource
 
     void testCreateTerminalConceptVariableWithConceptCode() {
-        def res = service.createClinicalVariable(
+        def res = clinicalDataResource.createClinicalVariable(
                 concept_code: SAMPLE_CONCEPT_CODE,
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
 
@@ -50,7 +50,7 @@ class TerminalConceptVariableCreationSpec extends Specification {
     }
 
     void testCreateTerminalConceptVariableWithConceptPath() {
-        def res = service.createClinicalVariable(
+        def res = clinicalDataResource.createClinicalVariable(
                 concept_path: SAMPLE_CONCEPT_PATH,
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
 
@@ -62,7 +62,7 @@ class TerminalConceptVariableCreationSpec extends Specification {
 
     void testSpecifyBothConceptPathAndCode() {
         when:
-        service.createClinicalVariable(
+        clinicalDataResource.createClinicalVariable(
                 concept_path: SAMPLE_CONCEPT_PATH,
                 concept_code: SAMPLE_CONCEPT_CODE,
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
@@ -72,7 +72,7 @@ class TerminalConceptVariableCreationSpec extends Specification {
 
     void testSpecifyExtraneousParameter() {
         when:
-        service.createClinicalVariable(
+        clinicalDataResource.createClinicalVariable(
                 concept_path: SAMPLE_CONCEPT_PATH,
                 foobar: 'barfoo',
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
@@ -82,7 +82,7 @@ class TerminalConceptVariableCreationSpec extends Specification {
 
     void testSpecifyNoParameters() {
         when:
-        service.createClinicalVariable([:],
+        clinicalDataResource.createClinicalVariable([:],
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
         then:
         thrown(InvalidArgumentsException)
@@ -90,7 +90,7 @@ class TerminalConceptVariableCreationSpec extends Specification {
 
     void testSpecifyUnrecognizedClinicalVariableType() {
         when:
-        service.createClinicalVariable([:],
+        clinicalDataResource.createClinicalVariable([:],
                 'bad type of clinical variable')
         then:
         thrown(InvalidArgumentsException)
