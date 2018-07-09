@@ -19,10 +19,13 @@
 
 package org.transmartproject.db.ontology
 
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 
 import static org.transmartproject.db.TestDataHelper.save
 
@@ -33,7 +36,9 @@ class TabularStudyTestData {
     ConceptTestData conceptData = ConceptTestData.createDefault()
 
     List<ObservationFact> facts = {
-        ClinicalTestData.createTabularFacts(conceptData.conceptDimensions, i2b2Data.patients)
+        Study dummyStudy = StudyTestData.createDefaultTabularStudy()
+        TrialVisit dummyTrialVisit = ClinicalTestData.createTrialVisit("fake", 1, null, dummyStudy)
+        ClinicalTestData.createTabularFacts(conceptData.conceptDimensions, i2b2Data.patients, dummyTrialVisit)
     }()
 
     List<I2b2> i2b2List = {

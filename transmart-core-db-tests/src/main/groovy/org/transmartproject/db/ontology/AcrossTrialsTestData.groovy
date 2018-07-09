@@ -21,8 +21,12 @@ package org.transmartproject.db.ontology
 
 import org.apache.commons.lang3.tuple.Pair
 import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.db.StudyTestData
+import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.user.AccessLevelTestData
 
 import static org.transmartproject.db.TestDataHelper.save
@@ -98,25 +102,28 @@ class AcrossTrialsTestData {
 
         def conceptDimensionFor = { String fullName ->
             result.conceptTestData.conceptDimensions.find {
-                fullName == fullName
+                it.conceptPath == fullName
             }
         }
+
+        Study dummyStudy = StudyTestData.createDefaultTabularStudy()
+        TrialVisit dummyTrialVisit = createTrialVisit("fake", 1, null, dummyStudy)
 
         List<ObservationFact> observations = [
                 createDiagonalCategoricalFacts(2, i2b2List.findAll {
                     it.fullName =~ /\\foo\\study1\\(fe)?male/
-                }, patientsStudy1),
+                }, patientsStudy1, dummyTrialVisit),
                 createDiagonalCategoricalFacts(2, i2b2List.findAll {
                     it.fullName =~ /\\foo\\study2\\(fe)?male/
-                }, patientsStudy2),
+                }, patientsStudy2, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study1\\age at diagnosis\\'),
-                        patientsStudy1[0], DUMMY_ENCOUNTER_ID, 1100),
+                        patientsStudy1[0], DUMMY_ENCOUNTER_ID, 1100, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study1\\age at diagnosis\\'),
-                        patientsStudy1[1], DUMMY_ENCOUNTER_ID, 2101),
+                        patientsStudy1[1], DUMMY_ENCOUNTER_ID, 2101, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study2\\age at diagnosis\\'),
-                        patientsStudy2[0], DUMMY_ENCOUNTER_ID, 1200),
+                        patientsStudy2[0], DUMMY_ENCOUNTER_ID, 1200, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study2\\age at diagnosis\\'),
-                        patientsStudy2[1], DUMMY_ENCOUNTER_ID, 2201),
+                        patientsStudy2[1], DUMMY_ENCOUNTER_ID, 2201, dummyTrialVisit),
         ].flatten()
         observations[0].modifierCd = MODIFIER_MALE
         observations[1].modifierCd = MODIFIER_FEMALE
