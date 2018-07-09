@@ -25,11 +25,14 @@ import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.dataquery.clinical.variables.CategoricalVariable
 import org.transmartproject.db.dataquery.clinical.variables.NormalizedLeafsVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import spock.lang.Specification
@@ -62,10 +65,13 @@ class ComposedVariablesCreationSpec extends Specification {
     void setupData() {
         conceptData = ConceptTestData.createDefault()
         i2b2Data = I2b2Data.createDefault()
+        Study dummyStudy = StudyTestData.createDefaultTabularStudy()
+        TrialVisit dummyTrialVisit = ClinicalTestData.createTrialVisit("fake", 1, null, dummyStudy)
         facts = ClinicalTestData.createDiagonalCategoricalFacts(
                 3,
                 [maleI2b2, femaleI2b2],
-                i2b2Data.patients)
+                i2b2Data.patients,
+                dummyTrialVisit)
 
         conceptData.saveAll()
         i2b2Data.saveAll()

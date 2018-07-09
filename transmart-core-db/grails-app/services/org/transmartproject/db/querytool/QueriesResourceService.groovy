@@ -43,7 +43,9 @@ class QueriesResourceService implements QueriesResource {
     PatientSetQueryBuilderService patientSetQueryBuilderService
     QueryDefinitionXmlService queryDefinitionXmlService
     SessionFactory sessionFactory
+    @Autowired
     UsersResource usersResource
+    @Autowired
     LegacyAuthorisationChecks authorisationChecks
 
 
@@ -218,7 +220,7 @@ class QueriesResourceService implements QueriesResource {
         QtQueryResultInstance resultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
         if (!resultInstance) {
             throw new NoSuchResourceException(
-                    "Could not find query result instance with id ${id} and delete_flag = 'N' for user ${user.username}")
+                    "Could not find query result instance with id ${id} and delete_flag = 'N'")
         }
         resultInstance
     }

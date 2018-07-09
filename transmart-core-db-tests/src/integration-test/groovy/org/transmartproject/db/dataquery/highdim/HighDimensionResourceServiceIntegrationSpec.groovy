@@ -246,8 +246,7 @@ class HighDimensionResourceServiceTestData {
                     HighDimTestData.createTestAssays(patientsFoobar, -6000, platformFoobar, TRIAL_NAME)
 
     @Lazy
-    QtQueryMaster allPatientsQueryMaster = createQueryResult(
-            patientsBoth + patientsFoobar)
+    QtQueryMaster allPatientsQueryMaster = createQueryResult('test', patientsBoth + patientsFoobar)
 
     QueryResult getAllPatientsQueryResult() {
         getQueryResultFromMaster allPatientsQueryMaster

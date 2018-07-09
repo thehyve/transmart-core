@@ -30,4 +30,5 @@ assets {
 test.outputs.upToDateWhen {false}
 integrationTest.outputs.upToDateWhen {false}
 
+integrationTest.testLogging.exceptionFormat = 'full'
 test.testLogging.exceptionFormat = 'full'

@@ -69,7 +69,7 @@ class ClinicalTestData {
         longitudinalClinicalFacts + sampleClinicalFacts + ehrClinicalFacts + multidimsClinicalFacts
     }
     List<Study> getAllHypercubeStudies() {
-        [defaultStudy, longitudinalStudy, sampleStudy, ehrStudy, multidimsStudy]
+        [longitudinalStudy, sampleStudy, ehrStudy, multidimsStudy]
     }
 
     @Lazy

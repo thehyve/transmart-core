@@ -27,7 +27,8 @@ import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminal
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.is
 import static org.transmartproject.db.ontology.AcrossTrialsTestData.MODIFIER_AGE_AT_DIAGNOSIS
 import static spock.util.matcher.HamcrestSupport.that
 
