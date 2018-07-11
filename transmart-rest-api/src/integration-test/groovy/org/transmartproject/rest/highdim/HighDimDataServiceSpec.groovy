@@ -34,6 +34,7 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.InMemoryTabularResult
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
@@ -67,6 +68,8 @@ class HighDimDataServiceSpec extends Specification {
     boolean isDoubleType
 
     void setupData() {
+        TestData.clearAllData()
+
         svc.resultTransformer = { TabularResult source ->
             collectedTable = new InMemoryTabularResult(source) //collecting the result
             expectedRows = collectedTable.rows.collect()

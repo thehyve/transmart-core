@@ -47,7 +47,7 @@ class ObservationsBuilderSpec extends Specification {
 
 
     void setupData() {
-        TestData.clearAllDataInTransaction()
+        TestData.clearAllData()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

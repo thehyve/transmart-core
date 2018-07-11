@@ -54,12 +54,16 @@ abstract class ResourceSpec extends Specification {
     @Autowired
     AuthContext authContext
 
+    @Autowired
+    TestResource testResource
+
     void selectUser(User user) {
         assert authContext instanceof MockAuthContext
         authContext.currentUser = user
     }
 
     void setup() {
+        testResource.createTestData()
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
             log.debug "RendererRegistry bean: ${it}"
         }

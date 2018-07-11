@@ -14,6 +14,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.Resource
 import org.springframework.http.*
 import org.transmartproject.core.users.UsersResource
+import org.transmartproject.rest.TestResource
 import org.transmartproject.rest.conf.TestApplication
 import spock.lang.Specification
 
@@ -25,9 +26,13 @@ abstract class MarshallerSpec extends Specification {
     UsersResource usersResource
 
     @Autowired
+    TestResource testResource
+
+    @Autowired
     SessionFactory sessionFactory
 
     void setup() {
+        testResource.createTestData()
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
             log.info "RendererRegistry bean: ${it}"
         }
