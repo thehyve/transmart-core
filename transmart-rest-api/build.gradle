@@ -71,6 +71,7 @@ configurations {
 task functionalTest(type: Test) {
     testClassesDir = sourceSets.functionalTest.output.classesDir
     classpath += sourceSets.functionalTest.runtimeClasspath
+    jvmArgs = ['-Dgrails.env=test']
 }
 
 check.dependsOn functionalTest
