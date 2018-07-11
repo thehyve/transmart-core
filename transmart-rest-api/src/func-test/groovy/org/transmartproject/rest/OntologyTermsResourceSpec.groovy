@@ -67,9 +67,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     ]
 
     void testIndexAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get conceptListUrl, {
             header 'Accept', contentTypeForJSON
@@ -83,9 +80,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testIndexAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get conceptListUrl, {
             header 'Accept', contentTypeForHAL
@@ -104,9 +98,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -118,9 +109,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -132,9 +120,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowRootConceptAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -146,9 +131,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testShowRootConceptAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -160,9 +142,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testPathOfLongConcept() {
-        given:
-        testDataSetup()
-
         when:
         def response = get study2ConceptListUrl, {
             header 'Accept', contentTypeForHAL
@@ -177,9 +156,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testCanHitLongConcept() {
-        given:
-        testDataSetup()
-
         when:
         def response = get longConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -196,9 +172,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testNavigableConceptRoot() {
-        given:
-        testDataSetup()
-
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -210,9 +183,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testNavigableConceptLeaf() {
-        given:
-        testDataSetup()
-
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -224,9 +194,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testMetadataTagsAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -238,9 +205,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testMetadataTagsAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -252,9 +216,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeStudy() {
-        given:
-        testDataSetup()
-
         when:
         def response = get rootConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -266,9 +227,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeHighDimensional() {
-        given:
-        testDataSetup()
-
         when:
         def response = get conceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -280,9 +238,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeNumeric() {
-        given:
-        testDataSetup()
-
         when:
         def response = get longConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -294,9 +249,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeCategoricalOption() {
-        given:
-        testDataSetup()
-
         when:
         def response = get femaleConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -308,9 +260,6 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     }
 
     void testDataTypeUnknown() {
-        given:
-        testDataSetup()
-
         when:
         def response = get sexConceptUrl, {
             header 'Accept', contentTypeForJSON

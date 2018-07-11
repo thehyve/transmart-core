@@ -60,9 +60,6 @@ class HighDimResourceSpec extends ResourceSpec {
     ]
 
     void testSummaryAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get indexUrlMap['mrna'], {
             header 'Accept', contentTypeForJSON
@@ -76,9 +73,6 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testSummaryAsHal() {
-        given:
-        testDataSetup()
-
         String url = indexUrlMap['mrna']
         Map summary = getExpectedMrnaSummary()
         summary['_links'] = getExpectedMrnaHalLinks()
@@ -103,9 +97,6 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMrna() {
-        given:
-        testDataSetup()
-
         when:
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
 
@@ -116,9 +107,6 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMrnaDefaultRealProjection() {
-        given:
-        testDataSetup()
-
         when:
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.DEFAULT_REAL_PROJECTION))
 
@@ -129,9 +117,6 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMrnaAllDataProjection() {
-        given:
-        testDataSetup()
-
         Map<String, Class> dataColumns = [
                 trialName   : String,
                 rawIntensity: Double,
@@ -150,9 +135,6 @@ class HighDimResourceSpec extends ResourceSpec {
 
     @Ignore
     void testAcgh() {
-        given:
-        testDataSetup()
-
         Map<String, Class> dataColumns = new AcghValuesProjection().dataProperties
 
         when:
@@ -165,8 +147,6 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testAssayConstraints() {
-        given:
-        testDataSetup()
         def assayConstraints = '{assay_id_list: { ids: [-3002] }}'
 
         when:
@@ -179,8 +159,6 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testMultipleAssayConstraintsOfTheSameType() {
-        given:
-        testDataSetup()
         def assayConstraints =
                 '{ assay_id_list: [ { ids: [-3001, -3002] }, { ids: [-3002] } ] }'
 
@@ -195,8 +173,6 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     void testDataConstraint() {
-        given:
-        testDataSetup()
         def dataConstraints = '{ genes: [ { names: ["ADIRF"] } ] }'
 
         when:

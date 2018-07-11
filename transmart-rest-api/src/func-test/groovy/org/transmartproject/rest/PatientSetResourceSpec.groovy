@@ -26,8 +26,6 @@ class PatientSetResourceSpec extends ResourceSpec {
     public static final String VERSION = "v1"
 
     void testSave() {
-        given:
-        testDataSetup()
         selectUser(new MockUser('test_user'))
 
         when:
@@ -57,9 +55,6 @@ class PatientSetResourceSpec extends ResourceSpec {
     }
 
     void testSaveAndLoad() {
-        given:
-        testDataSetup()
-
         when:
         def response1 = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL

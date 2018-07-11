@@ -58,9 +58,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     ]
 
     void testListAllObservationsForStudy() {
-        given:
-        testDataSetup()
-
         when:
         def response = get("/$VERSION/studies/${studyId}/observations")
 
@@ -70,8 +67,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testListAllObservationsForSubject() {
-        given:
-        testDataSetup()
         def subjectId = -101
 
         when:
@@ -100,8 +95,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testListAllObservationsForConcept() {
-        given:
-        testDataSetup()
         def conceptId = 'bar'
 
         when:
@@ -113,9 +106,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testVariablesAreNormalized() {
-        given:
-        testDataSetup()
-
         when:
         def response = get("/$VERSION/studies/study_id_2/concepts/sex/observations")
 
@@ -132,8 +122,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testIndexStandalonePatientSet() {
-        given:
-        testDataSetup()
         selectUser(new MockUser('fake-user'))
 
         when: 'fetching all patient sets'
@@ -156,9 +144,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testIndexStandalone() {
-        given:
-        testDataSetup()
-
         when:
         def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
             urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
@@ -172,9 +157,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testIndexStandaloneDefaultIsNormalizedLeaves() {
-        given:
-        testDataSetup()
-
         when:
         def response = get(("/$VERSION/observations" +
                 '?patients=-201' +
@@ -196,8 +178,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testIndexStandaloneDifferentVariableType() {
-        given:
-        testDataSetup()
         def conceptPath = '\\foo\\study2\\sex\\'
 
         when:
@@ -213,9 +193,6 @@ class ObservationsResourceSpec extends ResourceSpec {
     }
 
     void testHalStandalone() {
-        given:
-        testDataSetup()
-
         when:
         def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
             header 'Accept', contentTypeForHAL

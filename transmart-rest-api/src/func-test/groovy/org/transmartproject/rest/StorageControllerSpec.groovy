@@ -29,9 +29,6 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     void storageIndexTest() {
-        given:
-        testDataSetup()
-
         when:
         def response = get "/$VERSION/files"
         then:
@@ -72,9 +69,6 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     def singleGetTest() {
-        given:
-        testDataSetup()
-
         when:
         def indexResponse = get("/$VERSION/files")
         int fileId = indexResponse.json[FILES_COLLECTION_NAME][0].id
@@ -89,9 +83,6 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     void indexByStudyTest() {
-        given:
-        testDataSetup()
-
         when:
         def response = get "/$VERSION/studies/storage_study/files"
         String expectedCollectionName = 'files'
@@ -112,9 +103,6 @@ class StorageControllerSpec extends ResourceSpec {
      */
     @Ignore
     void storageSystemPostTest() {
-        given:
-        testDataSetup()
-
         when:
         def indexResponseBefore = get("/$VERSION/storage")
         def bodyContent = [
@@ -162,9 +150,6 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     def linkUpdateTest() {
-        given:
-        testDataSetup()
-
         when:
         def indexResponse = get("/$VERSION/files")
         int fileId = indexResponse.json[FILES_COLLECTION_NAME][0].id
@@ -193,9 +178,6 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     def storageSystemGetTest() {
-        given:
-        testDataSetup()
-
         when:
         def indexResponse = get("/$VERSION/storage")
         int storageId = indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][0].id
@@ -210,9 +192,6 @@ class StorageControllerSpec extends ResourceSpec {
     }
 
     def storageSystemDeleteTest() {
-        given:
-        testDataSetup()
-
         when:
         def storageId = storageSystems[1].id
         def beforeResponse = get("/$VERSION/storage/${storageId}")

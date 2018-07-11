@@ -13,9 +13,6 @@ class ArvadosControllerSpec extends ResourceSpec {
     public static final String COLLECTION_NAME = 'supportedWorkflows'
 
     void workflowsIndexTest() {
-        given:
-        testDataSetup()
-
         when:
         def response = get "/$VERSION/arvados/workflows"
         then:

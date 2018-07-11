@@ -14,9 +14,6 @@ class DataTableEndpointSpec extends MarshallerSpec {
     public static final String VERSION = 'v2'
 
     void 'test data table'() {
-        given:
-        testDataSetup()
-
         def constraint = [
                 type: 'true',
         ]
@@ -30,13 +27,13 @@ class DataTableEndpointSpec extends MarshallerSpec {
 
         def url = "${baseURL}/$VERSION/observations/table"
         def body = [
-                type: 'clinical',
-                constraint: constraint,
-                rowDimensions: rowDimensions,
+                type            : 'clinical',
+                constraint      : constraint,
+                rowDimensions   : rowDimensions,
                 columnDimensions: columnDimensions,
-                columnSort: columnSort,
-                limit: limit,
-                offset: offset
+                columnSort      : columnSort,
+                limit           : limit,
+                offset          : offset
         ]
         log.info "Request URL: ${url}"
         ResponseEntity<Resource> response = postJson(url, body)
@@ -50,9 +47,9 @@ class DataTableEndpointSpec extends MarshallerSpec {
         result.columnHeaders*.dimension == ['trial visit', 'concept']
         result.rows.size() == 4
         result.rowCount == 4
-        result.sort.find{ it.dimension == 'study'}.sortOrder == "asc"
-        result.sort.find{ it.dimension == 'patient'}.sortOrder == "asc"
-        result.sort.find{ it.dimension == 'concept'}.sortOrder == "desc"
+        result.sort.find { it.dimension == 'study' }.sortOrder == "asc"
+        result.sort.find { it.dimension == 'patient' }.sortOrder == "asc"
+        result.sort.find { it.dimension == 'concept' }.sortOrder == "desc"
 
         when:
         def offset2 = 2
@@ -73,12 +70,12 @@ class DataTableEndpointSpec extends MarshallerSpec {
 
         when: "test without dimensions"
         body = [
-                type: 'clinical',
-                constraint: constraint,
-                rowDimensions: ['study'],
+                type            : 'clinical',
+                constraint      : constraint,
+                rowDimensions   : ['study'],
                 columnDimensions: [],
-                limit: limit,
-                offset: offset
+                limit           : limit,
+                offset          : offset
         ]
         ResponseEntity<Resource> response3 = postJson(url, body)
         String content3 = response3.body.inputStream.readLines().join('\n')

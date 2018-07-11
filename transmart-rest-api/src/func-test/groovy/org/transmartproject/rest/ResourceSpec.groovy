@@ -37,8 +37,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.Resource
 import org.transmartproject.core.users.User
-import org.transmartproject.mock.MockAdmin
 import org.transmartproject.mock.MockAuthContext
+import org.transmartproject.mock.MockAdmin
 import org.transmartproject.rest.conf.TestApplication
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.rest.user.AuthContext
@@ -55,14 +55,8 @@ abstract class ResourceSpec extends Specification {
     AuthContext authContext
 
     void selectUser(User user) {
-        if (authContext instanceof MockAuthContext) {
-            authContext.currentUser = user
-        }
-    }
-
-    //TODO Remove
-    void testDataSetup() {
-        selectUser(new MockAdmin('Some user'))
+        assert authContext instanceof MockAuthContext
+        authContext.currentUser = user
     }
 
     void setup() {
@@ -71,6 +65,7 @@ abstract class ResourceSpec extends Specification {
         }
         def rendererRegistry = Holders.applicationContext.getBean('rendererRegistry')
         assert rendererRegistry.class == TransmartRendererRegistry
+        selectUser(new MockAdmin('test'))
     }
 
     String getBaseURL() { "http://localhost:${serverPort}" }
@@ -94,11 +89,11 @@ abstract class ResourceSpec extends Specification {
         rest.delete("${baseURL}${path}", paramSetup)
     }
     /**
-    * An alias to put method
-    * @param path
-    * @param paramSetup
-    * @return
-    */
+     * An alias to put method
+     * @param path
+     * @param paramSetup
+     * @return
+     */
     RestResponse update(String path, Closure paramSetup = {}) {
         rest.put("${baseURL}${path}", paramSetup)
     }

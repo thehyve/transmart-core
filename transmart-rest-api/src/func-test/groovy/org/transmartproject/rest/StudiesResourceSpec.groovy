@@ -37,9 +37,6 @@ class StudiesResourceSpec extends ResourceSpec {
     def expectedChildLinkHrefValue = "/${VERSION}/studies/study_id_1/concepts/bar"
 
     void testListAllStudies() {
-        given:
-        testDataSetup()
-
         when:
         def response = get("/${VERSION}/studies")
         then:
@@ -73,9 +70,6 @@ class StudiesResourceSpec extends ResourceSpec {
     }
 
     void testListAllStudiesAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get "/$VERSION/studies", {
             header 'Accept', contentTypeForHAL
@@ -120,9 +114,6 @@ class StudiesResourceSpec extends ResourceSpec {
     }
 
     void testGetStudy() {
-        given:
-        testDataSetup()
-
         def studyId = 'STUDY_ID_1'
 
         when:
@@ -140,9 +131,6 @@ class StudiesResourceSpec extends ResourceSpec {
     }
 
     void testGetStudyAsHal() {
-        given:
-        testDataSetup()
-
         def studyId = 'STUDY_ID_1'
 
         when:
@@ -165,9 +153,6 @@ class StudiesResourceSpec extends ResourceSpec {
     }
 
     void testListStudiesChildLink() {
-        given:
-        testDataSetup()
-
         def path = "_embedded.studies[0].$childLinkHrefPath"
 
         when:
@@ -181,9 +166,6 @@ class StudiesResourceSpec extends ResourceSpec {
     }
 
     void testGetStudyChildLink() {
-        given:
-        testDataSetup()
-
         when:
         def response = get "/$VERSION/studies/study_id_1", {
             header 'Accept', contentTypeForHAL
@@ -196,9 +178,6 @@ class StudiesResourceSpec extends ResourceSpec {
 
 
     void testGetNonExistentStudy() {
-        given:
-        testDataSetup()
-
         def studyName = 'STUDY_NOT_EXIST'
 
         when:
