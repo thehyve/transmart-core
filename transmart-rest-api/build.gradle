@@ -53,12 +53,40 @@ bootRun {
     jvmArgs = ['-Xmx4096m']
 }
 
+sourceSets {
+    functionalTest {
+        java.srcDir 'src/func-test/java'
+        groovy.srcDir 'src/func-test/groovy'
+        resources.srcDir 'src/func-test/resources'
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.test.compileClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    functionalTestCompile.extendsFrom testCompile
+    functionalTestRuntime.extendsFrom testRuntime
+}
+
+task functionalTest(type: Test) {
+    testClassesDir = sourceSets.functionalTest.output.classesDir
+    classpath += sourceSets.functionalTest.runtimeClasspath
+}
+
+check.dependsOn functionalTest
+
+gradlePlugin {
+    testSourceSets sourceSets.functionalTest
+}
+
 // Force selected tests to always run, even if Gradle thinks they are up to date
-test.outputs.upToDateWhen {false}
-integrationTest.outputs.upToDateWhen {false}
+test.outputs.upToDateWhen { false }
+integrationTest.outputs.upToDateWhen { false }
+functionalTest.outputs.upToDateWhen { false }
 
 // Uncomment to show standard out/error output
 //test.testLogging.showStandardStreams = true
 
 integrationTest.testLogging.exceptionFormat = 'full'
 test.testLogging.exceptionFormat = 'full'
+functionalTest.testLogging.exceptionFormat = 'full'

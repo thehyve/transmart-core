@@ -3,6 +3,7 @@
 package org.transmartproject.rest
 
 import grails.test.mixin.integration.Integration
+import grails.transaction.Transactional
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,6 +33,7 @@ import static spock.util.matcher.HamcrestSupport.that
  * Created by piotrzakrzewski on 02/11/2016.
  */
 @Integration
+@Transactional
 @Slf4j
 class ObservationsBuilderSpec extends Specification {
 

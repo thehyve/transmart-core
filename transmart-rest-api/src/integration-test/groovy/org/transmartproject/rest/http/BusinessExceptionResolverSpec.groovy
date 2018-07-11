@@ -22,7 +22,6 @@ package org.transmartproject.rest.http
 import grails.test.mixin.integration.Integration
 import org.hamcrest.Matchers
 import org.springframework.context.ApplicationContext
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.web.servlet.HandlerExceptionResolver
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -31,8 +30,8 @@ import static org.hamcrest.Matchers.any
 import static org.hamcrest.Matchers.equalTo
 
 @Integration
-@DirtiesContext
-@Ignore // FIXME
+@Ignore
+// FIXME
 class BusinessExceptionResolverSpec extends Specification {
 
     def grailsApplication

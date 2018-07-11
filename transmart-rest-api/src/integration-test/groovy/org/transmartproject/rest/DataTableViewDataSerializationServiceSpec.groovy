@@ -8,7 +8,6 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.annotation.DirtiesContext
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -23,7 +22,6 @@ import org.transmartproject.db.multidimquery.PropertyImpl
 import org.transmartproject.mock.MockAdmin
 import org.transmartproject.rest.serialization.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
-import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.util.zip.ZipEntry
@@ -31,10 +29,8 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 @Integration
-@DirtiesContext
 @Transactional
 @Slf4j
-@Ignore // FIXME
 class DataTableViewDataSerializationServiceSpec extends Specification {
 
     ClinicalTestData clinicalData
@@ -70,7 +66,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         expect:
         'data' in files
         HashMultiset.create(clinicalData.longitudinalClinicalFacts*.value*.toString()) == HashMultiset.create(
-                files.data[2..-1].collectMany { it[2..-1]*.toString() } )
+                files.data[2..-1].collectMany { it[2..-1]*.toString() })
         checkDimension(DimensionImpl.STUDY, [clinicalData.longitudinalStudy], files.study)
         checkDimension(DimensionImpl.TRIAL_VISIT, clinicalData.longitudinalClinicalFacts*.trialVisit.unique(), files."trial visit")
         checkDimension(DimensionImpl.PATIENT, clinicalData.longitudinalClinicalFacts*.patient.unique(), files.patient)
@@ -84,13 +80,15 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
 
         when:
         def dim = [
-                getName: {'testdim'},
-                getElementFields: { ImmutableMap.copyOf([
-                        id: new PropertyImpl('id', 'id', Integer),
-                        name: new PropertyImpl('name', 'name', String),
-                        map: new PropertyImpl('map', 'map', LinkedHashMap)
-                ]) },
-                getKey: { it.id }
+                getName         : { 'testdim' },
+                getElementFields: {
+                    ImmutableMap.copyOf([
+                            id  : new PropertyImpl('id', 'id', Integer),
+                            name: new PropertyImpl('name', 'name', String),
+                            map : new PropertyImpl('map', 'map', LinkedHashMap)
+                    ])
+                },
+                getKey          : { it.id }
         ] as Dimension
 
         then:
@@ -156,8 +154,8 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         Map result = [:]
 
         ZipEntry entry
-        while((entry = zip.getNextEntry()) != null) {
-            if(!entry.name.endsWith('.tsv') && entry.name != 'metadata.json') {
+        while ((entry = zip.getNextEntry()) != null) {
+            if (!entry.name.endsWith('.tsv') && entry.name != 'metadata.json') {
                 throw new IllegalStateException("Zip file contains a non-tsv file other than 'metadata.json': $entry.name")
             }
 
@@ -168,11 +166,11 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     }
 
     boolean checkDimension(Dimension dim, List elements, List<List> file) {
-        def headers = file[0].collect { if(it.contains(".")) it.split("\\.") else it }
+        def headers = file[0].collect { if (it.contains(".")) it.split("\\.") else it }
         def elementsMap = file[1..-1].collect {
             def map = [:]
             [headers, it].transpose().each { key, value ->
-                if(key instanceof String) {
+                if (key instanceof String) {
                     map[key] = value
                 } else {
                     setPath(key, map, value)
@@ -190,7 +188,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     // This closure should apply the same transform to dimension elements as the serializer does: null and '' are the
     // same and entries in (nested) maps with empty values are removed.
     // NB: the test data does not contain dimension elements with non-empty maps, so this might break.
-    def valuesToString = {key, value ->
+    def valuesToString = { key, value ->
         if (value == null) {
             return [key, '']
         } else if (value instanceof Map) {
@@ -202,8 +200,8 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     }
 
     void setPath(List<String> path, object, value) {
-        if(value == null) return
-        if(path.size() == 1) {
+        if (value == null) return
+        if (path.size() == 1) {
             object."${path[0]}" = value
             return
         }
