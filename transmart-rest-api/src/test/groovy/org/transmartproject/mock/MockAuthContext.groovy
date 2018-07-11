@@ -8,7 +8,7 @@ import org.transmartproject.rest.user.AuthContext
  */
 class MockAuthContext implements AuthContext {
 
-    User currentUser = new MockAdmin('test')
+    User currentUser = new MockUser('test', true)
 
     @Override
     User getUser() {

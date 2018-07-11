@@ -13,13 +13,12 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User
-import org.transmartproject.db.Dictionaries
 import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.PropertyImpl
-import org.transmartproject.mock.MockAdmin
+import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.serialization.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 import spock.lang.Specification
@@ -46,7 +45,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         clinicalData = testData.clinicalData
         testData.saveAll()
 
-        adminUser = new MockAdmin('admin')
+        adminUser = new MockUser('admin', true)
     }
 
     void testBasicSerialization() {

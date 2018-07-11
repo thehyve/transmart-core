@@ -38,7 +38,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.Resource
 import org.transmartproject.core.users.User
 import org.transmartproject.mock.MockAuthContext
-import org.transmartproject.mock.MockAdmin
+import org.transmartproject.mock.MockUser
 import org.transmartproject.test.TestApplication
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.rest.user.AuthContext
@@ -69,7 +69,7 @@ abstract class ResourceSpec extends Specification {
         }
         def rendererRegistry = Holders.applicationContext.getBean('rendererRegistry')
         assert rendererRegistry.class == TransmartRendererRegistry
-        selectUser(new MockAdmin('test'))
+        selectUser(new MockUser('test', true))
     }
 
     String getBaseURL() { "http://localhost:${serverPort}" }

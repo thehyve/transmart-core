@@ -8,6 +8,8 @@ import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.Dictionaries
 import org.transmartproject.db.TestData
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.querytool.QtQueryResultType
 import org.transmartproject.db.user.AccessLevelTestData
@@ -45,6 +47,19 @@ class TestService implements TestResource {
             def accessLevelTestData = AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
             accessLevelTestData.saveAll()
         }
+    }
+
+    void createTestStudy(String studyId, boolean isPublic, List<String> trialVisits) {
+        def study = new Study(studyId: studyId, secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${studyId}")
+        study.save(flush: true)
+        if (trialVisits) {
+            for (String trialVisit: trialVisits) {
+                new TrialVisit(study: study, relTimeLabel: trialVisit).save(flush: true)
+            }
+        } else {
+            new TrialVisit(relTimeLabel: 'default').save(flush: true)
+        }
+        // FIXME: add dimension descriptions
     }
 
 }
