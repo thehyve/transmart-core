@@ -58,7 +58,7 @@ sourceSets {
         java.srcDir 'src/func-test/java'
         groovy.srcDir 'src/func-test/groovy'
         resources.srcDir 'src/func-test/resources'
-        compileClasspath += sourceSets.main.compileClasspath + sourceSets.test.compileClasspath
+        compileClasspath += sourceSets.integrationTest.compileClasspath
         runtimeClasspath += output + compileClasspath
     }
 }
