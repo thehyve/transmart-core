@@ -16,6 +16,11 @@ class Config {
     public static
     final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8081/'
 
+
+     // Configure whether the currently used application for providing a REST API for a TranSMART supports the `v1` API.
+     // In particular, if the application is transmart-api-server, this should be set to false.
+    public static final boolean IS_V1_API_SUPPORTED = false
+
     // Configure the authentication method: using Keycloak (OIDC) or spring security plugin (OAuth2) - transmart-oauth
     public static final AuthMethod authMethod = AuthMethod.OIDC
 
@@ -54,7 +59,7 @@ class Config {
     public static final String NON_EXISTING_API_VERSION = 'v0'
 
     public static final String V1_PATH_STUDIES = "/v1/studies"
-    public static final String V1_PATH_observations = "/v1/observations"
+    public static final String V1_PATH_OBSERVATIONS = "/v1/observations"
     public static final String V1_PATH_PATIENT_SETS = "/v1/patient_sets"
 
     public static final String PATH_OBSERVATIONS = "/v2/observations"

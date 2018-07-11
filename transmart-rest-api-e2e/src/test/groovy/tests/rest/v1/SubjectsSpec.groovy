@@ -3,11 +3,13 @@
 package tests.rest.v1
 
 import annotations.RequiresStudy
+import annotations.RequiresV1ApiSupport
 import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
 
+@RequiresV1ApiSupport(true)
 @RequiresStudy(GSE8581_ID)
 class SubjectsSpec extends RESTSpec {
 
