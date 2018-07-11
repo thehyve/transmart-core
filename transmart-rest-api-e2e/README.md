@@ -44,6 +44,8 @@ The `v1` API is covered for backwards compatibility. Only happy cases are covere
 - `GET /studies/{studyId}/concepts/{conceptPath}/highdim`
 - `GET /studies/{studyId}/concepts/{conceptPath}/highdim?dataType={dataType}&projection={projectionType}&assayConstraints={assayConstraints}&dataConstraints={dataConstraints}`
 
+Please note that these tests should not be executed, when using [transmart-api-server](../transmart-api-server) as a base application, since it does not support the `v1` API.
+
 #### `v2`
 The `v2` API is covered with tests for happy cases, error cases, access rights.
 It also contains tests for constraints.
