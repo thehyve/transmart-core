@@ -3,6 +3,8 @@
 package tests.rest.v1
 
 import annotations.RequiresStudy
+import annotations.RequiresV1ApiSupport
+
 import base.RESTSpec
 import org.apache.http.conn.EofSensorInputStream
 
@@ -11,6 +13,7 @@ import static base.ContentTypeFor.OCTETSTREAM
 import static config.Config.GSE8581_ID
 import static config.Config.V1_PATH_STUDIES
 
+@RequiresV1ApiSupport(true)
 @RequiresStudy(GSE8581_ID)
 class HighDimSpec extends RESTSpec {
 

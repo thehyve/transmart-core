@@ -3,12 +3,14 @@
 package tests.rest.v1
 
 import annotations.RequiresStudy
+import annotations.RequiresV1ApiSupport
 import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.XML
 import static config.Config.*
 
+@RequiresV1ApiSupport(true)
 @RequiresStudy(EHR_ID)
 class PatientSetsSpec extends RESTSpec {
 
