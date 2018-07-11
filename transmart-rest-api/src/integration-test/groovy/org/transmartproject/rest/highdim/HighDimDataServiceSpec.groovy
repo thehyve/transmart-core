@@ -27,7 +27,6 @@ package org.transmartproject.rest.highdim
 
 import grails.test.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.annotation.DirtiesContext
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -52,8 +51,6 @@ import static org.transmartproject.rest.matchers.HighDimResultRowsMatcher.hasRow
 import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
-@DirtiesContext
-@Ignore
 class HighDimDataServiceSpec extends Specification {
 
     @Autowired

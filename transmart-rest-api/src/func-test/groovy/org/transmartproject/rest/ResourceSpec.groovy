@@ -35,13 +35,11 @@ import org.hamcrest.Matcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import org.springframework.test.annotation.DirtiesContext
-import org.transmartproject.config.RestApiTestConfiguration
 import org.transmartproject.core.users.User
 import org.transmartproject.mock.MockAdmin
 import org.transmartproject.mock.MockAuthContext
+import org.transmartproject.rest.conf.TestApplication
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.rest.user.AuthContext
 import spock.lang.Specification
@@ -49,9 +47,7 @@ import spock.lang.Specification
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
-@Integration
-@DirtiesContext
-@Import([RestApiTestConfiguration])
+@Integration(applicationClass = TestApplication)
 @Slf4j
 abstract class ResourceSpec extends Specification {
 
@@ -64,8 +60,8 @@ abstract class ResourceSpec extends Specification {
         }
     }
 
+    //TODO Remove
     void testDataSetup() {
-        get('/test/createData')
         selectUser(new MockAdmin('Some user'))
     }
 

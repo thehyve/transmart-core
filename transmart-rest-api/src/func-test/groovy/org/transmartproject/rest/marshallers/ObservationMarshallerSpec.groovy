@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
-import static org.transmartproject.rest.ResourceSpec.hasLinks
+import static ResourceSpec.hasLinks
 import static spock.util.matcher.HamcrestSupport.that
 
 class ObservationMarshallerSpec extends MarshallerSpec {

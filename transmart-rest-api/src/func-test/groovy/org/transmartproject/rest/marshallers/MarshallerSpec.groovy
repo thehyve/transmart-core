@@ -10,22 +10,14 @@ import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.Resource
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.test.annotation.DirtiesContext
-import org.transmartproject.config.RestApiTestConfiguration
+import org.springframework.http.*
 import org.transmartproject.core.users.UsersResource
+import org.transmartproject.rest.conf.TestApplication
 import spock.lang.Specification
 
-@Integration
-@DirtiesContext
-@Import([RestApiTestConfiguration])
+@Integration(applicationClass = TestApplication)
 @Slf4j
 abstract class MarshallerSpec extends Specification {
 
@@ -35,8 +27,8 @@ abstract class MarshallerSpec extends Specification {
     @Autowired
     SessionFactory sessionFactory
 
+    //TODO Remove
     void testDataSetup() {
-        getJson(baseURL + '/test/createData')
     }
 
     void setup() {

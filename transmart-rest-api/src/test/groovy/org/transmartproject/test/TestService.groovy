@@ -13,6 +13,8 @@ import org.transmartproject.db.querytool.QtQueryResultType
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.TestResource
 
+import javax.annotation.PostConstruct
+
 @Slf4j
 @CompileStatic
 class TestService implements TestResource {
@@ -42,6 +44,11 @@ class TestService implements TestResource {
             def accessLevelTestData = AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
             accessLevelTestData.saveAll()
         }
+    }
+
+    @PostConstruct
+    void init() {
+        createTestData()
     }
 
 }

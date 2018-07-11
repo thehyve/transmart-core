@@ -9,7 +9,6 @@ import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.annotation.DirtiesContext
 import org.transmartproject.core.dataquery.SortSpecification
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -37,10 +36,8 @@ import static spock.util.matcher.HamcrestSupport.that
  * Created by piotrzakrzewski on 02/11/2016.
  */
 @Integration
-@DirtiesContext
 @Transactional
 @Slf4j
-@Ignore // FIXME
 class ObservationsBuilderSpec extends Specification {
 
     User adminUser
