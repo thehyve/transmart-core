@@ -15,7 +15,7 @@ import org.springframework.core.io.Resource
 import org.springframework.http.*
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.rest.TestResource
-import org.transmartproject.rest.conf.TestApplication
+import org.transmartproject.test.TestApplication
 import spock.lang.Specification
 
 @Integration(applicationClass = TestApplication)

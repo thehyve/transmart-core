@@ -1,4 +1,4 @@
-package org.transmartproject.rest.conf
+package org.transmartproject.test
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
@@ -13,7 +13,6 @@ import org.transmartproject.db.test.H2Views
 import org.transmartproject.mock.MockAuthContext
 import org.transmartproject.rest.TestResource
 import org.transmartproject.rest.user.AuthContext
-import org.transmartproject.test.TestService
 
 /**
  * Test application with injected test services. Such as data and current user.

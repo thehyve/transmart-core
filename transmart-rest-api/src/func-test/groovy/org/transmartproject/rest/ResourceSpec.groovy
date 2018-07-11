@@ -39,7 +39,7 @@ import org.springframework.core.io.Resource
 import org.transmartproject.core.users.User
 import org.transmartproject.mock.MockAuthContext
 import org.transmartproject.mock.MockAdmin
-import org.transmartproject.rest.conf.TestApplication
+import org.transmartproject.test.TestApplication
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.rest.user.AuthContext
 import spock.lang.Specification

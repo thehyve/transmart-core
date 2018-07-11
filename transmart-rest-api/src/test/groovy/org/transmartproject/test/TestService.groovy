@@ -15,6 +15,7 @@ import org.transmartproject.rest.TestResource
 
 @Slf4j
 @CompileStatic
+@Transactional
 class TestService implements TestResource {
 
     @Autowired
@@ -22,8 +23,10 @@ class TestService implements TestResource {
 
     final Dictionaries dictionaries = new Dictionaries()
 
-    @Transactional
     void createTestData() {
+        log.info "Clear test data ..."
+        TestData.clearAllData()
+
         log.info "Setup test data ..."
         def session = sessionFactory.currentSession
         // Check if dictionaries were already loaded before
