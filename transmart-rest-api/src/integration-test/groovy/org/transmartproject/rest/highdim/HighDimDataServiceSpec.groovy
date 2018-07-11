@@ -26,6 +26,7 @@
 package org.transmartproject.rest.highdim
 
 import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -42,7 +43,6 @@ import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.rest.HighDimDataService
 import org.transmartproject.rest.matchers.HighDimResult
 import org.transmartproject.rest.protobuf.HighDimProtos
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -51,6 +51,7 @@ import static org.transmartproject.rest.matchers.HighDimResultRowsMatcher.hasRow
 import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
+@Rollback
 class HighDimDataServiceSpec extends Specification {
 
     @Autowired
