@@ -41,9 +41,6 @@ class StudyMarshallerSpec extends MarshallerSpec {
     public static final String ONTOLOGY_FULL_NAME = '\\foo\\study1\\'
 
     void basicTest() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/${VERSION}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
         ResponseEntity<Resource> response = getJson(url)
@@ -64,9 +61,6 @@ class StudyMarshallerSpec extends MarshallerSpec {
     }
 
     void testHal() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/${VERSION}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
         ResponseEntity<Resource> response = getHal(url)

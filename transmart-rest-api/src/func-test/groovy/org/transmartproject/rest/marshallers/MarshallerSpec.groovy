@@ -27,10 +27,6 @@ abstract class MarshallerSpec extends Specification {
     @Autowired
     SessionFactory sessionFactory
 
-    //TODO Remove
-    void testDataSetup() {
-    }
-
     void setup() {
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
             log.info "RendererRegistry bean: ${it}"

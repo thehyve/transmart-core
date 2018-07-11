@@ -44,9 +44,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     def subjectUrl3 = "/${VERSION}/studies/${study}/subjects/-103"
 
     void testShowAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get subjectUrl, {
             header 'Accept', contentTypeForJSON
@@ -57,9 +54,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     }
 
     void testShowAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get subjectUrl, {
             header 'Accept', contentTypeForHAL
@@ -70,9 +64,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     }
 
     void testIndexPerStudyAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get subjectsPerStudyUrl, {
             header 'Accept', contentTypeForJSON
@@ -90,9 +81,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     }
 
     void testIndexPerStudyAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get subjectsPerStudyUrl, {
             header 'Accept', contentTypeForHAL
@@ -112,9 +100,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     }
 
     void testIndexPerConceptAsJson() {
-        given:
-        testDataSetup()
-
         when:
         def response = get subjectsPerConceptUrl, {
             header 'Accept', contentTypeForJSON
@@ -129,9 +114,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     }
 
     void testIndexPerConceptAsHal() {
-        given:
-        testDataSetup()
-
         when:
         def response = get subjectsPerConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -151,9 +133,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     def subjectsPerLongConceptUrl = VERSION+'/studies/study_id_2/concepts/long path/with some$characters_/subjects'
 
     void testSubjectsIndexOnLongConcept() {
-        given:
-        testDataSetup()
-
         when:
         def response = get subjectsPerLongConceptUrl, {
             header 'Accept', contentTypeForHAL
@@ -210,9 +189,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     }
 
     void testGetNonExistentStudy() {
-        given:
-        testDataSetup()
-
         def studyName = 'STUDY_NOT_EXIST'
 
         when:
@@ -226,9 +202,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     }
 
     void testGetNonExistentSubjectForStudy() {
-        given:
-        testDataSetup()
-
         def patientNum = -9999
 
         when:

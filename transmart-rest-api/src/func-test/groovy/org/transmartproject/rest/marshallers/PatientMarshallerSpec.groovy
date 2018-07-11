@@ -41,9 +41,6 @@ class PatientMarshallerSpec extends MarshallerSpec {
     public static final String VERSION = "v1"
 
     void basicTest() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
         ResponseEntity<Resource> response = getJson(url)
@@ -74,9 +71,6 @@ class PatientMarshallerSpec extends MarshallerSpec {
     }
 
     void testHal() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
         ResponseEntity<Resource> response = getHal(url)

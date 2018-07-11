@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
-import static ResourceSpec.hasLinks
+import static org.transmartproject.rest.ResourceSpec.hasLinks
 import static spock.util.matcher.HamcrestSupport.that
 
 class ObservationMarshallerSpec extends MarshallerSpec {
@@ -18,9 +18,6 @@ class ObservationMarshallerSpec extends MarshallerSpec {
     def concept_paths = '\\foo\\study1\\bar\\'
 
     void basicTest() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/$VERSION/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
         ResponseEntity<Resource> response = getJson(url)
@@ -37,9 +34,6 @@ class ObservationMarshallerSpec extends MarshallerSpec {
     }
 
     void testHal() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/$VERSION/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
         ResponseEntity<Resource> response = getHal(url)

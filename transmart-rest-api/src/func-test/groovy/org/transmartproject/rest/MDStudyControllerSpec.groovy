@@ -15,9 +15,6 @@ class MDStudyControllerSpec extends MarshallerSpec {
     public static final String VERSION = 'v2'
 
     void 'test get studies'() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/$VERSION/studies"
         ResponseEntity<Resource> response = getJson(url)
@@ -35,9 +32,6 @@ class MDStudyControllerSpec extends MarshallerSpec {
     }
 
     void 'test get study by id'() {
-        given:
-        testDataSetup()
-
         when:
         def url = "${baseURL}/$VERSION/studies"
         ResponseEntity<Resource> response = getJson(url)
@@ -68,9 +62,6 @@ class MDStudyControllerSpec extends MarshallerSpec {
     }
 
     void 'test get study by study id'() {
-        given:
-        testDataSetup()
-
         when:
         def studyId = 'study1'
         def url = "${baseURL}/$VERSION/studies/studyId/${studyId}"
@@ -87,9 +78,6 @@ class MDStudyControllerSpec extends MarshallerSpec {
     }
 
     void 'test get multiple studies by study ids'() {
-        given:
-        testDataSetup()
-
         when:
         def studyId1 = 'study1'
         def studyId2 = 'study2'
@@ -109,9 +97,6 @@ class MDStudyControllerSpec extends MarshallerSpec {
     }
 
     void 'test get non existing study by study id'() {
-        given:
-        testDataSetup()
-
         when:
         def studyId = 'non existing study'
         def url = "${baseURL}/$VERSION/studies/studyId/${studyId}"
