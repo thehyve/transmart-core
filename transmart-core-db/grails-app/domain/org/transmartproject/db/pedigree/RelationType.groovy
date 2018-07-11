@@ -2,7 +2,7 @@
 
 package org.transmartproject.db.pedigree
 
-class RelationType {
+class RelationType implements org.transmartproject.core.pedigree.RelationType {
 
     String label
     String description

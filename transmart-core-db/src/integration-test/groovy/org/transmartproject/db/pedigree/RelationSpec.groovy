@@ -16,7 +16,7 @@ import org.transmartproject.core.multidimquery.query.QueryBuilderException
 import org.transmartproject.core.multidimquery.query.RelationConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
-import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.core.pedigree.RelationTypeResource
 import org.transmartproject.db.i2b2data.PatientMapping
 import org.transmartproject.db.user.User
 import spock.lang.Specification
@@ -30,14 +30,25 @@ class RelationSpec extends Specification {
     @Autowired
     MultiDimensionalDataResource multiDimService
 
-    void 'test relation type domain object mapping'() {
-        when:
-        def relation = RelationType.findByLabel('MZ')
-        then:
-        relation.id
-        relation.description == 'Monozygotic twin'
-        relation.symmetrical
-        relation.biological
+    @Autowired
+    RelationTypeResource relationTypeResource
+
+    void 'test fetching all relation types'() {
+        when: 'fetching all relation types'
+        def relationTypes = relationTypeResource.all
+
+        then: 'the result matches the relation types in the test data'
+        relationTypes.label as Set<String> == ['PAR', 'CHI', 'SIB', 'DZ', 'MZ', 'COT', 'SPO'] as Set<String>
+    }
+
+    void 'test fetching relation type'() {
+        when: 'fetching relation type with label MZ'
+        def relationType = relationTypeResource.getByLabel('MZ')
+
+        then: 'the relation type object is returned'
+        relationType.description == 'Monozygotic twin'
+        relationType.symmetrical
+        relationType.biological
     }
 
     void 'test relation domain object mapping'() {
