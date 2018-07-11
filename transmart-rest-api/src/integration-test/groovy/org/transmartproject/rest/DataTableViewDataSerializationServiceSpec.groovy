@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMap
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import grails.test.mixin.integration.Integration
-import grails.transaction.Transactional
+import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TableConfig
@@ -29,7 +29,7 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 @Integration
-@Transactional
+@Rollback
 @Slf4j
 class DataTableViewDataSerializationServiceSpec extends Specification {
 
