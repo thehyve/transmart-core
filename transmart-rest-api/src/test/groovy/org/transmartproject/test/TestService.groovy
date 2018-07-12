@@ -6,10 +6,17 @@ import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.concept.Concept
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.multidimquery.TrialVisit
 import org.transmartproject.db.Dictionaries
 import org.transmartproject.db.TestData
+import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.i2b2data.PatientMapping
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.i2b2data.TrialVisit
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.querytool.QtQueryResultType
 import org.transmartproject.db.user.AccessLevelTestData
@@ -25,9 +32,13 @@ class TestService implements TestResource {
 
     final Dictionaries dictionaries = new Dictionaries()
 
-    void createTestData() {
+    void clearTestData() {
         log.info "Clear test data ..."
         TestData.clearAllData()
+    }
+
+    void createTestData() {
+        clearTestData()
 
         log.info "Setup test data ..."
         def session = sessionFactory.currentSession
@@ -49,17 +60,100 @@ class TestService implements TestResource {
         }
     }
 
-    void createTestStudy(String studyId, boolean isPublic, List<String> trialVisits) {
-        def study = new Study(studyId: studyId, secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${studyId}")
-        study.save(flush: true)
-        if (trialVisits) {
-            for (String trialVisit: trialVisits) {
-                new TrialVisit(study: study, relTimeLabel: trialVisit).save(flush: true)
+    static final Set<String> defaultDimensions =
+            ['study', 'concept', 'patient', 'start time', 'end time', 'trial visit'] as Set<String>
+
+    List<TrialVisit> createTestStudy(String studyId, boolean isPublic, List<String> trialVisitLabels) {
+        log.info "Creating test study: ${studyId}"
+        def study = new Study(
+                studyId: studyId,
+                secureObjectToken: isPublic ? Study.PUBLIC : studyId,
+                trialVisits: [] as Set,
+                dimensionDescriptions: [] as Set
+        )
+        study.save(flush: true, failOnError: true)
+        // add trial visits
+        if (trialVisitLabels) {
+            for (String label: trialVisitLabels) {
+                study.trialVisits.add(
+                        new org.transmartproject.db.i2b2data.TrialVisit(study: study, relTimeLabel: label)
+                        .save(flush: true, failOnError: true))
             }
         } else {
-            new TrialVisit(relTimeLabel: 'default').save(flush: true)
+            study.trialVisits.add(
+                    new org.transmartproject.db.i2b2data.TrialVisit(study: study, relTimeLabel: 'default')
+                    .save(flush: true, failOnError: true))
         }
-        // FIXME: add dimension descriptions
+        // add dimension descriptions
+        def dimensionDescriptions = DimensionDescription.createCriteria().list {
+            'in'('name', defaultDimensions)
+        } as List<DimensionDescription>
+        study.dimensionDescriptions.addAll(dimensionDescriptions)
+        study.save(flush: true, failOnError: true)
+        study.trialVisits as List<TrialVisit>
+    }
+
+    Concept createTestConcept(String conceptCode) {
+        log.info "Creating test concept: ${conceptCode}"
+        new ConceptDimension(conceptCode: conceptCode, conceptPath: "\\Test\\${conceptCode}")
+                .save(flush: true, failOnError: true)
+    }
+
+    @Override
+    Patient createTestPatient(String subjectId) {
+        log.info "Creating test patient: ${subjectId}"
+        def patient = new PatientDimension(mappings: [] as Set)
+        patient.save(flush: true, failOnError: true)
+        def patientMapping = new PatientMapping(patient: patient, encryptedId: subjectId, source: 'SUBJ_ID')
+        patientMapping.save(flush: true, failOnError: true)
+        patient.mappings.add(patientMapping)
+        patient.save(flush: true, failOnError: true)
+    }
+
+    @Override
+    void createTestCategoricalObservations(
+            Patient patient, Concept concept, TrialVisit trialVisit, List<Map<String, String>> values, Date startDate) {
+        log.info "Adding ${values?.size()} observations for patient: ${patient.subjectIds}, concept: ${concept.conceptCode}"
+        int instanceNum = 1
+        for (Map<String, String> valueMap: values) {
+            for (def entry: valueMap.entrySet())
+            new ObservationFact(
+                    valueType: ObservationFact.TYPE_TEXT,
+                    modifierCd: entry.key,
+                    textValue: entry.value,
+                    conceptCode: concept.conceptCode,
+                    trialVisit: (org.transmartproject.db.i2b2data.TrialVisit)trialVisit,
+                    patient: (PatientDimension)patient,
+                    startDate: startDate,
+                    providerId: '@',
+                    encounterNum: 1,
+                    instanceNum: instanceNum
+            ).save(flush: true, failOnError: true)
+            instanceNum++
+        }
+    }
+
+    @Override
+    void createTestNumericalObservations(
+            Patient patient, Concept concept, TrialVisit trialVisit, List<Map<String, BigDecimal>> values, Date startDate) {
+        log.info "Adding ${values?.size()} observations for patient: ${patient.subjectIds}, concept: ${concept.conceptCode}"
+        int instanceNum = 1
+        for (Map<String, BigDecimal> valueMap: values) {
+            for (def entry: valueMap.entrySet())
+                new ObservationFact(
+                        valueType: ObservationFact.TYPE_NUMBER,
+                        modifierCd: entry.key,
+                        numberValue: entry.value,
+                        conceptCode: concept.conceptCode,
+                        trialVisit: (org.transmartproject.db.i2b2data.TrialVisit)trialVisit,
+                        patient: (PatientDimension)patient,
+                        startDate: startDate,
+                        providerId: '@',
+                        encounterNum: 1,
+                        instanceNum: instanceNum
+                ).save(flush: true, failOnError: true)
+            instanceNum++
+        }
     }
 
 }

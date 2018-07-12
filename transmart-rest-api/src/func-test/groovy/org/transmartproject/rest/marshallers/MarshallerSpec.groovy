@@ -104,12 +104,13 @@ abstract class MarshallerSpec extends Specification {
         response.body.inputStream.readLines().join('\n')
     }
 
-    void expectResponse(ResponseEntity<Resource> response, HttpStatus status, User user) {
+    void checkResponseStatus(ResponseEntity<Resource> response, HttpStatus status, User user) {
         if (response.statusCode != status) {
             def message =
-                    "Unexpected status ${response.statusCode} for user ${user.username}. ${status.value()} expected."
+                    "Unexpected status ${response.statusCode} for user ${user.username}. " +
+                            "${status.value()} expected.\n" +
+                            "Response: ${toString(response)}"
             log.error message
-            log.error "Response: ${toString(response)}"
             throw new UnexpectedResultException(message)
         }
     }

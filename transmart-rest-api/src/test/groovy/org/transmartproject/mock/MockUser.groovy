@@ -2,11 +2,13 @@ package org.transmartproject.mock
 
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 
 @CompileStatic
 @EqualsAndHashCode(includes = ['username'])
+@ToString(includeFields = true, includePackage = false)
 class MockUser implements User {
 
     protected boolean admin = false
