@@ -4,9 +4,7 @@ import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.multidimquery.CrossTable
-import org.transmartproject.core.multidimquery.CrossTableRepresentation
 import org.transmartproject.core.multidimquery.CrossTableResource
-import org.transmartproject.core.multidimquery.CrossTableRowRepresentation
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -28,15 +26,15 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
                                   Constraint subjectConstraint, User user) {
 
         log.info "Building a cross table..."
-        List rows = []
+        List<List<Long>> rows = []
         for (Constraint rowConstraint : rowConstraints) {
-            def counts = []
+            def counts = [] as List<Long>
             for (Constraint columnConstraint : columnConstraints) {
                 counts.add(getCrossTableCell(rowConstraint, columnConstraint, subjectConstraint, user))
             }
-            rows.add(new CrossTableRowRepresentation(counts))
+            rows.add(counts)
         }
-        new CrossTableRepresentation(rows)
+        new CrossTable(rows)
     }
 
     private Long getCrossTableCell(Constraint rowConstraint,

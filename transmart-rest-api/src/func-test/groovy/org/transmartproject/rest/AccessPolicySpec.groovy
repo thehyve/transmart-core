@@ -7,7 +7,6 @@ import groovy.util.logging.Slf4j
 import org.springframework.http.HttpStatus
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.CrossTable
-import org.transmartproject.core.multidimquery.CrossTableRepresentation
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -170,11 +169,10 @@ class AccessPolicySpec extends MarshallerSpec {
         checkResponseStatus(response, expectedStatus, user)
         switch (expectedStatus) {
             case OK:
-                def table = toObject(response, CrossTableRepresentation)
+                def table = toObject(response, CrossTable)
                 log.info "Cross table: ${new ObjectMapper().writeValueAsString(table)}"
                 assert table
-                def values = table.rows.collect { it.counts }
-                assert values == expectedValues
+                assert table.rows == expectedValues
                 break
             case FORBIDDEN:
                 def error = toObject(response, Map)

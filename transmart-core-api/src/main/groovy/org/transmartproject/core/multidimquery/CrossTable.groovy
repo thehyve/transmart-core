@@ -1,21 +1,18 @@
 package org.transmartproject.core.multidimquery
 
+import groovy.transform.Canonical
+import groovy.transform.CompileStatic
+
 /**
- * A CrossTable is a list of rows. Each row contains list of cells with a subject count.
+ * A cross table is a list of rows. Each row contains list of cells with a subject count.
  */
-interface CrossTable {
-    /**
-     * @return a list of {@link CrossTableRow}
-     */
-    List<CrossTableRow> getRows()
+@CompileStatic
+@Canonical
+class CrossTable {
 
-}
-
-interface CrossTableRow {
     /**
-     * @return a list with a number of subjects in the intersection
-     * of column set, row set and selected subject set
+     * @return a list of rows with values
      */
-    List<Long> getCounts()
+    List<List<Long>> rows
 
 }

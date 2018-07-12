@@ -17,7 +17,6 @@ import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.serialization.CrossTableSerializer
 import org.transmartproject.rest.serialization.Format
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -238,11 +237,9 @@ class QueryController extends AbstractQueryController {
         List<Constraint> columnConstraints = args.columnConstraints.collect { constraint -> bindConstraint((String) constraint) }
         Constraint subjectConstraint = bindConstraint((String) args.subjectConstraint)
 
-        OutputStream out = getLazyOutputStream(Format.JSON)
-
         CrossTable crossTable = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint,
                 authContext.user)
-        new CrossTableSerializer().write(crossTable.rows, out)
+        respond crossTable
     }
 
     /**
