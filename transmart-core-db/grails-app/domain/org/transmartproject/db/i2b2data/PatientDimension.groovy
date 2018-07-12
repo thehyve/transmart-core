@@ -60,7 +60,7 @@ class PatientDimension implements Patient {
     static mapping = {
         table         name:      'patient_dimension', schema: 'i2b2demodata'
 
-        id            generator: 'assigned', column: 'patient_num', type: Long
+        id            column:    'patient_num', type: Long, generator: 'sequence', params: [sequence: 'patient_num_seq']
 
         age           column:    'age_in_years_num'
         race          column:    'race_cd'
