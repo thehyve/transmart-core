@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.dataquery.Patient
@@ -99,10 +100,19 @@ class TestService implements TestResource {
                 .save(flush: true, failOnError: true)
     }
 
+    private long getNextHibernateId() {
+        sessionFactory.currentSession.createSQLQuery(
+                "select hibernate_sequence.nextval as num")
+                .addScalar("num", StandardBasicTypes.BIG_INTEGER)
+                .uniqueResult() as Long
+    }
+
     @Override
     Patient createTestPatient(String subjectId) {
-        log.info "Creating test patient: ${subjectId}"
+        long patientId = nextHibernateId
+        log.info "Creating test patient: ${subjectId} (id: ${patientId})"
         def patient = new PatientDimension(mappings: [] as Set)
+        patient.id = patientId
         patient.save(flush: true, failOnError: true)
         def patientMapping = new PatientMapping(patient: patient, encryptedId: subjectId, source: 'SUBJ_ID')
         patientMapping.save(flush: true, failOnError: true)
