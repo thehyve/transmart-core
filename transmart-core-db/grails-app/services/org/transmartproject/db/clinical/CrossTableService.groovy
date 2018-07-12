@@ -4,14 +4,15 @@ import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.multidimquery.CrossTable
+import org.transmartproject.core.multidimquery.CrossTableRepresentation
 import org.transmartproject.core.multidimquery.CrossTableResource
+import org.transmartproject.core.multidimquery.CrossTableRowRepresentation
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
-import org.transmartproject.db.multidimquery.CrossTableImpl
 
 @CompileStatic
 class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
@@ -33,9 +34,9 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
             for (Constraint columnConstraint : columnConstraints) {
                 counts.add(getCrossTableCell(rowConstraint, columnConstraint, subjectConstraint, user))
             }
-            rows.add(new CrossTableImpl.CrossTableRowImpl(counts))
+            rows.add(new CrossTableRowRepresentation(counts))
         }
-        new CrossTableImpl(rows)
+        new CrossTableRepresentation(rows)
     }
 
     private Long getCrossTableCell(Constraint rowConstraint,
