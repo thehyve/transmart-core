@@ -19,6 +19,7 @@ import javax.validation.constraints.Size
 @CompileStatic
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
         property = "type"
 )
 @JsonSubTypes([
