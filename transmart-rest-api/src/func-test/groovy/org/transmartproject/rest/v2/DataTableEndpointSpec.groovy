@@ -1,17 +1,16 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package org.transmartproject.rest
+package org.transmartproject.rest.v2
 
-import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
-import org.transmartproject.rest.marshallers.MarshallerSpec
+
+import static org.springframework.http.HttpStatus.OK
+import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 
 @Slf4j
-class DataTableEndpointSpec extends MarshallerSpec {
-
-    public static final String VERSION = 'v2'
+class DataTableEndpointSpec extends V2ResourceSpec {
 
     void 'test data table'() {
         def constraint = [
@@ -25,7 +24,7 @@ class DataTableEndpointSpec extends MarshallerSpec {
         def limit = 4
         def offset = 0
 
-        def url = "${baseURL}/$VERSION/observations/table"
+        def url = "${contextPath}/observations/table"
         def body = [
                 type            : 'clinical',
                 constraint      : constraint,
@@ -36,12 +35,11 @@ class DataTableEndpointSpec extends MarshallerSpec {
                 offset          : offset
         ]
         log.info "Request URL: ${url}"
-        ResponseEntity<Resource> response = postJson(url, body)
-        String content = response.body.inputStream.readLines().join('\n')
+        ResponseEntity<Resource> response = post(url, body)
 
         then:
-        response.statusCode.value() == 200
-        def result = new JsonSlurper().parseText(content)
+        response.statusCode == OK
+        def result = toJson(response)
         result.offset == offset
         result.columnDimensions*.name == ['trial visit', 'concept']
         result.columnHeaders*.dimension == ['trial visit', 'concept']
@@ -56,12 +54,11 @@ class DataTableEndpointSpec extends MarshallerSpec {
         def limit2 = 2
         body.limit = limit2
         body.offset = offset2
-        ResponseEntity<Resource> response2 = postJson(url, body)
-        String content2 = response2.body.inputStream.readLines().join('\n')
+        ResponseEntity<Resource> response2 = post(url, body)
 
         then:
-        response2.statusCode.value() == 200
-        def result2 = new JsonSlurper().parseText(content2)
+        response2.statusCode == OK
+        def result2 = toJson(response2)
         result2.offset == offset2
         result2.rows.size() == 2
         result2.rowCount == 4
@@ -77,11 +74,10 @@ class DataTableEndpointSpec extends MarshallerSpec {
                 limit           : limit,
                 offset          : offset
         ]
-        ResponseEntity<Resource> response3 = postJson(url, body)
-        String content3 = response3.body.inputStream.readLines().join('\n')
-        def result3 = new JsonSlurper().parseText(content3)
+        ResponseEntity<Resource> response3 = post(url, body)
 
         then:
+        def result3 = toJson(response3)
         result3.offset == 0
         result3.rowCount == 1
         result3.columnHeaders*.dimension == []

@@ -23,18 +23,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.rest
+package org.transmartproject.rest.v1
 
 import org.hamcrest.Matcher
+import org.springframework.http.HttpStatus
+import org.transmartproject.rest.MimeTypes
 import org.transmartproject.rest.matchers.MetadataTagsMatcher
 import org.transmartproject.rest.matchers.NavigationLinksMatcher
 
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.rest.utils.HalMatcherUtils.*
+import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 import static spock.util.matcher.HamcrestSupport.that
 
-class OntologyTermsResourceSpec extends ResourceSpec {
+class OntologyTermsResourceSpec extends V1ResourceSpec {
 
-    public static final String VERSION = "v1"
     def studyId = 'study_id_1'
     def studyFolderName = 'study1'
     def partialConceptName = 'bar'
@@ -47,19 +50,19 @@ class OntologyTermsResourceSpec extends ResourceSpec {
     //The full concept path, starting after the studyId
     def conceptId = partialConceptName
 
-    def conceptListUrl = "/${VERSION}/studies/${studyId}/concepts"
-    def conceptUrl = "/${VERSION}/studies/${studyId}/concepts/${conceptId}"
-    def rootConceptUrl = "/${VERSION}/studies/${studyId}/concepts/ROOT"
+    def conceptListUrl = "${contextPath}/studies/${studyId}/concepts"
+    def conceptUrl = "${contextPath}/studies/${studyId}/concepts/${conceptId}"
+    def rootConceptUrl = "${contextPath}/studies/${studyId}/concepts/ROOT"
 
     def longConceptName = 'with some$characters_'
     def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
     def longConceptKey = "\\\\i2b2 main$longConceptPath"
-    def longConceptUrl = "/${VERSION}/studies/study_id_2/concepts/long%20path/with%20some%24characters_"
+    def longConceptUrl = "${contextPath}/studies/study_id_2/concepts/long%20path/with%20some%24characters_"
 
-    def sexConceptUrl = "/${VERSION}/studies/study_id_2/concepts/sex"
-    def femaleConceptUrl = "/${VERSION}/studies/study_id_2/concepts/sex/female"
+    def sexConceptUrl = "${contextPath}/studies/study_id_2/concepts/sex"
+    def femaleConceptUrl = "${contextPath}/studies/study_id_2/concepts/sex/female"
 
-    def study2ConceptListUrl = "/${VERSION}/studies/study_id_2/concepts"
+    def study2ConceptListUrl = "${contextPath}/studies/study_id_2/concepts"
 
     def study1RootConceptTags = [
             "1 name 1": "1 description 1",
@@ -68,26 +71,22 @@ class OntologyTermsResourceSpec extends ResourceSpec {
 
     void testIndexAsJson() {
         when:
-        def response = get conceptListUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get conceptListUrl
 
         then:
-        response.status == 200
-        that response.json, hasEntry(is('ontology_terms'),
+        response.statusCode == HttpStatus.OK
+        that toJson(response), hasEntry(is('ontology_terms'),
                 contains(jsonConceptResponse())
         )
     }
 
     void testIndexAsHal() {
         when:
-        def response = get conceptListUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get conceptListUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json,
+        response.statusCode == HttpStatus.OK
+        that toJson(response),
                 halIndexResponse(
                         conceptListUrl,
                         ['ontology_terms': contains(
@@ -99,57 +98,47 @@ class OntologyTermsResourceSpec extends ResourceSpec {
 
     void testShowAsJson() {
         when:
-        def response = get conceptUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get conceptUrl
 
         then:
-        response.status == 200
-        that response.json, jsonConceptResponse()
+        response.statusCode == HttpStatus.OK
+        that toJson(response), jsonConceptResponse()
     }
 
     void testShowAsHal() {
         when:
-        def response = get conceptUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get conceptUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json, halConceptResponse()
+        response.statusCode == HttpStatus.OK
+        that toJson(response), halConceptResponse()
     }
 
     void testShowRootConceptAsJson() {
         when:
-        def response = get rootConceptUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get rootConceptUrl
 
         then:
-        response.status == 200
-        that response.json, jsonConceptResponse(rootConceptKey, studyFolderName, rootConceptPath)
+        response.statusCode == HttpStatus.OK
+        that toJson(response), jsonConceptResponse(rootConceptKey, studyFolderName, rootConceptPath)
     }
 
     void testShowRootConceptAsHal() {
         when:
-        def response = get rootConceptUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get rootConceptUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json, halConceptResponse(rootConceptKey, studyFolderName, rootConceptPath, rootConceptUrl, false)
+        response.statusCode == HttpStatus.OK
+        that toJson(response), halConceptResponse(rootConceptKey, studyFolderName, rootConceptPath, rootConceptUrl, false)
     }
 
     void testPathOfLongConcept() {
         when:
-        def response = get study2ConceptListUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get study2ConceptListUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json, is(halIndexResponse(
+        response.statusCode == HttpStatus.OK
+        that toJson(response), is(halIndexResponse(
                 study2ConceptListUrl,
                 ['ontology_terms': hasItem(
                         hasSelfLink(longConceptUrl))]))
@@ -157,13 +146,11 @@ class OntologyTermsResourceSpec extends ResourceSpec {
 
     void testCanHitLongConcept() {
         when:
-        def response = get longConceptUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get longConceptUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json, is(halConceptResponse(
+        response.statusCode == HttpStatus.OK
+        that toJson(response), is(halConceptResponse(
                 longConceptKey,
                 longConceptName,
                 longConceptPath,
@@ -173,101 +160,83 @@ class OntologyTermsResourceSpec extends ResourceSpec {
 
     void testNavigableConceptRoot() {
         when:
-        def response = get rootConceptUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get rootConceptUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json, NavigationLinksMatcher.hasNavigationLinks(rootConceptUrl, null, 'bar')
+        response.statusCode == HttpStatus.OK
+        that toJson(response), NavigationLinksMatcher.hasNavigationLinks(rootConceptUrl, null, 'bar')
     }
 
     void testNavigableConceptLeaf() {
         when:
-        def response = get conceptUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get conceptUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json, NavigationLinksMatcher.hasNavigationLinks(conceptUrl, rootConceptUrl, null)
+        response.statusCode == HttpStatus.OK
+        that toJson(response), NavigationLinksMatcher.hasNavigationLinks(conceptUrl, rootConceptUrl, null)
     }
 
     void testMetadataTagsAsJson() {
         when:
-        def response = get rootConceptUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get rootConceptUrl
 
         then:
-        response.status == 200
-        that response.json, MetadataTagsMatcher.hasTags(study1RootConceptTags)
+        response.statusCode == HttpStatus.OK
+        that toJson(response), MetadataTagsMatcher.hasTags(study1RootConceptTags)
     }
 
     void testMetadataTagsAsHal() {
         when:
-        def response = get rootConceptUrl, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get rootConceptUrl, MimeTypes.APPLICATION_HAL_JSON
 
         then:
-        response.status == 200
-        that response.json, MetadataTagsMatcher.hasTags(study1RootConceptTags)
+        response.statusCode == HttpStatus.OK
+        that toJson(response), MetadataTagsMatcher.hasTags(study1RootConceptTags)
     }
 
     void testDataTypeStudy() {
         when:
-        def response = get rootConceptUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get rootConceptUrl
 
         then:
-        response.status == 200
-        that response.json, hasEntry('type', 'STUDY')
+        response.statusCode == HttpStatus.OK
+        that toJson(response), hasEntry('type', 'STUDY')
     }
 
     void testDataTypeHighDimensional() {
         when:
-        def response = get conceptUrl, {
-            header 'Accept', contentTypeForJSON
-        } //study 1/bar
+        def response = get conceptUrl
 
         then:
-        response.status == 200
-        that response.json, hasEntry('type', 'HIGH_DIMENSIONAL')
+        response.statusCode == HttpStatus.OK
+        that toJson(response), hasEntry('type', 'HIGH_DIMENSIONAL')
     }
 
     void testDataTypeNumeric() {
         when:
-        def response = get longConceptUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get longConceptUrl
 
         then:
-        response.status == 200
-        that response.json, hasEntry('type', 'NUMERIC')
+        response.statusCode == HttpStatus.OK
+        that toJson(response), hasEntry('type', 'NUMERIC')
     }
 
     void testDataTypeCategoricalOption() {
         when:
-        def response = get femaleConceptUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get femaleConceptUrl
 
         then:
-        response.status == 200
-        that response.json, hasEntry('type', 'CATEGORICAL_OPTION')
+        response.statusCode == HttpStatus.OK
+        that toJson(response), hasEntry('type', 'CATEGORICAL_OPTION')
     }
 
     void testDataTypeUnknown() {
         when:
-        def response = get sexConceptUrl, {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get sexConceptUrl
 
         then:
-        response.status == 200
-        that response.json, hasEntry('type', 'UNKNOWN')
+        response.statusCode == HttpStatus.OK
+        that toJson(response), hasEntry('type', 'UNKNOWN')
     }
 
     private Matcher jsonConceptResponse(String key = conceptKey,

@@ -1,4 +1,4 @@
-package org.transmartproject.rest
+package org.transmartproject.rest.v2
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.Canonical
@@ -7,29 +7,21 @@ import groovy.util.logging.Slf4j
 import org.springframework.http.HttpStatus
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.CrossTable
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.TrueConstraint
-import org.transmartproject.core.multidimquery.query.Type
-import org.transmartproject.core.multidimquery.query.ValueConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.mock.MockUser
-import org.transmartproject.rest.marshallers.MarshallerSpec
 import spock.lang.Shared
 import spock.lang.Unroll
 
 import java.time.Instant
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED
-import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.HttpStatus.FORBIDDEN
+import static org.springframework.http.HttpStatus.OK
 import static org.transmartproject.core.users.PatientDataAccessLevel.*
-
+import static org.transmartproject.rest.utils.ResponseEntityUtils.checkResponseStatus
+import static org.transmartproject.rest.utils.ResponseEntityUtils.toObject
 
 @Slf4j
-class AccessPolicySpec extends MarshallerSpec {
+class AccessPolicySpec extends V2ResourceSpec {
 
     @CompileStatic
     @Canonical
@@ -96,28 +88,28 @@ class AccessPolicySpec extends MarshallerSpec {
     }
 
     /**
-     * Tests the /v2/observations/counts endpoint at {@link QueryController#counts()}.
+     * Tests the /observations/counts endpoint at {@link org.transmartproject.rest.QueryController#counts()}.
      */
     @Unroll
     void 'test access to counts'(
             Constraint constraint, MockUser user, HttpStatus expectedStatus, Long patientCount) {
         given:
         setupData()
-        def url = "${baseURL}/v2/observations/counts"
+        def url = "${contextPath}/observations/counts"
 
         expect:
         selectUser(user)
         def body = new CountsRequestBody(constraint)
 
-        def response = postJson(url, body)
+        def response = post(url, body)
         checkResponseStatus(response, expectedStatus, user)
         switch (expectedStatus) {
             case OK:
                 def counts = toObject(response, Counts)
                 assert counts
                 assert counts.patientCount == patientCount:
-                    "Unexpected patient count ${counts.patientCount} for user ${user.username}, " +
-                            "constraint ${constraint.toJson()}. Expected ${patientCount}."
+                        "Unexpected patient count ${counts.patientCount} for user ${user.username}, " +
+                                "constraint ${constraint.toJson()}. Expected ${patientCount}."
                 break
             case FORBIDDEN:
                 def error = toObject(response, Map)
@@ -128,17 +120,17 @@ class AccessPolicySpec extends MarshallerSpec {
         }
 
         where:
-        constraint          | user              | expectedStatus    | patientCount
-        trueConstraint      | admin             | OK                | 4
-        trueConstraint      | study1User        | OK                | 3
-        trueConstraint      | thresholdUser     | OK                | 1
-        trueConstraint      | study2User        | OK                | 3
-        trueConstraint      | study1And2User    | OK                | 4
-        study1Constraint    | admin             | OK                | 2
-        study1Constraint    | study1User        | OK                | 2
-        study1Constraint    | thresholdUser     | FORBIDDEN         | null
-        study1Constraint    | study2User        | FORBIDDEN         | null
-        study1Constraint    | study1And2User    | OK                | 2
+        constraint       | user           | expectedStatus | patientCount
+        trueConstraint   | admin          | OK             | 4
+        trueConstraint   | study1User     | OK             | 3
+        trueConstraint   | thresholdUser  | OK             | 1
+        trueConstraint   | study2User     | OK             | 3
+        trueConstraint   | study1And2User | OK             | 4
+        study1Constraint | admin          | OK             | 2
+        study1Constraint | study1User     | OK             | 2
+        study1Constraint | thresholdUser  | FORBIDDEN      | null
+        study1Constraint | study2User     | FORBIDDEN      | null
+        study1Constraint | study1And2User | OK             | 2
     }
 
     @CompileStatic
@@ -150,7 +142,7 @@ class AccessPolicySpec extends MarshallerSpec {
     }
 
     /**
-     * Tests the /v2/observations/crosstable endpoint at {@link QueryController#crosstable()}
+     * Tests the /observations/crosstable endpoint at {@link org.transmartproject.rest.QueryController#crosstable()}
      */
     @Unroll
     void 'test access to the cross table'(
@@ -158,14 +150,14 @@ class AccessPolicySpec extends MarshallerSpec {
             MockUser user, HttpStatus expectedStatus, List<List<Long>> expectedValues) {
         given:
         setupData()
-        def url = "${baseURL}/v2/observations/crosstable"
+        def url = "${contextPath}/observations/crosstable"
 
         expect:
         selectUser(user)
         def body = new CrossTableRequestBody(rowConstraints, columnConstraints, subjectConstraint)
 
         log.info "Body: ${new ObjectMapper().writeValueAsString(body)}"
-        def response = postJson(url, body)
+        def response = post(url, body)
         checkResponseStatus(response, expectedStatus, user)
         switch (expectedStatus) {
             case OK:
@@ -183,12 +175,12 @@ class AccessPolicySpec extends MarshallerSpec {
         }
 
         where:
-        rowConstraints      | columnConstraints | subjectConstraint | user              | expectedStatus | expectedValues
-        [concept1Value1]    | [concept1Value2]  | trueConstraint    | admin             | OK             | [[1]]
-        [concept1Value1]    | [concept1Value2]  | trueConstraint    | study1User        | OK             | [[0]]
-        [concept1Value1]    | [concept1Value2]  | trueConstraint    | thresholdUser     | OK             | [[0]]
-        [concept1Value1]    | [concept1Value2]  | trueConstraint    | study2User        | OK             | [[0]]
-        [concept1Value1]    | [concept1Value2]  | trueConstraint    | study1And2User    | OK             | [[0]]
+        rowConstraints   | columnConstraints | subjectConstraint | user           | expectedStatus | expectedValues
+        [concept1Value1] | [concept1Value2]  | trueConstraint    | admin          | OK             | [[1]]
+        [concept1Value1] | [concept1Value2]  | trueConstraint    | study1User     | OK             | [[0]]
+        [concept1Value1] | [concept1Value2]  | trueConstraint    | thresholdUser  | OK             | [[0]]
+        [concept1Value1] | [concept1Value2]  | trueConstraint    | study2User     | OK             | [[0]]
+        [concept1Value1] | [concept1Value2]  | trueConstraint    | study1And2User | OK             | [[0]]
     }
 
 }

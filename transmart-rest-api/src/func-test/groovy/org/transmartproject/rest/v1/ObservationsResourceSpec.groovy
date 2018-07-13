@@ -23,21 +23,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.rest
+package org.transmartproject.rest.v1
 
 import org.springframework.http.HttpStatus
 import org.transmartproject.mock.MockUser
+import org.transmartproject.rest.MimeTypes
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.mapWith
+import static org.transmartproject.rest.utils.HalMatcherUtils.hasLinks
+import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 import static spock.util.matcher.HamcrestSupport.that
 
-class ObservationsResourceSpec extends ResourceSpec {
+class ObservationsResourceSpec extends V1ResourceSpec {
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
-    public static final String VERSION = "v1"
 
     def study1BarExpectedObservations = [
             [
@@ -59,22 +61,22 @@ class ObservationsResourceSpec extends ResourceSpec {
 
     void testListAllObservationsForStudy() {
         when:
-        def response = get("/$VERSION/studies/${studyId}/observations")
+        def response = get("${contextPath}/studies/${studyId}/observations")
 
         then:
-        response.status == 200
-        that response.json, listOfWithOrder(study1BarExpectedObservations)
+        response.statusCode == HttpStatus.OK
+        that toJson(response), listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testListAllObservationsForSubject() {
         def subjectId = -101
 
         when:
-        def response = get("/$VERSION/studies/${studyId}/subjects/${subjectId}/observations")
+        def response = get("${contextPath}/studies/${studyId}/subjects/${subjectId}/observations")
 
         then:
-        response.status == 200
-        that response.json, contains(
+        response.statusCode == HttpStatus.OK
+        that toJson(response), contains(
                 allOf(
                         hasEntry(is('subject'), allOf(
                                 hasEntry('id', subjectId),
@@ -98,20 +100,20 @@ class ObservationsResourceSpec extends ResourceSpec {
         def conceptId = 'bar'
 
         when:
-        def response = get("/$VERSION/studies/${studyId}/concepts/${conceptId}/observations")
+        def response = get("${contextPath}/studies/${studyId}/concepts/${conceptId}/observations")
 
         then:
-        response.status == 200
-        that response.json, listOfWithOrder(study1BarExpectedObservations)
+        response.statusCode == HttpStatus.OK
+        that toJson(response), listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testVariablesAreNormalized() {
         when:
-        def response = get("/$VERSION/studies/study_id_2/concepts/sex/observations")
+        def response = get("${contextPath}/studies/study_id_2/concepts/sex/observations")
 
         then:
-        response.status == 200
-        that response.json, allOf(
+        response.statusCode == HttpStatus.OK
+        that toJson(response), allOf(
                 hasSize(2),
                 everyItem(
                         hasEntry('label', '\\foo\\study2\\sex\\'),
@@ -125,48 +127,46 @@ class ObservationsResourceSpec extends ResourceSpec {
         selectUser(new MockUser('fake-user'))
 
         when: 'fetching all patient sets'
-        def patientSetsResponse = get("/${VERSION}/patient_sets")
+        def patientSetsResponse = get("${contextPath}/patient_sets")
 
         then: 'the response contains the clinical patient set from the test data'
         patientSetsResponse.statusCode == HttpStatus.OK
-        def patientSets = (patientSetsResponse.json as Map).subjects as List<Map>
+        def patientSets = (toJson(patientSetsResponse) as Map).subjects as List<Map>
         def clinicalPatientSet = patientSets.find { it.name == 'clinical-patients-set' }
         clinicalPatientSet != null
 
         when:
-        def response = get("/$VERSION/observations?patient_sets={patient_sets}&concept_paths={concept_paths}") {
-            urlVariables patient_sets: clinicalPatientSet.id, concept_paths: '\\foo\\study1\\bar\\'
-        }
+        def response = get("${contextPath}/observations?patient_sets={patient_sets}&concept_paths={concept_paths}",
+                MimeTypes.APPLICATION_JSON, [patient_sets: clinicalPatientSet.id, concept_paths: '\\foo\\study1\\bar\\'])
 
         then:
         response.statusCode == HttpStatus.OK
-        that response.json, listOfWithOrder(study1BarExpectedObservations)
+        that toJson(response), listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testIndexStandalone() {
         when:
-        def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
-            urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
-        }
+        def response = get("${contextPath}/observations?patients={patients}&concept_paths={concept_paths}", MimeTypes.APPLICATION_JSON,
+                [patients: -101, concept_paths: '\\foo\\study1\\bar\\'])
 
         then:
-        response.status == 200
-        that response.json, contains(
+        response.statusCode == HttpStatus.OK
+        that toJson(response), contains(
                 hasEntry(is('subject'),
                         hasEntry('id', -101)))
     }
 
     void testIndexStandaloneDefaultIsNormalizedLeaves() {
         when:
-        def response = get(("/$VERSION/observations" +
+        def response = get("${contextPath}/observations" +
                 '?patients=-201' +
                 '&patients=-202' +
-                '&concept_paths=\\foo\\study2\\sex\\'))
+                '&concept_paths=\\foo\\study2\\sex\\', MimeTypes.APPLICATION_JSON)
 
         then:
-        response.status == 200
+        response.statusCode == HttpStatus.OK
         // should be normalized
-        that response.json, allOf(
+        that toJson(response), allOf(
                 hasSize(2),
                 containsInAnyOrder(
                         allOf(
@@ -181,28 +181,26 @@ class ObservationsResourceSpec extends ResourceSpec {
         def conceptPath = '\\foo\\study2\\sex\\'
 
         when:
-        def response = get(("/$VERSION/observations?variable_type=terminal_concept_variable" +
+        def response = get("${contextPath}/observations?variable_type=terminal_concept_variable" +
                 '&patients=-201' +
                 '&patients=-202' +
-                '&concept_paths=' + conceptPath))
+                '&concept_paths=' + conceptPath)
 
         then:
-        response.status == 200
-        response.json.size() == 2
-        response.json.every { it.label == conceptPath && it.value == null }
+        response.statusCode == HttpStatus.OK
+        toJson(response).size() == 2
+        toJson(response).every { it.label == conceptPath && it.value == null }
     }
 
     void testHalStandalone() {
         when:
-        def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
-            header 'Accept', contentTypeForHAL
-            urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
-        }
+        def response = get("${contextPath}/observations?patients={patients}&concept_paths={concept_paths}",
+                MimeTypes.APPLICATION_HAL_JSON, [patients: -101, concept_paths: '\\foo\\study1\\bar\\'])
 
         then:
         //FIXME From time to time the status is 406 (response content is different from what's specified in the Accept)
-        response.status == 200
-        that response.json as Map, allOf(
+        response.statusCode == HttpStatus.OK
+        that toJson(response) as Map, allOf(
                 hasLinks([:]),
                 hasEntry(
                         is('_embedded'),

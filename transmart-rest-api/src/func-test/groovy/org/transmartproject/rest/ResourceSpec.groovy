@@ -25,27 +25,25 @@
 
 package org.transmartproject.rest
 
-import grails.plugins.rest.client.RestBuilder
-import grails.plugins.rest.client.RestResponse
-import grails.rest.render.RendererRegistry
 import grails.test.mixin.integration.Integration
-import grails.util.Holders
 import groovy.util.logging.Slf4j
-import org.hamcrest.Matcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.io.Resource
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.ResponseEntity
+import org.springframework.web.client.RestTemplate
 import org.transmartproject.core.users.User
 import org.transmartproject.mock.MockAuthContext
 import org.transmartproject.mock.MockUser
-import org.transmartproject.test.TestApplication
-import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.rest.user.AuthContext
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.*
-import static org.thehyve.commons.test.FastMatchers.mapWith
+import static org.transmartproject.rest.MimeTypes.APPLICATION_JSON
 
 @Integration(applicationClass = TestApplication)
 @Slf4j
@@ -62,106 +60,83 @@ abstract class ResourceSpec extends Specification {
         authContext.currentUser = user
     }
 
+    TestRestTemplate getTestRestTemplate() {
+        RestTemplate restTemplate = new RestTemplateBuilder()
+                .rootUri(baseUrl).build()
+        new TestRestTemplate(restTemplate)
+    }
+
     void setup() {
         testResource.createTestData()
-        Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
-            log.debug "RendererRegistry bean: ${it}"
-        }
-        def rendererRegistry = Holders.applicationContext.getBean('rendererRegistry')
-        assert rendererRegistry.class == TransmartRendererRegistry
         selectUser(new MockUser('test', true))
     }
 
-    String getBaseURL() { "http://localhost:${serverPort}" }
+    String getBaseUrl() {
+        "http://localhost:${serverPort}"
+    }
+
+    protected String getContextPath() {
+        ''
+    }
 
     @Value('${local.server.port}')
     Integer serverPort
 
-    def contentTypeForHAL = 'application/hal+json'
-    def contentTypeForJSON = 'application/json'
-    def version = 'v1'
-
-    RestBuilder rest = new RestBuilder()
-
-    TestRestTemplate restTemplate = new TestRestTemplate()
-
-    RestResponse get(String path, Closure paramSetup = {}) {
-        rest.get("${baseURL}${path}", paramSetup)
-    }
-
-    RestResponse delete(String path, Closure paramSetup = {}) {
-        rest.delete("${baseURL}${path}", paramSetup)
-    }
-    /**
-     * An alias to put method
-     * @param path
-     * @param paramSetup
-     * @return
-     */
-    RestResponse update(String path, Closure paramSetup = {}) {
-        rest.put("${baseURL}${path}", paramSetup)
-    }
-
-    RestResponse put(String path, Closure paramSetup = {}) {
-        rest.put("${baseURL}${path}", paramSetup)
-    }
-
-    RestResponse post(String path, Closure paramSetup = {}) {
-        rest.post("${baseURL}${path}", paramSetup)
-    }
-
-    InputStream getAsInputStream(String path) {
-        Resource res = restTemplate.getForObject(baseURL + path, Resource.class)
+    InputStream getAsInputStream(String relativeUrl) {
+        Resource res = getTestRestTemplate()
+                .getForObject(relativeUrl, Resource)
         res.inputStream
     }
 
-    /**
-     * Matcher for a map entry containing _links.self[href:selfLink]
-     * @param selfLink value of the expected link
-     * @return matcher
-     */
-    def hasSelfLink(String selfLink) {
-        hasEntry(
-                is('_links'),
-                hasEntry(
-                        is('self'), hasEntry('href', selfLink)
-                ),
-        )
+    ResponseEntity<Resource> get(String relativeUrl,
+                                 String acceptMimeType = APPLICATION_JSON,
+                                 Map<String, Object> queryParams = [:]) {
+        HttpHeaders headers = new HttpHeaders()
+        headers.set(HttpHeaders.ACCEPT, acceptMimeType)
+        HttpEntity requestEntity = new HttpEntity(headers)
+        ResponseEntity<Resource> response = getTestRestTemplate().exchange(
+                relativeUrl, HttpMethod.GET, requestEntity, Resource, queryParams)
+        response
     }
 
-    static Matcher hasLinks(Map<String, String> linkMap) {
-        Map expectedLinksMap = linkMap.collectEntries {
-            String tempUrl = "${it.value}"
-            [(it.key): ([href: tempUrl])]
-        }
-
-        hasEntry(
-                is('_links'),
-                mapWith(expectedLinksMap),
-        )
+    ResponseEntity<Resource> post(String relativeUrl,
+                                  String acceptMimeType = APPLICATION_JSON,
+                                  String contentMimeType = APPLICATION_JSON,
+                                  Object object) {
+        modificationRequest(relativeUrl, HttpMethod.POST,
+                acceptMimeType, contentMimeType, object)
     }
 
-    /**
-     * Generic matcher for a hal index response, expecting 2 entries:
-     * - selfLink
-     * - _embedded[embeddedMatcherMap*key:value]
-     * @param selfLink
-     * @param embeddedMatcherMap map of key to matcher elements to be expected inside '_embedded'
-     * @return
-     */
-    def halIndexResponse(String selfLink, Map<String, Matcher> embeddedMatcherMap) {
+    ResponseEntity<Resource> put(String relativeUrl,
+                                 String acceptMimeType = APPLICATION_JSON,
+                                 String contentMimeType = APPLICATION_JSON,
+                                 Object object) {
+        modificationRequest(relativeUrl, HttpMethod.PUT,
+                acceptMimeType, contentMimeType, object)
+    }
 
-        allOf(
-                hasSelfLink(selfLink),
-                hasEntry(
-                        is('_embedded'),
-                        allOf(
-                                embeddedMatcherMap.collect {
-                                    hasEntry(is(it.key), it.value)
-                                }
-                        )
-                ),
-        )
+    protected ResponseEntity<Resource> modificationRequest(String relativeUrl,
+                                                           HttpMethod httpMethod,
+                                                           String acceptMimeType,
+                                                           String contentMimeType,
+                                                           Object object) {
+        HttpHeaders headers = new HttpHeaders()
+        headers.set(HttpHeaders.ACCEPT, acceptMimeType)
+        headers.set(HttpHeaders.CONTENT_TYPE, contentMimeType)
+        HttpEntity requestEntity = new HttpEntity(object, headers)
+        ResponseEntity<Resource> response = getTestRestTemplate().exchange(
+                relativeUrl, httpMethod, requestEntity, Resource)
+        response
+    }
+
+    ResponseEntity<Resource> delete(String relativeUrl,
+                                    String acceptMimeType = APPLICATION_JSON) {
+        HttpHeaders headers = new HttpHeaders()
+        headers.set(HttpHeaders.ACCEPT, acceptMimeType)
+        HttpEntity requestEntity = new HttpEntity(headers)
+        ResponseEntity<Resource> response = getTestRestTemplate().exchange(
+                relativeUrl, HttpMethod.DELETE, requestEntity, Resource)
+        response
     }
 
 }

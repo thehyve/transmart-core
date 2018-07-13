@@ -23,11 +23,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.rest
+package org.transmartproject.rest.v1
 
 import org.hamcrest.Matcher
+import org.springframework.http.HttpStatus
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
+import org.transmartproject.rest.MimeTypes
 import org.transmartproject.rest.matchers.HighDimResult
 import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
@@ -35,11 +37,11 @@ import spock.lang.Ignore
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
+import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 import static spock.util.matcher.HamcrestSupport.that
 
-class HighDimResourceSpec extends ResourceSpec {
+class HighDimResourceSpec extends V1ResourceSpec {
 
-    public static final String VERSION = "v1"
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at", "1553506_at"]
 
@@ -54,32 +56,30 @@ class HighDimResourceSpec extends ResourceSpec {
                                         'gene_signatures', 'genes',
                                         'disjunction', 'pathways', 'proteins',]
 
-    Map<String, String> indexUrlMap = [
-            mrna: "/$VERSION/studies/study_id_1/concepts/bar/highdim",
-            acgh: "/$VERSION/studies/study_id_2/concepts/study1/highdim",
+    Map<String, String> indexUrlPathMap = [
+            mrna: "${contextPath}/studies/study_id_1/concepts/bar/highdim",
+            acgh: "${contextPath}/studies/study_id_2/concepts/study1/highdim",
     ]
 
     void testSummaryAsJson() {
         when:
-        def response = get indexUrlMap['mrna'], {
-            header 'Accept', contentTypeForJSON
-        }
+        def response = get(indexUrlPathMap['mrna'])
 
         then:
-        response.status == 200
-        that response.json as Map, mapWith([
+        response.statusCode == HttpStatus.OK
+        that toJson(response) as Map, mapWith([
                 dataTypes: [getExpectedMrnaSummary()]
         ])
     }
 
     void testSummaryAsHal() {
-        String url = indexUrlMap['mrna']
+        String relativeUrl = indexUrlPathMap['mrna']
         Map summary = getExpectedMrnaSummary()
         summary['_links'] = getExpectedMrnaHalLinks()
 
         Map expected = [
                 '_links'   : [
-                        self: [href: url]
+                        self: [href: relativeUrl]
                 ],
                 '_embedded': [
                         dataTypes: [summary]
@@ -87,13 +87,11 @@ class HighDimResourceSpec extends ResourceSpec {
         ]
 
         when:
-        def response = get url, {
-            header 'Accept', contentTypeForHAL
-        }
+        def response = get(relativeUrl, MimeTypes.APPLICATION_HAL_JSON)
 
         then:
-        response.status == 200
-        that response.json as Map, mapWith(expected)
+        response.statusCode == HttpStatus.OK
+        that toJson(response) as Map, mapWith(expected)
     }
 
     void testMrna() {
@@ -189,7 +187,7 @@ class HighDimResourceSpec extends ResourceSpec {
                                  String projection = null,
                                  String assayConstraints = null,
                                  String dataConstraints = null) {
-        def ret = "${indexUrlMap[dataType]}?dataType=${dataType}"
+        def ret = "${indexUrlPathMap[dataType]}?dataType=${dataType}"
         if (projection) {
             ret += "&projection=${projection}"
         }
@@ -217,7 +215,9 @@ class HighDimResourceSpec extends ResourceSpec {
 
     private Map getExpectedMrnaHalLinks() {
         String selfDataLink = getHighDimUrl('mrna')
-        Map expectedLinks = mrnaSupportedProjections.collectEntries { [(it): ("${selfDataLink}&projection=${it}")] }
+        Map expectedLinks = mrnaSupportedProjections.collectEntries {
+            [(it): ("${selfDataLink}&projection=${it}")]
+        }
         expectedLinks.put('self', selfDataLink)
 
         expectedLinks.collectEntries {
