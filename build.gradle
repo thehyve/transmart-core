@@ -101,6 +101,11 @@ subprojects { project ->
         apply plugin: 'org.grails.grails-gsp'
         apply plugin: 'asset-pipeline'
 
+        // See https://docs.gradle.org/3.2/release-notes.html#usage-of-jansi-library-embedded-with-java-annotation-processor
+        tasks.withType(JavaCompile) {
+            options.fork = true
+        }
+
         dependencyManagement {
             imports {
                 mavenBom "org.grails:grails-bom:$grailsVersion"
