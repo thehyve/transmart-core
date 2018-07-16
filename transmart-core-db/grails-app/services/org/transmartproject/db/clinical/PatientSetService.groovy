@@ -224,7 +224,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
                                             User user,
                                             String apiVersion,
                                             boolean reusePatientSet) {
-        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
+        checkAccess(constraint, user, PatientDataAccessLevel.minimalAccessLevel)
 
         createOrReuseQueryResult(
                 name,
@@ -250,7 +250,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.minimalAccessLevel)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.setProjection(Projections.projectionList().add(
@@ -693,7 +693,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
 
     protected int materializePatientSet(QueryResult queryResult, Constraint constraint, User user) {
         log.info "Saving patient set for the True constraint."
-        DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
+        DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user, PatientDataAccessLevel.minimalAccessLevel)
                 .buildCriteria(constraint)
                 .setProjection(
                 Projections.projectionList()

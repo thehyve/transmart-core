@@ -43,7 +43,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification {
     TabularResult<AssayColumn, RegionRow> dataQueryResult
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData.saveAll()
 

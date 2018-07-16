@@ -1,11 +1,8 @@
 package org.transmartproject.rest.data
 
 import groovy.util.logging.Slf4j
-import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Restrictions
-import org.hibernate.type.StandardBasicTypes
-import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.multidimquery.TrialVisit
@@ -17,6 +14,7 @@ import org.transmartproject.db.i2b2data.*
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.tree.TreeNodeImpl
+import org.transmartproject.db.utils.SessionUtils
 
 import java.time.Instant
 
@@ -26,12 +24,9 @@ import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.C
 @Slf4j
 class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
 
-    @Autowired
-    SessionFactory sessionFactory
-
     void createTestData() {
         new Dictionaries().saveAll()
-        
+
         log.info "Setup access policy test data."
         // Create studies
         List<TrialVisit> publicStudyTrialVisits = createTestStudyAndTrialVisits('publicStudy', true, null)
@@ -163,15 +158,9 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
         new TreeNodeImpl(node, [])
     }
 
-    protected long getNextHibernateId() {
-        sessionFactory.currentSession.createSQLQuery(
-                "select hibernate_sequence.nextval as num")
-                .addScalar("num", StandardBasicTypes.BIG_INTEGER)
-                .uniqueResult() as Long
-    }
 
     protected Patient createTestPatient(String subjectId) {
-        long patientId = nextHibernateId
+        long patientId = SessionUtils.getNextId(sessionFactory.currentSession, 'hibernate_sequence')
         log.info "Creating test patient: ${subjectId} (id: ${patientId})"
         def patient = new PatientDimension(mappings: [] as Set)
         patient.id = patientId
@@ -197,7 +186,7 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
                         patient: (PatientDimension) patient,
                         startDate: startDate,
                         providerId: '@',
-                        encounterNum: 1,
+                        encounterNum: -1,
                         instanceNum: instanceNum
                 ).save(flush: true, failOnError: true)
             instanceNum++
@@ -219,7 +208,7 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
                         patient: (PatientDimension) patient,
                         startDate: startDate,
                         providerId: '@',
-                        encounterNum: 1,
+                        encounterNum: -1,
                         instanceNum: instanceNum
                 ).save(flush: true, failOnError: true)
             instanceNum++

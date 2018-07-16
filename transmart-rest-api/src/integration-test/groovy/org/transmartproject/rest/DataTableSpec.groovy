@@ -39,7 +39,7 @@ class DataTableSpec extends Specification {
 
 
     void setupData() {
-        TestData.clearAllDataInTransaction()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

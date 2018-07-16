@@ -65,7 +65,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
     AssayConstraint trialNameConstraint
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = new RnaSeqTestData()
         testData.saveAll()

@@ -39,7 +39,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     HypercubeDataSerializationService serializationService
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         def testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

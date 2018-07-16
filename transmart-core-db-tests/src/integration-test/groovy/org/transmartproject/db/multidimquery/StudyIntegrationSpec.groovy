@@ -14,7 +14,7 @@ class StudyIntegrationSpec extends Specification {
     ClinicalTestData clinicalData
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
