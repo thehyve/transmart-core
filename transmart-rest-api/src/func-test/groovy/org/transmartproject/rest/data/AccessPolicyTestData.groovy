@@ -1,70 +1,58 @@
-package org.transmartproject.test
+package org.transmartproject.rest.data
 
-import grails.transaction.Transactional
-import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
-import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.multidimquery.TrialVisit
-import org.transmartproject.db.Dictionaries
-import org.transmartproject.db.TestData
-import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.i2b2data.PatientMapping
-import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.*
 import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.querytool.QtQueryResultType
-import org.transmartproject.db.user.AccessLevelTestData
-import org.transmartproject.rest.TestResource
+
+import java.time.Instant
 
 @Slf4j
-@CompileStatic
-@Transactional
-class TestService implements TestResource {
+class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
 
     @Autowired
     SessionFactory sessionFactory
 
-    final Dictionaries dictionaries = new Dictionaries()
-
-    void clearTestData() {
-        log.info "Clear test data ..."
-        TestData.clearAllData()
-    }
-
     void createTestData() {
-        clearTestData()
+        log.info "Setup access policy test data."
+        // Create studies
+        def publicStudy = createTestStudy('publicStudy', true, null)
+        def study1 = createTestStudy('study1', false, null)
+        def study2 = createTestStudy('study2', false, null)
 
-        log.info "Setup test data ..."
-        def session = sessionFactory.currentSession
-        // Check if dictionaries were already loaded before
-        def resultTypes = DetachedCriteria.forClass(QtQueryResultType).getExecutableCriteria(session).list() as List<QtQueryResultType>
-        if (resultTypes.size() == 0) {
-            log.info "Setup test database"
-            this.dictionaries.saveAll()
-        }
-        // Check if test data has been created before
-        def nodes = DetachedCriteria.forClass(I2b2Secure).getExecutableCriteria(session).list() as List<I2b2Secure>
-        if (nodes.size() == 0) {
-            log.info "Create test data"
-            def testData = TestData.createDefault()
-            testData.saveAll()
-            new org.transmartproject.rest.TestData().createTestData()
-            def accessLevelTestData = AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
-            accessLevelTestData.saveAll()
-        }
+        // Create concepts
+        def concept1 = createTestConcept('categorical_concept1')
+        def concept2 = createTestConcept('numerical_concept2')
+
+        // Create patients
+        def patient1 = createTestPatient('Subject 1')
+        def patient2 = createTestPatient('Subject 2')
+        def patient3 = createTestPatient('Subject 3')
+        def patient4 = createTestPatient('Subject from public study')
+
+        // Create observations
+        // public study: 1 subject
+        // study 1: 2 subjects (1 shared with study 2)
+        // study 2: 2 subjects (1 shared with study 1)
+        // total: 4 subjects
+        Date dummyDate = Date.from(Instant.parse('2001-02-03T13:18:54Z'))
+        createTestCategoricalObservations(patient1, concept1, study1[0], [['@': 'value1'], ['@': 'value2']], dummyDate)
+        createTestNumericalObservations(patient1, concept2, study1[0], [['@': 100], ['@': 200]], dummyDate)
+        createTestCategoricalObservations(patient2, concept1, study1[0], [['@': 'value2'], ['@': 'value3']], dummyDate)
+        createTestNumericalObservations(patient2, concept2, study2[0], [['@': 400]], dummyDate)
+        createTestCategoricalObservations(patient3, concept1, study2[0], [['@': 'value4']], dummyDate)
+        createTestCategoricalObservations(patient4, concept1, publicStudy[0], [['@': 'value1']], dummyDate)
     }
 
-    static final Set<String> defaultDimensions =
+    protected static final Set<String> defaultDimensions =
             ['study', 'concept', 'patient', 'start time', 'end time', 'trial visit'] as Set<String>
 
-    List<TrialVisit> createTestStudy(String studyId, boolean isPublic, List<String> trialVisitLabels) {
+    protected List<TrialVisit> createTestStudy(String studyId, boolean isPublic, List<String> trialVisitLabels) {
         log.info "Creating test study: ${studyId}"
         def study = new Study(
                 studyId: studyId,
@@ -75,15 +63,15 @@ class TestService implements TestResource {
         study.save(flush: true, failOnError: true)
         // add trial visits
         if (trialVisitLabels) {
-            for (String label: trialVisitLabels) {
+            for (String label : trialVisitLabels) {
                 study.trialVisits.add(
                         new org.transmartproject.db.i2b2data.TrialVisit(study: study, relTimeLabel: label)
-                        .save(flush: true, failOnError: true))
+                                .save(flush: true, failOnError: true))
             }
         } else {
             study.trialVisits.add(
                     new org.transmartproject.db.i2b2data.TrialVisit(study: study, relTimeLabel: 'default')
-                    .save(flush: true, failOnError: true))
+                            .save(flush: true, failOnError: true))
         }
         // add dimension descriptions
         def dimensionDescriptions = DimensionDescription.createCriteria().list {
@@ -94,21 +82,20 @@ class TestService implements TestResource {
         study.trialVisits as List<TrialVisit>
     }
 
-    Concept createTestConcept(String conceptCode) {
+    protected Concept createTestConcept(String conceptCode) {
         log.info "Creating test concept: ${conceptCode}"
         new ConceptDimension(conceptCode: conceptCode, conceptPath: "\\Test\\${conceptCode}")
                 .save(flush: true, failOnError: true)
     }
 
-    private long getNextHibernateId() {
+    protected long getNextHibernateId() {
         sessionFactory.currentSession.createSQLQuery(
                 "select hibernate_sequence.nextval as num")
                 .addScalar("num", StandardBasicTypes.BIG_INTEGER)
                 .uniqueResult() as Long
     }
 
-    @Override
-    Patient createTestPatient(String subjectId) {
+    protected Patient createTestPatient(String subjectId) {
         long patientId = nextHibernateId
         log.info "Creating test patient: ${subjectId} (id: ${patientId})"
         def patient = new PatientDimension(mappings: [] as Set)
@@ -120,43 +107,41 @@ class TestService implements TestResource {
         patient.save(flush: true, failOnError: true)
     }
 
-    @Override
-    void createTestCategoricalObservations(
+    protected void createTestCategoricalObservations(
             Patient patient, Concept concept, TrialVisit trialVisit, List<Map<String, String>> values, Date startDate) {
         log.info "Adding ${values?.size()} observations for patient: ${patient.subjectIds}, concept: ${concept.conceptCode}"
         int instanceNum = 1
-        for (Map<String, String> valueMap: values) {
-            for (def entry: valueMap.entrySet())
-            new ObservationFact(
-                    valueType: ObservationFact.TYPE_TEXT,
-                    modifierCd: entry.key,
-                    textValue: entry.value,
-                    conceptCode: concept.conceptCode,
-                    trialVisit: (org.transmartproject.db.i2b2data.TrialVisit)trialVisit,
-                    patient: (PatientDimension)patient,
-                    startDate: startDate,
-                    providerId: '@',
-                    encounterNum: 1,
-                    instanceNum: instanceNum
-            ).save(flush: true, failOnError: true)
+        for (Map<String, String> valueMap : values) {
+            for (def entry : valueMap.entrySet())
+                new ObservationFact(
+                        valueType: ObservationFact.TYPE_TEXT,
+                        modifierCd: entry.key,
+                        textValue: entry.value,
+                        conceptCode: concept.conceptCode,
+                        trialVisit: (org.transmartproject.db.i2b2data.TrialVisit) trialVisit,
+                        patient: (PatientDimension) patient,
+                        startDate: startDate,
+                        providerId: '@',
+                        encounterNum: 1,
+                        instanceNum: instanceNum
+                ).save(flush: true, failOnError: true)
             instanceNum++
         }
     }
 
-    @Override
-    void createTestNumericalObservations(
+    protected void createTestNumericalObservations(
             Patient patient, Concept concept, TrialVisit trialVisit, List<Map<String, BigDecimal>> values, Date startDate) {
         log.info "Adding ${values?.size()} observations for patient: ${patient.subjectIds}, concept: ${concept.conceptCode}"
         int instanceNum = 1
-        for (Map<String, BigDecimal> valueMap: values) {
-            for (def entry: valueMap.entrySet())
+        for (Map<String, BigDecimal> valueMap : values) {
+            for (def entry : valueMap.entrySet())
                 new ObservationFact(
                         valueType: ObservationFact.TYPE_NUMBER,
                         modifierCd: entry.key,
                         numberValue: entry.value,
                         conceptCode: concept.conceptCode,
-                        trialVisit: (org.transmartproject.db.i2b2data.TrialVisit)trialVisit,
-                        patient: (PatientDimension)patient,
+                        trialVisit: (org.transmartproject.db.i2b2data.TrialVisit) trialVisit,
+                        patient: (PatientDimension) patient,
                         startDate: startDate,
                         providerId: '@',
                         encounterNum: 1,

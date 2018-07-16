@@ -12,8 +12,6 @@ import org.transmartproject.mock.MockUser
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import java.time.Instant
-
 import static org.springframework.http.HttpStatus.FORBIDDEN
 import static org.springframework.http.HttpStatus.OK
 import static org.transmartproject.core.users.PatientDataAccessLevel.*
@@ -53,38 +51,9 @@ class AccessPolicySpec extends V2ResourceSpec {
             new ConceptConstraint('categorical_concept1'),
             new ValueConstraint(Type.STRING, Operator.EQUALS, 'value2')])
 
-
-    void setupData() {
-        testResource.clearTestData()
-
-        // Create studies
-        def publicStudy = testResource.createTestStudy('publicStudy', true, null)
-        def study1 = testResource.createTestStudy('study1', false, null)
-        def study2 = testResource.createTestStudy('study2', false, null)
-
-        // Create concepts
-        def concept1 = testResource.createTestConcept('categorical_concept1')
-        def concept2 = testResource.createTestConcept('numerical_concept2')
-
-        // Create patients
-        def patient1 = testResource.createTestPatient('Subject 1')
-        def patient2 = testResource.createTestPatient('Subject 2')
-        def patient3 = testResource.createTestPatient('Subject 3')
-        def patient4 = testResource.createTestPatient('Subject from public study')
-
-        // Create observations
-        // public study: 1 subject
-        // study 1: 2 subjects (1 shared with study 2)
-        // study 2: 2 subjects (1 shared with study 1)
-        // total: 4 subjects
-        Date dummyDate = Date.from(Instant.parse('2001-02-03T13:18:54Z'))
-        testResource.createTestCategoricalObservations(patient1, concept1, study1[0], [['@': 'value1'], ['@': 'value2']], dummyDate)
-        testResource.createTestNumericalObservations(patient1, concept2, study1[0], [['@': 100], ['@': 200]], dummyDate)
-        testResource.createTestCategoricalObservations(patient2, concept1, study1[0], [['@': 'value2'], ['@': 'value3']], dummyDate)
-        testResource.createTestNumericalObservations(patient2, concept2, study1[0], [['@': 300]], dummyDate)
-        testResource.createTestNumericalObservations(patient2, concept2, study2[0], [['@': 400]], dummyDate)
-        testResource.createTestCategoricalObservations(patient3, concept1, study2[0], [['@': 'value4']], dummyDate)
-        testResource.createTestCategoricalObservations(patient4, concept1, publicStudy[0], [['@': 'value1']], dummyDate)
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(accessPolicyTestData)
     }
 
     /**
@@ -93,8 +62,6 @@ class AccessPolicySpec extends V2ResourceSpec {
     @Unroll
     void 'test access to counts'(
             Constraint constraint, MockUser user, HttpStatus expectedStatus, Long patientCount) {
-        given:
-        setupData()
         def url = "${contextPath}/observations/counts"
 
         expect:
@@ -148,8 +115,6 @@ class AccessPolicySpec extends V2ResourceSpec {
     void 'test access to the cross table'(
             List<Constraint> rowConstraints, List<Constraint> columnConstraints, Constraint subjectConstraint,
             MockUser user, HttpStatus expectedStatus, List<List<Long>> expectedValues) {
-        given:
-        setupData()
         def url = "${contextPath}/observations/crosstable"
 
         expect:

@@ -5,12 +5,18 @@ package org.transmartproject.rest.v2
 import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
+import org.transmartproject.mock.MockUser
 
 import static org.springframework.http.HttpStatus.OK
 import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 
 @Slf4j
 class DataTableEndpointSpec extends V2ResourceSpec {
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
 
     void 'test data table'() {
         def constraint = [

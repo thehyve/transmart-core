@@ -2,6 +2,8 @@
 
 package org.transmartproject.rest.v2
 
+import org.transmartproject.mock.MockUser
+
 import static org.springframework.http.HttpStatus.CREATED
 import static org.springframework.http.HttpStatus.OK
 import static org.transmartproject.rest.MimeTypes.APPLICATION_JSON
@@ -13,6 +15,11 @@ import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 class ArvadosControllerSpec extends V2ResourceSpec {
 
     public static final String COLLECTION_NAME = 'supportedWorkflows'
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
 
     void workflowsIndexTest() {
         when:

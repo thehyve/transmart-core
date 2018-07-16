@@ -4,6 +4,7 @@ package org.transmartproject.rest.v2
 
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.mock.MockUser
 
 import static org.springframework.http.HttpStatus.*
 import static org.transmartproject.rest.MimeTypes.APPLICATION_JSON
@@ -20,6 +21,11 @@ class StorageControllerSpec extends V2ResourceSpec {
 
     @Autowired
     SessionFactory sessionFactory
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
 
     List<Map> getStorageSystems() {
         def response = get "${contextPath}/storage"
@@ -139,6 +145,9 @@ class StorageControllerSpec extends V2ResourceSpec {
         indexResponseAfter.statusCode == OK
         itemsAfter.size() == 3
         objectJson in itemsAfter
+
+        cleanup:
+        currentTestDataHolder.cleanCurrentData()
     }
 
     def linkUpdateTest() {

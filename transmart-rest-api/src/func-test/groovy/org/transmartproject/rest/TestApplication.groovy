@@ -11,8 +11,10 @@ import org.springframework.context.annotation.Primary
 import org.springframework.web.context.request.WebRequestInterceptor
 import org.transmartproject.db.test.H2Views
 import org.transmartproject.mock.MockAuthContext
+import org.transmartproject.rest.data.AccessPolicyTestData
+import org.transmartproject.rest.data.CurrentTestDataHolder
+import org.transmartproject.rest.data.DefaultTestData
 import org.transmartproject.rest.user.AuthContext
-import org.transmartproject.test.TestService
 
 /**
  * Test application with injected test services. Such as data and current user.
@@ -20,8 +22,18 @@ import org.transmartproject.test.TestService
 class TestApplication extends GrailsAutoConfiguration {
 
     @Bean
-    TestResource testResource(SessionFactory sessionFactory) {
-        new TestService(sessionFactory: sessionFactory)
+    AccessPolicyTestData accessPolicyTestData(SessionFactory sessionFactory) {
+        new AccessPolicyTestData(sessionFactory: sessionFactory)
+    }
+
+    @Bean
+    DefaultTestData defaultTestData() {
+        new DefaultTestData()
+    }
+
+    @Bean
+    CurrentTestDataHolder currentTestDataHolder() {
+        new CurrentTestDataHolder()
     }
 
     @Bean
