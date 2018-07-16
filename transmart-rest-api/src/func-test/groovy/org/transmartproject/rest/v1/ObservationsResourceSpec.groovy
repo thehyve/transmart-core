@@ -59,6 +59,11 @@ class ObservationsResourceSpec extends V1ResourceSpec {
             ],
     ]
 
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
+
     void testListAllObservationsForStudy() {
         when:
         def response = get("${contextPath}/studies/${studyId}/observations")

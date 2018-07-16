@@ -12,11 +12,8 @@ import org.transmartproject.mock.MockUser
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import java.time.Instant
-
 import static org.springframework.http.HttpStatus.FORBIDDEN
 import static org.springframework.http.HttpStatus.OK
-import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.CATEGORICAL
 import static org.transmartproject.core.users.PatientDataAccessLevel.*
 import static org.transmartproject.rest.utils.ResponseEntityUtils.checkResponseStatus
 import static org.transmartproject.rest.utils.ResponseEntityUtils.toObject
@@ -54,47 +51,9 @@ class AccessPolicySpec extends V2ResourceSpec {
             new ConceptConstraint('categorical_concept1'),
             new ValueConstraint(Type.STRING, Operator.EQUALS, 'value2')])
 
-
-    void setupData() {
-        testResource.clearTestData()
-
-        // Create studies
-        def publicStudyTrialVisits = testResource.createTestStudy('publicStudy', true, null)
-        def publicStudy = publicStudyTrialVisits[0].study
-        def studiesNode = testResource.createTestTreeNode('', 'Studies', null, null, null)
-        def publicStudyNode = testResource.createTestTreeNode(studiesNode.fullName, 'Public study', null, null, publicStudy)
-        def study1TrialVisits = testResource.createTestStudy('study1', false, null)
-        def study1 = study1TrialVisits[0].study
-        def study2TrialVisits = testResource.createTestStudy('study2', false, null)
-        def study1Node = testResource.createTestTreeNode(studiesNode.fullName, 'Study 1', null, null, study1)
-
-        // Create concepts
-        def concept1 = testResource.createTestConcept('categorical_concept1')
-        def concept2 = testResource.createTestConcept('numerical_concept2')
-
-        def conceptsNode = testResource.createTestTreeNode('', 'Concepts', null, null, null)
-        def concept1Node = testResource.createTestTreeNode(conceptsNode.fullName, 'Categorical concept 1', concept1.conceptPath, CATEGORICAL, null)
-        def concept2Node = testResource.createTestTreeNode(conceptsNode.fullName, 'Categorical concept 2', concept2.conceptPath, CATEGORICAL, null)
-
-        // Create patients
-        def patient1 = testResource.createTestPatient('Subject 1')
-        def patient2 = testResource.createTestPatient('Subject 2')
-        def patient3 = testResource.createTestPatient('Subject 3')
-        def patient4 = testResource.createTestPatient('Subject from public study')
-
-        // Create observations
-        // public study: 1 subject
-        // study 1: 2 subjects (1 shared with study 2)
-        // study 2: 2 subjects (1 shared with study 1)
-        // total: 4 subjects
-        Date dummyDate = Date.from(Instant.parse('2001-02-03T13:18:54Z'))
-        testResource.createTestCategoricalObservations(patient1, concept1, study1TrialVisits[0], [['@': 'value1'], ['@': 'value2']], dummyDate)
-        testResource.createTestNumericalObservations(patient1, concept2, study1TrialVisits[0], [['@': 100], ['@': 200]], dummyDate)
-        testResource.createTestCategoricalObservations(patient2, concept1, study1TrialVisits[0], [['@': 'value2'], ['@': 'value3']], dummyDate)
-        testResource.createTestNumericalObservations(patient2, concept2, study1TrialVisits[0], [['@': 300]], dummyDate)
-        testResource.createTestNumericalObservations(patient2, concept2, study2TrialVisits[0], [['@': 400]], dummyDate)
-        testResource.createTestCategoricalObservations(patient3, concept1, study2TrialVisits[0], [['@': 'value4']], dummyDate)
-        testResource.createTestCategoricalObservations(patient4, concept1, publicStudyTrialVisits[0], [['@': 'value1']], dummyDate)
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(accessPolicyTestData)
     }
 
     /**
@@ -103,8 +62,6 @@ class AccessPolicySpec extends V2ResourceSpec {
     @Unroll
     void 'test access to counts'(
             Constraint constraint, MockUser user, HttpStatus expectedStatus, Long patientCount) {
-        given:
-        setupData()
         def url = "${contextPath}/observations/counts"
 
         expect:
@@ -158,8 +115,6 @@ class AccessPolicySpec extends V2ResourceSpec {
     void 'test access to the cross table'(
             List<Constraint> rowConstraints, List<Constraint> columnConstraints, Constraint subjectConstraint,
             MockUser user, HttpStatus expectedStatus, List<List<Long>> expectedValues) {
-        given:
-        setupData()
         def url = "${contextPath}/observations/crosstable"
 
         expect:
