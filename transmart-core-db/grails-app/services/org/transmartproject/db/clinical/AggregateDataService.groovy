@@ -508,9 +508,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Override
     Long getDimensionElementsCount(Dimension dimension, Constraint constraint, User user) {
         if (constraint) {
-            checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
+            checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
         }
-        def builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
+        def builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
         DetachedCriteria dimensionCriteria = builder.buildElementCountCriteria((DimensionImpl) dimension, constraint)
         (Long) get(dimensionCriteria)
     }

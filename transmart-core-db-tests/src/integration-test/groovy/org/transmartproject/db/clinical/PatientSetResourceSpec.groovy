@@ -31,7 +31,7 @@ class PatientSetResourceSpec extends Specification {
     MultiDimensionalDataResource multiDimService
 
     def setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
         TestData.createHypercubeDefault().saveAll()
     }
 

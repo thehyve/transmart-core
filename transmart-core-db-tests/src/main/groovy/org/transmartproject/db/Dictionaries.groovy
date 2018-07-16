@@ -1,12 +1,14 @@
 package org.transmartproject.db
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.querytool.QtQueryResultType
 
 import static org.transmartproject.db.TestDataHelper.save
 
+@Slf4j
 @CompileStatic
 class Dictionaries {
 
@@ -60,6 +62,7 @@ class Dictionaries {
     }
 
     void saveAll() {
+        log.info('Saving dictionaries.')
         save this.dimensionDescriptions
         save this.qtQueryResultTypes
     }

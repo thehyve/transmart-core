@@ -46,7 +46,7 @@ class DataTableSpec extends Specification {
     MultiDimensionalDataResource queryResource
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
         testData.saveAll()

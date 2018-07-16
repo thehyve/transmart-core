@@ -61,7 +61,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
     AcghTestData testData
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = new AcghTestData()
         testData.saveAll()

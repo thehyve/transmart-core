@@ -64,7 +64,7 @@ class Study implements MDStudy {
         studyId             column: 'study_id'
         secureObjectToken   column: 'secure_obj_token'
         bioExperimentId     column: 'bio_experiment_id'
-        dimensionDescriptions joinTable: [schema: 'i2b2metadata']
+        dimensionDescriptions joinTable: [schema: 'i2b2metadata', name: 'study_dimension_descriptions']
         version false
         cache true
     }

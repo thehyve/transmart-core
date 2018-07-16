@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.web.context.request.WebRequestInterceptor
 import org.transmartproject.core.log.AccessLogEntryResource
+import org.transmartproject.core.config.SystemResource
 import org.transmartproject.db.test.H2Views
 import org.transmartproject.mock.MockAccessLogEntryResource
 import org.transmartproject.mock.MockAuthContext
@@ -27,13 +28,13 @@ import javax.validation.Validator
 class TestApplication extends GrailsAutoConfiguration {
 
     @Bean
-    AccessPolicyTestData accessPolicyTestData(SessionFactory sessionFactory) {
-        new AccessPolicyTestData(sessionFactory: sessionFactory)
+    AccessPolicyTestData accessPolicyTestData(SessionFactory sessionFactory, SystemResource systemResource) {
+        new AccessPolicyTestData(sessionFactory: sessionFactory, systemResource: systemResource)
     }
 
     @Bean
-    DefaultTestData defaultTestData() {
-        new DefaultTestData()
+    DefaultTestData defaultTestData(SessionFactory sessionFactory, SystemResource systemResource) {
+        new DefaultTestData(sessionFactory: sessionFactory, systemResource: systemResource)
     }
 
     @Bean

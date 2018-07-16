@@ -60,7 +60,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData.saveAll()
 
