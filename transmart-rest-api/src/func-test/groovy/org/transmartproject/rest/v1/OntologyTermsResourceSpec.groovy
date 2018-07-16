@@ -27,6 +27,7 @@ package org.transmartproject.rest.v1
 
 import org.hamcrest.Matcher
 import org.springframework.http.HttpStatus
+import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
 import org.transmartproject.rest.matchers.MetadataTagsMatcher
 import org.transmartproject.rest.matchers.NavigationLinksMatcher
@@ -68,6 +69,11 @@ class OntologyTermsResourceSpec extends V1ResourceSpec {
             "1 name 1": "1 description 1",
             "1 name 2": "1 description 2",
     ]
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
 
     void testIndexAsJson() {
         when:

@@ -28,6 +28,7 @@ package org.transmartproject.rest.v1
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
 import org.transmartproject.rest.matchers.JsonMatcher
 
@@ -49,6 +50,11 @@ class StudiesResourceSpec extends V1ResourceSpec {
     public static final String ONTOLOGY_TERM_NAME = 'study1'
     public static final String ONTOLOGY_KEY = '\\\\i2b2 main\\foo\\study1\\'
     public static final String ONTOLOGY_FULL_NAME = '\\foo\\study1\\'
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
 
     void testListAllStudies() {
         when:

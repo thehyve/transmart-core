@@ -27,6 +27,11 @@ class PatientSetResourceSpec extends V1ResourceSpec {
 </ns3:query_definition>
 '''
 
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
+
     void testSave() {
         selectUser(new MockUser('test_user'))
 
