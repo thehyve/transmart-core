@@ -5,13 +5,13 @@ import grails.transaction.Rollback
 import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
+class OntologyTermTagsResourceServiceSpec extends Specification {
 
     OntologyTermTagsResourceService ontologyTermTagsResourceService
     OntologyTermsResource ontologyTermsResourceService

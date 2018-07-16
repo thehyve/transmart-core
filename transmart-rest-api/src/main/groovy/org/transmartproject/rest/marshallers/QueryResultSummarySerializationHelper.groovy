@@ -4,7 +4,6 @@ import grails.rest.Link
 import org.transmartproject.core.querytool.QueryResultSummary
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
-import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropertySubsetForSuperType
 
 /**
  * Serialization of {@link QueryResultSummary} objects.
@@ -22,12 +21,15 @@ class QueryResultSummarySerializationHelper extends AbstractHalOrJsonSerializati
 
     @Override
     Map<String, Object> convertToMap(QueryResultSummary queryResultSummary) {
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
-        map.put('name', queryResultSummary.queryResult.queryInstance.queryMaster.name)
-        map<<getPropertySubsetForSuperType(queryResultSummary, QueryResultSummary, ['class'] as Set)
-        map.status = map.status.name()
-        map.put('queryXML', queryResultSummary.queryResult.queryInstance.queryMaster.requestXml)
-        map
+        [
+                id: queryResultSummary.id,
+                name: queryResultSummary.name,
+                setSize: queryResultSummary.setSize,
+                status: queryResultSummary.status.name(),
+                username: queryResultSummary.username,
+                errorMessage: queryResultSummary.errorMessage,
+                queryXML: queryResultSummary.queryXML
+        ] as Map<String, Object>
     }
 
     final String collectionName = null /* will never be in collection */

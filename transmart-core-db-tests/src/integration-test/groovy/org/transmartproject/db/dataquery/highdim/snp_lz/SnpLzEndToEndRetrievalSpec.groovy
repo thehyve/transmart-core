@@ -30,7 +30,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import spock.lang.Ignore
 
 import static org.hamcrest.Matchers.*
@@ -39,7 +39,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
+class SnpLzEndToEndRetrievalSpec extends Specification {
 
     /* scale of the zscore column is 5, so this is the max rounding error */
     private static Double DELTA = 0.000005

@@ -32,8 +32,10 @@ import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.i2b2data.TrialVisit
+import spock.lang.Specification
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -48,7 +50,7 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-class ClinicalDataRetrievalSpec extends TransmartSpecification {
+class ClinicalDataRetrievalSpec extends Specification {
 
     @Autowired
     SessionFactory sessionFactory
@@ -57,6 +59,8 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     ClinicalDataResource clinicalDataResource
 
     TestData testData
+
+    TrialVisit trialVisit
 
     TabularResult<ClinicalVariableColumn, PatientRow> results
 
@@ -86,7 +90,10 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
         List<Patient> patients = I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
 
-        def facts = ClinicalTestData.createTabularFacts(conceptDims, patients)
+        def defaultStudy = StudyTestData.createDefaultTabularStudy()
+        trialVisit = new TrialVisit(study: defaultStudy, relTimeUnit: 'week', relTime: 3, relTimeLabel: '3 weeks')
+
+        def facts = ClinicalTestData.createTabularFacts(conceptDims, patients, trialVisit)
 
         def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
 
@@ -158,7 +165,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         setupData()
         results = clinicalDataResource.retrieveData(
                 testData.i2b2Data.patients[0..1].collect {
-                    QtQueryMaster result = createQueryResult([it])
+                    QtQueryMaster result = createQueryResult('clinical-patient-set', [it])
                     result.save()
                     getQueryResultFromMaster(result)
                 },
@@ -317,7 +324,9 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
                 testData.conceptData.conceptDimensions.find { it.conceptCode == 'c2' },
                 testData.i2b2Data.patients[1],
                 -20000,
-                'foobar').save(failOnError: true)
+                'foobar',
+                trialVisit
+        ).save(failOnError: true)
         sessionFactory.currentSession.flush()
 
         when:
@@ -451,7 +460,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     }
 
     QueryResult getEmptyQueryResult() {
-        def result = createQueryResult([])
+        def result = createQueryResult('clinical-test-set', [])
         result.save(flush: true)
         getQueryResultFromMaster(result)
     }

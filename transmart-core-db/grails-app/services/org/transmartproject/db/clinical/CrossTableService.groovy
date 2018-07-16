@@ -11,7 +11,6 @@ import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
-import org.transmartproject.db.multidimquery.CrossTableImpl
 
 @CompileStatic
 class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
@@ -27,15 +26,15 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
                                   Constraint subjectConstraint, User user) {
 
         log.info "Building a cross table..."
-        List rows = []
+        List<List<Long>> rows = []
         for (Constraint rowConstraint : rowConstraints) {
-            def counts = []
+            def counts = [] as List<Long>
             for (Constraint columnConstraint : columnConstraints) {
                 counts.add(getCrossTableCell(rowConstraint, columnConstraint, subjectConstraint, user))
             }
-            rows.add(new CrossTableImpl.CrossTableRowImpl(counts))
+            rows.add(counts)
         }
-        new CrossTableImpl(rows)
+        new CrossTable(rows)
     }
 
     private Long getCrossTableCell(Constraint rowConstraint,

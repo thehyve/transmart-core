@@ -29,14 +29,14 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class RbmDataRetrievalSpec extends TransmartSpecification {
+class RbmDataRetrievalSpec extends Specification {
 
     RbmTestData testData = new RbmTestData()
 

@@ -24,10 +24,15 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Multimap
 import com.google.common.collect.Sets
 import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.SessionFactory
 import org.hibernate.criterion.MatchMode
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
+import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.concept.ConceptFullName
@@ -40,8 +45,21 @@ import org.transmartproject.db.util.StringUtils
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.FOLDER
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 
+/**
+ * Factory class to create clinical variables based on I2b2 ontology nodes.
+ *
+ * @deprecated Use {@link org.transmartproject.core.multidimquery.query.Constraint} with
+ *  {@link org.transmartproject.core.concept.Concept} directly instead to specify queries.
+ */
+@Deprecated
 @Component /* not scanned; explicit bean definition */
 class ClinicalVariableFactory {
+
+    @Autowired
+    ConceptsResource conceptsResource
+
+    @Autowired
+    SessionFactory sessionFactory
 
     boolean disableAcrossTrials
 
@@ -51,7 +69,7 @@ class ClinicalVariableFactory {
                 new ClinicalVariableFactoryAcrossTrialsHelper()
     }()
 
-    private Map<String, Closure<ClinicalVariable>> knownTypes =
+    private Map<String, Closure<? extends ClinicalVariableColumn>> knownTypes =
             ImmutableMap.of(
                     ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
                     this.&createTerminalConceptVariable,
@@ -75,8 +93,7 @@ class ClinicalVariableFactory {
                     "got ${params.keySet()}")
         }
 
-        String conceptCode,
-               conceptPath
+        String conceptCode = null, conceptPath = null
         if (params['concept_code']) {
             conceptCode = BindingUtils.getParam params, 'concept_code', String
         } else if (params['concept_path']) {
@@ -87,7 +104,7 @@ class ClinicalVariableFactory {
                     "'${params.keySet().iterator().next()}'")
         }
 
-        closure.call((String) conceptCode, (String) conceptPath)
+        closure.call(conceptCode, conceptPath)
     }
 
     private TerminalClinicalVariable createTerminalConceptVariable(String conceptCode,
@@ -244,17 +261,19 @@ class ClinicalVariableFactory {
         def resolvedConceptPath = conceptPath
         if (!resolvedConceptPath) {
             assert conceptCode != null
-            resolvedConceptPath =
-                    ConceptDimension.findByConceptCode(conceptCode)?.conceptPath
-
-            if (!resolvedConceptPath) {
+            try {
+                resolvedConceptPath =
+                        conceptsResource.getConceptByConceptCode(conceptCode)?.conceptPath
+            } catch (NoSuchResourceException e) {
                 throw new InvalidArgumentsException(
-                        "Could not find path of concept with code $conceptCode")
+                        "Could not find path of concept with code $conceptCode", e)
             }
         } else {
-            if (!ConceptDimension.findByConceptPath(conceptPath)) {
+            try {
+                conceptsResource.getConceptByConceptPath(conceptPath)
+            } catch (NoSuchResourceException e) {
                 throw new InvalidArgumentsException("" +
-                        "Could not find concept with path $conceptPath")
+                        "Could not find concept with path $conceptPath", e)
             }
         }
 

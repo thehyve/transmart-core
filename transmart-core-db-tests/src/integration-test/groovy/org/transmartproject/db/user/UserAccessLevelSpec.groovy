@@ -31,7 +31,7 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.I2b2Secure
 
@@ -41,7 +41,7 @@ import static org.transmartproject.db.user.AccessLevelTestData.*
 
 @Integration
 @Rollback
-class UserAccessLevelSpec extends TransmartSpecification {
+class UserAccessLevelSpec extends Specification {
 
     @Autowired
     StudiesResource legacyStudiesResource

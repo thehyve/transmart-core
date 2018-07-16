@@ -36,12 +36,14 @@ abstract class AbstractQueryController implements Controller {
         if (!constraintText) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
-
         try {
-            def constraint =  ConstraintFactory.read(constraintText)
-            return constraint?.normalise()
+            def constraint = ConstraintFactory.read(constraintText)
+            if (constraint) {
+                return constraint.normalise()
+            }
+            throw new InvalidArgumentsException("Invalid constraint parameter: ${constraintText}")
         } catch (ConverterException c) {
-            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintText")
+            throw new InvalidArgumentsException("Cannot parse constraint parameter: ${constraintText}", c)
         }
     }
 

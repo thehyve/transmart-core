@@ -37,7 +37,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VALUES_PROJECTION
@@ -47,7 +47,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class AcghEndToEndRetrievalSpec extends TransmartSpecification {
+class AcghEndToEndRetrievalSpec extends Specification {
 
     @Autowired
     HighDimensionResource highDimensionResourceService

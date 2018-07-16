@@ -5,20 +5,20 @@ import com.google.common.collect.ImmutableMap
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import grails.test.mixin.integration.Integration
-import grails.test.runtime.FreshRuntime
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.PropertyImpl
+import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.serialization.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 import spock.lang.Specification
@@ -27,13 +27,11 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-@FreshRuntime
-@Rollback
 @Integration
+@Rollback
 @Slf4j
 class DataTableViewDataSerializationServiceSpec extends Specification {
 
-    TestData testData
     ClinicalTestData clinicalData
     User adminUser
 
@@ -41,15 +39,13 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     HypercubeDataSerializationService serializationService
 
     void setupData() {
-        testData = TestData.createHypercubeDefault()
+        TestData.clearAllData()
+
+        def testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
-        adminUser = BootStrap.accessLevelTestData.users[0]
-    }
 
-    void cleanup() {
-        TestData.clearAllData()
-        BootStrap.setupTestData()
+        adminUser = new MockUser('admin', true)
     }
 
     void testBasicSerialization() {
@@ -57,7 +53,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
 
         def file = new ByteArrayOutputStream()
         def zipFile = new ZipOutputStream(file)
-        Constraint constraint = new StudyObjectConstraint(study: clinicalData.longitudinalStudy)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def tableConfig = new TableConfig(
                 rowDimensions: ['study', 'patient'],
                 columnDimensions: ['trial visit', 'concept']
@@ -69,7 +65,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         expect:
         'data' in files
         HashMultiset.create(clinicalData.longitudinalClinicalFacts*.value*.toString()) == HashMultiset.create(
-                files.data[2..-1].collectMany { it[2..-1]*.toString() } )
+                files.data[2..-1].collectMany { it[2..-1]*.toString() })
         checkDimension(DimensionImpl.STUDY, [clinicalData.longitudinalStudy], files.study)
         checkDimension(DimensionImpl.TRIAL_VISIT, clinicalData.longitudinalClinicalFacts*.trialVisit.unique(), files."trial visit")
         checkDimension(DimensionImpl.PATIENT, clinicalData.longitudinalClinicalFacts*.patient.unique(), files.patient)
@@ -83,13 +79,15 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
 
         when:
         def dim = [
-                getName: {'testdim'},
-                getElementFields: { ImmutableMap.copyOf([
-                        id: new PropertyImpl('id', 'id', Integer),
-                        name: new PropertyImpl('name', 'name', String),
-                        map: new PropertyImpl('map', 'map', LinkedHashMap)
-                ]) },
-                getKey: { it.id }
+                getName         : { 'testdim' },
+                getElementFields: {
+                    ImmutableMap.copyOf([
+                            id  : new PropertyImpl('id', 'id', Integer),
+                            name: new PropertyImpl('name', 'name', String),
+                            map : new PropertyImpl('map', 'map', LinkedHashMap)
+                    ])
+                },
+                getKey          : { it.id }
         ] as Dimension
 
         then:
@@ -155,8 +153,8 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         Map result = [:]
 
         ZipEntry entry
-        while((entry = zip.getNextEntry()) != null) {
-            if(!entry.name.endsWith('.tsv') && entry.name != 'metadata.json') {
+        while ((entry = zip.getNextEntry()) != null) {
+            if (!entry.name.endsWith('.tsv') && entry.name != 'metadata.json') {
                 throw new IllegalStateException("Zip file contains a non-tsv file other than 'metadata.json': $entry.name")
             }
 
@@ -167,11 +165,11 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     }
 
     boolean checkDimension(Dimension dim, List elements, List<List> file) {
-        def headers = file[0].collect { if(it.contains(".")) it.split("\\.") else it }
+        def headers = file[0].collect { if (it.contains(".")) it.split("\\.") else it }
         def elementsMap = file[1..-1].collect {
             def map = [:]
             [headers, it].transpose().each { key, value ->
-                if(key instanceof String) {
+                if (key instanceof String) {
                     map[key] = value
                 } else {
                     setPath(key, map, value)
@@ -189,7 +187,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     // This closure should apply the same transform to dimension elements as the serializer does: null and '' are the
     // same and entries in (nested) maps with empty values are removed.
     // NB: the test data does not contain dimension elements with non-empty maps, so this might break.
-    def valuesToString = {key, value ->
+    def valuesToString = { key, value ->
         if (value == null) {
             return [key, '']
         } else if (value instanceof Map) {
@@ -201,8 +199,8 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     }
 
     void setPath(List<String> path, object, value) {
-        if(value == null) return
-        if(path.size() == 1) {
+        if (value == null) return
+        if (path.size() == 1) {
             object."${path[0]}" = value
             return
         }

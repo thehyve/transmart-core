@@ -19,6 +19,7 @@ import javax.validation.constraints.Size
 @CompileStatic
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
         property = "type"
 )
 @JsonSubTypes([
@@ -150,11 +151,15 @@ enum Operator {
     UNION('union'),
     NONE('none')
 
-
     String symbol
 
     private Operator(String symbol) {
         this.symbol = symbol
+    }
+
+    @JsonValue
+    String getSymbol() {
+        this.symbol
     }
 
     private static final Map<String, Operator> mapping = new HashMap<>()
@@ -169,7 +174,7 @@ enum Operator {
         if (mapping.containsKey(symbol)) {
             return mapping[symbol]
         } else {
-            return NONE
+            throw new IllegalArgumentException("Operator not supported: ${symbol}")
         }
     }
 
@@ -375,6 +380,7 @@ class FieldConstraint extends Constraint implements Comparable<FieldConstraint> 
 @Canonical
 @JsonTypeName('concept')
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class ConceptConstraint extends Constraint {
     static String constraintName = "concept"
 
@@ -547,6 +553,7 @@ class PatientSetConstraint extends Constraint {
 @CompileStatic
 @Canonical
 @JsonTypeName('negation')
+@JsonIgnoreProperties(['operator'])
 class Negation extends Constraint {
     static String constraintName = "negation"
 
@@ -603,6 +610,7 @@ class Combination extends Constraint {
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
 @JsonTypeName('and')
+@JsonIgnoreProperties(['operator'])
 class AndConstraint extends Combination {
     AndConstraint() {
         super(Operator.AND)
@@ -620,6 +628,7 @@ class AndConstraint extends Combination {
 @EqualsAndHashCode(callSuper = true)
 @ToString(includeSuperProperties = true)
 @JsonTypeName('or')
+@JsonIgnoreProperties(['operator'])
 class OrConstraint extends Combination {
     OrConstraint() {
         super(Operator.OR)

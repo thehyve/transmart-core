@@ -2,7 +2,7 @@
 
 package org.transmartproject.db.i2b2data
 
-class TrialVisit {
+class TrialVisit implements org.transmartproject.core.multidimquery.TrialVisit {
 
     String relTimeUnit
     Integer relTime

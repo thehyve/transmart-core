@@ -1,8 +1,10 @@
 package org.transmartproject.core.multidimquery.query
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.transmartproject.core.binding.BindingException
 import org.transmartproject.core.binding.BindingHelper
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class QuerySpec extends Specification {
 
@@ -107,6 +109,25 @@ class QuerySpec extends Specification {
 
         then:
         constraint1 == constraint2
+    }
+
+    @Unroll
+    void 'test constraint serialisation and deserialisation'(Constraint constraint) {
+        expect:
+        def mapper = new ObjectMapper()
+        def json = mapper.writeValueAsString(constraint)
+        // println "JSON: ${json}"
+        def object = mapper.readValue(json, Constraint)
+        assert constraint == object
+
+        where:
+        _| constraint
+        _| new TrueConstraint()
+        _| new ConceptConstraint('concept1')
+        _| new StudyNameConstraint('study1')
+        _| new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN, 10.5)
+        _| new ValueConstraint(Type.STRING, Operator.CONTAINS, 'x')
+        _| new AndConstraint([new ConceptConstraint('concept1'), new ValueConstraint(Type.STRING, Operator.EQUALS, 'value x')])
     }
 
 }

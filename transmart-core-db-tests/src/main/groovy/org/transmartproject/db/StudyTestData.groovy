@@ -25,13 +25,17 @@ class StudyTestData {
      * @return
      */
     static Study createStudy(String name, List<String> dimensionNames = [], boolean isPublic = false) {
-        def dimensionDescriptions = DimensionDescription.findAllByNameInList(dimensionNames)
-        assert (dimensionNames - dimensionDescriptions*.name).empty : 'Not all dimensions were found.'
-        new Study(
+        def dimensionDescriptions = DimensionDescription.createCriteria()
+            .list {
+                'in'('name', dimensionNames)
+            } as List<DimensionDescription>
+        assert (dimensionNames - dimensionDescriptions*.name).empty : 'Not all dimensions were found'
+        def study = new Study(
                 studyId: name,
                 secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${name}",
                 dimensionDescriptions: dimensionDescriptions
         )
+        study
     }
 
 }

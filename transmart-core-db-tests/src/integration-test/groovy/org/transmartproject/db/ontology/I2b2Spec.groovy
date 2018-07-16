@@ -28,10 +28,12 @@ import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.I2b2Data
-import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.i2b2data.TrialVisit
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
@@ -39,7 +41,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-class I2b2Spec extends TransmartSpecification {
+class I2b2Spec extends Specification {
 
     void setupData() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
@@ -230,13 +232,15 @@ class I2b2Spec extends TransmartSpecification {
 
     def createObservations(List<I2b2> concepts, List<Patient> patients) {
         List result = []
+        org.transmartproject.db.i2b2data.Study dummyStudy = StudyTestData.createDefaultTabularStudy()
+        TrialVisit dummyTrialVisit = ClinicalTestData.createTrialVisit("fake", 1, null, dummyStudy)
         //concept 0 with patients 0, 1 and 2
-        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[0], 1, 2)
-        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[1], 1, 2)
-        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[2], 1, 2)
+        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[0], 1, 2, dummyTrialVisit)
+        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[1], 1, 2, dummyTrialVisit)
+        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[2], 1, 2, dummyTrialVisit)
         //concept 1 with patients 2 and 3
-        result << ClinicalTestData.createObservationFact(concepts[1].code, patients[2], 1, 2)
-        result << ClinicalTestData.createObservationFact(concepts[1].code, patients[3], 1, 2)
+        result << ClinicalTestData.createObservationFact(concepts[1].code, patients[2], 1, 2, dummyTrialVisit)
+        result << ClinicalTestData.createObservationFact(concepts[1].code, patients[3], 1, 2, dummyTrialVisit)
         result
     }
 

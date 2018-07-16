@@ -25,14 +25,14 @@ import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.user.AccessLevelTestData
+import spock.lang.Specification
 
 
 @Integration
 @Rollback
-class DataTableSpec extends TransmartSpecification {
+class DataTableSpec extends Specification {
 
     @Autowired
     SessionFactory sessionFactory
