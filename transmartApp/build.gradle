@@ -1,7 +1,9 @@
 dependencies {
     profile "org.grails.profiles:web"
 
-    console "org.grails:grails-console"
+    console("org.grails:grails-console") {
+        exclude group: 'org.fusesource.jansi', module: 'jansi'
+    }
 
     provided "org.springframework.boot:spring-boot-starter-tomcat"
 

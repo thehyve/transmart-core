@@ -18,7 +18,9 @@ dependencies {
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:scaffolding"
-    console "org.grails:grails-console"
+    console("org.grails:grails-console") {
+        exclude group: 'org.fusesource.jansi', module: 'jansi'
+    }
 
     compile "org.hibernate:hibernate-ehcache"
 
