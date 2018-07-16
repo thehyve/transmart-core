@@ -49,7 +49,6 @@ dependencies {
     compile 'jfree:jfreechart:1.0.12'
     compile 'com.thoughtworks.xstream:xstream:1.4.9'
     compile 'com.jcraft:jsch:0.1.53'
-    compile 'org.fusesource.jansi:jansi:1.8'
     compile 'jline:jline:2.12.1'
     compile 'org.jfree:jfreesvg:3.1'
 
