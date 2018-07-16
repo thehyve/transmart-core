@@ -79,6 +79,8 @@ after_success:
   - ([ -d "$DIR/build/reports/tests" ]) && html2text $DIR/build/reports/tests/index.html
 
 after_failure:
+  - echo "Writing error logs..."
+  - for f in "$DIR"/hs_err_*.log; do echo "$f"; cat "$f"; done
   - echo "Writing reports..."
   - html2text "$DIR/build/reports/tests/index.html"
   - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done
