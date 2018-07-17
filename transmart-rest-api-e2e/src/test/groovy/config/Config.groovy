@@ -12,9 +12,13 @@ import static groovyx.net.http.HttpBuilder.configure
 import static groovyx.net.http.HttpVerb.GET
 
 class Config {
+
+    public static <T> T getProperty(String key, T defaultValue) {
+        System.getProperty(key) != null ? System.getProperty(key) as T : defaultValue
+    }
+
     //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
-    public static
-    final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8081/'
+    public static final String BASE_URL = getProperty('baseUrl', 'http://localhost:8081/')
 
 
      // Configure whether the currently used application for providing a REST API for a TranSMART supports the `v1` API.
@@ -22,7 +26,8 @@ class Config {
     public static final boolean IS_V1_API_SUPPORTED = false
 
     // Configure the authentication method: using Keycloak (OIDC) or spring security plugin (OAuth2) - transmart-oauth
-    public static final AuthMethod authMethod = AuthMethod.OIDC
+    //$ gradle -DauthMethod=OAuth2 test
+    public static final AuthMethod authMethod = getProperty('authMethod', AuthMethod.OIDC)
 
     //Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
     public static final TestContext testContext = new TestContext().setHttpBuilder(configure {
