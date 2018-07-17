@@ -568,6 +568,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String columnName = 'patient.id'
     String keyProperty = 'id'
 
+    // FIXME: do not rely on hardcoded id source
     final static String SOURCE_SUBJECT_KEY = 'SUBJ_ID'
 
     // For patients there are several identifiers. The internal `id` is guaranteed unique, but only meaningful within

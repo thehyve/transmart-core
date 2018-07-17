@@ -51,6 +51,7 @@ class UserQuerySetService implements UserQuerySetResource {
 
     SessionFactory sessionFactory
 
+    // FIXME: do not rely on hardcoded id source
     static final String SUBJ_ID_SOURCE = 'SUBJ_ID'
 
     @Override
