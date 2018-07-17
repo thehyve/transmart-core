@@ -150,7 +150,7 @@ abstract class RESTSpec extends Specification {
     }
 
     static String getUsername(String name) {
-        if (Config.authMethod == AuthMethod.OIDC) {
+        if (Config.AUTH_METHOD == AuthMethod.OIDC) {
             return Config.USER_SUB_MAPPING[name]
         } else {
             return name

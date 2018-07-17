@@ -6,5 +6,6 @@ import groovy.transform.EqualsAndHashCode
 class ErrorResponse {
     Integer httpStatus
     String type
+    String error
     String message
 }

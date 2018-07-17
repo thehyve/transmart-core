@@ -5,29 +5,42 @@ package config
 import base.AuthMethod
 import base.ContentTypeFor
 import base.TestContext
+import groovy.transform.CompileStatic
 import groovyx.net.http.ChainedHttpConfig
 import groovyx.net.http.FromServer
 
 import static groovyx.net.http.HttpBuilder.configure
 import static groovyx.net.http.HttpVerb.GET
 
+@CompileStatic
 class Config {
 
-    public static <T> T getProperty(String key, T defaultValue) {
-        System.getProperty(key) != null ? System.getProperty(key) as T : defaultValue
+    public static <T> T getProperty(String key, T defaultValue, Class<T> type) {
+        T value
+        String property = System.getProperty(key)
+        if (property == null) {
+            value = defaultValue
+        } else {
+            if (type == Boolean) {
+                value = property.toBoolean() as T
+            } else {
+                value = property as T
+            }
+        }
+        println "Configuration property '${key}': ${value} [${type.simpleName}]"
+        value
     }
 
     //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
-    public static final String BASE_URL = getProperty('baseUrl', 'http://localhost:8081/')
-
+    public static final String BASE_URL = getProperty('baseUrl', 'http://localhost:8081/', String)
 
      // Configure whether the currently used application for providing a REST API for a TranSMART supports the `v1` API.
      // In particular, if the application is transmart-api-server, this should be set to false.
-    public static final boolean IS_V1_API_SUPPORTED = false
+    public static final Boolean IS_V1_API_SUPPORTED = getProperty('v1Supported', Boolean.FALSE, Boolean)
 
     // Configure the authentication method: using Keycloak (OIDC) or spring security plugin (OAuth2) - transmart-oauth
     //$ gradle -DauthMethod=OAuth2 test
-    public static final AuthMethod authMethod = getProperty('authMethod', AuthMethod.OIDC)
+    public static final AuthMethod AUTH_METHOD = getProperty('authMethod', AuthMethod.OIDC, AuthMethod)
 
     //Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
     public static final TestContext testContext = new TestContext().setHttpBuilder(configure {

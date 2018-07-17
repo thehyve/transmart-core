@@ -24,9 +24,9 @@ class OauthAdapter implements AuthAdapter {
     static String getToken(String userID) {
         def user = getUser(userID)
         if (!user.token) {
-            if (Config.authMethod == AuthMethod.OIDC) {
+            if (Config.AUTH_METHOD == AuthMethod.OIDC) {
                 user.token = requestTokenFromKeycloak(user)
-            } else if (Config.authMethod == AuthMethod.OAuth2) {
+            } else if (Config.AUTH_METHOD == AuthMethod.OAuth2) {
                 user.token = requestToken(user)
             }
         }
