@@ -29,6 +29,7 @@ import org.hamcrest.Matcher
 import org.springframework.http.HttpStatus
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
+import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
 import org.transmartproject.rest.matchers.HighDimResult
 import org.transmartproject.rest.protobuf.HighDimBuilder
@@ -60,6 +61,11 @@ class HighDimResourceSpec extends V1ResourceSpec {
             mrna: "${contextPath}/studies/study_id_1/concepts/bar/highdim",
             acgh: "${contextPath}/studies/study_id_2/concepts/study1/highdim",
     ]
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        selectData(defaultTestData)
+    }
 
     void testSummaryAsJson() {
         when:
@@ -131,7 +137,6 @@ class HighDimResourceSpec extends V1ResourceSpec {
         that result.rows*.label, containsInAnyOrder(expectedMrnaRowLabels.toArray())
     }
 
-    @Ignore
     void testAcgh() {
         Map<String, Class> dataColumns = new AcghValuesProjection().dataProperties
 
