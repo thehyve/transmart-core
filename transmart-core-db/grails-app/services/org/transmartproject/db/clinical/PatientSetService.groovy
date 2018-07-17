@@ -226,7 +226,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
                                             User user,
                                             String apiVersion,
                                             boolean reusePatientSet) {
-        checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
 
         createOrReuseQueryResult(
                 name,

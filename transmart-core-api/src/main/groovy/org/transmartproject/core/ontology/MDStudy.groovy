@@ -14,6 +14,8 @@ interface MDStudy {
 
     String getName()
 
+    String getSecureObjectToken()
+
     Collection<Dimension> getDimensions()
 
     Dimension getDimensionByName(String name)

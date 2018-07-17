@@ -4,6 +4,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.*
@@ -110,10 +111,10 @@ class CrossTableSpec extends Specification {
         ]
 
         when:
-        def result = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, adminUser)
+        crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, adminUser)
 
         then:
-        assert result.rows.every { it.every { it == 0 } }
+        thrown(AccessDeniedException)
     }
 
     void 'test empty cross table'() {

@@ -3,6 +3,9 @@ package org.transmartproject.rest
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.multidimquery.TrialVisit
+import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.tree.TreeNode
 
 interface TestResource {
 
@@ -13,6 +16,9 @@ interface TestResource {
     List<TrialVisit> createTestStudy(String studyId, boolean isPublic, List<String> trialVisitLabels)
 
     Concept createTestConcept(String conceptCode)
+
+    TreeNode createTestTreeNode(
+            String parentPath, String name, String conceptPath, OntologyTerm.VisualAttributes conceptType, MDStudy study)
 
     Patient createTestPatient(String subjectId)
 

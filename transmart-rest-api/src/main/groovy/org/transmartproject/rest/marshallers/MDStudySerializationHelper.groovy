@@ -24,6 +24,7 @@ class MDStudySerializationHelper extends AbstractHalOrJsonSerializationHelper<St
                 id: study.id,
                 studyId: study.name,
                 bioExperimentId: study.bioExperimentId,
+                secureObjectToken: study.secureObjectToken,
                 dimensions: study.dimensions.collect { Dimension dim ->
                     dim.name
                 }
