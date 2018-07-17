@@ -3,99 +3,103 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import org.springframework.http.HttpStatus
+import representations.CrossTable
+import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
-import static tests.rest.Operator.OR
 import static tests.rest.constraints.*
 
 class CrossTableSpec extends RESTSpec {
 
     /**
-     *  given: "study EHR, SHARED_CONCEPTS_RESTRICTED and SHARED_CONCEPTS_A are loaded"
-     *  when: "I specify a list of row and column constraints and their intersections create table cells"
-     *  then: "for each of cells the number of subjects is computed properly"
+     *  Given: Studies EHR, SHARED_CONCEPTS_RESTRICTED and SHARED_CONCEPTS_A are loaded
+     *  And: A patient set has been created
+     *
+     *  When: I specify a list of row and column constraints and the patient set in the subject constraint
+     *  Then: For each cell the number of subjects is computed properly
+     *
+     *  When: I do not have an access to the specified patient set
+     *  Then: Access is denied
      */
     @RequiresStudy([EHR_ID, SHARED_CONCEPTS_RESTRICTED_ID, SHARED_CONCEPTS_A_ID])
     def "get cross-table"() {
+        given: 'Studies EHR, SHARED_CONCEPTS_RESTRICTED and SHARED_CONCEPTS_A are loaded'
         def patientSetRequest = [
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'crosstable_test_set'],
                 body      : [
-                        type    : Combination,
-                        operator: OR,
-                        args    : [
+                        type: 'or',
+                        args: [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
                                 [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
                         ]
                 ],
                 user      : ADMIN_USER,
-                statusCode: 201
+                statusCode: HttpStatus.CREATED.value()
         ]
+
+        and: 'A patient set has been created'
         def patientSetResponse = post(patientSetRequest) as Map
         def patientSetId = patientSetResponse.id
-        def restrictedConceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
+        def restrictedConceptCode = 'SCSCP:DEM:AGE'
         def params = [
                 rowConstraints   : [[type: TrueConstraint],
                                     [type: StudyNameConstraint, studyId: EHR_ID]],
-                columnConstraints: [[type: ConceptConstraint, path: restrictedConceptPath],
+                columnConstraints: [[type: ConceptConstraint, conceptCode: restrictedConceptCode],
                                     [type: TrueConstraint]],
                 subjectConstraint: [type: PatientSetConstraint, patientSetId: patientSetId],
         ]
         def request = [
-                path: PATH_CROSSTABLE,
+                path      : PATH_CROSSTABLE,
                 acceptType: JSON,
-                user: ADMIN_USER,
-                body: params
-        ]
-
-        when: "I specify a list of row and column constraints and their intersections create table cells"
-        def responseData = post(request) as Map
-
-        then: "for each of cells the number of subjects is computed properly"
-        assert responseData.rows.size() == 2
-        assert responseData.rows[0] == [2, 5]
-        assert responseData.rows[1] == [0, 3]
-
-        when: "I do not have an access to the specified patient set"
-        def request2 = request
-        request2.user = DEFAULT_USER
-        def responseData2 = post(request2) as Map
-
-        then: "Returned counts for all cells equal zero"
-        assert responseData2.rows.size() == 2
-        assert responseData2.rows[0] == [0, 0]
-        assert responseData2.rows[1] == [0, 0]
-
-        when: "I do not have an access to the restricted concept path constraint"
-        def patientSetRequest2 = [
-                path      : PATH_PATIENT_SET,
-                acceptType: JSON,
-                query     : [name: 'crosstable_test_set'],
-                body      : [
-                        type    : Combination,
-                        operator: OR,
-                        args    : [
-                                [type: StudyNameConstraint, studyId: EHR_ID],
-                                [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID]
-                        ]
-                ],
                 user      : ADMIN_USER,
-                statusCode: 201
+                body      : params
         ]
-        patientSetRequest2.user = DEFAULT_USER
-        def patientSetResponse2 = post(patientSetRequest2) as Map
-        def patientSetId2 = patientSetResponse2.id
-        def subjectConstraint2 = [type: PatientSetConstraint, patientSetId: patientSetId2]
-        def request3 = request2
-        request3.body.subjectConstraint = subjectConstraint2
-        def responseData3 = post(request3) as Map
 
-        then: "Returned count for the first cell equals zero"
-        assert responseData3.rows.size() == 2
-        assert responseData3.rows[0] == [0, 5]
-        assert responseData3.rows[1] == [0, 3]
+        when: 'I specify a list of row and column constraints and the patient set in the subject constraint'
+        def responseData = post(request) as CrossTable
+
+        then: 'For each cell the number of subjects is computed properly'
+        assert responseData.rows.size() == 2
+        assert responseData.rows[0] == [2L, 5L]
+        assert responseData.rows[1] == [0L, 3L]
+
+        when: 'I do not have an access to the specified patient set'
+        request.user = DEFAULT_USER
+        request.statusCode = HttpStatus.FORBIDDEN.value()
+        def errorResponse = post(request) as ErrorResponse
+
+        then: 'Access is denied'
+        errorResponse.httpStatus == HttpStatus.FORBIDDEN.value()
+    }
+
+    @RequiresStudy([EHR_ID, SHARED_CONCEPTS_RESTRICTED_ID, SHARED_CONCEPTS_A_ID])
+    def "access denied for cross table for restricted constraints"() {
+        given: 'I do not have an access to the restricted concept path constraint'
+        def restrictedConceptCode = 'SCSCP:DEM:AGE'
+        def params = [
+                rowConstraints   : [[type: TrueConstraint],
+                                    [type: StudyNameConstraint, studyId: EHR_ID]],
+                columnConstraints: [[type: ConceptConstraint, conceptCode: restrictedConceptCode],
+                                    [type: TrueConstraint]],
+                subjectConstraint: [type: TrueConstraint],
+        ]
+        def request = [
+                path      : PATH_CROSSTABLE,
+                acceptType: JSON,
+                user      : DEFAULT_USER,
+                body      : params,
+                statusCode: HttpStatus.FORBIDDEN.value()
+        ]
+
+        when: 'I request a cross table with a reference to a restricted concept in one of the constraints'
+        def errorResponse = post(request) as ErrorResponse
+
+        then: 'Access is denied'
+        errorResponse.httpStatus == HttpStatus.FORBIDDEN.value()
     }
 
 }
