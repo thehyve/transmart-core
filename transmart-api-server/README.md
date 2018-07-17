@@ -1,7 +1,7 @@
 # TranSMART API server
 
 The TranSMART API server is an application that provides a REST API
-for a TranSMART database. User management and authorisation should be provided
+for a TranSMART database. It does not support the `v1` API. User management and authorisation should be provided
 by a separate identity provider. 
 
 ## How to set up authentication for the API server

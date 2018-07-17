@@ -3,6 +3,7 @@ buildscript {
         assetPipelineVersion = '2.11.6'
         grailsVersion = '3.2.3'
         guavaVersion = '19.0'
+        jansiVersion = '1.14'
         protobufVersion = '3.1.0'
     }
     repositories {
@@ -23,8 +24,12 @@ buildscript {
         classpath "com.google.protobuf:protobuf-java-util:${protobufVersion}"
         classpath 'org.grails.plugins:views-gradle:1.0.12'
         classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
+        classpath "org.fusesource.jansi:jansi:${jansiVersion}"
     }
 }
+
+// Workaround suggested in https://github.com/gradle/gradle/issues/778
+org.fusesource.jansi.AnsiConsole.out.println('[init jansi library conflict workaround]')
 
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
@@ -100,6 +105,11 @@ subprojects { project ->
         }
         apply plugin: 'org.grails.grails-gsp'
         apply plugin: 'asset-pipeline'
+
+        // See https://docs.gradle.org/3.2/release-notes.html#usage-of-jansi-library-embedded-with-java-annotation-processor
+        tasks.withType(JavaCompile) {
+            options.fork = true
+        }
 
         dependencyManagement {
             imports {

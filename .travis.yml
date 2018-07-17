@@ -20,7 +20,7 @@ env:
     - DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
     - DIR=transmart-solr-indexing; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-batch:travisProperties :transmart-batch:loadPublicTestStudy"; TEST="check"; START_SOLR=true
     - DIR=transmart-copy; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; PREPARE=shadowJar; TEST=check
-    - DIR=.; TEST="publishToMavenLocal -x :transmart-server:publishToMavenLocal"
+    - DIR=.; TEST="publishToMavenLocal"
 
 addons:
   postgresql: 9.6
@@ -79,6 +79,8 @@ after_success:
   - ([ -d "$DIR/build/reports/tests" ]) && html2text $DIR/build/reports/tests/index.html
 
 after_failure:
+  - echo "Writing error logs..."
+  - for f in "$DIR"/hs_err_*.log; do echo "$f"; cat "$f"; done
   - echo "Writing reports..."
   - html2text "$DIR/build/reports/tests/index.html"
   - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done
