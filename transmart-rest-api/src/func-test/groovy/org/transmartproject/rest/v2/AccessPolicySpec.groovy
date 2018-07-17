@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.CrossTable
 import org.transmartproject.core.multidimquery.query.*
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.mock.MockUser
 import spock.lang.Shared
 import spock.lang.Unroll
@@ -16,6 +17,7 @@ import java.time.Instant
 
 import static org.springframework.http.HttpStatus.FORBIDDEN
 import static org.springframework.http.HttpStatus.OK
+import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.CATEGORICAL
 import static org.transmartproject.core.users.PatientDataAccessLevel.*
 import static org.transmartproject.rest.utils.ResponseEntityUtils.checkResponseStatus
 import static org.transmartproject.rest.utils.ResponseEntityUtils.toObject
@@ -58,13 +60,22 @@ class AccessPolicySpec extends V2ResourceSpec {
         testResource.clearTestData()
 
         // Create studies
-        def publicStudy = testResource.createTestStudy('publicStudy', true, null)
-        def study1 = testResource.createTestStudy('study1', false, null)
-        def study2 = testResource.createTestStudy('study2', false, null)
+        def publicStudyTrialVisits = testResource.createTestStudy('publicStudy', true, null)
+        def publicStudy = publicStudyTrialVisits[0].study
+        def studiesNode = testResource.createTestTreeNode('', 'Studies', null, null, null)
+        def publicStudyNode = testResource.createTestTreeNode(studiesNode.fullName, 'Public study', null, null, publicStudy)
+        def study1TrialVisits = testResource.createTestStudy('study1', false, null)
+        def study1 = study1TrialVisits[0].study
+        def study2TrialVisits = testResource.createTestStudy('study2', false, null)
+        def study1Node = testResource.createTestTreeNode(studiesNode.fullName, 'Study 1', null, null, study1)
 
         // Create concepts
         def concept1 = testResource.createTestConcept('categorical_concept1')
         def concept2 = testResource.createTestConcept('numerical_concept2')
+
+        def conceptsNode = testResource.createTestTreeNode('', 'Concepts', null, null, null)
+        def concept1Node = testResource.createTestTreeNode(conceptsNode.fullName, 'Categorical concept 1', concept1.conceptPath, CATEGORICAL, null)
+        def concept2Node = testResource.createTestTreeNode(conceptsNode.fullName, 'Categorical concept 2', concept2.conceptPath, CATEGORICAL, null)
 
         // Create patients
         def patient1 = testResource.createTestPatient('Subject 1')
@@ -78,13 +89,13 @@ class AccessPolicySpec extends V2ResourceSpec {
         // study 2: 2 subjects (1 shared with study 1)
         // total: 4 subjects
         Date dummyDate = Date.from(Instant.parse('2001-02-03T13:18:54Z'))
-        testResource.createTestCategoricalObservations(patient1, concept1, study1[0], [['@': 'value1'], ['@': 'value2']], dummyDate)
-        testResource.createTestNumericalObservations(patient1, concept2, study1[0], [['@': 100], ['@': 200]], dummyDate)
-        testResource.createTestCategoricalObservations(patient2, concept1, study1[0], [['@': 'value2'], ['@': 'value3']], dummyDate)
-        testResource.createTestNumericalObservations(patient2, concept2, study1[0], [['@': 300]], dummyDate)
-        testResource.createTestNumericalObservations(patient2, concept2, study2[0], [['@': 400]], dummyDate)
-        testResource.createTestCategoricalObservations(patient3, concept1, study2[0], [['@': 'value4']], dummyDate)
-        testResource.createTestCategoricalObservations(patient4, concept1, publicStudy[0], [['@': 'value1']], dummyDate)
+        testResource.createTestCategoricalObservations(patient1, concept1, study1TrialVisits[0], [['@': 'value1'], ['@': 'value2']], dummyDate)
+        testResource.createTestNumericalObservations(patient1, concept2, study1TrialVisits[0], [['@': 100], ['@': 200]], dummyDate)
+        testResource.createTestCategoricalObservations(patient2, concept1, study1TrialVisits[0], [['@': 'value2'], ['@': 'value3']], dummyDate)
+        testResource.createTestNumericalObservations(patient2, concept2, study1TrialVisits[0], [['@': 300]], dummyDate)
+        testResource.createTestNumericalObservations(patient2, concept2, study2TrialVisits[0], [['@': 400]], dummyDate)
+        testResource.createTestCategoricalObservations(patient3, concept1, study2TrialVisits[0], [['@': 'value4']], dummyDate)
+        testResource.createTestCategoricalObservations(patient4, concept1, publicStudyTrialVisits[0], [['@': 'value1']], dummyDate)
     }
 
     /**
@@ -177,7 +188,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         where:
         rowConstraints   | columnConstraints | subjectConstraint | user           | expectedStatus | expectedValues
         [concept1Value1] | [concept1Value2]  | trueConstraint    | admin          | OK             | [[1]]
-        [concept1Value1] | [concept1Value2]  | trueConstraint    | study1User     | OK             | [[0]]
+        [concept1Value1] | [concept1Value2]  | trueConstraint    | study1User     | OK             | [[1]]
         [concept1Value1] | [concept1Value2]  | trueConstraint    | thresholdUser  | OK             | [[0]]
         [concept1Value1] | [concept1Value2]  | trueConstraint    | study2User     | OK             | [[0]]
         [concept1Value1] | [concept1Value2]  | trueConstraint    | study1And2User | OK             | [[0]]

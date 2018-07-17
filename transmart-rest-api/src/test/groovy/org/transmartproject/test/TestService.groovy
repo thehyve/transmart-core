@@ -5,11 +5,15 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Restrictions
 import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.multidimquery.TrialVisit
+import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.db.Dictionaries
 import org.transmartproject.db.TestData
 import org.transmartproject.db.i2b2data.ConceptDimension
@@ -20,8 +24,11 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.querytool.QtQueryResultType
+import org.transmartproject.db.tree.TreeNodeImpl
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.TestResource
+
+import static java.util.Objects.requireNonNull
 
 @Slf4j
 @CompileStatic
@@ -98,6 +105,58 @@ class TestService implements TestResource {
         log.info "Creating test concept: ${conceptCode}"
         new ConceptDimension(conceptCode: conceptCode, conceptPath: "\\Test\\${conceptCode}")
                 .save(flush: true, failOnError: true)
+    }
+
+    TreeNode createTestTreeNode(
+            String parentPath, String name, String conceptPath, OntologyTerm.VisualAttributes conceptType, MDStudy study) {
+        def path = "${parentPath}\\${name}\\"
+        log.info "Creating test tree node: ${path}"
+        def parent = DetachedCriteria.forClass(I2b2Secure)
+                .add(Restrictions.eq('fullName', parentPath))
+                .getExecutableCriteria(sessionFactory.currentSession).uniqueResult() as I2b2Secure
+        if (parentPath && !parent) {
+            throw new IllegalArgumentException("Parent node not found: ${parentPath}")
+        }
+
+        def visualAttributes = 'FA '
+        def factTableColumn = ''
+        def dimensionTableName = ''
+        def columnName = ''
+        def operator = ''
+        def dimensionCode = ''
+
+        if (conceptPath) {
+            requireNonNull(conceptType)
+            assert conceptType.position == 2: "Invalid concept type"
+            visualAttributes = "LA${conceptType.keyChar}"
+            factTableColumn = 'concept_cd'
+            dimensionTableName = 'concept_dimension'
+            columnName = 'concept_path'
+            operator = 'like'
+            dimensionCode = conceptPath
+        } else if (study) {
+            visualAttributes = 'FAS'
+            factTableColumn = ''
+            dimensionTableName = 'study'
+            columnName = 'study_id'
+            operator = '='
+            dimensionCode = study.name
+        }
+
+        def node = new I2b2Secure(
+                secureObjectToken: study?.secureObjectToken ?: Study.PUBLIC,
+                level: (parent?.level ?: 0) + 1,
+                fullName: path,
+                name: name,
+                visualAttributes: visualAttributes,
+                factTableColumn: factTableColumn,
+                dimensionTableName: dimensionTableName,
+                columnName: columnName,
+                columnDataType: 'T',
+                operator: operator,
+                dimensionCode: dimensionCode
+        ).save(flush: true, failOnError: true)
+        new TreeNodeImpl(node, [])
     }
 
     private long getNextHibernateId() {
