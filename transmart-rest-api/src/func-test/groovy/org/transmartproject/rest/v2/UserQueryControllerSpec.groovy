@@ -1,29 +1,28 @@
 package org.transmartproject.rest
 
-import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.transmartproject.core.multidimquery.query.Negation
 import org.transmartproject.core.multidimquery.query.TrueConstraint
-import org.transmartproject.rest.marshallers.MarshallerSpec
+import groovy.util.logging.Slf4j
+import org.transmartproject.rest.v2.V2ResourceSpec
+
+import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 
 @Slf4j
-class UserQueryControllerSpec extends MarshallerSpec {
+class UserQueryControllerSpec extends V2ResourceSpec {
 
     def grailsApplication
-    public static final String VERSION = "v2"
 
     void 'test availability of query subscription'() {
         def body = createSampleQuery()
-        def url = "${baseURL}/$VERSION/queries"
+        def url = "${contextPath}/queries"
         log.info "Request URL: ${url}"
 
         when: "Notifications plugin is enabled"
         grailsApplication.config.org.transmart.notifications.enabled = true
-        ResponseEntity<Resource> response = postJson(url, body)
-        String content = response.body.inputStream.readLines().join('\n')
-        def result = new JsonSlurper().parseText(content)
+        ResponseEntity<Resource> response = post(url, body)
+        def result = toJson(response)
 
         then: "Query is saved correctly"
         response.statusCode.value() == 201
@@ -33,9 +32,8 @@ class UserQueryControllerSpec extends MarshallerSpec {
         when: "Notifications plugin is disabled"
         grailsApplication.config.org.transmart.notifications.enabled = false
 
-        ResponseEntity<Resource> response2 = postJson(url, body)
-        String content2 = response2.body.inputStream.readLines().join('\n')
-        def result2 = new JsonSlurper().parseText(content2)
+        ResponseEntity<Resource> response2 = post(url, body)
+        def result2 = toJson(response2)
 
         then: "It is not possible to subscribe for a query"
         response2.statusCode.value() == 503
