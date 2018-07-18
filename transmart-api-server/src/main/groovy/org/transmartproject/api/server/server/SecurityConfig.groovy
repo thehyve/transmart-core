@@ -23,7 +23,6 @@ import org.transmartproject.api.server.client.OfflineTokenClientRequestFactory
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
-
     @Autowired
     void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(keycloakAuthenticationProvider())
@@ -64,8 +63,11 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/v1/*").denyAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/error").permitAll()
+                .antMatchers("/open-api/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
     }
+
 }

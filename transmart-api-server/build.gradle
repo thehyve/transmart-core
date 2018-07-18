@@ -40,6 +40,15 @@ bootRun {
     jvmArgs = ['-Dspring.output.ansi.enabled=always']
 }
 
+war {
+    webInf {
+        with copySpec({
+            from '../open-api'
+            into 'classes/public/open-api'
+        })
+    }
+}
+
 task executableWar(type: Copy) {
     from "${libsDir}/${project.name}-${project.version}.war"
     into "${distsDir}"
