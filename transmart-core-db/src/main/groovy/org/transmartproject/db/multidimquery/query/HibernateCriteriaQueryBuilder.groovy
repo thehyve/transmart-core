@@ -6,7 +6,6 @@ import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
-import org.hibernate.SessionFactory
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
@@ -46,6 +45,7 @@ import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.pedigree.RelationTypeResource
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientMapping
@@ -96,6 +96,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
 
     static TrialVisitsService getTrialVisitsService() {
         ((TrialVisitsService)Holders.grailsApplication.mainContext['trialVisitsService'])
+    }
+
+    static RelationTypeResource getRelationTypeResource() {
+        ((RelationTypeResource)Holders.grailsApplication.mainContext['relationTypeService'])
     }
 
     final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(VALUE)
@@ -816,14 +820,13 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             relationCriteria.add(Subqueries.propertyIn('rightSubject.id',
                     patientCriteria.setProjection(Projections.id())))
         }
-        def sessionFactory = (SessionFactory)Holders.applicationContext.getBean('sessionFactory')
-        def relationType = (RelationType)DetachedCriteria.forClass(RelationType)
-                .add(Restrictions.eq('label', relationConstraint.relationTypeLabel))
-                .getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
+        def relationType = relationTypeResource.getByLabel(relationConstraint.relationTypeLabel)
         if (!relationType) {
             throw new QueryBuilderException("No ${relationConstraint.relationTypeLabel} relation type found.")
         }
-        relationCriteria.add(Restrictions.eq('relationType', relationType))
+        DetachedCriteria relationTypeCriteria = DetachedCriteria.forClass(RelationType, 'relation_type')
+        relationTypeCriteria.add(Restrictions.eq('relation_type.label', relationConstraint.relationTypeLabel))
+        relationCriteria.add(Subqueries.propertyEq('relationType', relationTypeCriteria.setProjection(Projections.id())))
         if (relationConstraint.biological != null) {
             relationCriteria.add(Restrictions.eq('biological', relationConstraint.biological))
         }
