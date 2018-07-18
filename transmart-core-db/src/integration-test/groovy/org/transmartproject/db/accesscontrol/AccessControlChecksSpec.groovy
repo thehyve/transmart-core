@@ -51,7 +51,7 @@ class AccessControlChecksSpec extends Specification {
         'test-public-user-1' | SUMMARY      | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
         'test-public-user-1' | MEASUREMENTS | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
         'test-public-user-2' | SUMMARY      | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
-        'test-public-user-2' | MEASUREMENTS | 'SHARED_CONCEPTS_STUDY_C_PRIV' | false
+        'test-public-user-2' | MEASUREMENTS | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
         'admin'              | SUMMARY      | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
         'admin'              | MEASUREMENTS | 'SHARED_CONCEPTS_STUDY_C_PRIV' | true
     }
