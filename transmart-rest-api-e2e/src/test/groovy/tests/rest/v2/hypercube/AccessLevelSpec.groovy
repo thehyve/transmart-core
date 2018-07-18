@@ -4,6 +4,8 @@ package tests.rest.v2.hypercube
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import base.RestHelper
+import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
@@ -26,13 +28,13 @@ class AccessLevelSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
+                query     : [constraint: [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]],
                 statusCode: 403
         ]
 
 
         when: "I try to get a concept from that study"
-        def responseData = get(request)
+        def responseData = RestHelper.toObject get(request), ErrorResponse
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -55,7 +57,7 @@ class AccessLevelSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
+                query     : [constraint: [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]],
                 user      : UNRESTRICTED_USER
         ]
 
@@ -86,7 +88,7 @@ class AccessLevelSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
+                query     : [constraint: [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]],
                 user      : ADMIN_USER
         ]
 

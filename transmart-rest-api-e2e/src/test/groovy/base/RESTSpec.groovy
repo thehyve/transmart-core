@@ -63,12 +63,8 @@ abstract class RESTSpec extends Specification {
      * @deprecated Just pass a map directly.
      */
     @Deprecated
-    def toQuery(constraints) {
-        return [constraint: new JsonBuilder(constraints)]
-    }
-
-    def toJSON(object) {
-        return new JsonBuilder(object).toString()
+    def toQuery(Object constraint) {
+        return [constraint: constraint]
     }
 
     String toDateString(String dateString, String inputFormat = "dd-MM-yyyyX") {

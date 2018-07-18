@@ -4,6 +4,8 @@ package tests.rest.v2.storage
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import base.RestHelper
+import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
@@ -32,7 +34,7 @@ class FileAccessSpec extends RESTSpec {
                 'systemVersion'        : 'v1',
                 'singleFileCollections': false,
         ]
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USER])
         storageId = responseData.id
 
         def new_file_link = [
@@ -41,7 +43,7 @@ class FileAccessSpec extends RESTSpec {
                 'study'       : SHARED_CONCEPTS_RESTRICTED_ID,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        file_link = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201, user: ADMIN_USER])
+        file_link = post([path: PATH_FILES, body: new_file_link, statusCode: 201, user: ADMIN_USER])
     }
 
     /**
@@ -53,11 +55,11 @@ class FileAccessSpec extends RESTSpec {
         given: "a file is attached to a restricted study and I do not have access"
 
         when: "I get files for that study"
-        def responseData = get([
+        def responseData = RestHelper.toObject get([
                 path      : PATH_STUDIES + "/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
                 acceptType: JSON,
                 statusCode: 403
-        ])
+        ]), ErrorResponse
 
         then: "I get an access error"
         assert responseData.httpStatus == 403

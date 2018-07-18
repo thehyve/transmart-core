@@ -9,6 +9,7 @@ class ErrorResponse {
     String error
     String message
     String path
+    Date timestamp
 
     /**
      * @deprecated Use {@link #httpStatus} instead.

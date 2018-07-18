@@ -4,6 +4,8 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import base.RestHelper
+import representations.Counts
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
@@ -24,11 +26,11 @@ class ObservationCountsSpec extends RESTSpec {
         def request = [
                 path      : PATH_COUNTS,
                 acceptType: JSON,
-                query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+                query     : [constraint: [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]]
         ]
 
         when: "I count observations for the concept Heart Rate"
-        def responseData = get(request)
+        def responseData = RestHelper.toObject(get(request), Counts)
 
         then: "I get a count excluding observations from the restricted study"
         assert responseData.observationCount == 5
@@ -43,7 +45,7 @@ class ObservationCountsSpec extends RESTSpec {
     def "unrestricted counts"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         def params = [
-                constraint: toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+                constraint: [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
         ]
         def request = [
                 path      : PATH_COUNTS,
@@ -52,7 +54,7 @@ class ObservationCountsSpec extends RESTSpec {
         ]
 
         when: "I count observations for the concept Heart Rate"
-        def responseData = getOrPostRequest(method, request, params)
+        def responseData = RestHelper.toObject(getOrPostRequest(method, request, params), Counts)
 
         then: "I get a count including observations from the restricted study"
         assert responseData.observationCount == 7
