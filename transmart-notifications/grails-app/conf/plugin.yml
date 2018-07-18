@@ -1,6 +1,6 @@
 ---
 
-org.transmart.notifications:
+org.transmartproject.notifications:
     # enable the notifications plugin and the execution of daily and weekly notification jobs
     enabled: true
     # max number of query sets returned in a subscription email
@@ -18,7 +18,7 @@ quartz:
 grails:
     profile: plugin
     codegen:
-        defaultPackage: transmart.notifications
+        defaultPackage: org.transmartproject.notifications
     spring:
         transactionManagement:
             proxies: false

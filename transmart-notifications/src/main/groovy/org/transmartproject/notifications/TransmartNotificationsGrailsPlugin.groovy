@@ -1,4 +1,4 @@
-package org.transmart.notifications
+package org.transmartproject.notifications
 
 import grails.plugins.*
 import grails.util.Holders
@@ -28,12 +28,13 @@ A plugin that provides an email subscription functionality.
 
     /**
      * Whether the notifications plugin is enabled
-     * Depends on setting of the org.transmart.notifications.enabled property
+     * Depends on setting of the org.transmartproject.notifications.enabled property
      */
     boolean enabled = true
 
     Closure doWithSpring() { {->
-        // TODO Implement runtime spring config (optional)
+            // enable/disable the plugin
+            enabled = config.getProperty("org.transmartproject.notifications.enabled", Boolean, true)
         }
     }
 
@@ -42,8 +43,6 @@ A plugin that provides an email subscription functionality.
     }
 
     void doWithApplicationContext() {
-        // enable/disable the plugin
-        enabled = Holders.config.org.transmart.notifications.enabled
     }
 
     void onChange(Map<String, Object> event) {

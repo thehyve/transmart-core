@@ -20,7 +20,7 @@ class UserQueryControllerSpec extends V2ResourceSpec {
         log.info "Request URL: ${url}"
 
         when: "Notifications plugin is enabled"
-        grailsApplication.config.org.transmart.notifications.enabled = true
+        grailsApplication.config.org.transmartproject.notifications.enabled = true
         ResponseEntity<Resource> response = post(url, body)
         def result = toJson(response)
 
@@ -30,7 +30,7 @@ class UserQueryControllerSpec extends V2ResourceSpec {
         result.subscriptionFreq == 'DAILY'
 
         when: "Notifications plugin is disabled"
-        grailsApplication.config.org.transmart.notifications.enabled = false
+        grailsApplication.config.org.transmartproject.notifications.enabled = false
 
         ResponseEntity<Resource> response2 = post(url, body)
         def result2 = toJson(response2)

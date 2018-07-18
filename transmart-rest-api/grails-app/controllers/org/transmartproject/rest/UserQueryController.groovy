@@ -144,7 +144,7 @@ class UserQueryController {
     }
 
     private static void validateSubscriptionEnabled(boolean subscribed, boolean subscriptionFreqSpecified) {
-        boolean subscriptionEnabled = Holders.config.org.transmart.notifications.enabled
+        boolean subscriptionEnabled = Holders.config.org.transmartproject.notifications.enabled
         if(!subscriptionEnabled && (subscribed || subscriptionFreqSpecified)) {
             throw new ServiceNotAvailableException(
                     "Subscription functionality is not enabled. Saving subscription data not supported.")
