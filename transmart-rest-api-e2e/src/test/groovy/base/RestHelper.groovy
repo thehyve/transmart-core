@@ -15,8 +15,10 @@ class RestHelper {
             request.uri.path = requestMap.path
             request.uri.query = requestMap.query
 
-            if (!requestMap.skipOauth && AUTH_NEEDED) {
+            if (!requestMap.token && AUTH_NEEDED) {
                 testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
+            } else if (requestMap.token){
+                request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
             response.success { FromServer fromServer, body ->
@@ -45,8 +47,10 @@ class RestHelper {
             request.contentType = requestMap.contentType ?: ContentTypeFor.JSON
             request.body = requestMap.body
 
-            if (!requestMap.skipOauth && AUTH_NEEDED) {
+            if (!requestMap.token && AUTH_NEEDED) {
                 testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
+            } else if (requestMap.token){
+                request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
             response.success { FromServer fromServer, body ->
@@ -75,8 +79,10 @@ class RestHelper {
             request.contentType = requestMap.contentType ?: ContentTypeFor.JSON
             request.body = requestMap.body
 
-            if (!requestMap.skipOauth && AUTH_NEEDED) {
+            if (!requestMap.token && AUTH_NEEDED) {
                 testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
+            } else if (requestMap.token){
+                request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
             response.success { FromServer fromServer, body ->
@@ -104,8 +110,10 @@ class RestHelper {
             request.accept = requestMap.acceptType ?: ContentTypeFor.JSON
 
 
-            if (!requestMap.skipOauth && AUTH_NEEDED) {
+            if (!requestMap.token && AUTH_NEEDED) {
                 testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
+            } else if (requestMap.token){
+                request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
             response.success { FromServer fromServer, body ->
