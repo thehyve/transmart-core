@@ -8,6 +8,8 @@ import base.RESTSpec
 import static base.ContentTypeFor.JSON
 import static config.Config.*
 import static org.hamcrest.Matchers.*
+import static org.springframework.http.HttpMethod.GET
+import static org.springframework.http.HttpMethod.POST
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.Operator.AND
 import static tests.rest.Operator.GREATER_THAN
@@ -52,9 +54,9 @@ class PatientsSpec extends RESTSpec {
         that responseData.patients, everyItem(hasKey('id'))
 
         where:
-        method | _
-        "POST" | _
-        "GET"  | _
+        method  | _
+        POST    | _
+        GET     | _
     }
 
     /**

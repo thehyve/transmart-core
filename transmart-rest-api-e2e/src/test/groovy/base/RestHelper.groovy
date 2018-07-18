@@ -1,5 +1,6 @@
 package base
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import groovyx.net.http.FromServer
 import groovyx.net.http.HttpBuilder
 
@@ -8,7 +9,7 @@ import static config.Config.DEFAULT_USER
 
 class RestHelper {
 
-    static delete(TestContext testContext, Map requestMap) {
+    static Object delete(TestContext testContext, Map requestMap) {
         HttpBuilder http = testContext.getHttpBuilder()
 
         http.delete {
@@ -21,23 +22,23 @@ class RestHelper {
                 request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
-            response.success { FromServer fromServer, body ->
+            response.success { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == (requestMap.statusCode ?: 200): "Unexpected status code. expected: " +
                         "${requestMap.statusCode ?: 200} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
 
-            response.failure { FromServer fromServer, body ->
+            response.failure { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == requestMap.statusCode: "Unexpected status code. expected: " +
                         "${requestMap.statusCode} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
         }
     }
 
-    static put(TestContext testContext, Map requestMap) {
+    static Object put(TestContext testContext, Map requestMap) {
         HttpBuilder http = testContext.getHttpBuilder()
 
         http.put {
@@ -53,23 +54,23 @@ class RestHelper {
                 request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
-            response.success { FromServer fromServer, body ->
+            response.success { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == (requestMap.statusCode ?: 200): "Unexpected status code. expected: " +
                         "${requestMap.statusCode ?: 200} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
 
-            response.failure { FromServer fromServer, body ->
+            response.failure { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == requestMap.statusCode: "Unexpected status code. expected: " +
                         "${requestMap.statusCode} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
         }
     }
 
-    static post(TestContext testContext, Map requestMap) {
+    static Object post(TestContext testContext, Map requestMap) {
         HttpBuilder http = testContext.getHttpBuilder()
 
         http.post {
@@ -85,23 +86,23 @@ class RestHelper {
                 request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
-            response.success { FromServer fromServer, body ->
+            response.success { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == (requestMap.statusCode ?: 200): "Unexpected status code. expected: " +
                         "${requestMap.statusCode ?: 200} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
 
-            response.failure { FromServer fromServer, body ->
+            response.failure { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == requestMap.statusCode: "Unexpected status code. expected: " +
                         "${requestMap.statusCode} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
         }
     }
 
-    static get(TestContext testContext, Map requestMap) {
+    static Object get(TestContext testContext, Map requestMap) {
         HttpBuilder http = testContext.getHttpBuilder()
 
         http.get {
@@ -116,23 +117,29 @@ class RestHelper {
                 request.headers.'Authorization' = 'Bearer ' + requestMap.token
             }
 
-            response.success { FromServer fromServer, body ->
+            response.success { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == (requestMap.statusCode ?: 200): "Unexpected status code. expected: " +
                         "${requestMap.statusCode ?: 200} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
 
-            response.failure { FromServer fromServer, body ->
+            response.failure { FromServer fromServer, Object body ->
                 assert fromServer.statusCode == (requestMap.statusCode ?: 400): "Unexpected status code. expected: " +
                         "${requestMap.statusCode} but was ${fromServer.statusCode}. \n" +
-                        printResponse(fromServer, body)
+                        toString(fromServer, body)
                 body
             }
         }
     }
 
-    static printResponse(FromServer fromServer, body) {
+    static <T> T toObject(Object response, Class<T> type) {
+        def mapper = new ObjectMapper()
+        def serialisedObject = mapper.writeValueAsString(response)
+        mapper.readValue(serialisedObject, type)
+    }
+
+    static String toString(FromServer fromServer, Object body) {
         return "from server: ${fromServer.uri} ${fromServer.statusCode}\n" +
                 "${body}\n"
     }

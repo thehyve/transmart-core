@@ -7,6 +7,8 @@ import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
+import static org.springframework.http.HttpMethod.GET
+import static org.springframework.http.HttpMethod.POST
 import static tests.rest.constraints.ConceptConstraint
 
 @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
@@ -58,8 +60,8 @@ class ObservationCountsSpec extends RESTSpec {
 
         where:
         method | _
-        "POST" | _
-        "GET"  | _
+        POST   | _
+        GET    | _
     }
 
 }

@@ -7,6 +7,8 @@ import base.RESTSpec
 import static base.ContentTypeFor.JSON
 import static config.Config.EHR_ID
 import static config.Config.PATH_OBSERVATIONS
+import static org.springframework.http.HttpMethod.GET
+import static org.springframework.http.HttpMethod.POST
 import static tests.rest.constraints.ConceptConstraint
 
 class ObservationSpec extends RESTSpec {
@@ -40,9 +42,9 @@ class ObservationSpec extends RESTSpec {
         assert responseData.cells.size() == 9
 
         where:
-        method | _
-        "POST" | _
-        "GET"  | _
+        method  | _
+        POST    | _
+        GET     | _
     }
 
 }

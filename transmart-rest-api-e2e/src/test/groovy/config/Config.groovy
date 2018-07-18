@@ -5,9 +5,12 @@ package config
 import base.AuthMethod
 import base.ContentTypeFor
 import base.TestContext
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovyx.net.http.ChainedHttpConfig
 import groovyx.net.http.FromServer
+
+import java.util.function.Function
 
 import static groovyx.net.http.HttpBuilder.configure
 import static groovyx.net.http.HttpVerb.GET
@@ -31,7 +34,7 @@ class Config {
         value
     }
 
-    //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
+    // $ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
     public static final String BASE_URL = getProperty('baseUrl', 'http://localhost:8081/', String)
 
      // Configure whether the currently used application for providing a REST API for a TranSMART supports the `v1` API.
@@ -39,10 +42,10 @@ class Config {
     public static final Boolean IS_V1_API_SUPPORTED = getProperty('v1Supported', Boolean.FALSE, Boolean)
 
     // Configure the authentication method: using Keycloak (OIDC) or spring security plugin (OAuth2) - transmart-oauth
-    //$ gradle -DauthMethod=OAuth2 test
+    // $ gradle -DauthMethod=OAuth2 test
     public static final AuthMethod AUTH_METHOD = getProperty('authMethod', AuthMethod.OIDC, AuthMethod)
 
-    //Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
+    // Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
     public static final TestContext testContext = new TestContext().setHttpBuilder(configure {
         request.uri = BASE_URL
         // custom parsers
@@ -50,7 +53,7 @@ class Config {
             ProtobufHelper.parse(fs.inputStream)
         }
         // custom interceptor
-        execution.interceptor(GET) { cfg, fx ->
+        execution.interceptor(GET) { ChainedHttpConfig cfg, Function fx ->
             // set default type for PATH_OBSERVATIONS
             if (cfg.request.uri.path == PATH_OBSERVATIONS && !cfg.request.uri.query.type) {
                 cfg.request.uri.query.type = 'clinical'

@@ -8,4 +8,11 @@ class ErrorResponse {
     String type
     String error
     String message
+    String path
+
+    /**
+     * @deprecated Use {@link #httpStatus} instead.
+     */
+    @Deprecated
+    Integer status
 }

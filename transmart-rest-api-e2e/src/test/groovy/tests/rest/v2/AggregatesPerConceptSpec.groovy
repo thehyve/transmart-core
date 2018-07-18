@@ -4,6 +4,7 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import base.RestHelper
 import org.springframework.http.HttpStatus
 import representations.AggregatesPerConcept
 import representations.ErrorResponse
@@ -38,7 +39,7 @@ class AggregatesPerConceptSpec extends RESTSpec {
         ]
 
         when: 'I request aggregates for the Heart Rate and Race concepts'
-        def responseData = post(request) as AggregatesPerConcept
+        def responseData = RestHelper.toObject(post(request), AggregatesPerConcept)
 
         then: 'The expected numerical and categorical aggregates are returned'
         responseData.aggregatesPerConcept.size() == 2
@@ -78,7 +79,7 @@ class AggregatesPerConceptSpec extends RESTSpec {
         ]
 
         when: 'I request aggregates for the favouritebook concept (of type Raw text)'
-        def response = post(request) as AggregatesPerConcept
+        def response = RestHelper.toObject(post(request), AggregatesPerConcept)
 
         then: 'No values for that concept are returned'
         response.aggregatesPerConcept.size() == 0
@@ -90,14 +91,14 @@ class AggregatesPerConceptSpec extends RESTSpec {
         def conceptCode = 'SCSCP:DEM:AGE'
 
         when: 'I request aggregates for a concept only associated with that study'
-        def errorResponse = post([
+        def errorResponse = RestHelper.toObject(post([
                 path      : PATH_AGGREGATES_PER_CONCEPT,
                 acceptType: JSON,
                 body     : [
                         constraint: [type: 'concept', conceptCode: conceptCode]
                 ],
                 statusCode: HttpStatus.FORBIDDEN.value()
-        ]) as ErrorResponse
+        ]), ErrorResponse)
 
         then: 'Access is denied'
         errorResponse.httpStatus == HttpStatus.FORBIDDEN.value()
@@ -107,14 +108,14 @@ class AggregatesPerConceptSpec extends RESTSpec {
         when: 'I do have access to the restricted access study'
 
         and: 'I request aggregates for a concept only associated with that study'
-        def response = post([
+        def response = RestHelper.toObject(post([
                 path      : PATH_AGGREGATES_PER_CONCEPT,
                 acceptType: JSON,
                 body     : [
                         constraint: [type: 'concept', conceptCode: conceptCode]
                 ],
                 user      : UNRESTRICTED_USER
-        ]) as AggregatesPerConcept
+        ]), AggregatesPerConcept)
 
         then: 'I receive aggregates'
         response.aggregatesPerConcept

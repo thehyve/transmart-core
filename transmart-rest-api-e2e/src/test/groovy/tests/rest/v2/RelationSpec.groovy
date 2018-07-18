@@ -7,6 +7,8 @@ import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
+import static org.springframework.http.HttpMethod.GET
+import static org.springframework.http.HttpMethod.POST
 import static tests.rest.constraints.PatientSetConstraint
 import static tests.rest.constraints.RelationConstraint
 
@@ -39,9 +41,9 @@ class RelationSpec extends RESTSpec {
         responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['1', '2'] as Set
 
         where:
-        method | _
-        "POST" | _
-        "GET"  | _
+        method  | _
+        POST    | _
+        GET     | _
     }
 
     def "get relation types"() {
@@ -102,8 +104,8 @@ class RelationSpec extends RESTSpec {
         responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['1', '5'] as Set
 
         where:
-        method | _
-        "POST" | _
-        "GET"  | _
+        method  | _
+        POST    | _
+        GET     | _
     }
 }
