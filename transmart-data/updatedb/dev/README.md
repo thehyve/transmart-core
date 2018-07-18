@@ -13,13 +13,13 @@ Overview
 ## Data Migration
 
 
-How to apply all changes
-------------------------
+## How to apply all changes
 
-Given that transmart-data is configured correctly, you could run one of the following make commands:
+Given that transmart-data is configured correctly, you can apply the changes using one of the following make commands:
     
-    # For PostgreSQL:
-    make -C postgres migrate
-    # For Oracle:
-    make -C oracle migrate
-    
+```bash
+# For PostgreSQL:
+make -C postgres migrate
+# For Oracle:
+make -C oracle migrate
+```  
