@@ -1,19 +1,9 @@
 package org.transmartproject.core.users
 
-import com.google.common.collect.Multimap
-
 /**
  * Represents a tranSMART user.
  */
-public interface User {
-
-    /**
-     * An numerical identifier for the user.
-     * @deprecated Use {@link #getUsername()} instead to identify the user.
-     * @return numeric unique identifier for the user
-     */
-    @Deprecated
-    Long getId()
+interface User {
 
     /**
      * The name for the user. Has to be unique in the system.
@@ -41,23 +31,13 @@ public interface User {
     String getEmail()
 
     /**
-     * Returns true iif this user is authorized to perform the given operation
-     * on the given object.
-     *
-     * @param operation
-     * @param protectedResource
-     * @return true iif access is granted
-     */
-    boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource)
-
-    /**
      * @return true if user is admin, otherwise false
      */
     boolean isAdmin()
 
     /**
-     * The key of the map is a study token. The study token is a string that give access to the study.
-     * Level of access specified by the value part of the map {@code ProtectedOperation}.
+     * The key of the map is a study token (could be study id). The study token is a string that give access to the study.
+     * Patient data access level of access specified by the value part of the map {@link PatientDataAccessLevel}.
      */
-    Multimap<String, ProtectedOperation> getAccessStudyTokenToOperations()
+    Map<String, PatientDataAccessLevel> getStudyToPatientDataAccessLevel()
 }

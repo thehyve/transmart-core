@@ -7,6 +7,8 @@ import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
+import static org.springframework.http.HttpMethod.GET
+import static org.springframework.http.HttpMethod.POST
 import static tests.rest.constraints.PatientSetConstraint
 import static tests.rest.constraints.RelationConstraint
 
@@ -20,15 +22,15 @@ class RelationSpec extends RESTSpec {
     def "get patients based on relations"() {
         given: "study SURVEY1 is loaded"
         def params = [
-                constraint: toJSON([
+                constraint: [
                         type                     : RelationConstraint,
                         relationTypeLabel        : 'PAR',
                         relatedSubjectsConstraint: [type: PatientSetConstraint, subjectIds: ['7']],
-                ]),
+                ],
         ]
         def request = [
                 path      : PATH_PATIENTS,
-                acceptType: JSON,
+                acceptType: JSON
         ]
 
         when: "I get subjects that are parents of subject with id 7."
@@ -39,9 +41,9 @@ class RelationSpec extends RESTSpec {
         responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['1', '2'] as Set
 
         where:
-        method | _
-        "POST" | _
-        "GET"  | _
+        method  | _
+        POST    | _
+        GET     | _
     }
 
     def "get relation types"() {
@@ -64,13 +66,13 @@ class RelationSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: JSON,
-                query     : toQuery([
-                        type                     : "relation",
-                        relatedSubjectsConstraint: ["type": "patient_set", subjectIds: ['7']],
-                        "relationTypeLabel"      : "PAR",
-                        "biological"             : true,
-                        "shareHousehold"         : true
-                ]),
+                query     : [constraint: [
+                        type: "relation",
+                        relatedSubjectsConstraint: [type: "patient_set", subjectIds: ['7']],
+                        relationTypeLabel: "PAR",
+                        biological: true,
+                        shareHousehold: true
+                ]]
         ]
 
         when: "I get observations of the parents of patient with subject id 7."
@@ -80,14 +82,28 @@ class RelationSpec extends RESTSpec {
 
         then: "there are 16 observations"
         assert selector.cellCount == 16
-
     }
 
     def "get male parent of a twin"() {
         given: "study SURVEY1 is loaded"
-        def params = [constraint: toJSON(
-                [type: 'and', args: [[type: "subselection", "dimension": "patient", "constraint": ["type": "relation", "relatedSubjectsConstraint": ["type": "or", "args": [["type": "relation", "relatedSubjectsConstraint": ["type": "true"], "relationTypeLabel": "MZ", "biological": true], ["type": "relation", "relatedSubjectsConstraint": ["type": "true"], "relationTypeLabel": "DZ", "biological": true], ["type": "relation", "relatedSubjectsConstraint": ["type": "true"], "relationTypeLabel": "COT", "biological": true]]], "relationTypeLabel": "PAR"]], ["type": "subselection", "dimension": "patient", "constraint": ["type": "and", "args": [["type": "concept", "conceptCode": "gender", "name": "Gender", "fullName": "\\\\Demographics\\\\Gender\\\\", "conceptPath": "\\\\Demographics\\\\Gender\\\\", "valueType": "CATEGORICAL"], ["type": "value", "valueType": "STRING", "operator": "=", "value": "Male"]]]]]]
-        ),
+        def params = [constraint:
+                [type: 'and', args: [
+                        [type: "subselection", dimension: "patient", constraint:
+                                [type: "relation", relationTypeLabel: "PAR", relatedSubjectsConstraint:
+                                        [type: "or", args: [
+                                                [type: "relation", "relatedSubjectsConstraint": [type: "true"], relationTypeLabel: "MZ", biological: true],
+                                                [type: "relation", "relatedSubjectsConstraint": [type: "true"], relationTypeLabel: "DZ", biological: true],
+                                                [type: "relation", "relatedSubjectsConstraint": [type: "true"], relationTypeLabel: "COT", biological: true]
+                                        ]]
+                                 ]
+                        ],
+                        [type: "subselection", dimension: "patient", constraint:
+                                [type: "and", args: [
+                                        [type: "concept", conceptCode: "gender", name: "Gender", fullName: "\\\\Demographics\\\\Gender\\\\", conceptPath: "\\\\Demographics\\\\Gender\\\\", valueType: "CATEGORICAL"],
+                                        [type: "value", valueType: "STRING", operator: "=", value: "Male"]
+                                ]]
+                        ]
+                ]]
         ]
         def request = [
                 path      : PATH_PATIENTS,
@@ -102,8 +118,8 @@ class RelationSpec extends RESTSpec {
         responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['1', '5'] as Set
 
         where:
-        method | _
-        "POST" | _
-        "GET"  | _
+        method  | _
+        POST    | _
+        GET     | _
     }
 }

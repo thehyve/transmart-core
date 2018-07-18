@@ -1,12 +1,14 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import grails.util.Holders
 import groovy.json.JsonSlurper
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.ServiceNotAvailableException
 import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
@@ -51,10 +53,12 @@ class UserQueryController {
         def patientsQueryString = requestJson.patientsQuery?.toString()
         def observationsQueryString = requestJson.observationsQuery?.toString()
         def queryBlobString = requestJson.queryBlob?.toString()
+        boolean subscriptionFreqSpecified = requestJson.containsKey('subscriptionFreq')
 
         validateJson(patientsQueryString)
         validateJson(observationsQueryString)
         validateJson(queryBlobString)
+        validateSubscriptionEnabled(requestJson.subscribed, subscriptionFreqSpecified)
 
         UserQuery query = userQueryResource.create(authContext.user)
         query.apiVersion = versionController.currentVersion(apiVersion)
@@ -67,7 +71,7 @@ class UserQueryController {
             queryBlob = queryBlobString
         }
 
-        if (requestJson.containsKey('subscriptionFreq')) {
+        if (subscriptionFreqSpecified) {
             validateSubscriptionFrequency(requestJson.subscriptionFreq)
             query.subscriptionFreq = SubscriptionFrequency.valueOf(requestJson.subscriptionFreq)
         }
@@ -82,7 +86,12 @@ class UserQueryController {
     def update(@RequestParam('api_version') String apiVersion,
                @PathVariable('id') Long id) {
         def requestJson = request.JSON as Map
+
         checkForUnsupportedParams(requestJson, ['name', 'bookmarked', 'subscribed', 'subscriptionFreq'])
+        boolean subscriptionFreqSpecified = requestJson.containsKey('subscriptionFreq')
+
+        validateSubscriptionEnabled(requestJson.subscribed, subscriptionFreqSpecified)
+
         UserQuery query = userQueryResource.get(id, authContext.user)
         if (requestJson.containsKey('name')) {
             query.name = requestJson.name
@@ -93,7 +102,7 @@ class UserQueryController {
         if (requestJson.containsKey('subscribed')) {
             query.subscribed = requestJson.subscribed
         }
-        if (requestJson.containsKey('subscriptionFreq')) {
+        if (subscriptionFreqSpecified) {
             validateSubscriptionFrequency(requestJson.subscriptionFreq)
             query.subscriptionFreq = SubscriptionFrequency.valueOf(requestJson.subscriptionFreq)
         }
@@ -131,6 +140,14 @@ class UserQueryController {
             } catch (ConverterException c) {
                 throw new InvalidArgumentsException("Query is not a valid JSON")
             }
+        }
+    }
+
+    private static void validateSubscriptionEnabled(boolean subscribed, boolean subscriptionFreqSpecified) {
+        boolean subscriptionEnabled = Holders.config.org.transmartproject.notifications.enabled
+        if(!subscriptionEnabled && (subscribed || subscriptionFreqSpecified)) {
+            throw new ServiceNotAvailableException(
+                    "Subscription functionality is not enabled. Saving subscription data not supported.")
         }
     }
 

@@ -17,9 +17,6 @@ class UserLandingController {
     }
 
     def index = {
-        new AccessLog(username: springSecurityService?.principal?.username, event: "Login",
-                eventmessage: request.getHeader("user-agent"),
-                accesstime: new Date()).save()
         def skip_disclaimer = grailsApplication.config.com.recomdata?.skipdisclaimer ?: false;
         if (skip_disclaimer) {
             if (springSecurityService?.currentUser?.changePassword) {
@@ -33,8 +30,6 @@ class UserLandingController {
         }
     }
     def agree = {
-        new AccessLog(username: springSecurityService?.principal?.username, event: "Disclaimer accepted",
-                accesstime: new Date()).save()
         if (springSecurityService?.currentUser?.changePassword) {
             flash.message = messageSource.getMessage('changePassword', new Objects[0], RequestContextUtils.getLocale(request))
             redirect(controller: 'changeMyPassword')
@@ -44,8 +39,6 @@ class UserLandingController {
     }
 
     def disagree = {
-        new AccessLog(username: springSecurityService?.principal?.username, event: "Disclaimer not accepted",
-                accesstime: new Date()).save()
         redirect(uri: '/logout')
     }
 

@@ -10,6 +10,8 @@ import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.transaction.TransactionStatus
 import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
@@ -18,14 +20,16 @@ import org.transmartproject.copy.Util
 import java.sql.Timestamp
 import java.text.NumberFormat
 
+/**
+ * Fetching and loading of observations.
+ */
 @Slf4j
 @CompileStatic
 class Observations {
 
-    static final Table temporaryTable = new Table(null, 'observation_fact_upload')
-    static final Table table = new Table('i2b2demodata', 'observation_fact')
+    static final Table TABLE = new Table('i2b2demodata', 'observation_fact')
 
-    static final Timestamp emptyDate = Timestamp.valueOf('0001-01-01 00:00:00')
+    static final Timestamp EMPTY_DATE = Timestamp.valueOf('0001-01-01 00:00:00')
 
     final Database database
     final Copy.Config config
@@ -36,121 +40,119 @@ class Observations {
     final Concepts concepts
     final Patients patients
 
+    private final Map<Long, Table> partitionToTable = [:]
+
     Observations(Database database, Studies studies, Concepts concepts, Patients patients, Copy.Config config) {
         this.database = database
         this.config = config
-        this.columns = this.database.getColumnMetadata(table)
+        this.columns = this.database.getColumnMetadata(TABLE)
         this.studies = studies
         this.concepts = concepts
         this.patients = patients
     }
 
     void checkFiles(String rootPath) {
-        File inputFile = new File(rootPath, table.fileName)
+        File inputFile = new File(rootPath, TABLE.fileName)
         if (!inputFile.exists()) {
-            throw new IllegalStateException("No file ${table.fileName}")
+            throw new IllegalStateException("No file ${TABLE.fileName}")
         }
     }
 
     Integer getMaxInstanceNum() {
         database.jdbcTemplate.queryForObject(
-                "select max(instance_num) as max_instance_num from ${table}".toString(),
-                Integer.class
+                "select max(instance_num) as max_instance_num from ${TABLE}".toString(),
+                Integer
         )
     }
 
-    Integer getBaseInstanceNum() {
+    int getBaseInstanceNum() {
         (maxInstanceNum ?: 0) + 1
     }
 
-    void transformRow(Map<String, Object> row, final int baseInstanceNum) {
+    void transformRow(final Map<String, Object> row, final int baseInstanceNum) {
         // replace patient index with patient num
-        def patientIndex = row.patient_num as int
+        int patientIndex = ((BigDecimal) row.get('patient_num')).intValueExact()
         if (patientIndex >= patients.indexToPatientNum.size()) {
-            throw new IllegalStateException("Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
+            throw new IllegalStateException(
+                    "Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
         }
-        row.patient_num = patients.indexToPatientNum[patientIndex]
-        def trialVisitIndex = row.trial_visit_num as int
+        row.put('patient_num', patients.indexToPatientNum[patientIndex])
+        int trialVisitIndex = ((BigDecimal) row.get('trial_visit_num')).intValueExact()
         if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
-            throw new IllegalStateException("Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
+            throw new IllegalStateException(
+                    "Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
         }
-        row.trial_visit_num = studies.indexToTrialVisitNum[trialVisitIndex]
-        def conceptCode = row.concept_cd as String
+        row.put('trial_visit_num', studies.indexToTrialVisitNum[trialVisitIndex])
+        String conceptCode = (String) row.get('concept_cd')
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new IllegalStateException("Unknown concept code: ${conceptCode}")
         }
-        def instanceIndex = row.instance_num as int
-        row.instance_num = baseInstanceNum + instanceIndex
-        def startDate = row.start_date
-        if (!startDate) {
-            row.start_date = emptyDate
+        int instanceIndex = ((BigDecimal) row.get('instance_num')).intValueExact()
+        row.put('instance_num', baseInstanceNum + instanceIndex)
+        if (!row.get('start_date')) {
+            row.put('start_date', EMPTY_DATE)
         }
     }
 
-    static final Map<String, List> tableIndexes = [
-            'idx_fact_patient_num': ['patient_num'],
-            'idx_fact_concept': ['concept_cd'],
+    static final Map<String, List<String>> PARENT_TABLE_INDEXES = [
+            'idx_fact_patient_num'    : ['patient_num'],
+            'idx_fact_concept'        : ['concept_cd'],
             'idx_fact_trial_visit_num': ['trial_visit_num'],
     ]
 
-    static final Map<String, List> nonModifiersTableIndexes = [
+    static final Map<String, List<String>> CHILD_TABLE_INDEXES = [
+            'idx_fact_patient_num': ['patient_num'],
+            'idx_fact_concept'    : ['concept_cd'],
+    ]
+
+    static final Map<String, List<String>> NON_MODIFIERS_TABLE_INDEXES = [
             'observation_fact_pct_idx': ['patient_num', 'concept_cd', 'trial_visit_num'],
     ]
 
-    void setLoggedMode(boolean logged) {
-        def tx = database.beginTransaction()
-        log.info "Set 'logged' on ${table} to ${logged}"
-        database.jdbcTemplate.execute("alter table ${table} set ${logged ? 'logged' : 'unlogged'}")
-        database.commit(tx)
-    }
-
     void restoreTableIndexesIfNotExist() {
-        def tx = database.beginTransaction()
-        log.info "Restore indexes on ${table} ..."
-        tableIndexes.each { name, columns ->
-            database.jdbcTemplate.execute(composeCreateIndexSql(name, columns))
-        }
-        nonModifiersTableIndexes.each { name, columns ->
-            database.jdbcTemplate.execute("${composeCreateIndexSql(name, columns)} where modifier_cd='@'")
-        }
-        database.commit(tx)
-    }
-
-    private static String composeCreateIndexSql(String name, Iterable<String> columns) {
-        "create index if not exists ${name} on ${table} using btree (${columns.join(', ')})"
+        createTableIndexesIfNotExistForTable(TABLE)
     }
 
     void dropTableIndexesIfExist() {
         def tx = database.beginTransaction()
-        log.info "Drop indexes on ${table} ..."
-        (tableIndexes.keySet() + nonModifiersTableIndexes.keySet()).each { name ->
+        log.info "Drop indexes on ${TABLE} ..."
+        (PARENT_TABLE_INDEXES.keySet() + NON_MODIFIERS_TABLE_INDEXES.keySet()).each { name ->
             database.jdbcTemplate.execute("drop index if exists i2b2demodata.${name}")
         }
         database.commit(tx)
     }
 
-    void prepareTemporaryTable() {
-        log.info "Creating temporary table ${temporaryTable} ..."
-        try {
-            URL url = getClass().getClassLoader().getResource('sql/observation_fact_upload.sql')
-            url.withReader { reader ->
-                String uploadTableDefinition = reader.text
-                database.executeCommand(uploadTableDefinition)
-                def uploadTableColumns = this.database.getColumnMetadata(temporaryTable)
-                assert !uploadTableColumns.empty
-                log.info 'Temporary table created.'
+    private void loadRow(CSVWriter tsvWriter,
+                 LinkedHashMap<String, Class> header,
+                 Map<String, Object> row,
+                 Integer batchCount,
+                 ArrayList<Map> batch,
+                 SimpleJdbcInsert insert,
+                 TransactionStatus tx) {
+        if (config.write) {
+            tsvWriter.writeNext(row.values()*.toString() as String[])
+        } else {
+            batch.add(row)
+            if (batch.size() == config.batchSize) {
+                batchCount++
+                if (config.partition) {
+                    insertRowsToChildTables(batch, header)
+                } else {
+                    insert.executeBatch(batch.toArray() as Map[])
+                }
+                if (config.flushSize > 0 && batchCount % config.flushSize == 0) {
+                    tx.flush()
+                }
+                batch.clear()
             }
-        } catch (Exception e) {
-            log.error "Error creating table: ${e.message}", e
-            throw e
         }
     }
 
     void load(String rootPath) {
         log.info "Determining instance num ..."
-        int baseInstanceNum = baseInstanceNum
+        int baseInstanceNum = config.baseOnMaxInstanceNum ? baseInstanceNum : 0
         log.info "Using ${baseInstanceNum} as lowest instance num."
-        File observationsFile = new File(rootPath, table.fileName)
+        File observationsFile = new File(rootPath, TABLE.fileName)
 
         // Count number of rows
         log.info "Counting number of rows ..."
@@ -161,13 +163,15 @@ class Observations {
                 rowCount++
             }
         }
-        log.info "${NumberFormat.getInstance().format(rowCount > 0 ? rowCount - 1 : 0)} rows in ${table.fileName}."
+        log.info "${NumberFormat.instance.format(rowCount > 0 ? rowCount - 1 : 0)} rows in ${TABLE.fileName}."
 
         Writer writer
         CSVWriter tsvWriter
         if (config.write) {
             writer = new PrintWriter(config.outputFile)
             tsvWriter = Util.tsvWriter(writer)
+        } else if (!config.partition && config.unlogged) {
+            setLoggedMode(TABLE, false)
         }
 
         // Transform data: replace patient index with patient num,
@@ -175,83 +179,148 @@ class Observations {
         // and write transformed data to database.
         def tx = database.beginTransaction()
 
-        def insertTable = table
-        if (config.temporaryTable) {
-            prepareTemporaryTable()
-            tx.flush()
-            insertTable = temporaryTable
-        }
-
         log.info 'Reading, transforming and writing observations data ...'
         observationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             String[] data = tsvReader.readNext()
-            if (data != null) {
-                int i = 1
-                LinkedHashMap<String, Class> header = Util.verifyHeader(insertTable.fileName, data, columns)
-                def insert = database.getInserter(insertTable, header)
-                if (config.temporaryTable) {
-                    insert = insert.withoutTableColumnMetaDataAccess()
-                }
-                final progressBar = new ProgressBar("Insert into ${insertTable}", rowCount - 1)
-                progressBar.start()
-                ArrayList<Map> batch = []
-                data = tsvReader.readNext()
-                i++
-                int batchCount = 0
-                while (data != null) {
-                    try {
-                        if (header.size() != data.length) {
-                            throw new IllegalStateException("Data row length (${data.length}) does not match number of columns (${header.size()}).")
-                        }
-                        def row = Util.asMap(header, data)
-                        transformRow(row, baseInstanceNum)
-                        progressBar.stepBy(1)
-                        if (config.write) {
-                            tsvWriter.writeNext(row.values()*.toString() as String[])
-                        } else {
-                            batch.add(row)
-                            if (batch.size() == config.batchSize) {
-                                batchCount++
-                                insert.executeBatch(batch.toArray() as Map[])
-                                if (config.flushSize > 0 && batchCount % config.flushSize == 0) {
-                                    tx.flush()
-                                }
-                                batch = []
-                            }
-                        }
-                    } catch (Exception e) {
-                        progressBar.stop()
-                        log.error "Error processing row ${i} of ${table.fileName}: ${e.message}"
-                        throw e
-                    }
-                    data = tsvReader.readNext()
-                    i++
-                }
-                if (batch.size() > 0) {
-                    batchCount++
-                    insert.executeBatch(batch.toArray() as Map[])
-                }
-                progressBar.stop()
-                log.info "${batchCount} batches of ${config.batchSize} inserted."
+            if (data == null) {
                 return
             }
+            int i = 1
+            LinkedHashMap<String, Class> header = Util.verifyHeader(TABLE.fileName, data, columns)
+            def insert = database.getInserter(TABLE, header)
+            def progressBar = new ProgressBar("Insert into ${TABLE}", rowCount - 1)
+            progressBar.start()
+            ArrayList<Map> batch = []
+            data = tsvReader.readNext()
+            i++
+            Integer batchCount = 0
+            while (data != null) {
+                try {
+                    if (header.size() != data.length) {
+                        throw new IllegalStateException(
+                                "Data row length (${data.length}) does not match number of columns (${header.size()}).")
+                    }
+                    def row = Util.asMap(header, data)
+                    transformRow(row, baseInstanceNum)
+                    progressBar.stepBy(1)
+                    loadRow(tsvWriter, header, row, batchCount, batch, insert, tx)
+                } catch (Throwable e) {
+                    progressBar.stop()
+                    log.error "Error processing row ${i} of ${TABLE.fileName}: ${e.message}"
+                    throw e
+                }
+                data = tsvReader.readNext()
+                i++
+            }
+            if (batch.size() > 0) {
+                batchCount++
+                if (config.partition) {
+                    insertRowsToChildTables(batch, header)
+                } else {
+                    insert.executeBatch(batch.toArray() as Map[])
+                }
+            }
+            progressBar.stop()
+            log.info "${batchCount} batches of ${config.batchSize} inserted."
+            void
         }
 
-        if (config.temporaryTable) {
-            // transfer data from temporary table to observations table
-            def columnSpec = columns.collect { it.key }.join(', ')
-            def command = "insert into ${table} (${columnSpec}) select ${columnSpec} from ${temporaryTable}"
-            database.jdbcTemplate.execute(command)
-            tx.flush()
-
-            database.jdbcTemplate.execute("drop table ${temporaryTable}")
-        }
-        database.commit(tx)
         if (config.write) {
             tsvWriter.close()
+        } else {
+            if (config.partition) {
+                createChildTableIndexes()
+                if (config.unlogged) {
+                    setLoggedModeForAllChildTables()
+                }
+            } else if (config.unlogged) {
+                setLoggedMode(TABLE, true)
+            }
         }
+        database.commit(tx)
         log.info "Done loading observations data."
     }
 
+    private void insertRowsToChildTables(List<Map> rows, LinkedHashMap<String, Class> header) {
+        Map<Long, List<Map>> groupedByTrialVisitNumsRows = [:]
+        for (Map row : rows) {
+            Long trialVisitNum = (Long) row.get('trial_visit_num')
+            if (groupedByTrialVisitNumsRows.containsKey(trialVisitNum)) {
+                groupedByTrialVisitNumsRows.get(trialVisitNum).add(row)
+            } else {
+                groupedByTrialVisitNumsRows.put(trialVisitNum, [row])
+            }
+        }
+        for (Map.Entry<Long, List<Map>> childRows : groupedByTrialVisitNumsRows) {
+            def childTable = getOrCreateChildTable(childRows.key)
+            database.getInserter(childTable, header)
+                    .executeBatch(childRows.value.toArray() as Map[])
+        }
+    }
+
+    private Table getOrCreateChildTable(Long trialVisitNum) {
+        if (partitionToTable.containsKey(trialVisitNum)) {
+            return partitionToTable.get(trialVisitNum)
+        }
+        Table childTable = getChildTable(trialVisitNum)
+        database.jdbcTemplate.execute("CREATE ${config.unlogged ? 'UNLOGGED' : ''} TABLE ${childTable}" +
+                "(check (trial_visit_num = ${trialVisitNum})) INHERITS (${TABLE})")
+        partitionToTable.put(trialVisitNum, childTable)
+        childTable
+    }
+
+    static Table getChildTable(long trialVisitNum) {
+        new Table(TABLE.schema, "${TABLE.name}_${trialVisitNum}")
+    }
+
+    private createChildTableIndexes() {
+        for (Map.Entry<Long, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+            createTableIndexesIfNotExistForTable(partitionToTableEntry.value, partitionToTableEntry.key)
+        }
+    }
+
+    private setLoggedModeForAllChildTables() {
+        for (Map.Entry<Long, Table> partitionToTableEntry : partitionToTable.entrySet()) {
+            setLoggedMode(partitionToTableEntry.value, true)
+        }
+    }
+
+    private createTableIndexesIfNotExistForTable(Table tbl, Long partition = null) {
+        def tx = database.beginTransaction()
+        log.info "Creating indexes on ${tbl} ..."
+        if (partition == null) {
+            for (Map.Entry<String, List<String>> parentTableIndexDeclaration: PARENT_TABLE_INDEXES.entrySet()) {
+                def indexName = parentTableIndexDeclaration.key
+                def columns = parentTableIndexDeclaration.value
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, indexName, columns))
+            }
+        } else {
+            for (Map.Entry<String, List<String>> childTableIndexDeclaration: CHILD_TABLE_INDEXES.entrySet()) {
+                def indexName = childTableIndexDeclaration.key
+                def columns = childTableIndexDeclaration.value
+                database.jdbcTemplate.execute(composeCreateIndexSql(tbl, "${indexName}_${partition}", columns))
+            }
+        }
+        // For partitions we still might need trial_visit_num as part of composite index
+        // so query could get everything it needs by index only scan.
+        for (Map.Entry<String, List<String>> nonModifiersTableIndexDeclaration:
+                NON_MODIFIERS_TABLE_INDEXES.entrySet()) {
+            String indexName = partition ? nonModifiersTableIndexDeclaration.key + '_' + partition
+                    : nonModifiersTableIndexDeclaration.key
+            def columns = nonModifiersTableIndexDeclaration.value
+            String createIndexSqlPart = composeCreateIndexSql(tbl, indexName, columns)
+            database.jdbcTemplate.execute("${createIndexSqlPart} where modifier_cd='@'")
+        }
+        database.commit(tx)
+    }
+
+    private static String composeCreateIndexSql(Table table, String name, Iterable<String> columns) {
+        "create index if not exists ${name} on ${table} using btree (${columns.join(', ')})"
+    }
+
+    private void setLoggedMode(Table table, boolean logged) {
+        log.info "Set 'logged' on ${table} to ${logged}"
+        database.jdbcTemplate.execute("alter table ${table} set ${logged ? 'logged' : 'unlogged'}")
+    }
 }

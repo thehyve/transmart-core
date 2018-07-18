@@ -44,9 +44,9 @@ typed twice for every dimension due to the use of generic traits.
 @CompileStatic
 abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
-    final Size size
-    final Density density
-    final Packable packable
+    final Dimension.Size size
+    final Dimension.Density density
+    final Dimension.Packable packable
 
 
     // Size is currently not used.
@@ -82,7 +82,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     // NB: This map only contains the builtin dimensions! To get a dimension that is not necessarily builtin
     // use DimensionDescription.findByName(name).dimension
-    private static final ImmutableMap<String,DimensionImpl> builtinDimensions = ImmutableMap.copyOf([
+    private static final ImmutableMap<String, DimensionImpl> builtinDimensions = ImmutableMap.copyOf([
             (STUDY.name)      : STUDY,
             (CONCEPT.name)    : CONCEPT,
             (PATIENT.name)    : PATIENT,
@@ -97,14 +97,16 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
             (BIOMARKER.name) : BIOMARKER,
             (ASSAY.name)     : ASSAY,
             (PROJECTION.name): PROJECTION,
-    ])
+    ] as Map<String,DimensionImpl>)
 
     static {
         builtinDimensions.values().each { it.verify() }
     }
 
     static DimensionImpl getBuiltinDimension(String name) { builtinDimensions.get(name) }
+
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
+
     @CompileDynamic
     static DimensionImpl fromName(String name) {
         if (name == 'value') {
@@ -113,7 +115,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         DimensionDescription.findByName(name)?.dimension
     }
 
-    DimensionImpl(Size size, Density density, Packable packable) {
+    DimensionImpl(Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
         this.size = size
         this.density = density
         this.packable = packable
@@ -133,6 +135,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         if(res.is(this)) throw new IllegalArgumentException("Resultmap $map does not contain key $alias")
         (T) res
     }
+
     abstract def selectIDs(Query query)
 
     abstract ELKey getElementKey(Map result)
@@ -435,7 +438,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
     synchronized static ModifierDimension get(String name, String modifierCode, String valueType,
-                                              Size size, Density density, Packable packable) {
+                                              Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
         if(name in byName) {
             ModifierDimension dim = byName[name]
             assert dim.is(byCode[dim.modifierCode])
@@ -458,7 +461,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         dim
     }
 
-    private ModifierDimension(String name, String modifierCode, String valueType, Size size, Density density, Packable packable) {
+    private ModifierDimension(String name, String modifierCode, String valueType, Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
         super(size, density, packable)
         this.name = name
         this.modifierCode = modifierCode
@@ -565,6 +568,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String columnName = 'patient.id'
     String keyProperty = 'id'
 
+    // FIXME: do not rely on hardcoded id source
     final static String SOURCE_SUBJECT_KEY = 'SUBJ_ID'
 
     // For patients there are several identifiers. The internal `id` is guaranteed unique, but only meaningful within

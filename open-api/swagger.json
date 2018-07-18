@@ -50,7 +50,7 @@
                   "type": "object",
                   "properties": {
                     "version ids": {
-                      "$ref": "#/definitions/version"
+                      "$ref": "#/definitions/Version"
                     }
                   }
                 }
@@ -76,7 +76,7 @@
           "200": {
             "description": "Successful response.",
             "schema": {
-              "$ref": "#/definitions/version"
+              "$ref": "#/definitions/Version"
             }
           },
           "404": {
@@ -122,7 +122,7 @@
           "200": {
             "description": "Successful response",
             "schema": {
-              "$ref": "#/definitions/hal+jsonStudies"
+              "$ref": "#/definitions/HalStudies"
             }
           }
         }
@@ -147,7 +147,7 @@
           "200": {
             "description": "Successful response",
             "schema": {
-              "$ref": "#/definitions/jsonStudy"
+              "$ref": "#/definitions/JsonStudy"
             }
           }
         }
@@ -177,7 +177,7 @@
                 "ontology_terms": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/ontologyTerm"
+                    "$ref": "#/definitions/OntologyTerm"
                   }
                 }
               }
@@ -212,7 +212,7 @@
           "200": {
             "description": "Successful response",
             "schema": {
-              "$ref": "#/definitions/ontologyTerm"
+              "$ref": "#/definitions/OntologyTerm"
             }
           }
         }
@@ -242,7 +242,7 @@
                 "subjects": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/patient"
+                    "$ref": "#/definitions/Patient"
                   }
                 }
               }
@@ -277,7 +277,7 @@
           "200": {
             "description": "Successful response",
             "schema": {
-              "$ref": "#/definitions/patient"
+              "$ref": "#/definitions/Patient"
             }
           }
         }
@@ -314,7 +314,7 @@
                 "subjects": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/patient"
+                    "$ref": "#/definitions/Patient"
                   }
                 }
               }
@@ -344,7 +344,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/v1observation"
+                "$ref": "#/definitions/LegacyObservation"
               }
             }
           }
@@ -362,7 +362,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/v1observation"
+                "$ref": "#/definitions/LegacyObservation"
               }
             }
           }
@@ -396,7 +396,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/v1observation"
+                "$ref": "#/definitions/LegacyObservation"
               }
             }
           }
@@ -531,7 +531,7 @@
                 "studies": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/v2Study"
+                    "$ref": "#/definitions/Study"
                   }
                 }
               }
@@ -559,7 +559,7 @@
           "200": {
             "description": "Returns one study\n",
             "schema": {
-              "$ref": "#/definitions/v2Study"
+              "$ref": "#/definitions/Study"
             }
           },
           "404": {
@@ -587,7 +587,7 @@
           "200": {
             "description": "Returns one study\n",
             "schema": {
-              "$ref": "#/definitions/v2Study"
+              "$ref": "#/definitions/Study"
             }
           },
           "404": {
@@ -598,7 +598,8 @@
     },
     "/v2/studies/studyIds": {
       "get": {
-        "description": "Gets the studies with study ids `studyIds`.\n",
+        "description": "Gets the studies with study ids `studyIds`. Deprecated: use `/v2/studies` and `/v2/studies/studyId/{studyId}` instead.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -620,7 +621,7 @@
                 "studies": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/v2Study"
+                    "$ref": "#/definitions/Study"
                   }
                 }
               }
@@ -713,7 +714,7 @@
           "200": {
             "description": "Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.\n",
             "schema": {
-              "$ref": "#/definitions/observations"
+              "$ref": "#/definitions/Observations"
             }
           }
         }
@@ -771,7 +772,7 @@
           "200": {
             "description": "Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.\n",
             "schema": {
-              "$ref": "#/definitions/observations"
+              "$ref": "#/definitions/Observations"
             }
           }
         }
@@ -1122,128 +1123,74 @@
       }
     },
     "/v2/observations/table": {
-      "get": {
+      "post": {
         "description": "Returns a tabular view of observations, as a table using specified dimensions for rows and columns\n",
         "tags": [
           "v2"
         ],
         "parameters": [
           {
-            "name": "type",
-            "required": true,
-            "in": "query",
-            "type": "string",
-            "description": "The type of data to retrieve. At the moment only 'clinical' is supported. High dimensional\ndata is not supported.\n"
-          },
-          {
-            "name": "constraint",
-            "required": true,
-            "in": "query",
-            "type": "string",
-            "description": "JSON-encoded constraint specification. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital\nSigns\\\\Heart Rate\\\\\"}`.\n"
-          },
-          {
-            "name": "rowDimensions",
-            "required": true,
-            "in": "query",
-            "type": "string",
-            "description": "Json list of strings, with each string being a dimension name. This specifies the dimensions\nthat form the vertical axis of the table (in order). Example: `['study', 'patient']`\n"
-          },
-          {
-            "name": "columnDimensions",
-            "required": true,
-            "in": "query",
-            "type": "string",
-            "description": "The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table"
-          },
-          {
-            "name": "rowSort",
-            "required": false,
-            "in": "query",
-            "type": "string",
-            "description": "Json list of sort specifications for the row dimensions. A sort specification is\nan element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`\n"
-          },
-          {
-            "name": "columnSort",
-            "required": false,
-            "in": "query",
-            "type": "string",
-            "description": "Analogous to `rowSort`, but for the column dimensions."
-          },
-          {
-            "name": "limit",
-            "required": true,
-            "in": "query",
-            "type": "integer",
-            "description": "The maximum number of rows to return. This determines the size of the result."
-          },
-          {
-            "name": "offset",
-            "required": false,
-            "in": "query",
-            "type": "integer",
-            "description": "The number of rows to skip before the first returned row. If the dataset does not contain at least\nlimit+offset number of rows, the returned result will contain the `limit` last rows of the dataset. (The\nresult also includes the actual offset of the returned rows.)\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/definitions/DataTable"
-          }
-        }
-      },
-      "post": {
-        "description": "The same as the `get` call, but with parameters specified as a JSON object in the request body. Useful if the\nparameters don't fit in a single request. \n\nSee the `get` version for additional documentation.\n",
-        "tags": [
-          "v2"
-        ],
-        "parameters": [
-          {
-            "name": "type",
+            "name": "body",
             "required": true,
             "in": "body",
-            "type": "string"
-          },
-          {
-            "name": "constraint",
-            "required": true,
-            "in": "body",
-            "type": "string"
-          },
-          {
-            "name": "rowDimensions",
-            "required": true,
-            "in": "body",
-            "type": "string"
-          },
-          {
-            "name": "columnDimensions",
-            "required": true,
-            "in": "body",
-            "type": "string"
-          },
-          {
-            "name": "rowSort",
-            "required": false,
-            "in": "body",
-            "type": "string"
-          },
-          {
-            "name": "columnSort",
-            "required": false,
-            "in": "body",
-            "type": "string"
-          },
-          {
-            "name": "limit",
-            "required": true,
-            "in": "body",
-            "type": "integer"
-          },
-          {
-            "name": "offset",
-            "required": false,
-            "in": "body",
-            "type": "integer"
+            "description": "Data table parameters",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "required": true,
+                  "type": "string",
+                  "description": "The type of data to retrieve. At the moment only 'clinical' is supported. High dimensional\ndata is not supported.\n"
+                },
+                "constraint": {
+                  "required": true,
+                  "type": "object",
+                  "description": "Constraint specification. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital\nSigns\\\\Heart Rate\\\\\"}`.\n"
+                },
+                "rowDimensions": {
+                  "required": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "List of strings, with each string being a dimension name. This specifies the dimensions\nthat form the vertical axis of the table (in order). Example: `['study', 'patient']`\n"
+                },
+                "columnDimensions": {
+                  "required": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table"
+                },
+                "rowSort": {
+                  "required": false,
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/SortSpecification"
+                  },
+                  "description": "List of sort specifications for the row dimensions. A sort specification is\nan element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`\n"
+                },
+                "columnSort": {
+                  "required": false,
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/SortSpecification"
+                  },
+                  "description": "Analogous to `rowSort`, but for the column dimensions."
+                },
+                "limit": {
+                  "required": true,
+                  "type": "integer",
+                  "description": "The maximum number of rows to return. This determines the size of the result."
+                },
+                "offset": {
+                  "required": false,
+                  "type": "integer",
+                  "description": "The number of rows to skip before the first returned row. If the dataset does not contain at least\nlimit+offset number of rows, the returned result will contain the `limit` last rows of the dataset. (The\nresult also includes the actual offset of the returned rows.)\n"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -1254,74 +1201,42 @@
       }
     },
     "/v2/observations/crosstable": {
-      "get": {
+      "post": {
         "description": "Returns a tabular view of subject counts, using specified constraints for rows and columns.\nEach cell represents a number of subjects computed as an intersection of column set, row set\nand selected subject set that is specified by subject constraint.\n",
         "tags": [
           "v2"
         ],
         "parameters": [
           {
-            "name": "rowConstraints",
-            "required": true,
-            "in": "query",
-            "type": "array",
-            "description": "List of JSON-encoded constraint specifications. Each constraint is a row header and specifies a row set\npart of the final set computed for a cell.\nExample: `[{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"},\n{\"type\":\"concept\",\"conceptCode\":\"height\"}]`.\n",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "columnConstraints",
-            "required": true,
-            "in": "query",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "subjectConstraint",
-            "required": true,
-            "in": "query",
-            "type": "string",
-            "description": "Json that specifies the constraint for a subject set. In particular, subjectConstraint can be\nof type `patient_set` in order to explicitly specify the id of a set of patients.\nExample: `{“type”:“patient_set”, “patientSetId”: 12345}`.\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/definitions/CrossTable"
-          }
-        }
-      },
-      "post": {
-        "description": "The same as the `get` call, but with parameters specified as a JSON object in the request body. Useful if the\nparameters don't fit in a single request.\n\nSee the `get` version for additional documentation.\n",
-        "tags": [
-          "v2"
-        ],
-        "parameters": [
-          {
-            "name": "rowConstraints",
+            "name": "body",
             "required": true,
             "in": "body",
-            "type": "array",
-            "items": {
-              "type": "string"
+            "description": "Data table parameters",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "rowConstraints": {
+                  "required": true,
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  },
+                  "description": "List of constraint specifications. Each constraint is a row header and specifies a row set\npart of the final set computed for a cell.\nExample: `[{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"},\n{\"type\":\"concept\",\"conceptCode\":\"height\"}]`.\n"
+                },
+                "columnConstraints": {
+                  "required": true,
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "subjectConstraint": {
+                  "required": true,
+                  "type": "object",
+                  "description": "The constraint for a subject set. In particular, subjectConstraint can be\nof type `patient_set` in order to explicitly specify the id of a set of patients.\nExample: `{\"type\": \"patient_set\", \"patientSetId\": 12345}`.\n"
+                }
+              }
             }
-          },
-          {
-            "name": "columnConstraints",
-            "required": true,
-            "in": "body",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "subjectConstraint",
-            "required": true,
-            "in": "query",
-            "type": "string"
           }
         ],
         "responses": {
@@ -1355,7 +1270,7 @@
                 "patients": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/patient"
+                    "$ref": "#/definitions/Patient"
                   }
                 }
               }
@@ -1399,7 +1314,7 @@
                 "patients": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/patient"
+                    "$ref": "#/definitions/Patient"
                   }
                 }
               }
@@ -1427,7 +1342,7 @@
           "200": {
             "description": "Returns one patient\n",
             "schema": {
-              "$ref": "#/definitions/patient"
+              "$ref": "#/definitions/Patient"
             }
           }
         }
@@ -1442,7 +1357,7 @@
           "200": {
             "description": "Gets all patient_sets accessible by the user.\n",
             "schema": {
-              "$ref": "#/definitions/patient_set"
+              "$ref": "#/definitions/PatientSet"
             }
           }
         }
@@ -1473,7 +1388,7 @@
           "200": {
             "description": "an object with the created patient_set or error.\n",
             "schema": {
-              "$ref": "#/definitions/patient_set"
+              "$ref": "#/definitions/PatientSet"
             }
           }
         }
@@ -1497,7 +1412,7 @@
           "200": {
             "description": "Returns one patient_set.\n",
             "schema": {
-              "$ref": "#/definitions/patient_set"
+              "$ref": "#/definitions/PatientSet"
             }
           }
         }
@@ -1518,7 +1433,7 @@
                 "concepts": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/concept"
+                    "$ref": "#/definitions/Concept"
                   }
                 }
               }
@@ -1546,7 +1461,7 @@
           "200": {
             "description": "Returns the concept if it exists and the user has access to it.\n",
             "schema": {
-              "$ref": "#/definitions/concept"
+              "$ref": "#/definitions/Concept"
             }
           },
           "404": {
@@ -1606,7 +1521,7 @@
                 "tree_nodes": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/treeNode"
+                    "$ref": "#/definitions/TreeNode"
                   }
                 }
               }
@@ -1672,7 +1587,7 @@
                 "storageSystems": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/storageSystem"
+                    "$ref": "#/definitions/StorageSystem"
                   }
                 }
               }
@@ -1716,7 +1631,7 @@
           "201": {
             "description": "returns the added storage system object.\n",
             "schema": {
-              "$ref": "#/definitions/storageSystem"
+              "$ref": "#/definitions/StorageSystem"
             }
           }
         }
@@ -1740,7 +1655,7 @@
           "200": {
             "description": "returns the storage system object.\n",
             "schema": {
-              "$ref": "#/definitions/storageSystem"
+              "$ref": "#/definitions/StorageSystem"
             }
           }
         }
@@ -1787,7 +1702,7 @@
           "200": {
             "description": "returns the updated storage system object.\n",
             "schema": {
-              "$ref": "#/definitions/storageSystem"
+              "$ref": "#/definitions/StorageSystem"
             }
           }
         }
@@ -1827,7 +1742,7 @@
                 "files": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/fileLink"
+                    "$ref": "#/definitions/FileLink"
                   }
                 }
               }
@@ -1868,7 +1783,7 @@
           "201": {
             "description": "returns the added file link object.\n",
             "schema": {
-              "$ref": "#/definitions/fileLink"
+              "$ref": "#/definitions/FileLink"
             }
           }
         }
@@ -1892,7 +1807,7 @@
           "200": {
             "description": "returns the file link object.\n",
             "schema": {
-              "$ref": "#/definitions/fileLink"
+              "$ref": "#/definitions/FileLink"
             }
           }
         }
@@ -1936,7 +1851,7 @@
           "200": {
             "description": "returns the updated file link object.\n",
             "schema": {
-              "$ref": "#/definitions/fileLink"
+              "$ref": "#/definitions/FileLink"
             }
           }
         }
@@ -1984,7 +1899,7 @@
                 "files": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/fileLink"
+                    "$ref": "#/definitions/FileLink"
                   }
                 }
               }
@@ -2009,7 +1924,7 @@
                 "supportedWorkflows": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/supportedWorkflow"
+                    "$ref": "#/definitions/SupportedWorkflow"
                   }
                 }
               }
@@ -2058,7 +1973,7 @@
           "201": {
             "description": "returns the created supported workflow object.\n",
             "schema": {
-              "$ref": "#/definitions/supportedWorkflow"
+              "$ref": "#/definitions/SupportedWorkflow"
             }
           }
         }
@@ -2083,7 +1998,7 @@
           "200": {
             "description": "returns the supported workflow object.\n",
             "schema": {
-              "$ref": "#/definitions/supportedWorkflow"
+              "$ref": "#/definitions/SupportedWorkflow"
             }
           }
         }
@@ -2135,7 +2050,7 @@
           "200": {
             "description": "returns the modified supported workflow object.\n",
             "schema": {
-              "$ref": "#/definitions/supportedWorkflow"
+              "$ref": "#/definitions/SupportedWorkflow"
             }
           }
         }
@@ -2186,7 +2101,7 @@
           "200": {
             "description": "Returns list of all elements from the given dimension that user has access to.\n",
             "schema": {
-              "$ref": "#/definitions/dimensionElements"
+              "$ref": "#/definitions/DimensionElements"
             }
           }
         }
@@ -2218,7 +2133,7 @@
           "200": {
             "description": "Returns list of all elements from the given dimension that user has access to.\n",
             "schema": {
-              "$ref": "#/definitions/dimensionElements"
+              "$ref": "#/definitions/DimensionElements"
             }
           }
         }
@@ -2243,7 +2158,7 @@
           "200": {
             "description": "an object with the created export job or error.\n",
             "schema": {
-              "$ref": "#/definitions/export_job"
+              "$ref": "#/definitions/ExportJob"
             }
           }
         }
@@ -2306,7 +2221,7 @@
           "200": {
             "description": "an object with the run export job with status 'Started' or 'Error'.\n",
             "schema": {
-              "$ref": "#/definitions/export_job"
+              "$ref": "#/definitions/ExportJob"
             }
           }
         }
@@ -2340,6 +2255,7 @@
     "/v2/export/{jobId}/status": {
       "get": {
         "description": "Gets a status of specified data export job. Deprecated. Use /v2/export/{jobId} instead.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -2356,7 +2272,7 @@
           "200": {
             "description": "an object with the export job, including its status.\n",
             "schema": {
-              "$ref": "#/definitions/export_job"
+              "$ref": "#/definitions/ExportJob"
             }
           }
         }
@@ -2381,7 +2297,7 @@
           "200": {
             "description": "an object with the export job.\n",
             "schema": {
-              "$ref": "#/definitions/export_job"
+              "$ref": "#/definitions/ExportJob"
             }
           }
         }
@@ -2444,7 +2360,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/export_job"
+                "$ref": "#/definitions/ExportJob"
               }
             }
           }
@@ -2535,7 +2451,7 @@
                 "queries": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/userQuery"
+                    "$ref": "#/definitions/UserQuery"
                   }
                 }
               }
@@ -2585,7 +2501,7 @@
           "201": {
             "description": "returns the added user query object.\n",
             "schema": {
-              "$ref": "#/definitions/userQuery"
+              "$ref": "#/definitions/UserQuery"
             }
           }
         }
@@ -2609,7 +2525,7 @@
           "200": {
             "description": "returns the user query object.\n",
             "schema": {
-              "$ref": "#/definitions/userQuery"
+              "$ref": "#/definitions/UserQuery"
             }
           }
         }
@@ -2687,7 +2603,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/relation_type"
+                "$ref": "#/definitions/RelationType"
               }
             }
           }
@@ -2718,7 +2634,7 @@
                 "querySets": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/userQuerySet"
+                    "$ref": "#/definitions/UserQuerySet"
                   }
                 }
               }
@@ -2750,7 +2666,7 @@
     }
   },
   "definitions": {
-    "version": {
+    "Version": {
       "type": "object",
       "properties": {
         "id": {
@@ -2792,11 +2708,11 @@
         "major"
       ]
     },
-    "v1observation": {
+    "LegacyObservation": {
       "type": "object",
       "properties": {
         "subject": {
-          "$ref": "#/definitions/patient"
+          "$ref": "#/definitions/Patient"
         },
         "label": {
           "type": "string"
@@ -2806,7 +2722,7 @@
         }
       }
     },
-    "ontologyTerm": {
+    "OntologyTerm": {
       "type": "object",
       "properties": {
         "name": {
@@ -2823,7 +2739,7 @@
         }
       }
     },
-    "jsonStudy": {
+    "JsonStudy": {
       "type": "object",
       "properties": {
         "id": {
@@ -2848,7 +2764,7 @@
         }
       }
     },
-    "hal+jsonStudy": {
+    "HalStudy": {
       "type": "object",
       "properties": {
         "id": {
@@ -2927,7 +2843,7 @@
         }
       }
     },
-    "hal+jsonStudies": {
+    "HalStudies": {
       "type": "object",
       "properties": {
         "_links": {
@@ -2949,14 +2865,14 @@
             "studies": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/hal+jsonStudy"
+                "$ref": "#/definitions/HalStudy"
               }
             }
           }
         }
       }
     },
-    "storageSystem": {
+    "StorageSystem": {
       "type": "object",
       "properties": {
         "id": {
@@ -2979,7 +2895,7 @@
         }
       }
     },
-    "fileLink": {
+    "FileLink": {
       "type": "object",
       "properties": {
         "id": {
@@ -3001,7 +2917,7 @@
         }
       }
     },
-    "supportedWorkflow": {
+    "SupportedWorkflow": {
       "type": "object",
       "properties": {
         "id": {
@@ -3028,7 +2944,7 @@
         }
       }
     },
-    "treeNode": {
+    "TreeNode": {
       "type": "object",
       "properties": {
         "children": {
@@ -3081,7 +2997,7 @@
         }
       }
     },
-    "v2Study": {
+    "Study": {
       "type": "object",
       "properties": {
         "id": {
@@ -3121,7 +3037,7 @@
         }
       }
     },
-    "patient": {
+    "Patient": {
       "type": "object",
       "properties": {
         "age": {
@@ -3158,7 +3074,7 @@
         }
       }
     },
-    "patient_set": {
+    "PatientSet": {
       "type": "object",
       "properties": {
         "description": {
@@ -3187,7 +3103,7 @@
         }
       }
     },
-    "concept": {
+    "Concept": {
       "type": "object",
       "properties": {
         "conceptCode": {
@@ -3281,11 +3197,11 @@
       }
     },
     "DataTable": {
-      "description": "A JSON object that represents the dataset in a tabular form. The actual row data can be found in\n`rows*.row`, with the headers and other metadata available in other keys.\n",
+      "description": "A JSON object that represents the dataset in a tabular form. The actual row data can be found in\n`rows*.cells`, with the headers and other metadata available in other keys.\n",
       "schema": {
         "type": "object",
         "properties": {
-          "column_headers": {
+          "columnHeaders": {
             "description": "This property describes the top header of the table. The header can contain multiple rows, each row is\nfound in the `keys` or `elements` property of an item. If the `keys` property is set, it contains\nreferences to dimension elements that are further elaborated in the `column_dimensions` property.\n",
             "type": "array",
             "items": {
@@ -3307,7 +3223,7 @@
                       }
                     ]
                   },
-                  "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table (unless no column dimensions were specified, in which case this list is empty). The items\ndescribe a dimension element, they refer to keys in the\n`row_dimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
+                  "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table (unless no column dimensions were specified, in which case this list is empty). The items\ndescribe a dimension element, they refer to keys in the\n`rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
                 },
                 "elements": {
                   "type": "array",
@@ -3335,7 +3251,7 @@
             "items": {
               "type": "object",
               "properties": {
-                "dimensions": {
+                "rowHeaders": {
                   "description": "The left header cells for this row. Each cell contains the element or a reference to the element of\none row dimension. There is one item for each row dimension in this list, in order.\n",
                   "type": "array",
                   "items": {
@@ -3356,7 +3272,7 @@
                             }
                           ]
                         },
-                        "description": "Analogous to `column_headers*.keys`. The value is a reference to a dimension element\nspecified in `row_dimensions*.elements` for the specified dimension.\n\nThis property is mutually exclusive with the `element` property.\n"
+                        "description": "Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element\nspecified in `rowDimensions*.elements` for the specified dimension.\n\nThis property is mutually exclusive with the `element` property.\n"
                       },
                       "element": {
                         "type": {
@@ -3369,7 +3285,7 @@
                             }
                           ]
                         },
-                        "description": "Analogous to `column_headers*.elements`. This is a single dimension element if that dimension\nelement is a single string, number or date. A date is represented as a formatted string.\n\nThis property is mutually exclusive with the `key` property.\n"
+                        "description": "Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension\nelement is a single string, number or date. A date is represented as a formatted string.\n\nThis property is mutually exclusive with the `key` property.\n"
                       }
                     },
                     "required": [
@@ -3377,7 +3293,7 @@
                     ]
                   }
                 },
-                "row": {
+                "cells": {
                   "type": "array",
                   "items": {
                     "oneOf": [
@@ -3402,12 +3318,12 @@
                       }
                     ]
                   },
-                  "description": "The row data for a single table row. The items are strings or numbers or dates (represented as a\nformatted string). The length of each row is the same, and is the same as the size of the\n`column_headers*.keys` and `column_headers*.elements` lists.\n\nThe item can also be an array of strings, numbers or dates. This happens if multiple values fall\ninto the same table cell.\n"
+                  "description": "The row data for a single table row. The items are strings or numbers or dates (represented as a\nformatted string). The length of each row is the same, and is the same as the size of the\n`columnHeaders*.keys` and `columnHeaders*.elements` lists.\n\nThe item can also be an array of strings, numbers or dates. This happens if multiple values fall\ninto the same table cell.\n"
                 }
               }
             }
           },
-          "row_dimensions": {
+          "rowDimensions": {
             "description": "This property contains a description of the row dimensions. It is a list of objects, with each object\ndescribing one dimension. If the dimension has its elements inlined the description here will only\ncontain the dimension name. If the headers contain keys the full dimension elements can be found in the\n`elements` map. This map is indexed by the key found in the headers. The elements themselves are a\nfree-form maps with the properties depending on the dimension type, but every element has at least a\n`label` property (which is often the same as the key, though not always).\n",
             "type": "array",
             "items": {
@@ -3437,8 +3353,8 @@
               ]
             }
           },
-          "column_dimensions": {
-            "description": "The same as `row_dimensions`, but for the column dimensions.\n",
+          "columnDimensions": {
+            "description": "The same as `rowDimensions`, but for the column dimensions.\n",
             "type": "array",
             "items": {
               "type": "object",
@@ -3469,41 +3385,23 @@
             "description": "This property lists the sort order that was used in creating the dataset. This will generally include all\nthe dimensions that were specified as row or column dimensions. This property includes both the row\nand column dimensions, with row dimensions first and column dimensions followed by that.\n",
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "dimension": {
-                  "type": "string",
-                  "description": "the name of a dimension"
-                },
-                "sortOrder": {
-                  "type": "string",
-                  "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
-                },
-                "user_requested": {
-                  "type": "boolean",
-                  "description": "Whether sorting on this dimension was explicitly requested by the client, i.e. set to\ntrue if this dimension was part of the `rowSort` or `columnSort` request parameter.\n\nThis parameter is optional, the default is `false`.\n"
-                }
-              },
-              "required": [
-                "dimension",
-                "order"
-              ]
+              "$ref": "#/definitions/SortResponse"
             }
           },
           "offset": {
             "type": "integer",
             "description": "the offset of the first returned row in the full dataset"
           },
-          "row count": {
+          "rowCount": {
             "type": "integer",
             "description": "The total number of rows available. This property is only set if the total is known, which is\ngenerally only the case if the last row is part of this result.\n"
           }
         },
         "required": [
-          "column_headers",
+          "columnHeaders",
           "rows",
-          "row_dimensions",
-          "sorting",
+          "rowDimensions",
+          "sort",
           "offset"
         ]
       }
@@ -3526,7 +3424,7 @@
         ]
       }
     },
-    "observation": {
+    "Observation": {
       "type": "object",
       "properties": {
         "conceptCode": {
@@ -3588,7 +3486,7 @@
         }
       }
     },
-    "observations": {
+    "Observations": {
       "type": "object",
       "properties": {
         "header": {
@@ -3597,7 +3495,7 @@
             "dimensionDeclarations": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/dimensionDeclaration"
+                "$ref": "#/definitions/DimensionDeclaration"
               }
             },
             "sort": {
@@ -3626,7 +3524,7 @@
         "cells": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/cell"
+            "$ref": "#/definitions/Cell"
           }
         },
         "footer": {
@@ -3637,7 +3535,7 @@
               "items": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/definitions/dimensionValue"
+                  "$ref": "#/definitions/DimensionValue"
                 }
               }
             }
@@ -3645,7 +3543,7 @@
         }
       }
     },
-    "dimensionDeclaration": {
+    "DimensionDeclaration": {
       "type": "object",
       "properties": {
         "inline": {
@@ -3656,7 +3554,7 @@
           "description": "Fields is omitted if the dimension consists of one field.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/field"
+            "$ref": "#/definitions/Field"
           }
         },
         "name": {
@@ -3668,7 +3566,7 @@
         }
       }
     },
-    "field": {
+    "Field": {
       "type": "object",
       "properties": {
         "name": {
@@ -3680,7 +3578,7 @@
         }
       }
     },
-    "cell": {
+    "Cell": {
       "type": "object",
       "description": "numericValue or stringValue, never both.",
       "properties": {
@@ -3694,7 +3592,7 @@
         "inlineDimensions": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/dimensionValue"
+            "$ref": "#/definitions/DimensionValue"
           }
         },
         "numericValue": {
@@ -3705,11 +3603,11 @@
         }
       }
     },
-    "dimensionValue": {
+    "DimensionValue": {
       "type": "object",
       "description": "The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header."
     },
-    "dimensionElements": {
+    "DimensionElements": {
       "type": "object",
       "properties": {
         "apiVersion": {
@@ -3724,7 +3622,7 @@
         }
       }
     },
-    "export_job": {
+    "ExportJob": {
       "type": "object",
       "properties": {
         "id": {
@@ -3748,7 +3646,7 @@
         }
       }
     },
-    "userQuery": {
+    "UserQuery": {
       "type": "object",
       "properties": {
         "id": {
@@ -3788,7 +3686,7 @@
         }
       }
     },
-    "userQuerySet": {
+    "UserQuerySet": {
       "type": "object",
       "properties": {
         "id": {
@@ -3883,7 +3781,8 @@
         }
       }
     },
-    "relation_type": {
+    "RelationType": {
+      "description": "Relation type",
       "type": "object",
       "properties": {
         "id": {
@@ -3902,6 +3801,46 @@
           "type": "boolean"
         }
       }
+    },
+    "SortSpecification": {
+      "description": "Specifies dimension to sort on and the sorting direction.",
+      "type": "object",
+      "properties": {
+        "dimension": {
+          "type": "string",
+          "description": "the name of the dimension to sort on"
+        },
+        "sortOrder": {
+          "type": "string",
+          "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
+        }
+      },
+      "required": [
+        "dimension",
+        "sortOrder"
+      ]
+    },
+    "SortResponse": {
+      "description": "Specifies dimension to sort on and the sorting direction.",
+      "type": "object",
+      "properties": {
+        "dimension": {
+          "type": "string",
+          "description": "the name of the dimension to sort on"
+        },
+        "sortOrder": {
+          "type": "string",
+          "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
+        },
+        "userRequested": {
+          "type": "boolean",
+          "description": "Whether sorting on this dimension was explicitly requested by the client, i.e., set to\ntrue if this dimension was part of the `rowSort` or `columnSort` request parameter.\nThis parameter is optional, the default is `false`.\n"
+        }
+      },
+      "required": [
+        "dimension",
+        "sortOrder"
+      ]
     }
   }
 }

@@ -10,9 +10,7 @@ import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
 import static config.Config.PATH_OBSERVATIONS
 import static config.Config.TUMOR_NORMAL_SAMPLES_ID
-import static constraints.Combination
-import static constraints.ConceptConstraint
-import static tests.rest.Operator.OR
+import static tests.rest.constraints.ConceptConstraint
 
 @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
 class ModifiersSpec extends RESTSpec {
@@ -27,7 +25,7 @@ class ModifiersSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: constraints.StudyNameConstraint, studyId: TUMOR_NORMAL_SAMPLES_ID])
+                query     : [constraint: [type: constraints.StudyNameConstraint, studyId: TUMOR_NORMAL_SAMPLES_ID]]
         ]
 
         when: "I get all observations"
@@ -60,14 +58,13 @@ class ModifiersSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
-                        type    : Combination,
-                        operator: OR,
+                query     : [constraint: [
+                        type    : 'or',
                         args    : [
                                 [type: ConceptConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Lab\\Cell Count\\"],
                                 [type: ConceptConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\HD\\Breast\\"]
                         ]
-                ])
+                ]]
         ]
 
         when: "I get all observations"

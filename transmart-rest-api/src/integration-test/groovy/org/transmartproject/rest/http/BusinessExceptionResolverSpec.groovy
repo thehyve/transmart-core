@@ -41,4 +41,5 @@ class BusinessExceptionResolverSpec extends Specification {
         beans Matchers.hasEntry(equalTo('businessExceptionResolver'),
                 any(BusinessExceptionResolver))
     }
+
 }

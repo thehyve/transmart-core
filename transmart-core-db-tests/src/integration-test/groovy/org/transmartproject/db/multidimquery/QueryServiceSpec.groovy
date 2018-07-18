@@ -20,8 +20,10 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.querytool.QueryResultType
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.dataquery.clinical.ClinicalTestData
+import spock.lang.Specification
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
@@ -33,10 +35,11 @@ import spock.lang.Ignore
 import java.sql.Timestamp
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
+import static org.transmartproject.db.TestDataHelper.save
 
 @Rollback
 @Integration
-class QueryServiceSpec extends TransmartSpecification {
+class QueryServiceSpec extends Specification {
 
     @Autowired
     SessionFactory sessionFactory
@@ -112,7 +115,7 @@ class QueryServiceSpec extends TransmartSpecification {
         }
 
         ObservationFact observationFact = clinicalTestdata.createObservationFact(
-                conceptDimension, patientDimension, clinicalTestdata.DUMMY_ENCOUNTER_ID, obs.value
+                conceptDimension, patientDimension, clinicalTestdata.DUMMY_ENCOUNTER_ID, obs.value, obs.trialVisit
         )
 
         observationFact
@@ -360,10 +363,8 @@ class QueryServiceSpec extends TransmartSpecification {
         setupData()
         ObservationFact of1 = createObservationWithSameConcept()
         of1.numberValue = 50
-        testData.clinicalData.facts << of1
-        testData.saveAll()
+        save([of1])
         def query = createQueryForConcept(of1.conceptCode)
-
         when:
         def counts1 = aggregateDataResource.counts(query, accessLevelTestData.users[0])
 
@@ -375,8 +376,7 @@ class QueryServiceSpec extends TransmartSpecification {
         ObservationFact of2 = createObservationWithSameConcept()
         of2.numberValue = 51
         of2.patient = of1.patient
-        testData.clinicalData.facts << of2
-        testData.saveAll()
+        save([of2])
         systemResource.clearCaches()
         def counts2 = aggregateDataResource.counts(query, accessLevelTestData.users[0])
 
@@ -656,6 +656,13 @@ class QueryServiceSpec extends TransmartSpecification {
         true      | _
     }
 
+    @Ignore
+    /**
+     * FIXME: We need to determine which dimensions are sortable, under which conditions.
+     * E.g., study and trial visit are not per se sortable, if we do not check consistency of
+     * the data in observation_fact, i.e., that rows with the same primary key have the same values
+     * for all other sortable dimensions (study, trial visit, end time).
+     */
     void 'test_failing_sort'() {
         setupHypercubeData()
 

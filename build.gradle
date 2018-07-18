@@ -3,6 +3,7 @@ buildscript {
         assetPipelineVersion = '2.11.6'
         grailsVersion = '3.2.3'
         guavaVersion = '19.0'
+        jansiVersion = '1.14'
         protobufVersion = '3.1.0'
     }
     repositories {
@@ -23,26 +24,32 @@ buildscript {
         classpath "com.google.protobuf:protobuf-java-util:${protobufVersion}"
         classpath 'org.grails.plugins:views-gradle:1.0.12'
         classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
+        classpath "org.fusesource.jansi:jansi:${jansiVersion}"
+        classpath 'org.owasp:dependency-check-gradle:3.2.1'
     }
 }
 
+// Workaround suggested in https://github.com/gradle/gradle/issues/778
+org.fusesource.jansi.AnsiConsole.out.println('[init jansi library conflict workaround]')
+
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
+apply plugin: 'org.owasp.dependencycheck'
 
 ext {
     transmartVersion = '17.1-HYVE-5-RC1'
 
     assetPipelineVersion = '2.11.6'
-    gradleWrapperVersion = '2.13'
+    gradleWrapperVersion = '3.5.1'
     grailsVersion = '3.2.3'
     guavaVersion = '19.0'
-    jacksonVersion = '2.9.1'
-    modelMapperVersion = '1.1.0'
+    jacksonVersion = '2.9.5'
+    modelMapperVersion = '1.1.3'
     ojdb7Version = '12.1.0.1'
-    openCsvVersion = '4.0'
+    openCsvVersion = '4.2'
     postgresqlVersion = '42.1.4'
     protobufVersion = '3.1.0'
-    quartzVersion = '2.0.8'
+    quartzVersion = '2.0.13'
     springSecurityOauth2PluginVersion = '3.0.0-RC2'
     springSecurityPluginVersion = '3.1.1'
     springSecurityVersion = '3.2.3.RELEASE'
@@ -96,9 +103,15 @@ subprojects { project ->
             apply plugin: 'org.grails.grails-web'
         } else {
             apply plugin: 'org.grails.grails-plugin'
+            bootRepackage.enabled = false
         }
         apply plugin: 'org.grails.grails-gsp'
         apply plugin: 'asset-pipeline'
+
+        // See https://docs.gradle.org/3.2/release-notes.html#usage-of-jansi-library-embedded-with-java-annotation-processor
+        tasks.withType(JavaCompile) {
+            options.fork = true
+        }
 
         dependencyManagement {
             imports {

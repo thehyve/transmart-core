@@ -8,9 +8,12 @@ import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.MultipleSubSelectionsConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
-import org.transmartproject.db.multidimquery.CrossTableImpl
 
 @CompileStatic
 class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
@@ -18,43 +21,47 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
     @Autowired
     PatientSetResource patientSetResource
 
-    @Autowired
-    AggregateDataService aggregateDataService
-
     @Override
     CrossTable retrieveCrossTable(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
                                   Constraint subjectConstraint, User user) {
-
         log.info "Building a cross table..."
-        List rows = []
+        // Check access for the constraint parameters
+        def requiredAccessLevel = PatientDataAccessLevel.SUMMARY
+        checkAccess(subjectConstraint, user, requiredAccessLevel)
+        for (Constraint rowConstraint: rowConstraints) {
+            checkAccess(rowConstraint, user, requiredAccessLevel)
+        }
+        for (Constraint columnConstraint: columnConstraints) {
+            checkAccess(columnConstraint, user, requiredAccessLevel)
+        }
+
+        List<List<Long>> rows = []
         for (Constraint rowConstraint : rowConstraints) {
-            def counts = []
+            def counts = [] as List<Long>
             for (Constraint columnConstraint : columnConstraints) {
                 counts.add(getCrossTableCell(rowConstraint, columnConstraint, subjectConstraint, user))
             }
-            rows.add(new CrossTableImpl.CrossTableRowImpl(counts))
+            rows.add(counts)
         }
-        new CrossTableImpl(rows)
+        new CrossTable(rows)
     }
 
     private Long getCrossTableCell(Constraint rowConstraint,
                                    Constraint columnConstraint,
                                    Constraint subjectConstraint,
                                    User user) {
-        def constraints = [rowConstraint, columnConstraint, subjectConstraint] as List<Constraint>
-        for(Constraint constraint in constraints) {
-            try {
-                checkAccess(constraint, user)
-            } catch(AccessDeniedException e) {
-                log.warn e.message
-                return 0
-            }
-        }
-
-        Constraint crossConstraint = new AndConstraint(constraints.collect {
-            new SubSelectionConstraint("patient", it) as Constraint
-        })
-        return aggregateDataService.counts(crossConstraint, user).patientCount
+        Constraint crossConstraint = new AndConstraint([
+                new SubSelectionConstraint('patient', subjectConstraint),
+                new SubSelectionConstraint('patient', rowConstraint),
+                new SubSelectionConstraint('patient', columnConstraint),
+        ] as List<Constraint>)
+        def patientSet = patientSetResource.createPatientSetQueryResult(
+                'Cross table cell',
+                crossConstraint,
+                user,
+                'v2',
+                true)
+        patientSet.setSize
     }
 
 }

@@ -8,6 +8,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.ontology.StudiesResource
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.storage.LinkedFileCollection
 import org.transmartproject.rest.user.AuthContext
@@ -16,7 +17,6 @@ import javax.annotation.Resource
 
 import static org.springframework.http.HttpStatus.CREATED
 import static org.springframework.http.HttpStatus.OK
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 /**
  * Created by piotrzakrzewski on 02/12/2016.
@@ -28,6 +28,9 @@ class StorageController extends RestfulController<LinkedFileCollection> {
 
     @Autowired
     AuthContext authContext
+
+    @Autowired
+    AuthorisationChecks authorisationChecks
 
     @Resource
     StudiesResource studiesResourceService
@@ -44,7 +47,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
             notFound()
             return
         }
-        if (!authContext.user.canPerform(READ, fileCollection.study)) {
+        if (!authorisationChecks.hasAnyAccess(authContext.user, fileCollection.study)) {
             throw new AccessDeniedException()
         }
         respond fileCollection
@@ -89,7 +92,7 @@ class StorageController extends RestfulController<LinkedFileCollection> {
     @Transactional(readOnly = true)
     def indexStudy(String studyId) {
         def study = Study.findByStudyId(studyId)
-        if (!authContext.user.canPerform(READ, study)) {
+        if (!authorisationChecks.hasAnyAccess(authContext.user, study)) {
             throw new AccessDeniedException()
         }
         def filesInStudy = LinkedFileCollection.findAllByStudy(study)

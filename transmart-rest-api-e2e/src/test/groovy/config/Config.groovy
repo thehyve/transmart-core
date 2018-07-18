@@ -2,21 +2,50 @@
 
 package config
 
+import base.AuthMethod
 import base.ContentTypeFor
 import base.TestContext
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovyx.net.http.ChainedHttpConfig
 import groovyx.net.http.FromServer
+
+import java.util.function.Function
 
 import static groovyx.net.http.HttpBuilder.configure
 import static groovyx.net.http.HttpVerb.GET
 
+@CompileStatic
 class Config {
-    //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
-    public static
-    final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8080/'
-//    public static final AuthAdapter authAdapter = new AuthAdapterOauth()
 
-    //Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
+    public static <T> T getProperty(String key, T defaultValue, Class<T> type) {
+        T value
+        String property = System.getProperty(key)
+        if (property == null) {
+            value = defaultValue
+        } else {
+            if (type == Boolean) {
+                value = property.toBoolean() as T
+            } else {
+                value = property as T
+            }
+        }
+        println "Configuration property '${key}': ${value} [${type.simpleName}]"
+        value
+    }
+
+    // $ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
+    public static final String BASE_URL = getProperty('baseUrl', 'http://localhost:8081/', String)
+
+     // Configure whether the currently used application for providing a REST API for a TranSMART supports the `v1` API.
+     // In particular, if the application is transmart-api-server, this should be set to false.
+    public static final Boolean IS_V1_API_SUPPORTED = getProperty('v1Supported', Boolean.FALSE, Boolean)
+
+    // Configure the authentication method: using Keycloak (OIDC) or spring security plugin (OAuth2) - transmart-oauth
+    // $ gradle -DauthMethod=OAuth2 test
+    public static final AuthMethod AUTH_METHOD = getProperty('authMethod', AuthMethod.OIDC, AuthMethod)
+
+    // Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
     public static final TestContext testContext = new TestContext().setHttpBuilder(configure {
         request.uri = BASE_URL
         // custom parsers
@@ -24,7 +53,7 @@ class Config {
             ProtobufHelper.parse(fs.inputStream)
         }
         // custom interceptor
-        execution.interceptor(GET) { cfg, fx ->
+        execution.interceptor(GET) { ChainedHttpConfig cfg, Function fx ->
             // set default type for PATH_OBSERVATIONS
             if (cfg.request.uri.path == PATH_OBSERVATIONS && !cfg.request.uri.query.type) {
                 cfg.request.uri.query.type = 'clinical'
@@ -37,11 +66,21 @@ class Config {
     public static final String UNRESTRICTED_USER = 'test-public-user-2'
     public static final String ADMIN_USER = 'admin'
 
+    // Configure Keycloak settings
+    public static final String AUTH_SERVER_URL = 'http://localhost:8080/'
+    public static final String REALM = 'test'
+    public static final String RESOURCE = 'transmart'
+    public static final Map<String, String> USER_SUB_MAPPING = [
+            (DEFAULT_USER)     : '01ec82a4-dd7d-45ff-ac14-c5e10c20eb44',
+            (UNRESTRICTED_USER): '01ec82a4-dd7d-45ff-ac14-c5e10c20eb44',
+            (ADMIN_USER)       : '75154b3b-fff2-4727-8d9a-96dfdbae39bb'
+    ]
+
     public static final String VERSIONS_PATH = '/versions'
     public static final String NON_EXISTING_API_VERSION = 'v0'
 
     public static final String V1_PATH_STUDIES = "/v1/studies"
-    public static final String V1_PATH_observations = "/v1/observations"
+    public static final String V1_PATH_OBSERVATIONS = "/v1/observations"
     public static final String V1_PATH_PATIENT_SETS = "/v1/patient_sets"
 
     public static final String PATH_OBSERVATIONS = "/v2/observations"
@@ -71,7 +110,6 @@ class Config {
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'
     public static final String GSE8581_ID = 'GSE8581'
-    public static final String CELL_LINE_ID = 'CELL-LINE'
     public static final String EHR_ID = 'EHR'
     public static final String EHR_HIGHDIM_ID = 'EHR_HIGHDIM'
     public static final String CLINICAL_TRIAL_ID = 'CLINICAL_TRIAL'

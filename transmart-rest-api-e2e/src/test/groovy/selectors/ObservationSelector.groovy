@@ -4,7 +4,7 @@ package selectors
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
-class ObservationSelector {
+class ObservationSelector implements Selector {
 
     final ObservationsMessageProto protoMessage
     final int cellCount
@@ -123,7 +123,7 @@ class ObservationSelector {
      * @param cellIndex
      * @return the value of a cell
      */
-    def select(cellIndex) {
+    def select(int cellIndex) {
         String stringValue = protoMessage.cells.get(cellIndex).stringValue
         return stringValue.empty ? protoMessage.cells.get(cellIndex).numericValue : stringValue
     }

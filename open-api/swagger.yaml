@@ -342,7 +342,7 @@ paths:
                 type: object
                 properties:
                   version ids:
-                    $ref: "#/definitions/version"
+                    $ref: "#/definitions/Version"
 
   /versions/{id}:
     get:
@@ -359,7 +359,7 @@ paths:
         200:
           description: Successful response.
           schema:
-            $ref: "#/definitions/version"
+            $ref: "#/definitions/Version"
 
         404:
           description: Version not available.
@@ -391,7 +391,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/hal+jsonStudies"
+            $ref: "#/definitions/HalStudies"
   /v1/studies/{studyid}:
     get:
       description: |
@@ -408,7 +408,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/jsonStudy"
+            $ref: "#/definitions/JsonStudy"
   /v1/studies/{studyid}/concepts:
     get:
       parameters:
@@ -430,7 +430,7 @@ paths:
               ontology_terms:
                 type: array
                 items: 
-                  $ref: "#/definitions/ontologyTerm"
+                  $ref: "#/definitions/OntologyTerm"
   /v1/studies/{studyid}/concepts/{conceptPath}:
     get:
       parameters:
@@ -452,7 +452,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/ontologyTerm"
+            $ref: "#/definitions/OntologyTerm"
   /v1/studies/{studyid}/subjects:
     get:
       parameters:
@@ -474,7 +474,7 @@ paths:
               subjects:
                 type: array
                 items:
-                  $ref: '#/definitions/patient'
+                  $ref: '#/definitions/Patient'
   /v1/studies/{studyid}/subjects/{subjectid}:
     get:
       parameters:
@@ -496,7 +496,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: '#/definitions/patient'
+            $ref: '#/definitions/Patient'
   /v1/studies/{studyid}/concepts/{conceptPath}/subjects:
     get:
       parameters:
@@ -523,7 +523,7 @@ paths:
               subjects:
                 type: array
                 items:
-                  $ref: '#/definitions/patient'
+                  $ref: '#/definitions/Patient'
   /v1/studies/{studyid}/observations:
     get:
       parameters:
@@ -542,7 +542,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/v1observation'
+              $ref: '#/definitions/LegacyObservation'
   /v1/observations:
     get:
       tags:
@@ -553,7 +553,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/v1observation'
+              $ref: '#/definitions/LegacyObservation'
   /v1/studies/{studyId}/concepts/{conceptPath}/observations:
     get:
       parameters:
@@ -575,7 +575,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/v1observation'
+              $ref: '#/definitions/LegacyObservation'
   /v1/patient_sets/:
     post:
       parameters:
@@ -666,7 +666,7 @@ paths:
               studies:
                 type: array
                 items:
-                  $ref: '#/definitions/v2Study'
+                  $ref: '#/definitions/Study'
   /v2/studies/{id}:
     get:
       description: |
@@ -684,7 +684,7 @@ paths:
           description: |
             Returns one study
           schema:
-            $ref: "#/definitions/v2Study"
+            $ref: "#/definitions/Study"
         404:
           description: |
             Study not found or no access
@@ -705,14 +705,15 @@ paths:
           description: |
             Returns one study
           schema:
-            $ref: "#/definitions/v2Study"
+            $ref: "#/definitions/Study"
         404:
           description: |
             Study not found or no access
   /v2/studies/studyIds:
     get:
       description: |
-        Gets the studies with study ids `studyIds`.
+        Gets the studies with study ids `studyIds`. Deprecated: use `/v2/studies` and `/v2/studies/studyId/{studyId}` instead.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -731,7 +732,7 @@ paths:
               studies:
                 type: array
                 items:
-                  $ref: '#/definitions/v2Study'
+                  $ref: '#/definitions/Study'
         404:
           description: |
             Study not found or no access
@@ -815,7 +816,7 @@ paths:
           description: |
             Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
           schema:
-            $ref: '#/definitions/observations'
+            $ref: '#/definitions/Observations'
     post:
           description: |
             Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -855,22 +856,27 @@ paths:
               description: |
                 Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
               schema:
-                $ref: '#/definitions/observations'
+                $ref: '#/definitions/Observations'
+
   /v2/observations/aggregates_per_concept:
     get:
       description: |
-        Calculates and returns an aggregates for both types of concepts, categorical and numerical.
+        Calculates and returns an aggregates for both types of concepts, categorical and numerical. Deprecated. Use POST instead.
+      deprecated: true
       tags:
         - v2
       parameters:
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
-          type: string
+          description: |
+            Constraint specification. Example: `{"type":"concept","conceptCode":"EHR:VSIGN:HR"}`.'
+          type: object
       responses:
         200:
-          description: 'return the result in a json object. Example: `{min: 56}`.'
+          description: |
+            Returns the result as a map from concept code to aggregates.
+            Example: `{"aggregatesPerConcept":{"EHR:VSIGN:HR": {"numericalValueAggregates":{"min":56,"max":102,"count":9,"avg":74.78,"stdDev":14.7}}}}`.'
           schema:
             type: object
             properties:
@@ -878,7 +884,7 @@ paths:
                 $ref: '#/definitions/AggregatesMap'
     post:
       description: |
-        Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+        Calculates and returns an aggregates for both types of concepts, categorical and numerical.
       tags:
         - v2
       consumes:
@@ -890,17 +896,21 @@ paths:
             type: object
             properties:
               constraint:
-                type: string
-                description: see GET parameters
-            required: [ "constraint" ]
+                type: object
+                required: true
+                description: |
+                  Constraint specification. Example: `{"type":"concept","conceptCode":"EHR:VSIGN:HR"}`.'
       responses:
         200:
-          description: 'return the result in a json object. Example: `{"aggregatesPerConcept": "GENDER": { "categoricalValueAggregatesPerConcept": { "valueCounts": { "Female": 323, "Male": 312} } }}`.'
+          description: |
+            Returns the result as a map from concept code to aggregates.
+            Example: `{"aggregatesPerConcept":{"EHR:VSIGN:HR": {"numericalValueAggregates":{"min":56,"max":102,"count":9,"avg":74.78,"stdDev":14.7}}}}`.'
           schema:
             type: object
             properties:
               aggregatesPerConcept:
                 $ref: '#/definitions/AggregatesMap'
+
   /v2/observations/counts:
     get:
       description: |
@@ -1087,115 +1097,79 @@ paths:
                 $ref: '#/definitions/CountsMapMap'
 
   /v2/observations/table:
-    get:
+    post:
       description: |
         Returns a tabular view of observations, as a table using specified dimensions for rows and columns
       tags:
         - v2
       parameters:
-        - name: type
+        - name: body
           required: true
-          in: query
-          type: string
-          description: |
-            The type of data to retrieve. At the moment only 'clinical' is supported. High dimensional
-            data is not supported.
-        - name: constraint
-          required: true
-          in: query
-          type: string
-          description: |
-            JSON-encoded constraint specification. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital
-            Signs\\Heart Rate\\"}`.
-        - name: rowDimensions
-          required: true
-          in: query
-          type: string
-          description: |
-            Json list of strings, with each string being a dimension name. This specifies the dimensions
-            that form the vertical axis of the table (in order). Example: `['study', 'patient']`
-        - name: columnDimensions
-          required: true
-          in: query
-          type: string
-          description: The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table
-        - name: rowSort
-          required: false
-          in: query
-          type: string
-          description: |
-            Json list of sort specifications for the row dimensions. A sort specification is
-            an element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a
-            dimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is
-            part of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.
-            Example: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`
-        - name: columnSort
-          required: false
-          in: query
-          type: string
-          description: Analogous to `rowSort`, but for the column dimensions.
-        - name: limit
-          required: true
-          in: query
-          type: integer
-          description: The maximum number of rows to return. This determines the size of the result.
-        - name: offset
-          required: false
-          in: query
-          type: integer
-          description: |
-            The number of rows to skip before the first returned row. If the dataset does not contain at least
-            limit+offset number of rows, the returned result will contain the `limit` last rows of the dataset. (The
-            result also includes the actual offset of the returned rows.)
+          in: body
+          description: Data table parameters
+          schema:
+            type: object
+            properties:
+              type:
+                required: true
+                type: string
+                description: |
+                  The type of data to retrieve. At the moment only 'clinical' is supported. High dimensional
+                  data is not supported.
+              constraint:
+                required: true
+                type: object
+                description: |
+                  Constraint specification. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital
+                  Signs\\Heart Rate\\"}`.
+              rowDimensions:
+                required: true
+                type: array
+                items:
+                  type: string
+                description: |
+                  List of strings, with each string being a dimension name. This specifies the dimensions
+                  that form the vertical axis of the table (in order). Example: `['study', 'patient']`
+              columnDimensions:
+                required: true
+                type: array
+                items:
+                  type: string
+                description: The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table
+              rowSort:
+                required: false
+                type: array
+                items:
+                  $ref: '#/definitions/SortSpecification'
+                description: |
+                  List of sort specifications for the row dimensions. A sort specification is
+                  an element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a
+                  dimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is
+                  part of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.
+                  Example: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`
+              columnSort:
+                required: false
+                type: array
+                items:
+                  $ref: '#/definitions/SortSpecification'
+                description: Analogous to `rowSort`, but for the column dimensions.
+              limit:
+                required: true
+                type: integer
+                description: The maximum number of rows to return. This determines the size of the result.
+              offset:
+                required: false
+                type: integer
+                description: |
+                  The number of rows to skip before the first returned row. If the dataset does not contain at least
+                  limit+offset number of rows, the returned result will contain the `limit` last rows of the dataset. (The
+                  result also includes the actual offset of the returned rows.)
       responses:
         200:
           $ref: '#/definitions/DataTable'
-    post:
-      description: |
-        The same as the `get` call, but with parameters specified as a JSON object in the request body. Useful if the
-        parameters don't fit in a single request. 
-        
-        See the `get` version for additional documentation.
-      tags:
-        - v2
-      parameters:
-        - name: type
-          required: true
-          in: body
-          type: string
-        - name: constraint
-          required: true
-          in: body
-          type: string
-        - name: rowDimensions
-          required: true
-          in: body
-          type: string
-        - name: columnDimensions
-          required: true
-          in: body
-          type: string
-        - name: rowSort
-          required: false
-          in: body
-          type: string
-        - name: columnSort
-          required: false
-          in: body
-          type: string
-        - name: limit
-          required: true
-          in: body
-          type: integer
-        - name: offset
-          required: false
-          in: body
-          type: integer
-      responses:
-        200:
-          $ref: '#/definitions/DataTable'
+
   /v2/observations/crosstable:
-    get:
+    post:
       description: |
         Returns a tabular view of subject counts, using specified constraints for rows and columns.
         Each cell represents a number of subjects computed as an intersection of column set, row set
@@ -1203,64 +1177,39 @@ paths:
       tags:
         - v2
       parameters:
-        - name: rowConstraints
-          required: true
-          in: query
-          type: array
-          description: |
-            List of JSON-encoded constraint specifications. Each constraint is a row header and specifies a row set
-            part of the final set computed for a cell.
-            Example: `[{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"},
-            {"type":"concept","conceptCode":"height"}]`.
-          items:
-            type: string
-        - name: columnConstraints
-          required: true
-          in: query
-          type: array
-          items:
-            type: string
-        - name: subjectConstraint
-          required: true
-          in: query
-          type: string
-          description: |
-            Json that specifies the constraint for a subject set. In particular, subjectConstraint can be
-            of type `patient_set` in order to explicitly specify the id of a set of patients.
-            Example: `{“type”:“patient_set”, “patientSetId”: 12345}`.
-      responses:
-        200:
-          $ref: '#/definitions/CrossTable'
-    post:
-      description: |
-        The same as the `get` call, but with parameters specified as a JSON object in the request body. Useful if the
-        parameters don't fit in a single request.
-
-        See the `get` version for additional documentation.
-      tags:
-        - v2
-      parameters:
-        - name: rowConstraints
+        - name: body
           required: true
           in: body
-          type: array
-          items:
-            type: string
-        - name: columnConstraints
-          required: true
-          in: body
-          type: array
-          items:
-            type: string
-        - name: subjectConstraint
-          required: true
-          in: query
-          type: string
+          description: Data table parameters
+          schema:
+            type: object
+            properties:
+              rowConstraints:
+                required: true
+                type: array
+                items:
+                  type: object
+                description: |
+                  List of constraint specifications. Each constraint is a row header and specifies a row set
+                  part of the final set computed for a cell.
+                  Example: `[{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"},
+                  {"type":"concept","conceptCode":"height"}]`.
+              columnConstraints:
+                required: true
+                type: array
+                items:
+                  type: object
+              subjectConstraint:
+                required: true
+                type: object
+                description: |
+                  The constraint for a subject set. In particular, subjectConstraint can be
+                  of type `patient_set` in order to explicitly specify the id of a set of patients.
+                  Example: `{"type": "patient_set", "patientSetId": 12345}`.
       responses:
         200:
           $ref: '#/definitions/CrossTable'
 
-    
   /v2/patients:
     get:
       description: |
@@ -1282,7 +1231,7 @@ paths:
               patients:
                 type: array
                 items:
-                  $ref: '#/definitions/patient'
+                  $ref: '#/definitions/Patient'
     post:
           description: |
             Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -1310,7 +1259,7 @@ paths:
                   patients:
                     type: array
                     items:
-                      $ref: '#/definitions/patient'
+                      $ref: '#/definitions/Patient'
   /v2/patients/{id}:
     get:
       description: |
@@ -1328,7 +1277,7 @@ paths:
           description: |
             Returns one patient
           schema:
-            $ref: '#/definitions/patient'
+            $ref: '#/definitions/Patient'
   /v2/patient_sets:
     get:
       tags:
@@ -1338,7 +1287,7 @@ paths:
           description: |
             Gets all patient_sets accessible by the user.
           schema:
-            $ref: '#/definitions/patient_set'
+            $ref: '#/definitions/PatientSet'
     post:
       description: |
         creates a patient set with all patients that have an observation that satisfies the constaint given in the body. The set will only have patients the calling user access to. The constraint used to create the set will be stored in a database.
@@ -1360,7 +1309,7 @@ paths:
           description: |
             an object with the created patient_set or error.
           schema:
-            $ref: '#/definitions/patient_set'
+            $ref: '#/definitions/PatientSet'
   /v2/patient_sets/{resultInstanceId}:
     get:
       parameters:
@@ -1377,7 +1326,7 @@ paths:
           description: |
             Returns one patient_set.
           schema:
-            $ref: '#/definitions/patient_set'
+            $ref: '#/definitions/PatientSet'
   /v2/concepts:
     get:
       description: |
@@ -1395,7 +1344,7 @@ paths:
               concepts:
                 type: array
                 items:
-                  $ref: '#/definitions/concept'
+                  $ref: '#/definitions/Concept'
 
   /v2/concepts/{conceptCode}:
     get:
@@ -1414,7 +1363,7 @@ paths:
           description: |
             Returns the concept if it exists and the user has access to it.
           schema:
-            $ref: '#/definitions/concept'
+            $ref: '#/definitions/Concept'
         404:
           description: |
             No concept exists with the concept code, or the user does not have access to the concept.
@@ -1459,7 +1408,7 @@ paths:
               tree_nodes:
                 type: array
                 items:
-                  $ref: '#/definitions/treeNode'
+                  $ref: '#/definitions/TreeNode'
   /v2/tree_nodes/clear_cache:
     get:
       description: |
@@ -1512,7 +1461,7 @@ paths:
               storageSystems:
                 type: array
                 items:
-                  $ref: '#/definitions/storageSystem'
+                  $ref: '#/definitions/StorageSystem'
     post:
       description: |
         Adds a new storage system with the properties provided in the body. Calling user must have `admin` permissions.
@@ -1540,7 +1489,7 @@ paths:
           description: |
             returns the added storage system object.
           schema:
-            $ref: '#/definitions/storageSystem'
+            $ref: '#/definitions/StorageSystem'
   /v2/storage/{id}:
     get:
       description: |
@@ -1557,7 +1506,7 @@ paths:
           description: |
             returns the storage system object.
           schema:
-            $ref: '#/definitions/storageSystem'
+            $ref: '#/definitions/StorageSystem'
     put:
       description: |
         Updates the storage system with given id with the values in the body. Calling user must have `admin` permissions.
@@ -1589,7 +1538,7 @@ paths:
           description: |
             returns the updated storage system object.
           schema:
-            $ref: '#/definitions/storageSystem'
+            $ref: '#/definitions/StorageSystem'
     delete:
       description: |
         Deletes the storage system with the given id.
@@ -1619,7 +1568,7 @@ paths:
               files:
                 type: array
                 items:
-                  $ref: '#/definitions/fileLink'
+                  $ref: '#/definitions/FileLink'
     post:
       description: |
         Adds a new file link with the properties provided in the body. Calling user must have `admin` permissions.
@@ -1645,7 +1594,7 @@ paths:
           description: |
             returns the added file link object.
           schema:
-            $ref: '#/definitions/fileLink'
+            $ref: '#/definitions/FileLink'
   /v2/files/{id}:
     get:
       description: |
@@ -1662,7 +1611,7 @@ paths:
           description: |
             returns the file link object.
           schema:
-            $ref: '#/definitions/fileLink'
+            $ref: '#/definitions/FileLink'
     put:
       description: |
         Updates the file link  with given id with the values provided in the body. Calling user must have `admin` permissions.
@@ -1692,7 +1641,7 @@ paths:
           description: |
             returns the updated file link object.
           schema:
-            $ref: '#/definitions/fileLink'
+            $ref: '#/definitions/FileLink'
     delete:
       description: |
         Deletes the file link with the given id.
@@ -1727,7 +1676,7 @@ paths:
               files:
                 type: array
                 items:
-                  $ref: '#/definitions/fileLink'
+                  $ref: '#/definitions/FileLink'
   /v2/arvados/workflows:
     get:
       description: |
@@ -1745,7 +1694,7 @@ paths:
               supportedWorkflows:
                 type: array
                 items:
-                  $ref: '#/definitions/supportedWorkflow'
+                  $ref: '#/definitions/SupportedWorkflow'
     post:
       description: |
         Adds a new supported Workflow with the properties provided in the body. Calling user must have `admin` permissions.
@@ -1777,7 +1726,7 @@ paths:
           description: |
             returns the created supported workflow object.
           schema:
-            $ref: '#/definitions/supportedWorkflow'
+            $ref: '#/definitions/SupportedWorkflow'
   /v2/arvados/workflows/{id}:
     get:
       description: |
@@ -1795,7 +1744,7 @@ paths:
           description: |
             returns the supported workflow object.
           schema:
-            $ref: '#/definitions/supportedWorkflow'
+            $ref: '#/definitions/SupportedWorkflow'
     put:
       description: |
         Updates the supported workflow with given id with the values in the body. Calling user must have `admin` permissions.
@@ -1831,7 +1780,7 @@ paths:
           description: |
             returns the modified supported workflow object.
           schema:
-            $ref: '#/definitions/supportedWorkflow'
+            $ref: '#/definitions/SupportedWorkflow'
     delete:
       description: |
         Deletes the supported workflow with the given id.
@@ -1867,7 +1816,7 @@ paths:
           description: |
             Returns list of all elements from the given dimension that user has access to.
           schema:
-            $ref: '#/definitions/dimensionElements'
+            $ref: '#/definitions/DimensionElements'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -1890,7 +1839,7 @@ paths:
           description: |
             Returns list of all elements from the given dimension that user has access to.
           schema:
-            $ref: '#/definitions/dimensionElements'
+            $ref: '#/definitions/DimensionElements'
   /v2/export/job:
     post:
       description: |
@@ -1908,7 +1857,7 @@ paths:
           description:  |
             an object with the created export job or error.
           schema:
-            $ref: '#/definitions/export_job'
+            $ref: '#/definitions/ExportJob'
   /v2/export/{jobId}/run:
     post:
       description: |
@@ -1965,7 +1914,7 @@ paths:
           description:  |
             an object with the run export job with status 'Started' or 'Error'.
           schema:
-            $ref: '#/definitions/export_job'
+            $ref: '#/definitions/ExportJob'
   /v2/export/{jobId}/download:
     get:
       description: |
@@ -1988,6 +1937,7 @@ paths:
     get:
       description: |
         Gets a status of specified data export job. Deprecated. Use /v2/export/{jobId} instead.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2001,7 +1951,7 @@ paths:
           description: |
             an object with the export job, including its status.
           schema:
-            $ref: '#/definitions/export_job'
+            $ref: '#/definitions/ExportJob'
   /v2/export/{jobId}:
       get:
         description: |
@@ -2019,7 +1969,7 @@ paths:
             description: |
               an object with the export job.
             schema:
-              $ref: '#/definitions/export_job'
+              $ref: '#/definitions/ExportJob'
       delete:
         description: |
           Deletes an export job.
@@ -2066,7 +2016,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/export_job'
+              $ref: '#/definitions/ExportJob'
   /v2/export/data_formats:
     post:
       description: |
@@ -2133,7 +2083,7 @@ paths:
                 queries:
                   type: array
                   items:
-                    $ref: '#/definitions/userQuery'
+                    $ref: '#/definitions/UserQuery'
       post:
         description: |
           Adds a new user query with the properties provided in the body.
@@ -2165,7 +2115,7 @@ paths:
             description: |
               returns the added user query object.
             schema:
-              $ref: '#/definitions/userQuery'
+              $ref: '#/definitions/UserQuery'
   /v2/queries/{id}:
     get:
       description: |
@@ -2182,7 +2132,7 @@ paths:
           description: |
             returns the user query object.
           schema:
-            $ref: '#/definitions/userQuery'
+            $ref: '#/definitions/UserQuery'
     put:
       description: |
         Updates the user query with given id with the values in the body.
@@ -2236,7 +2186,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/relation_type'
+              $ref: '#/definitions/RelationType'
   /v2/queries/{queryId}/sets:
       get:
         description: |
@@ -2260,7 +2210,7 @@ paths:
                 querySets:
                   type: array
                   items:
-                    $ref: '#/definitions/userQuerySet'
+                    $ref: '#/definitions/UserQuerySet'
   /v2/queries/sets/scan:
       post:
         description: |
@@ -2278,7 +2228,7 @@ paths:
                   type: integer
 
 definitions:
-  version:
+  Version:
     type: object
     properties:
       id: { type: string }
@@ -2296,17 +2246,17 @@ definitions:
             description: string keys and numeric values that indicate features and their revision level. These are only present for -dev versions.
     required: [ "id", "prefix", "major" ]
 
-  v1observation:
+  LegacyObservation:
     type: object
     properties:
       subject:
-        $ref: '#/definitions/patient'
+        $ref: '#/definitions/Patient'
       label:
         type: string
       value:
         type: string
 
-  ontologyTerm:
+  OntologyTerm:
     type: object
     properties:
       name:
@@ -2318,7 +2268,7 @@ definitions:
       type:
         type: string
 
-  jsonStudy:
+  JsonStudy:
     type: object
     properties:
       id:
@@ -2335,7 +2285,7 @@ definitions:
           type:
             type: string
 
-  hal+jsonStudy:
+  HalStudy:
     type: object
     properties:
       id:
@@ -2386,7 +2336,7 @@ definitions:
                         title:
                           type: string
 
-  hal+jsonStudies:
+  HalStudies:
     type: object
     properties:
       _links:
@@ -2403,9 +2353,9 @@ definitions:
           studies:
             type: array
             items:
-              $ref: '#/definitions/hal+jsonStudy'
+              $ref: '#/definitions/HalStudy'
               
-  storageSystem:
+  StorageSystem:
     type: object
     properties:
       id:
@@ -2421,7 +2371,7 @@ definitions:
       singleFileCollections:
         type: boolean
   
-  fileLink:
+  FileLink:
     type: object
     properties:
       id:
@@ -2437,7 +2387,7 @@ definitions:
       uuid:
         type: string
   
-  supportedWorkflow:
+  SupportedWorkflow:
     type: object
     properties:
       id:
@@ -2456,7 +2406,7 @@ definitions:
         description: 'a map of key value pairs'
         type: object
   
-  treeNode:
+  TreeNode:
     type: object
     properties:
       children:
@@ -2495,7 +2445,7 @@ definitions:
             description: 'Example: `age`'
             type: string
   
-  v2Study:
+  Study:
     type: object
     properties:
       id:
@@ -2524,7 +2474,7 @@ definitions:
           type: string
 
 
-  patient:
+  Patient:
     type: object
     properties:
       age:
@@ -2550,7 +2500,7 @@ definitions:
       trial:
         type: string
   
-  patient_set:
+  PatientSet:
     type: object
     properties:
       description:
@@ -2570,7 +2520,7 @@ definitions:
       apiVersion:
         type: string  
 
-  concept:
+  Concept:
     type: object
     properties:
       conceptCode:
@@ -2639,11 +2589,11 @@ definitions:
   DataTable:
     description: |
       A JSON object that represents the dataset in a tabular form. The actual row data can be found in
-      `rows*.row`, with the headers and other metadata available in other keys.
+      `rows*.cells`, with the headers and other metadata available in other keys.
     schema:
       type: object
       properties:
-        column_headers:
+        columnHeaders:
           description: |
             This property describes the top header of the table. The header can contain multiple rows, each row is
             found in the `keys` or `elements` property of an item. If the `keys` property is set, it contains
@@ -2665,7 +2615,7 @@ definitions:
                   A list of column headers for one dimension. This list has the same size as the number of columns in
                   the table (unless no column dimensions were specified, in which case this list is empty). The items
                   describe a dimension element, they refer to keys in the
-                  `row_dimensions*.elements` dictionary for the given dimension. Further properties of this dimension
+                  `rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension
                   element can be found there.
 
                   This property is mutually exclusive with the `elements` property.
@@ -2694,7 +2644,7 @@ definitions:
           items:
             type: object
             properties:
-              dimensions:
+              rowHeaders:
                 description: |
                   The left header cells for this row. Each cell contains the element or a reference to the element of
                   one row dimension. There is one item for each row dimension in this list, in order.
@@ -2711,8 +2661,8 @@ definitions:
                           - type: string
                           - type: number
                       description: |
-                        Analogous to `column_headers*.keys`. The value is a reference to a dimension element
-                        specified in `row_dimensions*.elements` for the specified dimension.
+                        Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element
+                        specified in `rowDimensions*.elements` for the specified dimension.
 
                         This property is mutually exclusive with the `element` property.
                     element:
@@ -2721,12 +2671,12 @@ definitions:
                           - type: string
                           - type: number
                       description: |
-                        Analogous to `column_headers*.elements`. This is a single dimension element if that dimension
+                        Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension
                         element is a single string, number or date. A date is represented as a formatted string.
 
                         This property is mutually exclusive with the `key` property.
                   required: [dimension]
-              row:
+              cells:
                 type: array
                 items:
                   oneOf:
@@ -2740,12 +2690,12 @@ definitions:
                 description: |
                   The row data for a single table row. The items are strings or numbers or dates (represented as a
                   formatted string). The length of each row is the same, and is the same as the size of the
-                  `column_headers*.keys` and `column_headers*.elements` lists.
+                  `columnHeaders*.keys` and `columnHeaders*.elements` lists.
 
                   The item can also be an array of strings, numbers or dates. This happens if multiple values fall
                   into the same table cell.
 
-        row_dimensions:
+        rowDimensions:
           description: |
             This property contains a description of the row dimensions. It is a list of objects, with each object
             describing one dimension. If the dimension has its elements inlined the description here will only
@@ -2776,9 +2726,9 @@ definitions:
                   dimension elements are compound and referenced by keys, simple elements will be inlined in the header.
             required: [name]
 
-        column_dimensions:
+        columnDimensions:
           description: |
-            The same as `row_dimensions`, but for the column dimensions.
+            The same as `rowDimensions`, but for the column dimensions.
           type: array
           items:
             type: object
@@ -2803,33 +2753,16 @@ definitions:
             and column dimensions, with row dimensions first and column dimensions followed by that.
           type: array
           items:
-            type: object
-            properties:
-              dimension:
-                type: string
-                description: the name of a dimension
-              sortOrder:
-                type: string
-                description: |
-                  'asc' or 'desc', describing if sorting is ascending or descending.
-              user_requested:
-                type: boolean
-                description: |
-                  Whether sorting on this dimension was explicitly requested by the client, i.e. set to
-                  true if this dimension was part of the `rowSort` or `columnSort` request parameter.
-
-                  This parameter is optional, the default is `false`.
-            required: [dimension, order]
-
+            $ref: '#/definitions/SortResponse'
         offset:
           type: integer
           description: the offset of the first returned row in the full dataset
-        row count:
+        rowCount:
           type: integer
           description: |
             The total number of rows available. This property is only set if the total is known, which is
             generally only the case if the last row is part of this result.
-      required: [column_headers, rows, row_dimensions, sorting, offset]
+      required: [columnHeaders, rows, rowDimensions, sort, offset]
 
   CrossTable:
     description: |
@@ -2847,7 +2780,7 @@ definitions:
             type: number
       required: [rows]
 
-  observation:
+  Observation:
     type: object
     properties:
       conceptCode:
@@ -2889,7 +2822,7 @@ definitions:
       valueType:
         type: string
             
-  observations:
+  Observations:
     type: object
     properties:
       header:
@@ -2898,7 +2831,7 @@ definitions:
           dimensionDeclarations:
             type: array
             items:
-              $ref: '#/definitions/dimensionDeclaration'
+              $ref: '#/definitions/DimensionDeclaration'
           sort:
             type: object
             properties:
@@ -2920,7 +2853,7 @@ definitions:
       cells:
         type: array
         items:
-          $ref: '#/definitions/cell'
+          $ref: '#/definitions/Cell'
       footer:
         type: object
         properties:
@@ -2929,9 +2862,9 @@ definitions:
             items:
               type: array
               items:
-                $ref: '#/definitions/dimensionValue'
+                $ref: '#/definitions/DimensionValue'
   
-  dimensionDeclaration:
+  DimensionDeclaration:
     type: object
     properties:
       inline:
@@ -2941,14 +2874,14 @@ definitions:
         description: 'Fields is omitted if the dimension consists of one field.'
         type: array
         items:
-          $ref: '#/definitions/field'
+          $ref: '#/definitions/Field'
       name:
         type: string
       type:
         description: 'STRING, INTEGER, DATE, OBJECT'
         type: string
     
-  field:
+  Field:
     type: object
     properties:
       name:
@@ -2957,7 +2890,7 @@ definitions:
         description: 'STRING, INTEGER, DATE'
         type: string
         
-  cell:
+  Cell:
     type: object
     description: 'numericValue or stringValue, never both.'
     properties:
@@ -2969,17 +2902,17 @@ definitions:
       inlineDimensions:
         type: array
         items:
-          $ref: '#/definitions/dimensionValue'
+          $ref: '#/definitions/DimensionValue'
       numericValue:
         type: number
       stringValue:
         type: string
         
-  dimensionValue:
+  DimensionValue:
     type: object
     description: 'The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header.'
 
-  dimensionElements:
+  DimensionElements:
     type: object
     properties:
       apiVersion:
@@ -2990,7 +2923,7 @@ definitions:
         items:
           type: object
 
-  export_job:
+  ExportJob:
     type: object
     properties:
       id:
@@ -3007,7 +2940,7 @@ definitions:
       viewerURL:
         type: string
 
-  userQuery:
+  UserQuery:
     type: object
     properties:
       id:
@@ -3035,7 +2968,7 @@ definitions:
       queryBlob:
         type: object
 
-  userQuerySet:
+  UserQuerySet:
     type: object
     properties:
       id:
@@ -3080,11 +3013,11 @@ definitions:
             type: number
           max:
             type: number
-          average:
+          avg:
             type: number
           count:
             type: number
-          std_dev:
+          stdDev:
             type: number
       categoricalValueAggregatesPerConcept:
         type: object
@@ -3101,16 +3034,49 @@ definitions:
             description: count of null values
             type: number
 
-  relation_type:
-      type: object
-      properties:
-        id:
-          type: integer
-        label:
-          type: string
-        description:
-          type: string
-        symmetrical:
-          type: boolean
-        biological:
-          type: boolean
+  RelationType:
+    description: Relation type
+    type: object
+    properties:
+      id:
+        type: integer
+      label:
+        type: string
+      description:
+        type: string
+      symmetrical:
+        type: boolean
+      biological:
+        type: boolean
+
+  SortSpecification:
+    description: Specifies dimension to sort on and the sorting direction.
+    type: object
+    properties:
+      dimension:
+        type: string
+        description: the name of the dimension to sort on
+      sortOrder:
+        type: string
+        description: |
+          'asc' or 'desc', describing if sorting is ascending or descending.
+    required: [dimension, sortOrder]
+
+  SortResponse:
+    description: Specifies dimension to sort on and the sorting direction.
+    type: object
+    properties:
+      dimension:
+        type: string
+        description: the name of the dimension to sort on
+      sortOrder:
+        type: string
+        description: |
+          'asc' or 'desc', describing if sorting is ascending or descending.
+      userRequested:
+        type: boolean
+        description: |
+          Whether sorting on this dimension was explicitly requested by the client, i.e., set to
+          true if this dimension was part of the `rowSort` or `columnSort` request parameter.
+          This parameter is optional, the default is `false`.
+    required: [dimension, sortOrder]

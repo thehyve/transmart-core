@@ -23,13 +23,13 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.i2b2data.I2b2Data
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Integration
 @Rollback
-class PatientsResourceServiceSpec extends TransmartSpecification {
+class PatientsResourceServiceSpec extends Specification {
 
     public static final String TRIAL_NAME = 'SAMPLE TRIAL'
 

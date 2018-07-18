@@ -2,7 +2,7 @@
 grails:
     profile: rest-api
     codegen:
-        defaultPackage: org.transmart.api.server
+        defaultPackage: org.transmartproject.api.server
     spring:
         transactionManagement:
             proxies: false
@@ -51,6 +51,7 @@ grails:
             js: text/javascript
             rss: application/rss+xml
             text: text/plain
+            protobuf: application/x-protobuf
             all: '*/*'            
     urlmapping:
         cache:
@@ -59,6 +60,8 @@ grails:
         defaultScope: singleton
     converters:
         encoding: UTF-8
+    resources:
+        pattern: /**
 
 ---
 hibernate:
@@ -97,14 +100,20 @@ dataSource:
         jdbcInterceptors: ConnectionState
         defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
 
-security:
-    oauth2:
-        client:
-            clientId: demo-oidc
-            clientSecret: !INSERT_YOUR_SECRET_HERE!
-            accessTokenUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/token
-            userAuthorizationUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/auth
-            clientAuthenticationScheme: header
-            scope: openid profile email
-        resource:
-            userInfoUri: http://localhost:8080/auth/realms/demo/protocol/openid-connect/userinfo
+grails:
+    cors:
+        enabled: true
+
+server:
+    port: 8081
+
+environments:
+    development:
+        keycloak:
+            realm: dev
+            bearer-only: true
+            auth-server-url: http://localhost:8080/auth
+            resource: transmart
+            use-resource-role-mappings: true
+#        keycloakOffline:
+#            offlineToken: <offline token>

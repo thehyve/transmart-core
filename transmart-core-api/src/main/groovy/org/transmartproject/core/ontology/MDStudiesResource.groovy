@@ -1,16 +1,19 @@
 package org.transmartproject.core.ontology
 
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 
 interface MDStudiesResource {
 
     /**
-     * Returns all studies the user has access to.
+     * Returns all studies that the user has at least the specified minimal level of access to.
      *
-     * @return the studies.
+     * @param user
+     * @param requiredAccessLevel the minimal required level of access
+     * @return the collection of studies.
      */
-    List<MDStudy> getStudies(User user)
+    List<MDStudy> getStudies(User user, PatientDataAccessLevel requiredAccessLevel)
 
     /**
      * Returns the study with the given id.
@@ -68,14 +71,5 @@ interface MDStudiesResource {
      * @throws NoSuchResourceException iff no study can be found with the id.
      */
     String getStudyIdById(Long id) throws NoSuchResourceException
-
-    /**
-     * Returns the study for the trial visit with the given id.
-     *
-     * @param trialVisitId the unique id of the trial visit
-     * @return the study, if it exists.
-     * @throws NoSuchResourceException iff no trial visit can be found with the id.
-     */
-    MDStudy getStudyByTrialVisitId(Long trialVisitId) throws NoSuchResourceException
 
 }

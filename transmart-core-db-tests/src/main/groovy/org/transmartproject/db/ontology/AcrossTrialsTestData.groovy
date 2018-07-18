@@ -19,10 +19,14 @@
 
 package org.transmartproject.db.ontology
 
+import org.apache.commons.lang3.tuple.Pair
 import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.user.AccessLevelTestData
 
 import static org.transmartproject.db.TestDataHelper.save
@@ -45,7 +49,7 @@ class AcrossTrialsTestData {
     List<ModifierMetadataCoreDb> modifierMetadatas
 
     static AcrossTrialsTestData createDefault() {
-        def list = []
+        List<Pair<ModifierDimensionCoreDb, ModifierMetadataCoreDb>> list = []
         list << createModifier(path: '\\Demographics\\',
                 code: 'CDEMO', nodeType: 'F')
         list << createModifier(path: '\\Demographics\\Age at Diagnosis\\',
@@ -58,8 +62,8 @@ class AcrossTrialsTestData {
                 code: MODIFIER_MALE, nodeType: 'L')
 
         def result = new AcrossTrialsTestData()
-        result.modifierDimensions = list*.get(0)
-        result.modifierMetadatas = list*.get(1)
+        result.modifierDimensions = list*.left
+        result.modifierMetadatas = list*.right
 
         def tableAccess = ConceptTestData.createTableAccess(
                 level: 0,
@@ -98,25 +102,28 @@ class AcrossTrialsTestData {
 
         def conceptDimensionFor = { String fullName ->
             result.conceptTestData.conceptDimensions.find {
-                fullName == fullName
+                it.conceptPath == fullName
             }
         }
+
+        Study dummyStudy = StudyTestData.createDefaultTabularStudy()
+        TrialVisit dummyTrialVisit = createTrialVisit("fake", 1, null, dummyStudy)
 
         List<ObservationFact> observations = [
                 createDiagonalCategoricalFacts(2, i2b2List.findAll {
                     it.fullName =~ /\\foo\\study1\\(fe)?male/
-                }, patientsStudy1),
+                }, patientsStudy1, dummyTrialVisit),
                 createDiagonalCategoricalFacts(2, i2b2List.findAll {
                     it.fullName =~ /\\foo\\study2\\(fe)?male/
-                }, patientsStudy2),
+                }, patientsStudy2, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study1\\age at diagnosis\\'),
-                        patientsStudy1[0], DUMMY_ENCOUNTER_ID, 1100),
+                        patientsStudy1[0], DUMMY_ENCOUNTER_ID, 1100, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study1\\age at diagnosis\\'),
-                        patientsStudy1[1], DUMMY_ENCOUNTER_ID, 2101),
+                        patientsStudy1[1], DUMMY_ENCOUNTER_ID, 2101, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study2\\age at diagnosis\\'),
-                        patientsStudy2[0], DUMMY_ENCOUNTER_ID, 1200),
+                        patientsStudy2[0], DUMMY_ENCOUNTER_ID, 1200, dummyTrialVisit),
                 createObservationFact(conceptDimensionFor('\\foo\\study2\\age at diagnosis\\'),
-                        patientsStudy2[1], DUMMY_ENCOUNTER_ID, 2201),
+                        patientsStudy2[1], DUMMY_ENCOUNTER_ID, 2201, dummyTrialVisit),
         ].flatten()
         observations[0].modifierCd = MODIFIER_MALE
         observations[1].modifierCd = MODIFIER_FEMALE
@@ -145,16 +152,16 @@ class AcrossTrialsTestData {
      * - unit (optional)
      */
 
-    static List createModifier(Map<String, Object> properties) {
+    static Pair<ModifierDimensionCoreDb, ModifierMetadataCoreDb> createModifier(Map<String, Object> properties) {
         if (['path', 'code', 'nodeType'].
                 collect { properties."$it" == null }.any()) {
             throw new IllegalArgumentException("Missing required property")
         }
         if (!properties.name) {
-            properties.name = new ConceptFullName(properties.path)[-1]
+            properties.name = new ConceptFullName(properties.path as String)[-1]
         }
         if (!properties.level) {
-            properties.level = new ConceptFullName(properties.path).length - 1
+            properties.level = new ConceptFullName(properties.path as String).length - 1
         }
         if (!properties.valueType) {
             properties.valueType = 'T'
@@ -164,9 +171,8 @@ class AcrossTrialsTestData {
         def dimension = new ModifierDimensionCoreDb(properties)
         def metadata = new ModifierMetadataCoreDb(properties)
 
-        [dimension, metadata]
+        Pair.of(dimension, metadata)
     }
-
 
     void saveAll() {
         save modifierDimensions

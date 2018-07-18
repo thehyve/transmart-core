@@ -31,17 +31,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'transcripts',
                                 params       : [
                                         names: ['tr1']
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -50,17 +50,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'genes',
                                 params       : [
                                         names: ['TP53']
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -93,17 +93,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'transcripts',
                                 params       : [
                                         names: ['tr1']
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -112,17 +112,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'transcripts',
                                 params       : [
                                         names: ['tr2']
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -153,17 +153,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'transcripts',
                                 params       : [
                                         names: ['TP53']
                                 ]
-                        ])
+                        ]
                 ],
                 statusCode: 400
         ]
@@ -193,17 +193,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'transcripts',
                                 params       : [
                                         names: ['tr1', 'tr2']
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -212,10 +212,10 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'autodetect',
-                        constraint: new JsonBuilder([
+                        constraint: [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ])
+                        ]
                 ]
         ]
         when:
@@ -256,17 +256,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'transcripts',
                                 params       : [
                                         names: ['tr1']
                                 ]
-                        ]),
+                        ],
                         projection          : 'zscore'
                 ]
         ]
@@ -306,7 +306,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 "type"    : Combination,
                                 "operator": "and",
                                 "args"    : [
@@ -319,14 +319,14 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                                                 "studyId": "RNASEQ_TRANSCRIPT"
                                         ]
                                 ]
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'genes',
                                 params       : [
                                         names: ['A1BG']
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -335,7 +335,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 "type"    : "combination",
                                 "operator": "and",
                                 "args"    : [
@@ -348,14 +348,14 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                                                 "studyId": "RNASEQ_TRANSCRIPT"
                                         ]
                                 ]
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'transcripts',
                                 params       : [
                                         names: ['tr3', 'tr4']
                                 ]
-                        ])
+                        ]
                 ]
         ]
 

@@ -25,13 +25,13 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
+class DefaultOntologyTermConstraintSpec extends Specification {
 
     OntologyTermsResource ontologyTermsResourceService
 

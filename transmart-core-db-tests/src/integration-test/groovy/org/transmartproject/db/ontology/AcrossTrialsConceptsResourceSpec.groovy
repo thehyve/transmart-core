@@ -24,7 +24,7 @@ import grails.transaction.Rollback
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.propsWith
@@ -32,7 +32,7 @@ import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.C
 
 @Integration
 @Rollback
-class AcrossTrialsConceptsResourceSpec extends TransmartSpecification {
+class AcrossTrialsConceptsResourceSpec extends Specification {
 
     public static final String AGE_AT_DIAGNOSIS_KEY =
             '\\\\xtrials\\Across Trials\\Demographics\\Age at Diagnosis\\'

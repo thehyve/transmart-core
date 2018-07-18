@@ -19,9 +19,6 @@
 
 package org.transmartproject.db.support
 
-import grails.orm.HibernateCriteriaBuilder
-import org.hibernate.Criteria
-import org.hibernate.criterion.LikeExpression
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -34,13 +31,14 @@ import java.sql.DatabaseMetaData
  * Helper service to make it easier to write code that works on both Oracle and
  * PostgreSQL. Of course, the best option in this respect is to use Hibernate.
  */
+@Deprecated
 class DatabasePortabilityService {
 
     @Autowired
     @Qualifier("dataSource")
     DataSource dataSource
 
-    DatabaseType databaseType;
+    DatabaseType databaseType
 
     enum DatabaseType {
         POSTGRESQL,
@@ -209,35 +207,6 @@ class DatabasePortabilityService {
         }
 
         log.debug 'Selected database type is ' + databaseType
-
-        doFixups()
     }
 
-    private void doFixups() {
-        if (databaseType == DatabaseType.ORACLE) {
-           // fixupLikeOracle()
-        }
-    }
-
-   /* private void fixupLikeOracle() {
-        /* Oracle does not use an escape character for LIKE by default. The escape
-         * character has to be explicitly set in the SQL statement. Fixup the like
-         * criterion so that such escape character is included. For consistency with
-         * PostgreSQL, use the backslash as the escape character */
-/*
-        Criteria.metaClass.like = HibernateCriteriaBuilder.metaClass.like = {
-            String propertyName, String propertyValue ->
-            /* beware, if the second arg is not a string, then this implementation is not used! */
-/*
-            if (!delegate.validateSimpleExpression()) {
-                throwRuntimeException(new IllegalArgumentException("Call to [like] with propertyName [" +
-                        propertyName + "] and value [" + propertyValue + "] not allowed here."));
-            }
-
-            propertyName = delegate.calculatePropertyName propertyName
-            propertyValue = delegate.calculatePropertyValue propertyValue
-            delegate.addToCriteria(new LikeExpression(propertyName, propertyValue, '\\', false) {})
-            delegate
-        }
-    }*/
 }

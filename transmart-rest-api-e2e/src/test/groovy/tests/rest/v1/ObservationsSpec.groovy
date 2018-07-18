@@ -3,12 +3,14 @@
 package tests.rest.v1
 
 import annotations.RequiresStudy
+import annotations.RequiresV1ApiSupport
 import base.RESTSpec
 import spock.lang.Requires
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
 
+@RequiresV1ApiSupport(true)
 @RequiresStudy(GSE8581_ID)
 class ObservationsSpec extends RESTSpec {
 
@@ -27,7 +29,7 @@ class ObservationsSpec extends RESTSpec {
 
         when: "I request all observations related to a patient and concept"
         def responseData = get([
-                path      : V1_PATH_observations,
+                path      : V1_PATH_OBSERVATIONS,
                 query     : [
                         patients     : [id],
                         concept_paths: [path]

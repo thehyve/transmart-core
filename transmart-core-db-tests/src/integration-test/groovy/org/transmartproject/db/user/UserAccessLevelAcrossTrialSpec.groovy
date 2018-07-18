@@ -28,13 +28,13 @@ import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.ModifierDimensionView
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
 /*
@@ -44,7 +44,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
 @Integration
 @Rollback
-class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
+class UserAccessLevelAcrossTrialSpec extends Specification {
 
     @Autowired
     StudiesResource studiesResource
@@ -52,10 +52,13 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
     @Autowired
     SessionFactory sessionFactory
 
+    @Autowired
+    LegacyAuthorisationChecks authorisationChecks
+
     AcrossTrialsTestData testData = AcrossTrialsTestData.createDefault()
 
     void testQueryDefinitionAllowAcrossTrialNodes() {
-        def secondUser = testData.accessLevelTestData.users[1]
+        User secondUser = testData.accessLevelTestData.users[1]
 
         def acrossTrialsTestData = AcrossTrialsTestData.createDefault()
         acrossTrialsTestData.saveAll()
@@ -79,7 +82,7 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
         ])
 
         expect:
-        secondUser.canPerform(BUILD_COHORT, definition)
+        authorisationChecks.canRun(secondUser, definition)
     }
 
 

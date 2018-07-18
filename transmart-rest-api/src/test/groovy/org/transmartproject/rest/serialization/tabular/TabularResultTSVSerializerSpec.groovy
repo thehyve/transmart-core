@@ -36,6 +36,7 @@ class TabularResultTSVSerializerSpec extends Specification {
      */
     def 'test TSV serialisation for tabular data'() {
         def user = Mock(User)
+        user.getUsername() >> { 'test' }
         ByteArrayOutputStream bout = new ByteArrayOutputStream()
         def out = new ZipOutputStream(bout)
         def column1 = new HypercubeDataColumn(ImmutableMap.copyOf([(STUDY): 'studyA', (CONCEPT): 'age']))

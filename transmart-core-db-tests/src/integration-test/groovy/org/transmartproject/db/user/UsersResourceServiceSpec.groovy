@@ -23,11 +23,11 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 @Integration
 @Rollback
-class UsersResourceServiceSpec extends TransmartSpecification {
+class UsersResourceServiceSpec extends Specification {
 
     @Autowired
     UsersResourceService usersResourceService

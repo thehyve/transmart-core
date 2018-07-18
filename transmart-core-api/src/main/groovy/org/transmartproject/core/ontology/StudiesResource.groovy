@@ -1,17 +1,29 @@
 package org.transmartproject.core.ontology
 
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.users.User
 
 /**
- * The studies resource represents the set of all the studies.
+ * Legacy studies resource represents the set of all the studies.
+ *
+ * @deprecated Use {@link MDStudiesResource} instead.
  */
+@Deprecated
 interface StudiesResource {
 
     /**
-     * Returns a set of all the studies
+     * Returns the set of all the studies
      * @return set of all studies
      */
     Set<Study> getStudySet()
+
+    /**
+     * Returns the set of all studies the user has any access to.
+     *
+     * @param user the user
+     * @return the set of studies
+     */
+    Set<Study> getStudies(User user)
 
     /**
      * Fetches a study by id. Study id are unique. This method is

@@ -107,7 +107,7 @@ class AcghTestData {
 
     List<PatientDimension> patients = createTestPatients(2, -2000, 'REGION_SAMP_TRIAL')
 
-    QtQueryMaster allPatientsQueryResult = createQueryResult(patients)
+    QtQueryMaster allPatientsQueryResult = createQueryResult('acgh-patient-set', patients)
 
     List<DeSubjectSampleMapping> assays = createTestAssays(patients,
             -3000L,

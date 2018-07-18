@@ -10,13 +10,16 @@ php:
 env:
   global:
     - TERM=dumb
+    - PGCONFIG_PARAMS="PG_CONFIG=/usr/lib/postgresql/9.6/bin/pg_config"
   matrix:
+    - DIR=transmart-core-api; TEST=check
     - DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
     - DIR=transmart-rest-api; TEST=check
     - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST=check
+    - DIR=transmart-api-server; TEST=check
     - DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
     - DIR=transmart-solr-indexing; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-batch:travisProperties :transmart-batch:loadPublicTestStudy"; TEST="check"; START_SOLR=true
-    - DIR=transmart-copy; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; PREPARE=shadowJar; TEST=test
+    - DIR=transmart-copy; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; PREPARE=shadowJar; TEST=check
     - DIR=.; TEST="publishToMavenLocal"
 
 addons:
@@ -76,6 +79,8 @@ after_success:
   - ([ -d "$DIR/build/reports/tests" ]) && html2text $DIR/build/reports/tests/index.html
 
 after_failure:
+  - echo "Writing error logs..."
+  - for f in "$DIR"/hs_err_*.log; do echo "$f"; cat "$f"; done
   - echo "Writing reports..."
   - html2text "$DIR/build/reports/tests/index.html"
   - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done

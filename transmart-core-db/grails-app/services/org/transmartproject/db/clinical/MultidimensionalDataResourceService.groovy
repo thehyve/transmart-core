@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import grails.transaction.Transactional
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
@@ -44,6 +45,7 @@ import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
@@ -54,9 +56,12 @@ import org.transmartproject.db.multidimquery.*
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.util.HibernateUtils
 
+import java.util.stream.Collectors
+
 import static java.util.Objects.requireNonNull
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
+@CompileStatic
 class MultidimensionalDataResourceService extends AbstractDataResourceService implements MultiDimensionalDataResource {
 
     @Autowired
@@ -66,16 +71,20 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     MDStudiesResource studiesResource
 
 
-    @Override Dimension getDimension(String name) {
+    @Override
+    Dimension getDimension(String name) {
         def dimension = getBuiltinDimension(name)
         if (!dimension) {
             dimension = fromName(name)
+        }
+        if (!dimension) {
+            throw new NoSuchResourceException("No dimension with name ${name}")
         }
         dimension
     }
 
     /**
-     * See the documentation for {@link MultiDimensionalDataResource#retrieveData}
+     * See the documentation for {@link MultiDimensionalDataResource#retrieveData(DataRetrievalParameters, String, User)}
      */
     @Override
     HypercubeImpl retrieveData(DataRetrievalParameters args, String dataType, User user) {
@@ -88,19 +97,23 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
 
         Constraint constraint = args.constraint
-        Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions.collect { toDimensionImpl(it) } ?: [])
+        def dimensions = (args.dimensions ? args.dimensions.stream()
+                        .map({String name -> (DimensionImpl)getDimension(name)})
+                        .collect(Collectors.toSet()) : []) as Set<DimensionImpl>
 
         Set<? extends Dimension> supportedDimensions = getSupportedDimensions(constraint)
         // only allow valid dimensions
-        dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in supportedDimensions } ?: supportedDimensions
+        dimensions = dimensions?.findAll { it in supportedDimensions } ?: supportedDimensions as Set<DimensionImpl>
 
-        ImmutableMap<DimensionImpl,SortOrder> orderByDimensions = ImmutableMap.copyOf(parseSort(args.sort))
+        ImmutableMap<DimensionImpl, SortOrder> orderByDimensions = ImmutableMap.copyOf(parseSort(args.sort))
         def orphanSortDims = (orderByDimensions.keySet() - dimensions)
-        if (orphanSortDims) throw new InvalidArgumentsException("Requested ordering on dimension(s) " +
-                "${orphanSortDims.collect {it.name}.join(', ')}, which are not part of this query")
+        if (orphanSortDims) {
+            throw new InvalidArgumentsException("Requested ordering on dimension(s) " +
+                    "${orphanSortDims.collect {it.name}.join(', ')}, which are not part of this query")
+        }
 
         Query query = buildCriteria(dimensions, orderByDimensions)
-        HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user)
+        HibernateCriteriaQueryBuilder restrictionsBuilder = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
         restrictionsBuilder.applyToCriteria(query.criteriaImpl, [constraint])
@@ -121,7 +134,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             return [:]
         }
         sort.collectEntries {
-            [toDimensionImpl(it.dimension), it.sortOrder]
+            [getDimension(it.dimension), it.sortOrder]
         }
     }
 
@@ -129,6 +142,14 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Transactional(readOnly = true)
     List<Dimension> getAllDimensions() {
         DimensionDescription.allDimensions
+    }
+
+    @Memoized
+    Set<String> getSortableDimensionNames() {
+        allDimensions.stream()
+            .filter({ Dimension dimension -> dimension instanceof AliasAwareDimension })
+            .map({ Dimension dimension -> dimension.name })
+            .collect(Collectors.toSet())
     }
 
     Set<MDStudy> getConstraintStudies(Constraint constraint) {
@@ -141,11 +162,12 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     Set<Dimension> getAvailableDimensions(Iterable<MDStudy> studies) {
         //TODO Remove after adding all the dimension, added to prevent e2e tests failing
-        def notImplementedDimensions = [AssayDimension, BioMarkerDimension, ProjectionDimension]
+        def notImplementedDimensions =
+                [AssayDimension, BioMarkerDimension, ProjectionDimension] as List<Class>
         // This throws a LegacyStudyException for non-17.1 style studies
         // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
         // buggy. And usually the studies and dimensions will be cached in memory.
-        List<Dimension> availableDimensions = studies ? studies*.dimensions.flatten() : allDimensions
+        def availableDimensions = studies ? (List<Dimension>)(studies*.dimensions.flatten()) : allDimensions
         ImmutableSet.copyOf availableDimensions.findAll {
             !(it.class in notImplementedDimensions)
         }
@@ -155,10 +177,14 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         getAvailableDimensions(getConstraintStudies(constraint))
     }
 
-    private Query buildCriteria(Set<DimensionImpl> dimensions, ImmutableMap<DimensionImpl,SortOrder> orderDims) {
+    // FIXME: Enable static compilation
+    @CompileDynamic
+    private Query buildCriteria(Set<DimensionImpl> dimensions, ImmutableMap<DimensionImpl, SortOrder> orderDims) {
         def nonSortableDimensions = orderDims.keySet().findAll { !(it instanceof AliasAwareDimension) }
-        if (nonSortableDimensions) throw new InvalidArgumentsException("Sorting over these dimensions is not " +
-                "supported: " + nonSortableDimensions.collect {it.name}.join(','))
+        if (nonSortableDimensions) {
+            throw new InvalidArgumentsException("Sorting over these dimensions is not " +
+                    "supported: " + nonSortableDimensions.collect {it.name}.join(','))
+        }
         ImmutableMap<AliasAwareDimension, SortOrder> orderByDimensions = (ImmutableMap) orderDims
 
         // We need methods from different interfaces that StatelessSessionImpl implements.
@@ -188,18 +214,21 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
         boolean hasModifiers = dimensions.any { it instanceof ModifierDimension }
         if (hasModifiers) {
-            def nonModifierSortableDimensions = orderByDimensions.keySet().collectMany {
-                (it in modifierSortableDimensions) ? [] : [it.name] }
+            def nonModifierSortableDimensions = orderByDimensions.keySet().stream()
+                    .filter({dimension -> !(dimension.name in sortableDimensionNames) })
+                    .map({dimension -> dimension.name})
+                    .collect(Collectors.joining(', '))
             if (nonModifierSortableDimensions) {
-                def modifier = dimensions.findAll {it instanceof ModifierDimension }.collect { it.name }.join(", ")
+                def modifierDimensions = dimensions.findAll { it instanceof ModifierDimension }.collect { it.name }.join(", ")
                 throw new UnsupportedByDataTypeException("Sorting over these dimensions is not supported when querying" +
-                        " $modifier dimensions:" + nonModifierSortableDimensions.join(", "))
+                        " the $modifierDimensions dimensions: ${nonModifierSortableDimensions}")
             }
 
             // Make sure all primary key dimension columns are selected, even if they are not part of the result
             primaryKeyDimensions.each {
-                if (!(it in dimensions)) {
-                    it.selectIDs(query)
+                def dim = (DimensionImpl)it
+                if (!(dim in dimensions)) {
+                    dim.selectIDs(query)
                 }
             }
 
@@ -237,56 +266,28 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         query
     }
 
-    static final List<AliasAwareDimension> primaryKeyDimensions = ImmutableList.of(
-            // primary key columns excluding modifierCd and instanceNum
-            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME)
-
-    static final List<Dimension> modifierSortableDimensions = ImmutableList.of(
-            // Primary key dimensions plus those on which sorting is compatible with modifiers. This compatibility is
-            // determined at data load time: to be compatible the values in the ObservationFact columns for these
-            // dimensions must be identical for all rows that have the same primary key excluding modifier_cd, in
-            // other words for an ObservationFact value row and its associated modifier rows.
-            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME, /*TRIAL_VISIT, STUDY, END_TIME*/)
-
-    private Dimension toDimensionImpl(dimOrDimName) {
-        if (dimOrDimName instanceof DimensionImpl) {
-            return dimOrDimName
-        }
-        if (dimOrDimName instanceof String) {
-            def dim = allDimensions.find { it.name == dimOrDimName }
-            //def dim = DimensionDescription.findByName(dimOrDimName)?.dimension
-            if (dim == null) {
-                throw new InvalidArgumentsException("Unknown dimension: $dimOrDimName")
-            }
-            return dim
-        }
-        throw new InvalidArgumentsException("dimension $dimOrDimName is not a valid dimension or dimension name")
-    }
-
-    /*
-    note: efficiently extracting the available dimension elements for dimensions is possible using nonstandard
-    sql. For Postgres:
-    SELECT array_agg(DISTINCT patient_num), array_agg(DISTINCT concept_cd),
-        array_agg(distinct case when modifier_cd = 'SOMEMODIFIER' then tval_char end)... FROM observation_facts WHERE ...
-      Maybe doing something with unnest() can also help but I haven't figured that out yet.
-    For Oracle we should look into the UNPIVOT operator
+    /**
+     * Primary key columns, except modifierCd and instanceNum.
      */
-
+    static final List<Dimension> primaryKeyDimensions = ImmutableList.copyOf(
+            [CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME] as List<Dimension>)
 
     @Lazy
     private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd',
             highDimensionResourceService.knownMarkerTypes.collect { "TRANSMART:HIGHDIM:${it.toUpperCase()}".toString() })
 
     private Criterion HDModifierCriterionForType(String type) {
-        HighDimensionDataTypeResourceImpl hdres = highDimensionResourceService.getSubResourceForType(type)
+        def hdres = (HighDimensionDataTypeResourceImpl)highDimensionResourceService.getSubResourceForType(type)
         Restrictions.in('modifierCd',
                 hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
     }
 
     @Override
     IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
-        if(constraint) checkAccess(constraint, user)
-        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user)
+        if (constraint) {
+            checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
+        }
+        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
         DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
 
         return getIterable(dimensionCriteria)
@@ -294,7 +295,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
         if (constraint instanceof StudyNameConstraint) {
-            return [constraint]
+            return [constraint] as List<StudyNameConstraint>
         } else if (constraint instanceof Combination) {
             constraint.args.collectMany { findStudyNameConstraints(it) }
         } else {
@@ -304,7 +305,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint) {
         if (constraint instanceof StudyObjectConstraint) {
-            return [constraint]
+            return [constraint] as List<StudyObjectConstraint>
         } else if (constraint instanceof Combination) {
             constraint.args.collectMany { findStudyObjectConstraints(it) }
         } else {
@@ -314,7 +315,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     static List<ConceptConstraint> findConceptConstraints(Constraint constraint) {
         if (constraint instanceof ConceptConstraint) {
-            return [constraint]
+            return [constraint] as List<ConceptConstraint>
         } else if (constraint instanceof Combination) {
             constraint.args.collectMany { findConceptConstraints(it) }
         } else {
@@ -324,7 +325,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     private static List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint) {
         if (constraint instanceof BiomarkerConstraint) {
-            return [constraint]
+            return [constraint] as List<BiomarkerConstraint>
         } else if (constraint instanceof Combination) {
             constraint.args.collectMany { findAllBiomarkerConstraints(it) }
         } else {
@@ -332,7 +333,6 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         }
     }
 
-    @CompileStatic
     @Override
     Hypercube highDimension(
             Constraint assayConstraint,
@@ -341,7 +341,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             User user,
             String type) {
         projectionName = projectionName ?: Projection.ALL_DATA_PROJECTION
-        checkAccess(assayConstraint, user)
+        checkAccess(assayConstraint, user, PatientDataAccessLevel.MEASUREMENTS)
 
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
         if(!oldAssayConstraints) {
@@ -400,21 +400,21 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             throw new OperationNotImplementedException("High dimensional data is not supported in data table format")
         }
 
-        List<SortSpecification> rowSort = tableConfig.rowSort ?: []
-        List<SortSpecification> columnSort = tableConfig.columnSort ?: []
+        def rowSort = tableConfig.rowSort ?: [] as List<SortSpecification>
+        def columnSort = tableConfig.columnSort ?: [] as List<SortSpecification>
         requireNonNull(tableConfig.rowDimensions)
         def rowDimensions = tableConfig.rowDimensions
         requireNonNull(tableConfig.columnDimensions)
         def columnDimensions = tableConfig.columnDimensions
 
-        def rowSortDimensions = (rowSort ? rowSort.dimension : []) as Set
-        def invalidRowSorts = rowSort ? rowSortDimensions - rowDimensions : null
+        def rowSortDimensions = (rowSort ? rowSort.dimension : []) as Set<String>
+        def invalidRowSorts = (rowSort ? rowSortDimensions - rowDimensions : null) as Set<String>
         if (invalidRowSorts) {
             throw new InvalidArgumentsException("Only dimensions specified in rowDimensions can be " +
-                    "specified in rowSort: "+invalidRowSorts.join(', '))
+                    "specified in rowSort: ${invalidRowSorts.join(', ')}")
         }
-        def columnSortDimensions = (columnSort ? columnSort.dimension : []) as Set
-        def invalidColumnSorts = columnSort ? columnSortDimensions - columnDimensions : null
+        def columnSortDimensions = (columnSort ? columnSort.dimension : []) as Set<String>
+        def invalidColumnSorts = (columnSort ? columnSortDimensions - columnDimensions : null) as Set<String>
         if (invalidColumnSorts) {
             throw new InvalidArgumentsException("Only dimensions specified in columnDimensions can" +
                     " be specified in columnSort: ${invalidColumnSorts.join(', ')}")
@@ -423,12 +423,15 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         def userSort = rowSort + columnSort
 
         for (def dim : rowDimensions) {
+            if (!sortableDimensionNames.contains(dim)) {
+                throw new InvalidArgumentsException("Only sortable dimensions can be selected as row dimension. ${dim} is not sortable.")
+            }
             if (!rowSortDimensions.contains(dim)) {
                 rowSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
             }
         }
         for (def dim : columnDimensions) {
-            if (!columnSortDimensions.contains(dim)) {
+            if (!columnSortDimensions.contains(dim) && sortableDimensionNames.contains(dim)) {
                 columnSort.add(new SortSpecification(dimension: dim, sortOrder: SortOrder.ASC))
             }
         }
@@ -439,17 +442,17 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
         new TableRetrievalParameters(
                 dataRetrievalParameters: dataRetrievalParameters,
-                rowDimensions: rowDimensions.collect { toDimensionImpl(it) },
-                columnDimensions: columnDimensions.collect { toDimensionImpl(it) },
-                userSort: userSort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] },
-                sort: sort.collectEntries { [(toDimensionImpl(it.dimension)): it.sortOrder] }
+                rowDimensions: rowDimensions.collect { getDimension(it) },
+                columnDimensions: columnDimensions.collect { getDimension(it) },
+                userSort: userSort.collectEntries { [(getDimension(it.dimension)): it.sortOrder] },
+                sort: sort.collectEntries { [(getDimension(it.dimension)): it.sortOrder] }
         )
     }
 
     @Override
     List retrieveHighDimDataTypes(Constraint assayConstraint, User user) {
         assert assayConstraint instanceof Constraint
-        checkAccess(assayConstraint, user)
+        checkAccess(assayConstraint, user, PatientDataAccessLevel.MEASUREMENTS)
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
         if(!oldAssayConstraints) {
             return []
@@ -461,7 +464,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         assaysByType.keySet()?.collect {it.dataTypeName}
     }
 
-    private List<Study> selectStudiesWithDimensionSupport(Iterable<Study> studies, DimensionImpl dimension) {
+    private List<MDStudy> selectStudiesWithDimensionSupport(Iterable<MDStudy> studies, DimensionImpl dimension) {
         DetachedCriteria studiesCriteria = DetachedCriteria.forClass(Study)
             .createAlias('dimensionDescriptions', 'd')
             .add(Restrictions.in('id', studies*.id))
@@ -471,10 +474,10 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     private List<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
-        Collection<Study> userStudies = accessControlChecks.getDimensionStudiesForUser(user)
-        List<Study> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
+        def userStudies = studiesResource.getStudies(user, PatientDataAccessLevel.MEASUREMENTS) as Collection<MDStudy>
+        List<MDStudy> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
         if (!assaySupportStudies) {
-            log.debug("No studies with assay dimension for user ${user.name} were found.")
+            log.debug("No studies with assay dimension for user ${user.username} were found.")
             return Collections.emptyList()
         }
 
@@ -505,7 +508,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     @Override
     Hypercube retrieveClinicalData(DataRetrievalParameters args, User user) {
-        checkAccess(args.constraint, user)
+        checkAccess(args.constraint, user, PatientDataAccessLevel.MEASUREMENTS)
         def dataType = 'clinical'
         retrieveData(args, dataType, user)
     }

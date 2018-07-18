@@ -1,17 +1,17 @@
 package org.transmartproject.rest
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.pedigree.RelationType
+import org.transmartproject.core.pedigree.RelationTypeResource
 
 class RelationTypeController {
 
     @Autowired
-    VersionController versionController
+    RelationTypeResource relationTypeResource
 
     static responseFormats = ['json']
 
     def index() {
-        respond([relationTypes: RelationType.list()])
+        respond([relationTypes: relationTypeResource.all])
     }
 
 }

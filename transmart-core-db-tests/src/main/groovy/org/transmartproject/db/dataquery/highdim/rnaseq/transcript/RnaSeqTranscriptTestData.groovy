@@ -80,7 +80,7 @@ class RnaSeqTranscriptTestData {
 
     @Lazy
     QtQueryMaster allPatientsQueryResult = {
-        createQueryResult(patients)
+        createQueryResult('rnaseqtranscript-patients-set', patients)
     }()
 
     def assays = createTestAssays(patients, -2010L, regionPlatform, TRIAL_NAME)

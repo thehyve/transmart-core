@@ -10,11 +10,10 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
 import org.transmartproject.rest.user.AuthContext
-
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 /**
  * Exposes patient set resources.
@@ -29,6 +28,9 @@ class PatientSetController {
     private QueriesResource queriesResource
 
     @Autowired
+    LegacyAuthorisationChecks authorisationChecks
+
+    @Autowired
     QueryDefinitionXmlConverter queryDefinitionXmlConverter
 
     @Autowired
@@ -40,7 +42,7 @@ class PatientSetController {
      * GET /v1/patient_sets
      */
     def index() {
-        List result = queriesResource.getQueryResultsSummaryByUsername(authContext.user.username)
+        List result = queriesResource.getQueryResults(authContext.user)
         respond wrapPatients(result)
     }
 
@@ -50,11 +52,7 @@ class PatientSetController {
      * GET /v1/patient_sets/<result_instance_id>
      */
     def show(Long id) {
-        QueryResult queryResult = queriesResource.getQueryResultFromId(id)
-
-        if (!authContext.user.canPerform(READ, queryResult)) {
-            throw new AccessDeniedException()
-        }
+        QueryResult queryResult = queriesResource.getQueryResultFromId(id, authContext.user)
 
         respond new QueryResultWrapper(
                 apiVersion: VERSION,
@@ -82,7 +80,7 @@ class PatientSetController {
         QueryDefinition queryDefinition =
                 queryDefinitionXmlConverter.fromXml(request.reader)
 
-        if (!authContext.user.canPerform(READ, queryDefinition)) {
+        if (!authorisationChecks.canRun(authContext.user, queryDefinition)) {
             throw new AccessDeniedException()
         }
 
@@ -100,7 +98,7 @@ class PatientSetController {
      * DELETE /patient_sets/<result_instance_id>
      */
     def disable(Long id) {
-        queriesResource.disablingQuery(id, authContext.user.username)
+        queriesResource.disableQuery(id, authContext.user)
         respond status: 204
     }
 

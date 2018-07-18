@@ -30,6 +30,7 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.ontology.AcrossTrialsConceptsResourceDecorator
 import org.transmartproject.db.ontology.DefaultOntologyTermsResource
 import org.transmartproject.db.support.DatabasePortabilityService
+import org.transmartproject.db.user.UsersResourceService
 
 class TransmartCoreGrailsPlugin extends Plugin {
     // the version or versions of Grails the plugin is designed for
@@ -70,6 +71,7 @@ A runtime dependency for tranSMART that implements the Core API
                 config.org.transmartproject.enableAcrossTrials != false
 
         accessControlChecks(AccessControlChecks)
+        userResource(UsersResourceService)
 
         clinicalVariableFactory(ClinicalVariableFactory) {
             disableAcrossTrials = !haveAcrossTrials

@@ -1,7 +1,6 @@
 package org.transmart.server
 
 import grails.test.mixin.TestFor
-import org.junit.Assert
 import org.junit.Before
 
 @TestFor(UserLandingController)

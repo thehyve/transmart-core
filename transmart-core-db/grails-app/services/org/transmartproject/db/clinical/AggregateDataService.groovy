@@ -26,9 +26,11 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQuery
 import org.transmartproject.core.userquery.UserQueryResource
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -41,6 +43,7 @@ import org.transmartproject.db.util.HibernateUtils
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.stream.Collectors
 
 import static groovyx.gpars.GParsPool.withPool
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
@@ -141,7 +144,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         result
     }
 
-
     @CompileStatic
     private List<Counts> countsTask(SubtaskParameters parameters) {
         def t1 = new Date()
@@ -152,7 +154,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.setProjection(Projections.projectionList()
@@ -174,7 +176,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Transactional(readOnly = true)
     @CompileStatic
     Counts freshCounts(Constraint constraint, User user) {
-        checkAccess(constraint, user)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
         if (!(constraint instanceof TrueConstraint)) {
             def constraintParts = ParallelPatientSetTaskService.getConstraintParts(constraint)
             if (!constraintParts.patientSetConstraint || !constraintParts.patientSetConstraint.patientSetId) {
@@ -268,7 +270,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.setProjection(Projections.projectionList()
@@ -295,7 +297,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @CompileStatic
     @Transactional(readOnly = true)
     Map<String, Counts> parallelCountsPerConcept(Constraint constraint, User user) {
-        checkAccess(constraint, user)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
         def parameters = new TaskParameters(constraint, user)
         parallelPatientSetTaskService.run(parameters,
                 {SubtaskParameters params -> countsPerConceptTask(params)},
@@ -316,8 +318,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     Map<String, Counts> freshCountsPerStudy(Constraint constraint, User user) {
         log.debug "Computing counts per study ..."
         def t1 = new Date()
-        checkAccess(constraint, user)
-        QueryBuilder builder = getCheckedQueryBuilder(user)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
+        QueryBuilder builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
         DetachedCriteria criteria = builder.buildCriteria(constraint,
                 HibernateCriteriaQueryBuilder.defaultModifierCriterion,
                 ['trialVisit'] as Set)
@@ -360,7 +362,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.createAlias('trialVisit', builder.getAlias('trialVisit'))
@@ -391,7 +393,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @CompileStatic
     @Transactional(readOnly = true)
     Map<String, Map<String, Counts>> parallelCountsPerStudyAndConcept(Constraint constraint, User user) {
-        checkAccess(constraint, user)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
         def parameters = new TaskParameters(constraint, user)
         parallelPatientSetTaskService.run(parameters,
                 {SubtaskParameters params -> countsPerStudyAndConceptTask(params)},
@@ -409,7 +411,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Transactional(readOnly = true)
     Map<String, Map<String, Counts>> countsPerStudyAndConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per per study per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
-        checkAccess(constraint, user)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
         //parallelCountsPerStudyAndConcept(constraint, user)
 
         if (constraint instanceof PatientSetConstraint && constraint.patientSetId != null &&
@@ -417,8 +419,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             return aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSet(constraint, user)
         }
 
-        Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
-        final List<String> studyIds = studies*.studyId
+        Collection<MDStudy> studies = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY)
+        final List<String> studyIds = studies*.name
         studyIds.sort()
 
         def t1 = new Date()
@@ -488,8 +490,10 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         Constraint constraintToPreCache = new TrueConstraint()
         usersResource.getUsers().each { User user ->
             log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
-            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
-            def studyIds = studies*.studyId as Set
+            Set<String> studyIds = user.studyToPatientDataAccessLevel.entrySet().stream()
+                .filter({ entry -> entry.value >= PatientDataAccessLevel.SUMMARY })
+                .map({ entry -> entry.key })
+                .collect(Collectors.toSet())
             def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
             if (notFetchedStudyIds) {
                 Map<String, Map<String, Counts>> freshCounts = parallelCountsPerStudyAndConcept(constraintToPreCache, user)
@@ -512,8 +516,10 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      */
     @Override
     Long getDimensionElementsCount(Dimension dimension, Constraint constraint, User user) {
-        if(constraint) checkAccess(constraint, user)
-        def builder = getCheckedQueryBuilder(user)
+        if (constraint) {
+            checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
+        }
+        def builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
         DetachedCriteria dimensionCriteria = builder.buildElementCountCriteria((DimensionImpl) dimension, constraint)
         (Long) get(dimensionCriteria)
     }
@@ -563,9 +569,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(
             Constraint constraint, User user) {
         assert constraint instanceof Constraint
-        checkAccess(constraint, user)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
 
-        def builder = getCheckedQueryBuilder(user)
+        def builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
         DetachedCriteria criteria = builder.buildCriteria(constraint)
         def projections = Projections.projectionList()
         projections.add(Projections.groupProperty('conceptCode'), 'conceptCode')
@@ -592,9 +598,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(
             Constraint constraint, User user) {
         assert constraint instanceof Constraint
-        checkAccess(constraint, user)
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
 
-        def builder = getCheckedQueryBuilder(user)
+        def builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
         DetachedCriteria criteria = builder.buildCriteria(constraint)
         def projections = Projections.projectionList()
         projections.add(Projections.groupProperty('conceptCode'), 'conceptCode')

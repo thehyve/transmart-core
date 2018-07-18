@@ -32,7 +32,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
@@ -40,7 +40,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-abstract class MirnaSharedEndToEndRetrievalSpec extends TransmartSpecification {
+abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
 

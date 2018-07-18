@@ -24,7 +24,7 @@ import grails.transaction.Rollback
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTermsResource
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
@@ -33,7 +33,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class DefaultConceptsResourceSpec extends TransmartSpecification {
+class DefaultConceptsResourceSpec extends Specification {
 
     OntologyTermsResource ontologyTermsResourceService = new DefaultOntologyTermsResource()
 

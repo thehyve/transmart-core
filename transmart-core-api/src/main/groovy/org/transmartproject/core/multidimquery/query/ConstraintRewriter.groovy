@@ -95,7 +95,8 @@ class ConstraintRewriter extends ConstraintBuilder<Constraint> {
 
     @Override
     Constraint build(RelationConstraint constraint) {
-        return new RelationConstraint(constraint.relationTypeLabel, build(constraint.relatedSubjectsConstraint),
+        return new RelationConstraint(constraint.relationTypeLabel,
+                constraint.relatedSubjectsConstraint ? build(constraint.relatedSubjectsConstraint) : null,
                 constraint.biological, constraint.shareHousehold)
     }
 

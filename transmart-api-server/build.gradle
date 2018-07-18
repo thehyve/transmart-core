@@ -21,17 +21,46 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache:5.1.2.Final"
     compile "org.grails.plugins:views-json"
     compile "org.grails.plugins:views-json-templates"
-    console "org.grails:grails-console"
+    console("org.grails:grails-console") {
+        exclude group: 'org.fusesource.jansi', module: 'jansi'
+    }
     profile "org.grails.profiles:rest-api"
 
     //Custom dependencies
     compile project(':transmart-rest-api')
     compile project(':transmart-notifications')
 
+    compile "org.keycloak:keycloak-spring-boot-starter:4.0.0.Final"
     compile "org.springframework.boot:spring-boot-starter-security"
-    compile "org.springframework.security.oauth:spring-security-oauth2"
+
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 }
 
 bootRun {
     jvmArgs = ['-Dspring.output.ansi.enabled=always']
 }
+
+war {
+    webInf {
+        with copySpec({
+            from '../open-api'
+            into 'classes/public/open-api'
+        })
+    }
+}
+
+task executableWar(type: Copy) {
+    from "${libsDir}/${project.name}-${project.version}.war"
+    into "${distsDir}"
+}
+executableWar.dependsOn 'bootRepackage'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact file("${distsDir}/${project.name}-${project.version}.war") // Publish the output of the executableWar task
+        }
+    }
+}
+publishToMavenLocal.dependsOn 'executableWar'
+publish.dependsOn 'executableWar'

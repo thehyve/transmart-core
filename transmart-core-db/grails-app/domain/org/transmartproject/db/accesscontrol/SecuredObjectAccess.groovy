@@ -26,7 +26,7 @@ class SecuredObjectAccess {
     static belongsTo = [
             principal:     PrincipalCoreDb,
             securedObject: SecuredObject,
-            accessLevel:   AccessLevel]
+            accessLevel:   AccessLevelCoreDb]
 
     static mapping = {
         table   schema: 'searchapp', name: 'search_auth_sec_object_access'
