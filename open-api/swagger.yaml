@@ -857,21 +857,26 @@ paths:
                 Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
               schema:
                 $ref: '#/definitions/Observations'
+
   /v2/observations/aggregates_per_concept:
     get:
       description: |
-        Calculates and returns an aggregates for both types of concepts, categorical and numerical.
+        Calculates and returns an aggregates for both types of concepts, categorical and numerical. Deprecated. Use POST instead.
+      deprecated: true
       tags:
         - v2
       parameters:
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
-          type: string
+          description: |
+            Constraint specification. Example: `{"type":"concept","conceptCode":"EHR:VSIGN:HR"}`.'
+          type: object
       responses:
         200:
-          description: 'return the result in a json object. Example: `{min: 56}`.'
+          description: |
+            Returns the result as a map from concept code to aggregates.
+            Example: `{"aggregatesPerConcept":{"EHR:VSIGN:HR": {"numericalValueAggregates":{"min":56,"max":102,"count":9,"avg":74.78,"stdDev":14.7}}}}`.'
           schema:
             type: object
             properties:
@@ -879,7 +884,7 @@ paths:
                 $ref: '#/definitions/AggregatesMap'
     post:
       description: |
-        Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+        Calculates and returns an aggregates for both types of concepts, categorical and numerical.
       tags:
         - v2
       consumes:
@@ -891,17 +896,21 @@ paths:
             type: object
             properties:
               constraint:
-                type: string
-                description: see GET parameters
-            required: [ "constraint" ]
+                type: object
+                required: true
+                description: |
+                  Constraint specification. Example: `{"type":"concept","conceptCode":"EHR:VSIGN:HR"}`.'
       responses:
         200:
-          description: 'return the result in a json object. Example: `{"aggregatesPerConcept": "GENDER": { "categoricalValueAggregatesPerConcept": { "valueCounts": { "Female": 323, "Male": 312} } }}`.'
+          description: |
+            Returns the result as a map from concept code to aggregates.
+            Example: `{"aggregatesPerConcept":{"EHR:VSIGN:HR": {"numericalValueAggregates":{"min":56,"max":102,"count":9,"avg":74.78,"stdDev":14.7}}}}`.'
           schema:
             type: object
             properties:
               aggregatesPerConcept:
                 $ref: '#/definitions/AggregatesMap'
+
   /v2/observations/counts:
     get:
       description: |
@@ -3004,11 +3013,11 @@ definitions:
             type: number
           max:
             type: number
-          average:
+          avg:
             type: number
           count:
             type: number
-          std_dev:
+          stdDev:
             type: number
       categoricalValueAggregatesPerConcept:
         type: object

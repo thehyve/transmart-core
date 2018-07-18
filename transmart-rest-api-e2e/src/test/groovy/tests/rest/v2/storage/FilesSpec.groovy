@@ -81,7 +81,7 @@ class FilesSpec extends RESTSpec {
 
         when:
         new_file_link.name = 'new file Link renamed'
-        responseData = put([path: PATH_FILES + "/${id}", body: toJSON(new_file_link), user: ADMIN_USER])
+        responseData = put([path: PATH_FILES + "/${id}", body: new_file_link, user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -205,14 +205,14 @@ class FilesSpec extends RESTSpec {
                 'study'       : studyId,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        def responseData = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201, user: ADMIN_USER])
+        def responseData = post([path: PATH_FILES, body: new_file_link, statusCode: 201, user: ADMIN_USER])
         def id = responseData.id
         new_file_link.uuid = null
 
         when:
         responseData = put([
                 path      : (PATH_FILES + "/${id}"),
-                body      : toJSON(new_file_link),
+                body      : new_file_link,
                 statusCode: 422,
                 user      : ADMIN_USER])
 
@@ -237,7 +237,7 @@ class FilesSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 404, user: ADMIN_USER])
+        def responseData = put([path: PATH_FILES + "/0", body: new_file_link, statusCode: 404, user: ADMIN_USER])
 
         then:
         assert responseData.error == 'Not Found'
@@ -256,7 +256,7 @@ class FilesSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 403])
+        def responseData = post([path: PATH_FILES, body: new_file_link, statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403
@@ -265,7 +265,7 @@ class FilesSpec extends RESTSpec {
 
         when:
         new_file_link.name = 'new file Link renamed'
-        responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 403])
+        responseData = put([path: PATH_FILES + "/0", body: new_file_link, statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403

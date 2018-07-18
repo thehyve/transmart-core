@@ -57,7 +57,7 @@ class HighDimSpec extends RESTSpec {
                 query     : [
                         dataType        : 'mrna',
                         projection      : 'default_real_projection',
-                        assayConstraints: toJSON([patient_id_list: [ids: ["GSE8581GSM210196"]]])
+                        assayConstraints: [patient_id_list: [ids: ["GSE8581GSM210196"]]]
                 ],
                 acceptType: OCTETSTREAM
         ])

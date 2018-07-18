@@ -6,9 +6,12 @@ import config.Config
 import groovy.json.JsonBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+import org.springframework.http.HttpMethod
 import selectors.ObservationSelector
 import selectors.ObservationSelectorJson
 import selectors.ObservationsMessageJson
+import selectors.ObservationsMessageProto
+import selectors.Selector
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -21,55 +24,56 @@ abstract class RESTSpec extends Specification {
     @Shared
     TestContext testContext = Config.testContext
 
-    def getOrPostRequest(method, request, params) {
-        if (method == "GET") {
+    Object getOrPostRequest(HttpMethod method, Map request, Map params) {
+        if (method == HttpMethod.GET) {
             request.query = params
             return get(request)
-        } else {
+        } else if (method == HttpMethod.POST) {
             request.body = params
             return post(request)
         }
+        throw new IllegalArgumentException("Method not supported: ${method.name()}")
     }
 
-    def delete(def requestMap) {
+    Object delete(Map requestMap) {
         RestHelper.delete(testContext, requestMap)
     }
 
-    def put(def requestMap) {
+    Object put(Map requestMap) {
         RestHelper.put(testContext, requestMap)
     }
 
-    def post(def requestMap) {
+    Object post(Map requestMap) {
         RestHelper.post(testContext, requestMap)
     }
 
-    def get(def requestMap) {
+    Object get(Map requestMap) {
         RestHelper.get(testContext, requestMap)
     }
 
-    static def jsonSelector = { new ObservationSelectorJson(parseHypercube(it)) }
-    static def protobufSelector = { new ObservationSelector(it) }
+    static Closure<Selector> jsonSelector = { Object data ->
+        new ObservationSelectorJson(parseHypercube(data))
+    }
+
+    static Closure<Selector> protobufSelector = { Object data ->
+        new ObservationSelector((ObservationsMessageProto)data)
+    }
 
     /**
-     * takes a map of constraints and returns a json query
-     *
-     * @param constraints
-     * @return
+     * @deprecated Just pass a map directly.
      */
-    def toQuery(constraints) {
-        return [constraint: new JsonBuilder(constraints)]
+    @Deprecated
+    def toQuery(Object constraint) {
+        return [constraint: constraint]
     }
 
-    def toJSON(object) {
-        return new JsonBuilder(object).toString()
-    }
-
-    def toDateString(dateString, inputFormat = "dd-MM-yyyyX") {
+    String toDateString(String dateString, String inputFormat = "dd-MM-yyyyX") {
         def date = new SimpleDateFormat(inputFormat).parse(dateString)
         date.format("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone('Z'))
     }
 
-    static def parseHypercube(jsonHypercube) {
+    static ObservationsMessageJson parseHypercube(Object data) {
+        def jsonHypercube = data as Map
         assert jsonHypercube.dimensionDeclarations : "Unexpectde json format: ${jsonHypercube}."
         def dimensionDeclarations = jsonHypercube.dimensionDeclarations
         def cells = jsonHypercube.cells
@@ -150,7 +154,7 @@ abstract class RESTSpec extends Specification {
     }
 
     static String getUsername(String name) {
-        if (Config.authMethod == AuthMethod.OIDC) {
+        if (Config.AUTH_METHOD == AuthMethod.OIDC) {
             return Config.USER_SUB_MAPPING[name]
         } else {
             return name

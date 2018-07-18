@@ -3,6 +3,8 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
+import base.RestHelper
+import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.ADMIN_USER
@@ -41,7 +43,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         def responseData = post([
                 path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: JSON,
-                body      : toJSON(data),
+                body      : data,
                 statusCode: 201,
                 user      : ADMIN_USER
         ])
@@ -73,7 +75,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
 
         when:
         data.name = 'new file Link renamed'
-        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: toJSON(data), user: ADMIN_USER])
+        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: data, user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -86,7 +88,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         when:
         responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 204, user: ADMIN_USER])
         assert responseData == null
-        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER])
+        responseData = RestHelper.toObject  get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER]), ErrorResponse
 
         then:
         assert responseData.status == 404
@@ -103,13 +105,13 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         def request = [
                 path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: JSON,
-                body      : toJSON(["uuid"              : null,
+                body      : ["uuid"              : null,
                                     "arvadosInstanceUrl": null,
                                     "name"              : null,
                                     "description"       : null,
                                     "arvadosVersion"    : null,
                                     "defaultParams"     : null
-                ]),
+                ],
                 statusCode: 422,
                 user      : ADMIN_USER
         ]
@@ -143,12 +145,12 @@ class ArvadosWorkflowsSpec extends RESTSpec {
      */
     def "get nonexistent"() {
         when:
-        def responseData = get([
+        def responseData = RestHelper.toObject get([
                 path      : PATH_ARVADOS_WORKFLOWS + "/0",
                 acceptType: JSON,
                 statusCode: 404,
                 user      : ADMIN_USER
-        ])
+        ]), ErrorResponse
 
         then:
         assert responseData.status == 404
@@ -174,7 +176,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         def responseData = post([
                 path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: JSON,
-                body      : toJSON(data),
+                body      : data,
                 statusCode: 201,
                 user      : ADMIN_USER
         ])
@@ -183,7 +185,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         when:
         responseData = put([
                 path      : PATH_ARVADOS_WORKFLOWS + "/${responseData.id}",
-                body      : toJSON(data),
+                body      : data,
                 statusCode: 422,
                 user      : ADMIN_USER
         ])
@@ -212,13 +214,13 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = put([
+        def responseData = RestHelper.toObject put([
                 path      : PATH_ARVADOS_WORKFLOWS + "/0",
                 acceptType: JSON,
-                body      : toJSON(data),
+                body      : data,
                 statusCode: 404,
                 user      : ADMIN_USER
-        ])
+        ]), ErrorResponse
 
         then:
         assert responseData.status == 404
@@ -243,12 +245,12 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([
+        def responseData = RestHelper.toObject post([
                 path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: JSON,
-                body      : toJSON(data),
+                body      : data,
                 statusCode: 403,
-        ])
+        ]), ErrorResponse
 
         then:
         assert responseData.httpStatus == 403
@@ -257,12 +259,12 @@ class ArvadosWorkflowsSpec extends RESTSpec {
 
         when:
         data.name = 'new file Link renamed'
-        responseData = put([
+        responseData = RestHelper.toObject put([
                 path      : PATH_ARVADOS_WORKFLOWS + "/0",
                 acceptType: JSON,
-                body      : toJSON(data),
+                body      : data,
                 statusCode: 403,
-        ])
+        ]), ErrorResponse
 
         then:
         assert responseData.httpStatus == 403
@@ -270,7 +272,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         assert responseData.type == 'AccessDeniedException'
 
         when:
-        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/0", statusCode: 403])
+        responseData = RestHelper.toObject delete([path: PATH_ARVADOS_WORKFLOWS + "/0", statusCode: 403]), ErrorResponse
 
         then:
         assert responseData.httpStatus == 403

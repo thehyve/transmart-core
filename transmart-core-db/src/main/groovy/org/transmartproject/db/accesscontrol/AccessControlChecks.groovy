@@ -86,11 +86,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
         if (study == null) {
             throw new IllegalArgumentException("No study provided")
         }
-        if (!(study instanceof org.transmartproject.db.i2b2data.Study)) {
-            throw new IllegalArgumentException("Class not supported: ${study.class.simpleName}")
-        }
-        def studyToken = ((org.transmartproject.db.i2b2data.Study)study).secureObjectToken
-        AuthorisationHelper.hasAtLeastAccessLevel(user, patientDataAccessLevel, studyToken)
+        AuthorisationHelper.hasAtLeastAccessLevel(user, patientDataAccessLevel, study.secureObjectToken)
     }
 
     @Override

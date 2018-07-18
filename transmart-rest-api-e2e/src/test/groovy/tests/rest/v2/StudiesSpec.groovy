@@ -8,11 +8,6 @@ import groovy.util.logging.Slf4j
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
-import static org.hamcrest.Matchers.allOf
-import static org.hamcrest.Matchers.hasEntry
-import static org.hamcrest.Matchers.hasItems
-import static spock.util.matcher.HamcrestSupport.that
-import static org.hamcrest.Matchers.hasProperty
 
 /**
  *  TMPREQ-6 Building a tree where concepts are study-specific.
@@ -152,7 +147,7 @@ class StudiesSpec extends RESTSpec {
         when: "I try to fetch studies A and B by studyIds with limited access"
         def studyResponse1 = get([
                 path      : "${PATH_STUDIES}/studyIds",
-                query     : [studyIds: toJSON([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_DB_ID])],
+                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_DB_ID]],
                 acceptType: JSON,
                 user      : DEFAULT_USER
         ])
@@ -164,7 +159,7 @@ class StudiesSpec extends RESTSpec {
         when: "I try to fetch studies A and B by studyIds with the admin user"
         def studyResponse2 = get([
                 path      : "${PATH_STUDIES}/studyIds",
-                query     : [studyIds: toJSON([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID])],
+                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID]],
                 acceptType: JSON,
                 user      : ADMIN_USER
         ])

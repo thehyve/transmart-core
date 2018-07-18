@@ -4,7 +4,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import spock.lang.Specification
 
-import static org.transmartproject.core.users.PatientDataAccessLevel.SUMMARY
+import static org.transmartproject.core.users.PatientDataAccessLevel.MEASUREMENTS
 
 @Rollback
 @Integration
@@ -27,6 +27,6 @@ class UserSpec extends Specification {
         where:
         username             | expectedAccessStudyTokenToAccLvl
         'test-public-user-1' | [:]
-        'test-public-user-2' | ['EXP:SHDCSCP': SUMMARY, 'EXP:SCSCP': SUMMARY]
+        'test-public-user-2' | ['EXP:SHDCSCP': MEASUREMENTS, 'EXP:SCSCP': MEASUREMENTS]
     }
 }

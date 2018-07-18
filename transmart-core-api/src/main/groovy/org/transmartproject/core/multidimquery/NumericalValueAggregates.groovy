@@ -1,11 +1,12 @@
 package org.transmartproject.core.multidimquery
 
+import groovy.transform.Canonical
 import groovy.transform.Immutable
 
 /**
  * Numerical values aggregates
  */
-@Immutable
+@Canonical
 class NumericalValueAggregates {
     Double min
     Double max

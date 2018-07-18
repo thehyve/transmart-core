@@ -12,18 +12,23 @@ If using Keycloak as an external identity provider, test users needs to be added
 These tests are designed to run against a live environment. By default it is pointed at localhost:8080
 
 Running all tests:
-```
+```bash
 gradle test
 ```
 
 Run one test class: 
-```
+```bash
 gradle test --tests '*ConstraintSpec'
 ```
 
 Change base url:
-```
+```bash
 gradle -DbaseUrl=http://some-transmart-server.com/ test
+```
+
+Change authentication method, enable `v1` tests:
+```bash
+gradle -DauthMethod=OAuth2 -Dv1Supported=true test
 ```
 
 ## Coverage

@@ -3,6 +3,10 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
+import base.RestHelper
+import com.fasterxml.jackson.databind.ObjectMapper
+import groovy.json.JsonBuilder
+import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
@@ -39,7 +43,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USER])
         def id = responseData.id
 
         then:
@@ -69,7 +73,7 @@ class StorageSpec extends RESTSpec {
 
         when:
         sourceSystem.name = 'Arvbox at The Hyve renamed'
-        responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), user: ADMIN_USER])
+        responseData = put([path: PATH_STORAGE + "/${id}", body: sourceSystem, user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -82,7 +86,7 @@ class StorageSpec extends RESTSpec {
         when:
         responseData = delete([path: PATH_STORAGE + "/${id}", statusCode: 204, user: ADMIN_USER])
         assert responseData == null
-        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER])
+        responseData = RestHelper.toObject get([path: PATH_STORAGE + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER]), ErrorResponse
 
         then:
         assert responseData.status == 404
@@ -104,7 +108,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors[0].field == 'systemVersion'
@@ -117,7 +121,8 @@ class StorageSpec extends RESTSpec {
      */
     def "post invalid json format"() {
         given:
-        def sourceSystem = toJSON([
+        def mapper = new ObjectMapper()
+        def sourceSystem = mapper.writeValueAsString([
                 'name'                 : 'Arvbox at The Hyve',
                 'systemType'           : 'Arvados',
                 'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
@@ -127,7 +132,7 @@ class StorageSpec extends RESTSpec {
         sourceSystem = sourceSystem.take(20)
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 4
@@ -147,7 +152,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -185,7 +190,7 @@ class StorageSpec extends RESTSpec {
      */
     def "get nonexistent"() {
         when:
-        def responseData = get([path: PATH_STORAGE + "/0", acceptType: JSON, statusCode: 404])
+        def responseData = RestHelper.toObject get([path: PATH_STORAGE + "/0", acceptType: JSON, statusCode: 404]), ErrorResponse
 
         then:
         assert responseData.status == 404
@@ -207,9 +212,9 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USER])
         sourceSystem.singleFileCollections = 'bad_value'
-        responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
+        responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: sourceSystem, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -233,7 +238,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), statusCode: 404, user: ADMIN_USER])
+        def responseData = RestHelper.toObject put([path: PATH_STORAGE + "/${id}", body: sourceSystem, statusCode: 404, user: ADMIN_USER]), ErrorResponse
 
         then:
         assert responseData.status == 404
@@ -255,7 +260,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 403])
+        def responseData = RestHelper.toObject post([path: PATH_STORAGE, body: sourceSystem, statusCode: 403]), ErrorResponse
 
         then:
         assert responseData.httpStatus == 403
@@ -276,8 +281,8 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
-        responseData = delete([path: PATH_STORAGE + "/${responseData.id}", statusCode: 403])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USER])
+        responseData = RestHelper.toObject delete([path: PATH_STORAGE + "/${responseData.id}", statusCode: 403]), ErrorResponse
 
         then:
         assert responseData.httpStatus == 403

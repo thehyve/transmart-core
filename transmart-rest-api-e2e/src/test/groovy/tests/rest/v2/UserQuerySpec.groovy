@@ -3,6 +3,8 @@
 package tests.rest.v2
 
 import base.RESTSpec
+import base.RestHelper
+import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
@@ -67,20 +69,21 @@ class UserQuerySpec extends RESTSpec {
 
     def "save query wo patients and observations queries"() {
         when:
-        def responseData = post([
+        def responseData = RestHelper.toObject post([
                 path      : PATH_QUERY,
                 acceptType: JSON,
                 user      : DEFAULT_USER,
                 statusCode: 400,
-                body      : toJSON([
+                body      : [
                         name             : 'test query',
                         patientsQuery    : null,
                         observationsQuery: null,
                         bookmarked       : true,
                         subscribed       : true,
                         subscriptionFreq : 'DAILY'
-                ]),
-        ])
+                ],
+        ]), ErrorResponse
+
         then:
         responseData.message == 'patientsQuery or observationsQuery has to be not null.'
     }
@@ -89,16 +92,17 @@ class UserQuerySpec extends RESTSpec {
         Long id = createQuery(DEFAULT_USER).id
 
         when:
-        def errorJson = put([
+        def errorJson = RestHelper.toObject put([
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : DEFAULT_USER,
                 statusCode: 400,
-                body      : toJSON([
+                body      : [
                         patientsQuery    : [type: Negation, arg: [type: TrueConstraint]],
                         observationsQuery: null,
-                ]),
-        ])
+                ],
+        ]), ErrorResponse
+
         then:
         errorJson.message.contains('observationsQuery')
         errorJson.message.contains('patientsQuery')
@@ -109,12 +113,12 @@ class UserQuerySpec extends RESTSpec {
                 acceptType: JSON,
                 user      : DEFAULT_USER,
                 statusCode: 204,
-                body      : toJSON([
+                body      : [
                         name             : 'test query 2',
                         bookmarked       : false,
                         subscribed       : false,
                         subscriptionFreq : 'WEEKLY'
-                ]),
+                ],
         ])
 
         then:
@@ -126,15 +130,15 @@ class UserQuerySpec extends RESTSpec {
         updatedQuery.subscriptionFreq == 'WEEKLY'
 
         when: 'try to update query by a different user'
-        def updateResponseData1 = put([
+        def updateResponseData1 = RestHelper.toObject put([
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER,
                 statusCode: 403,
-                body      : toJSON([
+                body      : [
                         bookmarked: true
-                ]),
-        ])
+                ],
+        ]), ErrorResponse
 
         then:
         updateResponseData1.message == 'Query does not belong to the current user.'
@@ -173,7 +177,7 @@ class UserQuerySpec extends RESTSpec {
                 acceptType: JSON,
                 user      : user,
                 statusCode: 201,
-                body      : toJSON([
+                body      : [
                         name             : 'test query',
                         patientsQuery    : [type: TrueConstraint],
                         observationsQuery: [type: Negation, arg: [type: TrueConstraint]],
@@ -190,7 +194,7 @@ class UserQuerySpec extends RESTSpec {
                                         ]
                                 ]
                         ]
-                ]),
+                ],
         ])
     }
 

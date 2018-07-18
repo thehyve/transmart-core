@@ -4,12 +4,15 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import base.RestHelper
+import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
 import static org.hamcrest.Matchers.*
+import static org.springframework.http.HttpMethod.GET
+import static org.springframework.http.HttpMethod.POST
 import static spock.util.matcher.HamcrestSupport.that
-import static tests.rest.Operator.AND
 import static tests.rest.Operator.GREATER_THAN
 import static tests.rest.ValueType.NUMERIC
 import static tests.rest.constraints.*
@@ -30,14 +33,13 @@ class PatientsSpec extends RESTSpec {
     def "get patients based on observations"() {
         given: "study CLINICAL_TRIAL is loaded"
         def params = [
-                constraint: toJSON([
-                        type    : Combination,
-                        operator: AND,
+                constraint: [
+                        type    : 'and',
                         args    : [
                                 [type: ConceptConstraint, path: "\\Public Studies\\CLINICAL_TRIAL\\Vital Signs\\Heart Rate\\"],
                                 [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 80]
                         ]
-                ])
+                ]
         ]
         def request = [
                 path      : PATH_PATIENTS,
@@ -52,9 +54,9 @@ class PatientsSpec extends RESTSpec {
         that responseData.patients, everyItem(hasKey('id'))
 
         where:
-        method | _
-        "POST" | _
-        "GET"  | _
+        method  | _
+        POST    | _
+        GET     | _
     }
 
     /**
@@ -68,9 +70,8 @@ class PatientsSpec extends RESTSpec {
         def request = [
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([
-                        type    : Combination,
-                        operator: AND,
+                query     : [constraint: [
+                        type    : 'and',
                         args    : [
                                 [type: ConceptConstraint, path: "\\Public Studies\\CLINICAL_TRIAL\\Vital Signs\\Heart Rate\\"],
                                 [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 60],
@@ -81,7 +82,7 @@ class PatientsSpec extends RESTSpec {
                                  operator: GREATER_THAN,
                                  value   : 7]
                         ]
-                ])
+                ]]
         ]
 
         when: "I get all patients from that study that had a heart rate above 60 after 7 days (after trial visit 2)"
@@ -103,12 +104,12 @@ class PatientsSpec extends RESTSpec {
         def request = [
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                query     : [constraint: [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]],
                 statusCode: 403
         ]
 
         when: "I try to get the patients from that study"
-        def responseData = get(request)
+        def responseData = RestHelper.toObject(get(request), ErrorResponse)
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -127,7 +128,7 @@ class PatientsSpec extends RESTSpec {
         def request = [
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                query     : [constraint: [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]],
                 user      : UNRESTRICTED_USER
         ]
 
@@ -150,7 +151,7 @@ class PatientsSpec extends RESTSpec {
         def patientsRequest = [
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                query     : [constraint: [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]],
                 user      : UNRESTRICTED_USER
         ]
 
@@ -166,7 +167,7 @@ class PatientsSpec extends RESTSpec {
         ]
 
         when: "I try to get the patients from that study by id in path"
-        def responseData = get(request)
+        def responseData = RestHelper.toObject(get(request), ErrorResponse)
 
         then: "I get an not found error"
         assert responseData.httpStatus == 404
@@ -185,7 +186,7 @@ class PatientsSpec extends RESTSpec {
         def patientsRequest = [
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                query     : [constraint: [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]],
                 user      : UNRESTRICTED_USER
         ]
 
