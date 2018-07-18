@@ -1,6 +1,7 @@
-package org.transmart.notifications
+package org.transmartproject.notifications
 
 import grails.plugins.*
+import grails.util.Holders
 
 class TransmartNotificationsGrailsPlugin extends Plugin {
 
@@ -25,8 +26,15 @@ A plugin that provides an email subscription functionality.
     def scm = [url: "https://github.com/thehyve/transmart-core"]
     def documentation = "https://github.com/thehyve/transmart-core"
 
+    /**
+     * Whether the notifications plugin is enabled
+     * Depends on setting of the org.transmartproject.notifications.enabled property
+     */
+    boolean enabled = true
+
     Closure doWithSpring() { {->
-        // TODO Implement runtime spring config (optional)
+            // enable/disable the plugin
+            enabled = config.getProperty("org.transmartproject.notifications.enabled", Boolean, true)
         }
     }
 
@@ -35,7 +43,6 @@ A plugin that provides an email subscription functionality.
     }
 
     void doWithApplicationContext() {
-        // TODO Implement post initialization spring config (optional)
     }
 
     void onChange(Map<String, Object> event) {

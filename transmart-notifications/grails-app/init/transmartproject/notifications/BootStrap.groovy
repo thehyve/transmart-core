@@ -1,4 +1,4 @@
-package transmart.notifications
+package transmartproject.notifications
 
 class BootStrap {
 

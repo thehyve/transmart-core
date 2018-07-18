@@ -1,4 +1,4 @@
-package transmart.notifications
+package transmartproject.notifications
 
 import grails.boot.*
 import grails.boot.config.GrailsAutoConfiguration

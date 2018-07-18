@@ -38,7 +38,7 @@ For more information check [Grails Email Plugin documentation.](http://gpc.githu
 ### Other subscription settings:
 
 ```
-org.transmart.notifications:
+org.transmartproject.notifications:
     # enable daily and weekly notification jobs
     enabled: true
     # max number of query sets returned in a subscription email

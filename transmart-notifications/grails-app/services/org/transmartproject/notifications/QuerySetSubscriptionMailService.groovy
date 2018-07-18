@@ -1,4 +1,4 @@
-package org.transmart.notifications
+package org.transmartproject.notifications
 
 import grails.plugins.mail.MailService
 import groovy.transform.CompileStatic
@@ -25,7 +25,7 @@ import org.transmartproject.core.userquery.SetType
 @CompileStatic
 class QuerySetSubscriptionMailService {
 
-    @Value('${org.transmart.notifications.maxNumberOfSets}')
+    @Value('${org.transmartproject.notifications.maxNumberOfSets}')
     Integer maxNumberOfSets
 
     MailService mailService

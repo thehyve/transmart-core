@@ -1,4 +1,4 @@
-package org.transmart.notifications
+package org.transmartproject.notifications
 
 import grails.util.Holders
 import groovy.util.logging.Slf4j
@@ -13,12 +13,12 @@ import org.transmartproject.core.userquery.SubscriptionFrequency
 @Slf4j
 class QuerySetSubscriptionDailyJob {
 
-    static jobEnabled =  Holders.config.org.transmart.notifications.enabled
+    static jobEnabled =  Holders.config.org.transmartproject.notifications.enabled
 
     QuerySetSubscriptionMailService querySetSubscriptionMailService
 
     /**
-     * Parse org.transmart.notifications.dailyJobTriggerTime setting specified in the configuration
+     * Parse org.transmartproject.notifications.dailyJobTriggerTime setting specified in the configuration
      * Format of the setting is hh-mm, which represent hour and minutes, separated by '-'.
      * Hours and minutes have to be numbers from a proper range (0-23 and 0-59 respectively).
      * Specified setting of hour and minutes is changed to a proper cron expression that will be triggered daily.
@@ -28,7 +28,7 @@ class QuerySetSubscriptionDailyJob {
      */
     private static String parseConfiguredTriggerTime() {
         try {
-            def (hour, minute) = Holders.config.org.transmart.notifications.dailyJobTriggerTime.tokenize('-')
+            def (hour, minute) = Holders.config.org.transmartproject.notifications.dailyJobTriggerTime.tokenize('-')
             def validMinute = minute as Integer
             def validHour = hour as Integer
             if (validMinute >= 0 && validMinute <= 59 && validHour >= 0 && validHour <= 23){
