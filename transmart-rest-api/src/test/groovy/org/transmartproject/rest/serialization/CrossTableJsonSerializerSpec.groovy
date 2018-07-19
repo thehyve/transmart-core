@@ -1,7 +1,7 @@
 package org.transmartproject.rest.serialization
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.transmartproject.core.multidimquery.CrossTable
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import spock.lang.Specification
 
 class CrossTableJsonSerializerSpec extends Specification {

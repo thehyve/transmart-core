@@ -8,7 +8,7 @@ import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.Counts
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint

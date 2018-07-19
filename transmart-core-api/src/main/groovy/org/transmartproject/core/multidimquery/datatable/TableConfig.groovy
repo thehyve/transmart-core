@@ -1,6 +1,7 @@
-package org.transmartproject.core.dataquery
+package org.transmartproject.core.multidimquery.datatable
 
 import groovy.transform.CompileStatic
+import org.transmartproject.core.multidimquery.SortSpecification
 
 /**
  * Configuration required for the data table export

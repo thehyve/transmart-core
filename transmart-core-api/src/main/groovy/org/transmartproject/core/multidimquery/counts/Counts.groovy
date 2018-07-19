@@ -1,4 +1,4 @@
-package org.transmartproject.core.multidimquery
+package org.transmartproject.core.multidimquery.counts
 
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic

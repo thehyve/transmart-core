@@ -7,8 +7,8 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User

@@ -3,7 +3,7 @@ package org.transmartproject.db.clinical
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.multidimquery.Counts
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.TrueConstraint

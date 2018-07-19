@@ -7,7 +7,7 @@ import groovy.transform.Memoized
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.transmartproject.core.multidimquery.Counts
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult

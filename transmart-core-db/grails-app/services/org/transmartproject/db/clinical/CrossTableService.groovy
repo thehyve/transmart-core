@@ -2,8 +2,8 @@ package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.AggregateDataResource
-import org.transmartproject.core.multidimquery.CrossTable
 import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint

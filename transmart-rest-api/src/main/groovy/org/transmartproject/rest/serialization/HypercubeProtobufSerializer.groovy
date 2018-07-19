@@ -4,11 +4,11 @@ package org.transmartproject.rest.serialization
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.core.multidimquery.Property
+import org.transmartproject.core.multidimquery.hypercube.Property
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Error
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.SortOrder as ProtoSortOrder
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType

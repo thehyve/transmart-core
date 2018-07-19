@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery
+package org.transmartproject.core.multidimquery.datatable
 
 import groovy.transform.CompileStatic
 

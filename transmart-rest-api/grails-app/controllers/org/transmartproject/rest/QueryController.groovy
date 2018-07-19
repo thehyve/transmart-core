@@ -7,17 +7,21 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.binding.BindingHelper
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.exceptions.*
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
+import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.serialization.Format
+import org.transmartproject.core.multidimquery.export.Format
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 import static org.transmartproject.rest.misc.RequestUtils.parseJson

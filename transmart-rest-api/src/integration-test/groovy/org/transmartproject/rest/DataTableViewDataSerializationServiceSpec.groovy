@@ -8,8 +8,8 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.TableConfig
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.datatable.TableConfig
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User
@@ -19,7 +19,7 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.PropertyImpl
 import org.transmartproject.mock.MockUser
-import org.transmartproject.rest.serialization.Format
+import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 import spock.lang.Specification
 

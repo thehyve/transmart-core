@@ -5,8 +5,7 @@ package tests.rest.v2.storage
 import base.RESTSpec
 import base.RestHelper
 import com.fasterxml.jackson.databind.ObjectMapper
-import groovy.json.JsonBuilder
-import representations.ErrorResponse
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*

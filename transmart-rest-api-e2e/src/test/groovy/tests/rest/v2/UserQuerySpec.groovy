@@ -4,7 +4,7 @@ package tests.rest.v2
 
 import base.RESTSpec
 import base.RestHelper
-import representations.ErrorResponse
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*

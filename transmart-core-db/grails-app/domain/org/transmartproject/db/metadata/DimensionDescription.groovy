@@ -4,7 +4,7 @@ package org.transmartproject.db.metadata
 
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.DimensionImpl

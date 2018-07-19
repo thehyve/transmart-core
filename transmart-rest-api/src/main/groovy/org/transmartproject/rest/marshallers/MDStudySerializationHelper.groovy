@@ -1,7 +1,7 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.ontology.MDStudy
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF

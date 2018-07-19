@@ -18,11 +18,12 @@
  */
 package org.transmartproject.rest.serialization
 
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.TableConfig
-import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableConfig
+import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
+import org.transmartproject.core.multidimquery.export.Format
 
 interface DataSerializer {
 

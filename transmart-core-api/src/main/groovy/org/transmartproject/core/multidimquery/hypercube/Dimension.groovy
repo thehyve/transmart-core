@@ -1,6 +1,6 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package org.transmartproject.core.multidimquery
+package org.transmartproject.core.multidimquery.hypercube
 
 import com.google.common.collect.ImmutableMap
 
