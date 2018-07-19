@@ -1,7 +1,7 @@
-package org.transmartproject.core.multidimquery
+package org.transmartproject.core.multidimquery.export
 
 import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.multidimquery.SortSpecification
 import org.transmartproject.core.multidimquery.query.Constraint
 
 @CompileStatic

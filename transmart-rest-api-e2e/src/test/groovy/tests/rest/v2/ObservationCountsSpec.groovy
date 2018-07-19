@@ -5,7 +5,7 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import base.RestHelper
-import representations.Counts
+import org.transmartproject.core.multidimquery.counts.Counts
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*

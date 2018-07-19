@@ -3,7 +3,7 @@ package org.transmartproject.core.multidimquery
 import com.google.common.collect.Multimap
 import com.google.common.collect.Table
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 
 /**
  * A DataTable is a two-dimensional representation of a hypercube. Which dimensions are represented as rows or as

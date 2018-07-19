@@ -1,4 +1,4 @@
-package org.transmartproject.rest.serialization
+package org.transmartproject.core.multidimquery.export
 
 import com.fasterxml.jackson.core.type.TypeReference
 import groovy.transform.CompileStatic

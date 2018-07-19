@@ -4,8 +4,8 @@ import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint

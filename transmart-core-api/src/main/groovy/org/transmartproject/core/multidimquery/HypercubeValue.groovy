@@ -2,6 +2,8 @@
 
 package org.transmartproject.core.multidimquery
 
+import org.transmartproject.core.multidimquery.hypercube.Dimension
+
 /**
  * A HypercubeValue models a single cell in a multidimensional data cube. Each cell has co-ordinates in each
  * dimension that is part of the Hypercube to which this value belongs. A HypercubeValue also has a single value.

@@ -4,8 +4,8 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import org.springframework.http.HttpStatus
-import representations.CrossTable
-import representations.ErrorResponse
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*

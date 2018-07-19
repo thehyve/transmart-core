@@ -20,14 +20,16 @@ package org.transmartproject.rest
 
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.AbstractDataResourceService
 import org.transmartproject.rest.serialization.*
+import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 
 import java.util.zip.ZipOutputStream

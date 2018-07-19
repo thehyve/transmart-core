@@ -25,6 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
+import org.transmartproject.core.multidimquery.counts.Counts
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy

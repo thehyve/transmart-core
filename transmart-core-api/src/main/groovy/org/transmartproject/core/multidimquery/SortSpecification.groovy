@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery
+package org.transmartproject.core.multidimquery
 
 import groovy.transform.CompileStatic
 
@@ -20,6 +20,8 @@ class SortSpecification {
      */
     @NotNull
     SortOrder sortOrder = SortOrder.ASC
+
+    Boolean userRequested
 
     static asc(String dimension) {
         new SortSpecification(dimension: dimension, sortOrder: SortOrder.ASC)

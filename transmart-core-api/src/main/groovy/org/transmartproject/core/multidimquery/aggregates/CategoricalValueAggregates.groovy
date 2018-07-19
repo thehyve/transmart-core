@@ -1,4 +1,4 @@
-package org.transmartproject.core.multidimquery
+package org.transmartproject.core.multidimquery.aggregates
 
 import groovy.transform.Canonical
 

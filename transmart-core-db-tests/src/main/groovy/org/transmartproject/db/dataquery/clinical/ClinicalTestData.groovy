@@ -39,9 +39,9 @@ import static com.google.common.collect.Iterators.peekingIterator
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
-import static org.transmartproject.core.multidimquery.Dimension.Density.*
-import static org.transmartproject.core.multidimquery.Dimension.Size.*
-import static org.transmartproject.core.multidimquery.Dimension.Packable.*
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.*
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Size.*
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Packable.*
 
 class ClinicalTestData {
 

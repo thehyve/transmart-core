@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery
+package org.transmartproject.core.multidimquery
 
 import com.fasterxml.jackson.annotation.JsonCreator
 

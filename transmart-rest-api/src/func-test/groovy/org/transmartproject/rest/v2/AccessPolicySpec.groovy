@@ -1,15 +1,23 @@
 package org.transmartproject.rest.v2
 
-import groovy.transform.Canonical
-import groovy.transform.CompileStatic
 import org.springframework.http.HttpStatus
-import org.transmartproject.core.multidimquery.Counts
-import org.transmartproject.core.multidimquery.CrossTable
+import org.transmartproject.core.multidimquery.counts.Counts
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.mock.MockUser
-import org.transmartproject.rest.serialization.ExportElement
-import org.transmartproject.rest.serialization.ExportJobRepresentation
-import org.transmartproject.rest.serialization.Format
+import org.transmartproject.core.multidimquery.aggregates.Aggregates
+import org.transmartproject.core.multidimquery.ConstraintHolder
+import org.transmartproject.core.multidimquery.counts.CountsPerStudy
+import org.transmartproject.core.multidimquery.counts.CountsPerStudyAndConcept
+import org.transmartproject.core.multidimquery.crosstable.CrossTableRequest
+import org.transmartproject.core.multidimquery.datatable.DataTable
+import org.transmartproject.core.multidimquery.datatable.DimensionRequest
+import org.transmartproject.core.multidimquery.hypercube.Hypercube
+import org.transmartproject.core.multidimquery.hypercube.HypercubeRequest
+import org.transmartproject.core.multidimquery.datatable.DataTableRequest
+import org.transmartproject.core.multidimquery.export.ExportElement
+import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
+import org.transmartproject.core.multidimquery.export.Format
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -55,14 +63,14 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new ObservationsRequestBody('clinical', trueConstraint)
+        def body = new HypercubeRequest('clinical', trueConstraint)
 
         when:
         def response = post("${contextPath}/observations", body)
 
         then:
         checkResponseStatus(response, OK, user)
-        HypercubeResponse result = toObject(response, HypercubeResponse)
+        Hypercube result = toObject(response, Hypercube)
         !getSubjectElementsThatDontHaveObservations(result)
         getObservedStudyNames(result) == observedStudies as Set
 
@@ -82,7 +90,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new TableRequestBody()
+        def body = new DataTableRequest()
         body.type = 'clinical'
         body.constraint = trueConstraint
         body.rowDimensions = ['patient']
@@ -96,10 +104,10 @@ class AccessPolicySpec extends V2ResourceSpec {
         checkResponseStatus(response, OK, user)
         DataTable result = toObject(response, DataTable)
         result.columnDimensions.size() == 2
-        Dimension studyDim = result.columnDimensions.find { it.name == 'study' }
+        DimensionRequest studyDim = result.columnDimensions.find { it.name == 'study' }
         Set<String> studyIds = studyDim.elements.keySet()
         studyIds == expectedStudies as Set<String>
-        Dimension patientDim = result.rowDimensions.find { it.name == 'patient' }
+        DimensionRequest patientDim = result.rowDimensions.find { it.name == 'patient' }
         patientDim.elements.keySet() == expectedSubjects as Set<String>
         Set<String> subjectsFromRowHeaders = result.rows.collect { row -> row.rowHeaders.find { el -> el.dimension == 'patient' }.key } as Set<String>
         subjectsFromRowHeaders == expectedSubjects as Set<String>
@@ -121,7 +129,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         Constraint constraint = trueConstraint
         def url = "${contextPath}/observations/aggregates_per_concept"
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(constraint)
+        def body = new ConstraintHolder(constraint)
 
         when:
         def response = post(url, body)
@@ -157,7 +165,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         given:
         def url = "${contextPath}/observations/counts"
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(constraint)
+        def body = new ConstraintHolder(constraint)
 
         when:
         def response = post(url, body)
@@ -187,7 +195,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         def constraint = trueConstraint
         def url = "${contextPath}/observations/counts_per_study"
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(constraint)
+        def body = new ConstraintHolder(constraint)
 
         when:
         def response = post(url, body)
@@ -213,7 +221,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         def constraint = trueConstraint
         def url = "${contextPath}/observations/counts_per_study_and_concept"
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(constraint)
+        def body = new ConstraintHolder(constraint)
 
         when:
         def response = post(url, body)
@@ -242,7 +250,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         given:
         def url = "${contextPath}/observations/crosstable"
         selectUser(user)
-        def body = new CrossTableRequestBody(rowConstraints, columnConstraints, subjectConstraint)
+        def body = new CrossTableRequest(rowConstraints, columnConstraints, subjectConstraint)
 
         when:
         def response = post(url, body)
@@ -267,7 +275,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(trueConstraint)
+        def body = new ConstraintHolder(trueConstraint)
 
         when:
         def response = post("${contextPath}/patients", body)
@@ -296,7 +304,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(trueConstraint)
+        def body = new ConstraintHolder(trueConstraint)
 
         when:
         def response = post("${contextPath}/dimensions/patient/elements", body)
@@ -325,7 +333,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new ObservationsRequestBody('clinical', study1Constraint)
+        def body = new HypercubeRequest('clinical', study1Constraint)
 
         when:
         def response = post("${contextPath}/observations", body)
@@ -344,7 +352,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new TableRequestBody()
+        def body = new DataTableRequest()
         body.type = 'clinical'
         body.constraint = study1Constraint
         body.limit = 100
@@ -366,7 +374,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(study1Constraint)
+        def body = new ConstraintHolder(study1Constraint)
 
         when:
         def response = post("${contextPath}/observations/aggregates_per_concept", body)
@@ -387,7 +395,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         def url = "${contextPath}/observations/crosstable"
         def user = s2sUser
         selectUser(user)
-        def body = new CrossTableRequestBody(rowConstraints, columnConstraints, subjectConstraint)
+        def body = new CrossTableRequest(rowConstraints, columnConstraints, subjectConstraint)
 
         when:
         def response = post(url, body)
@@ -410,7 +418,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         given:
         def user = s2sUser
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(study1Constraint)
+        def body = new ConstraintHolder(study1Constraint)
 
         when:
         def response = post("${contextPath}${url}", body)
@@ -433,7 +441,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         given:
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(study1Constraint)
+        def body = new ConstraintHolder(study1Constraint)
 
         when:
         def response = post("${contextPath}/patients", body)
@@ -525,171 +533,12 @@ class AccessPolicySpec extends V2ResourceSpec {
 
     }
 
-    @CompileStatic
-    @Canonical
-    class ConstraintHoldingRequestBody {
-        Constraint constraint
-    }
-
-    @CompileStatic
-    @Canonical
-    class CrossTableRequestBody {
-        List<Constraint> rowConstraints
-        List<Constraint> columnConstraints
-        Constraint subjectConstraint
-    }
-
-    @CompileStatic
-    @Canonical
-    class ObservationsRequestBody {
-        String type
-        Constraint constraint
-    }
-
-    @CompileStatic
-    @Canonical
-    class TableRequestBody {
-        String type
-        Constraint constraint
-        List<String> rowDimensions
-        List<String> columnDimensions
-        int limit
-    }
-
-    @CompileStatic
-    @Canonical
-    static class DimensionDescription {
-        String name
-        String type
-        Set<DimensionDescription> fields
-        Boolean inline
-    }
-
-    @CompileStatic
-    @Canonical
-    static class Cell {
-        List inlineDimensions
-        List<Integer> dimensionIndexes
-        String stringValue
-        Number numericValue
-    }
-
-    @CompileStatic
-    @Canonical
-    static class Sort {
-        String dimension
-        String sortOrder
-    }
-
-    @CompileStatic
-    @Canonical
-    static class HypercubeResponse {
-        List<DimensionDescription> dimensionDeclarations
-        List<Cell> cells
-        Map<String, List<Map<String, Object>>> dimensionElements
-        List<Sort> sort
-    }
-
-    //TODO the data table representation beans are duplicated in e2e test.
-
-    @CompileStatic
-    @Canonical
-    static class ColumnHeader {
-        String dimension
-        List<Object> elements
-        List<Object> keys
-    }
-
-    @CompileStatic
-    @Canonical
-    static class Dimension {
-        String name
-        Map<String, Object> elements
-    }
-
-    @CompileStatic
-    @Canonical
-    static class RowHeader {
-        String dimension
-        Object element
-        Object key
-    }
-
-    @CompileStatic
-    @Canonical
-    static class Row {
-        List<RowHeader> rowHeaders
-        List<Object> cells
-    }
-
-    @CompileStatic
-    @Canonical
-    static class SortSpecification {
-        String dimension
-        String sortOrder
-        Boolean userRequested
-    }
-
-    @CompileStatic
-    @Canonical
-    static class DataTable {
-        List<ColumnHeader> columnHeaders
-        List<Dimension> rowDimensions
-        List<Dimension> columnDimensions
-        Integer rowCount
-        List<Row> rows
-        Integer offset
-        List<SortSpecification> sort
-    }
-
-    @CompileStatic
-    @Canonical
-    static class NumericalValueAggregates {
-        Double avg
-        Integer count
-        Double max
-        Double min
-        Double stdDev
-    }
-
-    @CompileStatic
-    @Canonical
-    static class CategoricalValueAggregates {
-        Integer nullValueCounts
-        Map<String, Integer> valueCounts
-    }
-
-    @CompileStatic
-    @Canonical
-    static class AggregatesPerType {
-        NumericalValueAggregates numericalValueAggregates
-        CategoricalValueAggregates categoricalValueAggregates
-    }
-
-    @CompileStatic
-    @Canonical
-    static class Aggregates {
-        Map<String, AggregatesPerType> aggregatesPerConcept
-    }
-
-    @CompileStatic
-    @Canonical
-    static class CountsPerStudy {
-        Map<String, Counts> countsPerStudy
-    }
-
-    @CompileStatic
-    @Canonical
-    static class CountsPerStudyAndConcept {
-        Map<String, Map<String, Counts>> countsPerStudy
-    }
-
     /**
      * Get study names from observations.
      * @param hypercube
      * @return
      */
-    Set<String> getObservedStudyNames(HypercubeResponse hypercube) {
+    Set<String> getObservedStudyNames(Hypercube hypercube) {
         def studyDimesnionIndex = hypercube.dimensionDeclarations.findIndexOf { it.name == 'study' && !it.inline }
         assert studyDimesnionIndex >= 0: 'No study dimension among non-inline dimensions of the hypercube.'
         Set<Integer> studyElementIndexes = hypercube.cells.collect {
@@ -710,7 +559,7 @@ class AccessPolicySpec extends V2ResourceSpec {
      * @param hypercube
      * @return
      */
-    def getSubjectElementsThatDontHaveObservations(HypercubeResponse hypercube) {
+    def getSubjectElementsThatDontHaveObservations(Hypercube hypercube) {
         def patientDimesnionIndex = hypercube.dimensionDeclarations.findIndexOf { it.name == 'patient' && !it.inline }
         assert patientDimesnionIndex >= 0: 'No patient dimension among non-inline dimensions of the hypercube.'
         Set<Integer> patientElementIndexes = hypercube.cells.collect {

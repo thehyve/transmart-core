@@ -1,4 +1,4 @@
-package representations
+package org.transmartproject.core.multidimquery
 
 import groovy.transform.EqualsAndHashCode
 

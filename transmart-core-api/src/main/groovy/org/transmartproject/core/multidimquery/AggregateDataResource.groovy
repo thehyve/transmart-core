@@ -2,6 +2,10 @@
 
 package org.transmartproject.core.multidimquery
 
+import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
+import org.transmartproject.core.multidimquery.counts.Counts
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 

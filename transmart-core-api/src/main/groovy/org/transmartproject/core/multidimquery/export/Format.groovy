@@ -1,4 +1,4 @@
-package org.transmartproject.rest.serialization
+package org.transmartproject.core.multidimquery.export
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import groovy.transform.CompileStatic
@@ -31,7 +31,7 @@ enum Format {
     static Format from(String format) {
         format = format.toLowerCase()
         if (mapping.containsKey(format)) {
-            return mapping[format]
+            return mapping.get(format)
         } else {
             return NONE
         }

@@ -8,8 +8,8 @@ import groovy.transform.TupleConstructor
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.CriteriaImpl
-import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.clinical.Query

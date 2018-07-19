@@ -9,7 +9,7 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.AbstractDataResourceService
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
-import org.transmartproject.rest.serialization.ExportJobRepresentation
+import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
 
 @Transactional
 class ExportAsyncJobService extends AbstractDataResourceService {

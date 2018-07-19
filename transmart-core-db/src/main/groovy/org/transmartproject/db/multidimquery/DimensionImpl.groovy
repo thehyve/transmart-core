@@ -15,8 +15,8 @@ import org.hibernate.criterion.Subqueries
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.Property
+import org.transmartproject.core.multidimquery.hypercube.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Property
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
@@ -29,11 +29,11 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
 
-import static org.transmartproject.core.multidimquery.Dimension.Density.DENSE
-import static org.transmartproject.core.multidimquery.Dimension.Density.SPARSE
-import static org.transmartproject.core.multidimquery.Dimension.Packable.NOT_PACKABLE
-import static org.transmartproject.core.multidimquery.Dimension.Packable.PACKABLE
-import static org.transmartproject.core.multidimquery.Dimension.Size.*
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.DENSE
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.SPARSE
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Packable.NOT_PACKABLE
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Packable.PACKABLE
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Size.*
 
 /* Not sure if the generic parameters are worth it. They cannot be used fully due to implementing a non-generic
 interface, and we need to know the reified element type to check that the right types are used. And they need to be

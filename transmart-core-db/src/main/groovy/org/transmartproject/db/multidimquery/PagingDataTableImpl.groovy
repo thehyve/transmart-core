@@ -4,8 +4,8 @@ import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Lists
 import com.google.common.collect.Table
 import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.TableRetrievalParameters
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.PagingDataTable
