@@ -9,23 +9,3 @@ import org.transmartproject.core.multidimquery.query.Constraint
 class ConstraintHolder {
     Constraint constraint
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

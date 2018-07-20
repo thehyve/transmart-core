@@ -3,9 +3,11 @@
 package org.transmartproject.rest.v2
 
 import groovy.json.JsonBuilder
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.transmartproject.mock.MockUser
+import org.transmartproject.rest.data.V1DefaultTestData
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.OK
@@ -13,9 +15,13 @@ import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 
 class MDStudyControllerSpec extends V2ResourceSpec {
 
+    @Autowired
+    V1DefaultTestData testData
+
     void setup() {
         selectUser(new MockUser('test', true))
-        selectData(defaultTestData)
+        testData.clearTestData()
+        testData.createTestData()
     }
 
     void 'test get studies'() {

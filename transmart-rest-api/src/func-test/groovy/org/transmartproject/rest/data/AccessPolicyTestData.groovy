@@ -1,5 +1,6 @@
 package org.transmartproject.rest.data
 
+import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Restrictions
@@ -24,6 +25,7 @@ import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.C
 @Slf4j
 class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
 
+    @Transactional
     void createTestData() {
         new Dictionaries().saveAll()
 
@@ -62,8 +64,10 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
         createTestCategoricalObservations(patient1, concept1, study1TrialVisits[0], [['@': 'value1'], ['@': 'value2']], dummyDate)
         createTestNumericalObservations(patient1, concept2, study1TrialVisits[0], [['@': 100], ['@': 200]], dummyDate)
         createTestCategoricalObservations(patient2, concept1, study1TrialVisits[0], [['@': 'value2'], ['@': 'value3']], dummyDate)
+
         createTestNumericalObservations(patient2, concept2, study2TrialVisits[0], [['@': 400]], dummyDate)
         createTestCategoricalObservations(patient3, concept1, study2TrialVisits[0], [['@': 'value4']], dummyDate)
+
         createTestCategoricalObservations(patient4, concept1, publicStudyTrialVisits[0], [['@': 'value1']], dummyDate)
     }
 

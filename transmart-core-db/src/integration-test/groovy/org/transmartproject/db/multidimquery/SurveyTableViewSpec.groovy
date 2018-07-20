@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.multidimquery.SortSpecification
-import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PatientSetResource

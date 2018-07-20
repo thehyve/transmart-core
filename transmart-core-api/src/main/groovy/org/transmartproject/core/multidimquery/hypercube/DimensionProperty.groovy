@@ -6,7 +6,6 @@ import groovy.transform.CompileStatic
 /**
  * @see Property
  */
-//TODO
 @CompileStatic
 @Canonical
 class DimensionProperty {
