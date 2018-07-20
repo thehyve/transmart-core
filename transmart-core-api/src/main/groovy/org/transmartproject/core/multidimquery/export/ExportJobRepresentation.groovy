@@ -10,7 +10,7 @@ import javax.validation.constraints.Size
 
 @CompileStatic
 /**
- * @see DataRetrievalParameters
+ * {@link org.transmartproject.core.multidimquery.DataRetrievalParameters}
  */
 class ExportJobRepresentation {
 

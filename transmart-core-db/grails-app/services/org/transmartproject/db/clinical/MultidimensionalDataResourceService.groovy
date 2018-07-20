@@ -19,7 +19,6 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.multidimquery.datatable.PaginationParameters
 import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.multidimquery.SortSpecification
@@ -36,7 +35,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.OperationNotImplementedException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
-import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint

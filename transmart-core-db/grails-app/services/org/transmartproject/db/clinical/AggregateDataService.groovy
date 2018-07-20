@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.AggregateDataResource
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
 import org.transmartproject.core.multidimquery.counts.Counts
@@ -32,6 +33,8 @@ import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.patient.anonomization.PatientDataAnonymizer
+import org.transmartproject.core.patient.anonomization.ThresholdPatientDataAnonymizer
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.userquery.UserQueryResource
@@ -79,6 +82,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     @Autowired
     PatientSetResource patientSetResource
+
+    @Autowired
+    ThresholdPatientDataAnonymizer patientDataAnonymizer
 
     /**
      * Instance of this object wrapped with the cache proxy.
@@ -194,7 +200,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             }
         }
         def parameters = new TaskParameters(constraint, user)
-        parallelPatientSetTaskService.run(parameters,
+        Counts counts = parallelPatientSetTaskService.run(parameters,
                 {SubtaskParameters params -> countsTask(params)},
                 {List<Counts> taskResults ->
                     def result = new Counts(0L, 0L)
@@ -204,6 +210,31 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                     result
                 }
         )
+
+        //TODO Improve
+        if (!user.admin && user.studyToPatientDataAccessLevel.values().contains(PatientDataAccessLevel.COUNTS_WITH_THRESHOLD) && counts.patientCount < patientDataAnonymizer.patientCountsThreshold) {
+            List<Constraint> studyNameConstraints = user.studyToPatientDataAccessLevel.entrySet()
+                    .findAll { Map.Entry<String, PatientDataAccessLevel> entry -> entry.value == PatientDataAccessLevel.COUNTS_WITH_THRESHOLD }
+                    .collect { Map.Entry<String, PatientDataAccessLevel> entry -> new StudyNameConstraint(entry.key) } as List<Constraint>
+            if (studyNameConstraints) {
+                def constraintForCtStudies = new AndConstraint([constraint, new OrConstraint(studyNameConstraints)])
+
+                Counts countsForCtStudies = parallelPatientSetTaskService.run(new TaskParameters(constraintForCtStudies, user),
+                        {SubtaskParameters params -> countsTask(params)},
+                        {List<Counts> taskResults ->
+                            def result = new Counts(0L, 0L)
+                            for (Counts countsForCt: taskResults) {
+                                result.merge(countsForCt)
+                            }
+                            result
+                        }
+                )
+                if (countsForCtStudies && countsForCtStudies.patientCount > 0) {
+                    return new Counts(-2, -2)
+                }
+            }
+        }
+        return counts
     }
 
     @Override
@@ -284,7 +315,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.COUNTS_WITH_THRESHOLD)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.setProjection(Projections.projectionList()
@@ -314,7 +345,26 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         checkAccess(constraint, user, PatientDataAccessLevel.COUNTS_WITH_THRESHOLD)
         def taskParameters = new SubtaskParameters(1, constraint, user)
         def counts = countsPerConceptTask(taskParameters)
-        mergeConceptCounts(counts)
+        Map<String, Counts> result = mergeConceptCounts(counts)
+
+        //TODO Improve
+        if (!user.admin && user.studyToPatientDataAccessLevel.values().contains(PatientDataAccessLevel.COUNTS_WITH_THRESHOLD) && result.values().any { it.patientCount < patientDataAnonymizer.patientCountsThreshold}) {
+            List<Constraint> studyNameConstraints = user.studyToPatientDataAccessLevel.entrySet()
+                    .findAll { Map.Entry<String, PatientDataAccessLevel> entry -> entry.value == PatientDataAccessLevel.COUNTS_WITH_THRESHOLD }
+                    .collect { Map.Entry<String, PatientDataAccessLevel> entry -> new StudyNameConstraint(entry.key) } as List<Constraint>
+            if (studyNameConstraints) {
+                def constraint2 = new AndConstraint([constraint, new OrConstraint(studyNameConstraints)])
+
+                def taskParameters2 = new SubtaskParameters(1, constraint2, user)
+                def counts2 = countsPerConceptTask(taskParameters2)
+                Map<String, Counts> result2 = mergeConceptCounts(counts2)
+                return result.collectEntries { [it.key,
+                                                it.value.patientCount < patientDataAnonymizer.patientCountsThreshold
+                                                && result2[it.key] != null && result2[it.key].patientCount > 0
+                                                        ? new Counts(-2, -2): it.value ] }
+            }
+        }
+        return result
     }
 
     @Override
@@ -349,10 +399,12 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         def rows = getList(criteria) as List<Map>
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        rows.stream().collect(Collectors.toMap(
-                { Map row -> ((row.study as Study).studyId) } as Function<Map, String>,
-                { Map row -> new Counts(row.observationCount as Long, row.patientCount as Long) } as Function<Map, Counts>
-        ))
+        rows.collectEntries { Map row ->
+            Counts counts = new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)
+            def study = (Study) row.study
+            String studyId = study.studyId
+            [(studyId): patientDataAnonymizer.toPatientNonIdentifiableCountsIfNeeded(counts, user, study)]
+        } as Map<String, Counts>
     }
 
     @Override
@@ -379,7 +431,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.COUNTS_WITH_THRESHOLD)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.createAlias('trialVisit', builder.getAlias('trialVisit'))
@@ -396,10 +448,13 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             def t2 = new Date()
             log.info "Task ${parameters.task} done (took ${t2.time - t1.time} ms.)"
             List<ConceptStudyCountRow> counts = result.collect { Map row ->
+                def study = (Study) row.study
+                String studyId = studiesResource.getStudyIdById(study.id)
+                Counts counts = new Counts((Long) row.observationCount, (Long) row.patientCount)
                 new ConceptStudyCountRow(
                         (String) row.conceptCode,
-                        studiesResource.getStudyIdById(((Study) row.study).id),
-                        new Counts((Long) row.observationCount, (Long) row.patientCount))
+                        studyId,
+                        patientDataAnonymizer.toPatientNonIdentifiableCountsIfNeeded(counts, parameters.user, study))
             }
             return counts
         } finally {
@@ -416,9 +471,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                 {List<ConceptStudyCountRow> taskResults -> mergeSummaryTaskResults(taskResults)})
     }
 
-    private Map<String, Counts> getConceptCountsForStudy(String studyId, Constraint constraint, User user) {
-        def studyConstraint = new AndConstraint([new StudyNameConstraint(studyId), constraint]).canonise()
-        return wrappedThis.countsPerConcept(studyConstraint, user)
+    private Map<String, Counts> getConceptCountsForStudy(MDStudy study, Constraint constraint, User user) {
+        def studyConstraint = new AndConstraint([new StudyNameConstraint(study.name), constraint]).canonise()
+        Map<String, Counts> countsPerConcept = wrappedThis.countsPerConcept(studyConstraint, user)
+        for (Map.Entry<String, Counts> entry : countsPerConcept.entrySet()) {
+            def patientNonIdentifiableCounts = patientDataAnonymizer.toPatientNonIdentifiableCountsIfNeeded(entry.getValue(), user, study)
+            entry.setValue(patientNonIdentifiableCounts)
+        }
+        return countsPerConcept
     }
 
     @CompileDynamic
@@ -433,11 +493,13 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
         if (constraint instanceof PatientSetConstraint && constraint.patientSetId != null &&
                 aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSetEnabled) {
+            //FIXME Control counts with threshold!
             return aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSet(constraint.patientSetId, user)
         }
 
         Collection<MDStudy> studies = studiesResource.getStudies(user, PatientDataAccessLevel.COUNTS_WITH_THRESHOLD)
-        final List<String> studyIds = studies*.name
+        final Map<String, MDStudy> studyIdToStudy = studies.collectEntries { [it.name, it] }
+        final List<String> studyIds = new ArrayList<>(studyIdToStudy.keySet())
         studyIds.sort()
 
         def t1 = new Date()
@@ -455,7 +517,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                     try {
                         // Fetch the counts per concept for a specific study
                         def studyId = studyIds[i - 1]
-                        result[studyId] = getConceptCountsForStudy(studyId, constraint, user)
+                        MDStudy study = studyIdToStudy[studyId]
+                        result[studyId] = getConceptCountsForStudy(study, constraint, user)
                     } catch (Throwable e) {
                         error.set(true)
                         log.error "Error in task ${i}: ${e.message}", e

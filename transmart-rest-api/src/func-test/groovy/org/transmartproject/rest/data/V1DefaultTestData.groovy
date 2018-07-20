@@ -1,5 +1,6 @@
 package org.transmartproject.rest.data
 
+import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.Sex
@@ -11,9 +12,10 @@ import java.time.Instant
 
 @CompileStatic
 @Slf4j
-class DefaultTestData extends TestData {
+class V1DefaultTestData extends TestData {
 
     @Override
+    @Transactional
     void createTestData() {
         log.info "Setup test dictionaries."
         new Dictionaries().saveAll()

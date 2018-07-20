@@ -25,7 +25,7 @@ import org.grails.core.util.StopWatch
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.multidimquery.SortSpecification
-import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.datatable.PaginationParameters

@@ -39,9 +39,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import org.transmartproject.core.users.User
 import org.transmartproject.mock.MockAuthContext
-import org.transmartproject.rest.data.AccessPolicyTestData
-import org.transmartproject.rest.data.CurrentTestDataHolder
-import org.transmartproject.rest.data.DefaultTestData
+
 import org.transmartproject.rest.user.AuthContext
 import spock.lang.Specification
 
@@ -54,22 +52,9 @@ abstract class ResourceSpec extends Specification {
     @Autowired
     AuthContext authContext
 
-    @Autowired
-    AccessPolicyTestData accessPolicyTestData
-
-    @Autowired
-    DefaultTestData defaultTestData
-
-    @Autowired
-    CurrentTestDataHolder currentTestDataHolder
-
     void selectUser(User user) {
         assert authContext instanceof MockAuthContext
         authContext.currentUser = user
-    }
-
-    void selectData(org.transmartproject.rest.data.TestData testData) {
-        currentTestDataHolder.populateTestDataIfNeeded(testData)
     }
 
     TestRestTemplate getTestRestTemplate() {

@@ -15,7 +15,7 @@ import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
 import org.transmartproject.core.multidimquery.crosstable.CrossTable
-import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.Field

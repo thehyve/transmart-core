@@ -72,6 +72,7 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
         List<List<Long>> rows
         if (aggregateDataOptimisationsService.isCountPatientSetsIntersectionEnabled()) {
             log.debug('Use bit sets to calculate the cross counts.')
+            //FIXME Control counts with threshold
             rows = aggregateDataOptimisationsService.countPatientSetsIntersection(rowSubjectSets, columnSubjectSets, subjectSet, user)
         } else {
             log.debug('Use default implementation to calculate the cross counts.')

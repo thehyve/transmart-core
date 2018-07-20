@@ -10,13 +10,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.web.context.request.WebRequestInterceptor
 import org.transmartproject.core.log.AccessLogEntryResource
-import org.transmartproject.core.config.SystemResource
+import org.transmartproject.core.patient.anonomization.ThresholdPatientDataAnonymizer
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.db.test.H2Views
 import org.transmartproject.mock.MockAccessLogEntryResource
 import org.transmartproject.mock.MockAuthContext
 import org.transmartproject.rest.data.AccessPolicyTestData
-import org.transmartproject.rest.data.CurrentTestDataHolder
-import org.transmartproject.rest.data.DefaultTestData
+
+import org.transmartproject.rest.data.V1DefaultTestData
 import org.transmartproject.rest.user.AuthContext
 
 import javax.validation.Validation
@@ -28,18 +29,13 @@ import javax.validation.Validator
 class TestApplication extends GrailsAutoConfiguration {
 
     @Bean
-    AccessPolicyTestData accessPolicyTestData(SessionFactory sessionFactory, SystemResource systemResource) {
-        new AccessPolicyTestData(sessionFactory: sessionFactory, systemResource: systemResource)
+    AccessPolicyTestData accessPolicyTestData(SessionFactory sessionFactory) {
+        new AccessPolicyTestData(sessionFactory: sessionFactory)
     }
 
     @Bean
-    DefaultTestData defaultTestData(SessionFactory sessionFactory, SystemResource systemResource) {
-        new DefaultTestData(sessionFactory: sessionFactory, systemResource: systemResource)
-    }
-
-    @Bean
-    CurrentTestDataHolder currentTestDataHolder() {
-        new CurrentTestDataHolder()
+    V1DefaultTestData defaultTestData(SessionFactory sessionFactory) {
+        new V1DefaultTestData(sessionFactory: sessionFactory)
     }
 
     @Bean
@@ -52,6 +48,11 @@ class TestApplication extends GrailsAutoConfiguration {
     @Primary
     AccessLogEntryResource mockAccessLogEntryResource() {
         new MockAccessLogEntryResource()
+    }
+
+    @Bean
+    ThresholdPatientDataAnonymizer patientDataAnonymizer(AuthorisationChecks authorisationChecks) {
+        new ThresholdPatientDataAnonymizer(authorisationChecks)
     }
 
     /**

@@ -3,9 +3,11 @@
 package org.transmartproject.rest.v2
 
 import grails.converters.JSON
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.transmartproject.mock.MockUser
+import org.transmartproject.rest.data.V1DefaultTestData
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
@@ -13,9 +15,13 @@ import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 
 class QueryControllerSpec extends V2ResourceSpec {
 
+    @Autowired
+    V1DefaultTestData testData
+
     void setup() {
         selectUser(new MockUser('test', true))
-        selectData(defaultTestData)
+        testData.clearTestData()
+        testData.createTestData()
     }
 
     void 'test JSON (de)serialisation'() {
