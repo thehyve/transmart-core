@@ -1,23 +1,26 @@
 package org.transmartproject.rest.v2
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.transmartproject.core.multidimquery.counts.Counts
-import org.transmartproject.core.multidimquery.crosstable.CrossTable
-import org.transmartproject.core.multidimquery.query.*
-import org.transmartproject.mock.MockUser
-import org.transmartproject.core.multidimquery.aggregates.Aggregates
+import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.multidimquery.ConstraintHolder
+import org.transmartproject.core.multidimquery.aggregates.Aggregates
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.counts.CountsPerStudy
 import org.transmartproject.core.multidimquery.counts.CountsPerStudyAndConcept
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.crosstable.CrossTableRequest
 import org.transmartproject.core.multidimquery.datatable.DataTable
-import org.transmartproject.core.multidimquery.datatable.DimensionRequest
-import org.transmartproject.core.multidimquery.hypercube.Hypercube
-import org.transmartproject.core.multidimquery.hypercube.HypercubeRequest
 import org.transmartproject.core.multidimquery.datatable.DataTableRequest
+import org.transmartproject.core.multidimquery.datatable.DimensionRequest
 import org.transmartproject.core.multidimquery.export.ExportElement
 import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
 import org.transmartproject.core.multidimquery.export.Format
+import org.transmartproject.core.multidimquery.hypercube.Hypercube
+import org.transmartproject.core.multidimquery.hypercube.HypercubeRequest
+import org.transmartproject.core.multidimquery.query.*
+import org.transmartproject.core.patient.anonomization.SimpleThresholdPatientDataAnonymizer
+import org.transmartproject.mock.MockUser
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -54,8 +57,14 @@ class AccessPolicySpec extends V2ResourceSpec {
             new ConceptConstraint('categorical_concept1'),
             new ValueConstraint(Type.STRING, Operator.EQUALS, 'value2')])
 
+    @Autowired
+    SystemResource systemResource
+
     void setup() {
         selectData(accessPolicyTestData)
+        patientDataAnonymizer.patientCountsThreshold = Long.MAX_VALUE //disable threshold
+        //TODO we keep changing threshold in these tests. Hence we need clean cache.
+        systemResource.clearCaches()
     }
 
     @Unroll
@@ -533,6 +542,107 @@ class AccessPolicySpec extends V2ResourceSpec {
 
     }
 
+    @Autowired
+    SimpleThresholdPatientDataAnonymizer patientDataAnonymizer
+
+    @Unroll
+    void 'test counts (POST .../observations/counts) for constraint=#constraint and user with st1AccLvl=#s1AccLvl,  st2AccLvl=#s2AccLvl and threshold=#threshold.'() {
+        given:
+        def url = "${contextPath}/observations/counts"
+        def user = new MockUser('counts with threshold user', [study1: s1AccLvl, study2: s2AccLvl])
+        selectUser(user)
+        patientDataAnonymizer.patientCountsThreshold = threshold
+        def body = new ConstraintHolder(constraint)
+
+        when:
+        def response = post(url, body)
+
+        then:
+        checkResponseStatus(response, OK, user)
+        Counts counts = toObject(response, Counts)
+
+        counts.patientCount == pateintCount
+        counts.observationCount == observationCount
+
+        where:
+        constraint       | threshold | s1AccLvl              | s2AccLvl              | pateintCount | observationCount
+        trueConstraint   | 1         | SUMMARY               | SUMMARY               | 4            | 9
+        trueConstraint   | 5         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | 4            | 9
+        //FIXME trueConstraint | 4         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | -2           | -2
+        //FIXME trueConstraint | 4         | SUMMARY | COUNTS_WITH_THRESHOLD | -2           | -2
+        study1Constraint | 4         | SUMMARY               | COUNTS_WITH_THRESHOLD | 2            | 6
+    }
+
+    //TODO add counts_per_concept and crosstable tests
+
+    @Unroll
+    void 'test counts per study threshold (POST .../observations/counts_per_study) for user with st1AccLvl=#study1AccessLevel,  st2AccLvl=#study2AccessLevel and threshold=#threshold.'() {
+        given:
+        def url = "${contextPath}/observations/counts_per_study"
+        def user = new MockUser('counts with threshold user', [study1: study1AccessLevel, study2: study2AccessLevel])
+        selectUser(user)
+        patientDataAnonymizer.patientCountsThreshold = threshold
+        def body = new ConstraintHolder(trueConstraint)
+
+        when:
+        def response = post(url, body)
+
+        then:
+        checkResponseStatus(response, OK, user)
+        CountsPerStudy counts = toObject(response, CountsPerStudy)
+        Counts study1Counts = counts.getCountsPerStudy().get('study1')
+        study1Counts.patientCount == study1PatientCount
+        study1Counts.observationCount == study1ObservationCount
+        Counts study2Counts = counts.getCountsPerStudy().get('study2')
+        study2Counts.patientCount == study2PatientCount
+        study2Counts.observationCount == study2ObservationCount
+        Counts publicStudyCounts = counts.getCountsPerStudy().get('publicStudy')
+        publicStudyCounts.patientCount == 1
+        publicStudyCounts.observationCount == 1
+
+        where:
+        threshold | study1AccessLevel     | study1PatientCount | study1ObservationCount | study2AccessLevel     | study2PatientCount | study2ObservationCount
+        2         | SUMMARY               | 2                  | 6                      | SUMMARY               | 2                  | 2
+        1         | COUNTS_WITH_THRESHOLD | 2                  | 6                      | COUNTS_WITH_THRESHOLD | 2                  | 2
+        2         | SUMMARY               | 2                  | 6                      | COUNTS_WITH_THRESHOLD | -2                 | -2
+        2         | COUNTS_WITH_THRESHOLD | -2                 | -2                     | COUNTS_WITH_THRESHOLD | -2                 | -2
+    }
+
+    @Unroll
+    void 'test counts per study and concept threshold (POST .../observations/counts_per_study_and_concept) for user with st1AccLvl=#s1AccLvl,  st2AccLvl=#s2AccLvl and threshold=#threshold.'() {
+        given:
+        def url = "${contextPath}/observations/counts_per_study_and_concept"
+        def user = new MockUser('counts with threshold user', [study1: s1AccLvl, study2: s2AccLvl])
+        selectUser(user)
+        patientDataAnonymizer.patientCountsThreshold = threshold
+        def body = new ConstraintHolder(trueConstraint)
+
+        when:
+        def response = post(url, body)
+
+        then:
+        checkResponseStatus(response, OK, user)
+        CountsPerStudyAndConcept counts = toObject(response, CountsPerStudyAndConcept)
+
+        Map<String, Counts> study1PerConceptCounts = counts.getCountsPerStudy().get('study1')
+        study1PerConceptCounts == [categorical_concept1: new Counts(patientCount: s1Cat1Pat, observationCount: s1Cat1Obs),
+                                   numerical_concept2  : new Counts(patientCount: s1Num1Pat, observationCount: s1Num1Obs)]
+
+        Map<String, Counts> study2PerConceptCounts = counts.getCountsPerStudy().get('study2')
+        study2PerConceptCounts == [categorical_concept1: new Counts(patientCount: s2Cat1Pat, observationCount: s2Cat1Obs),
+                                   numerical_concept2  : new Counts(patientCount: s2Num1Pat, observationCount: s2Num1Obs)]
+
+        Map<String, Counts> publicStudyPerConceptCounts = counts.getCountsPerStudy().get('publicStudy')
+        publicStudyPerConceptCounts == [categorical_concept1: new Counts(patientCount: 1, observationCount: 1)]
+
+        where:
+        threshold | s1AccLvl              | s1Cat1Pat | s1Cat1Obs | s1Num1Pat | s1Num1Obs | s2AccLvl              | s2Cat1Pat | s2Cat1Obs | s2Num1Pat | s2Num1Obs
+        1         | SUMMARY               | 2         | 4         | 1         | 2         | SUMMARY               | 1         | 1         | 1         | 1
+        1         | COUNTS_WITH_THRESHOLD | 2         | 4         | -2        | -2        | COUNTS_WITH_THRESHOLD | -2        | -2        | -2        | -2
+        1         | COUNTS_WITH_THRESHOLD | 2         | 4         | -2        | -2        | SUMMARY               | 1         | 1         | 1         | 1
+        2         | COUNTS_WITH_THRESHOLD | -2        | -2        | -2        | -2        | COUNTS_WITH_THRESHOLD | -2        | -2        | -2        | -2
+    }
+
     /**
      * Get study names from observations.
      * @param hypercube
@@ -585,22 +695,22 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         when:
         selectUser(user)
-        def body = new ConstraintHoldingRequestBody(constraint)
+        def body = new ConstraintHolder(constraint)
         def response = post(url, body)
 
         then:
         checkResponseStatus(response, expectedStatus, user)
 
         where:
-        user           | dimension     | expectedStatus
-        s1mUser     | 'patient'     | OK
-        s1mUser     | 'concept'     | OK
-        s1mUser     | 'study'       | OK
-        s1mUser     | 'trial visit' | OK
-        s1ctUser  | 'patient'     | FORBIDDEN
-        s1ctUser  | 'concept'     | OK
-        s1ctUser  | 'study'       | OK
-        s1ctUser  | 'trial visit' | OK
+        user       | dimension     | expectedStatus
+        s1mUser    | 'patient'     | OK
+        s1mUser    | 'concept'     | OK
+        s1mUser    | 'study'       | OK
+        s1mUser    | 'trial visit' | OK
+        s1ctUser   | 'patient'     | FORBIDDEN
+        s1ctUser   | 'concept'     | OK
+        s1ctUser   | 'study'       | OK
+        s1ctUser   | 'trial visit' | OK
         s1sS2sUser | 'patient'     | FORBIDDEN
     }
 

@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.AggregateDataResource
+import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
 import org.transmartproject.core.multidimquery.counts.Counts
@@ -32,9 +33,11 @@ import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.patient.anonomization.PatientDataAnonymizer
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.userquery.UserQueryResource
+import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -79,6 +82,12 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     @Autowired
     PatientSetResource patientSetResource
+
+    @Autowired(required = false)
+    PatientDataAnonymizer patientDataAnonymizer
+
+    @Autowired
+    AuthorisationChecks authorisationChecks
 
     /**
      * Instance of this object wrapped with the cache proxy.
@@ -284,7 +293,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.COUNTS_WITH_THRESHOLD)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.setProjection(Projections.projectionList()
@@ -349,10 +358,24 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         def rows = getList(criteria) as List<Map>
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        rows.stream().collect(Collectors.toMap(
-                { Map row -> ((row.study as Study).studyId) } as Function<Map, String>,
-                { Map row -> new Counts(row.observationCount as Long, row.patientCount as Long) } as Function<Map, Counts>
-        ))
+        rows.collectEntries { Map row ->
+            Counts counts = new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)
+            String studyId = (row.study as Study).studyId
+            [(studyId): toPatientNonIdentifiableCountsIfNeeded(counts, user, studyId)]
+        } as Map<String, Counts>
+    }
+
+    protected Counts toPatientNonIdentifiableCountsIfNeeded(Counts originalCounts, User user, String studyId) {
+        if (!patientDataAnonymizer) {
+            return originalCounts
+        }
+        //FIXME Check for no access to study
+        def oneStepHigherAccessLevel = PatientDataAccessLevel.SUMMARY //PatientDataAccessLevel.oneHigherThen(PatientDataAccessLevel.COUNTS_WITH_THRESHOLD)
+        MDStudy study = studiesResource.getStudyByStudyId(studyId)
+        if (authorisationChecks.canReadPatientData(user, oneStepHigherAccessLevel, study)) {
+            return originalCounts
+        }
+        return patientDataAnonymizer.toPatientNonIdentifiableCounts(originalCounts)
     }
 
     @Override
@@ -379,7 +402,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.COUNTS_WITH_THRESHOLD)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.createAlias('trialVisit', builder.getAlias('trialVisit'))
@@ -396,10 +419,12 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             def t2 = new Date()
             log.info "Task ${parameters.task} done (took ${t2.time - t1.time} ms.)"
             List<ConceptStudyCountRow> counts = result.collect { Map row ->
+                String studyId = studiesResource.getStudyIdById(((Study) row.study).id)
+                Counts counts = new Counts((Long) row.observationCount, (Long) row.patientCount)
                 new ConceptStudyCountRow(
                         (String) row.conceptCode,
-                        studiesResource.getStudyIdById(((Study) row.study).id),
-                        new Counts((Long) row.observationCount, (Long) row.patientCount))
+                        studyId,
+                        toPatientNonIdentifiableCountsIfNeeded(counts, parameters.user, studyId))
             }
             return counts
         } finally {
@@ -418,7 +443,12 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     private Map<String, Counts> getConceptCountsForStudy(String studyId, Constraint constraint, User user) {
         def studyConstraint = new AndConstraint([new StudyNameConstraint(studyId), constraint]).canonise()
-        return wrappedThis.countsPerConcept(studyConstraint, user)
+        Map<String, Counts> countsPerConcept = wrappedThis.countsPerConcept(studyConstraint, user)
+        for (Map.Entry<String, Counts> entry : countsPerConcept.entrySet()) {
+            def patientNonIdentifiableCounts = toPatientNonIdentifiableCountsIfNeeded(entry.getValue(), user, studyId)
+            entry.setValue(patientNonIdentifiableCounts)
+        }
+        return countsPerConcept
     }
 
     @CompileDynamic
