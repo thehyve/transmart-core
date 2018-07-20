@@ -25,11 +25,13 @@
 
 package org.transmartproject.rest.v1
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
+import org.transmartproject.rest.data.V1DefaultTestData
 import org.transmartproject.rest.matchers.JsonMatcher
 
 import static org.hamcrest.Matchers.*
@@ -43,6 +45,9 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class StudiesResourceSpec extends V1ResourceSpec {
 
+    @Autowired
+    V1DefaultTestData testData
+
     def childLinkHrefPath = '_embedded.ontologyTerm._links.children[0].href'
     def expectedChildLinkHrefValue = "${contextPath}/studies/study_id_1/concepts/bar"
 
@@ -53,7 +58,8 @@ class StudiesResourceSpec extends V1ResourceSpec {
 
     void setup() {
         selectUser(new MockUser('test', true))
-        selectData(defaultTestData)
+        testData.clearTestData()
+        testData.createTestData()
     }
 
     void testListAllStudies() {

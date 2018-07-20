@@ -41,7 +41,7 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
 
     private void checkAccess(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
                              Constraint subjectConstraint, User user) {
-        def requiredAccessLevel = PatientDataAccessLevel.COUNTS_WITH_THRESHOLD
+        def requiredAccessLevel = PatientDataAccessLevel.COUNTS
         log.debug('Check access rights for row, column and subject constraints.')
         for (Constraint rowConstraint : rowConstraints) {
             checkAccess(rowConstraint, user, requiredAccessLevel)

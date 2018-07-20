@@ -23,7 +23,6 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
@@ -429,7 +428,7 @@ class UserAccessLevelSpec extends Specification {
         def thirdUser = accessLevelTestData.users[3]
 
         when:
-        def studies = studiesResource.getStudies(thirdUser, minimalAccessLevel).toSorted { it.studyId }
+        def studies = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(thirdUser, minimalAccessLevel).toSorted { it.studyId }
 
         then:
         studies.size() == 2
@@ -443,7 +442,7 @@ class UserAccessLevelSpec extends Specification {
         def adminUser = accessLevelTestData.users[0]
 
         when:
-        def studies = studiesResource.getStudies(adminUser, minimalAccessLevel)
+        def studies = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(adminUser, minimalAccessLevel)
         then:
         studies.size() == 3
     }

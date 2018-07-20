@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.ServiceNotAvailableException
+import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
@@ -49,6 +50,9 @@ class TreeService implements TreeResource {
     AggregateDataService aggregateDataService
 
     @Autowired
+    AggregateDataResource aggregateDataResource
+
+    @Autowired
     SessionFactory sessionFactory
 
     /**
@@ -62,13 +66,13 @@ class TreeService implements TreeResource {
             def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    def counts = aggregateDataService.counts(node.constraint, user)
+                    def counts = aggregateDataResource.counts(node.constraint, user)
                     node.observationCount = counts.observationCount
                     node.patientCount = counts.patientCount
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
-                    def counts = aggregateDataService.counts(node.constraint, user)
+                    def counts = aggregateDataResource.counts(node.constraint, user)
                     node.observationCount = counts.observationCount
                     node.patientCount = counts.patientCount
                 }

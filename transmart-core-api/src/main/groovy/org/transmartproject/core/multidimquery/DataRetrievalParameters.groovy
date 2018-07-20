@@ -1,4 +1,4 @@
-package org.transmartproject.core.multidimquery.export
+package org.transmartproject.core.multidimquery
 
 import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.SortSpecification

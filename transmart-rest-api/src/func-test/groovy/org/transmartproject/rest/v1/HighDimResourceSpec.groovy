@@ -26,15 +26,16 @@
 package org.transmartproject.rest.v1
 
 import org.hamcrest.Matcher
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
 import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
+import org.transmartproject.rest.data.V1DefaultTestData
 import org.transmartproject.rest.matchers.HighDimResult
 import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
-import spock.lang.Ignore
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
@@ -42,6 +43,9 @@ import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 import static spock.util.matcher.HamcrestSupport.that
 
 class HighDimResourceSpec extends V1ResourceSpec {
+
+    @Autowired
+    V1DefaultTestData testData
 
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at", "1553506_at"]
@@ -64,7 +68,8 @@ class HighDimResourceSpec extends V1ResourceSpec {
 
     void setup() {
         selectUser(new MockUser('test', true))
-        selectData(defaultTestData)
+        testData.clearTestData()
+        testData.createTestData()
     }
 
     void testSummaryAsJson() {

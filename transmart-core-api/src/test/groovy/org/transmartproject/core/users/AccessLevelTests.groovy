@@ -9,12 +9,17 @@ import static org.transmartproject.core.users.PatientDataAccessLevel.*
 class AccessLevelTests {
 
     @Test
-    void testViewPermissionIsHigherThenAggregateWithThreshold() {
-        assertThat SUMMARY, greaterThan(COUNTS_WITH_THRESHOLD)
+    void testCountsPermissionIsHigherThenCountsWithThreshold() {
+        assertThat COUNTS, greaterThan(COUNTS_WITH_THRESHOLD)
     }
 
     @Test
-    void testExportPermissionIsHigherThenView() {
+    void testSummaryPermissionIsHigherThenCountsWithThreshold() {
+        assertThat SUMMARY, greaterThan(COUNTS)
+    }
+
+    @Test
+    void testMeasurementsPermissionIsHigherThenSummary() {
         assertThat MEASUREMENTS, greaterThan(SUMMARY)
     }
 

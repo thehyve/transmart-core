@@ -2,8 +2,10 @@
 
 package org.transmartproject.rest.v1
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
+import org.transmartproject.rest.data.V1DefaultTestData
 
 import static org.hamcrest.Matchers.*
 import static org.springframework.http.HttpStatus.CREATED
@@ -15,6 +17,8 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class PatientSetResourceSpec extends V1ResourceSpec {
 
+    @Autowired
+    V1DefaultTestData testData
 
     public static final String QUERY_DEFINITION = '''
 <ns3:query_definition xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/">
@@ -29,7 +33,8 @@ class PatientSetResourceSpec extends V1ResourceSpec {
 
     void setup() {
         selectUser(new MockUser('test', true))
-        selectData(defaultTestData)
+        testData.clearTestData()
+        testData.createTestData()
     }
 
     void testSave() {

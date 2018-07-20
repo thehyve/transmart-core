@@ -5,7 +5,6 @@ package org.transmartproject.core.multidimquery
 import org.transmartproject.core.multidimquery.datatable.PaginationParameters
 import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.multidimquery.export.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint

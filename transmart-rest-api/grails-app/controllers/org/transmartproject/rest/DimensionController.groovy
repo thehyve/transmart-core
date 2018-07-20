@@ -57,7 +57,7 @@ class DimensionController extends AbstractQueryController {
 
     @CompileStatic
     private Dimension getDimension(String dimensionName, User user) {
-        Set<String> dimensionNames = studiesResource.getStudies(user, PatientDataAccessLevel.MEASUREMENTS).stream()
+        Set<String> dimensionNames = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(user, PatientDataAccessLevel.MEASUREMENTS).stream()
                 .flatMap({ MDStudy study ->
                     study.dimensions.stream().map({ Dimension dimension -> dimension.name }) })
                 .collect(Collectors.toSet())

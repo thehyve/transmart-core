@@ -25,11 +25,11 @@
 
 package org.transmartproject.rest.v1
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.transmartproject.mock.MockUser
-
-import java.time.Instant
+import org.transmartproject.rest.data.V1DefaultTestData
 
 import static org.hamcrest.Matchers.*
 import static org.springframework.http.HttpStatus.NOT_FOUND
@@ -42,6 +42,9 @@ import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 import static spock.util.matcher.HamcrestSupport.that
 
 class SubjectsResourceSpec extends V1ResourceSpec {
+
+    @Autowired
+    V1DefaultTestData testData
 
     def study = 'study_id_1'
     def defaultTrial = study.toUpperCase()
@@ -57,7 +60,8 @@ class SubjectsResourceSpec extends V1ResourceSpec {
 
     void setup() {
         selectUser(new MockUser('test', true))
-        selectData(defaultTestData)
+        testData.clearTestData()
+        testData.createTestData()
     }
 
     void testShowAsJson() {
