@@ -139,4 +139,19 @@ abstract class ResourceSpec extends Specification {
         response
     }
 
+    ResponseEntity<Resource> request(HttpMethod method, String relativeUrl, Object object) {
+        switch(method) {
+            case HttpMethod.POST:
+                return post(relativeUrl, object)
+            case HttpMethod.PUT:
+                return put(relativeUrl, object)
+            case HttpMethod.GET:
+                return get(relativeUrl)
+            case HttpMethod.DELETE:
+                return delete(relativeUrl)
+            default:
+                throw new IllegalArgumentException("Method not supported: ${method}")
+        }
+    }
+
 }

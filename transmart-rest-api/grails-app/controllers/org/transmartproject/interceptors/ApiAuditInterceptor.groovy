@@ -1,14 +1,20 @@
 package org.transmartproject.interceptors
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.log.AccessLogEntryResource
 import org.transmartproject.rest.user.AuthContext
 
 @CompileStatic
+@Slf4j
 class ApiAuditInterceptor {
 
-    AccessLogEntryResource accessLogService
+    @Autowired
+    AccessLogEntryResource accessLogEntryResource
+
+    @Autowired
     AuthContext authContext
 
     ApiAuditInterceptor() {
@@ -30,24 +36,20 @@ class ApiAuditInterceptor {
         match(controller: ~/version/)
     }
 
-    boolean before() { true }
-
     boolean after() {
         report("$controllerName request", eventMessage)
     }
 
     protected boolean report(String event, String eventMessage) {
-
-        accessLogService.report(
-                authContext?.user,
+        accessLogEntryResource.report(
+                authContext.user,
                 event,
-                eventMessage: eventMessage as Object,
-                requestURL: url as Object)
-
+                eventMessage: (Object)eventMessage,
+                requestURL: (Object)url)
         return true
     }
 
-    protected String getIP() {
+    protected String getIp() {
         return request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr
     }
 
@@ -57,13 +59,20 @@ class ApiAuditInterceptor {
 
     protected String getEventMessage() {
         Map<String, Object> message = [
-                ip    : IP as Object,
-                action: actionName as Object
+                ip    : (Object)ip,
+                action: (Object)actionName,
+                status: (Object)response.status.toInteger()
         ]
-        if ("POST".equalsIgnoreCase(request.getMethod())) {
-            message.put("body", request.JSON as Map)
+        if (request.isPost()) {
+            try {
+                message.put("body", request.JSON as Map)
+            } catch (IllegalStateException e) {
+                log.error "Cannot read body for request ${url}: ${e.message}" +
+                        "\nTry to use request.inputStream instead of request.reader."
+            }
         }
 
         return BindingHelper.objectMapper.writeValueAsString(message)
     }
+
 }
