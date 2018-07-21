@@ -74,6 +74,11 @@ interface UserQuery {
     Date getUpdateDate()
 
     /**
+     * Change the update date to now.
+     */
+    void updateUpdateDate()
+
+    /**
      * Additional information about the query, e.g. a state of the data table
      */
     String getQueryBlob()

@@ -38,6 +38,10 @@ class Query implements UserQuery {
     Date updateDate = new Date()
     String queryBlob
 
+    void updateUpdateDate() {
+        updateDate = new Date()
+    }
+
     static mapping = {
         table schema: 'BIOMART_USER'
         id generator: 'sequence', params: [sequence: 'query_id_seq', schema: 'biomart_user']

@@ -1,11 +1,13 @@
 package org.transmartproject.core.userquery
 
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 
 /**
  * Representation of changes made in the query_set - added and removed objects,
  * in comparison to the previous query_set related to the same query
  */
+@Canonical
 @CompileStatic
 class UserQuerySetChangesRepresentation {
     Long id

@@ -22,11 +22,10 @@ interface UserQuerySetResource {
     /**
      * Creates a new query set wit query set instances
      * @param query - related user query
-     * @param constraint to create a new set
      * @param currentUser user who saves the query.
      * @return
      */
-    void createSetWithInstances(UserQuery query, String constraints, User currentUser)
+    void createSetWithInstances(UserQueryRepresentation query, User currentUser)
 
     /**
      * Gets a list of changes of query results for the queries based on query id.
