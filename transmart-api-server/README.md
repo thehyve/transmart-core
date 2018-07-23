@@ -70,7 +70,23 @@ Create an offline token in order to access Keycloak offline (e.g. by offline qua
       'https://YOUR_KEYCLOAK_SERVER_HOST/auth/realms/YOUR_REALM/protocol/openid-connect/token'
 ```
 
-This token is used as an Refresh token, but an offline token will never expire.
+You will get the following reply:
+```json
+{
+  "access_token": "...",
+  "expires_in": 480,
+  "refresh_expires_in": 0,
+  "refresh_token": "{the offline token}",
+  "token_type": "bearer",
+  "not-before-policy": 0,
+  "session_state": "2b5e947f-4143-4e07-bf21-fc0871e3e335",
+  "scope": "offline_access"
+}
+```
+
+The value of the `refresh_token` field is the offline token.
+
+It is used as an Refresh token, except it does not have the expiration date.
 
 
 Create a file `transmart-api-server.config.yml` with the following settings (replace names in brackets with your data):
