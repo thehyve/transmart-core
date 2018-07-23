@@ -23,6 +23,7 @@ import grails.converters.JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.log.AccessLogEntryResource
+import org.transmartproject.interceptors.ApiAuditInterceptor
 import org.transmartproject.rest.http.BusinessExceptionResolver
 import org.transmartproject.rest.user.AuthContext
 
@@ -42,10 +43,22 @@ class BusinessExceptionController {
         return "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
     }
 
+    /**
+     * Request handling time in milliseconds.
+     */
+    protected Long getDuration() {
+        def startDate = (Date)request.getAttribute(ApiAuditInterceptor.AUDIT_START_TIME_ATTRIBUTE)
+        if (!startDate) {
+            return null
+        }
+        new Date().time - startDate.time
+    }
+
     protected String getEventMessage(Throwable throwable) {
         Map<String, Object> message = [
                 ip     : (Object)ip,
                 action : (Object)actionName,
+                duration: (Object)duration,
                 status : (Object)response.status.toInteger(),
                 message: (Object)throwable.message
         ]

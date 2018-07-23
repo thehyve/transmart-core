@@ -11,6 +11,8 @@ import org.transmartproject.rest.user.AuthContext
 @Slf4j
 class ApiAuditInterceptor {
 
+    static final String AUDIT_START_TIME_ATTRIBUTE = 'transmartAuditStartTime'
+
     @Autowired
     AccessLogEntryResource accessLogEntryResource
 
@@ -36,6 +38,11 @@ class ApiAuditInterceptor {
         match(controller: ~/version/)
     }
 
+    boolean before() {
+        request.setAttribute(AUDIT_START_TIME_ATTRIBUTE, new Date())
+        true
+    }
+
     boolean after() {
         report("$controllerName request", eventMessage)
     }
@@ -57,11 +64,23 @@ class ApiAuditInterceptor {
         return "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
     }
 
+    /**
+     * Request handling time in milliseconds.
+     */
+    protected Long getDuration() {
+        def startDate = (Date)request.getAttribute(AUDIT_START_TIME_ATTRIBUTE)
+        if (!startDate) {
+            return null
+        }
+        new Date().time - startDate.time
+    }
+
     protected String getEventMessage() {
         Map<String, Object> message = [
-                ip    : (Object)ip,
-                action: (Object)actionName,
-                status: (Object)response.status.toInteger()
+                ip      : (Object)ip,
+                action  : (Object)actionName,
+                duration: (Object)duration,
+                status  : (Object)response.status.toInteger()
         ]
         if (request.isPost()) {
             try {
