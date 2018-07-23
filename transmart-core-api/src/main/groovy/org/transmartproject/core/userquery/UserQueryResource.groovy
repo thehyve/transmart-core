@@ -11,48 +11,50 @@ import org.transmartproject.core.users.User
 interface UserQueryResource {
 
     /**
-     * @return list of all subscribed queries that were not deleted.
+     * Retrieves all queries owned by the current user.
+     *
+     * @param currentUser user whose queries to fetch.
+     * @return list of all queries for currentUser.
      */
-    List<UserQuery> listSubscribed()
+    List<UserQueryRepresentation> list(User currentUser)
 
     /**
-     * @param currentUser user whose queries to fetch
-     * @return list of all queries for the given currentUser.
-     */
-    List<UserQuery> list(User currentUser)
-
-    /**
-     * Gets query by it's identifier
+     * Gets query by its identifier.
+     *
      * @param id identifier of the query
-     * @param currentUser user who fetches the query. It is expected to be the owner of the query.
-     * Otherwise @see AccessDenedException is thrown.
-     * @return a query or throws @see NoSuchResourceException if query with such id is not found.
+     * @param currentUser user who fetches the query.
+     * @return the query with the id.
+     * @throws {@link NoSuchResourceException} if query with such id is not found.
+     * @throws {@link AccessDeniedException} if currentUser is not the owner of the query.
      */
-    UserQuery get(Long id, User currentUser) throws AccessDeniedException, NoSuchResourceException
+    UserQueryRepresentation get(Long id, User currentUser) throws NoSuchResourceException
 
     /**
-     * Creates a new query bean
+     * Creates and saves a new user query.
+     *
      * @param currentUser user for whom to create the query
-     * @return
+     * @return the query.
      */
-    UserQuery create(User currentUser)
+    UserQueryRepresentation create(UserQueryRepresentation userQuery, User currentUser)
 
     /**
-     * Persists a new or updates existing query
-     * @param userQuery query to save
-     * @param currentUser user who saves the query. It is expected to be the owner of the query.
-     * Otherwise @see AccessDenedException is thrown.
-     * @return currentUser query that is created with some fields updated by the system (e.g. createDate,...)
-     * It throws @see InvalidArgumentsException if the query object is invalid.
+     * Updates and saves an existing user query.
+     * Only the name, bookmarked and subscribed fields are updated.
+     *
+     * @param id the id of the query to update
+     * @param userQuery the data used to update the query with.
+     * @param currentUser user for whom to update the query
+     * @return the query.
      */
-    void save(UserQuery userQuery, User currentUser) throws AccessDeniedException, InvalidArgumentsException
+    UserQueryRepresentation update(Long id, UserQueryRepresentation userQuery, User currentUser)
 
     /**
-     * Deletes query with specified id
+     * Deletes query with specified id.
+     *
      * @param id identifier of the query
-     * @param currentUser user who deletes the query. It is expected to be the owner of the query.
-     * Otherwise @see AccessDenedException is thrown.
+     * @param currentUser user who deletes the query.
+     * @throws {@link NoSuchResourceException} if currentUser is not the owner of the query.
      */
-    void delete(Long id, User currentUser) throws AccessDeniedException
+    void delete(Long id, User currentUser) throws NoSuchResourceException
 
 }

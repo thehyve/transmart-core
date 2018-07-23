@@ -1,30 +1,28 @@
 package org.transmartproject.db.userqueries
 
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import org.hibernate.Criteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Order
-import org.hibernate.criterion.Projections
-import org.hibernate.criterion.Property
 import org.hibernate.criterion.Restrictions
 import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.binding.BindingException
-import org.transmartproject.core.multidimquery.query.ConstraintFactory
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SetType
 import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
+import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.userquery.UserQuerySet
 import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
 import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.core.users.User
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.querytool.Query
 import org.transmartproject.db.querytool.QuerySet
@@ -32,10 +30,16 @@ import org.transmartproject.db.querytool.QuerySetDiff
 import org.transmartproject.db.querytool.QuerySetInstance
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 
+import java.util.stream.Collectors
+
 import static org.transmartproject.db.multidimquery.DimensionImpl.PATIENT
 
 @Transactional
+@CompileStatic
 class UserQuerySetService implements UserQuerySetResource {
+
+    @Autowired
+    UsersResource usersResource
 
     @Autowired
     PatientsResource patientsResource
@@ -54,6 +58,16 @@ class UserQuerySetService implements UserQuerySetResource {
     // FIXME: do not rely on hardcoded id source
     static final String SUBJ_ID_SOURCE = 'SUBJ_ID'
 
+    /**
+     * @return list of all subscribed queries that were not deleted.
+     */
+    List<UserQuery> listSubscribed() {
+        Query.createCriteria().list {
+            eq 'deleted', false
+            eq 'subscribed', true
+        } as List<UserQuery>
+    }
+
     @Override
     Integer scan(User currentUser) {
         log.info 'Scanning for subscribed user queries updates ...'
@@ -62,16 +76,17 @@ class UserQuerySetService implements UserQuerySetResource {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         // get list of all not deleted queries per user
-        List<UserQuery> userQueries = userQueryService.listSubscribed()
+        List<UserQuery> userQueries = listSubscribed()
         if (!userQueries) {
             log.info "No subscribed queries were found."
             return numberOfResults
         }
 
-        for (query in userQueries) {
-
+        for (UserQuery query: userQueries) {
             List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(query.id)
-            ArrayList<Long> newPatientIds = getPatientsForQuery(query, currentUser)
+            User user = usersResource.getUserFromUsername(query.username)
+            def queryRepresentation = UserQueryService.toRepresentation(query)
+            List<Long> newPatientIds = getPatientsForQuery(queryRepresentation, user)
 
             if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
                 numberOfResults++
@@ -95,26 +110,22 @@ class UserQuerySetService implements UserQuerySetResource {
     }
 
     private List<UserQuerySet> getQuerySets(Long queryId, User currentUser, Integer maxNumberOfSets) {
-        def session = sessionFactory.currentSession
-        Criteria criteria = session.createCriteria(QuerySet, "querySet")
-                .createAlias("querySet.query", "query", JoinType.INNER_JOIN)
-                .add(Restrictions.eq('query.id', queryId))
+        // Check access to the user query
+        UserQueryRepresentation userQuery = userQueryService.get(queryId, currentUser)
+
+        Criteria criteria = sessionFactory.currentSession.createCriteria(QuerySet, 'querySet')
+                .createAlias('querySet.query', 'query', JoinType.INNER_JOIN)
+                .add(Restrictions.eq('query.id', userQuery.id))
                 .add(Restrictions.eq('query.deleted', false))
                 .addOrder(Order.desc('querySet.createDate'))
                 .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
-        if(maxNumberOfSets) {
+        if (maxNumberOfSets) {
             criteria.setMaxResults(maxNumberOfSets)
         }
-        def result = criteria.list()
-        if (!result) {
-            return []
-        }
-
-        if (result.query.first().username != currentUser.username) {
-            throw new AccessDeniedException("Query does not belong to the current user.")
-        }
-        List<UserQuerySet> querySets = result.querySet
-        return querySets
+        def result = criteria.list() as List<Map>
+        result.stream()
+                .map({ Map data -> (UserQuerySet)data.querySet })
+                .collect(Collectors.toList())
     }
 
     private List<UserQuerySet> getQuerySetsByUsernameAndFrequency(SubscriptionFrequency frequency,
@@ -138,23 +149,28 @@ class UserQuerySetService implements UserQuerySetResource {
         if (maxNumberOfSets) {
             criteria.setMaxResults(maxNumberOfSets)
         }
-        def result = criteria.list()
-        List<UserQuerySet> querySets = result.querySet
-        return querySets
+        def result = criteria.list() as List<Map>
+        result.stream()
+                .map({ Map data -> (UserQuerySet)data.querySet })
+                .collect(Collectors.toList())
     }
 
     @Override
-    void createSetWithInstances(UserQuery query, String constraints, User currentUser) {
-        ArrayList<Long> patientIds = getPatientsForQuery(query, currentUser)
+    void createSetWithInstances(UserQueryRepresentation userQuery, User currentUser) {
+        log.info "Create patient set for user query ${userQuery.id} (user: ${currentUser.username})"
+        List<Long> patientIds = getPatientsForQuery(userQuery, currentUser)
+        def query = Query.createCriteria().get {
+            idEq userQuery.id
+        } as Query
         QuerySet querySet = new QuerySet(
-                query: (Query)query,
+                query: query,
                 setType: SetType.PATIENT,
                 setSize: patientIds.size(),
         )
         querySet.save(flush: true, failOnError: true)
 
         List<QuerySetInstance> instances = []
-        if(patientIds.size() > 0) {
+        if (patientIds.size() > 0) {
             for (patientId in patientIds) {
                 instances.add(new QuerySetInstance(
                         querySet: querySet,
@@ -166,19 +182,19 @@ class UserQuerySetService implements UserQuerySetResource {
     }
 
     private List<QuerySetInstance> getInstancesForLatestQuerySet(Long id) {
-        DetachedCriteria recentDate = DetachedCriteria.forClass(QuerySet)
+        DetachedCriteria criteria = DetachedCriteria.forClass(QuerySet)
                 .add(Restrictions.eq('query.id', id))
-                .setProjection(Projections.max("createDate"))
+                .addOrder(Order.desc('createDate'))
+        def recent = criteria.getExecutableCriteria(sessionFactory.currentSession)
+            .setMaxResults(1)
+            .list() as List<QuerySet>
+        if (recent.size() != 1) {
+            throw new UnexpectedResultException("One query set expected, got ${recent.size()}")
+        }
 
-        // get the content for the most recent createDate and queryId
-        def session = sessionFactory.currentSession
-        QuerySet recent = session.createCriteria(QuerySet)
-                .add(Restrictions.eq("query.id", id))
-                .add(Property.forName( "createDate" ).eq(recentDate))
-                .uniqueResult()
-
-        List<QuerySetInstance> instances = QuerySetInstance.findAllByQuerySet(recent)
-        return instances
+        sessionFactory.currentSession.createCriteria(QuerySetInstance)
+                .add(Restrictions.eq("querySet", recent[0]))
+                .list() as List<QuerySetInstance>
     }
 
     private boolean createSetWithDiffEntries(List<Long> previousPatientIds, List<Long> newPatientIds, Query query) {
@@ -227,40 +243,34 @@ class UserQuerySetService implements UserQuerySetResource {
         }
     }
 
-    private ArrayList<Long> getPatientsForQuery(UserQuery query, User user) {
-        Constraint patientConstraint = createConstraints(query.patientsQuery)
-        List<Patient> newPatients = multiDimService.getDimensionElements(PATIENT, patientConstraint, user).toList()
-        return newPatients.id
-    }
-
-    private static Constraint createConstraints(String constraintParam) {
-        try {
-            ConstraintFactory.read(constraintParam)
-        } catch (BindingException c) {
-            throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam", c)
-        }
+    private List<Long> getPatientsForQuery(UserQueryRepresentation query, User user) {
+        userQueryService.checkConstraintAccess(query.patientsQuery, user)
+        List<Patient> newPatients = multiDimService.getDimensionElements(PATIENT, query.patientsQuery, user).toList()
+        newPatients.id
     }
 
     private UserQuerySetChangesRepresentation mapToSetChangesRepresentation(UserQuerySet set){
         List<String> objectsAdded = []
         List<String> objectsRemoved = []
-        for(diff in set.querySetDiffs) {
-            if(diff.changeFlag == ChangeFlag.ADDED){
-                objectsAdded.add(getPatientRepresentationByPatientNum(diff.objectId))
-            } else {
-                objectsRemoved.add(getPatientRepresentationByPatientNum(diff.objectId))
+        if (set.querySetDiffs) {
+            for (diff in set.querySetDiffs) {
+                if (diff.changeFlag == ChangeFlag.ADDED) {
+                    objectsAdded.add(getPatientRepresentationByPatientNum(diff.objectId))
+                } else {
+                    objectsRemoved.add(getPatientRepresentationByPatientNum(diff.objectId))
+                }
             }
         }
 
         new UserQuerySetChangesRepresentation(
-                id            : set.id,
-                setSize       : set.setSize,
-                setType       : set.setType,
-                createDate    : set.createDate,
-                queryId       : set.query.id,
-                queryName     : set.query.name,
-                objectsAdded  : objectsAdded,
-                objectsRemoved: objectsRemoved
+                set.id,
+                set.setType,
+                set.setSize,
+                set.createDate,
+                set.query.name,
+                set.query.id,
+                objectsAdded,
+                objectsRemoved
         )
     }
 
