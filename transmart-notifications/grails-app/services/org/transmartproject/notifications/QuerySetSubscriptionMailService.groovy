@@ -39,7 +39,7 @@ class QuerySetSubscriptionMailService {
     private final static String NEW_LINE = "\n"
 
     /**
-     * Creates and sends a daily or weekly email for each user having an email specified.
+     * Creates and sends a daily or weekly email for each subscribed user having an email specified.
      *
      * The email is sent only when there are changes for one or more of the results of queries the user subscribed for.
      * A query result is changed when there is an object ID in the result that wasn't there the last time it was run,

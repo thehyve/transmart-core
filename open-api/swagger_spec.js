@@ -2662,6 +2662,28 @@ var spec = {
           }
         }
       }
+    },
+    "/v2/admin/subscription/notify": {
+      "get": {
+        "description": "Triggers sending of emails to users that subscribed for updates regarding queries they have created.\nOnly for administrators.\nThis requires transmart-notifications plugin to be enabled.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "frequency",
+            "required": true,
+            "in": "path",
+            "description": "DAILY|WEEKLY - determines whether the mail should be sent to users with a DAILY or WEEKLY subscription.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response"
+          }
+        }
+      }
     }
   },
   "definitions": {
