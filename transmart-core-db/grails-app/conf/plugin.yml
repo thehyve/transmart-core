@@ -1,0 +1,8 @@
+# grails only (1) configurations that get merged with the application ones.
+# 1: it is observed do not work for hibernate configurations.
+#    Current plugin tests (not application) would not see them.
+---
+grails:
+    databinding:
+        convertEmptyStringsToNull: false
+        trimStrings: false
