@@ -9,10 +9,15 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.web.context.request.WebRequestInterceptor
+import org.transmartproject.core.log.AccessLogEntryResource
 import org.transmartproject.db.test.H2Views
+import org.transmartproject.mock.MockAccessLogEntryResource
 import org.transmartproject.mock.MockAuthContext
 import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.test.TestService
+
+import javax.validation.Validation
+import javax.validation.Validator
 
 /**
  * Test application with injected test services. Such as data and current user.
@@ -30,6 +35,12 @@ class TestApplication extends GrailsAutoConfiguration {
         new MockAuthContext()
     }
 
+    @Bean
+    @Primary
+    AccessLogEntryResource mockAccessLogEntryResource() {
+        new MockAccessLogEntryResource()
+    }
+
     /**
      * Build h2 views after db schema has been created.
      * @return
@@ -41,7 +52,7 @@ class TestApplication extends GrailsAutoConfiguration {
 
     @Bean
     EmbeddedServletContainerFactory containerFactory() {
-        return new TomcatEmbeddedServletContainerFactory(0)
+        new TomcatEmbeddedServletContainerFactory(0)
     }
 
     /**
@@ -54,6 +65,11 @@ class TestApplication extends GrailsAutoConfiguration {
         [
                 new GrailsOpenSessionInViewInterceptor(sessionFactory: sessionFactory)
         ] as WebRequestInterceptor[]
+    }
+
+    @Bean
+    Validator validator() {
+        Validation.buildDefaultValidatorFactory().getValidator()
     }
 
     static void main(String[] args) {

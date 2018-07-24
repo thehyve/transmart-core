@@ -780,7 +780,8 @@
     },
     "/v2/observations/aggregates_per_concept": {
       "get": {
-        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical.\n",
+        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical. Deprecated. Use POST instead.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -789,13 +790,13 @@
             "name": "constraint",
             "required": true,
             "in": "query",
-            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
+            "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`.'\n",
+            "type": "object"
           }
         ],
         "responses": {
           "200": {
-            "description": "return the result in a json object. Example: `{min: 56}`.",
+            "description": "Returns the result as a map from concept code to aggregates.\nExample: `{\"aggregatesPerConcept\":{\"EHR:VSIGN:HR\": {\"numericalValueAggregates\":{\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}}`.'\n",
             "schema": {
               "type": "object",
               "properties": {
@@ -808,7 +809,7 @@
         }
       },
       "post": {
-        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical.\n",
         "tags": [
           "v2"
         ],
@@ -823,19 +824,17 @@
               "type": "object",
               "properties": {
                 "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
+                  "type": "object",
+                  "required": true,
+                  "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`.'\n"
                 }
-              },
-              "required": [
-                "constraint"
-              ]
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "return the result in a json object. Example: `{\"aggregatesPerConcept\": \"GENDER\": { \"categoricalValueAggregatesPerConcept\": { \"valueCounts\": { \"Female\": 323, \"Male\": 312} } }}`.",
+            "description": "Returns the result as a map from concept code to aggregates.\nExample: `{\"aggregatesPerConcept\":{\"EHR:VSIGN:HR\": {\"numericalValueAggregates\":{\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}}`.'\n",
             "schema": {
               "type": "object",
               "properties": {
@@ -3747,13 +3746,13 @@
             "max": {
               "type": "number"
             },
-            "average": {
+            "avg": {
               "type": "number"
             },
             "count": {
               "type": "number"
             },
-            "std_dev": {
+            "stdDev": {
               "type": "number"
             }
           }
