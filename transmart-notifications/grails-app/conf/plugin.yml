@@ -16,7 +16,7 @@ quartz:
     autoStartup: true
 
 grails:
-    profile: plugin
+    profile: rest-api
     codegen:
         defaultPackage: org.transmartproject.notifications
     spring:
