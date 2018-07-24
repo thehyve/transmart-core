@@ -37,10 +37,10 @@ class UserQuerySpec extends RESTSpec {
         responseData.id == id
 
         when: 'trying to access the query by different user'
-        def responseData2 = getQuery(id, 403, UNRESTRICTED_USER)
+        def responseData2 = getQuery(id, 404, UNRESTRICTED_USER)
 
         then:
-        responseData2.message == 'Query does not belong to the current user.'
+        responseData2.message == "Query with id ${id} not found for user."
     }
 
     def "save query"() {
@@ -85,34 +85,18 @@ class UserQuerySpec extends RESTSpec {
         ]), ErrorResponse
 
         then:
-        responseData.message == 'patientsQuery or observationsQuery has to be not null.'
+        responseData.message == 'Cannot subscribe to an empty query.'
     }
 
     def "update query"() {
         Long id = createQuery(DEFAULT_USER).id
 
         when:
-        def errorJson = RestHelper.toObject put([
+        def updatedQuery = put([
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : DEFAULT_USER,
-                statusCode: 400,
-                body      : [
-                        patientsQuery    : [type: Negation, arg: [type: TrueConstraint]],
-                        observationsQuery: null,
-                ],
-        ]), ErrorResponse
-
-        then:
-        errorJson.message.contains('observationsQuery')
-        errorJson.message.contains('patientsQuery')
-
-        when:
-        def updateResponseData = put([
-                path      : "${PATH_QUERY}/${id}",
-                acceptType: JSON,
-                user      : DEFAULT_USER,
-                statusCode: 204,
+                statusCode: 200,
                 body      : [
                         name             : 'test query 2',
                         bookmarked       : false,
@@ -122,8 +106,6 @@ class UserQuerySpec extends RESTSpec {
         ])
 
         then:
-        updateResponseData == null
-        def updatedQuery = getQuery(id)
         updatedQuery.name == 'test query 2'
         updatedQuery.bookmarked == false
         updatedQuery.subscribed == false
@@ -134,14 +116,14 @@ class UserQuerySpec extends RESTSpec {
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER,
-                statusCode: 403,
+                statusCode: 404,
                 body      : [
                         bookmarked: true
                 ],
         ]), ErrorResponse
 
         then:
-        updateResponseData1.message == 'Query does not belong to the current user.'
+        updateResponseData1.message == "Query with id ${id} not found for user."
     }
 
     def "delete query"() {
@@ -152,10 +134,10 @@ class UserQuerySpec extends RESTSpec {
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER,
-                statusCode: 403,
+                statusCode: 404,
         ])
         then:
-        forbidDeleteResponseData.message == 'Query does not belong to the current user.'
+        forbidDeleteResponseData.message == "Query with id ${id} not found for user."
 
         when:
         def deleteResponseData = delete([
@@ -167,7 +149,7 @@ class UserQuerySpec extends RESTSpec {
 
         then:
         deleteResponseData == null
-        getQuery(id, 404).message == "Query with id ${id} has not found."
+        getQuery(id, 404).message == "Query with id ${id} not found for user."
         !getQueriesForUser().queries.any { it.id == id }
     }
 

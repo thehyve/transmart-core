@@ -112,6 +112,9 @@ class UserQueryService implements UserQueryResource {
         }
         validateSubscriptionEnabled(representation.subscribed, representation.subscriptionFreq)
         if (representation.subscribed) {
+            if (!representation.patientsQuery) {
+                throw new InvalidArgumentsException("Cannot subscribe to an empty query.")
+            }
             // Check query access when subscription is enabled
             checkConstraintAccess(representation.patientsQuery, currentUser)
         }

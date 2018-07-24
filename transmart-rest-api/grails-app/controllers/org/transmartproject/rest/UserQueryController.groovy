@@ -1,10 +1,12 @@
 package org.transmartproject.rest
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
 import grails.converters.JSON
 import grails.web.mime.MimeType
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.binding.BindingException
@@ -53,7 +55,11 @@ class UserQueryController {
      */
     def index() {
         def queries = userQueryResource.list(authContext.user)
-        respond queries: queries
+
+        response.status = HttpStatus.OK.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, [queries: queries])
     }
 
     /**
@@ -66,7 +72,11 @@ class UserQueryController {
     def get(@PathVariable('id') Long id) {
         checkForUnsupportedParams(params, ['id'])
         def query = userQueryResource.get(id, authContext.user)
-        respond query
+
+        response.status = HttpStatus.OK.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, query)
     }
 
     protected static UserQueryRepresentation getUserQueryFromString(String src) {
@@ -110,7 +120,7 @@ class UserQueryController {
             return getUserQueryFromString(src)
         } catch (BindingException e) {
             def error = [
-                    httpStatus: 400,
+                    httpStatus: HttpStatus.BAD_REQUEST.value(),
                     message   : e.message,
                     type      : e.class.simpleName,
             ] as Map<String, Object>
@@ -120,7 +130,7 @@ class UserQueryController {
                         .collect { [propertyPath: it.propertyPath.toString(), message: it.message] }
             }
 
-            response.status = 400
+            response.status = HttpStatus.BAD_REQUEST.value()
             render error as JSON
             return null
         }
@@ -140,8 +150,11 @@ class UserQueryController {
         }
         body.apiVersion = versionController.currentVersion(apiVersion)
         def query = userQueryResource.create(body, authContext.user)
-        response.status = 201
-        respond query
+
+        response.status = HttpStatus.CREATED.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, query)
     }
 
     /**
@@ -161,8 +174,11 @@ class UserQueryController {
             return
         }
         def query = userQueryResource.update(id, body, authContext.user)
-        response.status = 204
-        respond query
+
+        response.status = HttpStatus.OK.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, query)
     }
 
     /**
@@ -175,7 +191,7 @@ class UserQueryController {
      */
     def delete(@PathVariable('id') Long id) {
         userQueryResource.delete(id, authContext.user)
-        response.status = 204
+        response.status = HttpStatus.NO_CONTENT.value()
     }
 
 }
