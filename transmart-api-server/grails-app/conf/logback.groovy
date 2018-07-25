@@ -3,8 +3,8 @@ import grails.util.BuildSettings
 import grails.util.Environment
 import org.springframework.boot.logging.logback.ColorConverter
 import org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter
-import org.transmartproject.rest.logging.ChildProcessAppender
 import org.transmartproject.rest.logging.ApiAuditLogJsonLayout
+import org.transmartproject.rest.logging.ChildProcessAppender
 
 import java.nio.charset.Charset
 
@@ -15,7 +15,6 @@ conversionRule 'wex', WhitespaceThrowableProxyConverter
 appender('STDOUT', ConsoleAppender) {
     encoder(PatternLayoutEncoder) {
         charset = Charset.forName('UTF-8')
-
         pattern =
                 '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} ' + // Date
                         '%clr(%5p) ' + // Log level
@@ -25,21 +24,7 @@ appender('STDOUT', ConsoleAppender) {
     }
 }
 
-def targetDir = BuildSettings.TARGET_DIR
-if (Environment.isDevelopmentMode() && targetDir != null) {
-    appender("FULL_STACKTRACE", FileAppender) {
-        file = "${targetDir}/stacktrace.log"
-        append = true
-        encoder(PatternLayoutEncoder) {
-            pattern = "%level %logger - %msg%n"
-        }
-    }
-    logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false)
-    root(INFO, ['STDOUT', 'FULL_STACKTRACE'])
-}
-else {
-    root(INFO, ['STDOUT'])
-}
+root(WARN, ['STDOUT'])
 
 boolean productionMode = Environment.current == Environment.PRODUCTION
 def logDirectory = BuildSettings.TARGET_DIR
@@ -47,6 +32,44 @@ if (productionMode) {
     def catalinaBase = System.getProperty('catalina.base') ?: '.'
     logDirectory = "${catalinaBase}/logs".toString()
 }
+
+if ((productionMode || Environment.isDevelopmentMode()) && logDirectory != null) {
+    appender("FULL_STACKTRACE", FileAppender) {
+        file = "${logDirectory}/stacktrace.log"
+        append = true
+        encoder(PatternLayoutEncoder) {
+            charset = Charset.forName('UTF-8')
+            pattern = '[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%level] [%thread] ' +
+                    '%logger{10} [%file:%line] %msg%n'
+        }
+    }
+    logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false)
+}
+
+if (productionMode && logDirectory) {
+    appender('transmart', RollingFileAppender) {
+        file = "${logDirectory}/transmart.log"
+        encoder(PatternLayoutEncoder) {
+            charset = Charset.forName('UTF-8')
+            pattern = '[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%level] [%thread] ' +
+                    '%logger{10} [%file:%line] %msg%n'
+        }
+        rollingPolicy(SizeAndTimeBasedRollingPolicy) {
+            // daily rollover
+            fileNamePattern = "${logDirectory}/transmart.%d{yyyy-MM-dd}.%i.log"
+            // size limit on the log files
+            maxFileSize = '100MB'
+            // optional parameters
+            // maxHistory controls the maximum number of archive files to keep, asynchronously deleting older files.
+            maxHistory = 9
+            // totalSizeCap controls the total size of all archive files.
+            // Oldest archives are deleted asynchronously when the total size cap is exceeded
+            // totalSizeCap = '3GB'
+        }
+    }
+    root(INFO, ['transmart'])
+}
+
 
 /**
  * Configuration for writing audit metrics.
