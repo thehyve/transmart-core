@@ -98,7 +98,9 @@ class UserQuerySetService implements UserQuerySetResource {
     @Override
     List<UserQuerySetChangesRepresentation> getQueryChangeHistory(Long queryId, User currentUser, Integer maxNumberOfSets) {
         def querySets = getQuerySets(queryId, currentUser, maxNumberOfSets)
-        querySets.collect { mapToSetChangesRepresentation(it) }
+        querySets.stream()
+                .map({ UserQuerySet userQuerySet -> mapToSetChangesRepresentation(userQuerySet) })
+                .collect(Collectors.toList())
     }
 
     @Override
@@ -106,7 +108,9 @@ class UserQuerySetService implements UserQuerySetResource {
                                                                                         String username,
                                                                                         Integer maxNumberOfSets) {
         def querySets = getQuerySetsByUsernameAndFrequency(frequency, username, maxNumberOfSets)
-        querySets.collect { mapToSetChangesRepresentation(it) }
+        querySets.stream()
+                .map({ UserQuerySet userQuerySet -> mapToSetChangesRepresentation(userQuerySet) })
+                .collect(Collectors.toList())
     }
 
     private List<UserQuerySet> getQuerySets(Long queryId, User currentUser, Integer maxNumberOfSets) {
@@ -223,14 +227,14 @@ class UserQuerySetService implements UserQuerySetResource {
                 new QuerySetDiff(
                         querySet: querySet,
                         objectId: it,
-                        changeFlag: 'ADDED'
+                        changeFlag: ChangeFlag.ADDED
                 )
             })
             querySetDiffs.addAll(removedIds.collect {
                 new QuerySetDiff(
                         querySet: querySet,
                         objectId: it,
-                        changeFlag: 'REMOVED'
+                        changeFlag: ChangeFlag.REMOVED
                 )
             })
             querySet.save(flush: true)

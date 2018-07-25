@@ -28,6 +28,9 @@ class QuerySetSubscriptionMailService {
     @Value('${org.transmartproject.notifications.maxNumberOfSets}')
     Integer maxNumberOfSets
 
+    @Value('${org.transmartproject.notifications.emailSubject}')
+    String subscriptionEmailSubject
+
     MailService mailService
 
     @Autowired
@@ -35,8 +38,6 @@ class QuerySetSubscriptionMailService {
 
     @Autowired
     UserQuerySetResource userQueryDiffResource
-
-    private final static String NEW_LINE = "\n"
 
     /**
      * Creates and sends a daily or weekly email for each user having an email specified.
@@ -54,8 +55,7 @@ class QuerySetSubscriptionMailService {
 
             if (patientSetChanges.size() > 0) {
                 String emailBody = generateEmail(patientSetChanges)
-                String title = "Test email for query subscription"
-                sendEmail(user.email, title, emailBody)
+                sendEmail(user.email, subscriptionEmailSubject, emailBody)
             }
         }
     }
@@ -77,28 +77,27 @@ class QuerySetSubscriptionMailService {
 
         def currentDate = new Date()
 
-        List<GString> queryResultsList = new ArrayList<>()
-        int i = 0
+        def queryResultsList = [] as List<String>
+        UserQuerySetChangesRepresentation previousRecord = null
         for (setChange in patientSetsChanges) {
-            queryResultsList.add("""
-                ${ i == 0 || setChange.queryId == patientSetsChanges.get(i - 1).queryId ?
+            queryResultsList << """
+                ${ previousRecord?.queryId != setChange.queryId ?
                     "For a query named: '$setChange.queryName' (id='$setChange.queryId')" : ""
                 }
                 date of the change: $setChange.createDate
                 ${ setChange.objectsAdded.size() > 0 ?
-                    "added patients with ids: $setChange.objectsAdded" : ""
+                    "added subjects with ids: $setChange.objectsAdded" : ""
                 }
                 ${ setChange.objectsRemoved.size() > 0 ?
-                    "removed patients with ids: $setChange.objectsRemoved" : ""
+                    "removed subjects with ids: $setChange.objectsRemoved" : ""
                 }
-            """)
-            i++
+            """.toString()
         }
         def emailBody = """
             Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}
             
             List of updated query results:
-            $queryResultsList
+            ${queryResultsList}
             
         """
         return emailBody

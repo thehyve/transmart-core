@@ -9,6 +9,9 @@ org.transmartproject.notifications:
     # hh: Hour, range: 0-23;
     # mm: Minute, range: 0-59;
     dailyJobTriggerTime: 0-0
+    # Subject for the query subscription email
+    emailSubject: Test email for query subscription
+
 
 # Quartz plugin configuration - job for query subscription
 # Controls automatic startup of the Quartz scheduler during application bootstrap
