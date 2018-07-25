@@ -185,7 +185,7 @@ class AggregateDataServicePgSpec extends Specification {
         'DEMO:POB' in excludingSecuredRecords
         excludingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 1
         excludingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 3
-        excludingSecuredRecords['DEMO:POB'].nullValueCounts == null
+        excludingSecuredRecords['DEMO:POB'].nullValueCounts == 0
 
         when: 'now by user who has access to the private study'
         def includingSecuredRecords = aggregateDataService.categoricalValueAggregatesPerConcept(placeOfBirth,
@@ -195,7 +195,7 @@ class AggregateDataServicePgSpec extends Specification {
         'DEMO:POB' in includingSecuredRecords
         includingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 2
         includingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 4
-        includingSecuredRecords['DEMO:POB'].nullValueCounts == null
+        includingSecuredRecords['DEMO:POB'].nullValueCounts == 0
     }
 
 }
