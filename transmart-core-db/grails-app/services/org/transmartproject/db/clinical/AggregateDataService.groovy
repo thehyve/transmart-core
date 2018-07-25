@@ -33,7 +33,6 @@ import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.DimensionImpl
@@ -55,9 +54,6 @@ import static org.transmartproject.db.support.ParallelPatientSetTaskService.Task
 
 @CompileStatic
 class AggregateDataService extends AbstractDataResourceService implements AggregateDataResource {
-
-    @Autowired
-    UsersResource usersResource
 
     @Autowired
     MDStudiesResource studiesResource
@@ -221,13 +217,20 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
+        wrappedThis.updateCountsCache(constraint, user)
+        wrappedThis.updateCountsPerStudyCache(constraint, user)
+        wrappedThis.updateCountsPerStudyAndConceptCache(constraint, user)
+    }
+
+    /**
+     * Create set of all patients for the user.
+     */
+    void createAllPatientsSetForUser(User user) {
         QueryResult queryResult = patientSetResource.createPatientSetQueryResult(
                 'Automatically generated set',
-                constraint, user, 'v2', false)
+                new TrueConstraint(), user, 'v2', false)
         PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
-        wrappedThis.updateCountsCache(patientSetConstraint, user)
-        wrappedThis.updateCountsPerStudyCache(patientSetConstraint, user)
-        wrappedThis.updateCountsPerStudyAndConceptCache(patientSetConstraint, user)
+        rebuildCountsCacheForConstraint(patientSetConstraint, user)
     }
 
     /**
@@ -243,10 +246,12 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     /**
      * Updates counts for bookmarked user queries.
      *
-     * @param user the user for .
+     * @param user the user to update the counts for.
      */
     void rebuildCountsCacheForBookmarkedUserQueries(User user) {
-        List<UserQueryRepresentation> bookmarkedUserQueries = userQueryResource.list(user).findAll { it.bookmarked }
+        List<UserQueryRepresentation> bookmarkedUserQueries = userQueryResource.list(user).stream()
+            .filter({UserQueryRepresentation userQuery -> userQuery.bookmarked })
+            .collect(Collectors.toList())
         if (!bookmarkedUserQueries) {
             log.info("No bookmarked queries for  ${user.username} user. Nothing to cache.")
             return
@@ -470,7 +475,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * and puts the result in the counts cache.
      */
     @Transactional(readOnly = true)
-    void rebuildCountsPerStudyAndConceptCache() {
+    void rebuildCountsPerStudyAndConceptCache(List<User> users) {
         log.info "Rebuilding counts per study and concept cache ..."
         def t1 = new Date()
 
@@ -480,8 +485,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         // e.g. In case when cross-study concepts involved and different users have different rights on them.
         Constraint constraintToPreCache = new TrueConstraint()
         Predicate atLeastSummaryLevelAccess = { Map.Entry<String, PatientDataAccessLevel> entry -> entry.value >= PatientDataAccessLevel.SUMMARY }
-        usersResource.getUsers().forEach({ User user ->
-            log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
+        users.forEach({ User user ->
+            def description = "${user.username}${user.admin ? ' (admin)' : ''} ${user.studyToPatientDataAccessLevel.toMapString()}"
+            log.info "Rebuilding counts per study and concept cache for user ${description} ..."
             Set<String> studyIds = user.studyToPatientDataAccessLevel.entrySet().stream()
                 .filter(atLeastSummaryLevelAccess)
                 .map({ Map.Entry<String, PatientDataAccessLevel> entry -> entry.key })
@@ -492,6 +498,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                 countsPerStudyAndConcept.putAll(freshCounts)
             }
             Map<String, Map<String, Counts>> countsForUser = studyIds.stream()
+                .filter({ String studyId -> countsPerStudyAndConcept.containsKey(studyId) } as Predicate<String>)
                 .collect(Collectors.toMap(
                     Function.identity() as Function<String, String>,
                     { String studyId -> countsPerStudyAndConcept[studyId] } as Function<String, Map<String, Counts>>))
