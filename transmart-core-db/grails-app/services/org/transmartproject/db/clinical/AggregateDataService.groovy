@@ -9,6 +9,7 @@ import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
 import grails.util.Holders
 import groovy.transform.Canonical
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import org.hibernate.criterion.DetachedCriteria
@@ -28,7 +29,7 @@ import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.userquery.UserQuery
+import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.userquery.UserQueryResource
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
@@ -43,12 +44,16 @@ import org.transmartproject.db.util.HibernateUtils
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.function.Function
+import java.util.function.Predicate
+import java.util.function.ToIntFunction
 import java.util.stream.Collectors
 
 import static groovyx.gpars.GParsPool.withPool
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 
+@CompileStatic
 class AggregateDataService extends AbstractDataResourceService implements AggregateDataResource {
 
     @Autowired
@@ -79,7 +84,10 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * Instance of this object wrapped with the cache proxy.
      */
     @Lazy
-    private AggregateDataService wrappedThis = { Holders.grailsApplication.mainContext.aggregateDataService }()
+    private AggregateDataService wrappedThis = {
+        def context = Holders.getGrailsApplication().getMainContext()
+        context.getBean('aggregateDataService') as AggregateDataService
+    }()
 
 
     @CompileStatic
@@ -104,7 +112,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         Counts summary
     }
 
-    @CompileStatic
     static Map<String, Counts> mergeConceptCounts(Collection<ConceptCountRow> taskSummaries) {
         Logger logger = LoggerFactory.getLogger(AggregateDataService.class)
         logger.info "Merging counts per concept ..."
@@ -120,7 +127,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         result
     }
 
-    @CompileStatic
     static Map<String, Map<String, Counts>> mergeSummaryTaskResults(Collection<ConceptStudyCountRow> taskSummaries) {
         Logger logger = LoggerFactory.getLogger(AggregateDataService.class)
         logger.info "Merging counts per study and concept ..."
@@ -144,7 +150,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         result
     }
 
-    @CompileStatic
     private List<Counts> countsTask(SubtaskParameters parameters) {
         def t1 = new Date()
         log.debug "Start task ${parameters.task} ..."
@@ -174,7 +179,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     @Transactional(readOnly = true)
-    @CompileStatic
     Counts freshCounts(Constraint constraint, User user) {
         checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
         if (!(constraint instanceof TrueConstraint)) {
@@ -242,16 +246,16 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * @param user the user for .
      */
     void rebuildCountsCacheForBookmarkedUserQueries(User user) {
-        List<UserQuery> bookmarkedUserQueries = userQueryResource.list(user).findAll { it.bookmarked }
+        List<UserQueryRepresentation> bookmarkedUserQueries = userQueryResource.list(user).findAll { it.bookmarked }
         if (!bookmarkedUserQueries) {
             log.info("No bookmarked queries for  ${user.username} user. Nothing to cache.")
             return
         }
         log.info("Updating counts cache for ${bookmarkedUserQueries.size()} bookmarked queries of ${user.username} user.")
-        bookmarkedUserQueries.eachWithIndex{ UserQuery userQuery, int index ->
+        for (UserQueryRepresentation userQuery: bookmarkedUserQueries) {
             long timePoint = System.currentTimeMillis()
-            log.debug("Updating counts for ${user.username} query with ${userQuery.id} (${index}/${bookmarkedUserQueries.size()}).")
-            Constraint patientQueryConstraint = ConstraintFactory.read(userQuery.patientsQuery)
+            log.debug("Updating counts for ${user.username} query with ${userQuery.id} (${bookmarkedUserQueries.size()}).")
+            Constraint patientQueryConstraint = userQuery.patientsQuery
             rebuildCountsCacheForConstraint(patientQueryConstraint, user)
             long cachingTookInMsek = System.currentTimeMillis() - timePoint
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} took ${cachingTookInMsek} ms.")
@@ -260,7 +264,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     @Transactional(readOnly = true)
-    @CompileStatic
     List<ConceptCountRow> countsPerConceptTask(SubtaskParameters parameters) {
         log.debug "Starting task ${parameters.task} for computing counts per concept ..."
         def t1 = new Date()
@@ -281,34 +284,23 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             builder.applyToCriteria(criteria, [parameters.constraint])
             criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
 
-            List rows = criteria.list() as List<Map>
+            def rows = criteria.list() as List<Map>
 
             def t2 = new Date()
             log.debug "Task ${parameters.task} completed. (took ${t2.time - t1.time} ms.)"
-            rows.collect { Map row ->
+            rows.stream().map({ Map row ->
                 new ConceptCountRow(row.conceptCode as String,
-                        new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long))
-            }
+                        new Counts(row.observationCount as Long, row.patientCount as Long))
+            }).collect(Collectors.toList())
         } finally {
             session.close()
         }
-    }
-
-    @CompileStatic
-    @Transactional(readOnly = true)
-    Map<String, Counts> parallelCountsPerConcept(Constraint constraint, User user) {
-        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
-        def parameters = new TaskParameters(constraint, user)
-        parallelPatientSetTaskService.run(parameters,
-                {SubtaskParameters params -> countsPerConceptTask(params)},
-                {List<ConceptCountRow> taskResults -> mergeConceptCounts(taskResults)})
     }
 
     @Override
     @Transactional(readOnly = true)
     Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
-        //parallelCountsPerConcept(constraint, user)
         def taskParameters = new SubtaskParameters(1, constraint, user)
         def counts = countsPerConceptTask(taskParameters)
         mergeConceptCounts(counts)
@@ -328,13 +320,13 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                 .add(Projections.rowCount(), 'observationCount')
                 .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-        List rows = getList(criteria)
+        def rows = getList(criteria) as List<Map>
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        rows.collectEntries { Map row ->
-            [((row.study as Study).studyId):
-                     new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
-        } as Map<String, Counts>
+        rows.stream().collect(Collectors.toMap(
+                { Map row -> ((row.study as Study).studyId) } as Function<Map, String>,
+                { Map row -> new Counts(row.observationCount as Long, row.patientCount as Long) } as Function<Map, Counts>
+        ))
     }
 
     @Override
@@ -352,7 +344,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         freshCountsPerStudy(constraint, user)
     }
 
-    @CompileStatic
     private List<ConceptStudyCountRow> countsPerStudyAndConceptTask(SubtaskParameters parameters) {
         def t1 = new Date()
         log.debug "Start task ${parameters.task} ..."
@@ -390,7 +381,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         }
     }
 
-    @CompileStatic
     @Transactional(readOnly = true)
     Map<String, Map<String, Counts>> parallelCountsPerStudyAndConcept(Constraint constraint, User user) {
         checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
@@ -405,6 +395,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         return wrappedThis.countsPerConcept(studyConstraint, user)
     }
 
+    @CompileDynamic
     @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
             key = '{ #constraint.toJson(), #user.username }')
@@ -488,21 +479,24 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         //Sharing counts between users does not always work for other type of constraints
         // e.g. In case when cross-study concepts involved and different users have different rights on them.
         Constraint constraintToPreCache = new TrueConstraint()
-        usersResource.getUsers().each { User user ->
+        Predicate atLeastSummaryLevelAccess = { Map.Entry<String, PatientDataAccessLevel> entry -> entry.value >= PatientDataAccessLevel.SUMMARY }
+        usersResource.getUsers().forEach({ User user ->
             log.info "Rebuilding counts per study and concept cache for user ${user.username} ..."
             Set<String> studyIds = user.studyToPatientDataAccessLevel.entrySet().stream()
-                .filter({ entry -> entry.value >= PatientDataAccessLevel.SUMMARY })
-                .map({ entry -> entry.key })
+                .filter(atLeastSummaryLevelAccess)
+                .map({ Map.Entry<String, PatientDataAccessLevel> entry -> entry.key })
                 .collect(Collectors.toSet())
             def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
             if (notFetchedStudyIds) {
                 Map<String, Map<String, Counts>> freshCounts = parallelCountsPerStudyAndConcept(constraintToPreCache, user)
                 countsPerStudyAndConcept.putAll(freshCounts)
             }
-            Map<String, Map<String, Counts>> countsForUser = studyIds
-                    .collectEntries { String studyId -> [studyId, countsPerStudyAndConcept[studyId]] }
+            Map<String, Map<String, Counts>> countsForUser = studyIds.stream()
+                .collect(Collectors.toMap(
+                    Function.identity() as Function<String, String>,
+                    { String studyId -> countsPerStudyAndConcept[studyId] } as Function<String, Map<String, Counts>>))
             wrappedThis.updateCountsPerStudyAndConceptCache(constraintToPreCache, user, countsForUser)
-        }
+        })
 
         def t2 = new Date()
         log.info "Caching counts per study and concept took ${t2.time - t1.time} ms."
@@ -526,9 +520,11 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
         if (constraint instanceof StudyNameConstraint) {
-            return [constraint]
+            return [(StudyNameConstraint)constraint]
         } else if (constraint instanceof Combination) {
-            constraint.args.collectMany { findStudyNameConstraints(it) }
+            constraint.args.stream()
+                .flatMap({ Constraint it -> findStudyNameConstraints(it) })
+                .collect(Collectors.toList())
         } else {
             return []
         }
@@ -536,9 +532,11 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint) {
         if (constraint instanceof StudyObjectConstraint) {
-            return [constraint]
+            return [(StudyObjectConstraint)constraint]
         } else if (constraint instanceof Combination) {
-            constraint.args.collectMany { findStudyObjectConstraints(it) }
+            constraint.args.stream()
+                .flatMap({ Constraint it -> findStudyObjectConstraints(it) })
+                .collect(Collectors.toList())
         } else {
             return []
         }
@@ -546,9 +544,11 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     static List<ConceptConstraint> findConceptConstraints(Constraint constraint) {
         if (constraint instanceof ConceptConstraint) {
-            return [constraint]
+            return [(ConceptConstraint)constraint]
         } else if (constraint instanceof Combination) {
-            constraint.args.collectMany { findConceptConstraints(it) }
+            constraint.args.stream()
+                .flatMap({ Constraint it -> findConceptConstraints(it) })
+                .collect(Collectors.toList())
         } else {
             return []
         }
@@ -556,9 +556,11 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     private static List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint) {
         if (constraint instanceof BiomarkerConstraint) {
-            return [constraint]
+            return [(BiomarkerConstraint)constraint]
         } else if (constraint instanceof Combination) {
-            constraint.args.collectMany { findAllBiomarkerConstraints(it) }
+            constraint.args.stream()
+                .flatMap({ Constraint it -> findAllBiomarkerConstraints(it) })
+                .collect(Collectors.toList())
         } else {
             return []
         }
@@ -587,10 +589,17 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
                 .setProjection(projections)
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
                 .add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
-        getList(criteria).collectEntries { Map rowMap ->
-            String conceptCode = rowMap.remove('conceptCode')
-            [conceptCode, new NumericalValueAggregates(rowMap)]
-        }
+        def results = getList(criteria) as List<Map>
+        results.stream().collect(Collectors.toMap(
+                { Map rowMap -> (String)rowMap.conceptCode } as Function<Map, String>,
+                { Map rowMap ->
+                new NumericalValueAggregates(
+                        rowMap.min as Double,
+                        rowMap.max as Double,
+                        rowMap.avg as Double,
+                        rowMap.count as Integer,
+                        rowMap.stdDev as Double) } as Function<Map, NumericalValueAggregates>
+        ))
     }
 
     @Override
@@ -609,16 +618,25 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         criteria.setProjection(projections)
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
                 .add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
-        getList(criteria).groupBy { Map it -> (String)it.conceptCode }.collectEntries { String conceptCode, List<Map> rows ->
-            Map<String, Integer> valueCounts = rows.findAll { Map r -> r.textValue != null }.collectEntries {
-                [it.textValue, it.count]
-            }
-            Integer nullValueCounts = (Integer)rows.findAll { r -> r.textValue == null }?.sum{ it.count }
-            [
-                    conceptCode,
-                    new CategoricalValueAggregates(valueCounts, nullValueCounts)
-            ]
-        } as Map<String, CategoricalValueAggregates>
+        def rows = getList(criteria) as List<Map>
+        def rowsByConcept = rows.stream()
+                .collect(Collectors.groupingBy(
+                { Map it -> (String)it.conceptCode } as Function<Map, String>)) as Map<String, List>
+        rowsByConcept.entrySet().stream().collect(Collectors.toMap(
+                { Map.Entry<String, List> entry -> entry.key } as Function<Map.Entry, String>,
+                { Map.Entry<String, List> entry ->
+                    List<Map> conceptRows = (List<Map>)entry.value
+                    Map<String, Integer> valueCounts = conceptRows.stream()
+                        .filter({ Map r -> r.textValue != null } as Predicate<Map>)
+                        .collect(Collectors.toMap(
+                            { Map r -> (String)r.textValue } as Function<Map, String>,
+                            { Map r -> r.count as Integer } as Function<Map, Integer>
+                        ))
+                    Integer nullValueCounts = conceptRows.stream()
+                        .filter({ Map r -> r.textValue == null } as Predicate<Map>)
+                        .collect(Collectors.summingInt({ Map it -> it.count as Integer } as ToIntFunction<Map>))
+                    new CategoricalValueAggregates(valueCounts, nullValueCounts) } as Function<Map.Entry, CategoricalValueAggregates>
+        ))
     }
 
     /**
