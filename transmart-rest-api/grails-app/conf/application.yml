@@ -1,5 +1,5 @@
 # configurations that are used only when plugin gets run (e.g. testing)
-# for grails configurations that get merged with the host application use plugin.yml
+# for grails configurations that get merged with the host application see plugin.yml
 ---
 environments:
     test:

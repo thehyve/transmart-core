@@ -25,45 +25,6 @@ endpoints:
         enabled: true
 
 ---
-grails:
-    mime:
-        disable:
-            accept:
-                header:
-                    userAgents:
-                        - Gecko
-                        - WebKit
-                        - Presto
-                        - Trident
-        types:
-            json:
-              - application/json
-              - text/json   
-            hal:
-              - application/hal+json
-              - application/hal+xml  
-            xml:
-              - text/xml
-              - application/xml                                 
-            atom: application/atom+xml
-            css: text/css
-            csv: text/csv
-            js: text/javascript
-            rss: application/rss+xml
-            text: text/plain
-            protobuf: application/x-protobuf
-            all: '*/*'            
-    urlmapping:
-        cache:
-            maxsize: 1000
-    controllers:
-        defaultScope: singleton
-    converters:
-        encoding: UTF-8
-    resources:
-        pattern: /**
-
----
 hibernate:
     cache:
         queries: false
