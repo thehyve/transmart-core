@@ -265,10 +265,10 @@ class ConstraintSerialiser extends ConstraintBuilder<Void> {
             writer.name('relatedSubjectsConstraint')
             build(constraint.relatedSubjectsConstraint)
         }
-        if (constraint.biological) {
+        if (constraint.biological != null) {
             writer.name('biological').value(constraint.biological)
         }
-        if (constraint.shareHousehold) {
+        if (constraint.shareHousehold != null) {
             writer.name('shareHousehold').value(constraint.shareHousehold)
         }
         return

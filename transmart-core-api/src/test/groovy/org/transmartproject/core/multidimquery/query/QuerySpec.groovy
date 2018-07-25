@@ -112,7 +112,7 @@ class QuerySpec extends Specification {
     }
 
     @Unroll
-    void 'test constraint serialisation and deserialisation'(Constraint constraint) {
+    void 'test constraint serialisation and deserialisation with Jackson'(Constraint constraint) {
         expect:
         def mapper = new ObjectMapper()
         def json = mapper.writeValueAsString(constraint)
@@ -128,6 +128,28 @@ class QuerySpec extends Specification {
         _| new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN, 10.5)
         _| new ValueConstraint(Type.STRING, Operator.CONTAINS, 'x')
         _| new AndConstraint([new ConceptConstraint('concept1'), new ValueConstraint(Type.STRING, Operator.EQUALS, 'value x')])
+        _| new RelationConstraint('PAR', null, null, null)
+        _| new RelationConstraint('CHI', new TrueConstraint(), true, false)
+    }
+
+    @Unroll
+    void 'test constraint serialisation and deserialisation with toJson'(Constraint constraint) {
+        expect:
+        def json = constraint.toJson()
+        def mapper = new ObjectMapper()
+        def object = mapper.readValue(json, Constraint)
+        assert constraint == object
+
+        where:
+        _| constraint
+        _| new TrueConstraint()
+        _| new ConceptConstraint('concept1')
+        _| new StudyNameConstraint('study1')
+        _| new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN, 10.5)
+        _| new ValueConstraint(Type.STRING, Operator.CONTAINS, 'x')
+        _| new AndConstraint([new ConceptConstraint('concept1'), new ValueConstraint(Type.STRING, Operator.EQUALS, 'value x')])
+        _| new RelationConstraint('PAR', null, null, null)
+        _| new RelationConstraint('CHI', new TrueConstraint(), true, false)
     }
 
 }
