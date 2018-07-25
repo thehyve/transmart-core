@@ -85,9 +85,10 @@ You will get the following reply:
 ```
 
 The value of the `refresh_token` field is the offline token.
-
 It is used as an Refresh token, except it does not have the expiration date.
 
+Note that the user needs to have the `view-users` rol for the `realm-management` client
+to enable fetching of users with this token.
 
 Create a file `transmart-api-server.config.yml` with the following settings (replace names in brackets with your data):
 ```yaml

@@ -13,9 +13,12 @@ All the instructions on how to install, build and run a private instance of tran
 
 The platform provides an API, which is available under [transmart-rest-api](transmart-rest-api).
 Its `v1` endpoints are documented there, the `v2` endpoints are documented using Swagger in [open-api](open-api).
-There is a main application [transmart-server](transmart-server), exposing the API and extended by multiple plugins. As an user interface there is a frontend application [transmartApp](transmartApp) built as a "web" profiled Grails platform plugin, and an Angular4 based
+There are two main applications available: [transmart-server](transmart-server) and [transmart-api-server](transmart-api-server), both exposing the API and extended by multiple plugins.
+The OAuth2 authentication of the API for transmart-server is managed by [transmart-oauth](transmart-oauth) plugin, while transmart-api-server uses an external identity provider.
+
+As an user interface there is a frontend application [transmartApp](transmartApp) built as a "web" profiled Grails platform plugin and supported by transmart-server, and an Angular4 based
 front end named [glowing bear](https://github.com/thehyve/glowing-bear) is being developed.
-The OAuth2 authentication of the API is managed by [transmart-oauth](transmart-oauth) plugin.
+
 
 Database definitions and installation instructions are in [transmart-data](transmart-data).
 A data loading tool based on Spring Batch is available as [transmart-batch](transmart-batch).

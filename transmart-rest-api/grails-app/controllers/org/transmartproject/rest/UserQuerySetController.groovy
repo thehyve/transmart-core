@@ -47,7 +47,7 @@ class UserQuerySetController {
 
         List<UserQuerySetChangesRepresentation> querySets = userQuerySetResource.getQueryChangeHistory(queryId,
                 authContext.user, maxNumberOfSets)
-        respond respond([querySets: querySets])
+        respond([querySets: querySets])
     }
 
 }
