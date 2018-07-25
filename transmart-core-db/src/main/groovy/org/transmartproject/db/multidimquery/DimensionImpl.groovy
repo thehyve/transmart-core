@@ -3,16 +3,12 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.InheritConstructors
-import groovy.transform.TupleConstructor
+import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.*
 import org.apache.commons.lang.NotImplementedException
 import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
-import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
@@ -23,19 +19,21 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.clinical.Query
-import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
-import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
-import org.transmartproject.db.i2b2data.Study as I2B2Study
+import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
+import org.transmartproject.db.i2b2data.Study as I2B2Study
+import org.transmartproject.db.i2b2data.TrialVisit
+import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
 
+import static org.transmartproject.core.multidimquery.Dimension.Density.DENSE
+import static org.transmartproject.core.multidimquery.Dimension.Density.SPARSE
+import static org.transmartproject.core.multidimquery.Dimension.Packable.NOT_PACKABLE
+import static org.transmartproject.core.multidimquery.Dimension.Packable.PACKABLE
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
-import static org.transmartproject.core.multidimquery.Dimension.Density.*
-import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 /* Not sure if the generic parameters are worth it. They cannot be used fully due to implementing a non-generic
 interface, and we need to know the reified element type to check that the right types are used. And they need to be
@@ -746,14 +744,9 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
 
     @CompileDynamic
     @Override List<I2b2VisitDimension> doResolveElements(List<VisitKey> elementKeys) {
-        (List) I2b2VisitDimension.withCriteria {
-            or {
-                elementKeys.each { VisitKey key ->
-                    and {
-                        eq 'encounterNum', key.encounterNum
-                        eq 'patient.id', key.patientId
-                    }
-                }
+        elementKeys.collect { VisitKey key ->
+            if (key) {
+                I2b2VisitDimension.findWhere(encounterNum:  key.encounterNum, 'patient.id': key.patientId)
             }
         }
     }

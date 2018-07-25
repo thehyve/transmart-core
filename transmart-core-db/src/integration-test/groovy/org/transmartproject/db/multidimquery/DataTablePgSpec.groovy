@@ -1,17 +1,15 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.PaginationParameters
 import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.DataTableColumn
-import org.transmartproject.core.multidimquery.FullDataTableRow
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.multidimquery.PagingDataTable
-import org.transmartproject.core.multidimquery.StreamingDataTable
+import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.db.user.User
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -195,13 +193,35 @@ class DataTablePgSpec extends Specification {
                 ] as Set
 
         and: 'the result should contain have a value for a patient, for a combination of concept and sample_type'
-        DataTableColumn lungNormalColumn = stream.columnKeys.find { it.elements[1].conceptCode == 'TNS:HD:EXPLUNG' && it.elements[2] == 'Normal' }
+        DataTableColumn lungNormalColumn = stream.columnKeys.find {
+            it.elements[1].conceptCode == 'TNS:HD:EXPLUNG' && it.elements[2] == 'Normal'
+        }
         def lungNormalValue = rows[0].multimap.get(lungNormalColumn)
-        lungNormalValue[0].availableDimensions.collect { it.name } as Set == ['patient', 'study', 'concept', 'sample_type'] as Set
+        lungNormalValue[0].availableDimensions.collect {
+            it.name
+        } as Set == ['patient', 'study', 'concept', 'sample_type'] as Set
         def sampleTypeDimension = lungNormalValue[0].availableDimensions.find { it.name == 'sample_type' }
         sampleTypeDimension != null
         lungNormalValue.size() == 1
         lungNormalValue[0].value == 'sample1'
     }
 
+
+    def 'test data table tolerant to null dimensional elements'() {
+        def user = new SimpleUser('public user', null, null, false, [:])
+        StudyNameConstraint studyConstraint = new StudyNameConstraint('EHR')
+        def tableConfig = new TableConfig(
+                rowDimensions: ['patient'],
+                columnDimensions: ['visit']
+        )
+
+        when:
+        StreamingDataTable stream = multiDimService.retrieveStreamingDataTable(tableConfig, 'clinical', studyConstraint, user)
+        then: 'there is visit column for null element'
+        List<FullDataTableRow> rows = Lists.newArrayList(stream)
+        def noVisitElementColumn = stream.columnKeys.find { it.elements == [null] }
+        noVisitElementColumn
+        then: 'all EHR patients have such out of the visit observations'
+        rows.every { row -> !row.multimap.get(noVisitElementColumn).empty }
+    }
 }
