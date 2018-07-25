@@ -263,6 +263,7 @@ grails { plugin { springsecurity {
                 [pattern: '/userGroup/**',               access: ['ROLE_ADMIN']],
                 //TODO This looks dangerous. It opens acess to the gwas data for everybody.
                 [pattern: '/gwasWeb/**',                 access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/v2/admin/**',                access: ['ROLE_ADMIN']],
                 [pattern: '/oauthAdmin/**',              access: ['ROLE_ADMIN']],
                 [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']]
         ] +
