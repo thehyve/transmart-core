@@ -4,6 +4,7 @@ package org.transmartproject.db.tree
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import org.apache.commons.lang3.tuple.Pair
 import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,6 +15,8 @@ import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
+import org.transmartproject.core.users.PatientDataAccessLevel
+import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.AggregateDataService
@@ -22,6 +25,7 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.util.SharedLock
 
 import javax.annotation.Resource
+import java.util.stream.Collectors
 
 import static grails.async.Promises.task
 
@@ -191,14 +195,29 @@ class TreeService implements TreeResource {
                 log.debug "Task started (lock: ${lock.locked})"
                 session = sessionFactory.openSession()
                 def stopWatch = new StopWatch('Rebuild cache')
-                usersResource.getUsers().each { User user ->
-                    log.info "Rebuilding the cache for user ${user.username} ..."
-                    stopWatch.start("Rebuild the tree nodes cache for ${user.username}")
+                List<User> realUsers = usersResource.getUsers()
+                def permissionSets = realUsers.stream()
+                    .map({User user -> Pair.of(user.admin, user.studyToPatientDataAccessLevel)})
+                    .collect(Collectors.toSet())
+                List<User> fakeUsers = permissionSets.stream()
+                    .map({ Pair<Boolean, Map<String, PatientDataAccessLevel>> permissions ->
+                        new SimpleUser('system', null, null, permissions.left, permissions.right)
+                    })
+                    .collect(Collectors.toList())
+                for (User user: fakeUsers) {
+                    def description = "${user.username}${user.admin ? ' (admin)' : ''} ${user.studyToPatientDataAccessLevel.toMapString()}"
+                    log.info "Rebuilding the cache for user ${description} ..."
+                    stopWatch.start("Rebuild the tree nodes cache for ${description}")
                     treeCacheService.updateSubtreeCache(user, I2b2Secure.ROOT, 0)
                     stopWatch.stop()
-                    stopWatch.start("Rebuild the counts cache for ${user.username}")
+                    stopWatch.start("Rebuild the counts cache for ${description}")
                     // Update observations, patients counts
                     aggregateDataService.rebuildCountsCacheForUser(user)
+                    stopWatch.stop()
+                }
+                for (User user: realUsers) {
+                    stopWatch.start("Create set of all subjects for ${user.username}")
+                    aggregateDataService.createAllPatientsSetForUser(user)
                     stopWatch.stop()
                     stopWatch.start("Rebuild the counts cache for bookmarked queries of ${user.username}")
                     aggregateDataService.rebuildCountsCacheForBookmarkedUserQueries(user)
@@ -206,7 +225,7 @@ class TreeService implements TreeResource {
                 }
                 stopWatch.start('Rebuild the counts per study and concept cache')
                 // Rebuild cache of counts per study and concept for the given user
-                aggregateDataService.rebuildCountsPerStudyAndConceptCache()
+                aggregateDataService.rebuildCountsPerStudyAndConceptCache(fakeUsers)
                 stopWatch.stop()
                 log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
             } catch (Exception e) {
