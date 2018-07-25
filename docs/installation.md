@@ -112,6 +112,9 @@ mvn dependency:copy -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSH
 java -jar transmart-server-17.1-SNAPSHOT.war
 ```
 
+####
+In order to build and run **tranSmart Api Server**, follow the instructions above, replacing the `transmart-server` with `transmart-api-server`.
+
 
 ## 5. Start services
 
