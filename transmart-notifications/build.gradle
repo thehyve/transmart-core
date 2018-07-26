@@ -1,17 +1,23 @@
 dependencies {
+    //Grails 3 dependencies
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
-    compile "org.grails:grails-dependencies"
+    compile "org.grails:grails-plugin-url-mappings"
+    compile "org.grails:grails-plugin-rest"
+    compile "org.grails:grails-plugin-codecs"
+    compile "org.grails:grails-plugin-services"
+    compile "org.grails:grails-plugin-databinding"
+    compile "org.grails:grails-plugin-async"
     compile "org.grails:grails-web-boot"
+    compile "org.grails:grails-logging"
     compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:views-json"
+    compile "org.grails.plugins:views-json-templates"
     console("org.grails:grails-console") {
         exclude group: 'org.fusesource.jansi', module: 'jansi'
     }
-    profile "org.grails.profiles:plugin"
-    provided "org.grails:grails-plugin-services"
-    provided "org.grails:grails-plugin-domain-class"
-    testCompile "org.grails:grails-plugin-testing"
+    profile "org.grails.profiles:rest-api"
 
     compile 'org.grails.plugins:mail:2.0.0'
     compile "org.grails.plugins:quartz:${quartzVersion}"

@@ -43,6 +43,9 @@ A plugin that provides an email subscription functionality.
     }
 
     void doWithApplicationContext() {
+        if (!Holders.config.org.transmartproject.notifications.enabled){
+            Holders.config.org.transmartproject.notifications.endpointEnabled = false
+        }
     }
 
     void onChange(Map<String, Object> event) {
