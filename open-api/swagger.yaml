@@ -2226,7 +2226,7 @@ paths:
               properties:
                 numberOfUpdatedSets:
                   type: integer
-  /v2/admin/subscription/notify:
+  /v2/admin/notifications/notify:
       get:
         description: |
           Triggers sending of emails to users that subscribed for updates regarding queries they have created.
@@ -2238,7 +2238,7 @@ paths:
           - name: frequency
             required: true
             in: path
-            description: 'DAILY|WEEKLY - determines whether the mail should be sent to users with a DAILY or WEEKLY subscription.'
+            description: 'DAILY|WEEKLY - determines whether the email should be sent to users with a DAILY or WEEKLY subscription.'
             type: string
         responses:
           200:

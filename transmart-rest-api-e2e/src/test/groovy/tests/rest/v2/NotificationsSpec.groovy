@@ -11,13 +11,13 @@ import static config.Config.*
  * These tests requires transmart-notifications plugin to be enabled and properly configured.
  * See transmart-notifications configuration description.
  */
-class SubscriptionSpec extends RESTSpec {
+class NotificationsSpec extends RESTSpec {
 
     void 'test triggering email sending by a regular user is denied'() {
         when: "I try to trigger email sending as default user"
         def frequency = "DAILY"
         def request = [
-                path      : PATH_SUBSCRIPTION,
+                path      : PATH_NOTIFICATIONS,
                 acceptType: JSON,
                 query     : [frequency: frequency],
                 user      : DEFAULT_USER,
@@ -34,7 +34,7 @@ class SubscriptionSpec extends RESTSpec {
     void 'test invalid frequency parameter'() {
         when: "I try to trigger email without frequency parameter"
         def request = [
-                path      : PATH_SUBSCRIPTION,
+                path      : PATH_NOTIFICATIONS,
                 acceptType: JSON,
                 user      : ADMIN_USER,
                 statusCode: 400
@@ -49,7 +49,7 @@ class SubscriptionSpec extends RESTSpec {
         when: "I try to trigger email with invalid frequency parameter"
         def frequency = "YEARLY"
         def request2 = [
-                path      : PATH_SUBSCRIPTION,
+                path      : PATH_NOTIFICATIONS,
                 acceptType: JSON,
                 user      : ADMIN_USER,
                 query     : [frequency: frequency],
@@ -67,7 +67,7 @@ class SubscriptionSpec extends RESTSpec {
         when: "I try to trigger email sending as ADMIN"
         def frequency = "DAILY"
         def responseData = get([
-                path      : PATH_SUBSCRIPTION,
+                path      : PATH_NOTIFICATIONS,
                 acceptType: JSON,
                 query     : [frequency: frequency],
                 user      : ADMIN_USER

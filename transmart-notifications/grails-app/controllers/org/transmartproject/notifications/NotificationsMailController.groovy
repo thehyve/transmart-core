@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.userquery.SubscriptionFrequency
 
-class SubscriptionMailController {
+class NotificationsMailController {
 
     @Autowired
     QuerySetSubscriptionMailService querySetSubscriptionMailService
 
     /**
-     * GET /v2/admin/subscription/notify?frequency=DAILY|WEEKLY
+     * GET /v2/admin/notifications/notify?frequency=DAILY|WEEKLY
      *
      *
      * Sends emails to users who subscribed for a user query updates.
@@ -24,7 +24,7 @@ class SubscriptionMailController {
      *      see request matcher configuration of the current application.
      * @throws {@link InvalidArgumentsException} if frequency parameter is not valid.
      */
-    def subscriptionNotify(@RequestParam('frequency')String frequency) {
+    def notificationsNotify(@RequestParam('frequency')String frequency) {
         SubscriptionFrequency subscriptionFrequency = frequency?.trim() ? SubscriptionFrequency.forName(frequency) : null
         if (!subscriptionFrequency) {
             throw new InvalidArgumentsException("Invalid frequency parameter: $frequency")

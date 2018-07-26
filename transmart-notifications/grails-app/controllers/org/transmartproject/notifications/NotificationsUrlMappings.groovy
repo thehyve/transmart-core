@@ -5,7 +5,7 @@ class NotificationsUrlMappings {
     static mappings = {
         group "/v2", {
             group "/admin", {
-                "/subscription/notify"(method: 'GET',controller: 'subscriptionMail', action: 'subscriptionNotify')
+                "/notifications/notify"(method: 'GET',controller: 'notificationsMail', action: 'notificationsNotify')
             }
         }
     }

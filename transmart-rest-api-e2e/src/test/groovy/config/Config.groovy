@@ -106,7 +106,7 @@ class Config {
     public static final String PATH_DATA_EXPORT = "/v2/export"
     public static final String PATH_QUERY = "/v2/queries"
     public static final String PATH_RELATION_TYPES = "/v2/pedigree/relation_types"
-    public static final String PATH_SUBSCRIPTION = "/v2/admin/subscription/notify"
+    public static final String PATH_NOTIFICATIONS = "/v2/admin/notifications/notify"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'
