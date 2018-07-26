@@ -145,16 +145,18 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         writeRow(csvWriter, ['label'] + keys.collect { it instanceof String ? (String) it : ((Collection) it).join('' + '.') })
 
         for(def elem : elements) {
-            List values = [dim.getKey(elem)]
-            for(key in keys) {
-                if(key instanceof String) {
-                    values.add(dim.elementFields[(String) key].get(elem))
-                } else {
-                    List<String> path = (List) key
-                    values.add(getByPath(path, 1, dim.elementFields[path[0]].get(elem)))
+            if(elem) {
+                List values = [dim.getKey(elem)]
+                for (key in keys) {
+                    if (key instanceof String) {
+                        values.add(dim.elementFields[(String) key].get(elem))
+                    } else {
+                        List<String> path = (List) key
+                        values.add(getByPath(path, 1, dim.elementFields[path[0]].get(elem)))
+                    }
                 }
+                writeRow(csvWriter, values)
             }
-            writeRow(csvWriter, values)
         }
 
         csvWriter.flush()
