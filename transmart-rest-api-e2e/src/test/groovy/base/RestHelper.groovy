@@ -124,7 +124,7 @@ class RestHelper {
             request.accept = [requestMap.acceptType as String ?: ContentTypeFor.JSON]
 
 
-            if (!requestMap.token && AUTH_NEEDED) {
+            if (requestMap.token == null && AUTH_NEEDED) {
                 testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user as String ?: DEFAULT_USER))
             } else if (requestMap.token){
                 request.headers.'Authorization' = 'Bearer ' + requestMap.token
