@@ -2231,7 +2231,7 @@ paths:
         description: |
           Triggers sending of emails to users that subscribed for updates regarding queries they have created.
           Only for administrators.
-          This requires transmart-notifications plugin to be enabled.
+          This requires transmart-notifications plugin and /v2/admin/notifications/notify endpoint to be enabled.
         tags:
           - v2
         parameters:

@@ -8,7 +8,8 @@ import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 /**
- * These tests requires transmart-notifications plugin to be enabled and properly configured.
+ * These tests requires transmart-notifications plugin and /v2/admin/notifications/notify endpoint
+ * to be enabled and properly configured.
  * See transmart-notifications configuration description.
  */
 class NotificationsSpec extends RESTSpec {

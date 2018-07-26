@@ -41,6 +41,9 @@ For more information check [Grails Email Plugin documentation.](http://gpc.githu
 org.transmartproject.notifications:
     # enable daily and weekly notification jobs
     enabled: true
+    # enable the /v2/admin/notifications/notify to be able to trigger notifications email sending
+    # (this endpoint is intended for test purposes)
+    endpointEnabled: true
     # max number of query sets returned in a subscription email
     maxNumberOfSets: 20
     # daily cron job trigger time in format: hh-mm

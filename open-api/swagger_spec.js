@@ -2665,7 +2665,7 @@ var spec = {
     },
     "/v2/admin/notifications/notify": {
       "get": {
-        "description": "Triggers sending of emails to users that subscribed for updates regarding queries they have created.\nOnly for administrators.\nThis requires transmart-notifications plugin to be enabled.\n",
+        "description": "Triggers sending of emails to users that subscribed for updates regarding queries they have created.\nOnly for administrators.\nThis requires transmart-notifications plugin and /v2/admin/notifications/notify endpoint to be enabled.\n",
         "tags": [
           "v2"
         ],
