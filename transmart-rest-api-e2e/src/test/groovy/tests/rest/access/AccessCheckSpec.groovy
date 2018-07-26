@@ -1,9 +1,12 @@
 package tests.rest.access
 
 import base.RESTSpec
+import base.RestHelper
 import com.fasterxml.jackson.databind.ObjectMapper
 import config.OauthAdapter
 import groovy.json.JsonSlurper
+import representations.ErrorResponse
+
 import static base.ContentTypeFor.JSON
 import static config.Config.*
 
@@ -17,20 +20,24 @@ class AccessCheckSpec extends RESTSpec {
      */
     def "access to resources is blocked with an invalid token"() {
         when: "I try to fetch all studies without access token"
-        def responseData = get([
+        def request =  [
                 path      : PATH_STUDIES,
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER,
+                token     : '',
                 statusCode: 401
-        ])
+        ]
+        def responseData = RestHelper.toObject get(request), ErrorResponse
         then: "I am not authorized to access the resource"
         responseData.message == "Unauthorized"
 
         when: "I try to fetch all studies with invalid access token"
-        def responseDataInvalidToken = responseData
-        responseDataInvalidToken.token = 'invalidToken'.bytes.encodeBase64().toString()
+        def requestInvalidToken = request
+        requestInvalidToken.token = 'invalidToken'.bytes.encodeBase64().toString()
+        def responseDataInvalidToken = RestHelper.toObject get(request), ErrorResponse
+
         then: "I am not authorized to access the resource"
-        responseDataInvalidToken.message == "Unauthorized"
+        responseDataInvalidToken.message == "Unable to authenticate using the Authorization header"
     }
 
     /**
@@ -56,12 +63,12 @@ class AccessCheckSpec extends RESTSpec {
 
         when: "I fabricate the token by replacing original user data with a new user"
         def tokenWithReplacedUser = replaceUserInToken(tokenForUnrestrictedUser, DEFAULT_USER)
-        def responseForNewUser = get([
+        def responseForNewUser = RestHelper.toObject get([
                 path      : PATH_STUDIES,
                 acceptType: JSON,
                 token     : tokenWithReplacedUser,
                 statusCode: 401
-        ])
+        ]), ErrorResponse
 
         then: "The signature is verified as invalid, I am not authorized to access the resource"
         responseForNewUser.error == "Unauthorized"
