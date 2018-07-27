@@ -252,7 +252,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
             HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
             CriteriaImpl criteria = (CriteriaImpl) q.instance
 
-            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.MEASUREMENTS)
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(parameters.user, PatientDataAccessLevel.SUMMARY)
 
             criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
             criteria.setProjection(Projections.projectionList().add(
