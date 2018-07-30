@@ -12,13 +12,12 @@ import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.core.users.User
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.TestData
-import org.transmartproject.db.user.MockUsersResource
-import spock.lang.Specification
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
 import org.transmartproject.db.querytool.QuerySetInstance
+import org.transmartproject.db.user.MockUsersResource
+import spock.lang.Specification
 
 @Integration
 @Rollback
@@ -52,15 +51,15 @@ class UserQuerySetServiceSpec extends Specification {
     void 'test scanning by a regular user is denied'() {
         setupData()
 
-        when:'user is not admin'
+        when: 'user is not admin'
         userQuerySetService.scan(regularUser)
 
-        then:'AccessDeniedException is thrown'
+        then: 'AccessDeniedException is thrown'
         AccessDeniedException ex = thrown()
         ex.message == 'Only allowed for administrators.'
     }
 
-    void "test scanning for query set changes"() {
+    void 'test scanning for query set changes'() {
         given: 'subscription is enabled'
         setupData()
         Holders.config.org.transmartproject.notifications.enabled = true
@@ -95,7 +94,7 @@ class UserQuerySetServiceSpec extends Specification {
         def querySetElements = QuerySetInstance.list()
         querySets.size() == 2
         querySetElements.size() == 0
-        for (def querySet: querySets) {
+        for (def querySet : querySets) {
             assert querySet.setSize == 0
         }
 
@@ -118,6 +117,21 @@ class UserQuerySetServiceSpec extends Specification {
         setDiffs.size() == 0
         setDiffs.count { it.changeFlag == ChangeFlag.ADDED } == 0
         setDiffs.count { it.changeFlag == ChangeFlag.REMOVED } == 0
+
+        when: 'checking querySet changes for an email with daily updates'
+        def resultForDailySubscription = userQuerySetService
+                .getQueryChangeHistoryByUsernameAndFrequency(SubscriptionFrequency.DAILY, regularUser.username, 20)
+
+        then: 'No elements found to be send in the daily email'
+        resultForDailySubscription.size() == 0
+
+        when: 'checking querySet changes for the email with weekly updates'
+        def resultForWeeklySubscription = userQuerySetService
+                .getQueryChangeHistoryByUsernameAndFrequency(SubscriptionFrequency.WEEKLY, regularUser.username, 20)
+
+        then: 'No elements found to be send in the weekly email'
+        resultForWeeklySubscription.size() == 0
+
     }
 
 }
