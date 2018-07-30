@@ -696,6 +696,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
         }
         def trialVisits = trialVisitsService.findTrialVisitsForStudy(constraint.study)
+        if (trialVisits.empty) {
+            // Return false if there are no trial visits to filter on
+            return build(new Negation(new TrueConstraint()))
+        }
         return Restrictions.in('trialVisit', trialVisits)
     }
 
@@ -917,7 +921,14 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         criteria
     }
 
+    /**
+     * Returns a criterion that filters on studies.
+     */
     private Criterion getStudiesCriterion() {
+        if (studies.empty) {
+            // Return false if there are no studies to filter on
+            return build(new Negation(new TrueConstraint()))
+        }
         Restrictions.in("${getAlias('trialVisit')}.study", studies)
     }
 
