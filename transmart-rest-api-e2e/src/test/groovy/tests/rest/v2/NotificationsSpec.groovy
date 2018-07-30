@@ -65,16 +65,14 @@ class NotificationsSpec extends RESTSpec {
     }
 
     void 'test triggering email by a ADMIN'() {
-        when: "I try to trigger email sending as ADMIN"
         def frequency = "DAILY"
-        def responseData = get([
+        expect: "I try to trigger email sending as ADMIN"
+        null == get([
                 path      : PATH_NOTIFICATIONS,
                 acceptType: JSON,
                 query     : [frequency: frequency],
-                user      : ADMIN_USER
+                user      : ADMIN_USER,
+                statusCode: 200
         ])
-
-        then: "I do have an access"
-        responseData.status == 200
     }
 }

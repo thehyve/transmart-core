@@ -157,7 +157,6 @@ class StorageSpec extends RESTSpec {
         then:
         assert responseData.errors.size() == 1
         assert responseData.errors[0].field == 'singleFileCollections'
-        assert responseData.errors[0].message == 'Property singleFileCollections is type-mismatched'
         assert responseData.errors[0].'rejected-value' == 'bad_value'
     }
 
@@ -219,7 +218,6 @@ class StorageSpec extends RESTSpec {
         then:
         assert responseData.errors.size() == 1
         assert responseData.errors[0].field == 'singleFileCollections'
-        assert responseData.errors[0].message == 'Property singleFileCollections is type-mismatched'
         assert responseData.errors[0].'rejected-value' == 'bad_value'
     }
 

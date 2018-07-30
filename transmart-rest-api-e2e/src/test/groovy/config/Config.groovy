@@ -45,22 +45,23 @@ class Config {
     // $ gradle -DauthMethod=OAuth2 test
     public static final AuthMethod AUTH_METHOD = getProperty('authMethod', AuthMethod.OIDC, AuthMethod)
 
-    // Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
-    public static final TestContext testContext = new TestContext().setHttpBuilder(configure {
-        request.uri = BASE_URL
-        // custom parsers
-        response.parser(ContentTypeFor.PROTOBUF) { ChainedHttpConfig cfg, FromServer fs ->
-            ProtobufHelper.parse(fs.inputStream)
-        }
-        // custom interceptor
-        execution.interceptor(GET) { ChainedHttpConfig cfg, Function fx ->
-            // set default type for PATH_OBSERVATIONS
-            if (cfg.request.uri.path == PATH_OBSERVATIONS && !cfg.request.uri.query.type) {
-                cfg.request.uri.query.type = 'clinical'
+    static TestContext newTestContext() {
+        new TestContext().setHttpBuilder(configure {
+            request.uri = BASE_URL
+            // custom parsers
+            response.parser(ContentTypeFor.PROTOBUF) { ChainedHttpConfig cfg, FromServer fs ->
+                ProtobufHelper.parse(fs.inputStream)
             }
-            fx.apply(cfg)
-        }
-    }).setAuthAdapter(new OauthAdapter())
+            // custom interceptor
+            execution.interceptor(GET) { ChainedHttpConfig cfg, Function fx ->
+                // set default type for PATH_OBSERVATIONS
+                if (cfg.request.uri.path == PATH_OBSERVATIONS && !cfg.request.uri.query.type) {
+                    cfg.request.uri.query.type = 'clinical'
+                }
+                fx.apply(cfg)
+            }
+        }).setAuthAdapter(new OauthAdapter())
+    }
 
     public static final String DEFAULT_USER = 'test-public-user-1'
     public static final String UNRESTRICTED_USER = 'test-public-user-2'
