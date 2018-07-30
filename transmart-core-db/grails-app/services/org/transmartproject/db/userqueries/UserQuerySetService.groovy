@@ -107,7 +107,7 @@ class UserQuerySetService implements UserQuerySetResource {
     List<UserQuerySetChangesRepresentation> getQueryChangeHistoryByUsernameAndFrequency(SubscriptionFrequency frequency,
                                                                                         String username,
                                                                                         Integer maxNumberOfSets) {
-        def querySets = getQuerySetsByUsernameAndFrequency(frequency, username, maxNumberOfSets)
+        def querySets = getQuerySetsWithDiffsByUsernameAndFrequency(frequency, username, maxNumberOfSets)
         querySets.stream()
                 .map({ UserQuerySet userQuerySet -> mapToSetChangesRepresentation(userQuerySet) })
                 .collect(Collectors.toList())
@@ -132,8 +132,8 @@ class UserQuerySetService implements UserQuerySetResource {
                 .collect(Collectors.toList())
     }
 
-    private List<UserQuerySet> getQuerySetsByUsernameAndFrequency(SubscriptionFrequency frequency,
-                                                                  String username, Integer maxNumberOfSets) {
+    private List<UserQuerySet> getQuerySetsWithDiffsByUsernameAndFrequency(SubscriptionFrequency frequency,
+                                                                           String username, Integer maxNumberOfSets) {
         Calendar calendar = Calendar.getInstance()
         if (frequency == SubscriptionFrequency.DAILY) {
             calendar.add(Calendar.DATE, -1)
@@ -147,6 +147,7 @@ class UserQuerySetService implements UserQuerySetResource {
                 .add(Restrictions.eq('query.deleted', false))
                 .add(Restrictions.eq('query.subscribed', true))
                 .add(Restrictions.eq('query.subscriptionFreq', frequency))
+                .add(Restrictions.isNotEmpty('querySet.querySetDiffs'))
                 .add(Restrictions.ge("querySet.createDate", calendar.getTime()))
                 .addOrder(Order.desc('querySet.createDate'))
                 .setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP)
