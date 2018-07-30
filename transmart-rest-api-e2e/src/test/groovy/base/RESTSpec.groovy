@@ -3,7 +3,6 @@
 package base
 
 import config.Config
-import groovy.json.JsonBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.springframework.http.HttpMethod
@@ -12,7 +11,6 @@ import selectors.ObservationSelectorJson
 import selectors.ObservationsMessageJson
 import selectors.ObservationsMessageProto
 import selectors.Selector
-import spock.lang.Shared
 import spock.lang.Specification
 
 import java.text.SimpleDateFormat
@@ -21,8 +19,7 @@ import static org.hamcrest.Matchers.*
 
 abstract class RESTSpec extends Specification {
 
-    @Shared
-    TestContext testContext = Config.testContext
+    TestContext testContext = Config.newTestContext()
 
     Object getOrPostRequest(HttpMethod method, Map request, Map params) {
         if (method == HttpMethod.GET) {

@@ -262,14 +262,14 @@
       } ],
       "transmart" : [ {
         "id" : "c8242c4b-e5f3-4721-aa57-ed9f6c755e50",
-        "name" : "EXP:SCSCP|SUMMARY",
+        "name" : "EXP:SCSCP|MEASUREMENTS",
         "scopeParamRequired" : false,
         "composite" : false,
         "clientRole" : true,
         "containerId" : "8913f8aa-3c28-4aaf-9932-992d902ab620"
       }, {
         "id" : "5073ad68-cd3e-4cfa-83b2-8d981e864840",
-        "name" : "EXP:SHDCSCP|SUMMARY",
+        "name" : "EXP:SHDCSCP|MEASUREMENTS",
         "scopeParamRequired" : false,
         "composite" : false,
         "clientRole" : true,
@@ -318,6 +318,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "offline_access", "uma_authorization" ],
     "clientRoles" : {
+      "realm-management" : [ "view-users" ],
       "account" : [ "view-profile", "manage-account" ],
       "transmart" : [ "ROLE_ADMIN" ]
     },
@@ -376,7 +377,7 @@
     "realmRoles" : [ "offline_access", "uma_authorization" ],
     "clientRoles" : {
       "account" : [ "view-profile", "manage-account" ],
-      "transmart" : [ "EXP:SCSCP|SUMMARY", "EXP:SHDCSCP|SUMMARY" ]
+      "transmart" : [ "EXP:SCSCP|MEASUREMENTS", "EXP:SHDCSCP|MEASUREMENTS" ]
     },
     "notBefore" : 0,
     "groups" : [ ]
