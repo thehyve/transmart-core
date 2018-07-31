@@ -11,13 +11,8 @@ interface UserQuerySetResource {
 
     /**
      * Scans for changes of results of the stored queries and updates stored sets
-     *
-     * Allowed only for users with admin privileges
-     *
-     * @param currentUser
-     * @throws AccessDeniedException
      */
-    Integer scan(User currentUser) throws AccessDeniedException
+    Integer scan()
 
     /**
      * Creates a new query set wit query set instances

@@ -74,24 +74,6 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         _| ''
     }
 
-    @Unroll
-    void "Test config interceptor matching method #method"() {
-        given:
-        mocksSetup()
-
-        when: "A request is made to the config endpoint"
-        request(method, "${contextPath}/config", body)
-        sleep(1000)
-
-        then: "A log entry is created"
-        logEntries.size() == 1
-
-        where:
-        method | body
-        PUT    | [:]
-        GET    | null
-    }
-
     void "Test dimension interceptor matching"() {
         given:
         mocksSetup()
@@ -264,16 +246,24 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         GET     | "/storage/123"    | null
     }
 
-    void "Test system interceptor matching"() {
+    @Unroll
+    void "Test system interceptor matching #method #action"() {
         given:
         mocksSetup()
 
-        when: "A request is made to the system endpoint"
-        get("${contextPath}/system/after_data_loading_update")
+        when: "A request is made to the #action endpoint"
+        request(method, "${contextPath}/admin/system/${action}", body)
         sleep(1000)
 
         then: "A log entry is created"
         logEntries.size() == 1
+
+        where:
+        method | action                         | body
+        GET    | "/after_data_loading_update"   | null
+        GET    | "/update_status"               | null
+        GET    | "/config"                      | null
+        PUT    | "/config"                      |[:]
     }
 
     @Unroll

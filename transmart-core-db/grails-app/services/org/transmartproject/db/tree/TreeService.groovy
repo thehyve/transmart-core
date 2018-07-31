@@ -169,6 +169,55 @@ class TreeService implements TreeResource {
         true
     }
 
+    void rebuildCacheTask() {
+        def session = null
+        try {
+            session = sessionFactory.openSession()
+            def stopWatch = new StopWatch('Rebuild cache')
+            List<User> realUsers = usersResource.getUsers()
+            def permissionSets = realUsers.stream()
+                    .map({User user -> Pair.of(user.admin, user.studyToPatientDataAccessLevel)})
+                    .collect(Collectors.toSet())
+            List<User> fakeUsers = permissionSets.stream()
+                    .map({ Pair<Boolean, Map<String, PatientDataAccessLevel>> permissions ->
+                new SimpleUser('system', null, null, permissions.left, permissions.right)
+            })
+                    .collect(Collectors.toList())
+            for (User user: fakeUsers) {
+                def description = "${user.username}${user.admin ? ' (admin)' : ''} ${user.studyToPatientDataAccessLevel.toMapString()}"
+                log.info "Rebuilding the cache for user ${description} ..."
+                stopWatch.start("Rebuild the tree nodes cache for ${description}")
+                treeCacheService.updateSubtreeCache(user, I2b2Secure.ROOT, 0)
+                stopWatch.stop()
+                stopWatch.start("Rebuild the counts cache for ${description}")
+                // Update observations, patients counts
+                aggregateDataService.rebuildCountsCacheForUser(user)
+                stopWatch.stop()
+            }
+            for (User user: realUsers) {
+                stopWatch.start("Create set of all subjects for ${user.username}")
+                aggregateDataService.createAllPatientsSetForUser(user)
+                stopWatch.stop()
+                stopWatch.start("Rebuild the counts cache for bookmarked queries of ${user.username}")
+                aggregateDataService.rebuildCountsCacheForBookmarkedUserQueries(user)
+                stopWatch.stop()
+            }
+            stopWatch.start('Rebuild the counts per study and concept cache')
+            // Rebuild cache of counts per study and concept for the given user
+            aggregateDataService.rebuildCountsPerStudyAndConceptCache(fakeUsers)
+            stopWatch.stop()
+            log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
+        } catch (Exception e) {
+            log.error "Unexpected error while rebuilding cache: ${e.message}", e
+            throw e
+        } finally {
+            log.debug "Closing task (lock: ${lock.locked})"
+            session?.close()
+            lock.unlock()
+            log.debug "Task closed (lock: ${lock.locked})"
+        }
+    }
+
     /**
      * Rebuild the tree nodes and counts caches for every user.
      *
@@ -181,62 +230,13 @@ class TreeService implements TreeResource {
      * @param currentUser the current user.
      * @throws ServiceNotAvailableException iff a rebuild operation is already in progress.
      */
-    void rebuildCache(User currentUser) throws ServiceNotAvailableException {
-        if (!currentUser.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
+    void rebuildCache() throws ServiceNotAvailableException {
         if (!lock.tryLock()) {
             throw new ServiceNotAvailableException('Rebuild operation already in progress.')
         }
-        log.debug "Starting task (lock: ${lock.locked})"
+        log.info "Rebuild cache started"
         task {
-            def session = null
-            try {
-                log.debug "Task started (lock: ${lock.locked})"
-                session = sessionFactory.openSession()
-                def stopWatch = new StopWatch('Rebuild cache')
-                List<User> realUsers = usersResource.getUsers()
-                def permissionSets = realUsers.stream()
-                    .map({User user -> Pair.of(user.admin, user.studyToPatientDataAccessLevel)})
-                    .collect(Collectors.toSet())
-                List<User> fakeUsers = permissionSets.stream()
-                    .map({ Pair<Boolean, Map<String, PatientDataAccessLevel>> permissions ->
-                        new SimpleUser('system', null, null, permissions.left, permissions.right)
-                    })
-                    .collect(Collectors.toList())
-                for (User user: fakeUsers) {
-                    def description = "${user.username}${user.admin ? ' (admin)' : ''} ${user.studyToPatientDataAccessLevel.toMapString()}"
-                    log.info "Rebuilding the cache for user ${description} ..."
-                    stopWatch.start("Rebuild the tree nodes cache for ${description}")
-                    treeCacheService.updateSubtreeCache(user, I2b2Secure.ROOT, 0)
-                    stopWatch.stop()
-                    stopWatch.start("Rebuild the counts cache for ${description}")
-                    // Update observations, patients counts
-                    aggregateDataService.rebuildCountsCacheForUser(user)
-                    stopWatch.stop()
-                }
-                for (User user: realUsers) {
-                    stopWatch.start("Create set of all subjects for ${user.username}")
-                    aggregateDataService.createAllPatientsSetForUser(user)
-                    stopWatch.stop()
-                    stopWatch.start("Rebuild the counts cache for bookmarked queries of ${user.username}")
-                    aggregateDataService.rebuildCountsCacheForBookmarkedUserQueries(user)
-                    stopWatch.stop()
-                }
-                stopWatch.start('Rebuild the counts per study and concept cache')
-                // Rebuild cache of counts per study and concept for the given user
-                aggregateDataService.rebuildCountsPerStudyAndConceptCache(fakeUsers)
-                stopWatch.stop()
-                log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
-            } catch (Exception e) {
-                log.error "Unexpected error while rebuilding cache: ${e.message}", e
-                throw e
-            } finally {
-                log.debug "Closing task (lock: ${lock.locked})"
-                session?.close()
-                lock.unlock()
-                log.debug "Task closed (lock: ${lock.locked})"
-            }
+            rebuildCacheTask()
         }
     }
 

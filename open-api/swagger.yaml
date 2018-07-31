@@ -1409,42 +1409,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/TreeNode'
-  /v2/tree_nodes/clear_cache:
-    get:
-      description: |
-        Clears tree node and counts caches.
-        Only for administrators.
-      tags:
-        - v2
-      responses:
-        200:
-          description: |
-            The cache has been cleared.
-  /v2/tree_nodes/rebuild_cache:
-    get:
-      description: |
-        Clears tree node and counts caches and rebuilds the tree node cache per user.
-        Only for administrators.
-      tags:
-        - v2
-      responses:
-        200:
-          description: |
-            Clearing and rebuilding the cache has been started.
-        503:
-          description: |
-            A rebuild operation is already in progress.
-  /v2/system/after_data_loading_update:
-    get:
-      description: |
-        This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.
-        Only for administrators.
-      tags:
-        - v2
-      responses:
-        200:
-          description: |
-            The cache and patient sets have been cleared. The data for subscribed user queries is updated.
   /v2/storage:
     get:
       description: |
@@ -2211,13 +2175,17 @@ paths:
                   type: array
                   items:
                     $ref: '#/definitions/UserQuerySet'
+
   /v2/queries/sets/scan:
       post:
         description: |
           Scans for changes in results of the stored user queries and updates stored sets.
           Only for administrators.
+          Deprecated. Use `/v2/admin/system/after_data_loading_update` instead.
+        deprecated: true
         tags:
           - v2
+          - admin
         responses:
           201:
             description: Successful response
@@ -2226,14 +2194,119 @@ paths:
               properties:
                 numberOfUpdatedSets:
                   type: integer
+
+  /v2/tree_nodes/clear_cache:
+    get:
+      description: |
+        Clears tree node and counts caches.
+        Only for administrators.
+        Deprecated. Use `/v2/admin/system/after_data_loading_update` instead.
+      deprecated: true
+      tags:
+        - v2
+        - admin
+      responses:
+        200:
+          description: |
+            The cache has been cleared.
+
+  /v2/tree_nodes/rebuild_cache:
+    get:
+      description: |
+        Clears tree node and counts caches and rebuilds the tree node cache per user.
+        Only for administrators.
+        Deprecated. Use `/v2/admin/system/after_data_loading_update` instead.
+      deprecated: true
+      tags:
+        - v2
+        - admin
+      responses:
+        200:
+          description: |
+            Clearing and rebuilding the cache has been started.
+        503:
+          description: |
+            A rebuild operation is already in progress.
+
+  /v2/admin/system/after_data_loading_update:
+    get:
+      description: |
+        This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.
+        Only for administrators.
+      tags:
+        - v2
+        - admin
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/UpdateStatus'
+          description: |
+            A status report about the started update task.
+
+  /v2/admin/system/update_status:
+    get:
+      description: |
+        Provides a status report about the current update task, started with `/v2/admin/system/after_data_loading_update`, or
+        about the latest completed task, if no task is currently running.
+        Only for administrators.
+      tags:
+        - v2
+        - admin
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/UpdateStatus'
+          description: |
+            A status report about the latest update task.
+        404:
+          description: |
+            No update task has been created.
+
+  /v2/admin/system/config:
+    get:
+      description: |
+        This endpoint serves the configuration options that can be changed during runtime.
+        Only for administrators.
+      tags:
+        - v2
+        - admin
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/RuntimeConfig'
+          description: |
+            The runtime configuration options.
+    put:
+      description: |
+        This endpoint updates some configuration options at runtime.
+        Only for administrators.
+      tags:
+        - v2
+        - admin
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            schema:
+              $ref: '#/definitions/RuntimeConfig'
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/RuntimeConfig'
+          description: |
+            The configuration has been updated.
+
   /v2/admin/notifications/notify:
       get:
         description: |
           Triggers sending of emails to users that subscribed for updates regarding queries they have created.
           Only for administrators.
-          This requires transmart-notifications plugin and /v2/admin/notifications/notify endpoint to be enabled.
+          This requires transmart-notifications plugin and `/v2/admin/notifications/notify` endpoint to be enabled.
         tags:
           - v2
+          - admin
         parameters:
           - name: frequency
             required: true
@@ -3097,3 +3170,38 @@ definitions:
           true if this dimension was part of the `rowSort` or `columnSort` request parameter.
           This parameter is optional, the default is `false`.
     required: [dimension, sortOrder]
+
+  UpdateStatus:
+    description: Update status
+    type: object
+    properties:
+      status:
+        type: string
+        description: |
+          CREATED, RUNNING, FAILED, COMPLETED
+      createDate:
+        type: string
+        format: date-time
+      updateDate:
+        type: string
+        format: date-time
+      tasks:
+        type: object
+        properties:
+          '<task>':
+            type: string
+
+      message:
+        type: string
+        description: Error message
+
+  RuntimeConfig:
+    description: Configuration of the server that can be managed at runtime.
+    type: object
+    properties:
+      numberOfWorkers:
+        type: number
+        description: Number of threads used for parallel tasks.
+      patientSetChunkSize:
+        type: number
+        description: Chunk size for splitting patient set based tasks into smaller subtasks.
