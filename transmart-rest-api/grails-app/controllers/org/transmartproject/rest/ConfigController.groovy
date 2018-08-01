@@ -34,7 +34,7 @@ class ConfigController {
     }
 
     /**
-     * GET /v2/config
+     * GET /v2/admin/system/config
      *
      * Fetches the runtime config.
      *
@@ -50,7 +50,7 @@ class ConfigController {
     }
 
     /**
-     * PUT /v2/config
+     * PUT /v2/admin/system/config
      *
      * Updates the runtime config
      *

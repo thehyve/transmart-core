@@ -5,7 +5,6 @@ import grails.transaction.Rollback
 import grails.util.Holders
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SubscriptionFrequency
@@ -46,17 +45,6 @@ class UserQuerySetServiceSpec extends Specification {
         mockUsersResource.users << regularUser
         mockUsersResource.users << adminUser
         userQuerySetService.usersResource = mockUsersResource
-    }
-
-    void 'test scanning by a regular user is denied'() {
-        setupData()
-
-        when: 'user is not admin'
-        userQuerySetService.scan(regularUser)
-
-        then: 'AccessDeniedException is thrown'
-        AccessDeniedException ex = thrown()
-        ex.message == 'Only allowed for administrators.'
     }
 
     void 'test scanning for query set changes'() {
@@ -101,7 +89,7 @@ class UserQuerySetServiceSpec extends Specification {
         // TODO: add new data
 
         when: 'admin user triggers computing query diffs'
-        def result = userQuerySetService.scan(adminUser)
+        def result = userQuerySetService.scan()
         def querySetChanges = userQuerySetService.getQueryChangeHistory(query1.id,
                 regularUser, 999)
         querySetElements = QuerySetInstance.list()

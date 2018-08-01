@@ -2,6 +2,7 @@ package org.transmartproject.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
 import org.transmartproject.core.userquery.UserQuerySetResource
 import org.transmartproject.rest.user.AuthContext
@@ -26,9 +27,15 @@ class UserQuerySetController {
      * Only available for administrators.
      *
      * @return number of sets that were updated, which is also a number of created querySets
+     *
+     * @deprecated in favour of {@link SystemController#afterDataLoadingUpdate()}.
      */
+    @Deprecated
     def scan() {
-        Integer result = userQuerySetResource.scan(authContext.user)
+        if (!authContext.user.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        Integer result = userQuerySetResource.scan()
         response.status = 201
         respond([numberOfUpdatedSets: result])
     }

@@ -19,10 +19,15 @@ import org.transmartproject.core.multidimquery.query.NullConstraint
 import org.transmartproject.core.multidimquery.query.Operator
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.QueryBuilder
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TemporalConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
+import org.transmartproject.core.users.SimpleUser
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestData
+import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import spock.lang.Specification
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.multidimquery.query.*
@@ -443,4 +448,54 @@ class HibernateCriteriaQueryBuilderSpec extends Specification {
         results.size() == expectedResults.size()
         results.sort() == expectedResults.sort()
     }
+
+    void 'test queries for empty database'() {
+        given: 'No studies loaded'
+        TestData.clearAllData()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([])
+
+        when: 'Querying for all observations'
+        def criteria = builder.buildCriteria(new TrueConstraint())
+        def results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+    }
+
+    void 'test queries for user with no access to any study'() {
+        given: 'No access to any study'
+        setupHypercubeData()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([])
+
+        when: 'Querying for all observations'
+        def criteria = builder.buildCriteria(new TrueConstraint())
+        def results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+
+        when: 'Querying for a particular study'
+        criteria = builder.buildCriteria(new StudyNameConstraint(hypercubeTestData.clinicalData.multidimsStudy.studyId))
+        results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+    }
+
+    void 'test queries for a study without trial visits'() {
+        given: 'A study without trial visits'
+        setupHypercubeData()
+        def studyWithoutTrialVisits =
+                StudyTestData.createStudy('studyWithoutTrialVisits', ['patient', 'concept'], false)
+        studyWithoutTrialVisits.save()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
+
+        when: 'Querying for the study'
+        def criteria = builder.buildCriteria(new StudyNameConstraint(studyWithoutTrialVisits.studyId))
+        def results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+    }
+
 }

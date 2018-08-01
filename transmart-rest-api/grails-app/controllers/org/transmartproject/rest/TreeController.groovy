@@ -87,7 +87,10 @@ class TreeController {
      * This endpoint should be called after loading, deleting or updating
      * tree nodes in the database.
      * Only available for administrators.
+     *
+     * @deprecated in favour of {@link SystemController#afterDataLoadingUpdate()}
      */
+    @Deprecated
     def clearCache() {
         checkForUnsupportedParams(params, [])
         if (!authContext.user.admin) {
@@ -107,10 +110,16 @@ class TreeController {
      *
      * Asynchronous call. The call returns when rebuilding has started.
      * Code 503 is returned iff a rebuild operation is already in progress.
+     *
+     * @deprecated in favour of {@link SystemController#afterDataLoadingUpdate()}
      */
+    @Deprecated
     def rebuildCache() {
         checkForUnsupportedParams(params, [])
-        treeResource.rebuildCache(authContext.user)
+        if (!authContext.user.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        treeResource.rebuildCache()
         response.status = 200
     }
 
@@ -125,10 +134,16 @@ class TreeController {
      *
      * @return an object with a field <code>status</code> with value <code>running</code>
      * or <code>stopped</code>.
+     *
+     * @deprecated in favour of {@link SystemController#afterDataLoadingUpdate()}
      */
+    @Deprecated
     def rebuildStatus() {
         checkForUnsupportedParams(params, [])
-        respond status: treeResource.isRebuildActive(authContext.user) ? 'running' : 'stopped'
+        if (!authContext.user.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        respond status: treeResource.isRebuildActive() ? 'running' : 'stopped'
     }
 
     private setVersion(String apiVersion, List<TreeNode> nodes) {

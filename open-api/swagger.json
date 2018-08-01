@@ -1529,48 +1529,6 @@
         }
       }
     },
-    "/v2/tree_nodes/clear_cache": {
-      "get": {
-        "description": "Clears tree node and counts caches.\nOnly for administrators.\n",
-        "tags": [
-          "v2"
-        ],
-        "responses": {
-          "200": {
-            "description": "The cache has been cleared.\n"
-          }
-        }
-      }
-    },
-    "/v2/tree_nodes/rebuild_cache": {
-      "get": {
-        "description": "Clears tree node and counts caches and rebuilds the tree node cache per user.\nOnly for administrators.\n",
-        "tags": [
-          "v2"
-        ],
-        "responses": {
-          "200": {
-            "description": "Clearing and rebuilding the cache has been started.\n"
-          },
-          "503": {
-            "description": "A rebuild operation is already in progress.\n"
-          }
-        }
-      }
-    },
-    "/v2/system/after_data_loading_update": {
-      "get": {
-        "description": "This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.\nOnly for administrators.\n",
-        "tags": [
-          "v2"
-        ],
-        "responses": {
-          "200": {
-            "description": "The cache and patient sets have been cleared. The data for subscribed user queries is updated.\n"
-          }
-        }
-      }
-    },
     "/v2/storage": {
       "get": {
         "description": "Gets a list of all storage systems.\n",
@@ -2644,9 +2602,11 @@
     },
     "/v2/queries/sets/scan": {
       "post": {
-        "description": "Scans for changes in results of the stored user queries and updates stored sets.\nOnly for administrators.\n",
+        "description": "Scans for changes in results of the stored user queries and updates stored sets.\nOnly for administrators.\nDeprecated. Use `/v2/admin/system/after_data_loading_update` instead.\n",
+        "deprecated": true,
         "tags": [
-          "v2"
+          "v2",
+          "admin"
         ],
         "responses": {
           "201": {
@@ -2663,11 +2623,127 @@
         }
       }
     },
+    "/v2/tree_nodes/clear_cache": {
+      "get": {
+        "description": "Clears tree node and counts caches.\nOnly for administrators.\nDeprecated. Use `/v2/admin/system/after_data_loading_update` instead.\n",
+        "deprecated": true,
+        "tags": [
+          "v2",
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache has been cleared.\n"
+          }
+        }
+      }
+    },
+    "/v2/tree_nodes/rebuild_cache": {
+      "get": {
+        "description": "Clears tree node and counts caches and rebuilds the tree node cache per user.\nOnly for administrators.\nDeprecated. Use `/v2/admin/system/after_data_loading_update` instead.\n",
+        "deprecated": true,
+        "tags": [
+          "v2",
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Clearing and rebuilding the cache has been started.\n"
+          },
+          "503": {
+            "description": "A rebuild operation is already in progress.\n"
+          }
+        }
+      }
+    },
+    "/v2/admin/system/after_data_loading_update": {
+      "get": {
+        "description": "This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.\nOnly for administrators.\n",
+        "tags": [
+          "v2",
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/UpdateStatus"
+            },
+            "description": "A status report about the started update task.\n"
+          }
+        }
+      }
+    },
+    "/v2/admin/system/update_status": {
+      "get": {
+        "description": "Provides a status report about the current update task, started with `/v2/admin/system/after_data_loading_update`, or\nabout the latest completed task, if no task is currently running.\nOnly for administrators.\n",
+        "tags": [
+          "v2",
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/UpdateStatus"
+            },
+            "description": "A status report about the latest update task.\n"
+          },
+          "404": {
+            "description": "No update task has been created.\n"
+          }
+        }
+      }
+    },
+    "/v2/admin/system/config": {
+      "get": {
+        "description": "This endpoint serves the configuration options that can be changed during runtime.\nOnly for administrators.\n",
+        "tags": [
+          "v2",
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/RuntimeConfig"
+            },
+            "description": "The runtime configuration options.\n"
+          }
+        }
+      },
+      "put": {
+        "description": "This endpoint updates some configuration options at runtime.\nOnly for administrators.\n",
+        "tags": [
+          "v2",
+          "admin"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "schema": {
+                "$ref": "#/definitions/RuntimeConfig"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/RuntimeConfig"
+            },
+            "description": "The configuration has been updated.\n"
+          }
+        }
+      }
+    },
     "/v2/admin/notifications/notify": {
       "get": {
-        "description": "Triggers sending of emails to users that subscribed for updates regarding queries they have created.\nOnly for administrators.\nThis requires transmart-notifications plugin and /v2/admin/notifications/notify endpoint to be enabled.\n",
+        "description": "Triggers sending of emails to users that subscribed for updates regarding queries they have created.\nOnly for administrators.\nThis requires transmart-notifications plugin and `/v2/admin/notifications/notify` endpoint to be enabled.\n",
         "tags": [
-          "v2"
+          "v2",
+          "admin"
         ],
         "parameters": [
           {
@@ -3862,6 +3938,50 @@
         "dimension",
         "sortOrder"
       ]
+    },
+    "UpdateStatus": {
+      "description": "Update status",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "CREATED, RUNNING, FAILED, COMPLETED\n"
+        },
+        "createDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updateDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "tasks": {
+          "type": "object",
+          "properties": {
+            "<task>": {
+              "type": "string"
+            }
+          }
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message"
+        }
+      }
+    },
+    "RuntimeConfig": {
+      "description": "Configuration of the server that can be managed at runtime.",
+      "type": "object",
+      "properties": {
+        "numberOfWorkers": {
+          "type": "number",
+          "description": "Number of threads used for parallel tasks."
+        },
+        "patientSetChunkSize": {
+          "type": "number",
+          "description": "Chunk size for splitting patient set based tasks into smaller subtasks."
+        }
+      }
     }
   }
 }

@@ -1,7 +1,5 @@
 package org.transmartproject.core.config
 
-import org.transmartproject.core.users.User
-
 interface SystemResource {
 
     RuntimeConfig getRuntimeConfig()
@@ -19,6 +17,12 @@ interface SystemResource {
      * and scans for the changes for subscribed user queries.
      * @param currentUser
      */
-    void updateAfterDataLoading(User currentUser)
+    UpdateStatus updateAfterDataLoading()
+
+    /**
+     * Returns the status of the current update task.
+     * @param currentUser
+     */
+    UpdateStatus getUpdateStatus()
 
 }
