@@ -229,6 +229,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         QueryResult queryResult = patientSetResource.createPatientSetQueryResult(
                 'Automatically generated set',
                 new TrueConstraint(), user, 'v2', false)
+        sessionFactory.currentSession.flush()
         PatientSetConstraint patientSetConstraint = new PatientSetConstraint(patientSetId: queryResult.id)
         rebuildCountsCacheForConstraint(patientSetConstraint, user)
     }

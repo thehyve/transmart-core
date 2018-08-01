@@ -111,18 +111,6 @@ class RestApiUrlMappings {
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }
-            "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
-                apiVersion = 'v2'
-            }
-            "/system/after_data_loading_update"(method: 'GET', controller: 'system', action: 'afterDataLoadingUpdate') {
-                apiVersion = 'v2'
-            }
-            "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
-                apiVersion = 'v2'
-            }
-            "/tree_nodes/rebuild_status"(method: 'GET', controller: 'tree', action: 'rebuildStatus') {
-                apiVersion = 'v2'
-            }
             "/files"(method: 'GET', controller: 'storage', action: 'index') {
                 apiVersion = "v2"
             }
@@ -218,11 +206,31 @@ class RestApiUrlMappings {
                 apiVersion = "v2"
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
-            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
             "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId')
             "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
-            "/config"(controller: 'config') {
-                action = [GET: 'index', PUT: 'update']
+
+            // Deprecated administrator actions
+            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
+            "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
+                apiVersion = 'v2'
+            }
+            "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
+                apiVersion = 'v2'
+            }
+            "/tree_nodes/rebuild_status"(method: 'GET', controller: 'tree', action: 'rebuildStatus') {
+                apiVersion = 'v2'
+            }
+
+            group "/admin", {
+                "/system/after_data_loading_update"(method: 'GET', controller: 'system', action: 'afterDataLoadingUpdate') {
+                    apiVersion = 'v2'
+                }
+                "/system/update_status"(method: 'GET', controller: 'system', action: 'updateStatus') {
+                    apiVersion = 'v2'
+                }
+                "/system/config"(controller: 'config') {
+                    action = [GET: 'index', PUT: 'update']
+                }
             }
         }
 

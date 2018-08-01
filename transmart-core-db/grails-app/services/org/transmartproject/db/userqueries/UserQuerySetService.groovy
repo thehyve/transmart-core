@@ -11,7 +11,6 @@ import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
-import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SetType
@@ -69,12 +68,9 @@ class UserQuerySetService implements UserQuerySetResource {
     }
 
     @Override
-    Integer scan(User currentUser) {
+    Integer scan() {
         log.info 'Scanning for subscribed user queries updates ...'
         int numberOfResults = 0
-        if (!currentUser.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
         // get list of all not deleted queries per user
         List<UserQuery> userQueries = listSubscribed()
         if (!userQueries) {

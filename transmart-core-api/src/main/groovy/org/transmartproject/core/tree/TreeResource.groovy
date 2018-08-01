@@ -32,6 +32,7 @@ interface TreeResource {
      * @param currentUser the current user.
      * @return true iff a cache rebuild task is active.
      */
+    @Deprecated
     boolean isRebuildActive(User currentUser)
 
     /**
@@ -40,13 +41,14 @@ interface TreeResource {
      *
      * This function should be called after loading, removing or updating
      * tree nodes or observations in the database.
-     * Only available for administrators.
      *
      * Asynchronous call. The call returns when rebuilding has started.
      *
-     * @param currentUser the current user.
      * @throws org.transmartproject.core.exceptions.ServiceNotAvailableException iff a rebuild operation is already in progress.
+     *
+     * @deprecated in favour of {@link org.transmartproject.core.config.SystemResource#updateAfterDataLoading(org.transmartproject.core.users.User)}
      */
-    void rebuildCache(User currentUser) throws ServiceNotAvailableException
+    @Deprecated
+    void rebuildCache() throws ServiceNotAvailableException
 
 }
