@@ -383,10 +383,11 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                 def values = value as List<Date>
                 return Restrictions.between(propertyName, values[0], values[1])
             case Operator.CONTAINS:
-                if (type == Type.STRING) {
+                if (type == Type.STRING || type == Type.TEXT) {
                     return StringUtils.like(propertyName, value.toString(), MatchMode.ANYWHERE)
                 } else {
-                    return Restrictions.in(propertyName, value)
+                    throw new QueryBuilderException(
+                            "Operator '${operator.symbol}' supported only for STRING and TEXT property types.")
                 }
             case Operator.LIKE:
                 return StringUtils.like(propertyName, value.toString(), MatchMode.EXACT)
@@ -437,7 +438,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         if (!constraint.operator.supportsType(field.type)) {
             throw new QueryBuilderException("Field type ${field.type} not supported for operator '${constraint.operator.symbol}'.")
         }
-        if (constraint.operator in [Operator.BETWEEN, Operator.IN]) {
+        if (constraint.operator.operatesOnCollection()) {
             if (constraint.value instanceof Collection) {
                 constraint.value.each {
                     if (!field.type.supportsValue(it)) {
