@@ -8,6 +8,7 @@ import grails.converters.JSON
 import grails.web.mime.MimeType
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -129,10 +130,10 @@ class PatientQueryController extends AbstractQueryController {
 
     /**
      * Patient set creation endpoint:
-     * <code>POST /v2/patient_sets?constraint=${constraint}&name=${name}&reuse=${reuse}</code>
+     * <code>POST /v2/patient_sets?name=${name}&reuse=${reuse}</code>
      *
      * Creates a patient set ({@link org.transmartproject.core.querytool.QueryResult}) based on
-     * the {@link Constraint} parameter <code>constraint</code>.
+     * the request body of type {@link Constraint}.
      *
      * @param apiVersion
      * @param name
@@ -164,7 +165,8 @@ class PatientQueryController extends AbstractQueryController {
 
         // FIXME: we now expect a plain constraint in the body, this should be wrapped in a {"constraint": ...} wrapper
         // for consistency with other calls
-        Constraint constraint = getConstraintFromString(request.reader.text)
+        def src = BindingHelper.objectMapper.writeValueAsString(request.JSON)
+        Constraint constraint = getConstraintFromString(src)
         if (constraint == null) {
             throw new InvalidArgumentsException("No valid constraint in the body.")
         }

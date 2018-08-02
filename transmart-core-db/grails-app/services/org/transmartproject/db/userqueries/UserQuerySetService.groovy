@@ -11,6 +11,7 @@ import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SetType
@@ -79,13 +80,17 @@ class UserQuerySetService implements UserQuerySetResource {
         }
 
         for (UserQuery query: userQueries) {
-            List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(query.id)
-            User user = usersResource.getUserFromUsername(query.username)
-            def queryRepresentation = UserQueryService.toRepresentation(query)
-            List<Long> newPatientIds = getPatientsForQuery(queryRepresentation, user)
+            try {
+                List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(query.id)
+                User user = usersResource.getUserFromUsername(query.username)
+                def queryRepresentation = UserQueryService.toRepresentation(query)
+                List<Long> newPatientIds = getPatientsForQuery(queryRepresentation, user)
 
-            if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
-                numberOfResults++
+                if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
+                    numberOfResults++
+                }
+            } catch (NoSuchResourceException e) {
+                log.error "Could not compute updates for user query ${query.id}", e
             }
         }
         return numberOfResults
