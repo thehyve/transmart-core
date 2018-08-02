@@ -1,12 +1,7 @@
 package org.transmartproject.db.multidimquery
 
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.binding.BindingException
-import org.transmartproject.core.multidimquery.query.ConstraintFactory
-import org.transmartproject.core.multidimquery.query.Field
-import org.transmartproject.core.multidimquery.query.FieldConstraint
-import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.*
 import spock.lang.Specification
 
 import java.text.SimpleDateFormat
@@ -54,6 +49,39 @@ class ConstraintSpec extends Specification {
         fieldConstraint1.field.dimension == 'patient'
         fieldConstraint1.field.type == Type.STRING
         fieldConstraint1.field.fieldName == 'sourcesystemCd'
+    }
+
+    void 'test constraint type validation for collection values'() {
+        when: 'field constraint with collection value and collection operator'
+        def validConstraint = ConstraintFactory.create([
+                type    : 'field',
+                field   : [
+                        dimension: 'trial visit',
+                        fieldName: 'id',
+                        type     : Type.NUMERIC
+                ],
+                operator: 'in',
+                value   : [-101, -102]
+        ])
+        then: 'constraint is created properly'
+        validConstraint instanceof FieldConstraint
+        validConstraint.value == [-101, -102]
+
+        when: 'field constraint with collection value and non-collection operator'
+        ConstraintFactory.create([
+                type    : 'field',
+                field   : [
+                        dimension: 'trial visit',
+                        fieldName: 'id',
+                        type     : Type.NUMERIC
+                ],
+                operator: '=',
+                value   : [-101, -102]
+        ])
+        then: 'constraint binding exception is thrown with 1 violation'
+        def e = thrown(BindingException)
+        e.message.contains('The field type does not support the value')
+        e.errors.size() == 1
     }
 
     def toCompleteDateString(String dateString, String inputFormat = "dd-MM-yyyy") {

@@ -116,6 +116,11 @@ enum Type {
         type != null && this != NONE && classForType[this].isAssignableFrom(type)
     }
 
+    boolean supportsValue(Object obj, Operator operator) {
+        supportsValue(obj) || (this != NONE && (operator.operatesOnCollection()
+                && obj instanceof Collection && obj.every { child -> supportsValue(child) }))
+    }
+
     boolean supportsValue(Object obj) {
         this != NONE && (classForType[this].isInstance(obj) || (this == NUMERIC && obj instanceof Date) || (obj == null && supportsNullValue()))
     }
@@ -226,7 +231,6 @@ enum Operator {
                     IN
             ] as Set<Operator>,
             (Type.COLLECTION): [
-                    CONTAINS,
                     BETWEEN
             ] as Set<Operator>,
             (Type.CONSTRAINT): [
@@ -241,6 +245,10 @@ enum Operator {
 
     boolean supportsNullValue() {
         this in [EQUALS, NOT_EQUALS]
+    }
+
+    boolean operatesOnCollection() {
+        this in [IN, BETWEEN]
     }
 }
 
@@ -346,7 +354,7 @@ class FieldConstraint extends Constraint implements Comparable<FieldConstraint> 
 
     @AssertTrue(message = 'The field type does not support the value')
     boolean hasValueOfRightType() {
-        field.type.supportsValue(value)
+        field.type.supportsValue(value, operator)
     }
 
     @AssertTrue(message = 'The field type is not compatible with the operator')
@@ -356,7 +364,7 @@ class FieldConstraint extends Constraint implements Comparable<FieldConstraint> 
 
     @AssertTrue(message = 'List of values expected')
     boolean hasNotListOperatorOrListValue() {
-        !(operator in [Operator.IN, Operator.BETWEEN]) || value instanceof Collection
+        !operator.operatesOnCollection() || value instanceof Collection
     }
 
     @AssertTrue(message = 'Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.')
@@ -471,7 +479,7 @@ class ValueConstraint extends Constraint implements Comparable<ValueConstraint> 
 
     @AssertTrue(message = 'The type does not support the value')
     boolean hasValueOfRightType() {
-        valueType.supportsValue(value)
+        valueType.supportsValue(value, operator)
     }
 
     @AssertTrue(message = 'The value type is not compatible with the operator')
