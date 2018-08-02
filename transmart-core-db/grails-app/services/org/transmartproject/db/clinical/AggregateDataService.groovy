@@ -413,7 +413,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
         if (constraint instanceof PatientSetConstraint && constraint.patientSetId != null &&
                 aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSetEnabled) {
-            return aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSet(constraint, user)
+            return aggregateDataOptimisationsService.countsPerStudyAndConceptForPatientSet(constraint.patientSetId, user)
         }
 
         Collection<MDStudy> studies = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY)

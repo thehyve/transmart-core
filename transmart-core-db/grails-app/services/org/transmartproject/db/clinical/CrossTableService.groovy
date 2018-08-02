@@ -2,16 +2,13 @@ package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CrossTable
 import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.MultipleSubSelectionsConstraint
-import org.transmartproject.core.multidimquery.query.Operator
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 
@@ -20,6 +17,12 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
 
     @Autowired
     PatientSetResource patientSetResource
+
+    @Autowired
+    AggregateDataOptimisationsService aggregateDataOptimisationsService
+
+    @Autowired
+    AggregateDataResource aggregateDataResource
 
     @Override
     CrossTable retrieveCrossTable(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
@@ -50,18 +53,35 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
                                    Constraint columnConstraint,
                                    Constraint subjectConstraint,
                                    User user) {
-        Constraint crossConstraint = new AndConstraint([
-                new SubSelectionConstraint('patient', subjectConstraint),
-                new SubSelectionConstraint('patient', rowConstraint),
-                new SubSelectionConstraint('patient', columnConstraint),
-        ] as List<Constraint>)
-        def patientSet = patientSetResource.createPatientSetQueryResult(
-                'Cross table cell',
-                crossConstraint,
+        def subjectPatientSet = patientSetResource.createPatientSetQueryResult(
+                'Cross table set',
+                subjectConstraint,
                 user,
                 'v2',
                 true)
-        patientSet.setSize
+        def rowPatientSet = patientSetResource.createPatientSetQueryResult(
+                'Cross table set',
+                rowConstraint,
+                user,
+                'v2',
+                true)
+        def columnPatientSet = patientSetResource.createPatientSetQueryResult(
+                'Cross table set',
+                columnConstraint,
+                user,
+                'v2',
+                true)
+        if (aggregateDataOptimisationsService.isCountPatientSetsIntersectionEnabled()) {
+            // use efficient bitset operations
+            aggregateDataOptimisationsService.countPatientSetsIntersection([subjectPatientSet, rowPatientSet, columnPatientSet])
+        } else {
+            // directly perform a counts query on the intersection
+            aggregateDataResource.counts(new AndConstraint([
+                    new PatientSetConstraint(subjectPatientSet.id),
+                    new PatientSetConstraint(rowPatientSet.id),
+                    new PatientSetConstraint(columnPatientSet.id),
+            ] as List<Constraint>), user).patientCount
+        }
     }
 
 }
