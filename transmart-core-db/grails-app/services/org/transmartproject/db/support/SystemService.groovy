@@ -114,7 +114,7 @@ class SystemService implements SystemResource {
     Map<String, Runnable> updateTasks = [
             'clear caches': { ->
                 clearCaches() } as Runnable,
-            'clear patient set bitset': { ->
+            'refresh study concept bitset materialized view': { ->
                 aggregateDataOptimisationsService.clearPatientSetBitset() } as Runnable,
             'clear patient sets': { ->
                 patientSetService.clearPatientSets() } as Runnable,
