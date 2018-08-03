@@ -518,39 +518,6 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
     }
 
     /**
-     * Create a query for the combination using union, intersect:
-     * using {@link HibernateCriteriaQueryBuilder#build(MultipleSubSelectionsConstraint)}.
-     */
-    public Long getPatientCountFromSubselections(MultipleSubSelectionsConstraint constraint) {
-        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
-        try {
-            session.connection().autoCommit = false
-            HibernateCriteriaBuilder q = HibernateUtils.createCriteriaBuilder(PatientDimension, 'patient_dimension', session)
-            CriteriaImpl criteria = (CriteriaImpl) q.instance
-
-            // Criterion of the form 'patient' in (select ...)
-            // Can be used to e.g., get all from patient dimension that satisfy this criterion.
-            Criterion subselectCriterion = buildSubselectCriterion('id', constraint)
-
-            criteria.add(subselectCriterion)
-            criteria.setProjection(Projections.projectionList().add(
-                    Projections.rowCount()))
-
-            def t1 = new Date()
-            log.info "Querying patient ids ..."
-
-            def result = criteria.uniqueResult() as Long
-
-            def t2 = new Date()
-            log.info "Result:  ${result} patients (took ${t2.time - t1.time} ms.)"
-
-            result
-        } finally {
-            session.close()
-        }
-    }
-
-    /**
      * Find the intersection between a patient set and a list of subject ids.
      */
     private List<Long> getPatientIdsFromSubjectIds(Collection<String> subjectIds, QueryResult patientSet) {

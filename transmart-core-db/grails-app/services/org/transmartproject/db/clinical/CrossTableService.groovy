@@ -9,8 +9,12 @@ import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
+
+import java.util.function.BiFunction
+import java.util.stream.Collectors
 
 @CompileStatic
 class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
@@ -27,61 +31,79 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
     @Override
     CrossTable retrieveCrossTable(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
                                   Constraint subjectConstraint, User user) {
-        log.info "Building a cross table..."
-        // Check access for the constraint parameters
+        checkAccess(rowConstraints, columnConstraints, subjectConstraint, user)
+
+        List<QueryResult> rowSubjectSets = createOrReuseResultSets(rowConstraints, user)
+        List<QueryResult> columnSubjectSets = createOrReuseResultSets(columnConstraints, user)
+        QueryResult subjectSet = createOrReuseResultSet(subjectConstraint, user)
+
+        buildCrossTable(rowSubjectSets, columnSubjectSets, subjectSet, user)
+    }
+
+    private void checkAccess(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
+                             Constraint subjectConstraint, User user) {
         def requiredAccessLevel = PatientDataAccessLevel.SUMMARY
-        checkAccess(subjectConstraint, user, requiredAccessLevel)
-        for (Constraint rowConstraint: rowConstraints) {
+        log.debug('Check access rights for row, column and subject constraints.')
+        for (Constraint rowConstraint : rowConstraints) {
             checkAccess(rowConstraint, user, requiredAccessLevel)
         }
-        for (Constraint columnConstraint: columnConstraints) {
+        for (Constraint columnConstraint : columnConstraints) {
             checkAccess(columnConstraint, user, requiredAccessLevel)
         }
+        checkAccess(subjectConstraint, user, requiredAccessLevel)
+    }
 
+    private List<QueryResult> createOrReuseResultSets(List<Constraint> constraints, User user) {
+        constraints.stream().map({ Constraint constraint ->
+            createOrReuseResultSet(constraint, user)
+        }).collect(Collectors.toList())
+    }
+
+    private QueryResult createOrReuseResultSet(Constraint constraint, User user) {
+        patientSetResource.createPatientSetQueryResult(
+                'Cross table set',
+                constraint,
+                user,
+                'v2',
+                true)
+    }
+
+    private CrossTable buildCrossTable(List<QueryResult> rowSubjectSets, List<QueryResult> columnSubjectSets, QueryResult subjectSet, User user) {
+        log.debug('Start building cross table.')
         List<List<Long>> rows = []
-        for (Constraint rowConstraint : rowConstraints) {
+        BiFunction<Collection<QueryResult>, User, Long> crossCountFunc = getCrossCountFunction()
+        for (QueryResult rowSubjectSet : rowSubjectSets) {
             def counts = [] as List<Long>
-            for (Constraint columnConstraint : columnConstraints) {
-                counts.add(getCrossTableCell(rowConstraint, columnConstraint, subjectConstraint, user))
+            for (QueryResult columnSubjectSet : columnSubjectSets) {
+                counts.add(crossCountFunc.apply([rowSubjectSet, columnSubjectSet, subjectSet], user))
             }
             rows.add(counts)
         }
         new CrossTable(rows)
     }
 
-    private Long getCrossTableCell(Constraint rowConstraint,
-                                   Constraint columnConstraint,
-                                   Constraint subjectConstraint,
-                                   User user) {
-        def subjectPatientSet = patientSetResource.createPatientSetQueryResult(
-                'Cross table set',
-                subjectConstraint,
-                user,
-                'v2',
-                true)
-        def rowPatientSet = patientSetResource.createPatientSetQueryResult(
-                'Cross table set',
-                rowConstraint,
-                user,
-                'v2',
-                true)
-        def columnPatientSet = patientSetResource.createPatientSetQueryResult(
-                'Cross table set',
-                columnConstraint,
-                user,
-                'v2',
-                true)
+    private BiFunction<Collection<QueryResult>, User, Long> getCrossCountFunction() {
         if (aggregateDataOptimisationsService.isCountPatientSetsIntersectionEnabled()) {
-            // use efficient bitset operations
-            aggregateDataOptimisationsService.countPatientSetsIntersection([subjectPatientSet, rowPatientSet, columnPatientSet])
+            log.debug('Use bit sets to calculate the cross counts.')
+            return this.&getCrossCountUsingBitset as BiFunction<Collection<QueryResult>, User, Long>
         } else {
-            // directly perform a counts query on the intersection
-            aggregateDataResource.counts(new AndConstraint([
-                    new PatientSetConstraint(subjectPatientSet.id),
-                    new PatientSetConstraint(rowPatientSet.id),
-                    new PatientSetConstraint(columnPatientSet.id),
-            ] as List<Constraint>), user).patientCount
+            log.debug('Use default implementation to calculate the cross counts.')
+            return this.&getCrossCount as BiFunction<Collection<QueryResult>, User, Long>
         }
+    }
+
+    private Long getCrossCountUsingBitset(Collection<QueryResult> patientSets,
+                                          User user) {
+        aggregateDataOptimisationsService.countPatientSetsIntersection(patientSets)
+    }
+
+    private Long getCrossCount(Collection<QueryResult> patientSets,
+                               User user) {
+        List<Constraint> patientSetConstraints = patientSets.stream().map({ QueryResult queryResult ->
+            new PatientSetConstraint(queryResult.id)
+        }).collect(Collectors.toList())
+
+        aggregateDataResource.counts(new AndConstraint(patientSetConstraints), user).patientCount
     }
 
 }
