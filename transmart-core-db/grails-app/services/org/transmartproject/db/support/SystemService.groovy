@@ -134,6 +134,7 @@ class SystemService implements SystemResource {
             for (Map.Entry<String, Runnable> task: updateTasks.entrySet()) {
                 synchronized (updateStatusLock) {
                     updateStatus.tasks[task.key] = CompletionStatus.RUNNING
+                    updateStatus.updateDate = new Date()
                 }
                 stopWatch.start(task.key)
                 log.info "Starting task: ${task.key} ..."
@@ -141,6 +142,7 @@ class SystemService implements SystemResource {
                 stopWatch.stop()
                 synchronized (updateStatusLock) {
                     updateStatus.tasks[task.key] = CompletionStatus.COMPLETED
+                    updateStatus.updateDate = new Date()
                 }
             }
             log.info "Done updating after data loading.\n${stopWatch.prettyPrint()}"
