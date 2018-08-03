@@ -4,12 +4,9 @@ package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
-import org.hibernate.SessionFactory
-import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
@@ -25,15 +22,6 @@ class AggregateDataOptimisationsService {
 
     @Autowired
     MDStudiesResource studiesResource
-
-    @Autowired
-    MultidimensionalDataResourceService multidimensionalDataResourceService
-
-    @Autowired
-    SystemResource systemResource
-
-    @Autowired
-    SessionFactory sessionFactory
 
     @Autowired
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
@@ -113,26 +101,7 @@ class AggregateDataOptimisationsService {
      */
     @Memoized
     boolean isBitCountFunctionAvailable() {
-        def session = (StatelessSessionImpl)sessionFactory.openStatelessSession()
-        try {
-            def connection = session.connection()
-            def rs = connection.metaData.getFunctions(null, 'public', 'pg_bitcount')
-            def result = rs.next()
-            if (!result) {
-                log.info "Function public.pg_bitcount not found."
-            }
-            return result
-        } finally {
-            session.close()
-        }
-    }
-
-    String bitcount_function(String arguments) {
-        if (bitCountFunctionAvailable) {
-            "public.pg_bitcount(${arguments})"
-        } else {
-            "length(replace((${arguments})::text, '0', ''))"
-        }
+        dbFunctionExists('public', 'pg_bitcount')
     }
 
     /**
@@ -148,45 +117,40 @@ class AggregateDataOptimisationsService {
      */
     Long countPatientSetsIntersection(Collection<QueryResult> patientSets) {
         if (patientSets.empty) {
+            log.debug('No patients sets passed. Hence return 0 count.')
             return 0L
         }
-        Long result = null
-        def session = (StatelessSessionImpl)sessionFactory.openStatelessSession()
-        try {
-            session.connection().autoCommit = false
-            log.info "Start counting the intersection between patient sets using bit sets ..."
-            def t1 = new Date()
-            def parameterTemplate = (['?'] * patientSets.size()).join(', ')
-            def statement = session.connection().prepareStatement(
-                    """select ${bitcount_function('bit_and(sets.patient_set)')} as patient_count
+        log.info "Start counting the intersection between patient sets using bit sets ..."
+        def t1 = new Date()
+        Long count = namedParameterJdbcTemplate.queryForObject(
+                """select ${bitcountDbFunction('bit_and(sets.patient_set)')} as patient_count
                          from (
                              select *
                              from biomart_user.patient_set_bitset
-                             where result_instance_id in (${parameterTemplate})) sets;""")
-            int i = 1
-            for (QueryResult queryResult: patientSets) {
-                statement.setLong(i, queryResult.id)
-                i++
-            }
-            def rs = statement.executeQuery()
-            if (rs.next()) {
-                result = rs.getLong('patient_count')
-            }
-            def t2 = new Date()
-            log.info "Counting the intersection between patient sets done. (took ${t2.time - t1.time} ms.)"
-        } finally {
-            session.close()
-        }
-        result
+                             where result_instance_id in (:rs_ids)) sets;""", [rs_ids: patientSets*.id], Long)
+        def t2 = new Date()
+        log.info "Counting the intersection between patient sets done. (took ${t2.time - t1.time} ms.)"
+        return count
     }
 
+    private String bitcountDbFunction(String arguments) {
+        if (bitCountFunctionAvailable) {
+            "public.pg_bitcount(${arguments})"
+        } else {
+            "length(replace((${arguments})::text, '0', ''))"
+        }
+    }
 
     private Connection getConnection() {
         ((JdbcTemplate) namedParameterJdbcTemplate.jdbcOperations).dataSource.connection
     }
 
-    private boolean dbViewExists(String schema, String function) {
-        getConnection().metaData.getTables(null, schema, function, ['VIEW'].toArray(new String[0])).next()
+    private boolean dbViewExists(String schema, String view) {
+        getConnection().metaData.getTables(null, schema, view, ['VIEW'].toArray(new String[0])).next()
+    }
+
+    private boolean dbFunctionExists(String schema, String function) {
+        getConnection().metaData.getFunctions(null, schema, function).next()
     }
 
     private void refreshMaterializedView(String schema, String function) {
