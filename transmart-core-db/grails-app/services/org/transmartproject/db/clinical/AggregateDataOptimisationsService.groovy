@@ -121,15 +121,13 @@ class AggregateDataOptimisationsService {
             return 0L
         }
         log.info "Start counting the intersection between patient sets using bit sets ..."
-        def t1 = new Date()
+        long t1 = System.currentTimeMillis()
         Long count = namedParameterJdbcTemplate.queryForObject(
-                """select ${bitcountDbFunction('bit_and(sets.patient_set)')} as patient_count
-                         from (
-                             select *
-                             from biomart_user.patient_set_bitset
-                             where result_instance_id in (:rs_ids)) sets;""", [rs_ids: patientSets*.id], Long)
-        def t2 = new Date()
-        log.info "Counting the intersection between patient sets done. (took ${t2.time - t1.time} ms.)"
+                """select ${bitcountDbFunction('bit_and(patient_set)')}
+                     from biomart_user.patient_set_bitset
+                     where result_instance_id in (:rs_ids);""",
+                [rs_ids: patientSets*.id], Long)
+        log.info "Counting the intersection between patient sets done. (took ${System.currentTimeMillis() - t1} ms.)"
         return count
     }
 
