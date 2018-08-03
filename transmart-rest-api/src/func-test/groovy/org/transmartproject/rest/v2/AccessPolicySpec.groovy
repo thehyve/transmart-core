@@ -191,7 +191,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         [concept1Value1] | [concept1Value2]  | trueConstraint    | study1User     | OK             | [[1]]
         [concept1Value1] | [concept1Value2]  | trueConstraint    | thresholdUser  | OK             | [[0]]
         [concept1Value1] | [concept1Value2]  | trueConstraint    | study2User     | OK             | [[0]]
-        [concept1Value1] | [concept1Value2]  | trueConstraint    | study1And2User | OK             | [[0]]
+        [concept1Value1] | [concept1Value2]  | trueConstraint    | study1And2User | OK             | [[1]]
     }
 
 }

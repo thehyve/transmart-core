@@ -602,7 +602,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         if (constraint instanceof TrueConstraint) {
             // Creating patient set for all patients, execute single query
             log.info "Saving patient set for the True constraint."
-            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
+            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
                     .buildCriteria(constraint)
                     .setProjection(
                     Projections.projectionList()
