@@ -13,7 +13,6 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 
-import java.util.function.BiFunction
 import java.util.stream.Collectors
 
 @CompileStatic
@@ -70,40 +69,35 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
 
     private CrossTable buildCrossTable(List<QueryResult> rowSubjectSets, List<QueryResult> columnSubjectSets, QueryResult subjectSet, User user) {
         log.debug('Start building cross table.')
-        List<List<Long>> rows = []
-        BiFunction<Collection<QueryResult>, User, Long> crossCountFunc = getCrossCountFunction()
-        for (QueryResult rowSubjectSet : rowSubjectSets) {
-            def counts = [] as List<Long>
-            for (QueryResult columnSubjectSet : columnSubjectSets) {
-                counts.add(crossCountFunc.apply([rowSubjectSet, columnSubjectSet, subjectSet], user))
-            }
-            rows.add(counts)
+        List<List<Long>> rows
+        if (aggregateDataOptimisationsService.isCountPatientSetsIntersectionEnabled()) {
+            log.debug('Use bit sets to calculate the cross counts.')
+            rows = aggregateDataOptimisationsService.countPatientSetsIntersection(rowSubjectSets, columnSubjectSets, subjectSet, user)
+        } else {
+            log.debug('Use default implementation to calculate the cross counts.')
+            rows = getCrossCounts(rowSubjectSets, columnSubjectSets, subjectSet, user)
         }
         new CrossTable(rows)
     }
 
-    private BiFunction<Collection<QueryResult>, User, Long> getCrossCountFunction() {
-        if (aggregateDataOptimisationsService.isCountPatientSetsIntersectionEnabled()) {
-            log.debug('Use bit sets to calculate the cross counts.')
-            return this.&getCrossCountUsingBitset as BiFunction<Collection<QueryResult>, User, Long>
-        } else {
-            log.debug('Use default implementation to calculate the cross counts.')
-            return this.&getCrossCount as BiFunction<Collection<QueryResult>, User, Long>
+    private List<List<Long>> getCrossCounts(List<QueryResult> rowSubjectSets, List<QueryResult> columnSubjectSets, QueryResult subjectSet, User user) {
+        List<List<Long>> rows = []
+        def subjectSetConstraint = new PatientSetConstraint(patientSetId: subjectSet.id)
+        for (QueryResult rowSubjectSet : rowSubjectSets) {
+            def patientCounts = [] as List<Long>
+            def rowPatientSetConstraint = new PatientSetConstraint(patientSetId: rowSubjectSet.id)
+            for (QueryResult columnSubjectSet : columnSubjectSets) {
+                def patientSetConstraints = [
+                        rowPatientSetConstraint,
+                        new PatientSetConstraint(patientSetId: columnSubjectSet.id),
+                        subjectSetConstraint,
+                ] as List<Constraint>
+                Long patientCount = aggregateDataResource.counts(new AndConstraint(patientSetConstraints), user).patientCount
+                patientCounts.add(patientCount)
+            }
+            rows.add(patientCounts)
         }
-    }
-
-    private Long getCrossCountUsingBitset(Collection<QueryResult> patientSets,
-                                          User user) {
-        aggregateDataOptimisationsService.countPatientSetsIntersection(patientSets)
-    }
-
-    private Long getCrossCount(Collection<QueryResult> patientSets,
-                               User user) {
-        List<Constraint> patientSetConstraints = patientSets.stream().map({ QueryResult queryResult ->
-            new PatientSetConstraint(queryResult.id)
-        }).collect(Collectors.toList())
-
-        aggregateDataResource.counts(new AndConstraint(patientSetConstraints), user).patientCount
+        return rows
     }
 
 }

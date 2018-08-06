@@ -15,6 +15,7 @@ import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 
 import java.sql.Connection
+import java.util.function.Function
 import java.util.stream.Collectors
 
 @CompileStatic
@@ -112,23 +113,57 @@ class AggregateDataOptimisationsService {
      *
      * Uses the public.pg_bitcount function if available, or a slower alternative otherwise.
      *
-     * @param patientSets the patient sets to compute the intersection for.
-     * @return the number of patients that occur in every set.
+     * @param rowSubjectSets the rows patient sets.
+     * @param columnSubjectSets the columns patient sets.
+     * @param subjectSet the cell patient set.
+     * @return the numbers of patients that occur in every set.
      */
-    Long countPatientSetsIntersection(Collection<QueryResult> patientSets) {
-        if (patientSets.empty) {
-            log.debug('No patients sets passed. Hence return 0 count.')
-            return 0L
+    List<List<Long>> countPatientSetsIntersection(List<QueryResult> rowSubjectSets, List<QueryResult> columnSubjectSets, QueryResult subjectSet, User user) {
+        if (rowSubjectSets.empty || columnSubjectSets.empty || !subjectSet) {
+            log.debug('Not enough patient sets to calculate intersection. Hence return empty list.')
+            return []
         }
+        List<Long> rowSubjectSetIds = rowSubjectSets*.id
+        List<Long> columnSubjectSetIds = columnSubjectSets*.id
         log.info "Start counting the intersection between patient sets using bit sets ..."
         long t1 = System.currentTimeMillis()
-        Long count = namedParameterJdbcTemplate.queryForObject(
-                """select ${bitcountDbFunction('bit_and(patient_set)')}
-                     from biomart_user.patient_set_bitset
-                     where result_instance_id in (:rs_ids);""",
-                [rs_ids: patientSets*.id], Long)
+        List<Map<String, Object>> dbResults = namedParameterJdbcTemplate.queryForList(
+                """with 
+                    row_bitset as (select * from patient_set_bitset where result_instance_id in (:row_set_ids)),
+                    column_bitset as (select * from patient_set_bitset where result_instance_id in (:column_set_ids)),
+                    cell_bitset as (select * from patient_set_bitset where result_instance_id = :cell_set_id)
+                    select 
+                      row_bitset.result_instance_id as row_set_id,
+                      column_bitset.result_instance_id as column_set_id,
+                      ${bitcountDbFunction('row_bitset.patient_set & column_bitset.patient_set & cell_bitset.patient_set')} as subject_count
+                    from row_bitset, column_bitset, cell_bitset;""",
+                [
+                        row_set_ids: rowSubjectSetIds,
+                        column_set_ids: columnSubjectSetIds,
+                        cell_set_id: subjectSet.id
+                ])
         log.info "Counting the intersection between patient sets done. (took ${System.currentTimeMillis() - t1} ms.)"
-        return count
+        return buildCountsTable(dbResults, rowSubjectSetIds, columnSubjectSetIds)
+    }
+
+    private List<List<Long>> buildCountsTable(List<Map<String, Object>> dbResults, List<Long> rowSubjectSetIds, List<Long> columnSubjectSetIds) {
+        log.debug('Creating hash table out of the database result.')
+        Map<List<Long>, Long> columnRowIdsToSubjectCount = dbResults.stream().collect(
+                Collectors.toMap(
+                        { Map<String, Object> dbResultRow -> [(Long) dbResultRow.get('row_set_id'), (Long) dbResultRow.get('column_set_id')] } as Function<Map<String, Object>, List<Long>>,
+                        { Map<String, Object> dbResultRow -> (Long) dbResultRow.get('subject_count') } as Function<Map<String, Object>, Long>))
+
+        List<List<Long>> result = []
+        log.debug('Building result table.')
+        for (Long rowSubjectSetId : rowSubjectSetIds) {
+            List<Long> rowCounts = []
+            for (Long columnSubjectSetId : columnSubjectSetIds) {
+                Long subjectCount = columnRowIdsToSubjectCount.get([rowSubjectSetId, columnSubjectSetId])
+                rowCounts.add(subjectCount ?: 0L)
+            }
+            result.add(rowCounts)
+        }
+        return result
     }
 
     private String bitcountDbFunction(String arguments) {
