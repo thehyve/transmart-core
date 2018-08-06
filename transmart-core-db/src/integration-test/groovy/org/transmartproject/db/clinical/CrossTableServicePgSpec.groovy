@@ -3,6 +3,7 @@ package org.transmartproject.db.clinical
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.query.Negation
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.users.SimpleUser
@@ -19,15 +20,16 @@ class CrossTableServicePgSpec extends Specification {
     @Autowired
     CrossTableService crossTableService
 
-    def 'counts per study and concept has been enabled'() {
+    def 'test calculating cross-table subject counts for the whole study'() {
         when:
-        def crossTable = crossTableService.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, user)
+        def crossTable = crossTableService.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint, ADMIN)
         then:
         crossTable.rows == rows
 
         where:
-        rowConstraints    | columnConstraints | subjectConstraint        | user  | rows
-        [TRUE_CONSTRAINT] | [TRUE_CONSTRAINT] | GT_1000_STUDY_CONSTRAINT | ADMIN | [[1200L]]
+        rowConstraints                  | columnConstraints | subjectConstraint        | rows
+        [TRUE_CONSTRAINT]               | [TRUE_CONSTRAINT] | GT_1000_STUDY_CONSTRAINT | [[1200]]
+        [new Negation(TRUE_CONSTRAINT)] | [TRUE_CONSTRAINT] | GT_1000_STUDY_CONSTRAINT | [[0]]
     }
 
 }
