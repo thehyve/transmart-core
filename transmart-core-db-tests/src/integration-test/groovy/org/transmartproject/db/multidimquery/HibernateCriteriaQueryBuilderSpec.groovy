@@ -19,6 +19,7 @@ import org.transmartproject.core.multidimquery.query.NullConstraint
 import org.transmartproject.core.multidimquery.query.Operator
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.QueryBuilder
+import org.transmartproject.core.multidimquery.query.QueryBuilderException
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TemporalConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
@@ -496,6 +497,34 @@ class HibernateCriteriaQueryBuilderSpec extends Specification {
 
         then: 'The result is empty'
         results.empty
+    }
+
+    void 'test queries with collection operators'() {
+        setupData()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
+
+        when: 'A collection operator is used'
+        FieldConstraint constraint1 = new FieldConstraint()
+        constraint1.field = patientAgeField
+        constraint1.operator = Operator.IN
+        constraint1.value = [70L, 31L]
+        DetachedCriteria criteria1 = builder.buildCriteria(constraint1)
+        List results1 = getList(criteria1)
+
+        then: 'Constraint passes validation and results are returned'
+        results1.size() == 2
+
+        when: 'A non-collection operator is used'
+        FieldConstraint constraint2 = new FieldConstraint()
+        constraint2.field = constraint1.field
+        constraint2.value = constraint1.value
+        constraint2.operator = Operator.CONTAINS
+        builder.buildCriteria(constraint2)
+
+        then: 'Validation of the constraint fails'
+        def e = thrown(QueryBuilderException)
+        e.message.contains("Field type NUMERIC not supported for operator 'contains'.")
+
     }
 
 }

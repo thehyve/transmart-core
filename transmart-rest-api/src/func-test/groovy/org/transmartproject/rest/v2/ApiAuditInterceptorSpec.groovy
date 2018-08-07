@@ -138,12 +138,12 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         logEntries.size() == 1
 
         where:
-        method  | action                | body
-        GET     | "/patients"           | null
-        GET     | "/patients/123"       | null
-        GET     | "/patient_sets/123"   | null
-        GET     | "/patient_sets"       | null
-        POST    | "/patient_sets"       | [:]
+        method  | action                                     | body
+        GET     | "/patients"                                | null
+        GET     | "/patients/123"                            | null
+        GET     | "/patient_sets/123"                        | null
+        GET     | "/patient_sets"                            | null
+        POST    | "/patient_sets?name=test&reuse=true"       | [type: 'negation', arg: [type: 'true']]
     }
 
     @Unroll
