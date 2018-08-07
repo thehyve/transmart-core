@@ -26,6 +26,11 @@ which makes it harder to derive observation data from aggregates.
 | `VIEW`        | `SUMMARY`               |
 |               | `COUNTS_WITH_THRESHOLD` |
 
+### Fix bit-set for empty patient set
+
+`patient_set_bitset` view returned empty data set (0 rows) when patient set had no rows.
+It caused issues with this bitset/constraint being ignored.
+The fix is to return zero bit-set (bit string with all zeros) in this case.
 
 ## How to apply all changes
 
