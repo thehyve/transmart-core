@@ -439,7 +439,13 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         return PersistSubqueriesResult.notPatientSets(constraint)
     }
 
-    private Criterion buildSubselectCriterion(String property, Constraint constraint) {
+    /**
+     *
+     * @param property
+     * @param constraint
+     * @return
+     */
+    public Criterion buildSubselectCriterion(String property, Constraint constraint) {
         if (constraint instanceof PatientSetConstraint) {
             log.info "Build patient set constraint for patientSetId ${((PatientSetConstraint)constraint).patientSetId}"
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')

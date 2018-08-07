@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PatientSetResource
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.querytool.QueryResult
@@ -43,11 +42,10 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
 
         QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult('All patients',
                 new TrueConstraint(), admin, 'v2', false)
-        def patientSetConstraint = new PatientSetConstraint(patientSetId: patientSetQueryResult.id)
 
         when: 'count all subjects per concept and study'
         Map<String, Map<String, Counts>> counts = aggregateDataOptimisationsService
-                .countsPerStudyAndConceptForPatientSet(patientSetConstraint, admin)
+                .countsPerStudyAndConceptForPatientSet(patientSetQueryResult.id, admin)
 
         then: 'counts present for all studies in the system'
         (allStudyids - counts.keySet()).empty
@@ -64,11 +62,10 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
         QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult(
                 'All patients available for test-public-user-1',
                 new TrueConstraint(), publicUser1, 'v2', false)
-        def patientSetConstraint = new PatientSetConstraint(patientSetId: patientSetQueryResult.id)
 
         when: 'count all subjects per concept and study'
         Map<String, Map<String, Counts>> counts = aggregateDataOptimisationsService
-                .countsPerStudyAndConceptForPatientSet(patientSetConstraint, publicUser1)
+                .countsPerStudyAndConceptForPatientSet(patientSetQueryResult.id, publicUser1)
 
         then: 'there are counts'
         !counts.isEmpty()

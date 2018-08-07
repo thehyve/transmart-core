@@ -69,6 +69,13 @@ server:
     port: 8081
 
 environments:
+    test:
+        keycloak:
+            realm: test
+            bearer-only: true
+            auth-server-url: http://localhost:8080/auth
+            resource: transmart
+            use-resource-role-mappings: true
     development:
         keycloak:
             realm: dev
