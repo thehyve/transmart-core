@@ -73,7 +73,7 @@ class Config {
     public static final String RESOURCE = 'transmart'
     public static final Map<String, String> USER_SUB_MAPPING = [
             (DEFAULT_USER)     : '01ec82a4-dd7d-45ff-ac14-c5e10c20eb44',
-            (UNRESTRICTED_USER): '01ec82a4-dd7d-45ff-ac14-c5e10c20eb44',
+            (UNRESTRICTED_USER): '7227d767-0412-4be4-8b26-116bd707670d',
             (ADMIN_USER)       : '75154b3b-fff2-4727-8d9a-96dfdbae39bb'
     ]
 
@@ -99,7 +99,7 @@ class Config {
     public static final String PATH_TREE_NODES_CLEAR_CACHE = "/v2/tree_nodes/clear_cache"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
-    public static final String PATH_CONFIG = "/v2/config"
+    public static final String PATH_CONFIG = "/v2/admin/system/config"
     public static final String PATH_STORAGE = "/v2/storage"
     public static final String PATH_FILES = "/v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
