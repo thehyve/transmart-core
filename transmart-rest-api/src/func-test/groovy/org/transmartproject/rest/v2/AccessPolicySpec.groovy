@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.CrossTable
 import org.transmartproject.core.multidimquery.query.*
-import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.mock.MockUser
 import spock.lang.Shared
 import spock.lang.Unroll
@@ -27,7 +26,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
     @CompileStatic
     @Canonical
-    class CountsRequestBody {
+    class ConstraintRequestBody {
         Constraint constraint
     }
 
@@ -110,7 +109,7 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         expect:
         selectUser(user)
-        def body = new CountsRequestBody(constraint)
+        def body = new ConstraintRequestBody(constraint)
 
         def response = post(url, body)
         checkResponseStatus(response, expectedStatus, user)
@@ -192,6 +191,36 @@ class AccessPolicySpec extends V2ResourceSpec {
         [concept1Value1] | [concept1Value2]  | trueConstraint    | thresholdUser  | OK             | [[0]]
         [concept1Value1] | [concept1Value2]  | trueConstraint    | study2User     | OK             | [[0]]
         [concept1Value1] | [concept1Value2]  | trueConstraint    | study1And2User | OK             | [[1]]
+    }
+
+    @Unroll
+    void 'test dimension elements access (POST .../dimensions/#dimension/elements) for #user.username.'(
+            MockUser user, String dimension, HttpStatus expectedStatus
+    ) {
+        given:
+        setupData()
+        def url = "${contextPath}/dimensions/${dimension}/elements"
+        def constraint = study1Constraint
+
+        when:
+        selectUser(user)
+        def body = new ConstraintRequestBody(constraint)
+        def response = post(url, body)
+
+        then:
+        checkResponseStatus(response, expectedStatus, user)
+
+        where:
+        user           | dimension     | expectedStatus
+        study1User     | 'patient'     | OK
+        study1User     | 'concept'     | OK
+        study1User     | 'study'       | OK
+        study1User     | 'trial visit' | OK
+        thresholdUser  | 'patient'     | FORBIDDEN
+        thresholdUser  | 'concept'     | OK
+        thresholdUser  | 'study'       | OK
+        thresholdUser  | 'trial visit' | OK
+        study1And2User | 'patient'     | FORBIDDEN
     }
 
 }

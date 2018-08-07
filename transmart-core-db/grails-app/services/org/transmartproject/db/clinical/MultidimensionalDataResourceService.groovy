@@ -11,38 +11,26 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
-import org.hibernate.criterion.*
+import org.hibernate.criterion.Criterion
+import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.dataquery.TableConfig
-import org.transmartproject.core.dataquery.TableRetrievalParameters
-import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.EmptySetException
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.exceptions.OperationNotImplementedException
-import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
+import org.transmartproject.core.exceptions.*
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.multidimquery.query.QueryBuilder
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.PatientDataAccessLevel
@@ -53,7 +41,8 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.*
-import org.transmartproject.db.multidimquery.query.*
+import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
+import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.util.HibernateUtils
 
 import java.util.stream.Collectors
@@ -282,15 +271,30 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
                 hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
     }
 
+    /**
+     * List of dimensions that require lower access level to fetch their elements
+     */
+    static final List<String> minimalAccessLevelDimensions = ImmutableList.copyOf(
+            [CONCEPT.name, STUDY.name, TRIAL_VISIT.name] as List<String>)
+
     @Override
     IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
-        if (constraint) {
-            checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
-        }
-        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.MEASUREMENTS)
+
+        PatientDataAccessLevel accessLevelToDimension = patientDataAccessLevelToDimension(dimension.name)
+        checkAccess(constraint, user, accessLevelToDimension)
+
+        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user, accessLevelToDimension)
         DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
 
         return getIterable(dimensionCriteria)
+    }
+
+    private static PatientDataAccessLevel patientDataAccessLevelToDimension(String dimensionName) {
+        if (dimensionName in minimalAccessLevelDimensions) {
+            return PatientDataAccessLevel.minimalAccessLevel
+        } else {
+            return PatientDataAccessLevel.MEASUREMENTS
+        }
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
