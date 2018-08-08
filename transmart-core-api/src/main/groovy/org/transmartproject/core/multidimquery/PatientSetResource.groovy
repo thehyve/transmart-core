@@ -35,7 +35,7 @@ interface PatientSetResource {
      * @param constraint the constraint used in the lookup.
      * @return the query result if it exists; null otherwise.
      */
-    QueryResult findQueryResultByConstraint(User user, Constraint constraint)
+    QueryResult findFinishedQueryResultInCacheBy(User user, Constraint constraint)
 
     /**
      * Retrieves all query results for a user.

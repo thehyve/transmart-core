@@ -20,9 +20,7 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.querytool.QueryResultType
-import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestData
-import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import spock.lang.Specification
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact

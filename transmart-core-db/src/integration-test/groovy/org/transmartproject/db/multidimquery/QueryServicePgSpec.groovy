@@ -511,7 +511,7 @@ class QueryServicePgSpec extends Specification {
                 constraint,
                 user,
                 'v2',
-                true)
+                false)
 
         when:
         QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
@@ -521,40 +521,58 @@ class QueryServicePgSpec extends Specification {
                 true)
 
         then:
+        patientSetQueryResult1
         patientSetQueryResult1 == patientSetQueryResult2
     }
 
-    void "clear all patient sets"() {
+    void "test a new patient set created even there is possibility to reuse"() {
         def user = User.findByUsername('test-public-user-1')
 
         ConceptConstraint constraint = new ConceptConstraint(path:
                 '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
-        patientSetResource.createPatientSetQueryResult("Test set", constraint, user,'v2', true)
-        def patientSetCollectionsCount = QtPatientSetCollection.findAll().size()
-        def queryResultInstancesCount = QtQueryResultInstance.findAll().size()
-        def queryInstancesCount = QtQueryInstance.findAll().size()
-        def queryMastersCount = QtQueryMaster.findAll().size()
+        QueryResult patientSetQueryResult1 = patientSetResource.createPatientSetQueryResult("Test set",
+                constraint,
+                user,
+                'v2',
+                false)
 
         when:
-        patientSetResource.clearPatientSets()
-        def newPatientSetCollectionsCount = QtPatientSetCollection.findAll().size()
-        def newQueryResultInstancesCount = QtQueryResultInstance.findAll().size()
-        def newQueryInstancesCount = QtQueryInstance.findAll().size()
-        def newQueryMastersCount = QtQueryMaster.findAll().size()
+        QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
+                constraint,
+                user,
+                'v2',
+                false)
 
         then:
-        newPatientSetCollectionsCount < patientSetCollectionsCount
-        newQueryResultInstancesCount < queryResultInstancesCount
-        newQueryInstancesCount < queryInstancesCount
-        newQueryMastersCount == queryMastersCount
-
-        newPatientSetCollectionsCount == 0
-        newQueryResultInstancesCount == 0
-        newQueryInstancesCount == 0
-        newQueryMastersCount > 0
+        patientSetQueryResult1
+        patientSetQueryResult1 != patientSetQueryResult2
     }
 
+    void "test reusing patient set query after the patient set ids cache cleanup"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        QueryResult patientSetQueryResult1 = patientSetResource.createPatientSetQueryResult("Test set",
+                constraint,
+                user,
+                'v2',
+                false)
+
+        when:
+        patientSetResource.clearPatientSetIdsCache()
+        QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
+                constraint,
+                user,
+                'v2',
+                true)
+
+        then:
+        patientSetQueryResult1
+        patientSetQueryResult1 != patientSetQueryResult2
+    }
 
     void "test large text values (raw data type)"() {
         def user = User.findByUsername('test-public-user-1')
