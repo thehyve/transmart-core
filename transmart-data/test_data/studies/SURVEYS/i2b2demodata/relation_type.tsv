@@ -1,7 +1,7 @@
-1	PAR	Parent	f	f
-2	SPO	Spouse	t	f
-3	SIB	Sibling	t	f
-4	MZ	Monozygotic twin	t	t
-5	DZ	Dizygotic twin	t	t
-6	COT	Twin with unknown zygosity	t	t
-7	CHI	Child	f	f
+1	PAR	Parent	0	0
+2	SPO	Spouse	1	0
+3	SIB	Sibling	1	0
+4	MZ	Monozygotic twin	1	1
+5	DZ	Dizygotic twin	1	1
+6	COT	Twin with unknown zygosity	1	1
+7	CHI	Child	0	0
