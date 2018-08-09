@@ -5483,21 +5483,21 @@
       "owner" : "BIOMART_USER",
       "name" : "QUERY_SET"
     },
-    "file" : "biomart_user/QUERY_SET.sql"
+    "file" : "biomart_user/query_set.sql"
   }, {
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
       "name" : "QUERY_SET_INSTANCE"
     },
-    "file" : "biomart_user/QUERY_SET_INSTANCE.sql"
+    "file" : "biomart_user/query_set_instance.sql"
   }, {
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
       "name" : "QUERY_SET_DIFF"
     },
-    "file" : "biomart_user/QUERY_SET_DIFF.sql"
+    "file" : "biomart_user/query_set_diff.sql"
   }, {
     "item" : {
       "type" : "INDEX",
