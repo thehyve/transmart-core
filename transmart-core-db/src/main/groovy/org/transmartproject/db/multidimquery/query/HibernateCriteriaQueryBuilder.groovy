@@ -53,15 +53,17 @@ import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.VisitDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.ontology.TrialVisitsService
 import org.transmartproject.db.pedigree.Relation
 import org.transmartproject.db.pedigree.RelationType
 import org.transmartproject.db.querytool.QtPatientSetCollection
-import org.transmartproject.db.ontology.ModifierDimensionCoreDb
+import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -509,6 +511,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
 
     /**
      * Creates a criteria object for a patient set by conversion to a field constraint for the patient id field.
+     * Note: OFFSET is a syntax tthat is used by Oracle starting from
      */
     Criterion build(PatientSetConstraint constraint) {
         if (constraint.patientIds) {
@@ -519,7 +522,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             if (constraint.offset != null && constraint.limit != null) {
                 log.debug "Restrict subquery to offset ${constraint.offset}, limit ${constraint.limit}"
                 subCriteria.add(Restrictions.sqlRestriction(
-                        '{alias}.result_instance_id = ? order by {alias}.patient_num offset ? limit ?',
+                        '{alias}.result_instance_id = ? order by {alias}.patient_num OFFSET ?' + dbTypeSpecificLimit(),
                         [constraint.patientSetId, constraint.offset, constraint.limit].toArray(),
                         [LongType.INSTANCE, IntegerType.INSTANCE, IntegerType.INSTANCE] as org.hibernate.type.Type[]))
             } else {
@@ -533,6 +536,19 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property('patient')))
         } else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
+        }
+    }
+
+    /**
+     * Oracle uses different syntax to limit the number of rows
+     * (starting from Oracle 12c R1 (12.1))
+     */
+    private static String dbTypeSpecificLimit() {
+        def dataSource = Holders.applicationContext.getBean(DatabasePortabilityService)
+        if (dataSource.databaseType == ORACLE) {
+            return ' ROWS FETCH NEXT ? ROWS ONLY'
+        } else {
+            return ' limit ?'
         }
     }
 
