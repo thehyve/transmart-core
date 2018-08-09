@@ -741,7 +741,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
 
     /**
      * Get's query result id (aka patient set id) for the given user and constraint from the cache.
-     * The cache meant to be cleaned after the data loading. {@see clearPatientSetIdsCache}
+     * The cache meant to be cleaned after the data loading. {@link this.clearPatientSetIdsCache()}
      * @param user user result belongs to
      * @param constraint constraint used in the query
      * @return query result id (aka patient set id)
