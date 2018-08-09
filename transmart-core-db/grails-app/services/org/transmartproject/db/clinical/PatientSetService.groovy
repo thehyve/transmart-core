@@ -19,6 +19,8 @@ import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.hibernate.type.Type
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.Cache
+import org.springframework.cache.CacheManager
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.PatientSetResource
@@ -51,16 +53,18 @@ import org.transmartproject.db.querytool.QtQueryResultType
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.db.util.HibernateUtils
 
-import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Function
 
 @CompileStatic
 class PatientSetService extends AbstractDataResourceService implements PatientSetResource {
 
+    public static final String QUERY_RESULT_IDS_CACHE = "${PatientSetService.name}.QUERY_RESULT_IDS_CACHE"
+
     @Autowired
     ParallelPatientSetTaskService parallelPatientSetTaskService
 
-    protected static final Map<List, Long> QUERY_RESULT_IDS_CACHE = new ConcurrentHashMap<>()
+    @Autowired
+    CacheManager cacheManager
 
     @Transactional(readOnly = true)
     @Memoized
@@ -165,7 +169,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
      *
      * @param user the creator of the query result.
      * @param constraint the constraint used in the lookup.
-     * @return the query result if it exists; null otherwise.
+     * @return the query result if it exists in the cache and the database; null otherwise.
      */
     QueryResult findFinishedQueryResultInCacheBy(User user,
                                                  Constraint constraint) {
@@ -727,6 +731,15 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
     }
 
     /**
+     * Clear  query result ids cache.
+     * This function should be called after data loading.
+     */
+    void clearPatientSetIdsCache() {
+        log.info 'Clearing patient set ids cache ...'
+        getQueryResultIdsCache().clear()
+    }
+
+    /**
      * Get's query result id (aka patient set id) for the given user and constraint from the cache.
      * The cache meant to be cleaned after the data loading. {@see clearPatientSetIdsCache}
      * @param user user result belongs to
@@ -734,8 +747,8 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
      * @return query result id (aka patient set id)
      */
     protected Long getQueryResultIdFromCache(User user, Constraint constraint) {
-        def key = [ user.username, constraint ]
-        Long id = QUERY_RESULT_IDS_CACHE.get(key)
+        def key = calculateCacheKey(user, constraint)
+        Long id = getQueryResultIdsCache().get(key, Long)
         log.debug("Get query result instance ${id} by ${key} key.")
         return id
     }
@@ -747,18 +760,17 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
      * @param id query result id
      */
     protected void putQueryResultIdToCache(User user, Constraint constraint, Long id) {
-        def key = [ user.username, constraint ]
+        def key = calculateCacheKey(user, constraint)
         log.debug("Put query result instance ${id} to ${key} key.")
-        QUERY_RESULT_IDS_CACHE.put(key, id)
+        getQueryResultIdsCache().put(key, id)
     }
 
-    /**
-     * Clear  query result ids cache.
-     * This function should be called after data loading.
-     */
-    void clearPatientSetIdsCache() {
-        log.info 'Clearing patient set ids cache ...'
-        QUERY_RESULT_IDS_CACHE.clear()
+    private Object calculateCacheKey(User user, Constraint constraint) {
+        [user.username, constraint]
+    }
+
+    private Cache getQueryResultIdsCache() {
+        cacheManager.getCache(QUERY_RESULT_IDS_CACHE)
     }
 
 }
