@@ -2243,7 +2243,8 @@ paths:
   /v2/admin/system/after_data_loading_update:
     get:
       description: |
-        This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.
+        This endpoint should be called after loading, deleting or updating data in the database.
+        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Refreshes the bitsets materialized view. Updates data for subscribed user queries.
         Only for administrators.
       tags:
         - v2

@@ -10,7 +10,6 @@ import groovy.transform.Memoized
 import org.hibernate.Criteria
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.Order
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
@@ -20,6 +19,8 @@ import org.hibernate.transform.Transformers
 import org.hibernate.type.StandardBasicTypes
 import org.hibernate.type.Type
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.Cache
+import org.springframework.cache.CacheManager
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.PatientSetResource
@@ -57,38 +58,19 @@ import java.util.function.Function
 @CompileStatic
 class PatientSetService extends AbstractDataResourceService implements PatientSetResource {
 
+    public static final String QUERY_RESULT_IDS_CACHE = "${PatientSetService.name}.QUERY_RESULT_IDS_CACHE"
+
     @Autowired
     ParallelPatientSetTaskService parallelPatientSetTaskService
 
+    @Autowired
+    CacheManager cacheManager
 
     @Transactional(readOnly = true)
     @Memoized
     @CompileDynamic
     QtQueryResultType getPatientSetResultType() {
         QtQueryResultType.findById(QueryResultType.PATIENT_SET_ID)
-    }
-
-    private QtQueryMaster createOrReuseQueryMaster(User user, Constraint constraint, name, apiVersion) {
-        def constraintText = constraint.toJson()
-        def queryMasterCriteria = DetachedCriteria.forClass(QtQueryMaster, 'qm')
-                .add(Restrictions.eq('qm.userId', user.username))
-                .add(Restrictions.eq('qm.deleteFlag', 'N'))
-                .add(Restrictions.eq('qm.requestConstraints', constraintText))
-                .addOrder(Order.desc('qm.createDate'))
-
-        QtQueryMaster queryMaster = (QtQueryMaster) getFirst(queryMasterCriteria)
-
-        if (queryMaster == null) {
-            queryMaster = new QtQueryMaster()
-            queryMaster.name = name
-            queryMaster.userId = user.username
-            queryMaster.groupId = Holders.config.getProperty('org.transmartproject.i2b2.group_id', String.class)
-            queryMaster.createDate = new Date()
-            queryMaster.requestConstraints = constraintText
-            queryMaster.apiVersion = apiVersion
-            queryMaster.save(failOnError: true)
-        }
-        return queryMaster
     }
 
     /**
@@ -111,37 +93,32 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
                                             String apiVersion,
                                             boolean reusePatientSet,
                                             Function<PatientSetDefinition, Long> queryExecutor) {
-        // 1. Populate or reuse qt_query_master
-        Object queryMaster = createOrReuseQueryMaster(user, constraint, name, apiVersion)
-        // 2. Populate qt_query_instance
-        def queryInstance = new QtQueryInstance()
-        queryInstance.userId = user.username
-        queryInstance.groupId = Holders.config.getProperty('org.transmartproject.i2b2.group_id', String.class)
-        queryInstance.startDate = new Date()
-        queryInstance.statusTypeId = QueryStatus.PROCESSING.id
-        queryInstance.queryMaster = queryMaster
-        queryMaster.addToQueryInstances(queryInstance)
+
+        QtQueryMaster queryMaster = createQueryMaster(user, constraint, name, apiVersion)
+        queryMaster.save(failOnError: true)
+        log.debug("Saved a query master ${queryMaster}.")
+
+        QtQueryInstance queryInstance = createQueryInstance(user, queryMaster)
         queryInstance.save(failOnError: true)
-        // 3. Populate qt_query_result_instance
-        def resultInstance = new QtQueryResultInstance()
-        resultInstance.statusTypeId = (short)QueryStatus.PROCESSING.id
-        resultInstance.startDate = new Date()
-        resultInstance.queryInstance = queryInstance
-        resultInstance.queryResultType = patientSetResultType
-        resultInstance.description = name
+        log.debug("Saved a query instance ${queryInstance}")
+
+        QtQueryResultInstance resultInstance = createQueryResultInstance(queryInstance, name)
         resultInstance.save(failOnError: true, flush: true)
+        log.debug("Saved a query result instance ${resultInstance}")
+        putQueryResultIdToCache(user, constraint, resultInstance.id)
+
         try {
-            // 4. Execute the query
+            log.info("Execute query ${constraint}")
             resultInstance.setSize = queryExecutor.apply(
                     new PatientSetDefinition(resultInstance, constraint, user, apiVersion, reusePatientSet))
 
-            // 5a. Update the result
+            log.info('Query execution has finished successfully')
             resultInstance.endDate = new Date()
             resultInstance.statusTypeId = (short)QueryStatus.FINISHED.id
             queryInstance.endDate = new Date()
             queryInstance.statusTypeId = QueryStatus.FINISHED.id
         } catch (Throwable t) {
-            // 5b. Update the result with the error message
+            log.error('Query execution has failed', t)
             resultInstance.setSize = resultInstance.realSetSize = -1L
             resultInstance.errorMessage = t.message
             resultInstance.endDate = new Date()
@@ -152,27 +129,65 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         resultInstance
     }
 
+    protected QtQueryMaster createQueryMaster(User user, Constraint constraint, String name, String apiVersion) {
+        log.debug("Create a query master for ${user}.")
+        def queryMaster = new QtQueryMaster()
+        queryMaster.name = name
+        queryMaster.userId = user.username
+        queryMaster.groupId = Holders.config.getProperty('org.transmartproject.i2b2.group_id', String)
+        queryMaster.createDate = new Date()
+        queryMaster.requestConstraints = constraint.toJson()
+        queryMaster.apiVersion = apiVersion
+        return queryMaster
+    }
+
+    protected QtQueryInstance createQueryInstance(User user, QtQueryMaster queryMaster) {
+        log.debug("Create a query instance for ${queryMaster} master object.")
+        def queryInstance = new QtQueryInstance()
+        queryInstance.userId = user.username
+        queryInstance.groupId = Holders.config.getProperty('org.transmartproject.i2b2.group_id', String)
+        queryInstance.startDate = new Date()
+        queryInstance.statusTypeId = QueryStatus.PROCESSING.id
+        queryInstance.queryMaster = queryMaster
+        queryMaster.addToQueryInstances(queryInstance)
+        return queryInstance
+    }
+
+    protected QtQueryResultInstance createQueryResultInstance(QtQueryInstance queryInstance, String name) {
+        log.debug("Create a query result instance for ${queryInstance} query instance.")
+        def resultInstance = new QtQueryResultInstance()
+        resultInstance.statusTypeId = (short) QueryStatus.PROCESSING.id
+        resultInstance.startDate = new Date()
+        resultInstance.queryInstance = queryInstance
+        resultInstance.queryResultType = patientSetResultType
+        resultInstance.description = name
+        return resultInstance
+    }
+
     /**
-     * Find a query result based on a constraint.
+     * Find a query result based on a constraint and user in the cache.
      *
      * @param user the creator of the query result.
      * @param constraint the constraint used in the lookup.
-     * @return the query result if it exists; null otherwise.
+     * @return the query result if it exists in the cache and the database; null otherwise.
      */
-    QueryResult findQueryResultByConstraint(User user,
-                                            Constraint constraint) {
-        def criteria = DetachedCriteria.forClass(QtQueryResultInstance.class, 'qri')
-                .createCriteria('qri.queryInstance', 'qi')
-                .createCriteria('qi.queryMaster', 'qm')
-                .add(Restrictions.eq('qri.queryResultType', patientSetResultType))
-                .add(Restrictions.eq('qri.deleteFlag', 'N'))
-                .add(Restrictions.eq('qri.statusTypeId', (short)QueryStatus.FINISHED.id))
-                .add(Restrictions.eq('qi.userId', user.username))
-                .add(Restrictions.eq('qi.deleteFlag', 'N'))
-                .add(Restrictions.eq('qm.requestConstraints', constraint.toJson()))
-                .add(Restrictions.eq('qm.deleteFlag', 'N'))
-                .addOrder(Order.desc('qri.endDate'))
-        (QueryResult)getFirst(criteria)
+    QueryResult findFinishedQueryResultInCacheBy(User user,
+                                                 Constraint constraint) {
+        Long queryResultId = getQueryResultIdFromCache(user, constraint)
+        if (log.debugEnabled) {
+            log.debug("Get query result ${queryResultId} for ${user} and ${constraint}")
+        }
+        if (queryResultId) {
+            QtQueryResultInstance queryResult = QtQueryResultInstance.get(queryResultId)
+            boolean usable = queryResult && queryResult.status == QueryStatus.FINISHED && queryResult.deleteFlag == 'N'
+            if (log.debugEnabled) {
+                log.debug("Got ${queryResult} query result by ${queryResultId} id with usability calculated to ${usable}")
+            }
+            if (usable) {
+                return queryResult
+            }
+        }
+        return null
     }
 
     /**
@@ -198,13 +213,13 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
 
         QueryResult result = null
         if (reusePatientSet) {
-            result = findQueryResultByConstraint(user, constraint)
+            result = findFinishedQueryResultInCacheBy(user, constraint)
         }
         if (result == null) {
             result = createQueryResult(name, user, constraint, apiVersion, reusePatientSet, queryExecutor)
         }
         if (result.status != QueryStatus.FINISHED) {
-            throw new UnexpectedResultException('Query not finished.')
+            throw new UnexpectedResultException("Query has ${result.status} status.")
         }
         result
     }
@@ -716,16 +731,46 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
     }
 
     /**
-     * Clear all patient sets.
-     * This function should be called after data loading, to invalidate
-     * any persisted patient sets.
+     * Clear  query result ids cache.
+     * This function should be called after data loading.
      */
-    @Transactional
-    void clearPatientSets() {
-        log.info 'Clearing patient sets ...'
-        QtPatientSetCollection.executeUpdate('delete QtPatientSetCollection')
-        QtQueryResultInstance.executeUpdate('delete QtQueryResultInstance')
-        QtQueryInstance.executeUpdate('delete QtQueryInstance')
+    void clearPatientSetIdsCache() {
+        log.info 'Clearing patient set ids cache ...'
+        getQueryResultIdsCache().clear()
+    }
+
+    /**
+     * Get's query result id (aka patient set id) for the given user and constraint from the cache.
+     * The cache meant to be cleaned after the data loading. {@link this.clearPatientSetIdsCache()}
+     * @param user user result belongs to
+     * @param constraint constraint used in the query
+     * @return query result id (aka patient set id)
+     */
+    protected Long getQueryResultIdFromCache(User user, Constraint constraint) {
+        def key = calculateCacheKey(user, constraint)
+        Long id = getQueryResultIdsCache().get(key, Long)
+        log.debug("Get query result instance ${id} by ${key} key.")
+        return id
+    }
+
+    /**
+     * Put a query result id to the cache
+     * @param user defines the cache key
+     * @param constraint defines the cache key
+     * @param id query result id
+     */
+    protected void putQueryResultIdToCache(User user, Constraint constraint, Long id) {
+        def key = calculateCacheKey(user, constraint)
+        log.debug("Put query result instance ${id} to ${key} key.")
+        getQueryResultIdsCache().put(key, id)
+    }
+
+    private Object calculateCacheKey(User user, Constraint constraint) {
+        [user.username, constraint.toJson()]
+    }
+
+    private Cache getQueryResultIdsCache() {
+        cacheManager.getCache(QUERY_RESULT_IDS_CACHE)
     }
 
 }

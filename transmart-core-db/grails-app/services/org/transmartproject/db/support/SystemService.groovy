@@ -116,8 +116,8 @@ class SystemService implements SystemResource {
                 clearCaches() } as Runnable,
             'refresh study concept bitset materialized view': { ->
                 aggregateDataOptimisationsService.clearPatientSetBitset() } as Runnable,
-            'clear patient sets': { ->
-                patientSetService.clearPatientSets() } as Runnable,
+            'clear patient set ids cache': { ->
+                patientSetService.clearPatientSetIdsCache() } as Runnable,
             'user query set scan': { ->
                 userQuerySetResource.scan() } as Runnable,
             'rebuild caches': { ->

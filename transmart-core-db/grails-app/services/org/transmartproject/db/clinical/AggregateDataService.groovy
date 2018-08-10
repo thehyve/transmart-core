@@ -181,7 +181,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             def constraintParts = ParallelPatientSetTaskService.getConstraintParts(constraint)
             if (!constraintParts.patientSetConstraint || !constraintParts.patientSetConstraint.patientSetId) {
                 // Try to combine the constraint a patient set for all accessible patients
-                def allPatientsSet = patientSetResource.findQueryResultByConstraint(
+                def allPatientsSet = patientSetResource.findFinishedQueryResultInCacheBy(
                         user, new TrueConstraint())
                 if (allPatientsSet) {
                     // add patient set constraint
