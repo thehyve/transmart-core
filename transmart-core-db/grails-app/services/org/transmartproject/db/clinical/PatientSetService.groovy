@@ -766,7 +766,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
     }
 
     private Object calculateCacheKey(User user, Constraint constraint) {
-        [user.username, constraint]
+        [user.username, constraint.toJson()]
     }
 
     private Cache getQueryResultIdsCache() {
