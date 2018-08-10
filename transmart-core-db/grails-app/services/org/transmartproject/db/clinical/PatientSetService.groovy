@@ -748,8 +748,10 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
      */
     protected Long getQueryResultIdFromCache(User user, Constraint constraint) {
         def key = calculateCacheKey(user, constraint)
-        Long id = getQueryResultIdsCache().get(key, Long)
-        log.debug("Get query result instance ${id} by ${key} key.")
+        Long id = (Long) getQueryResultIdsCache().get(key, Map)?.get(user.username)
+        if (log.debugEnabled) {
+            log.debug("Get query result instance ${id} by ${key} key for user ${user.username}.")
+        }
         return id
     }
 
@@ -761,12 +763,14 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
      */
     protected void putQueryResultIdToCache(User user, Constraint constraint, Long id) {
         def key = calculateCacheKey(user, constraint)
-        log.debug("Put query result instance ${id} to ${key} key.")
-        getQueryResultIdsCache().put(key, id)
+        if (log.debugEnabled) {
+            log.debug("Put query result instance ${id} to ${key} key for user ${user.username}.")
+        }
+        getQueryResultIdsCache().put(key, [(user.username): id])
     }
 
     private Object calculateCacheKey(User user, Constraint constraint) {
-        [user.username, constraint.toJson()]
+        [user.admin, user.studyToPatientDataAccessLevel, constraint.toJson()]
     }
 
     private Cache getQueryResultIdsCache() {
