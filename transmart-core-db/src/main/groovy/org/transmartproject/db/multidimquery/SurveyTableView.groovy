@@ -125,8 +125,12 @@ class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow>
             if (labelsToValues.containsKey(label_key)) {
                 return labelsToValues[label_key]
             }
-            if (metadata?.type == DATE && value instanceof Number) {
-                return toDate(value)
+            if (metadata?.type == DATE) {
+                if (value instanceof Number) {
+                    return toDate(value)
+                } else if (value instanceof Date) {
+                    return value
+                }
             }
             return label
         }

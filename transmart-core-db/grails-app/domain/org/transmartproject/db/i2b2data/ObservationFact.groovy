@@ -29,6 +29,7 @@ class ObservationFact implements Serializable {
 
     public static String TYPE_TEXT   = 'T'
     public static String TYPE_NUMBER = 'N'
+    public static String TYPE_DATE = 'D'
     public static String TYPE_RAW_TEXT = 'B'
     public static String EMPTY_MODIFIER_CODE = '@'
 
@@ -128,6 +129,8 @@ class ObservationFact implements Serializable {
                 return textValue
             case TYPE_NUMBER:
                 return numberValue
+            case TYPE_DATE:
+                return new Date(numberValue.longValue())
             case TYPE_RAW_TEXT:
                 return rawValue
             default:
