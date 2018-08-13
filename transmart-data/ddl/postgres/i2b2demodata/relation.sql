@@ -38,6 +38,10 @@ ALTER TABLE ONLY i2b2demodata.relation
 --
 CREATE INDEX relation_type_id_idx ON i2b2demodata.relation USING btree (relation_type_id);
 
+GRANT SELECT ON TABLE i2b2demodata.relation TO biomart_user;
+GRANT ALL ON TABLE i2b2demodata.relation TO i2b2demodata;
+GRANT ALL ON TABLE i2b2demodata.relation TO tm_cz;
+
 COMMENT ON TABLE i2b2demodata.relation IS 'Represents relationships between subjects. e.g. pedigree.';
 
 COMMENT ON COLUMN i2b2demodata.relation.left_subject_id IS 'Id of the left subject in the relation.';

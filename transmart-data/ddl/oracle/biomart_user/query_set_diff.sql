@@ -19,7 +19,7 @@ CREATE SEQUENCE "BIOMART_USER"."QUERY_SET_DIFF_ID_SEQ";
 -- Type: TRIGGER; Owner: BIOMART_USER; Name: TRG_QUERY_SET_DIFF_ID
 --
 CREATE OR REPLACE TRIGGER "BIOMART_USER"."TRG_QUERY_SET_DIFF_ID"
-before insert on "QUERY_SET_DIFF"
+before insert on "BIOMART_USER"."QUERY_SET_DIFF"
 for each row begin
 	if inserting then
 		if :NEW."ID" is null then
