@@ -14,6 +14,10 @@ CREATE TABLE i2b2demodata.relation_type (
 --
 CREATE UNIQUE INDEX relation_type_label_unq ON i2b2demodata.relation_type USING btree (label);
 
+GRANT SELECT ON TABLE i2b2demodata.relation_type TO biomart_user;
+GRANT ALL ON TABLE i2b2demodata.relation_type TO i2b2demodata;
+GRANT ALL ON TABLE i2b2demodata.relation_type TO tm_cz;
+
 COMMENT ON TABLE i2b2demodata.relation_type IS 'Dictionary of relations. e.g. "parent of" relation.';
 
 COMMENT ON COLUMN i2b2demodata.relation_type.label IS 'Short unique name of the relation.';

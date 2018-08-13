@@ -19,8 +19,8 @@ CREATE SEQUENCE "BIOMART_USER"."QUERY_SET_ID_SEQ";
 --
 -- Type: TRIGGER; Owner: BIOMART_USER; Name: TRG_QUERY_SET_ID
 --
-  CREATE OR REPLACE TRIGGER "BIOMART_USER"."TRG_QUERY_SET_ID"
-	 before insert on "QUERY_SET"
+CREATE OR REPLACE TRIGGER "BIOMART_USER"."TRG_QUERY_SET_ID"
+	 before insert on "BIOMART_USER"."QUERY_SET"
 	 for each row begin
 	 if inserting then
 	 if :NEW."ID" is null then
