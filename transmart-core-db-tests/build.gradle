@@ -26,9 +26,20 @@ assets {
     packagePlugin = true
 }
 
-// Force selected tests to always run, even if Gradle thinks they are up to date
-test.outputs.upToDateWhen {false}
-integrationTest.outputs.upToDateWhen {false}
-
-integrationTest.testLogging.exceptionFormat = 'full'
-test.testLogging.exceptionFormat = 'full'
+test {
+    // Force selected tests to always run, even if Gradle thinks they are up to date
+    outputs.upToDateWhen { false }
+    testLogging.exceptionFormat = 'full'
+    reports {
+        junitXml.enabled = false
+        html.enabled = true
+    }
+}
+integrationTest {
+    outputs.upToDateWhen { false }
+    testLogging.exceptionFormat = 'full'
+    reports {
+        junitXml.enabled = false
+        html.enabled = true
+    }
+}
