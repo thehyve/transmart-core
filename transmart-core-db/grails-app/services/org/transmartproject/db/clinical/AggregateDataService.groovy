@@ -218,6 +218,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
         wrappedThis.updateCountsCache(constraint, user)
+        wrappedThis.updateCountsPerConceptCache(constraint, user)
         wrappedThis.updateCountsPerStudyCache(constraint, user)
         wrappedThis.updateCountsPerStudyAndConceptCache(constraint, user)
     }
@@ -303,13 +304,27 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         }
     }
 
-    @Override
     @Transactional(readOnly = true)
-    Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
+    Map<String, Counts> freshCountsPerConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
         def taskParameters = new SubtaskParameters(1, constraint, user)
         def counts = countsPerConceptTask(taskParameters)
         mergeConceptCounts(counts)
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
+            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
+        freshCountsPerConcept(constraint, user)
+    }
+
+    @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
+            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> updateCountsPerConceptCache(Constraint constraint, User user) {
+        freshCountsPerConcept(constraint, user)
     }
 
     @Transactional(readOnly = true)
