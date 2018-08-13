@@ -6,13 +6,8 @@ import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.Memoized
 import org.hibernate.Criteria
-import org.hibernate.criterion.Criterion
-import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.Projections
-import org.hibernate.criterion.Restrictions
-import org.hibernate.criterion.Subqueries
+import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
@@ -21,21 +16,11 @@ import org.hibernate.type.Type
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.PatientSetResource
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.MultipleSubSelectionsConstraint
-import org.transmartproject.core.multidimquery.query.Negation
-import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.OrConstraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.QueryBuilderException
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
@@ -45,11 +30,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
-import org.transmartproject.db.querytool.QtPatientSetCollection
-import org.transmartproject.db.querytool.QtQueryInstance
-import org.transmartproject.db.querytool.QtQueryMaster
-import org.transmartproject.db.querytool.QtQueryResultInstance
-import org.transmartproject.db.querytool.QtQueryResultType
+import org.transmartproject.db.querytool.*
 import org.transmartproject.db.support.ParallelPatientSetTaskService
 import org.transmartproject.db.util.HibernateUtils
 
@@ -66,11 +47,13 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
     @Autowired
     CacheManager cacheManager
 
+    @Autowired
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate
+
     @Transactional(readOnly = true)
-    @Memoized
     @CompileDynamic
     QtQueryResultType getPatientSetResultType() {
-        QtQueryResultType.findById(QueryResultType.PATIENT_SET_ID)
+        QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)
     }
 
     /**
@@ -105,7 +88,6 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         QtQueryResultInstance resultInstance = createQueryResultInstance(queryInstance, name)
         resultInstance.save(failOnError: true, flush: true)
         log.debug("Saved a query result instance ${resultInstance}")
-        putQueryResultIdToCache(user, constraint, resultInstance.id)
 
         try {
             log.info("Execute query ${constraint}")
@@ -114,15 +96,16 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
 
             log.info('Query execution has finished successfully')
             resultInstance.endDate = new Date()
-            resultInstance.statusTypeId = (short)QueryStatus.FINISHED.id
+            resultInstance.statusTypeId = (short) QueryStatus.FINISHED.id
             queryInstance.endDate = new Date()
             queryInstance.statusTypeId = QueryStatus.FINISHED.id
+            putQueryResultIdToCache(user, constraint, resultInstance.id)
         } catch (Throwable t) {
             log.error('Query execution has failed', t)
             resultInstance.setSize = resultInstance.realSetSize = -1L
             resultInstance.errorMessage = t.message
             resultInstance.endDate = new Date()
-            resultInstance.statusTypeId = (short)QueryStatus.ERROR.id
+            resultInstance.statusTypeId = (short) QueryStatus.ERROR.id
             queryInstance.endDate = new Date()
             queryInstance.statusTypeId = QueryStatus.ERROR.id
         }
@@ -179,7 +162,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         }
         if (queryResultId) {
             QtQueryResultInstance queryResult = QtQueryResultInstance.get(queryResultId)
-            boolean usable = queryResult && queryResult.status == QueryStatus.FINISHED && queryResult.deleteFlag == 'N'
+            boolean usable = isQueryResultUsable(queryResult)
             if (log.debugEnabled) {
                 log.debug("Got ${queryResult} query result by ${queryResultId} id with usability calculated to ${usable}")
             }
@@ -620,20 +603,26 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         assert queryResult
         assert queryResult.id
 
-        if (constraint instanceof TrueConstraint) {
-            // Creating patient set for all patients, execute single query
-            log.info "Saving patient set for the True constraint."
-            DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
-                    .buildCriteria(constraint)
-                    .setProjection(
-                    Projections.projectionList()
-                            .add(Projections.distinct(Projections.property('patient.id')), 'pid')
-                            .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
-                            [StandardBasicTypes.LONG] as Type[])))
+        if (reusePatientSets) {
+            Map<String, Long> userToQueryResultId = getUsernameToQueryResultIdFromCache(user, constraint)
+            if (userToQueryResultId) {
+                for (Map.Entry<String, Long> usernameToPatientSetIdEntry: userToQueryResultId.entrySet()) {
+                    if (usernameToPatientSetIdEntry.key != user.username) {
+                        Long otherUserPatientSetId = usernameToPatientSetIdEntry.value
+                        boolean patientSetUsable = isQueryResultUsable(QtQueryResultInstance.get(otherUserPatientSetId))
+                        if (log.debugEnabled) {
+                            log.debug("Found patient set ${otherUserPatientSetId} of ${user} user with usability calculated to ${patientSetUsable}.")
+                        }
+                        if (patientSetUsable) {
+                            return copyPatientSet(otherUserPatientSetId, queryResult.id)
+                        }
+                    }
+                }
+            }
+        }
 
-            Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
-            return HibernateUtils
-                    .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
+        if (constraint instanceof TrueConstraint) {
+            return materializePatientSet(queryResult, constraint, user)
         } else {
             /**
              * - First split into multiple subselects if of the form (subselect() op subselect()) with op in {'or', 'and'}
@@ -680,6 +669,41 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
                 insertPatientsToQueryResult(queryResult, patientIds)
             }
         }
+    }
+
+    protected Integer copyPatientSet(Long fromPatientSetId, Long toPatientSetId) {
+        if (log.debugEnabled) {
+            log.debug("Copying patients from patient set (id = ${fromPatientSetId}) to patient set (id = ${toPatientSetId}) with insert-select sql.")
+        }
+        int records = namedParameterJdbcTemplate.update('''
+          insert into i2b2demodata.qt_patient_set_collection(patient_num, result_instance_id)
+          select from_ps.patient_num, :to_result_instance_id
+          from i2b2demodata.qt_patient_set_collection from_ps
+          where from_ps.result_instance_id = :from_result_instance_id
+        ''',
+                [
+                        from_result_instance_id: fromPatientSetId,
+                        to_result_instance_id  : toPatientSetId,
+                ])
+        if (log.debugEnabled) {
+            log.debug("Copied ${records} rows to patient set (id = ${toPatientSetId}).")
+        }
+        return records
+    }
+
+    protected int materializePatientSet(QueryResult queryResult, Constraint constraint, User user) {
+        log.info "Saving patient set for the True constraint."
+        DetachedCriteria patientSetDetachedCriteria = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
+                .buildCriteria(constraint)
+                .setProjection(
+                Projections.projectionList()
+                        .add(Projections.distinct(Projections.property('patient.id')), 'pid')
+                        .add(Projections.sqlProjection("${queryResult.id} as rid", ['rid'] as String[],
+                        [StandardBasicTypes.LONG] as Type[])))
+
+        Criteria patientSetCriteria = getExecutableCriteria(patientSetDetachedCriteria)
+        return HibernateUtils
+                .insertResultToTable(QtPatientSetCollection, ['patient.id', 'resultInstance.id'], patientSetCriteria)
     }
 
     /**
@@ -748,9 +772,20 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
      */
     protected Long getQueryResultIdFromCache(User user, Constraint constraint) {
         def key = calculateCacheKey(user, constraint)
-        Long id = getQueryResultIdsCache().get(key, Long)
-        log.debug("Get query result instance ${id} by ${key} key.")
+        Long id = (Long) getQueryResultIdsCache().get(key, Map)?.get(user.username)
+        if (log.debugEnabled) {
+            log.debug("Get query result instance ${id} by ${key} key for user ${user.username}.")
+        }
         return id
+    }
+
+    protected Map<String, Long> getUsernameToQueryResultIdFromCache(User user, Constraint constraint) {
+        def key = calculateCacheKey(user, constraint)
+        Map<String, Long> userToQueryResultId = (Map<String, Long>) getQueryResultIdsCache().get(key, Map)
+        if (log.debugEnabled) {
+            log.debug("Get users to query userToQueryResultId instance map (${userToQueryResultId}) by ${key} key for user ${user.username}.")
+        }
+        return userToQueryResultId
     }
 
     /**
@@ -761,12 +796,18 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
      */
     protected void putQueryResultIdToCache(User user, Constraint constraint, Long id) {
         def key = calculateCacheKey(user, constraint)
-        log.debug("Put query result instance ${id} to ${key} key.")
-        getQueryResultIdsCache().put(key, id)
+        if (log.debugEnabled) {
+            log.debug("Put query result instance ${id} to ${key} key for user ${user.username}.")
+        }
+        getQueryResultIdsCache().put(key, [(user.username): id])
+    }
+
+    private boolean isQueryResultUsable(QtQueryResultInstance queryResult) {
+        queryResult && queryResult.status == QueryStatus.FINISHED && queryResult.deleteFlag == 'N'
     }
 
     private Object calculateCacheKey(User user, Constraint constraint) {
-        [user.username, constraint.toJson()]
+        [user.admin, user.studyToPatientDataAccessLevel, constraint.toJson()]
     }
 
     private Cache getQueryResultIdsCache() {

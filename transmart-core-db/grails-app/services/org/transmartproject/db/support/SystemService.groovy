@@ -105,6 +105,7 @@ class SystemService implements SystemResource {
     void clearCaches() {
         treeCacheService.clearAllCacheEntries()
         ontologyTermTagsResourceService.clearTagsCache()
+        patientSetService.clearPatientSetIdsCache()
         aggregateDataService.clearCountsCache()
         aggregateDataService.clearCountsPerStudyAndConceptCache()
         studiesService.clearCaches()
