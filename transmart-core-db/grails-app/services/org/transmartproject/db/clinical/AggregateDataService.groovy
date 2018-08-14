@@ -673,6 +673,26 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     /**
+     * Clears the counts per study cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
+            allEntries = true)
+    void clearCountsPerStudyCache() {
+        log.info 'Clearing counts per study count cache ...'
+    }
+
+    /**
+     * Clears the counts per concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
+            allEntries = true)
+    void clearCountsPerConceptCache() {
+        log.info 'Clearing counts per concept count cache ...'
+    }
+
+    /**
      * Clears the counts per study and concept cache. This function should be called after loading, removing or updating
      * observations in the database.
      */
