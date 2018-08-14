@@ -2,12 +2,14 @@
 
 package org.transmartproject.db.multidimquery
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.CacheManager
+import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.users.UsersResource
@@ -23,6 +25,9 @@ class AggregateDataServicePgSpec extends Specification {
 
     @Autowired
     UsersResource usersResource
+
+    @Autowired
+    CacheManager cacheManager
 
     /**
      * Test the functionality to count patients and observations grouped by
@@ -198,4 +203,123 @@ class AggregateDataServicePgSpec extends Specification {
         includingSecuredRecords['DEMO:POB'].nullValueCounts == 0
     }
 
+    void 'test caching counts per concept'() {
+        given: "countsPerConcept cache is empty"
+        String countsPerConceptCacheName = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept'
+        cacheManager.getCache(countsPerConceptCacheName).clear()
+
+        def user = usersResource.getUserFromUsername('test-public-user-1')
+        def admin = usersResource.getUserFromUsername('admin')
+        Constraint studyConstraint = new StudyNameConstraint(studyId: "EHR")
+
+        when: "I call countsPerConcept for study EHR"
+        aggregateDataService.countsPerConcept(studyConstraint, user)
+        def countsPerConceptCache = cacheManager.getCache(countsPerConceptCacheName)
+
+        then: "countsPerConcept cache contains counts for study EHR and non-admin user"
+        countsPerConceptCache.getNativeCache().size() == 1
+        countsPerConceptCache.getAllKeys()[0] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                  user.isAdmin(),
+                                                  user.studyToPatientDataAccessLevel]
+
+        when: "I call countsPerStudy for TrueConstraints"
+        aggregateDataService.countsPerConcept(studyConstraint, admin)
+        def countsPerConceptCache2 = cacheManager.getCache(countsPerConceptCacheName)
+
+        then: "countsPerConcept cache contains counts for study EHR for both admin and non-admin user"
+        countsPerConceptCache2.getNativeCache().size() == 2
+        countsPerConceptCache2.getAllKeys()[0] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                   admin.isAdmin(),
+                                                   admin.studyToPatientDataAccessLevel]
+        countsPerConceptCache2.getAllKeys()[1] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                   user.isAdmin(),
+                                                   user.studyToPatientDataAccessLevel]
+
+        when: "I call countsPerConcept for TrueConstraints"
+        aggregateDataService.countsPerConcept(new TrueConstraint(), user)
+        def countsPerConceptCache3 = cacheManager.getCache(countsPerConceptCacheName)
+
+        then: "countsPerStudy cache contains all 3 cache entries"
+        countsPerConceptCache3.getNativeCache().size() == 3
+    }
+
+    void 'test caching counts per study'() {
+        given: "countsPerStudy cache is empty"
+        String countsPerStudyCacheName = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy'
+        cacheManager.getCache(countsPerStudyCacheName).clear()
+
+        def user = usersResource.getUserFromUsername('test-public-user-1')
+        def admin = usersResource.getUserFromUsername('admin')
+        Constraint studyConstraint = new StudyNameConstraint(studyId: "EHR")
+
+        when: "I call countsPerStudy for study EHR"
+        aggregateDataService.countsPerStudy(studyConstraint, user)
+        def countsPerStudyCache = cacheManager.getCache(countsPerStudyCacheName)
+
+        then: "countsPerConcept cache contains counts for study EHR and non-admin user"
+        countsPerStudyCache.getNativeCache().size() == 1
+        countsPerStudyCache.getAllKeys()[0] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                user.isAdmin(),
+                                                user.studyToPatientDataAccessLevel]
+
+        when: "I call countsPerStudy for TrueConstraints"
+        aggregateDataService.countsPerStudy(studyConstraint, admin)
+        def countsPerStudyCache2 = cacheManager.getCache(countsPerStudyCacheName)
+
+        then: "countsPerStudy cache contains counts for study EHR for both admin and non-admin user"
+        countsPerStudyCache2.getNativeCache().size() == 2
+        countsPerStudyCache2.getAllKeys()[0] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                 admin.isAdmin(),
+                                                 admin.studyToPatientDataAccessLevel]
+        countsPerStudyCache2.getAllKeys()[1] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                 user.isAdmin(),
+                                                 user.studyToPatientDataAccessLevel]
+
+        when: "I call countsPerStudy for TrueConstraints"
+        aggregateDataService.countsPerStudy(new TrueConstraint(), user)
+        def countsPerStudyCache3 = cacheManager.getCache(countsPerStudyCacheName)
+
+        then: "countsPerStudy cache contains all 3 cache entries"
+        countsPerStudyCache3.getNativeCache().size() == 3
+    }
+
+    void 'test caching counts per study and concept'() {
+        given: "countsPerStudyAndConcept cache is empty"
+        String countsPerStudyAndConceptCacheName = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept'
+        cacheManager.getCache(countsPerStudyAndConceptCacheName).clear()
+
+        def user = usersResource.getUserFromUsername('test-public-user-1')
+        def admin = usersResource.getUserFromUsername('admin')
+        Constraint studyConstraint = new StudyNameConstraint(studyId: "EHR")
+
+        when: "I call countsPerStudyAndConcept for study EHR"
+        aggregateDataService.countsPerStudyAndConcept(studyConstraint, user)
+        def countsPerStudyAndConceptCache = cacheManager.getCache(countsPerStudyAndConceptCacheName)
+
+        then: "countsPerConcept cache contains counts for study EHR and non-admin user"
+        countsPerStudyAndConceptCache.getNativeCache().size() == 1
+        countsPerStudyAndConceptCache.getAllKeys()[0] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                user.isAdmin(),
+                                                user.studyToPatientDataAccessLevel]
+
+        when: "I call countsPerStudyAndConcept for TrueConstraints"
+        aggregateDataService.countsPerStudyAndConcept(studyConstraint, admin)
+        def countsPerStudyAndConceptCache2 = cacheManager.getCache(countsPerStudyAndConceptCacheName)
+
+        then: "countsPerStudyAndConcept cache contains counts for study EHR for both admin and non-admin user"
+        countsPerStudyAndConceptCache2.getNativeCache().size() == 2
+        countsPerStudyAndConceptCache2.getAllKeys()[0] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                 admin.isAdmin(),
+                                                 admin.studyToPatientDataAccessLevel]
+        countsPerStudyAndConceptCache2.getAllKeys()[1] == [new ObjectMapper().writeValueAsString(["type": "study_name", "studyId": "EHR"]),
+                                                 user.isAdmin(),
+                                                 user.studyToPatientDataAccessLevel]
+
+        when: "I call countsPerStudyAndConcept for TrueConstraints"
+        aggregateDataService.countsPerStudyAndConcept(new TrueConstraint(), user)
+        def countsPerStudyAndConceptCache3 = cacheManager.getCache(countsPerStudyAndConceptCacheName)
+
+        then: "countsPerStudyAndConcept cache contains all 3 cache entries"
+        countsPerStudyAndConceptCache3.getNativeCache().size() == 3
+    }
 }
