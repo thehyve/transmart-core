@@ -275,29 +275,27 @@ class DataTableSpec extends RESTSpec {
         exportData[0] == ['', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES', 'TUMOR_NORMAL_SAMPLES']
         exportData[1] == ['', 'TNS:DEM:AGE', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPLUNG', 'TNS:HD:EXPLUNG', 'TNS:LAB:CELLCNT', 'TNS:LAB:CELLCNT']
         exportData[2] == ['', '', 'Normal', 'Tumor', 'Normal', 'Tumor', 'Normal', 'Tumor']
-        // Patient TNS:63
-        exportData[3] == [
-                '-63/TNS:63',
-                '40.00000',
-                '',
-                'sample3',
-                'sample1',
-                'sample2',
-                '203.00000',
-                '100.00000'
-        ]
-        // Patient TNS:43
-        exportData[5] == [
-                '-43/TNS:43',
-                '52.00000',
-                'sample9',
-                '',
-                'sample7;sample8',
-                'sample6',
-                '380.00000;240.00000',
-                '28.00000'
-        ]
 
+        // Patient TNS:63
+        exportData[3][0] == '-63/TNS:63'
+        new BigDecimal(exportData[3][1]).compareTo(new BigDecimal('40')) == 0
+        exportData[3][2] == ''
+        exportData[3][3] == 'sample3'
+        exportData[3][4] == 'sample1'
+        exportData[3][5] == 'sample2'
+        new BigDecimal(exportData[3][6]).compareTo(new BigDecimal('203')) == 0
+        new BigDecimal(exportData[3][7]).compareTo(new BigDecimal('100')) == 0
+
+        // Patient TNS:43
+        exportData[5][0] == '-43/TNS:43'
+        new BigDecimal(exportData[5][1]).compareTo(new BigDecimal('52')) == 0
+        exportData[5][2] == 'sample9'
+        exportData[5][3] == ''
+        exportData[5][4] == 'sample7;sample8'
+        exportData[5][5] == 'sample6'
+        new BigDecimal(exportData[5][6].split(';')[0]).compareTo(new BigDecimal('380')) == 0
+        new BigDecimal(exportData[5][6].split(';')[1]).compareTo(new BigDecimal('240')) == 0
+        new BigDecimal(exportData[5][7]).compareTo(new BigDecimal('28')) == 0
     }
 
 }
