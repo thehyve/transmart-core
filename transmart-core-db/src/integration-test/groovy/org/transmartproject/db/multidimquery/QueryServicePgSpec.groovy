@@ -194,7 +194,7 @@ class QueryServicePgSpec extends Specification {
         hypercube.toList()
 
         then:
-        hypercube.dimensionElements(ASSAY).size() == 3
+        hypercube.dimensionElements(ASSAY).size() == 4
 
         when:
         combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeConstraint])
