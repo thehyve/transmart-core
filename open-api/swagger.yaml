@@ -112,7 +112,8 @@ info:
     
     ## Time
     Evaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.
-    The list must hold one date for the before(&lt;-) and after(-&gt;) operator. It must hold two dates for the between(&lt;--&gt;) operator. If the given date field for an observation is empty, the observation will be ignored.
+    The list must hold one date for the before(&lt;-) and after(-&gt;) operator. It must hold two dates for the between(&lt;--&gt;) operator. If the given date field for an observation is empty, the observation will be ignored. All three operators are inclusive.
+
     `operator`: ["&lt;-", "-&gt;", "&lt;--&gt;"]
     
     Example:
