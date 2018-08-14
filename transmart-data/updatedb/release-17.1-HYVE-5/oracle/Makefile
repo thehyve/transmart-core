@@ -1,7 +1,8 @@
 include ../../../lib/makefile.inc
 
 FILES = \
-	../common/migrate
+	../common/migrate \
+	to_date_data_type
 
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
 
