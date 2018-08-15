@@ -6,51 +6,15 @@ import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
-import org.hibernate.criterion.Criterion
-import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.MatchMode
-import org.hibernate.criterion.ProjectionList
-import org.hibernate.criterion.Projections
-import org.hibernate.criterion.Restrictions
-import org.hibernate.criterion.Subqueries
+import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.type.IntegerType
 import org.hibernate.type.LongType
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintBuilder
-import org.transmartproject.core.multidimquery.query.Field
-import org.transmartproject.core.multidimquery.query.FieldConstraint
-import org.transmartproject.core.multidimquery.query.ModifierConstraint
-import org.transmartproject.core.multidimquery.query.MultipleSubSelectionsConstraint
-import org.transmartproject.core.multidimquery.query.Negation
-import org.transmartproject.core.multidimquery.query.NullConstraint
-import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.OrConstraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.QueryBuilder
-import org.transmartproject.core.multidimquery.query.QueryBuilderException
-import org.transmartproject.core.multidimquery.query.RelationConstraint
-import org.transmartproject.core.multidimquery.query.RowValueConstraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
-import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.core.multidimquery.query.TemporalConstraint
-import org.transmartproject.core.multidimquery.query.TimeConstraint
-import org.transmartproject.core.multidimquery.query.TrueConstraint
-import org.transmartproject.core.multidimquery.query.Type
-import org.transmartproject.core.multidimquery.query.ValueConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.pedigree.RelationTypeResource
-import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.PatientMapping
-import org.transmartproject.db.i2b2data.TrialVisit
-import org.transmartproject.db.i2b2data.VisitDimension
+import org.transmartproject.db.i2b2data.*
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
@@ -479,12 +443,9 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
     Criterion build(TimeConstraint constraint) {
         switch(constraint.operator) {
             case Operator.BEFORE:
-                return build(new FieldConstraint(
-                                field: constraint.field,
-                                operator: constraint.operator,
-                                value: constraint.values[0]
-                ))
             case Operator.AFTER:
+            case Operator.GREATER_THAN_OR_EQUALS:
+            case Operator.LESS_THAN_OR_EQUALS:
                 return build(new FieldConstraint(
                         field: constraint.field,
                         operator: constraint.operator,
