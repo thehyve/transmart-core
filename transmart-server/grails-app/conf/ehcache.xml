@@ -148,6 +148,16 @@
            timeToIdleSeconds="0"
     />
 
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.countsPerStudy"
+           maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
+    />
+
+    <cache name="org.transmartproject.db.clinical.AggregateDataService.countsPerConcept"
+           maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
+    />
+
     <cache name="org.transmartproject.db.tree.TreeCacheService"
            maxElementsInMemory="10000"
            timeToIdleSeconds="0"

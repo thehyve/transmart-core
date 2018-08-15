@@ -107,6 +107,8 @@ class SystemService implements SystemResource {
         ontologyTermTagsResourceService.clearTagsCache()
         patientSetService.clearPatientSetIdsCache()
         aggregateDataService.clearCountsCache()
+        aggregateDataService.clearCountsPerStudyCache()
+        aggregateDataService.clearCountsPerConceptCache()
         aggregateDataService.clearCountsPerStudyAndConceptCache()
         studiesService.clearCaches()
         trialVisitsService.clearCache()
