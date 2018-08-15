@@ -11,6 +11,7 @@ import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.AggregateDataService
 import spock.lang.Specification
@@ -202,6 +203,21 @@ class AggregateDataServicePgSpec extends Specification {
         includingSecuredRecords['DEMO:POB'].nullValueCounts == 0
     }
 
+    //TODO Expected to fail after TMT-418 fix
+    def 'test date aggregates'() {
+        def birthdate = new ConceptConstraint(conceptCode: 'birthdate')
+        def user = new SimpleUser(username: 'admin', admin: true)
+
+        when: 'ask for aggregates for the date'
+        def aggregates = aggregateDataService.numericalValueAggregatesPerConcept(birthdate, user)
+
+        then: 'get back numerical aggregates with min and max'
+        'birthdate' in aggregates
+        def aggregatesAgg = aggregates['birthdate']
+        aggregatesAgg.min
+        aggregatesAgg.max
+        aggregatesAgg.min < aggregatesAgg.max
+    }
     void 'test caching counts per concept'() {
 
         given: "all counts caches are empty"

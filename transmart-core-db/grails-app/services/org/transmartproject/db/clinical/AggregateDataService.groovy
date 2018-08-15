@@ -611,7 +611,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         criteria
                 .setProjection(projections)
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-                .add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+                //TODO date type has to have it's own aggragation call. see TMT-418
+                .add(Restrictions.in('valueType', ObservationFact.NUMBER_FIELD_TYPES))
         def results = getList(criteria) as List<Map>
         results.stream().collect(Collectors.toMap(
                 { Map rowMap -> (String)rowMap.conceptCode } as Function<Map, String>,

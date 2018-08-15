@@ -521,6 +521,10 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
                 criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
                 criteria.setProjection(Projections.distinct(Projections.property('numberValue')))
                 return criteria
+            case ObservationFact.TYPE_DATE:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_DATE))
+                criteria.setProjection(Projections.distinct(Projections.property('numberValue')))
+                return criteria
             case ObservationFact.TYPE_RAW_TEXT:
                 criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_RAW_TEXT))
                 criteria.setProjection(Projections.distinct(Projections.property('rawValue')))
@@ -540,6 +544,10 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
                 return criteria
             case ObservationFact.TYPE_NUMBER:
                 criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+                criteria.setProjection(Projections.countDistinct('numberValue'))
+                return criteria
+            case ObservationFact.TYPE_DATE:
+                criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_DATE))
                 criteria.setProjection(Projections.countDistinct('numberValue'))
                 return criteria
             case ObservationFact.TYPE_RAW_TEXT:

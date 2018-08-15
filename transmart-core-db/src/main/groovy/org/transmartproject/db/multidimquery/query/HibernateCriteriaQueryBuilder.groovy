@@ -181,6 +181,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                 valueTypeCode = ObservationFact.TYPE_RAW_TEXT
                 valueField = rawValueField
                 break
+            case Type.DATE:
+                valueTypeCode = ObservationFact.TYPE_DATE
+                valueField = numberValueField
+                break
             default:
                 throw new QueryBuilderException("Value type not supported: ${constraint.valueType}.")
         }
@@ -280,6 +284,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                 def fieldType = DimensionMetadata.forDimensionName(field?.dimension).fieldTypes[field.fieldName]
                 if (fieldType != null && !fieldType.isInstance(value)) {
                     if (Number.isAssignableFrom(fieldType) && value instanceof Date) {
+                        //TODO Remove in TMT-420
                         convertedValue = toNumber((Date)value)
                     } else {
                         convertedValue = value == null ? null : fieldType.newInstance(value)

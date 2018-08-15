@@ -5,10 +5,12 @@ package org.transmartproject.db.metadata
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.ModifierDimension
 
+import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_DATE
 import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_NUMBER
 import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_RAW_TEXT
 import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_TEXT
@@ -64,10 +66,9 @@ class DimensionDescription {
             if([modifierCode, valueType, size, density, packable].any { it == null }) {
                 throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
                         " is not builtin and some modifier dimension fields are NULL")
-            } else if(!(valueType in [TYPE_NUMBER, TYPE_TEXT, TYPE_RAW_TEXT])) {
+            } else if(!ObservationFact.ALL_TYPES.contains(valueType)) {
                 throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' " +
-                        "dimension contains an unrecognized valueType '$valueType', expected " +
-                        "'${TYPE_TEXT}', '${TYPE_NUMBER}' or '${TYPE_RAW_TEXT}")
+                        "dimension contains an unrecognized valueType '$valueType'.")
             }
         }
     }
@@ -93,6 +94,8 @@ class DimensionDescription {
                 return String
             case TYPE_NUMBER:
                 return Double
+            case TYPE_DATE:
+                return Date
             default:
                 throw new RuntimeException("Unsupported value type: ${valueType}. Should be one of [${TYPE_NUMBER}, ${TYPE_TEXT}, ${TYPE_RAW_TEXT}].")
         }

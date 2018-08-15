@@ -633,14 +633,29 @@ class QueryServicePgSpec extends Specification {
                         new TimeConstraint(
                             field: new Field(
                                     dimension: VALUE.name,
+                                    //TODO Has to fail after TMT-420
                                     fieldName: 'numberValue',
-                                    type: 'DATE'
+                                    type: Type.DATE
                             ),
                             values: [DATE_FORMAT.parse('1986-10-21 00:00:00'), DATE_FORMAT.parse('1986-10-23 00:00:00')],
                             operator: Operator.BETWEEN
                         )
                 ]
         )
+
+        when:
+        def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
+
+        then:
+        values.every { it instanceof Date }
+        values as Set<Date> == [DATE_FORMAT.parse('1986-10-22 00:00:00')] as Set<Date>
+    }
+
+    void "test values of date type"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint constraint = new ValueConstraint(valueType: Type.DATE, operator: Operator.AFTER,
+                value: DATE_FORMAT.parse('1986-10-21 00:00:00'))
 
         when:
         def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value

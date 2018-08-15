@@ -32,6 +32,9 @@ class ObservationFact implements Serializable {
     public static String TYPE_DATE = 'D'
     public static String TYPE_RAW_TEXT = 'B'
     public static String EMPTY_MODIFIER_CODE = '@'
+    public static Set<String> ALL_TYPES = [TYPE_TEXT, TYPE_NUMBER, TYPE_RAW_TEXT, TYPE_DATE]
+    //TODO Remove in TMT-420
+    public static Set<String> NUMBER_FIELD_TYPES = [TYPE_NUMBER, TYPE_DATE]
 
     /* links to concept_dimension, but concept_code is not primary key in
      * concept_dimension. Hence, i2b2 1.3 added a concept_path column here */
@@ -135,7 +138,7 @@ class ObservationFact implements Serializable {
                 return rawValue
             default:
                 throw new DataInconsistencyException("Unsupported database value: ObservationFact.valueType " +
-                        "must be either '${TYPE_TEXT}', '${TYPE_NUMBER}' or '${TYPE_RAW_TEXT}. Found '${valueType}'.")
+                        "must be one of ${ALL_TYPES.join(', ')}. Found '${valueType}'.")
         }
     }
 }
