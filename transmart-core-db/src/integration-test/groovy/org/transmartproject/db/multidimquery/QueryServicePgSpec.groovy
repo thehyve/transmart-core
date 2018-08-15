@@ -175,6 +175,15 @@ class QueryServicePgSpec extends Specification {
                 values: [sdf.parse('2016-03-29 10:30:30')],
                 operator: Operator.AFTER
         )
+        def startDateTimeInclusiveConstraint = new TimeConstraint(
+                field: new Field(
+                        dimension: START_TIME.name,
+                        fieldName: 'startDate',
+                        type: 'DATE'
+                ),
+                values: [sdf.parse('2016-03-29 10:30:30')],
+                operator: Operator.GREATER_THAN_OR_EQUALS
+        )
 
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
@@ -182,8 +191,17 @@ class QueryServicePgSpec extends Specification {
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-04-02 01:00:00')],
+                values: [sdf.parse('2016-04-02 00:00:00')],
                 operator: Operator.BEFORE
+        )
+        def endDateTimeInclusiveConstraint = new TimeConstraint(
+                field: new Field(
+                        dimension: END_TIME.name,
+                        fieldName: 'endDate',
+                        type: 'DATE'
+                ),
+                values: [sdf.parse('2016-04-02 00:00:00')],
+                operator: Operator.LESS_THAN_OR_EQUALS
         )
 
         def combination
@@ -198,6 +216,21 @@ class QueryServicePgSpec extends Specification {
 
         when:
         combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeConstraint])
+        hypercube = multiDimService.highDimension(combination, user, 'autodetect')
+
+        then:
+        hypercube.toList().empty
+
+        when:
+        combination = new Combination(Operator.AND, [conceptConstraint, startDateTimeInclusiveConstraint])
+        hypercube = multiDimService.highDimension(combination, user, 'autodetect')
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(ASSAY).size() == 4
+
+        when:
+        combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeInclusiveConstraint])
         hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 

@@ -204,7 +204,9 @@ enum Operator {
             (Type.DATE)      : [
                     BEFORE,
                     AFTER,
-                    BETWEEN
+                    BETWEEN,
+                    LESS_THAN_OR_EQUALS,
+                    GREATER_THAN_OR_EQUALS
             ] as Set<Operator>,
             (Type.STRING)    : [
                     EQUALS,
