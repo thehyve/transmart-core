@@ -181,7 +181,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             def constraintParts = ParallelPatientSetTaskService.getConstraintParts(constraint)
             if (!constraintParts.patientSetConstraint || !constraintParts.patientSetConstraint.patientSetId) {
                 // Try to combine the constraint a patient set for all accessible patients
-                def allPatientsSet = patientSetResource.findQueryResultByConstraint(
+                def allPatientsSet = patientSetResource.findFinishedQueryResultInCacheBy(
                         user, new TrueConstraint())
                 if (allPatientsSet) {
                     // add patient set constraint
@@ -218,6 +218,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     void rebuildCountsCacheForConstraint(Constraint constraint, User user) {
         wrappedThis.updateCountsCache(constraint, user)
+        wrappedThis.updateCountsPerConceptCache(constraint, user)
         wrappedThis.updateCountsPerStudyCache(constraint, user)
         wrappedThis.updateCountsPerStudyAndConceptCache(constraint, user)
     }
@@ -303,13 +304,27 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         }
     }
 
-    @Override
     @Transactional(readOnly = true)
-    Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
+    Map<String, Counts> freshCountsPerConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
         def taskParameters = new SubtaskParameters(1, constraint, user)
         def counts = countsPerConceptTask(taskParameters)
         mergeConceptCounts(counts)
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
+            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
+        freshCountsPerConcept(constraint, user)
+    }
+
+    @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
+            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+    @Transactional(readOnly = true)
+    Map<String, Counts> updateCountsPerConceptCache(Constraint constraint, User user) {
+        freshCountsPerConcept(constraint, user)
     }
 
     @Transactional(readOnly = true)
@@ -596,7 +611,8 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         criteria
                 .setProjection(projections)
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-                .add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+                //TODO date type has to have it's own aggragation call. see TMT-418
+                .add(Restrictions.in('valueType', ObservationFact.NUMBER_FIELD_TYPES))
         def results = getList(criteria) as List<Map>
         results.stream().collect(Collectors.toMap(
                 { Map rowMap -> (String)rowMap.conceptCode } as Function<Map, String>,
@@ -655,6 +671,26 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
             allEntries = true)
     void clearCountsCache() {
         log.info 'Clearing counts cache ...'
+    }
+
+    /**
+     * Clears the counts per study cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
+            allEntries = true)
+    void clearCountsPerStudyCache() {
+        log.info 'Clearing counts per study count cache ...'
+    }
+
+    /**
+     * Clears the counts per concept cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
+            allEntries = true)
+    void clearCountsPerConceptCache() {
+        log.info 'Clearing counts per concept count cache ...'
     }
 
     /**

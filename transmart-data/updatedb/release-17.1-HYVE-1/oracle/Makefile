@@ -1,10 +1,10 @@
 include ../../../lib/makefile.inc
 
 FILES = \
-	../../../ddl/oracle/biomart_user/query_set
-	../../../ddl/oracle/biomart_user/query_set_instance
-	../../../ddl/oracle/biomart_user/query_set_diff
-	data_migration
+	../../../ddl/oracle/biomart_user/query_set \
+	../../../ddl/oracle/biomart_user/query_set_instance \
+	../../../ddl/oracle/biomart_user/query_set_diff \
+	data_migration \
 	../common/data_migration
 
 

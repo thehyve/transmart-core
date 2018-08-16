@@ -112,8 +112,9 @@ info:
     
     ## Time
     Evaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.
-    The list must hold one date for the before(&lt;-) and after(-&gt;) operator. It must hold two dates for the between(&lt;--&gt;) operator. If the given date field for an observation is empty, the observation will be ignored.
-    `operator`: ["&lt;-", "-&gt;", "&lt;--&gt;"]
+    The list must hold one date for the before(&lt;-), after(-&gt;), lower_or_equal(&lt;=) and grater_or_equal(&gt;=) operators. It must hold two dates for the between(&lt;--&gt;) operator. If the given date field for an observation is empty, the observation will be ignored.
+
+    `operator`: ["&lt;-", "-&gt;", "&lt;=", "&gt;=", "&lt;--&gt;"]
     
     Example:
     ```json
@@ -2243,7 +2244,8 @@ paths:
   /v2/admin/system/after_data_loading_update:
     get:
       description: |
-        This endpoint should be called after loading, deleting or updating data in the database. Clears tree nodes, counts caches, patient sets and bitsets. Updates data for subscribed user queries.
+        This endpoint should be called after loading, deleting or updating data in the database.
+        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Refreshes the bitsets materialized view. Updates data for subscribed user queries.
         Only for administrators.
       tags:
         - v2

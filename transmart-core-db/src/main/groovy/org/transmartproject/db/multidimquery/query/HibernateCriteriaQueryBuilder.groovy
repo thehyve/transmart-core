@@ -6,62 +6,28 @@ import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
-import org.hibernate.criterion.Criterion
-import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.MatchMode
-import org.hibernate.criterion.ProjectionList
-import org.hibernate.criterion.Projections
-import org.hibernate.criterion.Restrictions
-import org.hibernate.criterion.Subqueries
+import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.type.IntegerType
 import org.hibernate.type.LongType
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintBuilder
-import org.transmartproject.core.multidimquery.query.Field
-import org.transmartproject.core.multidimquery.query.FieldConstraint
-import org.transmartproject.core.multidimquery.query.ModifierConstraint
-import org.transmartproject.core.multidimquery.query.MultipleSubSelectionsConstraint
-import org.transmartproject.core.multidimquery.query.Negation
-import org.transmartproject.core.multidimquery.query.NullConstraint
-import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.OrConstraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.QueryBuilder
-import org.transmartproject.core.multidimquery.query.QueryBuilderException
-import org.transmartproject.core.multidimquery.query.RelationConstraint
-import org.transmartproject.core.multidimquery.query.RowValueConstraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.StudyObjectConstraint
-import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.core.multidimquery.query.TemporalConstraint
-import org.transmartproject.core.multidimquery.query.TimeConstraint
-import org.transmartproject.core.multidimquery.query.TrueConstraint
-import org.transmartproject.core.multidimquery.query.Type
-import org.transmartproject.core.multidimquery.query.ValueConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.pedigree.RelationTypeResource
-import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.PatientMapping
-import org.transmartproject.db.i2b2data.TrialVisit
-import org.transmartproject.db.i2b2data.VisitDimension
+import org.transmartproject.db.i2b2data.*
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.ontology.TrialVisitsService
 import org.transmartproject.db.pedigree.Relation
 import org.transmartproject.db.pedigree.RelationType
 import org.transmartproject.db.querytool.QtPatientSetCollection
-import org.transmartproject.db.ontology.ModifierDimensionCoreDb
+import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -215,6 +181,10 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                 valueTypeCode = ObservationFact.TYPE_RAW_TEXT
                 valueField = rawValueField
                 break
+            case Type.DATE:
+                valueTypeCode = ObservationFact.TYPE_DATE
+                valueField = numberValueField
+                break
             default:
                 throw new QueryBuilderException("Value type not supported: ${constraint.valueType}.")
         }
@@ -314,6 +284,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                 def fieldType = DimensionMetadata.forDimensionName(field?.dimension).fieldTypes[field.fieldName]
                 if (fieldType != null && !fieldType.isInstance(value)) {
                     if (Number.isAssignableFrom(fieldType) && value instanceof Date) {
+                        //TODO Remove in TMT-420
                         convertedValue = toNumber((Date)value)
                     } else {
                         convertedValue = value == null ? null : fieldType.newInstance(value)
@@ -477,12 +448,9 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
     Criterion build(TimeConstraint constraint) {
         switch(constraint.operator) {
             case Operator.BEFORE:
-                return build(new FieldConstraint(
-                                field: constraint.field,
-                                operator: constraint.operator,
-                                value: constraint.values[0]
-                ))
             case Operator.AFTER:
+            case Operator.GREATER_THAN_OR_EQUALS:
+            case Operator.LESS_THAN_OR_EQUALS:
                 return build(new FieldConstraint(
                         field: constraint.field,
                         operator: constraint.operator,
@@ -509,6 +477,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
 
     /**
      * Creates a criteria object for a patient set by conversion to a field constraint for the patient id field.
+     * Note: OFFSET is a syntax tthat is used by Oracle starting from
      */
     Criterion build(PatientSetConstraint constraint) {
         if (constraint.patientIds) {
@@ -519,7 +488,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             if (constraint.offset != null && constraint.limit != null) {
                 log.debug "Restrict subquery to offset ${constraint.offset}, limit ${constraint.limit}"
                 subCriteria.add(Restrictions.sqlRestriction(
-                        '{alias}.result_instance_id = ? order by {alias}.patient_num offset ? limit ?',
+                        '{alias}.result_instance_id = ? order by {alias}.patient_num OFFSET ?' + dbTypeSpecificLimit(),
                         [constraint.patientSetId, constraint.offset, constraint.limit].toArray(),
                         [LongType.INSTANCE, IntegerType.INSTANCE, IntegerType.INSTANCE] as org.hibernate.type.Type[]))
             } else {
@@ -533,6 +502,19 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property('patient')))
         } else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
+        }
+    }
+
+    /**
+     * Oracle uses different syntax to limit the number of rows
+     * (starting from Oracle 12c R1 (12.1))
+     */
+    private static String dbTypeSpecificLimit() {
+        def dataSource = Holders.applicationContext.getBean(DatabasePortabilityService)
+        if (dataSource.databaseType == ORACLE) {
+            return ' ROWS FETCH NEXT ? ROWS ONLY'
+        } else {
+            return ' limit ?'
         }
     }
 

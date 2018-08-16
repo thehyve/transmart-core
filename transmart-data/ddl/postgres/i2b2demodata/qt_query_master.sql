@@ -40,11 +40,6 @@ ALTER TABLE ONLY qt_query_master
 CREATE INDEX qt_idx_qm_ugid ON qt_query_master USING btree (user_id, group_id, master_type_cd);
 
 --
--- Name: qt_query_master_request_constraints; Type: INDEX; Schema: i2b2demodata; Owner: -
---
-CREATE INDEX qt_query_master_request_constraints ON qt_query_master USING hash (request_constraints);
-
---
 -- add documentation
 --
 COMMENT ON TABLE i2b2demodata.qt_query_master IS 'This master table to the holds the client’s anaysis request information. i.e.

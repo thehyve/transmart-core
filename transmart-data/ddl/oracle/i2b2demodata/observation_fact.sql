@@ -74,7 +74,7 @@ COMMENT ON COLUMN observation_fact.modifier_cd IS 'Primary key. Refers to modifi
 COMMENT ON COLUMN observation_fact.instance_num IS 'Primary key. Default: 1.';
 COMMENT ON COLUMN observation_fact.trial_visit_num IS 'Refers to the new trial_visit dimension. Is not part of the primary key to make the primary key of observation_fact identical with that used by i2b2.';
 
-COMMENT ON COLUMN observation_fact.valtype_cd IS 'Either T for string values or N for numeric values.';
+COMMENT ON COLUMN observation_fact.valtype_cd IS 'T for string, N for numeric, B for raw text and D for date values.';
 COMMENT ON COLUMN observation_fact.tval_char IS 'If valtype_cd is T, the observations text value. If valtype_cd is N, an i2b2 supported operator [E = Equals, NE = Not equal, L = Less than, LE = Less than or Equal to, G = Greater than, GE = Greater than or Equal to]';
 COMMENT ON COLUMN observation_fact.nval_num IS 'Used in conjunction with valtype_cd = N to store a numerical value';
 

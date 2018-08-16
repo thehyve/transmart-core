@@ -5,11 +5,13 @@ package org.transmartproject.db.multidimquery
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.CacheManager
+import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.AggregateDataService
 import spock.lang.Specification
@@ -23,6 +25,9 @@ class AggregateDataServicePgSpec extends Specification {
 
     @Autowired
     UsersResource usersResource
+
+    @Autowired
+    CacheManager cacheManager
 
     /**
      * Test the functionality to count patients and observations grouped by
@@ -198,4 +203,53 @@ class AggregateDataServicePgSpec extends Specification {
         includingSecuredRecords['DEMO:POB'].nullValueCounts == 0
     }
 
+    //TODO Expected to fail after TMT-418 fix
+    def 'test date aggregates'() {
+        def birthdate = new ConceptConstraint(conceptCode: 'birthdate')
+        def user = new SimpleUser(username: 'admin', admin: true)
+
+        when: 'ask for aggregates for the date'
+        def aggregates = aggregateDataService.numericalValueAggregatesPerConcept(birthdate, user)
+
+        then: 'get back numerical aggregates with min and max'
+        'birthdate' in aggregates
+        def aggregatesAgg = aggregates['birthdate']
+        aggregatesAgg.min
+        aggregatesAgg.max
+        aggregatesAgg.min < aggregatesAgg.max
+    }
+    void 'test caching counts per concept'() {
+
+        given: "all counts caches are empty"
+        String countsPerConceptCacheName = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept'
+        String countsPerStudyCacheName = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy'
+        String countsPerStudyAndConceptCacheName = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept'
+        cacheManager.getCache(countsPerStudyAndConceptCacheName).clear()
+        cacheManager.getCache(countsPerStudyCacheName).clear()
+        cacheManager.getCache(countsPerConceptCacheName).clear()
+
+        def user = usersResource.getUserFromUsername('test-public-user-1')
+        Constraint studyConstraint = new StudyNameConstraint(studyId: "EHR")
+
+        when: "I call countsPerConcept for study EHR"
+        aggregateDataService.countsPerConcept(studyConstraint, user)
+        def countsPerConceptCache = cacheManager.getCache(countsPerConceptCacheName)
+
+        then: "countsPerConcept cache contains a new entry"
+        countsPerConceptCache.getNativeCache().size() == 1
+
+        when: "I call countsPerStudy for study EHR"
+        aggregateDataService.countsPerStudy(studyConstraint, user)
+        def countsPerStudyCache = cacheManager.getCache(countsPerStudyCacheName)
+
+        then: "countsPerStudy contains a new entry"
+        countsPerStudyCache.getNativeCache().size() == 1
+
+        when: "I call countsPerStudyAndConcept for study EHR"
+        aggregateDataService.countsPerStudyAndConcept(studyConstraint, user)
+        def countsPerStudyAndConceptCache = cacheManager.getCache(countsPerStudyAndConceptCacheName)
+
+        then: "countsPerStudyAndConcept cache contains a new entr"
+        countsPerStudyAndConceptCache.getNativeCache().size() == 1
+    }
 }

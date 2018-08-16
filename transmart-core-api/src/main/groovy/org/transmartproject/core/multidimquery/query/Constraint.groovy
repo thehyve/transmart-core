@@ -122,7 +122,10 @@ enum Type {
     }
 
     boolean supportsValue(Object obj) {
-        this != NONE && (classForType[this].isInstance(obj) || (this == NUMERIC && obj instanceof Date) || (obj == null && supportsNullValue()))
+        this != NONE && (classForType[this].isInstance(obj)
+                //TODO Remove in TMT-420
+                || (this == NUMERIC && obj instanceof Date)
+                || (obj == null && supportsNullValue()))
     }
 
     boolean supportsNullValue() {
@@ -204,7 +207,9 @@ enum Operator {
             (Type.DATE)      : [
                     BEFORE,
                     AFTER,
-                    BETWEEN
+                    BETWEEN,
+                    LESS_THAN_OR_EQUALS,
+                    GREATER_THAN_OR_EQUALS
             ] as Set<Operator>,
             (Type.STRING)    : [
                     EQUALS,
