@@ -7,33 +7,17 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.*
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.Field
-import org.transmartproject.core.multidimquery.query.FieldConstraint
-import org.transmartproject.core.multidimquery.query.ModifierConstraint
-import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.OrConstraint
-import org.transmartproject.core.multidimquery.query.PatientSetConstraint
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.core.multidimquery.query.TimeConstraint
-import org.transmartproject.core.multidimquery.query.Type
-import org.transmartproject.core.multidimquery.query.ValueConstraint
+import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.querytool.QtPatientSetCollection
-import org.transmartproject.db.querytool.QtQueryInstance
-import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 
 import static org.hamcrest.Matchers.*
@@ -52,6 +36,8 @@ class QueryServicePgSpec extends Specification {
 
     @Autowired
     PatientSetService patientSetResource
+
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
@@ -165,14 +151,13 @@ class QueryServicePgSpec extends Specification {
     void 'get hd data for selected time constraint'() {
         def user = User.findByUsername('test-public-user-2')
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def startDateTimeConstraint = new TimeConstraint(
                 field: new Field(
                         dimension: START_TIME.name,
                         fieldName: 'startDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-03-29 10:30:30')],
+                values: [DATE_FORMAT.parse('2016-03-29 10:30:30')],
                 operator: Operator.AFTER
         )
         def startDateTimeInclusiveConstraint = new TimeConstraint(
@@ -181,7 +166,7 @@ class QueryServicePgSpec extends Specification {
                         fieldName: 'startDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-03-29 10:30:30')],
+                values: [DATE_FORMAT.parse('2016-03-29 10:30:30')],
                 operator: Operator.GREATER_THAN_OR_EQUALS
         )
 
@@ -191,7 +176,7 @@ class QueryServicePgSpec extends Specification {
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-04-02 00:00:00')],
+                values: [DATE_FORMAT.parse('2016-04-02 00:00:00')],
                 operator: Operator.BEFORE
         )
         def endDateTimeInclusiveConstraint = new TimeConstraint(
@@ -200,7 +185,7 @@ class QueryServicePgSpec extends Specification {
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-04-02 00:00:00')],
+                values: [DATE_FORMAT.parse('2016-04-02 00:00:00')],
                 operator: Operator.LESS_THAN_OR_EQUALS
         )
 
@@ -254,8 +239,7 @@ class QueryServicePgSpec extends Specification {
 
     void 'Clinical data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
-        def minDate = sdf.parse('2016-04-01 10:00:00')
+        def minDate = DATE_FORMAT.parse('2016-04-01 10:00:00')
         def visitStartConstraint = new FieldConstraint(
                 operator: Operator.AFTER,
                 value: minDate,
@@ -285,10 +269,9 @@ class QueryServicePgSpec extends Specification {
 
     void 'HD data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def timeDimensionConstraint = new FieldConstraint(
                 operator: Operator.AFTER,
-                value: sdf.parse('2016-05-05 10:00:00'),
+                value: DATE_FORMAT.parse('2016-05-05 10:00:00'),
                 field: new Field(
                         dimension: VISIT.name,
                         fieldName: 'endDate',
@@ -347,7 +330,6 @@ class QueryServicePgSpec extends Specification {
 
     void 'Test for empty set of assayIds'() {
         def user = User.findByUsername('test-public-user-1')
-        def sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
@@ -355,7 +337,7 @@ class QueryServicePgSpec extends Specification {
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-04-02 01:00:00')],
+                values: [DATE_FORMAT.parse('2016-04-02 01:00:00')],
                 operator: Operator.AFTER //only exist one before, none after
         )
         when:
@@ -644,7 +626,6 @@ class QueryServicePgSpec extends Specification {
 
     void "test time values constraint"() {
         def user = User.findByUsername('test-public-user-1')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
 
         Constraint constraint = new AndConstraint(
                 [
@@ -652,20 +633,36 @@ class QueryServicePgSpec extends Specification {
                         new TimeConstraint(
                             field: new Field(
                                     dimension: VALUE.name,
+                                    //TODO Has to fail after TMT-420
                                     fieldName: 'numberValue',
-                                    type: 'DATE'
+                                    type: Type.DATE
                             ),
-                            values: [sdf.parse('1986-10-21 00:00:00'), sdf.parse('1986-10-23 00:00:00')],
+                            values: [DATE_FORMAT.parse('1986-10-21 00:00:00'), DATE_FORMAT.parse('1986-10-23 00:00:00')],
                             operator: Operator.BETWEEN
                         )
                 ]
         )
 
         when:
-        def result = multiDimService.retrieveClinicalData(constraint, user).asList()
+        def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
 
         then:
-        result.size() == 1
+        values.every { it instanceof Date }
+        values as Set<Date> == [DATE_FORMAT.parse('1986-10-22 00:00:00')] as Set<Date>
+    }
+
+    void "test values of date type"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint constraint = new ValueConstraint(valueType: Type.DATE, operator: Operator.AFTER,
+                value: DATE_FORMAT.parse('1986-10-21 00:00:00'))
+
+        when:
+        def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
+
+        then:
+        values.every { it instanceof Date }
+        values as Set<Date> == [DATE_FORMAT.parse('1986-10-22 00:00:00')] as Set<Date>
     }
 
     void 'test multiple subselect constraints'() {

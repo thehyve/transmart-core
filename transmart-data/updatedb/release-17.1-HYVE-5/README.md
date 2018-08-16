@@ -32,6 +32,10 @@ which makes it harder to derive observation data from aggregates.
 It caused issues with this bitset/constraint being ignored.
 The fix is to return zero bit-set (bit string with all zeros) in this case.
 
+### Add a date value category
+
+`to_date_data_type` migrates existing date observations that used to have numerical type (valtype_cd=`N`) to have its own date type (valtype_cd=`D`).
+
 ## How to apply all changes
 
 Given that transmart-data is configured correctly, you can apply the changes using one of the following make commands:
