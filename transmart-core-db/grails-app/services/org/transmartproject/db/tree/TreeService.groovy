@@ -202,10 +202,6 @@ class TreeService implements TreeResource {
                 aggregateDataService.rebuildCountsCacheForBookmarkedUserQueries(user)
                 stopWatch.stop()
             }
-            stopWatch.start('Rebuild the counts per study and concept cache')
-            // Rebuild cache of counts per study and concept for the given user
-            aggregateDataService.rebuildCountsPerStudyAndConceptCache(fakeUsers)
-            stopWatch.stop()
             log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
         } catch (Exception e) {
             log.error "Unexpected error while rebuilding cache: ${e.message}", e
