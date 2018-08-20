@@ -487,45 +487,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     /**
-     * Computes counts per study and concept for all data accessible for all users
-     * and puts the result in the counts cache.
-     */
-    @Transactional(readOnly = true)
-    void rebuildCountsPerStudyAndConceptCache(List<User> users) {
-        log.info "Rebuilding counts per study and concept cache ..."
-        def t1 = new Date()
-
-        Map<String, Map<String, Counts>> countsPerStudyAndConcept = [:]
-
-        //Sharing counts between users does not always work for other type of constraints
-        // e.g. In case when cross-study concepts involved and different users have different rights on them.
-        Constraint constraintToPreCache = new TrueConstraint()
-        Predicate atLeastSummaryLevelAccess = { Map.Entry<String, PatientDataAccessLevel> entry -> entry.value >= PatientDataAccessLevel.SUMMARY }
-        users.forEach({ User user ->
-            def description = "${user.username}${user.admin ? ' (admin)' : ''} ${user.studyToPatientDataAccessLevel.toMapString()}"
-            log.info "Rebuilding counts per study and concept cache for user ${description} ..."
-            Set<String> studyIds = user.studyToPatientDataAccessLevel.entrySet().stream()
-                .filter(atLeastSummaryLevelAccess)
-                .map({ Map.Entry<String, PatientDataAccessLevel> entry -> entry.key })
-                .collect(Collectors.toSet())
-            def notFetchedStudyIds = studyIds - countsPerStudyAndConcept.keySet()
-            if (notFetchedStudyIds) {
-                Map<String, Map<String, Counts>> freshCounts = parallelCountsPerStudyAndConcept(constraintToPreCache, user)
-                countsPerStudyAndConcept.putAll(freshCounts)
-            }
-            Map<String, Map<String, Counts>> countsForUser = studyIds.stream()
-                .filter({ String studyId -> countsPerStudyAndConcept.containsKey(studyId) } as Predicate<String>)
-                .collect(Collectors.toMap(
-                    Function.identity() as Function<String, String>,
-                    { String studyId -> countsPerStudyAndConcept[studyId] } as Function<String, Map<String, Counts>>))
-            wrappedThis.updateCountsPerStudyAndConceptCache(constraintToPreCache, user, countsForUser)
-        })
-
-        def t2 = new Date()
-        log.info "Caching counts per study and concept took ${t2.time - t1.time} ms."
-    }
-
-    /**
      * @description Function for getting a number of dimension elements for which there are observations
      * that are specified by <code>query</code>.
      * @param query
