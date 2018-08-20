@@ -468,11 +468,14 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
         assaysByType.keySet()?.collect {it.dataTypeName}
     }
 
-    private List<MDStudy> selectStudiesWithDimensionSupport(Iterable<MDStudy> studies, DimensionImpl dimension) {
+    private List<MDStudy> selectStudiesWithDimensionSupport(Collection<MDStudy> studies, DimensionImpl dimension) {
+        if (studies.empty) {
+            return []
+        }
         DetachedCriteria studiesCriteria = DetachedCriteria.forClass(Study)
             .createAlias('dimensionDescriptions', 'd')
             .add(Restrictions.in('id', studies*.id))
-            .add(Restrictions.in('d.name', dimension.name))
+            .add(Restrictions.eq('d.name', dimension.name))
 
         getList(studiesCriteria)
     }
