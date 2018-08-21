@@ -4,6 +4,19 @@ The TranSMART API server is an application that provides a REST API
 for a TranSMART database. It does not support the `v1` API. User management and authorisation should be provided
 by a separate identity provider. 
 
+## Patient counts threshold configuration
+
+It is possible to configure a threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission. The threshold will be applied to the result of a query, when ...
+
+```yaml
+transmartproject:
+    api:
+        server:
+            patientCountsThreshold: 5
+```
+
+In order not to apply the threshold, set the value to 0.
+
 ## How to set up authentication for the API server
 
 The TranSMART API server uses [OpenID Connect] for authorisation. 
@@ -57,7 +70,7 @@ Login to `https://idp.example.com/auth/admin/` and:
     Go to `Role Mappings` tab. Then select `Client Roles` to be `transmart` and
     assign some roles.
 
-## Configure TranSMART to accept tokens from Keycloak
+### Configure TranSMART to accept tokens from Keycloak
 
 Create an offline token in order to access Keycloak offline (e.g. by offline quartz jobs from transmart-notifications). To get the token on behalf of a user, the user needs to have the role mapping for the realm-level: `"offline_access"`.
 ```bash

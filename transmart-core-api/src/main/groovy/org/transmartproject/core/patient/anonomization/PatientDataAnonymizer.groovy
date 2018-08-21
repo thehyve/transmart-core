@@ -7,6 +7,6 @@ import org.transmartproject.core.multidimquery.counts.Counts
  */
 interface PatientDataAnonymizer {
 
-    Counts toPatientNonIdentifiableCounts(Counts originalCounts)
+    Counts toPatientNonIdentifiableCounts(Counts originalCounts, Integer patientCountsThreshold)
 
 }

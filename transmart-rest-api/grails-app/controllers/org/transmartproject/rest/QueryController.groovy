@@ -334,6 +334,20 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
+     * Count threshold endpoint:
+     * <code>/v2/patient_counts_threshold</code>
+     *
+     * @return a threshold value, below which counts are not available for users
+     * with `COUNTS_WITH_THRESHOLD` access permission.
+     */
+    def countsThreshold() {
+        checkForUnsupportedParams(params, [])
+
+        def result = [threshold: aggregateDataResource.patientCountsThreshold]
+        render result as JSON
+    }
+
+    /**
      * Aggregate endpoint:
      * <code>/v2/observations/aggregates_per_concept?constraint=${constraint}</code>
      *

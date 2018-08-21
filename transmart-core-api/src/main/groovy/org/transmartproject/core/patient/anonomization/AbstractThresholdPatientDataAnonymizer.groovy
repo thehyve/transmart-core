@@ -8,8 +8,8 @@ import org.transmartproject.core.multidimquery.counts.Counts
 abstract class AbstractThresholdPatientDataAnonymizer implements PatientDataAnonymizer {
 
     @Override
-    Counts toPatientNonIdentifiableCounts(Counts originalCounts) {
-        if (originalCounts.patientCount <= getPatientCountsThreshold()) {
+    Counts toPatientNonIdentifiableCounts(Counts originalCounts, Integer patientCountsThreshold) {
+        if (originalCounts.patientCount <= patientCountsThreshold) {
             return new Counts(
                     patientCount: getNonIdentifiablePatientCount(originalCounts.patientCount),
                     observationCount: getNonIdentifiableObservationCount(originalCounts.observationCount)
@@ -18,8 +18,6 @@ abstract class AbstractThresholdPatientDataAnonymizer implements PatientDataAnon
             return originalCounts
         }
     }
-
-    protected abstract long getPatientCountsThreshold()
 
     protected abstract long getNonIdentifiablePatientCount(long originalPatientCount)
 

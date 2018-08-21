@@ -60,6 +60,14 @@ interface AggregateDataResource {
     Long getDimensionElementsCount(Dimension dimension, Constraint constraint, User user)
 
     /**
+     * Get threshold value, below which counts are not available for users
+     * with `COUNTS_WITH_THRESHOLD` access permission.
+     *
+     * @return threshold value
+     */
+    Integer getPatientCountsThreshold()
+
+    /**
      * Calculate numerical values aggregates
      *
      * @param constraint specifies from which observations you want to collect values statistics

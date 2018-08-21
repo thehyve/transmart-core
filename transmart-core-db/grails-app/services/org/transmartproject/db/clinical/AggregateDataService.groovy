@@ -22,6 +22,7 @@ import org.hibernate.type.StandardBasicTypes
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.AggregateDataResource
@@ -88,6 +89,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
     @Autowired
     AuthorisationChecks authorisationChecks
+
+    @Value('${org.transmartproject.api.server.patientCountsThreshold}')
+    Integer patientCountsThreshold
 
     /**
      * Instance of this object wrapped with the cache proxy.
@@ -375,7 +379,7 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         if (authorisationChecks.canReadPatientData(user, oneStepHigherAccessLevel, study)) {
             return originalCounts
         }
-        return patientDataAnonymizer.toPatientNonIdentifiableCounts(originalCounts)
+        return patientDataAnonymizer.toPatientNonIdentifiableCounts(originalCounts, patientCountsThreshold)
     }
 
     @Override

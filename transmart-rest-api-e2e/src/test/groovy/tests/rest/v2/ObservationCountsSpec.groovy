@@ -66,4 +66,19 @@ class ObservationCountsSpec extends RESTSpec {
         GET    | _
     }
 
+    def "counts threshold"() {
+        def request = [
+                path      : PATH_PATIENT_COUNTS_THRESHOLD,
+                acceptType: JSON,
+                user      : UNRESTRICTED_USER
+        ]
+
+        when: "I count observations for the concept Heart Rate"
+        def responseData = get(request)
+
+        then: "I get a count including observations from the restricted study"
+        assert responseData.threshold != null
+        assert responseData.threshold instanceof Integer
+    }
+
 }
