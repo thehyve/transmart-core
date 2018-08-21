@@ -117,6 +117,7 @@ A runtime dependency for tranSMART that implements the Core API
         countsWithThresholdService(CountsWithThresholdService) { bean ->
             bean.primary = true
 
+            patientCountThreshold = config.patientCountThreshold ?: 0
             aggregateDataResource = ref('aggregateDataService')
             crossTableResource = ref('crossTableService')
         }

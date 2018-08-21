@@ -3,6 +3,7 @@
 package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
+import org.transmartproject.core.config.CountsThresholdResource
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.counts.Counts
@@ -25,7 +26,7 @@ import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS_WITH
  * {@link this.BELOW_THRESHOLD_VALUE} used for both patient and observation count instead of original values then.
  */
 @CompileStatic
-class CountsWithThresholdService implements AggregateDataResource, CrossTableResource {
+class CountsWithThresholdService implements AggregateDataResource, CrossTableResource, CountsThresholdResource {
 
     public static final long BELOW_THRESHOLD_VALUE = -2
     public static final Counts BELOW_THRESHOLD_COUNTS = new Counts(BELOW_THRESHOLD_VALUE, BELOW_THRESHOLD_VALUE)

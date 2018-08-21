@@ -1,4 +1,7 @@
 ---
+patientCountThreshold: 5
+
+---
 grails:
     profile: rest-api
     codegen:
@@ -85,3 +88,4 @@ environments:
             use-resource-role-mappings: true
 #        keycloakOffline:
 #            offlineToken: <offline token>
+
