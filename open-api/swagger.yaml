@@ -1109,6 +1109,20 @@ paths:
               countsPerStudy:
                 $ref: '#/definitions/CountsMapMap'
 
+  /v2/patient_counts_threshold:
+    get:
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Configured threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission.
+          schema:
+            type: object
+            properties:
+              threshold:
+                type: integer
+
   /v2/observations/table:
     post:
       description: |

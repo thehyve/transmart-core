@@ -67,7 +67,7 @@ Login to `https://idp.example.com/auth/admin/` and:
     Go to `Role Mappings` tab. Then select `Client Roles` to be `transmart` and
     assign some roles.
 
-### Configure TranSMART to accept tokens from Keycloak
+## Configure TranSMART to accept tokens from Keycloak
 
 Create an offline token in order to access Keycloak offline (e.g. by offline quartz jobs from transmart-notifications). To get the token on behalf of a user, the user needs to have the role mapping for the realm-level: `"offline_access"`.
 ```bash
