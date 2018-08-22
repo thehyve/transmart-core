@@ -59,6 +59,10 @@ class AggregateDataOptimisationsService {
                 .map({ MDStudy study -> study.name })
                 .collect(Collectors.toSet())
 
+        if (studyIds.empty) {
+            return [:]
+        }
+
         def t1 = new Date()
 
         List<Map<String, Object>> rows = namedParameterJdbcTemplate
