@@ -213,6 +213,9 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
 
         //TODO Improve
         if (!user.admin && user.studyToPatientDataAccessLevel.values().contains(PatientDataAccessLevel.COUNTS_WITH_THRESHOLD) && counts.patientCount < patientDataAnonymizer.patientCountsThreshold) {
+            if(counts.patientCount == 0) {
+                return new Counts(-2, -2)
+            }
             List<Constraint> studyNameConstraints = user.studyToPatientDataAccessLevel.entrySet()
                     .findAll { Map.Entry<String, PatientDataAccessLevel> entry -> entry.value == PatientDataAccessLevel.COUNTS_WITH_THRESHOLD }
                     .collect { Map.Entry<String, PatientDataAccessLevel> entry -> new StudyNameConstraint(entry.key) } as List<Constraint>
