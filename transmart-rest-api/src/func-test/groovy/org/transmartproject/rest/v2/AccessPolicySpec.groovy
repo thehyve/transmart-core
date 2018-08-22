@@ -51,6 +51,10 @@ class AccessPolicySpec extends V2ResourceSpec {
     @Shared
     Constraint study1Constraint = new StudyNameConstraint('study1')
     @Shared
+    Constraint noResultConstraint = new AndConstraint([
+            new StudyNameConstraint('study1'),
+            new StudyNameConstraint('study2')])
+    @Shared
     Constraint concept1Value1 = new AndConstraint([
             new ConceptConstraint('categorical_concept1'),
             new ValueConstraint(Type.STRING, Operator.EQUALS, 'value1')])
@@ -568,12 +572,14 @@ class AccessPolicySpec extends V2ResourceSpec {
         counts.observationCount == observationCount
 
         where:
-        constraint       | threshold | s1AccLvl              | s2AccLvl              | pateintCount | observationCount
-        trueConstraint   | 1         | SUMMARY               | SUMMARY               | 4            | 9
-        trueConstraint   | 1         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | 4            | 9
-        trueConstraint   | 5         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | -2           | -2
-        trueConstraint   | 5         | SUMMARY               | COUNTS_WITH_THRESHOLD | -2           | -2
-        study1Constraint | 4         | SUMMARY               | COUNTS_WITH_THRESHOLD | 2            | 6
+        constraint         | threshold | s1AccLvl              | s2AccLvl              | pateintCount | observationCount
+        trueConstraint     | 1         | SUMMARY               | SUMMARY               | 4            | 9
+        trueConstraint     | 1         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | 4            | 9
+        trueConstraint     | 5         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | -2           | -2
+        trueConstraint     | 5         | SUMMARY               | COUNTS_WITH_THRESHOLD | -2           | -2
+        study1Constraint   | 4         | SUMMARY               | COUNTS_WITH_THRESHOLD | 2            | 6
+        noResultConstraint | 1         | SUMMARY               | COUNTS_WITH_THRESHOLD | -2           | -2
+        noResultConstraint | 0         | SUMMARY               | COUNTS_WITH_THRESHOLD | 0            | 0
     }
 
     @Unroll
