@@ -1,6 +1,7 @@
 # Copyright 2017, tranSMART Foundation, Inc.
+# Copyright 2018, The Hyve B.V.
 
-swagger: '2.0'
+openapi: 3.0.0
 
 info:
   version: 2.4-dev
@@ -306,24 +307,6 @@ info:
     #### `application/x-protobuf`
     Calls that return observations support protobuf as a more efficient binary format. The description of the protobuf object can be found in [observations.proto](../transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).
 
-schemes:
-  - http
-  - https
-consumes:
-  - application/json
-produces:
-  - application/json
-securityDefinitions:
-  oauth:
-    type: oauth2
-    flow: implicit
-    authorizationUrl: '/oauth/authorize'
-    scopes:
-      basic: to be able to interact with transmart REST-API
-
-security:
-  - oauth:
-    - basic
 paths:
   /versions:
     get:
@@ -355,7 +338,7 @@ paths:
                 type: object
                 properties:
                   version ids:
-                    $ref: "#/definitions/Version"
+                    $ref: "#/components/schemas/Version"
 
   /versions/{id}:
     get:
@@ -372,7 +355,7 @@ paths:
         200:
           description: Successful response.
           schema:
-            $ref: "#/definitions/Version"
+            $ref: "#/components/schemas/Version"
 
         404:
           description: Version not available.
@@ -390,8 +373,8 @@ paths:
             properties:
               studies:
                 type: array
-                items: 
-                  $ref: "#/definitions/jsonStudy"
+                items:
+                  $ref: "#/components/schemas/JsonStudy"
   /v1/studies (hal+json):
     get:
       description: |
@@ -404,7 +387,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/HalStudies"
+            $ref: "#/components/schemas/HalStudies"
   /v1/studies/{studyid}:
     get:
       description: |
@@ -421,7 +404,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/JsonStudy"
+            $ref: "#/components/schemas/JsonStudy"
   /v1/studies/{studyid}/concepts:
     get:
       parameters:
@@ -442,8 +425,8 @@ paths:
             properties:
               ontology_terms:
                 type: array
-                items: 
-                  $ref: "#/definitions/OntologyTerm"
+                items:
+                  $ref: "#/components/schemas/OntologyTerm"
   /v1/studies/{studyid}/concepts/{conceptPath}:
     get:
       parameters:
@@ -465,7 +448,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/OntologyTerm"
+            $ref: "#/components/schemas/OntologyTerm"
   /v1/studies/{studyid}/subjects:
     get:
       parameters:
@@ -487,7 +470,7 @@ paths:
               subjects:
                 type: array
                 items:
-                  $ref: '#/definitions/Patient'
+                  $ref: '#/components/schemas/Patient'
   /v1/studies/{studyid}/subjects/{subjectid}:
     get:
       parameters:
@@ -509,7 +492,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: '#/definitions/Patient'
+            $ref: '#/components/schemas/Patient'
   /v1/studies/{studyid}/concepts/{conceptPath}/subjects:
     get:
       parameters:
@@ -536,13 +519,13 @@ paths:
               subjects:
                 type: array
                 items:
-                  $ref: '#/definitions/Patient'
+                  $ref: '#/components/schemas/Patient'
   /v1/studies/{studyid}/observations:
     get:
       parameters:
         - name: studyid
           in: path
-          description: Study ID of the study for which concepts will be fetched. 
+          description: Study ID of the study for which concepts will be fetched.
           required: true
           type: string
       description: |
@@ -555,7 +538,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/LegacyObservation'
+              $ref: '#/components/schemas/LegacyObservation'
   /v1/observations:
     get:
       tags:
@@ -566,7 +549,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/LegacyObservation'
+              $ref: '#/components/schemas/LegacyObservation'
   /v1/studies/{studyId}/concepts/{conceptPath}/observations:
     get:
       parameters:
@@ -588,7 +571,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/LegacyObservation'
+              $ref: '#/components/schemas/LegacyObservation'
   /v1/patient_sets/:
     post:
       parameters:
@@ -660,7 +643,7 @@ paths:
       responses:
         200:
           description: Successful response
-          
+
   /v2/studies:
     get:
       description: |
@@ -679,7 +662,7 @@ paths:
               studies:
                 type: array
                 items:
-                  $ref: '#/definitions/Study'
+                  $ref: '#/components/schemas/Study'
   /v2/studies/{id}:
     get:
       description: |
@@ -697,7 +680,7 @@ paths:
           description: |
             Returns one study
           schema:
-            $ref: "#/definitions/Study"
+            $ref: "#/components/schemas/Study"
         404:
           description: |
             Study not found or no access
@@ -718,7 +701,7 @@ paths:
           description: |
             Returns one study
           schema:
-            $ref: "#/definitions/Study"
+            $ref: "#/components/schemas/Study"
         404:
           description: |
             Study not found or no access
@@ -745,7 +728,7 @@ paths:
               studies:
                 type: array
                 items:
-                  $ref: '#/definitions/Study'
+                  $ref: '#/components/schemas/Study'
         404:
           description: |
             Study not found or no access
@@ -829,7 +812,7 @@ paths:
           description: |
             Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
           schema:
-            $ref: '#/definitions/Observations'
+            $ref: '#/components/schemas/Observations'
     post:
           description: |
             Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -869,7 +852,7 @@ paths:
               description: |
                 Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
               schema:
-                $ref: '#/definitions/Observations'
+                $ref: '#/components/schemas/Observations'
 
   /v2/observations/aggregates_per_concept:
     get:
@@ -884,7 +867,7 @@ paths:
           in: query
           description: |
             Constraint specification. Example: `{"type":"concept","conceptCode":"EHR:VSIGN:HR"}`.'
-          type: object
+          type: string
       responses:
         200:
           description: |
@@ -894,7 +877,7 @@ paths:
             type: object
             properties:
               aggregatesPerConcept:
-                $ref: '#/definitions/AggregatesMap'
+                $ref: '#/components/schemas/AggregatesMap'
     post:
       description: |
         Calculates and returns an aggregates for both types of concepts, categorical and numerical.
@@ -922,7 +905,7 @@ paths:
             type: object
             properties:
               aggregatesPerConcept:
-                $ref: '#/definitions/AggregatesMap'
+                $ref: '#/components/schemas/AggregatesMap'
 
   /v2/observations/counts:
     get:
@@ -940,7 +923,7 @@ paths:
         200:
           description: 'Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.'
           schema:
-            $ref: '#/definitions/Counts'
+            $ref: '#/components/schemas/Counts'
     post:
           description: |
             Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -963,7 +946,7 @@ paths:
             200:
               description: 'Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.'
               schema:
-                $ref: '#/definitions/Counts'
+                $ref: '#/components/schemas/Counts'
   /v2/observations/counts_per_study:
     get:
       description: |
@@ -983,7 +966,7 @@ paths:
             type: object
             properties:
               countsPerStudy:
-                $ref: '#/definitions/CountsMap'
+                $ref: '#/components/schemas/CountsMap'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -1009,7 +992,7 @@ paths:
             type: object
             properties:
               countsPerStudy:
-                $ref: '#/definitions/CountsMap'
+                $ref: '#/components/schemas/CountsMap'
 
   /v2/observations/counts_per_concept:
     get:
@@ -1030,7 +1013,7 @@ paths:
             type: object
             properties:
               countsPerConcept:
-                $ref: '#/definitions/CountsMap'
+                $ref: '#/components/schemas/CountsMap'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -1056,7 +1039,7 @@ paths:
             type: object
             properties:
               countsPerConcept:
-                $ref: '#/definitions/CountsMap'
+                $ref: '#/components/schemas/CountsMap'
 
   /v2/observations/counts_per_study_and_concept:
     get:
@@ -1079,7 +1062,7 @@ paths:
             type: object
             properties:
               countsPerStudy:
-                $ref: '#/definitions/CountsMapMap'
+                $ref: '#/components/schemas/CountsMapMap'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -1107,7 +1090,7 @@ paths:
             type: object
             properties:
               countsPerStudy:
-                $ref: '#/definitions/CountsMapMap'
+                $ref: '#/components/schemas/CountsMapMap'
 
   /v2/observations/table:
     post:
@@ -1153,7 +1136,7 @@ paths:
                 required: false
                 type: array
                 items:
-                  $ref: '#/definitions/SortSpecification'
+                  $ref: '#/components/schemas/SortSpecification'
                 description: |
                   List of sort specifications for the row dimensions. A sort specification is
                   an element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a
@@ -1164,7 +1147,7 @@ paths:
                 required: false
                 type: array
                 items:
-                  $ref: '#/definitions/SortSpecification'
+                  $ref: '#/components/schemas/SortSpecification'
                 description: Analogous to `rowSort`, but for the column dimensions.
               limit:
                 required: true
@@ -1179,7 +1162,7 @@ paths:
                   result also includes the actual offset of the returned rows.)
       responses:
         200:
-          $ref: '#/definitions/DataTable'
+          $ref: '#/components/schemas/DataTable'
 
   /v2/observations/crosstable:
     post:
@@ -1221,7 +1204,7 @@ paths:
                   Example: `{"type": "patient_set", "patientSetId": 12345}`.
       responses:
         200:
-          $ref: '#/definitions/CrossTable'
+          $ref: '#/components/schemas/CrossTable'
 
   /v2/patients:
     get:
@@ -1244,7 +1227,7 @@ paths:
               patients:
                 type: array
                 items:
-                  $ref: '#/definitions/Patient'
+                  $ref: '#/components/schemas/Patient'
     post:
           description: |
             Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -1272,7 +1255,7 @@ paths:
                   patients:
                     type: array
                     items:
-                      $ref: '#/definitions/Patient'
+                      $ref: '#/components/schemas/Patient'
   /v2/patients/{id}:
     get:
       description: |
@@ -1290,7 +1273,7 @@ paths:
           description: |
             Returns one patient
           schema:
-            $ref: '#/definitions/Patient'
+            $ref: '#/components/schemas/Patient'
   /v2/patient_sets:
     get:
       tags:
@@ -1300,7 +1283,7 @@ paths:
           description: |
             Gets all patient_sets accessible by the user.
           schema:
-            $ref: '#/definitions/PatientSet'
+            $ref: '#/components/schemas/PatientSet'
     post:
       description: |
         creates a patient set with all patients that have an observation that satisfies the constaint given in the body. The set will only have patients the calling user access to. The constraint used to create the set will be stored in a database.
@@ -1322,7 +1305,7 @@ paths:
           description: |
             an object with the created patient_set or error.
           schema:
-            $ref: '#/definitions/PatientSet'
+            $ref: '#/components/schemas/PatientSet'
   /v2/patient_sets/{resultInstanceId}:
     get:
       parameters:
@@ -1339,7 +1322,7 @@ paths:
           description: |
             Returns one patient_set.
           schema:
-            $ref: '#/definitions/PatientSet'
+            $ref: '#/components/schemas/PatientSet'
   /v2/concepts:
     get:
       description: |
@@ -1357,7 +1340,7 @@ paths:
               concepts:
                 type: array
                 items:
-                  $ref: '#/definitions/Concept'
+                  $ref: '#/components/schemas/Concept'
 
   /v2/concepts/{conceptCode}:
     get:
@@ -1376,7 +1359,7 @@ paths:
           description: |
             Returns the concept if it exists and the user has access to it.
           schema:
-            $ref: '#/definitions/Concept'
+            $ref: '#/components/schemas/Concept'
         404:
           description: |
             No concept exists with the concept code, or the user does not have access to the concept.
@@ -1421,7 +1404,8 @@ paths:
               tree_nodes:
                 type: array
                 items:
-                  $ref: '#/definitions/TreeNode'
+                  $ref: '#/components/schemas/TreeNode'
+
   /v2/storage:
     get:
       description: |
@@ -1438,7 +1422,7 @@ paths:
               storageSystems:
                 type: array
                 items:
-                  $ref: '#/definitions/StorageSystem'
+                  $ref: '#/components/schemas/StorageSystem'
     post:
       description: |
         Adds a new storage system with the properties provided in the body. Calling user must have `admin` permissions.
@@ -1466,7 +1450,8 @@ paths:
           description: |
             returns the added storage system object.
           schema:
-            $ref: '#/definitions/StorageSystem'
+            $ref: '#/components/schemas/StorageSystem'
+
   /v2/storage/{id}:
     get:
       description: |
@@ -1483,7 +1468,7 @@ paths:
           description: |
             returns the storage system object.
           schema:
-            $ref: '#/definitions/StorageSystem'
+            $ref: '#/components/schemas/StorageSystem'
     put:
       description: |
         Updates the storage system with given id with the values in the body. Calling user must have `admin` permissions.
@@ -1515,7 +1500,7 @@ paths:
           description: |
             returns the updated storage system object.
           schema:
-            $ref: '#/definitions/StorageSystem'
+            $ref: '#/components/schemas/StorageSystem'
     delete:
       description: |
         Deletes the storage system with the given id.
@@ -1529,6 +1514,7 @@ paths:
       responses:
         204:
           description: 'returns null'
+
   /v2/files:
     get:
       description: |
@@ -1545,7 +1531,7 @@ paths:
               files:
                 type: array
                 items:
-                  $ref: '#/definitions/FileLink'
+                  $ref: '#/components/schemas/FileLink'
     post:
       description: |
         Adds a new file link with the properties provided in the body. Calling user must have `admin` permissions.
@@ -1571,7 +1557,8 @@ paths:
           description: |
             returns the added file link object.
           schema:
-            $ref: '#/definitions/FileLink'
+            $ref: '#/components/schemas/FileLink'
+
   /v2/files/{id}:
     get:
       description: |
@@ -1588,7 +1575,7 @@ paths:
           description: |
             returns the file link object.
           schema:
-            $ref: '#/definitions/FileLink'
+            $ref: '#/components/schemas/FileLink'
     put:
       description: |
         Updates the file link  with given id with the values provided in the body. Calling user must have `admin` permissions.
@@ -1618,7 +1605,7 @@ paths:
           description: |
             returns the updated file link object.
           schema:
-            $ref: '#/definitions/FileLink'
+            $ref: '#/components/schemas/FileLink'
     delete:
       description: |
         Deletes the file link with the given id.
@@ -1632,6 +1619,7 @@ paths:
       responses:
         204:
           description: 'returns null'
+
   /v2/studies/{studyId}/files:
     get:
       description: |
@@ -1653,7 +1641,8 @@ paths:
               files:
                 type: array
                 items:
-                  $ref: '#/definitions/FileLink'
+                  $ref: '#/components/schemas/FileLink'
+
   /v2/arvados/workflows:
     get:
       description: |
@@ -1671,7 +1660,7 @@ paths:
               supportedWorkflows:
                 type: array
                 items:
-                  $ref: '#/definitions/SupportedWorkflow'
+                  $ref: '#/components/schemas/SupportedWorkflow'
     post:
       description: |
         Adds a new supported Workflow with the properties provided in the body. Calling user must have `admin` permissions.
@@ -1703,7 +1692,8 @@ paths:
           description: |
             returns the created supported workflow object.
           schema:
-            $ref: '#/definitions/SupportedWorkflow'
+            $ref: '#/components/schemas/SupportedWorkflow'
+
   /v2/arvados/workflows/{id}:
     get:
       description: |
@@ -1721,7 +1711,7 @@ paths:
           description: |
             returns the supported workflow object.
           schema:
-            $ref: '#/definitions/SupportedWorkflow'
+            $ref: '#/components/schemas/SupportedWorkflow'
     put:
       description: |
         Updates the supported workflow with given id with the values in the body. Calling user must have `admin` permissions.
@@ -1757,7 +1747,7 @@ paths:
           description: |
             returns the modified supported workflow object.
           schema:
-            $ref: '#/definitions/SupportedWorkflow'
+            $ref: '#/components/schemas/SupportedWorkflow'
     delete:
       description: |
         Deletes the supported workflow with the given id.
@@ -1772,6 +1762,7 @@ paths:
       responses:
         204:
           description: 'returns null'
+
   /v2/dimensions/{dimensionName}/elements:
     get:
       description: |
@@ -1793,7 +1784,7 @@ paths:
           description: |
             Returns list of all elements from the given dimension that user has access to.
           schema:
-            $ref: '#/definitions/DimensionElements'
+            $ref: '#/components/schemas/DimensionElements'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -1816,7 +1807,8 @@ paths:
           description: |
             Returns list of all elements from the given dimension that user has access to.
           schema:
-            $ref: '#/definitions/DimensionElements'
+            $ref: '#/components/schemas/DimensionElements'
+
   /v2/export/job:
     post:
       description: |
@@ -1834,7 +1826,8 @@ paths:
           description:  |
             an object with the created export job or error.
           schema:
-            $ref: '#/definitions/ExportJob'
+            $ref: '#/components/schemas/ExportJob'
+
   /v2/export/{jobId}/run:
     post:
       description: |
@@ -1891,7 +1884,8 @@ paths:
           description:  |
             an object with the run export job with status 'Started' or 'Error'.
           schema:
-            $ref: '#/definitions/ExportJob'
+            $ref: '#/components/schemas/ExportJob'
+
   /v2/export/{jobId}/download:
     get:
       description: |
@@ -1910,6 +1904,7 @@ paths:
             Zip file stream with expoted data.
           schema:
             type: file
+
   /v2/export/{jobId}/status:
     get:
       description: |
@@ -1928,7 +1923,8 @@ paths:
           description: |
             an object with the export job, including its status.
           schema:
-            $ref: '#/definitions/ExportJob'
+            $ref: '#/components/schemas/ExportJob'
+
   /v2/export/{jobId}:
       get:
         description: |
@@ -1946,7 +1942,7 @@ paths:
             description: |
               an object with the export job.
             schema:
-              $ref: '#/definitions/ExportJob'
+              $ref: '#/components/schemas/ExportJob'
       delete:
         description: |
           Deletes an export job.
@@ -1962,6 +1958,7 @@ paths:
           200:
             description: |
               200 http status when job has been deleted.
+
   /v2/export/{jobId}/cancel:
     post:
       description: |
@@ -1978,6 +1975,7 @@ paths:
         200:
           description: |
             200 http status when job has been cancelled.
+
   /v2/export/jobs:
     get:
       description: |
@@ -1993,7 +1991,8 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/ExportJob'
+              $ref: '#/components/schemas/ExportJob'
+
   /v2/export/data_formats:
     post:
       description: |
@@ -2018,6 +2017,7 @@ paths:
                 type: array
                 items:
                   type: string
+
   /v2/export/file_formats:
     get:
       description: |
@@ -2054,13 +2054,15 @@ paths:
           200:
             description: |
               an object that contains an array with all queries for current user.
-            schema:
-              type: object
-              properties:
-                queries:
-                  type: array
-                  items:
-                    $ref: '#/definitions/UserQuery'
+            content:
+              application/json:
+              schema:
+                type: object
+                properties:
+                  queries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserQuery'
       post:
         description: |
           Adds a new user query with the properties provided in the body.
@@ -2091,8 +2093,11 @@ paths:
           201:
             description: |
               returns the added user query object.
-            schema:
-              $ref: '#/definitions/UserQuery'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UserQuery'
+
   /v2/queries/{id}:
     get:
       description: |
@@ -2108,8 +2113,10 @@ paths:
         200:
           description: |
             returns the user query object.
-          schema:
-            $ref: '#/definitions/UserQuery'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserQuery'
     put:
       description: |
         Updates the user query with given id with the values in the body.
@@ -2150,6 +2157,7 @@ paths:
       responses:
         204:
           description: 'returns null'
+
   /v2/pedigree/relation_types:
     get:
       description: |
@@ -2160,10 +2168,13 @@ paths:
         200:
           description: |
             returns the list of the relation types.
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/RelationType'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RelationType'
+
   /v2/queries/{queryId}/sets:
       get:
         description: |
@@ -2181,13 +2192,15 @@ paths:
           200:
             description: |
               an object that contains an array of all querySets related to the query with a set change history.
-            schema:
-              type: object
-              properties:
-                querySets:
-                  type: array
-                  items:
-                    $ref: '#/definitions/UserQuerySet'
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    querySets:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/UserQuerySet'
 
   /v2/queries/sets/scan:
       post:
@@ -2202,11 +2215,13 @@ paths:
         responses:
           201:
             description: Successful response
-            schema:
-              type: object
-              properties:
-                numberOfUpdatedSets:
-                  type: integer
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    numberOfUpdatedSets:
+                      type: integer
 
   /v2/tree_nodes/clear_cache:
     get:
@@ -2253,7 +2268,7 @@ paths:
       responses:
         200:
           schema:
-            $ref: '#/definitions/UpdateStatus'
+            $ref: '#/components/schemas/UpdateStatus'
           description: |
             A status report about the started update task.
 
@@ -2268,8 +2283,10 @@ paths:
         - admin
       responses:
         200:
-          schema:
-            $ref: '#/definitions/UpdateStatus'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateStatus'
           description: |
             A status report about the latest update task.
         404:
@@ -2286,10 +2303,12 @@ paths:
         - admin
       responses:
         200:
-          schema:
-            $ref: '#/definitions/RuntimeConfig'
           description: |
             The runtime configuration options.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeConfig'
     put:
       description: |
         This endpoint updates some configuration options at runtime.
@@ -2297,20 +2316,19 @@ paths:
       tags:
         - v2
         - admin
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            type: object
+      requestBody:
+        content:
+          application/json:
             schema:
-              $ref: '#/definitions/RuntimeConfig'
+              $ref: '#/components/schemas/RuntimeConfig'
       responses:
         200:
-          schema:
-            $ref: '#/definitions/RuntimeConfig'
           description: |
             The configuration has been updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeConfig'
 
   /v2/admin/notifications/notify:
       get:
@@ -2324,377 +2342,382 @@ paths:
         parameters:
           - name: frequency
             required: true
-            in: path
+            in: query
             description: 'DAILY|WEEKLY - determines whether the email should be sent to users with a DAILY or WEEKLY subscription.'
-            type: string
+            schema:
+              type: string
         responses:
           200:
-            description: Successfull response
+            description: Successful response
 
-definitions:
-  Version:
-    type: object
-    properties:
-      id: { type: string }
-      prefix: { type: string, description: the url prefix where this api can be found }
-      version: { type: string, description: the full version string }
-      major: { type: integer }
-      minor: { type: integer }
-      patch: { type: integer }
-      tag: { type: string }
-      features:
-        type: object
-        properties:
-          features:
-            type: integer
-            description: string keys and numeric values that indicate features and their revision level. These are only present for -dev versions.
-    required: [ "id", "prefix", "major" ]
+components:
+  securitySchemes:
+    OpenID:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
 
-  LegacyObservation:
-    type: object
-    properties:
-      subject:
-        $ref: '#/definitions/Patient'
-      label:
-        type: string
-      value:
-        type: string
+  schemas:
+    Version:
+      type: object
+      properties:
+        id: { type: string }
+        prefix: { type: string, description: the url prefix where this api can be found }
+        version: { type: string, description: the full version string }
+        major: { type: integer }
+        minor: { type: integer }
+        patch: { type: integer }
+        tag: { type: string }
+        features:
+          type: object
+          properties:
+            features:
+              type: integer
+              description: string keys and numeric values that indicate features and their revision level. These are only present for -dev versions.
+      required: [ "id", "prefix", "major" ]
 
-  OntologyTerm:
-    type: object
-    properties:
-      name:
-        type: string
-      key:
-        type: string
-      fullName:
-        type: string
-      type:
-        type: string
+    LegacyObservation:
+      type: object
+      properties:
+        subject:
+          $ref: '#/components/schemas/Patient'
+        label:
+          type: string
+        value:
+          type: string
 
-  JsonStudy:
-    type: object
-    properties:
-      id:
-        type: string
-      ontologyTerm:
-        type: object
-        properties:
-          name:
-            type: string
-          key:
-            type: string
-          fullName:
-            type: string
-          type:
-            type: string
+    OntologyTerm:
+      type: object
+      properties:
+        name:
+          type: string
+        key:
+          type: string
+        fullName:
+          type: string
+        type:
+          type: string
 
-  HalStudy:
-    type: object
-    properties:
-      id:
-        type: string
-      _links:
-        type: object
-        properties:
-          self:
-            type: object
-            properties:
-              href:
-                type: string
-      _embedded:
-        type: object
-        properties:
-          ontologyTerm:
-            type: object
-            properties:
-              name:
-                type: string
-              key:
-                type: string
-              fullName:
-                type: string
-              type:
-                type: string
-                default: 'STUDY'
-              _links:
-                type: object
-                properties:
-                  self:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                  observations:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                  children:
-                    type: array
-                    items:
+    JsonStudy:
+      type: object
+      properties:
+        id:
+          type: string
+        ontologyTerm:
+          type: object
+          properties:
+            name:
+              type: string
+            key:
+              type: string
+            fullName:
+              type: string
+            type:
+              type: string
+
+    HalStudy:
+      type: object
+      properties:
+        id:
+          type: string
+        _links:
+          type: object
+          properties:
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+        _embedded:
+          type: object
+          properties:
+            ontologyTerm:
+              type: object
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+                fullName:
+                  type: string
+                type:
+                  type: string
+                  default: 'STUDY'
+                _links:
+                  type: object
+                  properties:
+                    self:
                       type: object
                       properties:
                         href:
                           type: string
-                        title:
+                    observations:
+                      type: object
+                      properties:
+                        href:
                           type: string
+                    children:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                          title:
+                            type: string
 
-  HalStudies:
-    type: object
-    properties:
-      _links:
-        type: object
-        properties:
-          self:
-            type: object
-            properties:
-              href:
-                type: string
-      _embedded:
-        type: object
-        properties:
-          studies:
-            type: array
-            items:
-              $ref: '#/definitions/HalStudy'
-              
-  StorageSystem:
-    type: object
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      systemType:
-        type: string
-      url:
-        type: string
-      systemVersion:
-        type: string
-      singleFileCollections:
-        type: boolean
-  
-  FileLink:
-    type: object
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      sourceSystem:
-        description: 'sourceSystem field is an integer ID representing #storage_system from `/v2/storage`'
-        type: integer
-      study:
-        description: 'Short case insensitive String identifying tranSMART study, usually study name, given during ETL, can be retrieved by `/v2/studies`.'
-        type: string
-      uuid:
-        type: string
-  
-  SupportedWorkflow:
-    type: object
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      arvadosInstanceUrl:
-        type: string
-      uuid:
-        type: string
-      description:
-        type: string
-      arvadosVersion:
-        type: string
-      defaultParams:
-        description: 'a map of key value pairs'
-        type: object
-  
-  TreeNode:
-    type: object
-    properties:
-      children:
-        type: array
-        description: 'A list of treeNodes if there are any children. '
-        items:
+    HalStudies:
+      type: object
+      properties:
+        _links:
           type: object
-      fullName:
-        type: string
-        description: 'Example: `\Public Studies\SHARED_CONCEPTS_STUDY_A\`'
-      name:
-        type: string
-        description: 'Example: SHARED_CONCEPTS_STUDY_A'
-      type:
-        description: 'Example: STUDY'
-        type: string
-      visualAttributes:
-        type: array
-        items:
-          description: 'Example: [FOLDER, ACTIVE, STUDY]'
-          type: string
-      observationCount:
-        description: 'only available on concept nodes'
-        type: integer
-      patientCount:
-        description: 'only available on concept nodes'
-        type: integer
-      constraint:
-        description: 'only available on concept nodes; not available for HAL.'
-        type: object
-        properties:
-          type:
-            description: 'Example: `concept`'
-            type: string
-          conceptCode:
-            description: 'Example: `age`'
-            type: string
-  
-  Study:
-    type: object
-    properties:
-      id:
-        type: integer
-      studyID:
-        type: string
-      bioExperimentId:
-        type: integer
-      dimensions:
-        type: array
-        items:
-          type: string
-      metadata:
-        $ref: '#/definitions/StudyMetadata'
+          properties:
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+        _embedded:
+          type: object
+          properties:
+            studies:
+              type: array
+              items:
+                $ref: '#/components/schemas/HalStudy'
 
-  StudyMetadata:
-    type: object
-    properties:
-      conceptToVariableName:
-        description: 'a map from concept code to variable name in the study.'
-        type: object
-        properties:
-          '<conceptCode>':
-            type: string
-        additionalProperties:
+    StorageSystem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        systemType:
+          type: string
+        url:
+          type: string
+        systemVersion:
+          type: string
+        singleFileCollections:
+          type: boolean
+
+    FileLink:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sourceSystem:
+          description: 'sourceSystem field is an integer ID representing #storage_system from `/v2/storage`'
+          type: integer
+        study:
+          description: 'Short case insensitive String identifying tranSMART study, usually study name, given during ETL, can be retrieved by `/v2/studies`.'
+          type: string
+        uuid:
           type: string
 
-
-  Patient:
-    type: object
-    properties:
-      age:
-        type: integer
-      birthDate:
-        type: string
-        format: date
-      deathDate:
-        type: string
-        format: date
-      id:
-        type: integer
-      inTrialId:
-        type: integer
-      maritalStatus:
-        type: string
-      race:
-        type: string
-      religion:
-        type: string
-      sex:
-        type: string
-      trial:
-        type: string
-  
-  PatientSet:
-    type: object
-    properties:
-      description:
-        type: string
-      errorMessage:
-        type: string
-      id:
-        type: integer
-      setSize:
-        type: integer
-      status:
-        type: string
-      username:
-        type: string
-      requestConstraints:
-        type: string
-      apiVersion:
-        type: string  
-
-  Concept:
-    type: object
-    properties:
-      conceptCode:
-        type: string
-      conceptPath:
-        type: string
-      name:
-        type: string
-      metadata:
-        $ref: '#/definitions/VariableMetadata'
-
-  VariableMetadata:
-    type: object
-    properties:
-      type:
-        description: NUMERIC, DATE, STRING
-        type: string
-      measure:
-        description: NOMINAL, ORDINAL, SCALE
-        type: string
-      description:
-        type: string
-      width:
-        type: integer
-      decimals:
-        type: integer
-      columns:
-        type: integer
-      valueLabels:
-        description: a map from value (of type integer) to label (of type string)
-        type: object
-        properties:
-          '<value>':
-            type: string
-        additionalProperties:
+    SupportedWorkflow:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
           type: string
-      missingValues:
-        type: array
-        items:
+        arvadosInstanceUrl:
+          type: string
+        uuid:
+          type: string
+        description:
+          type: string
+        arvadosVersion:
+          type: string
+        defaultParams:
+          description: 'a map of key value pairs'
+          type: object
+
+    TreeNode:
+      type: object
+      properties:
+        children:
+          type: array
+          description: 'A list of treeNodes if there are any children. '
+          items:
+            type: object
+        fullName:
+          type: string
+          description: 'Example: `\Public Studies\SHARED_CONCEPTS_STUDY_A\`'
+        name:
+          type: string
+          description: 'Example: SHARED_CONCEPTS_STUDY_A'
+        type:
+          description: 'Example: STUDY'
+          type: string
+        visualAttributes:
+          type: array
+          items:
+            description: 'Example: [FOLDER, ACTIVE, STUDY]'
+            type: string
+        observationCount:
+          description: 'only available on concept nodes'
+          type: integer
+        patientCount:
+          description: 'only available on concept nodes'
+          type: integer
+        constraint:
+          description: 'only available on concept nodes; not available for HAL.'
+          type: object
+          properties:
+            type:
+              description: 'Example: `concept`'
+              type: string
+            conceptCode:
+              description: 'Example: `age`'
+              type: string
+
+    Study:
+      type: object
+      properties:
+        id:
+          type: integer
+        studyID:
+          type: string
+        bioExperimentId:
+          type: integer
+        dimensions:
+          type: array
+          items:
+            type: string
+        metadata:
+          $ref: '#/components/schemas/StudyMetadata'
+
+    StudyMetadata:
+      type: object
+      properties:
+        conceptToVariableName:
+          description: 'a map from concept code to variable name in the study.'
+          type: object
+          properties:
+            '<conceptCode>':
+              type: string
+          additionalProperties:
+            type: string
+
+    Patient:
+      type: object
+      properties:
+        age:
+          type: integer
+        birthDate:
+          type: string
+          format: date
+        deathDate:
+          type: string
+          format: date
+        id:
+          type: integer
+        inTrialId:
+          type: integer
+        maritalStatus:
+          type: string
+        race:
+          type: string
+        religion:
+          type: string
+        sex:
+          type: string
+        trial:
+          type: string
+
+    PatientSet:
+      type: object
+      properties:
+        description:
+          type: string
+        errorMessage:
+          type: string
+        id:
+          type: integer
+        setSize:
+          type: integer
+        status:
+          type: string
+        username:
+          type: string
+        requestConstraints:
+          type: string
+        apiVersion:
+          type: string
+
+    Concept:
+      type: object
+      properties:
+        conceptCode:
+          type: string
+        conceptPath:
+          type: string
+        name:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/VariableMetadata'
+
+    VariableMetadata:
+      type: object
+      properties:
+        type:
+          description: NUMERIC, DATE, STRING
+          type: string
+        measure:
+          description: NOMINAL, ORDINAL, SCALE
+          type: string
+        description:
+          type: string
+        width:
+          type: integer
+        decimals:
+          type: integer
+        columns:
+          type: integer
+        valueLabels:
+          description: a map from value (of type integer) to label (of type string)
+          type: object
+          properties:
+            '<value>':
+              type: string
+          additionalProperties:
+            type: string
+        missingValues:
+          type: array
+          items:
+            type: integer
+
+    Counts:
+      type: object
+      properties:
+        observationCount:
+          type: integer
+        patientCount:
           type: integer
 
-  Counts:
-    type: object
-    properties:
-      observationCount:
-        type: integer
-      patientCount:
-        type: integer
+    CountsMap:
+      description: a map from string to Counts.
+      properties:
+        '<key>':
+          $ref: '#/components/schemas/Counts'
+      additionalProperties:
+        $ref: '#/components/schemas/Counts'
 
-  CountsMap:
-    description: a map from string to Counts.
-    properties:
-      '<key>':
-        $ref: '#/definitions/Counts'
-    additionalProperties:
-      $ref: '#/definitions/Counts'
+    CountsMapMap:
+      description: a map from string to a map from string to Counts.
+      properties:
+        '<key>':
+          $ref: '#/components/schemas/CountsMap'
+      additionalProperties:
+        $ref: '#/components/schemas/CountsMap'
 
-  CountsMapMap:
-    description: a map from string to a map from string to Counts.
-    properties:
-      '<key>':
-        $ref: '#/definitions/CountsMap'
-    additionalProperties:
-      $ref: '#/definitions/CountsMap'
-
-  DataTable:
-    description: |
-      A JSON object that represents the dataset in a tabular form. The actual row data can be found in
-      `rows*.cells`, with the headers and other metadata available in other keys.
-    schema:
+    DataTable:
+      description: |
+        A JSON object that represents the dataset in a tabular form. The actual row data can be found in
+        `rows*.cells`, with the headers and other metadata available in other keys.
       type: object
       properties:
         columnHeaders:
@@ -2760,20 +2783,18 @@ definitions:
                       type: string
                       description: The name of this row dimension
                     key:
-                      type:
-                        oneOf:
-                          - type: string
-                          - type: number
+                      oneOf:
+                        - type: string
+                        - type: number
                       description: |
                         Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element
                         specified in `rowDimensions*.elements` for the specified dimension.
 
                         This property is mutually exclusive with the `element` property.
                     element:
-                      type:
-                        oneOf:
-                          - type: string
-                          - type: number
+                      oneOf:
+                        - type: string
+                        - type: number
                       description: |
                         Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension
                         element is a single string, number or date. A date is represented as a formatted string.
@@ -2857,7 +2878,7 @@ definitions:
             and column dimensions, with row dimensions first and column dimensions followed by that.
           type: array
           items:
-            $ref: '#/definitions/SortResponse'
+            $ref: '#/components/schemas/SortResponse'
         offset:
           type: integer
           description: the offset of the first returned row in the full dataset
@@ -2868,11 +2889,10 @@ definitions:
             generally only the case if the last row is part of this result.
       required: [columnHeaders, rows, rowDimensions, sort, offset]
 
-  CrossTable:
-    description: |
-      A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains
-      a list with numbers of subjects for each cell.
-    schema:
+    CrossTable:
+      description: |
+        A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains
+        a list with numbers of subjects for each cell.
       type: object
       properties:
         rows:
@@ -2884,338 +2904,338 @@ definitions:
             type: number
       required: [rows]
 
-  Observation:
-    type: object
-    properties:
-      conceptCode:
-        type: string
-      encounterNum:
-        type: integer
-      endDate:
-        type: string
-        format: datetime
-      instanceNum:
-        type: integer
-      locationCd:
-        type: string
-      modifierCd:
-        type: string
-      numberValue:
-        type: integer
-      patient:
-        type: object
-        properties:
-          id:
-            type: integer
-      providerId:
-        type: string
-      sourcesystemCd:
-        type: string
-      startDate:
-        type: string
-        format: datetime
-      textValue:
-        type: string
-      trialVisit:
-        type: object
-        properties:
-          id:
-            type: integer
-      valueFlag:
-        type: string
-      valueType:
-        type: string
-            
-  Observations:
-    type: object
-    properties:
-      header:
-        type: object
-        properties:
-          dimensionDeclarations:
-            type: array
-            items:
-              $ref: '#/definitions/DimensionDeclaration'
-          sort:
-            type: object
-            properties:
-              dimensionIndex:
-                type: number
-                description: >
-                    An index into the dimensionDeclarations list, indicating the dimension on which the
-                    result is sorted.
-              sortOrder:
-                type: string
-                enum: [asc, desc]
-                description: "'asc' or 'desc', indicating the sort order."
-              field:
-                type: number
-                description: >
-                    always 0. A non-zero value indicates that a different sorting is used that this version
-                    of the api does not know about. This only applies to the protobuf representation, in JSON this
-                    property is omitted.
-      cells:
-        type: array
-        items:
-          $ref: '#/definitions/Cell'
-      footer:
-        type: object
-        properties:
-          dimensions:
-            type: array
-            items:
+    Observation:
+      type: object
+      properties:
+        conceptCode:
+          type: string
+        encounterNum:
+          type: integer
+        endDate:
+          type: string
+          format: datetime
+        instanceNum:
+          type: integer
+        locationCd:
+          type: string
+        modifierCd:
+          type: string
+        numberValue:
+          type: integer
+        patient:
+          type: object
+          properties:
+            id:
+              type: integer
+        providerId:
+          type: string
+        sourcesystemCd:
+          type: string
+        startDate:
+          type: string
+          format: datetime
+        textValue:
+          type: string
+        trialVisit:
+          type: object
+          properties:
+            id:
+              type: integer
+        valueFlag:
+          type: string
+        valueType:
+          type: string
+
+    Observations:
+      type: object
+      properties:
+        header:
+          type: object
+          properties:
+            dimensionDeclarations:
               type: array
               items:
-                $ref: '#/definitions/DimensionValue'
-  
-  DimensionDeclaration:
-    type: object
-    properties:
-      inline:
-        description: 'If true, this dimension will be inlined in the cell. Only present if true.'
-        type: boolean
-      fields:
-        description: 'Fields is omitted if the dimension consists of one field.'
-        type: array
-        items:
-          $ref: '#/definitions/Field'
-      name:
-        type: string
-      type:
-        description: 'STRING, INTEGER, DATE, OBJECT'
-        type: string
-    
-  Field:
-    type: object
-    properties:
-      name:
-        type: string
-      type:
-        description: 'STRING, INTEGER, DATE'
-        type: string
-        
-  Cell:
-    type: object
-    description: 'numericValue or stringValue, never both.'
-    properties:
-      dimensionIndexes:
-        description: 'The index in the array is equal to the index of the dimension in the dimensions array in the footer. The number is the index of the dimensionValue in the dimension.'
-        type: array
-        items:
-          type: integer
-      inlineDimensions:
-        type: array
-        items:
-          $ref: '#/definitions/DimensionValue'
-      numericValue:
-        type: number
-      stringValue:
-        type: string
-        
-  DimensionValue:
-    type: object
-    description: 'The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header.'
+                $ref: '#/components/schemas/DimensionDeclaration'
+            sort:
+              type: object
+              properties:
+                dimensionIndex:
+                  type: number
+                  description: >
+                      An index into the dimensionDeclarations list, indicating the dimension on which the
+                      result is sorted.
+                sortOrder:
+                  type: string
+                  enum: [asc, desc]
+                  description: "'asc' or 'desc', indicating the sort order."
+                field:
+                  type: number
+                  description: >
+                      always 0. A non-zero value indicates that a different sorting is used that this version
+                      of the api does not know about. This only applies to the protobuf representation, in JSON this
+                      property is omitted.
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cell'
+        footer:
+          type: object
+          properties:
+            dimensions:
+              type: array
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DimensionValue'
 
-  DimensionElements:
-    type: object
-    properties:
-      apiVersion:
-        type: string
-      elements:
-        description: 'List of dimension elements with properties specific to a given dimension.'
-        type: array
-        items:
+    DimensionDeclaration:
+      type: object
+      properties:
+        inline:
+          description: 'If true, this dimension will be inlined in the cell. Only present if true.'
+          type: boolean
+        fields:
+          description: 'Fields is omitted if the dimension consists of one field.'
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        name:
+          type: string
+        type:
+          description: 'STRING, INTEGER, DATE, OBJECT'
+          type: string
+
+    Field:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          description: 'STRING, INTEGER, DATE'
+          type: string
+
+    Cell:
+      type: object
+      description: 'numericValue or stringValue, never both.'
+      properties:
+        dimensionIndexes:
+          description: 'The index in the array is equal to the index of the dimension in the dimensions array in the footer. The number is the index of the dimensionValue in the dimension.'
+          type: array
+          items:
+            type: integer
+        inlineDimensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DimensionValue'
+        numericValue:
+          type: number
+        stringValue:
+          type: string
+
+    DimensionValue:
+      type: object
+      description: 'The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header.'
+
+    DimensionElements:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        elements:
+          description: 'List of dimension elements with properties specific to a given dimension.'
+          type: array
+          items:
+            type: object
+
+    ExportJob:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobName:
+          type: string
+        jobStatus:
+          type: string
+        jobStatusTime:
+          type: string
+          format: datetime
+        userId:
+          type: string
+        viewerURL:
+          type: string
+
+    UserQuery:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        patientsQuery:
+          type: object
+        observationsQuery:
+          type: object
+        apiVersion:
+          type: string
+        bookmarked:
+          type: boolean
+        subscribed:
+          type: boolean
+        subscriptionFreq:
+          type: string
+        createDate:
+          type: string
+          format: 'date-time'
+        updateDate:
+          type: string
+          format: 'date-time'
+        queryBlob:
           type: object
 
-  ExportJob:
-    type: object
-    properties:
-      id:
-        type: integer
-      jobName:
-        type: string
-      jobStatus:
-        type: string
-      jobStatusTime:
-        type: string
-        format: datetime
-      userId:
-        type: string
-      viewerURL:
-        type: string
-
-  UserQuery:
-    type: object
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      patientsQuery:
-        type: object
-      observationsQuery:
-        type: object
-      apiVersion:
-        type: string
-      bookmarked:
-        type: boolean
-      subscribed:
-        type: boolean
-      subscriptionFreq:
-        type: string
-      createDate:
-        type: string
-        format: 'date-time'
-      updateDate:
-        type: string
-        format: 'date-time'
-      queryBlob:
-        type: object
-
-  UserQuerySet:
-    type: object
-    properties:
-      id:
-        type: integer
-      queryId:
-        type: integer
-      queryName:
-        type: string
-      setSize:
-        type: integer
-      setTyp:
-        type: string
-      createDate:
-        type: string
-        format: 'date-time'
-      objectsAdded:
-        type: array
-        items:
+    UserQuerySet:
+      type: object
+      properties:
+        id:
           type: integer
-      objectsRemoved:
-        type: array
-        items:
+        queryId:
           type: integer
+        queryName:
+          type: string
+        setSize:
+          type: integer
+        setTyp:
+          type: string
+        createDate:
+          type: string
+          format: 'date-time'
+        objectsAdded:
+          type: array
+          items:
+            type: integer
+        objectsRemoved:
+          type: array
+          items:
+            type: integer
 
-  AggregatesMap:
-    type: object
-    description: 'Map from string to aggregates.'
-    properties:
-      '<conceptCode>':
-        $ref: '#/definitions/Aggregates'
-    additionalProperties:
-      $ref: '#/definitions/Aggregates'
+    AggregatesMap:
+      type: object
+      description: 'Map from string to aggregates.'
+      properties:
+        '<conceptCode>':
+          $ref: '#/components/schemas/Aggregates'
+      additionalProperties:
+        $ref: '#/components/schemas/Aggregates'
 
-  Aggregates:
-    description: Object for numerical aggregates or categorical value counts. Only the value of the requested aggregate type will be present.
-    type: object
-    properties:
-      numericalValueAggregatesPerConcept:
-        type: object
-        properties:
-          min:
-            type: number
-          max:
-            type: number
-          avg:
-            type: number
-          count:
-            type: number
-          stdDev:
-            type: number
-      categoricalValueAggregatesPerConcept:
-        type: object
-        properties:
-          valueCounts:
-            description: map from value to count
-            type: object
-            properties:
-              '<value>':
-                type: number
-            additionalProperties:
+    Aggregates:
+      description: Object for numerical aggregates or categorical value counts. Only the value of the requested aggregate type will be present.
+      type: object
+      properties:
+        numericalValueAggregatesPerConcept:
+          type: object
+          properties:
+            min:
               type: number
-          nullValueCounts:
-            description: count of null values
-            type: number
+            max:
+              type: number
+            avg:
+              type: number
+            count:
+              type: number
+            stdDev:
+              type: number
+        categoricalValueAggregatesPerConcept:
+          type: object
+          properties:
+            valueCounts:
+              description: map from value to count
+              type: object
+              properties:
+                '<value>':
+                  type: number
+              additionalProperties:
+                type: number
+            nullValueCounts:
+              description: count of null values
+              type: number
 
-  RelationType:
-    description: Relation type
-    type: object
-    properties:
-      id:
-        type: integer
-      label:
-        type: string
-      description:
-        type: string
-      symmetrical:
-        type: boolean
-      biological:
-        type: boolean
+    RelationType:
+      description: Relation type
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+        description:
+          type: string
+        symmetrical:
+          type: boolean
+        biological:
+          type: boolean
 
-  SortSpecification:
-    description: Specifies dimension to sort on and the sorting direction.
-    type: object
-    properties:
-      dimension:
-        type: string
-        description: the name of the dimension to sort on
-      sortOrder:
-        type: string
-        description: |
-          'asc' or 'desc', describing if sorting is ascending or descending.
-    required: [dimension, sortOrder]
+    SortSpecification:
+      description: Specifies dimension to sort on and the sorting direction.
+      type: object
+      properties:
+        dimension:
+          type: string
+          description: the name of the dimension to sort on
+        sortOrder:
+          type: string
+          description: |
+            'asc' or 'desc', describing if sorting is ascending or descending.
+      required: [dimension, sortOrder]
 
-  SortResponse:
-    description: Specifies dimension to sort on and the sorting direction.
-    type: object
-    properties:
-      dimension:
-        type: string
-        description: the name of the dimension to sort on
-      sortOrder:
-        type: string
-        description: |
-          'asc' or 'desc', describing if sorting is ascending or descending.
-      userRequested:
-        type: boolean
-        description: |
-          Whether sorting on this dimension was explicitly requested by the client, i.e., set to
-          true if this dimension was part of the `rowSort` or `columnSort` request parameter.
-          This parameter is optional, the default is `false`.
-    required: [dimension, sortOrder]
+    SortResponse:
+      description: Specifies dimension to sort on and the sorting direction.
+      type: object
+      properties:
+        dimension:
+          type: string
+          description: the name of the dimension to sort on
+        sortOrder:
+          type: string
+          description: |
+            'asc' or 'desc', describing if sorting is ascending or descending.
+        userRequested:
+          type: boolean
+          description: |
+            Whether sorting on this dimension was explicitly requested by the client, i.e., set to
+            true if this dimension was part of the `rowSort` or `columnSort` request parameter.
+            This parameter is optional, the default is `false`.
+      required: [dimension, sortOrder]
 
-  UpdateStatus:
-    description: Update status
-    type: object
-    properties:
-      status:
-        type: string
-        description: |
-          CREATED, RUNNING, FAILED, COMPLETED
-      createDate:
-        type: string
-        format: date-time
-      updateDate:
-        type: string
-        format: date-time
-      tasks:
-        type: object
-        properties:
-          '<task>':
-            type: string
+    UpdateStatus:
+      description: Update status
+      type: object
+      properties:
+        status:
+          type: string
+          description: |
+            CREATED, RUNNING, FAILED, COMPLETED
+        createDate:
+          type: string
+          format: date-time
+        updateDate:
+          type: string
+          format: date-time
+        tasks:
+          type: object
+          properties:
+            '<task>':
+              type: string
 
-      message:
-        type: string
-        description: Error message
+        message:
+          type: string
+          description: Error message
 
-  RuntimeConfig:
-    description: Configuration of the server that can be managed at runtime.
-    type: object
-    properties:
-      numberOfWorkers:
-        type: number
-        description: Number of threads used for parallel tasks.
-      patientSetChunkSize:
-        type: number
-        description: Chunk size for splitting patient set based tasks into smaller subtasks.
+    RuntimeConfig:
+      description: Configuration of the server that can be managed at runtime.
+      type: object
+      properties:
+        numberOfWorkers:
+          type: number
+          description: Number of threads used for parallel tasks.
+        patientSetChunkSize:
+          type: number
+          description: Chunk size for splitting patient set based tasks into smaller subtasks.
