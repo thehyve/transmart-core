@@ -199,7 +199,6 @@ class Copy implements AutoCloseable {
                 } else {
                     directory = '.'
                 }
-                copy.deleteStudy(directory, false)
                 int batchSize = cl.hasOption('batch-size') ?
                         cl.getOptionValue('batch-size') as int : Database.DEFAULT_BATCH_SIZE
                 int flushSize = cl.hasOption('flush-size') ?
@@ -220,6 +219,7 @@ class Copy implements AutoCloseable {
                     copy.uploadPedigree(directory, config)
                 }
                 if (!modes || 'study' in modes) {
+                    copy.deleteStudy(directory, false)
                     copy.uploadStudy(directory, config)
                 }
             }
