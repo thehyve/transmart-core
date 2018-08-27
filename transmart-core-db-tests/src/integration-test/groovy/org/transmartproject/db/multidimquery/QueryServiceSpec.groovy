@@ -58,6 +58,16 @@ class QueryServiceSpec extends Specification {
     AccessLevelTestData accessLevelTestData
     TestData hypercubeTestData
 
+    // Enable sorting of objects of different types
+    static Closure comparator = { x, y ->
+        if (x == null && y == null) return 0
+        if (x == null) return -1
+        if (y == null) return 1
+        if (x.class != y.class) return x.class.name <=> y.class.name
+        x <=> y
+    }
+
+
     void setupData() {
         TestData.clearAllData()
 
@@ -431,7 +441,7 @@ class QueryServiceSpec extends Specification {
         then:
         result.size() == expectedObservations.size()
         result.every { it[DimensionImpl.STUDY] == testObservation.trialVisit.study }
-        result*.value.sort() == expectedObservations*.value.sort()
+        result*.value.sort(comparator) == expectedObservations*.value.sort(comparator)
     }
 
     @Ignore("H2 does not support tuple comparisons with IN, which is used for subselections on visits, so this functionality will only work with Postgres or Oracle (Error: Subquery is not a single column query)")
