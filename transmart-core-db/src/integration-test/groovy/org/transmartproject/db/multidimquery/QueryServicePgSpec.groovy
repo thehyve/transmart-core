@@ -38,6 +38,11 @@ class QueryServicePgSpec extends Specification {
     PatientSetService patientSetResource
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+    private static final DateFormat UTC_DATE_FORMAT
+    static {
+        UTC_DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+        UTC_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone('UTC'))
+    }
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
@@ -647,8 +652,9 @@ class QueryServicePgSpec extends Specification {
         def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
 
         then:
-        values.every { it instanceof Date }
-        values as Set<Date> == [DATE_FORMAT.parse('1986-10-22 00:00:00')] as Set<Date>
+        values.size() == 1
+        values[0] instanceof Date
+        values[0] == UTC_DATE_FORMAT.parse('1986-10-22 00:00:00')
     }
 
     void "test values of date type"() {
@@ -661,8 +667,9 @@ class QueryServicePgSpec extends Specification {
         def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
 
         then:
-        values.every { it instanceof Date }
-        values as Set<Date> == [DATE_FORMAT.parse('1986-10-22 00:00:00')] as Set<Date>
+        values.size() == 1
+        values[0] instanceof Date
+        values[0] == UTC_DATE_FORMAT.parse('1986-10-22 00:00:00')
     }
 
     void 'test multiple subselect constraints'() {

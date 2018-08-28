@@ -84,6 +84,10 @@ class Config {
     public static final String V1_PATH_OBSERVATIONS = "/v1/observations"
     public static final String V1_PATH_PATIENT_SETS = "/v1/patient_sets"
 
+    public static final String PATH_CONFIG = "/v2/admin/system/config"
+    public static final String AFTER_DATA_LOADING_UPDATE = "/v2/admin/system/after_data_loading_update"
+    public static final String UPDATE_STATUS = "/v2/admin/system/update_status"
+
     public static final String PATH_OBSERVATIONS = "/v2/observations"
     public static final String PATH_TABLE = "/v2/observations/table"
     public static final String PATH_CROSSTABLE = "/v2/observations/crosstable"
@@ -99,7 +103,6 @@ class Config {
     public static final String PATH_TREE_NODES_CLEAR_CACHE = "/v2/tree_nodes/clear_cache"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
-    public static final String PATH_CONFIG = "/v2/admin/system/config"
     public static final String PATH_STORAGE = "/v2/storage"
     public static final String PATH_FILES = "/v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
