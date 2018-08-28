@@ -15,6 +15,10 @@ class StartupService implements CommandLineRunner {
                 throw new Exception("Property not configured correctly: ${property}. Specify a value in the external config file.")
             }
         })
+        def disableTrustManager = Holders.config.getProperty('keycloak.disable-trust-manager', Boolean.class, false)
+        if (disableTrustManager) {
+            log.warn "SSL certificate checking for Keycloak is disabled! NEVER USE THIS IN PRODUCTION!"
+        }
     }
 
 }

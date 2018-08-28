@@ -9,8 +9,11 @@ import org.keycloak.representations.idm.MappingsRepresentation
 import org.keycloak.representations.idm.RoleRepresentation
 import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Primary
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
@@ -34,7 +37,8 @@ class KeycloakUserResourceService implements UsersResource {
     LegacyAuthorisationChecks authorisationChecks
 
     @Autowired
-    RestOperations restOperations
+    @Qualifier("offlineTokenBasedRestTemplate")
+    RestOperations offlineTokenBasedRestTemplate
 
     @Value('${keycloak.realm}')
     String realm
@@ -54,10 +58,13 @@ class KeycloakUserResourceService implements UsersResource {
         user
     }
 
+    static ParameterizedTypeReference<List<UserRepresentation>> userListRef =
+            new ParameterizedTypeReference<List<UserRepresentation>>() {}
+
     @Override
     List<User> getUsers() {
-        ResponseEntity<UserRepresentation> response = restOperations
-                .getForEntity("$keycloakServerUrl/admin/realms/$realm/users", UserRepresentation[].class)
+        ResponseEntity<List<UserRepresentation>> response = offlineTokenBasedRestTemplate
+                .exchange("${keycloakServerUrl}/admin/realms/${realm}/users", HttpMethod.GET, null, userListRef)
         response.body.collect { UserRepresentation keycloakUser ->
             Set<String> roles = getRolesForUser(keycloakUser.id)
             createUser(keycloakUser, roles)
@@ -142,7 +149,7 @@ class KeycloakUserResourceService implements UsersResource {
     }
 
     private Set<String> getRolesForUser(String userId) {
-        ResponseEntity<MappingsRepresentation> result = restOperations.getForEntity(
+        ResponseEntity<MappingsRepresentation> result = offlineTokenBasedRestTemplate.getForEntity(
                 "$keycloakServerUrl/admin/realms/$realm/users/$userId/role-mappings",
                 MappingsRepresentation.class)
 

@@ -9,12 +9,14 @@ import org.keycloak.representations.idm.ClientMappingsRepresentation
 import org.keycloak.representations.idm.MappingsRepresentation
 import org.keycloak.representations.idm.RoleRepresentation
 import org.keycloak.representations.idm.UserRepresentation
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestTemplate
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.User
 import spock.lang.Specification
@@ -110,7 +112,7 @@ class KeycloakUserResourceServiceSpec extends Specification {
     }
 
     void "test fetch users with roles"() {
-        testee.restOperations = mockRestOperarions()
+        testee.offlineTokenBasedRestTemplate = mockTemplate()
 
         when:
         def result = testee.getUsers()
@@ -156,7 +158,7 @@ class KeycloakUserResourceServiceSpec extends Specification {
         user2 in usersWithEmailsSpecified
     }
 
-    private RestOperations mockRestOperarions() {
+    private RestOperations mockTemplate() {
         def keycloakMockUsers = [
                 new UserRepresentation(
                         id: "user_1_sub",
@@ -215,13 +217,13 @@ class KeycloakUserResourceServiceSpec extends Specification {
         ResponseEntity user3RolesResponse = new ResponseEntity(keycloakMockUser3Roles, HttpStatus.OK)
 
         Mock(RestOperations, {
-            getForEntity("$testee.keycloakServerUrl/admin/realms/$testee.realm/users", UserRepresentation[].class) >> userResponse
+            exchange("${testee.keycloakServerUrl}/admin/realms/${testee.realm}/users", HttpMethod.GET, null, KeycloakUserResourceService.userListRef) >> userResponse
             getForEntity(
-                    "$testee.keycloakServerUrl/admin/realms/$testee.realm/users/user_1_sub/role-mappings", MappingsRepresentation.class) >> user1RolesResponse
+                    "${testee.keycloakServerUrl}/admin/realms/${testee.realm}/users/user_1_sub/role-mappings", MappingsRepresentation.class) >> user1RolesResponse
             getForEntity(
-                    "$testee.keycloakServerUrl/admin/realms/$testee.realm/users/user_2_sub/role-mappings", MappingsRepresentation.class) >> user2RolesResponse
+                    "${testee.keycloakServerUrl}/admin/realms/${testee.realm}/users/user_2_sub/role-mappings", MappingsRepresentation.class) >> user2RolesResponse
             getForEntity(
-                    "$testee.keycloakServerUrl/admin/realms/$testee.realm/users/user_3_sub/role-mappings", MappingsRepresentation.class) >> user3RolesResponse
+                    "${testee.keycloakServerUrl}/admin/realms/${testee.realm}/users/user_3_sub/role-mappings", MappingsRepresentation.class) >> user3RolesResponse
         })
     }
 }
