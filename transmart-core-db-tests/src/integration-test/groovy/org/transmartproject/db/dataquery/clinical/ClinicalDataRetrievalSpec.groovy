@@ -259,8 +259,8 @@ class ClinicalDataRetrievalSpec extends Specification {
                 hasProperty('patient',
                         hasSameInterfaceProperties(Patient,
                                 testData.i2b2Data.patients[2] /* -103 */, ['assays'])),
-                /* numberValue prop in ObservationFact has scale 5 */
-                contains(equalTo(-45.42000 /* big decimal */))))
+                /* numberValue prop in ObservationFact has scale 16 */
+                contains(equalTo(-45.4200000000000000 /* big decimal */))))
     }
 
 

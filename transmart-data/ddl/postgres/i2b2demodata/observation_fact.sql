@@ -11,7 +11,7 @@ CREATE TABLE observation_fact (
     instance_num numeric(18,0),
     valtype_cd character varying(50),
     tval_char character varying(255),
-    nval_num numeric(18,5),
+    nval_num numeric(29,16),
     valueflag_cd character varying(50),
     quantity_num numeric(18,5),
     units_cd character varying(50),
