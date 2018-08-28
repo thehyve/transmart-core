@@ -12,8 +12,8 @@ org.transmartproject.notifications:
     # hh: Hour, range: 0-23;
     # mm: Minute, range: 0-59;
     dailyJobTriggerTime: 0-0
-    # Subject for the query subscription email
-    emailSubject: Test email for query subscription
+    # Client application name referred from email content
+    clientApplicationName: Glowing Bear
 
 
 # Quartz plugin configuration - job for query subscription

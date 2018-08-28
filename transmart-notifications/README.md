@@ -50,5 +50,7 @@ org.transmartproject.notifications:
     # hh: Hour, range: 0-23;
     # mm: Minute, range: 0-59;
     dailyJobTriggerTime: 0-0
+    # Name of the client application on behalf of which transmart will send application. 
+    clientApplicationName: Glowing Bear
 ```
 

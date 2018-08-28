@@ -21,6 +21,7 @@ dependencies {
 
     compile 'org.grails.plugins:mail:2.0.0'
     compile "org.grails.plugins:quartz:${quartzVersion}"
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 
     compile project(':transmart-core-api')
 }
