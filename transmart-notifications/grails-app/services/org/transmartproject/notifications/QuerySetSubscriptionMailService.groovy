@@ -28,8 +28,8 @@ class QuerySetSubscriptionMailService {
     @Value('${org.transmartproject.notifications.maxNumberOfSets}')
     Integer maxNumberOfSets
 
-    @Value('${org.transmartproject.notifications.emailSubject}')
-    String subscriptionEmailSubject
+    @Value('${org.transmartproject.notifications.clientApplicationName}')
+    String clientApplicationName
 
     MailService mailService
 
@@ -49,59 +49,20 @@ class QuerySetSubscriptionMailService {
      */
     def run(SubscriptionFrequency frequency) {
         List<User> users = usersResource.getUsersWithEmailSpecified()
+        Date reportDate = new Date()
         for (user in users) {
             List<UserQuerySetChangesRepresentation> patientSetChanges =
                     getPatientSetChangesRepresentation(frequency, user.username)
 
             if (patientSetChanges.size() > 0) {
-                String emailBody = generateEmail(patientSetChanges)
-                sendEmail(user.email, subscriptionEmailSubject, emailBody)
+                String emailSubject = EmailGenerator.getQuerySubscriptionUpdatesSubject(clientApplicationName, reportDate)
+                String emailBody = EmailGenerator.getQuerySubscriptionUpdatesBody(patientSetChanges, clientApplicationName, reportDate)
+                sendEmail(user.email, emailSubject, emailBody)
             }
         }
     }
 
-    /**
-     * Generates an email for specific user with data updates for a query the user is subscribed for.
-     *
-     * The email contains a list of each query with changed results with:
-     * - a name of the query,
-     * - list of added and removed ids of objects that the query relates to
-     * - over what period the change was
-     *
-     * @param username
-     * @param freq
-     * @return The body of the email
-     *
-     */
-    private static String generateEmail(List<UserQuerySetChangesRepresentation> patientSetsChanges) {
 
-        def currentDate = new Date()
-
-        def queryResultsList = [] as List<String>
-        UserQuerySetChangesRepresentation previousRecord = null
-        for (setChange in patientSetsChanges) {
-            queryResultsList << """
-                ${ previousRecord?.queryId != setChange.queryId ?
-                    "For a query named: '$setChange.queryName' (id='$setChange.queryId')" : ""
-                }
-                date of the change: $setChange.createDate
-                ${ setChange.objectsAdded.size() > 0 ?
-                    "added subjects with ids: $setChange.objectsAdded" : ""
-                }
-                ${ setChange.objectsRemoved.size() > 0 ?
-                    "removed subjects with ids: $setChange.objectsRemoved" : ""
-                }
-            """.toString()
-        }
-        def emailBody = """
-            Generated as per day ${currentDate.format("d.' of 'MMMM Y h:mm aa z")}
-            
-            List of updated query results:
-            ${queryResultsList}
-            
-        """
-        return emailBody
-    }
 
     /**
      * Fetches a list of patient sets with changes made comparing to a previous set related to the same query
