@@ -1,6 +1,6 @@
 # transmart-copy
 
-Data uploader tool for [TranSMART](../), specifically for PostgreSQL databases.
+Data uploader tool for [TranSMART](/../../), specifically for PostgreSQL databases.
 For loading the observations data, it copies data from table specific data files to database table,
 only substituting indexes for database identifiers for subjects, trial visits and studies.
 
@@ -38,7 +38,8 @@ does not yet exist.
 The input directory should have the same structure as the database:
 two directories `i2b2metadata` and `i2b2demodata` representing the schemas,
 containing `.tsv` files for each of the tables.
-See the [example directory](src/main/resources/examples/SURVEY0) for an example of the directory structure.
+See the [example directory](src/test/resources/examples/SURVEY0) for an example of the directory structure.
+
 
 For shared data (used across studies), the identifiers of existing records are fetched first.
 If a record already exists, the data is not updated. The tool
