@@ -3295,231 +3295,226 @@
     },
     "DataTable": {
       "description": "A JSON object that represents the dataset in a tabular form. The actual row data can be found in\n`rows*.cells`, with the headers and other metadata available in other keys.\n",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "columnHeaders": {
-            "description": "This property describes the top header of the table. The header can contain multiple rows, each row is\nfound in the `keys` or `elements` property of an item. If the `keys` property is set, it contains\nreferences to dimension elements that are further elaborated in the `column_dimensions` property.\n",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "dimension": {
-                  "type": "string",
-                  "description": "the name of a column dimension"
-                },
-                "keys": {
-                  "type": "array",
-                  "items": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "number"
-                      }
-                    ]
-                  },
-                  "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table (unless no column dimensions were specified, in which case this list is empty). The items\ndescribe a dimension element, they refer to keys in the\n`rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
-                },
-                "elements": {
-                  "type": "array",
-                  "items": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "number"
-                      }
-                    ]
-                  },
-                  "description": "A list of column headers for one dimension, but in this property the items do not refer to a\nfurther description, the dimension element is just a single string or number. The string may also\nbe a formatted date.\n\nThe size of this list is equal to the number of columns in the table, or empty if no column\ndimensions were specified.\n\nThis property is mutually exclusive with the `keys` property.\n"
-                }
+      "properties": {
+        "columnHeaders": {
+          "description": "This property describes the top header of the table. The header can contain multiple rows, each row is\nfound in the `keys` or `elements` property of an item. If the `keys` property is set, it contains\nreferences to dimension elements that are further elaborated in the `column_dimensions` property.\n",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "description": "the name of a column dimension"
               },
-              "required": [
-                "dimension"
-              ]
-            }
-          },
-          "rows": {
-            "description": "This property contains the row data and the left table header. The row data is found in the `row`\nproperty, the left header cells in the `dimensions` property.\n",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "rowHeaders": {
-                  "description": "The left header cells for this row. Each cell contains the element or a reference to the element of\none row dimension. There is one item for each row dimension in this list, in order.\n",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "dimension": {
-                        "type": "string",
-                        "description": "The name of this row dimension"
-                      },
-                      "key": {
-                        "type": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "number"
-                            }
-                          ]
-                        },
-                        "description": "Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element\nspecified in `rowDimensions*.elements` for the specified dimension.\n\nThis property is mutually exclusive with the `element` property.\n"
-                      },
-                      "element": {
-                        "type": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "number"
-                            }
-                          ]
-                        },
-                        "description": "Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension\nelement is a single string, number or date. A date is represented as a formatted string.\n\nThis property is mutually exclusive with the `key` property.\n"
-                      }
+              "keys": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
                     },
-                    "required": [
-                      "dimension"
-                    ]
-                  }
+                    {
+                      "type": "number"
+                    }
+                  ]
                 },
-                "cells": {
-                  "type": "array",
-                  "items": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "array",
-                        "items": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "number"
-                            }
-                          ]
-                        }
-                      }
-                    ]
-                  },
-                  "description": "The row data for a single table row. The items are strings or numbers or dates (represented as a\nformatted string). The length of each row is the same, and is the same as the size of the\n`columnHeaders*.keys` and `columnHeaders*.elements` lists.\n\nThe item can also be an array of strings, numbers or dates. This happens if multiple values fall\ninto the same table cell.\n"
-                }
+                "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table (unless no column dimensions were specified, in which case this list is empty). The items\ndescribe a dimension element, they refer to keys in the\n`rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
+              },
+              "elements": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "description": "A list of column headers for one dimension, but in this property the items do not refer to a\nfurther description, the dimension element is just a single string or number. The string may also\nbe a formatted date.\n\nThe size of this list is equal to the number of columns in the table, or empty if no column\ndimensions were specified.\n\nThis property is mutually exclusive with the `keys` property.\n"
               }
-            }
-          },
-          "rowDimensions": {
-            "description": "This property contains a description of the row dimensions. It is a list of objects, with each object\ndescribing one dimension. If the dimension has its elements inlined the description here will only\ncontain the dimension name. If the headers contain keys the full dimension elements can be found in the\n`elements` map. This map is indexed by the key found in the headers. The elements themselves are a\nfree-form maps with the properties depending on the dimension type, but every element has at least a\n`label` property (which is often the same as the key, though not always).\n",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "the dimension name"
-                },
-                "elements": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object",
-                    "properties": {
-                      "label": {
-                        "type": "string"
-                      }
-                    },
-                    "additionalProperties": true,
-                    "description": "A dimension element, the available properties depend on the dimension, but 'label' is always\nincluded.\n"
-                  },
-                  "description": "The dimension elements, indexed by the key used in the header. This property is only present if the\ndimension elements are compound and referenced by keys, simple elements will be inlined in the header.\n"
-                }
-              },
-              "required": [
-                "name"
-              ]
-            }
-          },
-          "columnDimensions": {
-            "description": "The same as `rowDimensions`, but for the column dimensions.\n",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "the dimension name"
-                },
-                "elements": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object",
-                    "properties": {
-                      "label": {
-                        "type": "string"
-                      }
-                    },
-                    "additionalProperties": true
-                  }
-                }
-              },
-              "required": [
-                "name"
-              ]
-            }
-          },
-          "sort": {
-            "description": "This property lists the sort order that was used in creating the dataset. This will generally include all\nthe dimensions that were specified as row or column dimensions. This property includes both the row\nand column dimensions, with row dimensions first and column dimensions followed by that.\n",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/SortResponse"
-            }
-          },
-          "offset": {
-            "type": "integer",
-            "description": "the offset of the first returned row in the full dataset"
-          },
-          "rowCount": {
-            "type": "integer",
-            "description": "The total number of rows available. This property is only set if the total is known, which is\ngenerally only the case if the last row is part of this result.\n"
+            },
+            "required": [
+              "dimension"
+            ]
           }
         },
-        "required": [
-          "columnHeaders",
-          "rows",
-          "rowDimensions",
-          "sort",
-          "offset"
-        ]
-      }
+        "rows": {
+          "description": "This property contains the row data and the left table header. The row data is found in the `row`\nproperty, the left header cells in the `dimensions` property.\n",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rowHeaders": {
+                "description": "The left header cells for this row. Each cell contains the element or a reference to the element of\none row dimension. There is one item for each row dimension in this list, in order.\n",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "dimension": {
+                      "type": "string",
+                      "description": "The name of this row dimension"
+                    },
+                    "key": {
+                      "type": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "description": "Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element\nspecified in `rowDimensions*.elements` for the specified dimension.\n\nThis property is mutually exclusive with the `element` property.\n"
+                    },
+                    "element": {
+                      "type": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "description": "Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension\nelement is a single string, number or date. A date is represented as a formatted string.\n\nThis property is mutually exclusive with the `key` property.\n"
+                    }
+                  },
+                  "required": [
+                    "dimension"
+                  ]
+                }
+              },
+              "cells": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "description": "The row data for a single table row. The items are strings or numbers or dates (represented as a\nformatted string). The length of each row is the same, and is the same as the size of the\n`columnHeaders*.keys` and `columnHeaders*.elements` lists.\n\nThe item can also be an array of strings, numbers or dates. This happens if multiple values fall\ninto the same table cell.\n"
+              }
+            }
+          }
+        },
+        "rowDimensions": {
+          "description": "This property contains a description of the row dimensions. It is a list of objects, with each object\ndescribing one dimension. If the dimension has its elements inlined the description here will only\ncontain the dimension name. If the headers contain keys the full dimension elements can be found in the\n`elements` map. This map is indexed by the key found in the headers. The elements themselves are a\nfree-form maps with the properties depending on the dimension type, but every element has at least a\n`label` property (which is often the same as the key, though not always).\n",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "the dimension name"
+              },
+              "elements": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "description": "A dimension element, the available properties depend on the dimension, but 'label' is always\nincluded.\n"
+                },
+                "description": "The dimension elements, indexed by the key used in the header. This property is only present if the\ndimension elements are compound and referenced by keys, simple elements will be inlined in the header.\n"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "columnDimensions": {
+          "description": "The same as `rowDimensions`, but for the column dimensions.\n",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "the dimension name"
+              },
+              "elements": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "sort": {
+          "description": "This property lists the sort order that was used in creating the dataset. This will generally include all\nthe dimensions that were specified as row or column dimensions. This property includes both the row\nand column dimensions, with row dimensions first and column dimensions followed by that.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SortResponse"
+          }
+        },
+        "offset": {
+          "type": "integer",
+          "description": "the offset of the first returned row in the full dataset"
+        },
+        "rowCount": {
+          "type": "integer",
+          "description": "The total number of rows available. This property is only set if the total is known, which is\ngenerally only the case if the last row is part of this result.\n"
+        }
+      },
+      "required": [
+        "columnHeaders",
+        "rows",
+        "rowDimensions",
+        "sort",
+        "offset"
+      ]
     },
     "CrossTable": {
       "description": "A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains\na list with numbers of subjects for each cell.\n",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "rows": {
-            "description": "This property contains the row data. Items are cells, each cell is a number of subject, computed as a result\nof an intersection of constraints specified for a row, for a column and for a selected subject set.\n",
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
+      "type": "object",
+      "properties": {
+        "rows": {
+          "description": "This property contains the row data. Items are cells, each cell is a number of subject, computed as a result\nof an intersection of constraints specified for a row, for a column and for a selected subject set.\n",
+          "type": "array",
+          "items": {
+            "type": "number"
           }
-        },
-        "required": [
-          "rows"
-        ]
-      }
+        }
+      },
+      "required": [
+        "rows"
+      ]
     },
     "Observation": {
       "type": "object",
