@@ -37,7 +37,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.owasp.dependencycheck'
 
 ext {
-    transmartVersion = '17.1-HYVE-5-RC10'
+    transmartVersion = '17.1-HYVE-5-RC11'
 
     assetPipelineVersion = '2.11.6'
     gradleWrapperVersion = '3.5.1'
