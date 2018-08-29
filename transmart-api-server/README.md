@@ -6,7 +6,7 @@ by a separate identity provider.
 
 ## Patient counts threshold configuration
 
-It is possible to configure a threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission. The threshold will be applied to the result of a query, when ...
+It is possible to configure a threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission to a study. In this case, instead of the counts, a special value: `-2` will be returned. The threshold will be applied only, when the specified query relates to the study with `COUNTS_WITH_THRESHOLD` permission and there is at least one patient from thi study as a result of this query.
 
 ```yaml
 org.transmartproject.patientCountThreshold: 5
