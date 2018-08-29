@@ -24,7 +24,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
 import org.springframework.stereotype.Component
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.clinical.CountsWithThresholdService
 import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
@@ -105,6 +104,12 @@ A runtime dependency for tranSMART that implements the Core API
                     expression: Component.canonicalName)
         }
 
+        context.'component-scan'('base-package': 'org.transmartproject.db.clinical') {
+            context.'include-filter'(
+                    type:       'annotation',
+                    expression: Component.canonicalName)
+        }
+
         if (!config.org.transmartproject.i2b2.user_id) {
             config.org.transmartproject.i2b2.user_id = 'i2b2'
         }
@@ -113,14 +118,6 @@ A runtime dependency for tranSMART that implements the Core API
         }
 
         namedParameterJdbcTemplate(NamedParameterJdbcTemplate, ref('dataSource'))
-
-        countsWithThresholdService(CountsWithThresholdService) { bean ->
-            bean.primary = true
-
-            patientCountThreshold = config.patientCountThreshold ?: 0
-            aggregateDataResource = ref('aggregateDataService')
-            crossTableResource = ref('crossTableService')
-        }
     }}
 
     void doWithDynamicMethods() {

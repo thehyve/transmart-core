@@ -56,8 +56,13 @@ import static groovyx.gpars.GParsPool.withPool
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 
+/**
+ * Counts and aggregates service that does not take into account thresholds for data obfuscation.
+ * See {@link CountsWithThresholdService} for the primary implementation that does
+ * respect the thresholds access policies.
+ */
 @CompileStatic
-class AggregateDataService extends AbstractDataResourceService implements AggregateDataResource {
+class AggregateDataService extends AbstractDataResourceService {
 
     @Autowired
     MDStudiesResource studiesResource
@@ -206,10 +211,10 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         )
     }
 
-    @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.cachedCounts',
             key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
     Counts counts(Constraint constraint, User user) {
+        log.info "Computing counts"
         freshCounts(constraint, user)
     }
 
@@ -317,7 +322,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         mergeConceptCounts(counts)
     }
 
-    @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
             key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
     @Transactional(readOnly = true)
@@ -355,7 +359,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         ))
     }
 
-    @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
             key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
     @Transactional(readOnly = true)
@@ -422,7 +425,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     }
 
     @CompileDynamic
-    @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
             key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
     @Transactional(readOnly = true)
@@ -497,7 +499,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
      * @param query
      * @param user
      */
-    @Override
     Long getDimensionElementsCount(Dimension dimension, Constraint constraint, User user) {
         if (constraint) {
             checkAccess(constraint, user, PatientDataAccessLevel.COUNTS)
@@ -555,7 +556,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         }
     }
 
-    @Override
     @Transactional(readOnly = true)
     Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(
             Constraint constraint, User user) {
@@ -592,7 +592,6 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
         ))
     }
 
-    @Override
     @Transactional(readOnly = true)
     Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(
             Constraint constraint, User user) {

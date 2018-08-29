@@ -1,9 +1,6 @@
 package org.transmartproject.db.clinical
 
-import org.transmartproject.core.multidimquery.AggregateDataResource
-import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.counts.Counts
-import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.core.users.User
@@ -11,23 +8,23 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS
 import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS_WITH_THRESHOLD
 import static org.transmartproject.core.users.PatientDataAccessLevel.SUMMARY
 
 class CountsWithThresholdServiceSpec extends Specification {
 
-    AggregateDataResource aggregateDataResourceMock = Mock(AggregateDataResource)
-    CrossTableResource crossTableResourceMock = Mock(CrossTableResource)
+    LowerThreshold lowerThreshold = new LowerThreshold()
+    
+    AggregateDataService aggregateDataResourceMock = Mock(AggregateDataService)
 
     Constraint constraintMock = Mock(Constraint)
 
     CountsWithThresholdService testee = new CountsWithThresholdService(
-            aggregateDataResource: aggregateDataResourceMock,
-            crossTableResource: crossTableResourceMock)
+            aggregateDataService: aggregateDataResourceMock,
+            lowerThreshold: lowerThreshold)
 
     def 'counts below threshold'() {
-        testee.patientCountThreshold = 10
+        lowerThreshold.patientCountThreshold = 10
         long patientCounts = 5
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
@@ -45,7 +42,7 @@ class CountsWithThresholdServiceSpec extends Specification {
     }
 
     def 'counts below threshold for admin user'() {
-        testee.patientCountThreshold = 10
+        lowerThreshold.patientCountThreshold = 10
         long patientCounts = 5
         User user = new SimpleUser(username: 'test',
                 admin: true)
@@ -61,7 +58,7 @@ class CountsWithThresholdServiceSpec extends Specification {
     }
 
     def 'counts below threshold for user with higher patient data access level'() {
-        testee.patientCountThreshold = 10
+        lowerThreshold.patientCountThreshold = 10
         long patientCounts = 5
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: SUMMARY])
@@ -78,7 +75,7 @@ class CountsWithThresholdServiceSpec extends Specification {
 
     @Unroll
     def 'patient count for threshold = #threshold'() {
-        testee.patientCountThreshold = patientCountThreshold
+        lowerThreshold.patientCountThreshold = patientCountThreshold
         long patientCounts = 5
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
@@ -102,7 +99,7 @@ class CountsWithThresholdServiceSpec extends Specification {
 
     @Unroll
     def 'zero patient count for threshold = #threshold'() {
-        testee.patientCountThreshold = patientCountThreshold
+        lowerThreshold.patientCountThreshold = patientCountThreshold
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
         aggregateDataResourceMock.counts(_, { it.username == user.username }) >>> [
@@ -124,7 +121,7 @@ class CountsWithThresholdServiceSpec extends Specification {
 
     @Unroll
     def 'patient count below threshold if there are #patientsFromStudy2 patients from protected study in the end result'() {
-        testee.patientCountThreshold = 10
+        lowerThreshold.patientCountThreshold = 10
         long patientCounts = 5
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: SUMMARY, study2: COUNTS_WITH_THRESHOLD])
@@ -145,23 +142,8 @@ class CountsWithThresholdServiceSpec extends Specification {
         1                  | -2
     }
 
-    def 'constraint limited to patients of studies'() {
-        expect:
-        testee.getConstraintLimitedToStudyPatients(constraintMock, ['study1', 'study2'] as Set) ==
-                new AndConstraint([
-                        constraintMock,
-                        new SubSelectionConstraint(
-                                'patient',
-                                new OrConstraint([
-                                        new StudyNameConstraint('study1'),
-                                        new StudyNameConstraint('study2'),
-                                ])
-                        )]
-                )
-    }
-
     def 'patient count per concept'() {
-        testee.patientCountThreshold = 10
+        lowerThreshold.patientCountThreshold = 10
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
         aggregateDataResourceMock.countsPerConcept(_, { it.username == user.username }) >>> [
@@ -184,7 +166,7 @@ class CountsWithThresholdServiceSpec extends Specification {
 
     @Unroll
     def 'zero patient count per concept for threshold = #threshold'() {
-        testee.patientCountThreshold = patientCountThreshold
+        lowerThreshold.patientCountThreshold = patientCountThreshold
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
         aggregateDataResourceMock.countsPerConcept(_, { it.username == user.username }) >>> [
@@ -217,7 +199,7 @@ class CountsWithThresholdServiceSpec extends Specification {
     }
 
     def 'patient count per study'() {
-        testee.patientCountThreshold = 10
+        lowerThreshold.patientCountThreshold = 10
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD, study2: SUMMARY, study3: COUNTS_WITH_THRESHOLD])
         aggregateDataResourceMock.countsPerStudy(constraintMock, {
@@ -248,7 +230,7 @@ class CountsWithThresholdServiceSpec extends Specification {
     }
 
     def 'patient count per study and concept'() {
-        testee.patientCountThreshold = 10
+        lowerThreshold.patientCountThreshold = 10
         User user = new SimpleUser(username: 'test', admin: false,
                 studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD, study2: SUMMARY, study3: COUNTS_WITH_THRESHOLD])
         aggregateDataResourceMock.countsPerStudyAndConcept(constraintMock, { it.username == user.username }) >> [
@@ -304,43 +286,4 @@ class CountsWithThresholdServiceSpec extends Specification {
         testee.getDimensionElementsCount(DimensionImpl.CONCEPT, constraintMock, userMock) == 50L
     }
 
-    def 'cross table counts respect threshold'() {
-        testee.patientCountThreshold = 10
-        User user = new SimpleUser(username: 'test', admin: false,
-                studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
-        List<Constraint> rowConstraints = Mock(List)
-        List<Constraint> columnConstraints = Mock(List)
-        crossTableResourceMock.retrieveCrossTable(rowConstraints, columnConstraints, _, {
-            it.username == user.username
-        }) >>> [
-                new CrossTable([
-                        [0, 10, 5],
-                        [20, 9, 1],
-                ]),
-                new CrossTable([
-                        [1, 1, 1],
-                        [0, 0, 0],
-                ])
-        ]
-
-        expect:
-        testee.retrieveCrossTable(rowConstraints, columnConstraints, constraintMock, user) == new CrossTable([
-                [-2, 10, -2],
-                [20, 9, 1],
-        ])
-    }
-
-    def 'cross table counts when no threshold check needed'() {
-        User user = new SimpleUser(username: 'test', admin: false,
-                studyToPatientDataAccessLevel: [study1: SUMMARY])
-        List<Constraint> rowConstraints = Mock(List)
-        List<Constraint> columnConstraints = Mock(List)
-        def crossTable = Mock(CrossTable)
-        crossTableResourceMock.retrieveCrossTable(rowConstraints, columnConstraints, constraintMock, {
-            it.username == user.username
-        }) >> crossTable
-
-        expect:
-        testee.retrieveCrossTable(rowConstraints, columnConstraints, constraintMock, user) == crossTable
-    }
 }
