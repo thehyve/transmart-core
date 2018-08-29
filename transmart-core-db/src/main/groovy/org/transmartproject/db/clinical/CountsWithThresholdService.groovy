@@ -43,6 +43,9 @@ class CountsWithThresholdService implements AggregateDataResource, CrossTableRes
         Counts counts = aggregateDataResource.counts(constraint, exactCountsAccessUserCopy)
 
         if (needsCountsWithThresholdCheck(user) && isBelowThreshold(counts)) {
+            if (counts.patientCount == 0) {
+                return BELOW_THRESHOLD_COUNTS
+            }
             Set<String> cTStudyNames = getCountsWithThresholdStudyNames(user)
             if (cTStudyNames) {
                 Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, cTStudyNames)
@@ -65,22 +68,22 @@ class CountsWithThresholdService implements AggregateDataResource, CrossTableRes
             if (cTStudyNames) {
                 Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, cTStudyNames)
                 Map<String, Counts> cTCounts = aggregateDataResource.countsPerConcept(constraintLimitedToCTStudyPatients, exactCountsAccessUserCopy)
-                if (cTCounts && cTCounts.values().parallelStream().anyMatch({ it && it.patientCount > 0 })) {
-                    Map<String, Counts> repackedCounts = new LinkedHashMap<>(counts.size())
-                    for (Map.Entry<String, Counts> conceptToCountsEntry : counts) {
-                        String concept = conceptToCountsEntry.key
-                        Counts resultCounts = conceptToCountsEntry.value
+                Map<String, Counts> repackedCounts = new LinkedHashMap<>(counts.size())
+                for (Map.Entry<String, Counts> conceptToCountsEntry : counts) {
+                    String concept = conceptToCountsEntry.key
+                    Counts resultCounts = conceptToCountsEntry.value
 
-                        boolean belowThreshold = (isBelowThreshold(resultCounts)
-                                && cTCounts.containsKey(concept)
-                                && cTCounts.get(concept)?.patientCount > 0)
-                        if (belowThreshold) {
-                            resultCounts = BELOW_THRESHOLD_COUNTS
-                        }
-                        repackedCounts.put(concept, resultCounts)
+                    boolean belowThreshold = (
+                            resultCounts.patientCount == 0
+                                    || isBelowThreshold(resultCounts)
+                                    && cTCounts.containsKey(concept)
+                                    && cTCounts.get(concept)?.patientCount > 0)
+                    if (belowThreshold) {
+                        resultCounts = BELOW_THRESHOLD_COUNTS
                     }
-                    return repackedCounts
+                    repackedCounts.put(concept, resultCounts)
                 }
+                return repackedCounts
             }
         }
         return counts

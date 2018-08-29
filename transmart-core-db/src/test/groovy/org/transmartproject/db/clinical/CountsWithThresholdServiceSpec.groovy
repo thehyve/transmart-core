@@ -11,6 +11,7 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS
 import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS_WITH_THRESHOLD
 import static org.transmartproject.core.users.PatientDataAccessLevel.SUMMARY
 
@@ -100,6 +101,28 @@ class CountsWithThresholdServiceSpec extends Specification {
     }
 
     @Unroll
+    def 'zero patient count for threshold = #threshold'() {
+        testee.patientCountThreshold = patientCountThreshold
+        User user = new SimpleUser(username: 'test', admin: false,
+                studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
+        aggregateDataResourceMock.counts(_, { it.username == user.username }) >>> [
+                new Counts(patientCount: 0),
+                new Counts(patientCount: 0),
+        ]
+
+        when:
+        Counts counts = testee.counts(constraintMock, user)
+
+        then:
+        counts.patientCount == returnedPatientCount
+
+        where:
+        patientCountThreshold | returnedPatientCount
+        1                     | -2
+        0                     | 0
+    }
+
+    @Unroll
     def 'patient count below threshold if there are #patientsFromStudy2 patients from protected study in the end result'() {
         testee.patientCountThreshold = 10
         long patientCounts = 5
@@ -158,6 +181,30 @@ class CountsWithThresholdServiceSpec extends Specification {
         counts.concept3
         counts.concept3.patientCount == 10
     }
+
+    @Unroll
+    def 'zero patient count per concept for threshold = #threshold'() {
+        testee.patientCountThreshold = patientCountThreshold
+        User user = new SimpleUser(username: 'test', admin: false,
+                studyToPatientDataAccessLevel: [study1: COUNTS_WITH_THRESHOLD])
+        aggregateDataResourceMock.countsPerConcept(_, { it.username == user.username }) >>> [
+                [concept1: new Counts(patientCount: 0)],
+                [concept1: new Counts(patientCount: 0)],
+        ]
+
+        when:
+        Map<String, Counts> counts = testee.countsPerConcept(constraintMock, user)
+
+        then:
+        counts.concept1
+        counts.concept1.patientCount == returnedPatientCount
+
+        where:
+        patientCountThreshold | returnedPatientCount
+        1                     | -2
+        0                     | 0
+    }
+
 
     def 'patient count per concept when no threshold check needed'() {
         User user = new SimpleUser(username: 'test', admin: false,
