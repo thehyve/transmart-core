@@ -2,9 +2,9 @@ package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.AggregateDataResource
-import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -15,8 +15,13 @@ import org.transmartproject.core.users.User
 
 import java.util.stream.Collectors
 
+/**
+ * Cross table service that does not take into account thresholds for data obfuscation.
+ * See {@link CrossTableWithThresholdService} for the implementation that does
+ * respect the thresholds access policies.
+ */
 @CompileStatic
-class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
+class CrossTableService extends AbstractDataResourceService {
 
     @Autowired
     PatientSetResource patientSetResource
@@ -25,11 +30,12 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
     AggregateDataOptimisationsService aggregateDataOptimisationsService
 
     @Autowired
+    @Qualifier('countsWithThresholdService')
     AggregateDataResource aggregateDataResource
 
-    @Override
     CrossTable retrieveCrossTable(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
                                   Constraint subjectConstraint, User user) {
+        log.info "Retrieve cross table"
         checkAccess(rowConstraints, columnConstraints, subjectConstraint, user)
 
         List<QueryResult> rowSubjectSets = createOrReuseResultSets(rowConstraints, user)

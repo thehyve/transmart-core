@@ -7,7 +7,6 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.binding.BindingHelper
-import org.transmartproject.core.config.CountsThresholdResource
 import org.transmartproject.core.exceptions.*
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CrossTableResource
@@ -22,6 +21,7 @@ import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.db.clinical.LowerThreshold
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 
@@ -39,8 +39,8 @@ class QueryController extends AbstractQueryController {
     @Autowired
     CrossTableResource crossTableResource
 
-    @Autowired(required = false)
-    CountsThresholdResource countsThresholdResource
+    @Autowired
+    LowerThreshold lowerThreshold
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -347,7 +347,7 @@ class QueryController extends AbstractQueryController {
     def countsThreshold() {
         checkForUnsupportedParams(params, [])
 
-        def result = [threshold: countsThresholdResource?.patientCountThreshold]
+        def result = [threshold: lowerThreshold.patientCountThreshold]
         render result as JSON
     }
 
