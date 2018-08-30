@@ -1,10 +1,14 @@
 package org.transmartproject.api.server.server
 
+import groovy.util.logging.Slf4j
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.ssl.SSLContexts
 import org.keycloak.adapters.KeycloakConfigResolver
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -15,13 +19,23 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
+import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
 import org.transmartproject.api.server.client.OfflineTokenClientRequestFactory
 
+import java.security.cert.X509Certificate
+
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+
+    /**
+     * Do not set this flag to true in production!
+     */
+    @Value('${keycloak.disable-trust-manager}')
+    Boolean keycloakDisableTrustManager
 
     @Autowired
     void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -43,13 +57,19 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     }
 
     /**
-     * Rest template used to fetch keycloak users by scheduled jobs.
-     * @param factory
-     * @return
+     * Creates RestTemplate bean, for connecting to Keycloak. Uses the configured offline token for authentication.
+     * If the value of the keycloak.disable-trust-manager property is true,
+     * validation of SSL certificate chains is skipped. This enables the use of self-signed certificates.
+     * This should never be used in production.
+     *
+     * @return a RestTemplate.
      */
     @Bean
-    RestTemplate offlineTokenBasedRestTemplate(OfflineTokenClientRequestFactory factory) {
-        new RestTemplate(factory)
+    RestOperations offlineTokenBasedRestTemplate(OfflineTokenClientRequestFactory requestFactory) {
+        if (keycloakDisableTrustManager) {
+            requestFactory.setHttpClient(OfflineTokenClientRequestFactory.httpClientWithoutCertificateChecking)
+        }
+        new RestTemplate(requestFactory)
     }
 
     /**
