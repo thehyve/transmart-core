@@ -56,8 +56,8 @@ class QuerySetSubscriptionMailService {
 
             if (patientSetChanges.size() > 0) {
                 String emailSubject = EmailGenerator.getQuerySubscriptionUpdatesSubject(clientApplicationName, reportDate)
-                String emailBody = EmailGenerator.getQuerySubscriptionUpdatesBody(patientSetChanges, clientApplicationName, reportDate)
-                sendEmail(user.email, emailSubject, emailBody)
+                String emailBodyHtml = EmailGenerator.getQuerySubscriptionUpdatesBody(patientSetChanges, clientApplicationName, reportDate)
+                sendEmail(user.email, emailSubject, emailBodyHtml)
             }
         }
     }
@@ -83,14 +83,14 @@ class QuerySetSubscriptionMailService {
      * using Grails Mail Plugin
      *
      * @param address - a receiver address
-     * @param title
-     * @param emailBody
+     * @param title - an email subject
+     * @param emailBodyHtml - html to send as an email body
      */
-    private void sendEmail(String address, String title, String emailBody) {
+    private void sendEmail(String address, String title, String emailBodyHtml) {
 
         mailService.sendMail {
             to address
-            body emailBody
+            html emailBodyHtml
             subject(title)
         }
     }
