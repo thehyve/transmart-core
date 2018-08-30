@@ -1,5 +1,6 @@
 package org.transmartproject.api.server.client
 
+import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.http.client.HttpClient
@@ -41,8 +42,10 @@ class OfflineTokenClientRequestFactory extends HttpComponentsClientHttpRequestFa
     /**
      * Do not set this flag to true in production!
      */
-    @Value('${keycloak.disable-trust-manager}')
-    private Boolean keycloakDisableTrustManager
+    @Lazy
+    Boolean keycloakDisableTrustManager = {
+        Holders.config.getProperty('keycloak.disable-trust-manager', Boolean, false)
+    }()
 
     public static final String AUTHORIZATION_HEADER = "Authorization"
 

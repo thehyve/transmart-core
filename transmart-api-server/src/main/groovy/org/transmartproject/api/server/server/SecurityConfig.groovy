@@ -27,14 +27,6 @@ import org.transmartproject.api.server.client.OfflineTokenClientRequestFactory
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
-    /**
-     * Do not set this flag to true in production!
-     */
-    @Lazy
-    Boolean keycloakDisableTrustManager = {
-        Holders.config.getProperty('keycloak.disable-trust-manager', Boolean, false)
-    }()
-
     @Autowired
     void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(keycloakAuthenticationProvider())
@@ -64,7 +56,7 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
      */
     @Bean
     RestOperations offlineTokenBasedRestTemplate(OfflineTokenClientRequestFactory requestFactory) {
-        if (keycloakDisableTrustManager) {
+        if (requestFactory.keycloakDisableTrustManager) {
             requestFactory.setHttpClient(OfflineTokenClientRequestFactory.httpClientWithoutCertificateChecking)
         }
         new RestTemplate(requestFactory)
