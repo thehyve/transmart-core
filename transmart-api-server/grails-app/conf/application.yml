@@ -83,5 +83,7 @@ environments:
             auth-server-url: http://localhost:8080/auth
             resource: transmart
             use-resource-role-mappings: true
+#            disable-trust-manager: false  # when true, SSL certificate checking is disabled. Do not use that in production!
+
 #        keycloakOffline:
 #            offlineToken: <offline token>

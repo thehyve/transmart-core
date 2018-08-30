@@ -97,7 +97,7 @@ class ObservationFact implements Serializable {
         modifierCd        maxSize:    100
         valueType         nullable:   true,   maxSize:   50
         textValue         nullable:   true
-        numberValue       nullable:   true,   scale:     5
+        numberValue       nullable:   true, max: 99999999999999999999999.99999999999999, scale: 16 // precision 29 and scale 16
         rawValue          nullable:   true
         valueFlag         nullable:   true,   maxSize:   50
         sourcesystemCd    nullable:   true,   maxSize:   50
