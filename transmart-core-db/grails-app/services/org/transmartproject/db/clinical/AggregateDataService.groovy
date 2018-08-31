@@ -307,6 +307,13 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Transactional(readOnly = true)
     Map<String, Counts> freshCountsPerConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
+        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
+
+        if (constraint instanceof PatientSetConstraint && constraint.patientSetId != null &&
+                aggregateDataOptimisationsService.countsPerConceptForPatientSetEnabled) {
+            return aggregateDataOptimisationsService.countsPerConceptForPatientSet(constraint.patientSetId, user)
+        }
+
         def taskParameters = new SubtaskParameters(1, constraint, user)
         def counts = countsPerConceptTask(taskParameters)
         mergeConceptCounts(counts)
@@ -330,8 +337,14 @@ class AggregateDataService extends AbstractDataResourceService implements Aggreg
     @Transactional(readOnly = true)
     Map<String, Counts> freshCountsPerStudy(Constraint constraint, User user) {
         log.debug "Computing counts per study ..."
-        def t1 = new Date()
         checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
+
+        if (constraint instanceof PatientSetConstraint && constraint.patientSetId != null &&
+                aggregateDataOptimisationsService.countsPerStudyForPatientSetEnabled) {
+            return aggregateDataOptimisationsService.countsPerStudyForPatientSet(constraint.patientSetId, user)
+        }
+
+        def t1 = new Date()
         QueryBuilder builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
         DetachedCriteria criteria = builder.buildCriteria(constraint,
                 HibernateCriteriaQueryBuilder.defaultModifierCriterion,
