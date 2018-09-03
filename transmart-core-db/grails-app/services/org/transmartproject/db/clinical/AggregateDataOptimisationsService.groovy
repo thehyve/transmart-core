@@ -37,6 +37,24 @@ class AggregateDataOptimisationsService {
     }
 
     /**
+     * Checks if the bitset view is available and can be used for counts per study.
+     * @return
+     */
+    @Memoized
+    boolean isCountsPerStudyForPatientSetEnabled() {
+        dbViewExists('biomart_user', 'study_patient_set_bitset')
+    }
+
+    /**
+     * Checks if the bitset view is available and can be used for counts per concept.
+     * @return
+     */
+    @Memoized
+    boolean isCountsPerConceptForPatientSetEnabled() {
+        dbViewExists('biomart_user', 'concept_patient_set_bitset')
+    }
+
+    /**
      * Refreshes biomart_user.study_concept_bitset
      */
     void clearPatientSetBitset() {
@@ -46,7 +64,7 @@ class AggregateDataOptimisationsService {
     /**
      * Computes patient counts per study and concept using bit sets.
      * Returns a map from study id to the map from concept code to
-     * a counts object that only containts a patient count, not an observation count.
+     * a counts object that only contains a patient count, not an observation count.
      *
      * @param resultInstanceId the id of the patient set to compute the counts for.
      * @param user the user to compute the counts for, used to filter studies on.
@@ -87,6 +105,86 @@ class AggregateDataOptimisationsService {
         }
         def t2 = new Date()
         log.info "Counts per study and concept for patient set done. (took ${t2.time - t1.time} ms.)"
+        return result
+    }
+
+    /**
+     * Computes patient counts per study using bit sets.
+     * Returns a map from study id to a counts object that only contains a patient count,
+     * not an observation count.
+     *
+     * @param resultInstanceId the id of the patient set to compute the counts for.
+     * @param user the user to compute the counts for, used to filter studies on.
+     * @return the map from study id to counts.
+     */
+    Map<String, Counts> countsPerStudyForPatientSet(Long resultInstanceId, User user) {
+        log.info "Counts per study for patient set ${resultInstanceId} using bitsets ..."
+
+        Set<String> studyIds = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY).stream()
+                .map({ MDStudy study -> study.name })
+                .collect(Collectors.toSet())
+
+        if (studyIds.empty) {
+            return [:]
+        }
+
+        def t1 = new Date()
+
+        List<Map<String, Object>> rows = namedParameterJdbcTemplate
+                .queryForList(
+                '''select 
+                    study_id,
+                    patient_count
+                   from biomart_user.study_patient_set_bitset
+                   where result_instance_id = :result_instance_id and study_id in (:study_ids)''',
+                [result_instance_id: resultInstanceId, study_ids: studyIds])
+
+        Map<String, Counts> result = [:]
+        for (Map<String, Object> row : rows) {
+            result.put((String) row.get('study_id'), new Counts(-1L, (long) row.get('patient_count')))
+        }
+        def t2 = new Date()
+        log.info "Counts per study for patient set done. (took ${t2.time - t1.time} ms.)"
+        return result
+    }
+
+    /**
+     * Computes patient counts per concept using bit sets.
+     * Returns a map from concept code to a counts object that only contains a patient count,
+     * not an observation count.
+     *
+     * @param resultInstanceId the id of the patient set to compute the counts for.
+     * @param user the user to compute the counts for, used to filter studies on.
+     * @return the map from concept code to counts.
+     */
+    Map<String, Counts> countsPerConceptForPatientSet(Long resultInstanceId, User user) {
+        log.info "Counts per concept for patient set ${resultInstanceId} using bitsets ..."
+
+        Set<String> studyIds = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY).stream()
+                .map({ MDStudy study -> study.name })
+                .collect(Collectors.toSet())
+
+        if (studyIds.empty) {
+            return [:]
+        }
+
+        def t1 = new Date()
+
+        List<Map<String, Object>> rows = namedParameterJdbcTemplate
+                .queryForList(
+                '''select 
+                    concept_cd,
+                    patient_count
+                   from biomart_user.concept_patient_set_bitset
+                   where result_instance_id = :result_instance_id and patient_count > 0''',
+                [result_instance_id: resultInstanceId])
+
+        Map<String, Counts> result = [:]
+        for (Map<String, Object> row : rows) {
+            result.put((String) row.get('concept_cd'), new Counts(-1L, (long) row.get('patient_count')))
+        }
+        def t2 = new Date()
+        log.info "Counts per concept for patient set done. (took ${t2.time - t1.time} ms.)"
         return result
     }
 
