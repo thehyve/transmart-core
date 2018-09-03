@@ -13,22 +13,15 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.userquery.ChangeFlag
-import org.transmartproject.core.userquery.SetType
-import org.transmartproject.core.userquery.SubscriptionFrequency
-import org.transmartproject.core.userquery.UserQuery
-import org.transmartproject.core.userquery.UserQueryRepresentation
-import org.transmartproject.core.userquery.UserQuerySet
-import org.transmartproject.core.userquery.UserQuerySetChangesRepresentation
-import org.transmartproject.core.userquery.UserQuerySetResource
+import org.transmartproject.core.userquery.*
 import org.transmartproject.core.users.User
 import org.transmartproject.core.users.UsersResource
+import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.querytool.Query
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
 import org.transmartproject.db.querytool.QuerySetInstance
-import org.transmartproject.db.accesscontrol.AccessControlChecks
 
 import java.util.stream.Collectors
 
@@ -209,39 +202,38 @@ class UserQuerySetService implements UserQuerySetResource {
         List<Long> removedIds = previousPatientIds - newPatientIds
 
         if (addedIds.size() > 0 || removedIds.size() > 0) {
-
-            QuerySet querySet = new QuerySet(
-                    query: query,
-                    setSize: newPatientIds.size(),
-                    setType: SetType.PATIENT
-            )
+            QuerySet querySet = new QuerySet()
+            querySet.query = query
+            querySet.setSize = (Long) newPatientIds.size()
+            querySet.setType = SetType.PATIENT
 
             List<QuerySetInstance> querySetInstances = []
             querySetInstances.addAll(newPatientIds.collect{
-                new QuerySetInstance(
-                        querySet: querySet,
-                        objectId: it,
-                )
+                QuerySetInstance setInstance = new QuerySetInstance()
+                setInstance.querySet = querySet
+                setInstance.objectId = it
+                setInstance
             })
 
             List<QuerySetDiff> querySetDiffs = []
             querySetDiffs.addAll(addedIds.collect {
-                new QuerySetDiff(
-                        querySet: querySet,
-                        objectId: it,
-                        changeFlag: ChangeFlag.ADDED
-                )
+                QuerySetDiff setDiff = new QuerySetDiff()
+                setDiff.querySet = querySet
+                setDiff.objectId = it
+                setDiff.changeFlag = ChangeFlag.ADDED
+                setDiff
             })
             querySetDiffs.addAll(removedIds.collect {
-                new QuerySetDiff(
-                        querySet: querySet,
-                        objectId: it,
-                        changeFlag: ChangeFlag.REMOVED
-                )
+                QuerySetDiff setDiff = new QuerySetDiff()
+                setDiff.querySet = querySet
+                setDiff.objectId = it
+                setDiff.changeFlag = ChangeFlag.REMOVED
+                setDiff
             })
-            querySet.save(flush: true)
-            querySetInstances*.save(flush: true)
-            querySetDiffs*.save(flush: true)
+
+            querySet.save(flush: true, failOnError: true)
+            querySetInstances*.save(flush: true, failOnError: true)
+            querySetDiffs*.save(flush: true, failOnError: true)
 
             return true
         } else {
