@@ -109,6 +109,12 @@ Start `transmart-api-server` with this configuration file:
 java -jar -Dspring.config.location=transmart-api-server.config.yml transmart-api-server.war
 ```
 
+To use a custom logging configuration, provide the path of the `logback.groovy` file:
+```bash
+java -jar -Dlogging.config=/path/to/logback.groovy -Dspring.config.location=transmart-api-server.config.yml transmart-api-server.war
+```
+See [logback.groovy](grails-app/conf/logback.groovy) for the default logging configuration.
+
 
 [OpenID Connect]: https://openid.net/connect
 [Keycloak]: https://www.keycloak.org

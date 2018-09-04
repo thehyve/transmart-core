@@ -27,7 +27,6 @@ import com.google.common.base.Charsets
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
-import org.grails.web.json.JSONObject
 
 import static java.lang.ProcessBuilder.Redirect.INHERIT
 
