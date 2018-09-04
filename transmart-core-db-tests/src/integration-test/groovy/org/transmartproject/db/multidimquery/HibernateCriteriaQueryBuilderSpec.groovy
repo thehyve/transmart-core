@@ -452,7 +452,7 @@ class HibernateCriteriaQueryBuilderSpec extends Specification {
 
     void 'test queries for empty database'() {
         given: 'No studies loaded'
-        setupHypercubeData()
+        TestData.prepareCleanDatabase()
         QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([])
 
         when: 'Querying for all observations'
