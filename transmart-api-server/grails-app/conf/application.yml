@@ -1,7 +1,4 @@
 ---
-org.transmartproject.patientCountThreshold: 5
-
----
 grails:
     profile: rest-api
     codegen:

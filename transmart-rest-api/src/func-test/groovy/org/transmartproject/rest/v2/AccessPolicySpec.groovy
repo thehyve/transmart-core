@@ -20,7 +20,7 @@ import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.core.multidimquery.hypercube.Hypercube
 import org.transmartproject.core.multidimquery.hypercube.HypercubeRequest
 import org.transmartproject.core.multidimquery.query.*
-import org.transmartproject.db.clinical.CountsWithThresholdService
+import org.transmartproject.db.clinical.AggregateDataResourceImplService
 import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.data.AccessPolicyTestData
 import spock.lang.Shared
@@ -70,7 +70,7 @@ class AccessPolicySpec extends V2ResourceSpec {
     void setup() {
         accessPolicyTestData.clearTestData()
         accessPolicyTestData.createTestData()
-        countsWithThresholdService.patientCountThreshold = 0
+        aggregateDataResourceImplService.patientCountThreshold = 0
         //we keep changing threshold in these tests. Hence we need clean cache.
         systemResource.clearCaches()
     }
@@ -548,7 +548,7 @@ class AccessPolicySpec extends V2ResourceSpec {
     }
 
     @Autowired
-    CountsWithThresholdService countsWithThresholdService
+    AggregateDataResourceImplService aggregateDataResourceImplService
 
     @Unroll
     void 'test counts (POST .../observations/counts) for constraint=#constraint and user with st1AccLvl=#s1AccLvl,  st2AccLvl=#s2AccLvl and threshold=#threshold.'() {
@@ -556,7 +556,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         def url = "${contextPath}/observations/counts"
         def user = new MockUser('counts with threshold user', [study1: s1AccLvl, study2: s2AccLvl])
         selectUser(user)
-        countsWithThresholdService.patientCountThreshold = threshold
+        aggregateDataResourceImplService.patientCountThreshold = threshold
         def body = new ConstraintHolder(constraint)
 
         when:
@@ -584,7 +584,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         def url = "${contextPath}/observations/counts_per_concept"
         def user = new MockUser('counts with threshold user', [study1: study1AccessLevel, study2: study2AccessLevel])
         selectUser(user)
-        countsWithThresholdService.patientCountThreshold = threshold
+        aggregateDataResourceImplService.patientCountThreshold = threshold
         def body = new ConstraintHolder(trueConstraint)
 
         when:
@@ -614,7 +614,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         def url = "${contextPath}/observations/counts_per_study"
         def user = new MockUser('counts with threshold user', [study1: study1AccessLevel, study2: study2AccessLevel])
         selectUser(user)
-        countsWithThresholdService.patientCountThreshold = threshold
+        aggregateDataResourceImplService.patientCountThreshold = threshold
         def body = new ConstraintHolder(trueConstraint)
 
         when:
@@ -647,7 +647,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         def url = "${contextPath}/observations/counts_per_study_and_concept"
         def user = new MockUser('counts with threshold user', [study1: s1AccLvl, study2: s2AccLvl])
         selectUser(user)
-        countsWithThresholdService.patientCountThreshold = threshold
+        aggregateDataResourceImplService.patientCountThreshold = threshold
         def body = new ConstraintHolder(trueConstraint)
 
         when:

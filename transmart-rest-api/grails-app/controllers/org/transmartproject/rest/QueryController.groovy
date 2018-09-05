@@ -6,8 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.core.binding.BindingHelper
-import org.transmartproject.core.config.CountsThresholdResource
 import org.transmartproject.core.exceptions.*
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CrossTableResource
@@ -39,8 +39,8 @@ class QueryController extends AbstractQueryController {
     @Autowired
     CrossTableResource crossTableResource
 
-    @Autowired(required = false)
-    CountsThresholdResource countsThresholdResource
+    @Value('${org.transmartproject.patientCountThreshold}')
+    long patientCountThreshold
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -347,7 +347,7 @@ class QueryController extends AbstractQueryController {
     def countsThreshold() {
         checkForUnsupportedParams(params, [])
 
-        def result = [threshold: countsThresholdResource?.patientCountThreshold]
+        def result = [threshold: patientCountThreshold]
         render result as JSON
     }
 

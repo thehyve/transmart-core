@@ -8,6 +8,7 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.web.context.request.WebRequestInterceptor
 import org.transmartproject.core.log.AccessLogEntryResource
 import org.transmartproject.db.test.H2Views
@@ -76,6 +77,11 @@ class TestApplication extends GrailsAutoConfiguration {
     @Bean
     Validator validator() {
         Validation.buildDefaultValidatorFactory().getValidator()
+    }
+
+    @Bean
+    static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
+        new PropertySourcesPlaceholderConfigurer()
     }
 
     static void main(String[] args) {
