@@ -3,6 +3,7 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.util.logging.Slf4j
+import org.transmartproject.core.multidimquery.ErrorResponse
 import org.transmartproject.core.multidimquery.export.ExportJob
 
 import java.util.zip.ZipEntry
@@ -117,7 +118,7 @@ class DataExportSpec extends RESTSpec {
                 user      : DEFAULT_USER,
                 statusCode: 403
         ]) as Map
-        def responseData = toObject(response.exportJob, ExportJob)
+        def responseData = toObject(response, ErrorResponse)
 
        then:
        responseData.message == "Access denied to patient set or patient set does not exist: ${patientSetId}"

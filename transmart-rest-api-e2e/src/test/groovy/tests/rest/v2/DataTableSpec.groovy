@@ -3,9 +3,10 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.opencsv.CSVReader
 import groovy.transform.CompileStatic
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.SortSpecification
 import org.transmartproject.core.multidimquery.datatable.DataTable
 import org.transmartproject.core.multidimquery.export.ExportJob
 
@@ -48,10 +49,8 @@ class DataTableSpec extends RESTSpec {
         ]
 
         when: 'for that study I get all observations for heart rate in table format'
-        def mapper = new ObjectMapper()
         def responseData = post(request)
-        String responseBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseData)
-        DataTable dataTable = toObject(responseBody, DataTable)
+        DataTable dataTable = toObject(responseData, DataTable)
 
         then: 'table is properly formatted'
         dataTable.columnDimensions.size() == 2
@@ -60,10 +59,10 @@ class DataTableSpec extends RESTSpec {
         dataTable.rows.size() == 3
         dataTable.rowCount == 3
         dataTable.offset == 0
-        dataTable.sort.find { it.dimension == 'study' }.sortOrder == 'asc'
-        dataTable.sort.find { it.dimension == 'patient' }.sortOrder == 'desc'
-        dataTable.sort.find { it.dimension == 'trial visit' }.sortOrder == 'asc'
-        dataTable.sort.find { it.dimension == 'concept' }.sortOrder == 'desc'
+        dataTable.sort.find { it.dimension == 'study' }.sortOrder == SortOrder.ASC
+        dataTable.sort.find { it.dimension == 'patient' }.sortOrder == SortOrder.DESC
+        dataTable.sort.find { it.dimension == 'trial visit' }.sortOrder == SortOrder.ASC
+        dataTable.sort.find { it.dimension == 'concept' }.sortOrder == SortOrder.DESC
 
         when: 'I specify an offset'
         def offset = 2
@@ -72,8 +71,7 @@ class DataTableSpec extends RESTSpec {
         params.limit = limit
         request.body = params
         def responseData2 = post(request)
-        String responseBody2 = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseData2)
-        DataTable dataTable2 = toObject(responseBody2, DataTable)
+        DataTable dataTable2 = toObject(responseData2, DataTable)
 
         then: 'the number of results has decreased'
         dataTable2.offset == offset
@@ -107,10 +105,8 @@ class DataTableSpec extends RESTSpec {
         ]
 
         when: 'for that study I get all observations in table format'
-        def mapper = new ObjectMapper()
         def responseData = post(request)
-        String responseBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseData)
-        DataTable dataTable = toObject(responseBody, DataTable)
+        DataTable dataTable = toObject(responseData, DataTable)
 
         then: 'the table contains the expected data'
         dataTable.columnDimensions.size() == 2
