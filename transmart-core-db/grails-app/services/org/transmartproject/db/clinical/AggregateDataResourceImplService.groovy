@@ -30,8 +30,7 @@ import static org.transmartproject.core.multidimquery.query.CommonConstraints.ge
 @CompileStatic
 class AggregateDataResourceImplService implements AggregateDataResource {
 
-    public static final long BELOW_THRESHOLD_VALUE = -2
-    public static final Counts BELOW_THRESHOLD_COUNTS = new Counts(BELOW_THRESHOLD_VALUE, BELOW_THRESHOLD_VALUE)
+    public static final Counts BELOW_THRESHOLD_COUNTS = new Counts(Counts.BELOW_THRESHOLD, Counts.BELOW_THRESHOLD)
 
     @Autowired
     AggregateDataService aggregateDataService

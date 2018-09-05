@@ -6,6 +6,7 @@ import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.core.multidimquery.CrossTableResource
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.ontology.MDStudiesResource
@@ -25,8 +26,6 @@ import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS_WITH
  */
 @CompileStatic
 class CrossTableResourceImpService implements CrossTableResource {
-
-    public static final long BELOW_THRESHOLD_VALUE = -2
 
     @Autowired
     CrossTableService crossTableService
@@ -63,7 +62,7 @@ class CrossTableResourceImpService implements CrossTableResource {
                     for (int colIndx = 0; colIndx < originalPatientCountRow.size(); colIndx++) {
                         Long originalPatientCount = originalPatientCountRow.get(colIndx)
                         if (originalPatientCount < patientCountThreshold && ctPatientCountRow.get(colIndx) > 0) {
-                            resultPatientCountRow.add(BELOW_THRESHOLD_VALUE)
+                            resultPatientCountRow.add(Counts.BELOW_THRESHOLD)
                         } else {
                             resultPatientCountRow.add(originalPatientCount)
                         }
