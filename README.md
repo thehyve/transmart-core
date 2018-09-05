@@ -7,7 +7,7 @@ is maintained by the [i2b2 tranSMART Foundation](http://transmartfoundation.org)
 can be found on the Foundation website, and the Foundation's development repositories
 can be found at <https://github.com/transmart/>.
 
-All the instructions on how to install, build and run a private instance of tranSMART, get set up for developing or upgrade to the latest version of tranSMART from an older version are available [in the documentation.](docs/index.md)
+All the instructions on how to install, build and run a private instance of tranSMART, get set up for developing or upgrade to the latest version of tranSMART from an older version are available [in the documentation.](docs/README.md)
 
 For details on contributing code changes via pull requests, [see the Contributing document.](CONTRIBUTING.md)
 

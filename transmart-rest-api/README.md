@@ -77,7 +77,7 @@ Example code for how to parse the protobuf binary stream into something sensible
 
 ### Authentication with OAuth
 
-This plugin does not implement any authentication scheme. However, it is usually deployed together with `transmartApp` with configuration that secures this plugin's resources with the [OAuth2 Spring Security provider](http://plugins.grails.org/plugin/spring-security-oauth2-provider). The best workflow to use will depend on the type of client.
+This plugin does not implement any authentication scheme. However, it is usually deployed together with `transmartApp` with configuration that secures this plugin's resources with the [OAuth2 Spring Security provider](https://plugins.grails.org/plugin/spring-security-oauth2-provider). The best workflow to use will depend on the type of client.
 
 ### Changelog
 
