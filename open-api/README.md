@@ -10,7 +10,7 @@ The specification is in the file [swagger.yaml](swagger.yaml).
 This directory also contains a copy of [Swagger UI](https://github.com/swagger-api/swagger-ui)
 (released under Apache 2.0 license), that provides a UI to explore the API specification.
 You can open the UI [locally](index.html), or visit a
-[public copy](http://transmart-pro-test.thehyve.net/open-api).
+[public copy](http://transmart.thehyve.net/open-api).
 
 
 
