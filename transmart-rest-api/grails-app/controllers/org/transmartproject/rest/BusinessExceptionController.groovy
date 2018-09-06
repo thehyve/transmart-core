@@ -81,11 +81,15 @@ class BusinessExceptionController {
 
         response.setStatus(httpStatus)
 
-        accessLogEntryResource.report(
-                authContext.user,
-                'error',
-                eventMessage: (Object)getEventMessage(e),
-                requestURL: (Object)url)
+        try {
+                accessLogEntryResource.report(
+                    authContext.user,
+                    'error',
+                    eventMessage: (Object) getEventMessage(e),
+                    requestURL: (Object) url)
+        } catch (Throwable t) {
+            log.error "Error writing error message to the audit log.", t
+        }
 
         render([
                 httpStatus: httpStatus,

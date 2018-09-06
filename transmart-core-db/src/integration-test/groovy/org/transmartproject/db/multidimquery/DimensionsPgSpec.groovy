@@ -4,7 +4,7 @@ package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import spock.lang.Specification
 
 @Rollback

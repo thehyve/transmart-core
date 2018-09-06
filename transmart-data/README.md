@@ -124,7 +124,7 @@ Transmart will not run against a lower level edition of Oracle.
 
     make oracle_drop
 
-### Create the database and load everything
+### Create the database and load the essentials
 
     make -j4 postgres
 

@@ -1,14 +1,31 @@
-# transmart-core Github pages
+---
+title: Home
+---
+# tranSMART 17.1 Documentation
 
-This directory will generate the Github Pages for transmart-core at https://USERNAME.github.io/transmart-core/.
-It is recommended to also include the connected https://USERNAME.github.io/transmart/ repository.
+transmart-core contains the core components of the tranSMART data warehouse, including:
 
-## Guidelines
+* Tools to generate the Postgres or Oracle database
+* The tranSMART API Server, which serves the tranSMART REST API
+    
+    or
+* The tranSMART Server, which serves the tranSMART REST API and the former user interface tranSMART App, which is still used by tranSMART Server for its administration panel
 
-* To prevent the Github pages from becoming cluttered it should only contain the high level essentials to start with the platform. It can refer to other markdown pages in the repository for more details. Examples for specific platforms can be placed on the [tranSMART Foundation wiki](https://wiki.transmartfoundation.org).
-* Duplication should be prevented. Instead other pages (like the toplevel [README.md](../README.md)) should refer to the markdown versions of these Github pages where relevant.
-* All Github pages should use as little Jekyll magic as possible, making them as readable as possible directly as markdown documents.
+# Getting started
 
-## Testing locally
+Start by [installing the latest version of the tranSMART Server](installation.md). Or, if you already have an older version of tranSMART, follow the [upgrade guide](upgrade.md) instead.
 
-See https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll
+# Further reading
+
+* [tranSMART - Wikipedia](https://en.wikipedia.org/wiki/TranSMART)
+* [tranSMART Foundation Wiki](https://wiki.transmartfoundation.org/)
+
+## Releases
+* [tranSMART 16.2](https://wiki.transmartfoundation.org/pages/viewpage.action?pageId=10126184)
+* [tranSMART 17.1](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+17.1+Server+release)
+* [tranSMART 2018](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+2018+Full+Platform+Release)
+
+## Installation Instructions
+* [tranSMART 17.1 generic installation instructions](installation.md)
+* [tranSMART 17.1 and Glowing Bear on CentOS installation instructions](https://wiki.transmartfoundation.org/pages/viewpage.action?pageId=17006983)
+* [tranSMART 16.2 generic installation instructions](https://wiki.transmartfoundation.org/display/transmartwiki/Installing+tranSMART)

@@ -9,8 +9,8 @@ import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.multidimquery.AggregateDataResource
-import org.transmartproject.core.multidimquery.Counts
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.counts.Counts
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource

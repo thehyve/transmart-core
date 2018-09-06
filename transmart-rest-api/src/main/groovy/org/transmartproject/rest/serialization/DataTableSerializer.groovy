@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 
 import java.time.Instant
 

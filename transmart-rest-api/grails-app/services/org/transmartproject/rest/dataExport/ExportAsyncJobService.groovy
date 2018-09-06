@@ -4,13 +4,15 @@ import grails.transaction.Transactional
 import org.quartz.*
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
+import org.transmartproject.db.clinical.AbstractDataResourceService
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
-import org.transmartproject.rest.serialization.ExportJobRepresentation
+import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
 
 @Transactional
-class ExportAsyncJobService {
+class ExportAsyncJobService extends AbstractDataResourceService {
 
     Scheduler quartzScheduler
 
@@ -160,6 +162,7 @@ class ExportAsyncJobService {
     }
 
     def exportData(ExportJobRepresentation exportJob, User user, Long jobId) {
+        checkAccess(exportJob.constraint, user, PatientDataAccessLevel.MEASUREMENTS)
         def job = getJobById(jobId)
         if (job.jobStatus != JobStatus.CREATED.value) {
             throw new InvalidRequestException("Job with id $jobId has invalid status. " +

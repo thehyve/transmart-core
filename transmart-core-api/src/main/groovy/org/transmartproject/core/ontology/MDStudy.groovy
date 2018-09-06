@@ -2,7 +2,7 @@
 
 package org.transmartproject.core.ontology
 
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 
 /**
  * This class should ideally be called just 'Study', but that name is already taken by the tabular study.

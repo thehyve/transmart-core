@@ -1,6 +1,5 @@
 package org.transmartproject.core.tree
 
-import org.transmartproject.core.exceptions.ServiceNotAvailableException
 import org.transmartproject.core.users.User
 
 interface TreeResource {
@@ -24,31 +23,5 @@ interface TreeResource {
      * of their ancestor nodes.
      */
     List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, User currentUser)
-
-    /**
-     * Checks if a cache rebuild task is active.
-     * Only available for administrators.
-     *
-     * @param currentUser the current user.
-     * @return true iff a cache rebuild task is active.
-     */
-    @Deprecated
-    boolean isRebuildActive(User currentUser)
-
-    /**
-     * Clears the tree node cache and the counts caches, and
-     * rebuild the tree node cache for every user.
-     *
-     * This function should be called after loading, removing or updating
-     * tree nodes or observations in the database.
-     *
-     * Asynchronous call. The call returns when rebuilding has started.
-     *
-     * @throws org.transmartproject.core.exceptions.ServiceNotAvailableException iff a rebuild operation is already in progress.
-     *
-     * @deprecated in favour of {@link org.transmartproject.core.config.SystemResource#updateAfterDataLoading(org.transmartproject.core.users.User)}
-     */
-    @Deprecated
-    void rebuildCache() throws ServiceNotAvailableException
 
 }

@@ -4,37 +4,25 @@ package org.transmartproject.db.tree
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
-import org.apache.commons.lang3.tuple.Pair
-import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.ServiceNotAvailableException
+import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
-import org.transmartproject.core.users.PatientDataAccessLevel
-import org.transmartproject.core.users.SimpleUser
-import org.transmartproject.core.users.UsersResource
+import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.AggregateDataService
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.core.users.User
-import org.transmartproject.db.util.SharedLock
 
 import javax.annotation.Resource
-import java.util.stream.Collectors
-
-import static grails.async.Promises.task
 
 @Transactional(readOnly = true)
 @CompileStatic
 class TreeService implements TreeResource {
-
-    @Autowired
-    UsersResource usersResource
 
     @Autowired
     AccessControlChecks accessControlChecks
@@ -47,6 +35,9 @@ class TreeService implements TreeResource {
 
     @Autowired
     AggregateDataService aggregateDataService
+
+    @Autowired
+    AggregateDataResource aggregateDataResource
 
     @Autowired
     SessionFactory sessionFactory
@@ -62,13 +53,13 @@ class TreeService implements TreeResource {
             def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    def counts = aggregateDataService.counts(node.constraint, user)
+                    def counts = aggregateDataResource.counts(node.constraint, user)
                     node.observationCount = counts.observationCount
                     node.patientCount = counts.patientCount
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
-                    def counts = aggregateDataService.counts(node.constraint, user)
+                    def counts = aggregateDataResource.counts(node.constraint, user)
                     node.observationCount = counts.observationCount
                     node.patientCount = counts.patientCount
                 }
@@ -147,93 +138,6 @@ class TreeService implements TreeResource {
             log.debug "Adding metadata tags took ${t6.time - t5.time} ms."
         }
         forest
-    }
-
-    static final private SharedLock lock = new SharedLock()
-
-    /**
-     * Checks if a cache rebuild task is active.
-     * Only available for administrators.
-     *
-     * @param currentUser the current user.
-     * @return true iff a cache rebuild task is active.
-     */
-    boolean isRebuildActive(User currentUser) {
-        if (!currentUser.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
-        if (lock.tryLock()) {
-            lock.unlock()
-            return false
-        }
-        true
-    }
-
-    void rebuildCacheTask() {
-        def session = null
-        try {
-            session = sessionFactory.openSession()
-            def stopWatch = new StopWatch('Rebuild cache')
-            List<User> realUsers = usersResource.getUsers()
-            def permissionSets = realUsers.stream()
-                    .map({User user -> Pair.of(user.admin, user.studyToPatientDataAccessLevel)})
-                    .collect(Collectors.toSet())
-            List<User> fakeUsers = permissionSets.stream()
-                    .map({ Pair<Boolean, Map<String, PatientDataAccessLevel>> permissions ->
-                new SimpleUser('system', null, null, permissions.left, permissions.right)
-            })
-                    .collect(Collectors.toList())
-            for (User user: fakeUsers) {
-                def description = "${user.username}${user.admin ? ' (admin)' : ''} ${user.studyToPatientDataAccessLevel.toMapString()}"
-                log.info "Rebuilding the cache for user ${description} ..."
-                stopWatch.start("Rebuild the tree nodes cache for ${description}")
-                treeCacheService.updateSubtreeCache(user, I2b2Secure.ROOT, 0)
-                stopWatch.stop()
-                stopWatch.start("Rebuild the counts cache for ${description}")
-                // Update observations, patients counts
-                aggregateDataService.rebuildCountsCacheForUser(user)
-                stopWatch.stop()
-            }
-            for (User user: realUsers) {
-                stopWatch.start("Create set of all subjects for ${user.username}")
-                aggregateDataService.createAllPatientsSetForUser(user)
-                stopWatch.stop()
-                stopWatch.start("Rebuild the counts cache for bookmarked queries of ${user.username}")
-                aggregateDataService.rebuildCountsCacheForBookmarkedUserQueries(user)
-                stopWatch.stop()
-            }
-            log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
-        } catch (Exception e) {
-            log.error "Unexpected error while rebuilding cache: ${e.message}", e
-            throw e
-        } finally {
-            log.debug "Closing task (lock: ${lock.locked})"
-            session?.close()
-            lock.unlock()
-            log.debug "Task closed (lock: ${lock.locked})"
-        }
-    }
-
-    /**
-     * Rebuild the tree nodes and counts caches for every user.
-     *
-     * This function should be called after loading, removing or updating
-     * tree nodes or observations in the database.
-     * Only available for administrators.
-     *
-     * Asynchronous call. The call returns when rebuilding has started.
-     *
-     * @param currentUser the current user.
-     * @throws ServiceNotAvailableException iff a rebuild operation is already in progress.
-     */
-    void rebuildCache() throws ServiceNotAvailableException {
-        if (!lock.tryLock()) {
-            throw new ServiceNotAvailableException('Rebuild operation already in progress.')
-        }
-        log.info "Rebuild cache started"
-        task {
-            rebuildCacheTask()
-        }
     }
 
 }

@@ -59,7 +59,7 @@ class HibernateCriteriaQueryBuilderSpec extends Specification {
     }
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         patientAgeField = new Field(dimension: DimensionImpl.PATIENT.name, fieldName: 'age', type: Type.NUMERIC)
         conceptCodeField = new Field(dimension: DimensionImpl.CONCEPT.name, fieldName: 'conceptCode', type: Type.STRING)
@@ -71,7 +71,7 @@ class HibernateCriteriaQueryBuilderSpec extends Specification {
     }
 
     void setupHypercubeData(){
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         hypercubeTestData = TestData.createHypercubeDefault()
         hypercubeTestData.saveAll()
@@ -452,7 +452,7 @@ class HibernateCriteriaQueryBuilderSpec extends Specification {
 
     void 'test queries for empty database'() {
         given: 'No studies loaded'
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
         QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([])
 
         when: 'Querying for all observations'

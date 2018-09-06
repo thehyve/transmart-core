@@ -1109,6 +1109,20 @@ paths:
               countsPerStudy:
                 $ref: '#/definitions/CountsMapMap'
 
+  /v2/patient_counts_threshold:
+    get:
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Configured threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission.
+          schema:
+            type: object
+            properties:
+              threshold:
+                type: integer
+
   /v2/observations/table:
     post:
       description: |
@@ -2208,7 +2222,7 @@ paths:
                 numberOfUpdatedSets:
                   type: integer
 
-  /v2/tree_nodes/clear_cache:
+  /v2/admin/system/clear_cache:
     get:
       description: |
         Clears tree node and counts caches.
@@ -2223,29 +2237,30 @@ paths:
           description: |
             The cache has been cleared.
 
-  /v2/tree_nodes/rebuild_cache:
+  /v2/admin/system/rebuild_cache:
     get:
       description: |
         Clears tree node and counts caches and rebuilds the tree node cache per user.
         Only for administrators.
-        Deprecated. Use `/v2/admin/system/after_data_loading_update` instead.
-      deprecated: true
       tags:
         - v2
         - admin
       responses:
         200:
+          schema:
+            $ref: '#/definitions/UpdateStatus'
           description: |
-            Clearing and rebuilding the cache has been started.
+            A status report about the started cache rebuild task.
         503:
           description: |
-            A rebuild operation is already in progress.
+            An update operation is already in progress.
 
   /v2/admin/system/after_data_loading_update:
     get:
       description: |
         This endpoint should be called after loading, deleting or updating data in the database.
-        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Refreshes the bitsets materialized view. Updates data for subscribed user queries.
+        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Rebuilds the tree node cache per user.
+        Refreshes the bitsets materialized view. Updates data for subscribed user queries.
         Only for administrators.
       tags:
         - v2
@@ -2256,6 +2271,9 @@ paths:
             $ref: '#/definitions/UpdateStatus'
           description: |
             A status report about the started update task.
+        503:
+          description: |
+            An update operation is already in progress.
 
   /v2/admin/system/update_status:
     get:
@@ -2670,8 +2688,11 @@ definitions:
     type: object
     properties:
       observationCount:
+        description: Number of observations. `-1` when the count is not calculated and `-2` when the patient count is `-2`.
         type: integer
       patientCount:
+        description: Number of patients. `-2` when the current user has `COUNTS_WITH_THRESHOLD` patient data access level
+         to a study and the count is below the threshold. See `/v2/patient_counts_threshold` call.
         type: integer
 
   CountsMap:
@@ -2694,195 +2715,192 @@ definitions:
     description: |
       A JSON object that represents the dataset in a tabular form. The actual row data can be found in
       `rows*.cells`, with the headers and other metadata available in other keys.
-    schema:
-      type: object
-      properties:
-        columnHeaders:
-          description: |
-            This property describes the top header of the table. The header can contain multiple rows, each row is
-            found in the `keys` or `elements` property of an item. If the `keys` property is set, it contains
-            references to dimension elements that are further elaborated in the `column_dimensions` property.
-          type: array
-          items:
-            type: object
-            properties:
-              dimension:
-                type: string
-                description: the name of a column dimension
-              keys:
-                type: array
-                items:
-                  oneOf:
-                    - type: string
-                    - type: number
-                description: |
-                  A list of column headers for one dimension. This list has the same size as the number of columns in
-                  the table (unless no column dimensions were specified, in which case this list is empty). The items
-                  describe a dimension element, they refer to keys in the
-                  `rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension
-                  element can be found there.
+    properties:
+      columnHeaders:
+        description: |
+          This property describes the top header of the table. The header can contain multiple rows, each row is
+          found in the `keys` or `elements` property of an item. If the `keys` property is set, it contains
+          references to dimension elements that are further elaborated in the `column_dimensions` property.
+        type: array
+        items:
+          type: object
+          properties:
+            dimension:
+              type: string
+              description: the name of a column dimension
+            keys:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: number
+              description: |
+                A list of column headers for one dimension. This list has the same size as the number of columns in
+                the table (unless no column dimensions were specified, in which case this list is empty). The items
+                describe a dimension element, they refer to keys in the
+                `rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension
+                element can be found there.
 
-                  This property is mutually exclusive with the `elements` property.
-              elements:
-                type: array
-                items:
-                  oneOf:
-                    - type: string
-                    - type: number
-                description: |
-                  A list of column headers for one dimension, but in this property the items do not refer to a
-                  further description, the dimension element is just a single string or number. The string may also
-                  be a formatted date.
+                This property is mutually exclusive with the `elements` property.
+            elements:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: number
+              description: |
+                A list of column headers for one dimension, but in this property the items do not refer to a
+                further description, the dimension element is just a single string or number. The string may also
+                be a formatted date.
 
-                  The size of this list is equal to the number of columns in the table, or empty if no column
-                  dimensions were specified.
+                The size of this list is equal to the number of columns in the table, or empty if no column
+                dimensions were specified.
 
-                  This property is mutually exclusive with the `keys` property.
-            required: [dimension]
+                This property is mutually exclusive with the `keys` property.
+          required: [dimension]
 
-        rows:
-          description: |
-            This property contains the row data and the left table header. The row data is found in the `row`
-            property, the left header cells in the `dimensions` property.
-          type: array
-          items:
-            type: object
-            properties:
-              rowHeaders:
-                description: |
-                  The left header cells for this row. Each cell contains the element or a reference to the element of
-                  one row dimension. There is one item for each row dimension in this list, in order.
-                type: array
-                items:
-                  type: object
-                  properties:
-                    dimension:
-                      type: string
-                      description: The name of this row dimension
-                    key:
-                      type:
-                        oneOf:
-                          - type: string
-                          - type: number
-                      description: |
-                        Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element
-                        specified in `rowDimensions*.elements` for the specified dimension.
-
-                        This property is mutually exclusive with the `element` property.
-                    element:
-                      type:
-                        oneOf:
-                          - type: string
-                          - type: number
-                      description: |
-                        Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension
-                        element is a single string, number or date. A date is represented as a formatted string.
-
-                        This property is mutually exclusive with the `key` property.
-                  required: [dimension]
-              cells:
-                type: array
-                items:
-                  oneOf:
-                    - type: string
-                    - type: number
-                    - type: array
-                      items:
-                        oneOf:
-                          - type: string
-                          - type: number
-                description: |
-                  The row data for a single table row. The items are strings or numbers or dates (represented as a
-                  formatted string). The length of each row is the same, and is the same as the size of the
-                  `columnHeaders*.keys` and `columnHeaders*.elements` lists.
-
-                  The item can also be an array of strings, numbers or dates. This happens if multiple values fall
-                  into the same table cell.
-
-        rowDimensions:
-          description: |
-            This property contains a description of the row dimensions. It is a list of objects, with each object
-            describing one dimension. If the dimension has its elements inlined the description here will only
-            contain the dimension name. If the headers contain keys the full dimension elements can be found in the
-            `elements` map. This map is indexed by the key found in the headers. The elements themselves are a
-            free-form maps with the properties depending on the dimension type, but every element has at least a
-            `label` property (which is often the same as the key, though not always).
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-                description: the dimension name
-              elements:
+      rows:
+        description: |
+          This property contains the row data and the left table header. The row data is found in the `row`
+          property, the left header cells in the `dimensions` property.
+        type: array
+        items:
+          type: object
+          properties:
+            rowHeaders:
+              description: |
+                The left header cells for this row. Each cell contains the element or a reference to the element of
+                one row dimension. There is one item for each row dimension in this list, in order.
+              type: array
+              items:
                 type: object
-                additionalProperties:
-                  type: object
-                  properties:
-                    label:
-                      type: string
-                  additionalProperties: true
-                  description: |
-                    A dimension element, the available properties depend on the dimension, but 'label' is always
-                    included.
-                description: |
-                  The dimension elements, indexed by the key used in the header. This property is only present if the
-                  dimension elements are compound and referenced by keys, simple elements will be inlined in the header.
-            required: [name]
+                properties:
+                  dimension:
+                    type: string
+                    description: The name of this row dimension
+                  key:
+                    type:
+                      oneOf:
+                        - type: string
+                        - type: number
+                    description: |
+                      Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element
+                      specified in `rowDimensions*.elements` for the specified dimension.
 
-        columnDimensions:
-          description: |
-            The same as `rowDimensions`, but for the column dimensions.
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-                description: the dimension name
-              elements:
+                      This property is mutually exclusive with the `element` property.
+                  element:
+                    type:
+                      oneOf:
+                        - type: string
+                        - type: number
+                    description: |
+                      Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension
+                      element is a single string, number or date. A date is represented as a formatted string.
+
+                      This property is mutually exclusive with the `key` property.
+                required: [dimension]
+            cells:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: number
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                        - type: number
+              description: |
+                The row data for a single table row. The items are strings or numbers or dates (represented as a
+                formatted string). The length of each row is the same, and is the same as the size of the
+                `columnHeaders*.keys` and `columnHeaders*.elements` lists.
+
+                The item can also be an array of strings, numbers or dates. This happens if multiple values fall
+                into the same table cell.
+
+      rowDimensions:
+        description: |
+          This property contains a description of the row dimensions. It is a list of objects, with each object
+          describing one dimension. If the dimension has its elements inlined the description here will only
+          contain the dimension name. If the headers contain keys the full dimension elements can be found in the
+          `elements` map. This map is indexed by the key found in the headers. The elements themselves are a
+          free-form maps with the properties depending on the dimension type, but every element has at least a
+          `label` property (which is often the same as the key, though not always).
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: the dimension name
+            elements:
+              type: object
+              additionalProperties:
                 type: object
-                additionalProperties:
-                  type: object
-                  properties:
-                    label:
-                      type: string
-                  additionalProperties: true
-            required: [name]
+                properties:
+                  label:
+                    type: string
+                additionalProperties: true
+                description: |
+                  A dimension element, the available properties depend on the dimension, but 'label' is always
+                  included.
+              description: |
+                The dimension elements, indexed by the key used in the header. This property is only present if the
+                dimension elements are compound and referenced by keys, simple elements will be inlined in the header.
+          required: [name]
 
-        sort:
-          description: |
-            This property lists the sort order that was used in creating the dataset. This will generally include all
-            the dimensions that were specified as row or column dimensions. This property includes both the row
-            and column dimensions, with row dimensions first and column dimensions followed by that.
-          type: array
-          items:
-            $ref: '#/definitions/SortResponse'
-        offset:
-          type: integer
-          description: the offset of the first returned row in the full dataset
-        rowCount:
-          type: integer
-          description: |
-            The total number of rows available. This property is only set if the total is known, which is
-            generally only the case if the last row is part of this result.
-      required: [columnHeaders, rows, rowDimensions, sort, offset]
+      columnDimensions:
+        description: |
+          The same as `rowDimensions`, but for the column dimensions.
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: the dimension name
+            elements:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  label:
+                    type: string
+                additionalProperties: true
+          required: [name]
+
+      sort:
+        description: |
+          This property lists the sort order that was used in creating the dataset. This will generally include all
+          the dimensions that were specified as row or column dimensions. This property includes both the row
+          and column dimensions, with row dimensions first and column dimensions followed by that.
+        type: array
+        items:
+          $ref: '#/definitions/SortResponse'
+      offset:
+        type: integer
+        description: the offset of the first returned row in the full dataset
+      rowCount:
+        type: integer
+        description: |
+          The total number of rows available. This property is only set if the total is known, which is
+          generally only the case if the last row is part of this result.
+    required: [columnHeaders, rows, rowDimensions, sort, offset]
 
   CrossTable:
     description: |
       A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains
       a list with numbers of subjects for each cell.
-    schema:
-      type: object
-      properties:
-        rows:
-          description: |
-            This property contains the row data. Items are cells, each cell is a number of subject, computed as a result
-            of an intersection of constraints specified for a row, for a column and for a selected subject set.
-          type: array
-          items:
-            type: number
-      required: [rows]
+    type: object
+    properties:
+      rows:
+        description: |
+          This property contains the row data. Items are cells, each cell is a number of subject, computed as a result
+          of an intersection of constraints specified for a row, for a column and for a selected subject set.
+        type: array
+        items:
+          type: number
+    required: [rows]
 
   Observation:
     type: object

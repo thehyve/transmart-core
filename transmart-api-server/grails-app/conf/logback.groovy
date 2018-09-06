@@ -1,10 +1,19 @@
+/**
+ * Default logging configuration for the tranSMART API server.
+ * This configuration can be overridden by adding
+ * <code>-Dlogging.config=/path/to/logback.groovy</code> to
+ * the start script.
+ *
+ * See https://docs.grails.org/latest/guide/conf.html#externalLoggingConfiguration.
+ */
+
 import ch.qos.logback.contrib.jackson.JacksonJsonFormatter
 import grails.util.BuildSettings
 import grails.util.Environment
 import org.springframework.boot.logging.logback.ColorConverter
 import org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter
 import org.transmartproject.rest.logging.ApiAuditLogJsonLayout
-import org.transmartproject.rest.logging.ChildProcessAppender
+// import org.transmartproject.rest.logging.ChildProcessAppender
 
 import java.nio.charset.Charset
 
@@ -73,8 +82,7 @@ if (productionMode && logDirectory) {
 
 /**
  * Configuration for writing audit metrics.
- * This could be placed in the out-of-tree Config.groovy and will override the configuration below.
- * See https://logback.qos.ch/manual/appenders.html for details on configuration
+ * See https://logback.qos.ch/manual/appenders.html for details on configuration.
  */
 appender('fileAuditLogger', RollingFileAppender) {
     file = "${logDirectory}/audit.log"
@@ -101,10 +109,10 @@ appender('fileAuditLogger', RollingFileAppender) {
     }
 }
 
-appender('processAuditLogger', ChildProcessAppender) {
+// appender('processAuditLogger', ChildProcessAppender) {
     // specify the command as in the example below
     //    command = ['/usr/bin/your/command/here', 'arg1', 'arg2']
-}
+// }
 
 logger('org.transmartproject.db.log', TRACE, ['fileAuditLogger'], true)
-logger('org.transmartproject.db.log', TRACE, ['processAuditLogger'], true)
+// logger('org.transmartproject.db.log', TRACE, ['processAuditLogger'], true)

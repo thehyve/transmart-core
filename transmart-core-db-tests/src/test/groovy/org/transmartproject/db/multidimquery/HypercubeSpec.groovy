@@ -1,7 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import spock.lang.Specification
 
 import static java.util.AbstractMap.SimpleEntry

@@ -26,8 +26,11 @@
 package org.transmartproject.rest.v1
 
 import org.hamcrest.Matcher
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
+import org.transmartproject.rest.data.V1DefaultTestData
 import org.transmartproject.rest.matchers.MetadataTagsMatcher
 import org.transmartproject.rest.matchers.NavigationLinksMatcher
 
@@ -37,6 +40,9 @@ import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 import static spock.util.matcher.HamcrestSupport.that
 
 class OntologyTermsResourceSpec extends V1ResourceSpec {
+
+    @Autowired
+    V1DefaultTestData testData
 
     def studyId = 'study_id_1'
     def studyFolderName = 'study1'
@@ -68,6 +74,12 @@ class OntologyTermsResourceSpec extends V1ResourceSpec {
             "1 name 1": "1 description 1",
             "1 name 2": "1 description 2",
     ]
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        testData.clearTestData()
+        testData.createTestData()
+    }
 
     void testIndexAsJson() {
         when:

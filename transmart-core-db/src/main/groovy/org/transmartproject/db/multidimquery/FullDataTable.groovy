@@ -8,10 +8,10 @@ import com.google.common.collect.ListMultimap
 import com.google.common.collect.Multimap
 import com.google.common.collect.Multimaps
 import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.TableRetrievalParameters
+import org.transmartproject.core.multidimquery.datatable.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue

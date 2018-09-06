@@ -7,12 +7,12 @@ import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.dataquery.TableRetrievalParameters
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.datatable.TableRetrievalParameters
 import org.transmartproject.core.multidimquery.DataTable
 import org.transmartproject.core.multidimquery.DataTableColumn
 import org.transmartproject.core.multidimquery.DataTableRow
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 

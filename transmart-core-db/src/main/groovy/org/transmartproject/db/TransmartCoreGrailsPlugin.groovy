@@ -112,6 +112,7 @@ A runtime dependency for tranSMART that implements the Core API
         }
 
         namedParameterJdbcTemplate(NamedParameterJdbcTemplate, ref('dataSource'))
+
     }}
 
     void doWithDynamicMethods() {

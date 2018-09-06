@@ -56,7 +56,7 @@ class Config {
             execution.interceptor(GET) { ChainedHttpConfig cfg, Function fx ->
                 // set default type for PATH_OBSERVATIONS
                 if (cfg.request.uri.path == PATH_OBSERVATIONS && !cfg.request.uri.query.type) {
-                    cfg.request.uri.query.type = 'clinical'
+                    (cfg.request.uri.query as Map<String, String>).type = 'clinical'
                 }
                 fx.apply(cfg)
             }
@@ -96,6 +96,7 @@ class Config {
     public static final String PATH_COUNTS_PER_CONCEPT = "/v2/observations/counts_per_concept"
     public static final String PATH_COUNTS_PER_STUDY = "/v2/observations/counts_per_study"
     public static final String PATH_COUNTS_PER_STUDY_AND_CONCEPT = "/v2/observations/counts_per_study_and_concept"
+    public static final String PATH_PATIENT_COUNTS_THRESHOLD = "/v2/patient_counts_threshold"
     public static final String PATH_SUPPORTED_FIELDS = "/v2/supported_fields"
     public static final String PATH_PATIENTS = "/v2/patients"
     public static final String PATH_CONCEPTS = "/v2/concepts"

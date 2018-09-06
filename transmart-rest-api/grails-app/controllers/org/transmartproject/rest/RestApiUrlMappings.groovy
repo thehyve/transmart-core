@@ -85,6 +85,9 @@ class RestApiUrlMappings {
                 action = [GET: 'countsPerStudyAndConcept', POST: 'countsPerStudyAndConcept']
                 apiVersion = 'v2'
             }
+            "/patient_counts_threshold"(method: 'GET', controller: 'query', action: 'countsThreshold') {
+                apiVersion = 'v2'
+            }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
                 apiVersion = 'v2'
             }
@@ -211,15 +214,6 @@ class RestApiUrlMappings {
 
             // Deprecated administrator actions
             "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
-            "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
-                apiVersion = 'v2'
-            }
-            "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
-                apiVersion = 'v2'
-            }
-            "/tree_nodes/rebuild_status"(method: 'GET', controller: 'tree', action: 'rebuildStatus') {
-                apiVersion = 'v2'
-            }
 
             group "/admin", {
                 "/system/after_data_loading_update"(method: 'GET', controller: 'system', action: 'afterDataLoadingUpdate') {
@@ -228,8 +222,16 @@ class RestApiUrlMappings {
                 "/system/update_status"(method: 'GET', controller: 'system', action: 'updateStatus') {
                     apiVersion = 'v2'
                 }
+                "/system/rebuild_cache"(method: 'GET', controller: 'system', action: 'rebuildCache') {
+                    apiVersion = 'v2'
+                }
                 "/system/config"(controller: 'config') {
                     action = [GET: 'index', PUT: 'update']
+                }
+
+                // Deprecated administrator actions
+                "/system/clear_cache"(method: 'GET', controller: 'system', action: 'clearCache') {
+                    apiVersion = 'v2'
                 }
             }
         }

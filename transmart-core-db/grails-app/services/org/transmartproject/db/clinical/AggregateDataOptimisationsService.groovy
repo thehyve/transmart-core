@@ -7,7 +7,7 @@ import groovy.transform.Memoized
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.transmartproject.core.multidimquery.Counts
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
@@ -73,7 +73,7 @@ class AggregateDataOptimisationsService {
     Map<String, Map<String, Counts>> countsPerStudyAndConceptForPatientSet(Long resultInstanceId, User user) {
         log.info "Counts per study and concept for patient set ${resultInstanceId} using bitsets ..."
 
-        Set<String> studyIds = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY).stream()
+        Set<String> studyIds = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(user, PatientDataAccessLevel.COUNTS).stream()
                 .map({ MDStudy study -> study.name })
                 .collect(Collectors.toSet())
 
@@ -120,7 +120,7 @@ class AggregateDataOptimisationsService {
     Map<String, Counts> countsPerStudyForPatientSet(Long resultInstanceId, User user) {
         log.info "Counts per study for patient set ${resultInstanceId} using bitsets ..."
 
-        Set<String> studyIds = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY).stream()
+        Set<String> studyIds = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(user, PatientDataAccessLevel.COUNTS).stream()
                 .map({ MDStudy study -> study.name })
                 .collect(Collectors.toSet())
 
@@ -160,7 +160,7 @@ class AggregateDataOptimisationsService {
     Map<String, Counts> countsPerConceptForPatientSet(Long resultInstanceId, User user) {
         log.info "Counts per concept for patient set ${resultInstanceId} using bitsets ..."
 
-        Set<String> studyIds = studiesResource.getStudies(user, PatientDataAccessLevel.SUMMARY).stream()
+        Set<String> studyIds = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(user, PatientDataAccessLevel.COUNTS).stream()
                 .map({ MDStudy study -> study.name })
                 .collect(Collectors.toSet())
 

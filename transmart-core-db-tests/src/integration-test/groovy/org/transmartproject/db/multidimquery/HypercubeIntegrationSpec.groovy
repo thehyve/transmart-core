@@ -37,7 +37,7 @@ class HypercubeIntegrationSpec extends Specification {
     MultidimensionalDataResourceService queryResource
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

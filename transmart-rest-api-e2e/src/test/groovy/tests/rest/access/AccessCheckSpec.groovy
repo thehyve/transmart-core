@@ -5,7 +5,7 @@ import base.RestHelper
 import com.fasterxml.jackson.databind.ObjectMapper
 import config.OauthAdapter
 import groovy.json.JsonSlurper
-import representations.ErrorResponse
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*

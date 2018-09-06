@@ -43,7 +43,7 @@ class DefaultPatientSetConstraintSpec extends Specification {
     AssayTestData testData = new AssayTestData()
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData.saveAll()
 

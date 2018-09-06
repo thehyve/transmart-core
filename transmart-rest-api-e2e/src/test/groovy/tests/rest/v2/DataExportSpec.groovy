@@ -3,13 +3,15 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.util.logging.Slf4j
-import representations.ExportJob
+import org.transmartproject.core.multidimquery.ErrorResponse
+import org.transmartproject.core.multidimquery.export.ExportJob
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.ZIP
+import static base.RestHelper.toObject
 import static config.Config.*
 import static tests.rest.Operator.AND
 import static tests.rest.Operator.EQUALS
@@ -28,7 +30,7 @@ class DataExportSpec extends RESTSpec {
 
         when: "Export job name is NOT specified"
         def response = post(request) as Map
-        def responseData = ExportJob.from(response.exportJob as Map)
+        def responseData = toObject(response.exportJob, ExportJob)
         def id = responseData.id
 
         then: "A new job with default name is returned"
@@ -44,7 +46,7 @@ class DataExportSpec extends RESTSpec {
         request.path = "$PATH_DATA_EXPORT/job"
         request.query = [name: name]
         response = post(request) as Map
-        responseData = ExportJob.from(response.exportJob as Map)
+        responseData = toObject(response.exportJob, ExportJob)
 
         then: "A new job with specified name is returned "
         assert responseData.id != null
@@ -96,7 +98,7 @@ class DataExportSpec extends RESTSpec {
                 user      : DEFAULT_USER
         ]
         def newJobResponse = post(newJobRequest) as Map
-        def jobId = ExportJob.from(newJobResponse.exportJob as Map).id
+        def jobId = toObject(newJobResponse.exportJob, ExportJob).id
 
         when: "I run a newly created job asynchronously"
         def response = post([
@@ -113,40 +115,13 @@ class DataExportSpec extends RESTSpec {
                                          format  : 'TSV'
                                  ]],
                 ],
-                user      : DEFAULT_USER
+                user      : DEFAULT_USER,
+                statusCode: 403
         ]) as Map
-        def responseData = ExportJob.from(response.exportJob as Map)
+        def responseData = toObject(response, ErrorResponse)
 
-        then: "Job instance with status: 'Started' is returned"
-        responseData.id == jobId
-        responseData.jobStatus == 'Started'
-        responseData.jobStatusTime != null
-        responseData.userId == getUsername(DEFAULT_USER)
-        responseData.viewerUrl == null
-
-        when: "Check the status of the job"
-        int maxAttemptNumber = 10 // max number of status check attempts
-        def statusRequest = [
-                path      : "$PATH_DATA_EXPORT/$jobId/status",
-                acceptType: JSON,
-                user      : DEFAULT_USER
-        ]
-        response = get(statusRequest) as Map
-        responseData = ExportJob.from(response.exportJob as Map)
-
-        then: "Returned status is 'Error'"
-        def status = responseData.jobStatus
-
-        // waiting for async process to end (increase number of attempts if needed)
-        for (int attempNum = 0; status != 'Error' && status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
-            sleep(500)
-            response = get(statusRequest) as Map
-            responseData = ExportJob.from(response.exportJob as Map)
-            status = responseData.jobStatus
-        }
-
-        status == 'Error'
-        responseData.message == "Access denied to patient set or patient set does not exist: ${patientSetId}"
+       then:
+       responseData.message == "Access denied to patient set or patient set does not exist: ${patientSetId}"
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
@@ -157,7 +132,7 @@ class DataExportSpec extends RESTSpec {
                 user      : ADMIN_USER
         ]
         def newJobResponse = post(newJobRequest) as Map
-        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobData = toObject(newJobResponse.exportJob, ExportJob)
         def jobId = jobData.id
         def jobName = jobData.jobName
 
@@ -181,7 +156,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
                 user      : ADMIN_USER
         ]) as Map
-        jobData = ExportJob.from(runResponse.exportJob as Map)
+        jobData = toObject(runResponse.exportJob, ExportJob)
 
         then: "Job instance with status: 'Started' is returned"
         assert jobData.id == jobId
@@ -198,7 +173,7 @@ class DataExportSpec extends RESTSpec {
                 user      : ADMIN_USER
         ]
         def statusResponse = get(statusRequest) as Map
-        jobData = ExportJob.from(statusResponse.exportJob as Map)
+        jobData = toObject(statusResponse.exportJob, ExportJob)
 
         then: "Returned status is 'Completed'"
         def status = jobData.jobStatus
@@ -207,7 +182,7 @@ class DataExportSpec extends RESTSpec {
         for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
             sleep(500)
             statusResponse = get(statusRequest) as Map
-            jobData = ExportJob.from(statusResponse.exportJob as Map)
+            jobData = toObject(statusResponse.exportJob, ExportJob)
             status = jobData.jobStatus
         }
 
@@ -245,7 +220,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]
         def createJobResponse = post(createJobRequest) as Map
-        def jobData = ExportJob.from(createJobResponse.exportJob as Map)
+        def jobData = toObject(createJobResponse.exportJob, ExportJob)
 
         when: "I try to fetch list of all export jobs"
         def getJobsResponse = get([
@@ -253,7 +228,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]) as Map
         def jobsData = getJobsResponse.exportJobs as List<Map>
-        def jobs = jobsData.collect { Map job -> ExportJob.from(job) }
+        def jobs = jobsData.collect { Map job -> toObject(job, ExportJob) }
 
         then: "The list of all data export job, including the newly created one is returned"
         jobs != null
@@ -282,7 +257,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]
         def newJobResponse = post(newJobRequest) as Map
-        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobData = toObject(newJobResponse.exportJob, ExportJob)
         def jobId = jobData.id
 
         when: "I run a newly created job without id nor constraint parameter supplied."
@@ -526,7 +501,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]
         def newJobResponse = post(newJobRequest) as Map
-        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobData = toObject(newJobResponse.exportJob, ExportJob)
         def jobId = jobData.id
         def jobName = jobData.jobName
 
@@ -535,7 +510,7 @@ class DataExportSpec extends RESTSpec {
                 body      : body,
                 acceptType: JSON,
         ]) as Map
-        jobData = ExportJob.from(runResponse.exportJob as Map)
+        jobData = toObject(runResponse.exportJob, ExportJob)
 
         assert jobData.id == jobId
         assert jobData.jobStatus == 'Started'
@@ -549,14 +524,14 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]
         def statusResponse = get(statusRequest) as Map
-        jobData = ExportJob.from(statusResponse.exportJob as Map)
+        jobData = toObject(statusResponse.exportJob, ExportJob)
         def status = jobData.jobStatus
 
         // waiting for async process to end (increase number of attempts if needed)
         for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
             sleep(500)
             statusResponse = get(statusRequest) as Map
-            jobData = ExportJob.from(statusResponse.exportJob as Map)
+            jobData = toObject(statusResponse.exportJob, ExportJob)
             status = jobData.jobStatus
         }
 
@@ -588,7 +563,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]
         def newJobResponse = post(newJobRequest) as Map
-        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobData = toObject(newJobResponse.exportJob, ExportJob)
         def jobId = jobData.id
 
         when: 'I cancel the job'
@@ -602,7 +577,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]
         def statusResponse = get(statusRequest) as Map
-        jobData = ExportJob.from(statusResponse.exportJob as Map)
+        jobData = toObject(statusResponse.exportJob, ExportJob)
 
         then: "Returned status is 'Canceled'"
         jobData.jobStatus == 'Cancelled'
@@ -625,7 +600,7 @@ class DataExportSpec extends RESTSpec {
                 acceptType: JSON,
         ]
         def newJobResponse = post(newJobRequest) as Map
-        def jobData = ExportJob.from(newJobResponse.exportJob as Map)
+        def jobData = toObject(newJobResponse.exportJob, ExportJob)
         def jobId = jobData.id
 
         when: "I run a newly created job asynchronously"
@@ -640,7 +615,7 @@ class DataExportSpec extends RESTSpec {
                                  ]],
                 ],
         ]) as Map
-        jobData = ExportJob.from(responseData.exportJob as Map)
+        jobData = toObject(responseData.exportJob, ExportJob)
 
         then: "Job instance with status: 'Started' is returned"
         jobData.id == jobId

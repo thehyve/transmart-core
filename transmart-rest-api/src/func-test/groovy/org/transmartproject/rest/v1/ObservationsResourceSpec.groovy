@@ -25,9 +25,11 @@
 
 package org.transmartproject.rest.v1
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.transmartproject.mock.MockUser
 import org.transmartproject.rest.MimeTypes
+import org.transmartproject.rest.data.V1DefaultTestData
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
@@ -37,6 +39,9 @@ import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 import static spock.util.matcher.HamcrestSupport.that
 
 class ObservationsResourceSpec extends V1ResourceSpec {
+
+    @Autowired
+    V1DefaultTestData testData
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
@@ -58,6 +63,12 @@ class ObservationsResourceSpec extends V1ResourceSpec {
                     value  : closeTo(10.0 as Double, 0.00001 as Double),
             ],
     ]
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        testData.clearTestData()
+        testData.createTestData()
+    }
 
     void testListAllObservationsForStudy() {
         when:

@@ -39,7 +39,7 @@ class PatientQuerySpec extends Specification {
     TestData testData
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createDefault()
         testData.saveAll()

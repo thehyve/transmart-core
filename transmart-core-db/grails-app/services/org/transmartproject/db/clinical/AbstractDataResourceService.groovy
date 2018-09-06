@@ -57,7 +57,7 @@ class AbstractDataResourceService {
         if (user.admin) {
             return HibernateCriteriaQueryBuilder.forAllStudies()
         }
-        HibernateCriteriaQueryBuilder.forStudies(studiesResource.getStudies(user, requiredAccessLevel))
+        HibernateCriteriaQueryBuilder.forStudies(studiesResource.getStudiesWithMinimalPatientDataAccessLevel(user, requiredAccessLevel))
     }
 
     protected Object getFirst(DetachedCriteria criteria) {

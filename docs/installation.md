@@ -7,8 +7,8 @@ Below are the installation instructions for tranSMART version 17.1.
 
   * [1. Prerequisites](#1-prerequisites)
   * [2. Setup database](#2-setup-database)
-  * [3. Generate configuration files](#3-generate-configuration-files)
-  * [4. Build and run tranSMART Server](#4-run-transmart-server)
+  * [3. Setup configuration](#3-setup-configuration)
+  * [4. Build and run tranSMART Server](#4-build-and-run-transmart-server)
   * [5. Start services](#5-start-services)
 
 
@@ -26,7 +26,7 @@ as well.
 * For all components:
     * JDK 8
 * For building tranSMART from sources:    
-    * [gradle] 2.13. Any version `> 2.12` and `<= 3.5.1` should suffice (version `3.5.1` is recommended). Other versions may cause some build issues.
+    * [gradle](https://gradle.org). Any version `> 2.12` and `<= 3.5.1` should suffice (version `3.5.1` is recommended). Other versions may cause some build issues.
 * For transmart-rserve (names of ubuntu packages, adapt to your OS):
     * libpng12
     * cairo
@@ -51,14 +51,17 @@ To set up a test database for tranSMART, you can follow these steps:
  
 Or to set up an empty tranSMART database follow those:
 * [Drop the database](../transmart-data#drop-the-database)
-* [Create the database and load everything](../transmart-data#create-the-database-and-load-everything)
+* [Create the database and load the essentials](../transmart-data#create-the-database-and-load-the-essentials)
  
 And then a data loading tool based on Spring Batch is available as [transmart-batch](../transmart-batch).
 
 
-## 3. Generate configuration files
+## 3. Setup configuration
 
-tranSMART requires a configuration file to be generated in `~/.grails/transmartConfig`.
+**tranSMART API Server** is configured in the [application.yml file](../transmart-api-server/grails-app/conf/application.yml). The settings, especially for the database connection and Keycloak identity provider, can be overwritten by an external file. See the description of how to create and use the external file [here](../transmart-api-server#configure-transmart-to-accept-tokens-from-keycloak).
+
+
+**tranSMART Server** requires a configuration file to be generated in `~/.grails/transmartConfig`.
 Scripts to generate the configuration are shipped with
 `transmart-data`.
 
@@ -81,9 +84,11 @@ popd
 
 ## 4. Build and run tranSMART Server
 
+In order to build and run [tranSMART API Server](../transmart-api-server) replace the `transmart-server` with `transmart-api-server` in the instructions below.
+
 ### From source code
 
-The project is built using [gradle].
+The project is built using [gradle](https://gradle.org).
 To build the project, run:
 ```
 gradle :transmart-server:assemble
@@ -112,9 +117,6 @@ mvn dependency:copy -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSH
 java -jar transmart-server-17.1-SNAPSHOT.war
 ```
 
-####
-In order to build and run **tranSmart Api Server**, follow the instructions above, replacing the `transmart-server` with `transmart-api-server`.
-
 
 ## 5. Start services
 
@@ -142,5 +144,3 @@ sudo apt-get install transmart-r
 ```
 For `yum`, use the following repository url with `gpgcheck=0`: `https://repo.thehyve.nl/content/repositories/releases`.
 
-
-[gradle](https://gradle.org)

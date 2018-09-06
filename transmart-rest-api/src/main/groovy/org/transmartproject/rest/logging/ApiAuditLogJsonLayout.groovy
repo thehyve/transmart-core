@@ -2,11 +2,13 @@ package org.transmartproject.rest.logging
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.contrib.json.JsonLayoutBase
+import groovy.transform.CompileStatic
 import org.transmartproject.core.binding.BindingHelper
 
 /**
  * Custom Json layout for writing audit metrics of API calls.
  */
+@CompileStatic
 class ApiAuditLogJsonLayout extends JsonLayoutBase<ILoggingEvent> {
 
     public static final String USERNAME_ATTR_NAME = "username"

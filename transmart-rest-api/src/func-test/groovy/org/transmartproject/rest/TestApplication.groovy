@@ -8,13 +8,15 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.web.context.request.WebRequestInterceptor
 import org.transmartproject.core.log.AccessLogEntryResource
 import org.transmartproject.db.test.H2Views
 import org.transmartproject.mock.MockAccessLogEntryResource
 import org.transmartproject.mock.MockAuthContext
+import org.transmartproject.rest.data.AccessPolicyTestData
+import org.transmartproject.rest.data.V1DefaultTestData
 import org.transmartproject.rest.user.AuthContext
-import org.transmartproject.test.TestService
 
 import javax.validation.Validation
 import javax.validation.Validator
@@ -25,8 +27,13 @@ import javax.validation.Validator
 class TestApplication extends GrailsAutoConfiguration {
 
     @Bean
-    TestResource testResource(SessionFactory sessionFactory) {
-        new TestService(sessionFactory: sessionFactory)
+    AccessPolicyTestData accessPolicyTestData(SessionFactory sessionFactory) {
+        new AccessPolicyTestData(sessionFactory: sessionFactory)
+    }
+
+    @Bean
+    V1DefaultTestData defaultTestData(SessionFactory sessionFactory) {
+        new V1DefaultTestData(sessionFactory: sessionFactory)
     }
 
     @Bean
@@ -70,6 +77,11 @@ class TestApplication extends GrailsAutoConfiguration {
     @Bean
     Validator validator() {
         Validation.buildDefaultValidatorFactory().getValidator()
+    }
+
+    @Bean
+    static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
+        new PropertySourcesPlaceholderConfigurer()
     }
 
     static void main(String[] args) {

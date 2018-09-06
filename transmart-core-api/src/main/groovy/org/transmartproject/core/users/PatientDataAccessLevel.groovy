@@ -4,7 +4,7 @@ package org.transmartproject.core.users
  * Describes a level of read access to the patient data.
  *
  * Enum values declaration order specifies {@link Enum#compareTo(PatientDataAccessLevel)} how high is the access level.
- * COUNTS_WITH_THRESHOLD < SUMMARY < MEASUREMENTS
+ * COUNTS_WITH_THRESHOLD < COUNTS < SUMMARY < MEASUREMENTS
  */
 enum PatientDataAccessLevel {
 
@@ -13,6 +13,11 @@ enum PatientDataAccessLevel {
      * threshold.
      */
     COUNTS_WITH_THRESHOLD,
+
+    /**
+     * Only access to patient counts
+     */
+    COUNTS,
 
     /**
      * Access to summary statistic. e.g. histogram

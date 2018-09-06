@@ -5,7 +5,7 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 import base.RestHelper
-import representations.Counts
+import org.transmartproject.core.multidimquery.counts.Counts
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
@@ -64,6 +64,21 @@ class ObservationCountsSpec extends RESTSpec {
         method | _
         POST   | _
         GET    | _
+    }
+
+    def "counts threshold"() {
+        def request = [
+                path      : PATH_PATIENT_COUNTS_THRESHOLD,
+                acceptType: JSON,
+                user      : UNRESTRICTED_USER
+        ]
+
+        when:
+        def responseData = get(request)
+
+        then:
+        assert responseData.threshold != null
+        assert responseData.threshold instanceof Number
     }
 
 }

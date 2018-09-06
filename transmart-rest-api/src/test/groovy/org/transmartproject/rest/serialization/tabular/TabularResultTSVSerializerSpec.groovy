@@ -17,10 +17,10 @@ import spock.lang.Specification
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-import static org.transmartproject.core.multidimquery.Dimension.Density.DENSE
-import static org.transmartproject.core.multidimquery.Dimension.Packable.NOT_PACKABLE
-import static org.transmartproject.core.multidimquery.Dimension.Size.MEDIUM
-import static org.transmartproject.core.multidimquery.Dimension.Size.SMALL
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.DENSE
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Packable.NOT_PACKABLE
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Size.MEDIUM
+import static org.transmartproject.core.multidimquery.hypercube.Dimension.Size.SMALL
 
 class TabularResultTSVSerializerSpec extends Specification {
 

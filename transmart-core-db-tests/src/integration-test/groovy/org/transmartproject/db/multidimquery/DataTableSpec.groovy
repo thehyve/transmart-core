@@ -7,10 +7,10 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -46,7 +46,7 @@ class DataTableSpec extends Specification {
     MultiDimensionalDataResource queryResource
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
         testData.saveAll()

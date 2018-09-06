@@ -39,7 +39,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import org.transmartproject.core.users.User
 import org.transmartproject.mock.MockAuthContext
-import org.transmartproject.mock.MockUser
+
 import org.transmartproject.rest.user.AuthContext
 import spock.lang.Specification
 
@@ -52,9 +52,6 @@ abstract class ResourceSpec extends Specification {
     @Autowired
     AuthContext authContext
 
-    @Autowired
-    TestResource testResource
-
     void selectUser(User user) {
         assert authContext instanceof MockAuthContext
         authContext.currentUser = user
@@ -64,11 +61,6 @@ abstract class ResourceSpec extends Specification {
         RestTemplate restTemplate = new RestTemplateBuilder()
                 .rootUri(baseUrl).build()
         new TestRestTemplate(restTemplate)
-    }
-
-    void setup() {
-        testResource.createTestData()
-        selectUser(new MockUser('test', true))
     }
 
     String getBaseUrl() {

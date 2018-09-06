@@ -55,6 +55,11 @@ CREATE INDEX idx_fact_concept ON observation_fact USING btree (concept_cd);
 CREATE INDEX observation_fact_pct_idx ON observation_fact USING btree (patient_num, concept_cd, trial_visit_num) WHERE modifier_cd = '@';
 
 --
+-- Name: observation_fact_tmceppis_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX observation_fact_tmceppis_idx ON observation_fact USING BTREE (trial_visit_num, modifier_cd, concept_cd, encounter_num, patient_num, provider_id, instance_num, start_date);
+
+--
 -- Name: observation_fact_trial_visit_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
 --
 ALTER TABLE ONLY observation_fact

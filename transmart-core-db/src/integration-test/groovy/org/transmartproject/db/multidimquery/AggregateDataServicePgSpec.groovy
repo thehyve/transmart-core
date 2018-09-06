@@ -6,9 +6,9 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.CacheManager
-import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.users.SimpleUser

@@ -5,7 +5,7 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 import base.RestHelper
-import representations.ErrorResponse
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF

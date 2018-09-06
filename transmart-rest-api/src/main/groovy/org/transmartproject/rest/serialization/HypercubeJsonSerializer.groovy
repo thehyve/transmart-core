@@ -4,8 +4,8 @@ package org.transmartproject.rest.serialization
 
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.SortOrder
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 
