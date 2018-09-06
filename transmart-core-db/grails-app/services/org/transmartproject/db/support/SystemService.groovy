@@ -209,23 +209,17 @@ class SystemService implements SystemResource {
         }
     }
 
-    /**
-     * Checks if a cache rebuild task is active.
-     *
-     * @return true if a cache rebuild task is active.
-     */
-    boolean isRebuildActive() {
-        if (lock.tryLock()) {
-            lock.unlock()
-            return false
-        }
-        true
-    }
+    static final String REBUILD_CACHES_KEY = 'rebuild caches'
 
     void rebuildCacheTask() {
         def session = null
         try {
             session = sessionFactory.openSession()
+            changeUpdateStatus(CompletionStatus.RUNNING)
+            synchronized (updateStatusLock) {
+                updateStatus.tasks[REBUILD_CACHES_KEY] = CompletionStatus.RUNNING
+                updateStatus.updateDate = new Date()
+            }
             def stopWatch = new StopWatch('Rebuild cache')
             List<User> realUsers = usersResource.getUsers()
             def permissionSets = realUsers.stream()
@@ -256,8 +250,15 @@ class SystemService implements SystemResource {
                 stopWatch.stop()
             }
             log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
+            synchronized (updateStatusLock) {
+                updateStatus.tasks[REBUILD_CACHES_KEY] = CompletionStatus.COMPLETED
+                updateStatus.updateDate = new Date()
+            }
+            changeUpdateStatus(CompletionStatus.COMPLETED)
         } catch (Exception e) {
-            log.error "Unexpected error while rebuilding cache: ${e.message}", e
+            def message = e.message ?: e.cause?.message
+            log.error "Unexpected error while rebuilding cache: ${message}", e
+            changeUpdateStatus(CompletionStatus.FAILED, message)
             throw e
         } finally {
             log.debug "Closing task (lock: ${lock.locked})"
@@ -275,15 +276,25 @@ class SystemService implements SystemResource {
      *
      * Asynchronous call. The call returns when rebuilding has started.
      *
-     * @throws ServiceNotAvailableException iff a rebuild operation is already in progress.
+     * @throws ServiceNotAvailableException iff an update operation is already in progress.
      */
-    void rebuildCache() throws ServiceNotAvailableException {
+    UpdateStatus rebuildCache() throws ServiceNotAvailableException {
         if (!lock.tryLock()) {
             throw new ServiceNotAvailableException('Rebuild operation already in progress.')
         }
-        log.info "Rebuild cache started"
+        synchronized (updateStatusLock) {
+            def now = new Date()
+            def tasks = [
+                    (REBUILD_CACHES_KEY): CompletionStatus.CREATED
+            ] as Map<String, CompletionStatus>
+            updateStatus = new UpdateStatus(CompletionStatus.CREATED, tasks, now, now, null)
+        }
+        log.info "Rebuild cache started."
         task {
             rebuildCacheTask()
+        }
+        synchronized (updateStatusLock) {
+            return updateStatus
         }
     }
 

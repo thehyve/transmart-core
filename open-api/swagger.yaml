@@ -2247,11 +2247,13 @@ paths:
         - admin
       responses:
         200:
+          schema:
+            $ref: '#/definitions/UpdateStatus'
           description: |
-            Clearing and rebuilding the cache has been started.
+            A status report about the started cache rebuild task.
         503:
           description: |
-            A rebuild operation is already in progress.
+            An update operation is already in progress.
 
   /v2/admin/system/after_data_loading_update:
     get:
@@ -2269,6 +2271,9 @@ paths:
             $ref: '#/definitions/UpdateStatus'
           description: |
             A status report about the started update task.
+        503:
+          description: |
+            An update operation is already in progress.
 
   /v2/admin/system/update_status:
     get:

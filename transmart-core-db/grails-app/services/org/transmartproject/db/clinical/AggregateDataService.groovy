@@ -229,6 +229,7 @@ class AggregateDataService extends AbstractDataResourceService {
     /**
      * Create set of all patients for the user.
      */
+    @Transactional
     void createAllPatientsSetForUser(User user) {
         QueryResult queryResult = patientSetResource.createPatientSetQueryResult(
                 'Automatically generated set',
