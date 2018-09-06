@@ -266,7 +266,6 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         PUT    | "/config"                    | [:]
         GET    | "/clear_cache"               | null
         GET    | "/rebuild_cache"             | null
-        GET    | "/rebuild_status"            | null
     }
 
     @Unroll

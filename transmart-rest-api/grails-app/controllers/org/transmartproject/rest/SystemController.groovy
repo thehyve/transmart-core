@@ -73,29 +73,7 @@ class SystemController {
         if (!authContext.user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
-        systemResource.rebuildCache()
-        response.status = 200
-    }
-
-    /**
-     * Checks if a cache rebuild task is running:
-     * <code>GET /v2/admin/system/rebuild_status</code>
-     * Returns an object with a field <code>status</code> with value 'running'
-     * or 'stopped'.
-     * Example: <code>{"status": "running"}</code>.
-     *
-     * Only available for administrators.
-     *
-     * @return an object with a field <code>status</code> with value <code>running</code>
-     * or <code>stopped</code>.
-     *
-     */
-    def rebuildStatus() {
-        checkForUnsupportedParams(params, [])
-        if (!authContext.user.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
-        respond status: systemResource.isRebuildActive() ? 'running' : 'stopped'
+        respond systemResource.rebuildCache()
     }
 
     /**

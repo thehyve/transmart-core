@@ -225,9 +225,6 @@ class RestApiUrlMappings {
                 "/system/rebuild_cache"(method: 'GET', controller: 'system', action: 'rebuildCache') {
                     apiVersion = 'v2'
                 }
-                "/system/rebuild_status"(method: 'GET', controller: 'system', action: 'rebuildStatus') {
-                    apiVersion = 'v2'
-                }
                 "/system/config"(controller: 'config') {
                     action = [GET: 'index', PUT: 'update']
                 }
