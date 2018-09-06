@@ -166,11 +166,14 @@ class AggregateDataResourceImplService implements AggregateDataResource {
     @Override
     Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(Constraint constraint, User user) {
         List<MDStudy> ctStudies = mdStudiesResource.getStudiesWithPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD)
-        if (!ctStudies || patientCountThreshold < 1) {
+        if (!ctStudies) {
             return aggregateDataService.categoricalValueAggregatesPerConcept(constraint, user)
         }
         User exactCountsAccessUserCopy = copyUserWithChangedPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD, COUNTS)
         Map<String, CategoricalValueAggregates> originalResult = aggregateDataService.categoricalValueAggregatesPerConcept(constraint, exactCountsAccessUserCopy)
+        if (patientCountThreshold < 1) {
+            return originalResult
+        }
         return originalResult.entrySet().stream().collect(Collectors.toMap(
                 { Map.Entry<String, CategoricalValueAggregates> entry -> entry.key } as Function<Map.Entry, String>,
                 { Map.Entry<String, CategoricalValueAggregates> entry ->

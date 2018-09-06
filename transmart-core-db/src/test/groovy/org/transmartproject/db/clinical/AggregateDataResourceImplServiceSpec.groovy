@@ -312,9 +312,7 @@ class AggregateDataResourceImplServiceSpec extends Specification {
         def categoricalValueAggregates = [
                 cat1: new CategoricalValueAggregates(valueCounts: [val11: 5, val12: 10], nullValueCounts: 5),
         ]
-        aggregateDataServiceMock.categoricalValueAggregatesPerConcept(constraintMock, {
-            it.username == userMock.username
-        }) >> categoricalValueAggregates
+        aggregateDataServiceMock.categoricalValueAggregatesPerConcept(constraintMock, userMock) >> categoricalValueAggregates
         mdStudiesResourceMock.getStudiesWithPatientDataAccessLevel(userMock, COUNTS_WITH_THRESHOLD) >> []
 
         when:

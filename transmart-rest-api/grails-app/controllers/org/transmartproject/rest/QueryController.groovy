@@ -3,16 +3,20 @@
 package org.transmartproject.rest
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
 import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.*
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.aggregates.AggregatesPerCategoricalConcept
+import org.transmartproject.core.multidimquery.aggregates.AggregatesPerNumericalConcept
 import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
 import org.transmartproject.core.multidimquery.crosstable.CrossTable
@@ -360,6 +364,7 @@ class QueryController extends AbstractQueryController {
      *
      * @return a map with the aggregates.
      */
+    @Deprecated
     def aggregatesPerConcept() {
         def args = getGetOrPostParams()
         checkForUnsupportedParams(args, ['constraint'])
@@ -393,6 +398,44 @@ class QueryController extends AbstractQueryController {
             [conceptCode, valueAggregates]
         }
         [ aggregatesPerConcept: aggregatesPerConcept ]
+    }
+
+    def aggregatesPerNumericalConcept() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = aggregateDataResource
+                .numericalValueAggregatesPerConcept(constraint, authContext.user)
+
+        def aggregatesPerNumericalConcept = new AggregatesPerNumericalConcept(numericalValueAggregatesPerConcept)
+        writeAsJsonToOutputStream(aggregatesPerNumericalConcept)
+    }
+
+    def aggregatesPerCategoricalConcept() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = aggregateDataResource
+                .categoricalValueAggregatesPerConcept(constraint, authContext.user)
+
+        def aggregatesPerCategoricalConcept = new AggregatesPerCategoricalConcept(categoricalValueAggregatesPerConcept)
+        writeAsJsonToOutputStream(aggregatesPerCategoricalConcept)
+    }
+
+    protected void writeAsJsonToOutputStream(Object result) {
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, result)
+        response.status = HttpStatus.OK.value()
+        response.outputStream.flush()
     }
 
     /**
