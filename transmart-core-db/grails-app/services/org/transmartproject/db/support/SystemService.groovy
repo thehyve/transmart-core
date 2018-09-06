@@ -2,6 +2,7 @@ package org.transmartproject.db.support
 
 import grails.util.Holders
 import groovy.transform.CompileStatic
+import org.apache.commons.lang3.tuple.Pair
 import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.modelmapper.ModelMapper
@@ -12,11 +13,16 @@ import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.config.UpdateStatus
 import org.transmartproject.core.exceptions.ServiceNotAvailableException
 import org.transmartproject.core.userquery.UserQuerySetResource
+import org.transmartproject.core.users.PatientDataAccessLevel
+import org.transmartproject.core.users.SimpleUser
+import org.transmartproject.core.users.User
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.AggregateDataOptimisationsService
 import org.transmartproject.db.clinical.AggregateDataService
 import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.config.RuntimeConfigImpl
 import org.transmartproject.core.config.RuntimeConfigRepresentation
+import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.MDStudiesService
 import org.transmartproject.db.ontology.OntologyTermTagsResourceService
 import org.transmartproject.db.ontology.TrialVisitsService
@@ -25,6 +31,7 @@ import org.transmartproject.db.tree.TreeService
 import org.transmartproject.db.util.SharedLock
 
 import javax.validation.Valid
+import java.util.stream.Collectors
 
 import static grails.async.Promises.task
 
@@ -60,6 +67,9 @@ class SystemService implements SystemResource {
 
     @Autowired
     UserQuerySetResource userQuerySetResource
+
+    @Autowired
+    UsersResource usersResource
 
     @Autowired
     AggregateDataOptimisationsService aggregateDataOptimisationsService
@@ -119,12 +129,10 @@ class SystemService implements SystemResource {
                 clearCaches() } as Runnable,
             'refresh study concept bitset materialized view': { ->
                 aggregateDataOptimisationsService.clearPatientSetBitset() } as Runnable,
-            'clear patient set ids cache': { ->
-                patientSetService.clearPatientSetIdsCache() } as Runnable,
             'user query set scan': { ->
                 userQuerySetResource.scan() } as Runnable,
             'rebuild caches': { ->
-                treeService.rebuildCacheTask() } as Runnable
+                rebuildCacheTask() } as Runnable
     ]
 
     void updateAfterDataLoadingTask() {
@@ -164,9 +172,8 @@ class SystemService implements SystemResource {
     }
 
     /**
-     * Clears the caches, patient sets, refreshes a materialized view with study_concept bitset
+     * Clears and rebuilds the caches, patient sets, refreshes a materialized view with study_concept bitset
      * and scans for the changes for subscribed user queries.
-     * @param currentUser
      */
     UpdateStatus updateAfterDataLoading() {
         if (!lock.tryLock()) {
@@ -191,12 +198,100 @@ class SystemService implements SystemResource {
 
     /**
      * Checks if a cache rebuild task is active.
-     * Only available for administrators.
      *
-     * @param currentUser the current user.
-     * @return true iff a cache rebuild task is active.
+     * @return an {@link org.transmartproject.core.config.UpdateStatus} object.
      */
     UpdateStatus getUpdateStatus() {
+        synchronized (updateStatusLock) {
+            return updateStatus
+        }
+    }
+
+    static final String REBUILD_CACHES_KEY = 'rebuild caches'
+
+    void rebuildCacheTask() {
+        def session = null
+        try {
+            session = sessionFactory.openSession()
+            changeUpdateStatus(CompletionStatus.RUNNING)
+            synchronized (updateStatusLock) {
+                updateStatus.tasks[REBUILD_CACHES_KEY] = CompletionStatus.RUNNING
+                updateStatus.updateDate = new Date()
+            }
+            def stopWatch = new StopWatch('Rebuild cache')
+            List<User> realUsers = usersResource.getUsers()
+            def permissionSets = realUsers.stream()
+                    .map({User user -> Pair.of(user.admin, user.studyToPatientDataAccessLevel)})
+                    .collect(Collectors.toSet())
+            List<User> fakeUsers = permissionSets.stream()
+                    .map({ Pair<Boolean, Map<String, PatientDataAccessLevel>> permissions ->
+                new SimpleUser('system', null, null, permissions.left, permissions.right)
+            })
+                    .collect(Collectors.toList())
+            for (User user: fakeUsers) {
+                def description = "${user.username}${user.admin ? ' (admin)' : ''} ${user.studyToPatientDataAccessLevel.toMapString()}"
+                log.info "Rebuilding the cache for user ${description} ..."
+                stopWatch.start("Rebuild the tree nodes cache for ${description}")
+                treeCacheService.updateSubtreeCache(user, I2b2Secure.ROOT, 0)
+                stopWatch.stop()
+                stopWatch.start("Rebuild the counts cache for ${description}")
+                // Update observations, patients counts
+                aggregateDataService.rebuildCountsCacheForUser(user)
+                stopWatch.stop()
+            }
+            for (User user: realUsers) {
+                stopWatch.start("Create set of all subjects for ${user.username}")
+                aggregateDataService.createAllPatientsSetForUser(user)
+                stopWatch.stop()
+                stopWatch.start("Rebuild the counts cache for bookmarked queries of ${user.username}")
+                aggregateDataService.rebuildCountsCacheForBookmarkedUserQueries(user)
+                stopWatch.stop()
+            }
+            log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
+            synchronized (updateStatusLock) {
+                updateStatus.tasks[REBUILD_CACHES_KEY] = CompletionStatus.COMPLETED
+                updateStatus.updateDate = new Date()
+            }
+            changeUpdateStatus(CompletionStatus.COMPLETED)
+        } catch (Exception e) {
+            def message = e.message ?: e.cause?.message
+            log.error "Unexpected error while rebuilding cache: ${message}", e
+            changeUpdateStatus(CompletionStatus.FAILED, message)
+            throw e
+        } finally {
+            log.debug "Closing task (lock: ${lock.locked})"
+            session?.close()
+            lock.unlock()
+            log.debug "Task closed (lock: ${lock.locked})"
+        }
+    }
+
+    /**
+     * Rebuild the tree nodes and counts caches for every user.
+     *
+     * This function should be called after loading, removing or updating
+     * tree nodes or observations in the database.
+     *
+     * Asynchronous call. The call returns when rebuilding has started.
+     *
+     * @return an {@link org.transmartproject.core.config.UpdateStatus} object.
+     * @throws ServiceNotAvailableException iff an update operation is already in progress.
+     */
+    UpdateStatus rebuildCache() throws ServiceNotAvailableException {
+        if (!lock.tryLock()) {
+            throw new ServiceNotAvailableException('Rebuild operation already in progress.')
+        }
+        synchronized (updateStatusLock) {
+            def now = new Date()
+            def tasks = [
+                    (REBUILD_CACHES_KEY): CompletionStatus.CREATED
+            ] as Map<String, CompletionStatus>
+            updateStatus = new UpdateStatus(CompletionStatus.CREATED, tasks, now, now, null)
+        }
+        log.info "Rebuild cache started."
+        task {
+            rebuildCacheTask()
+        }
         synchronized (updateStatusLock) {
             return updateStatus
         }

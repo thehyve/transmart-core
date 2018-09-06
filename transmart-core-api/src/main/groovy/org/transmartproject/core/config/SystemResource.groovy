@@ -1,5 +1,7 @@
 package org.transmartproject.core.config
 
+import org.transmartproject.core.exceptions.ServiceNotAvailableException
+
 interface SystemResource {
 
     RuntimeConfig getRuntimeConfig()
@@ -24,5 +26,19 @@ interface SystemResource {
      * @param currentUser
      */
     UpdateStatus getUpdateStatus()
+
+    /**
+     * Clears the tree node cache and the counts caches, and
+     * rebuild the tree node cache for every user.
+     *
+     * This function should be called after loading, removing or updating
+     * tree nodes or observations in the database.
+     *
+     * Asynchronous call. The call returns when rebuilding has started.
+     *
+     * @throws org.transmartproject.core.exceptions.ServiceNotAvailableException iff an update operation is already in progress.
+     *
+     */
+    UpdateStatus rebuildCache() throws ServiceNotAvailableException
 
 }

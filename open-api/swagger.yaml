@@ -2222,7 +2222,7 @@ paths:
                 numberOfUpdatedSets:
                   type: integer
 
-  /v2/tree_nodes/clear_cache:
+  /v2/admin/system/clear_cache:
     get:
       description: |
         Clears tree node and counts caches.
@@ -2237,29 +2237,30 @@ paths:
           description: |
             The cache has been cleared.
 
-  /v2/tree_nodes/rebuild_cache:
+  /v2/admin/system/rebuild_cache:
     get:
       description: |
         Clears tree node and counts caches and rebuilds the tree node cache per user.
         Only for administrators.
-        Deprecated. Use `/v2/admin/system/after_data_loading_update` instead.
-      deprecated: true
       tags:
         - v2
         - admin
       responses:
         200:
+          schema:
+            $ref: '#/definitions/UpdateStatus'
           description: |
-            Clearing and rebuilding the cache has been started.
+            A status report about the started cache rebuild task.
         503:
           description: |
-            A rebuild operation is already in progress.
+            An update operation is already in progress.
 
   /v2/admin/system/after_data_loading_update:
     get:
       description: |
         This endpoint should be called after loading, deleting or updating data in the database.
-        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Refreshes the bitsets materialized view. Updates data for subscribed user queries.
+        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Rebuilds the tree node cache per user.
+        Refreshes the bitsets materialized view. Updates data for subscribed user queries.
         Only for administrators.
       tags:
         - v2
@@ -2270,6 +2271,9 @@ paths:
             $ref: '#/definitions/UpdateStatus'
           description: |
             A status report about the started update task.
+        503:
+          description: |
+            An update operation is already in progress.
 
   /v2/admin/system/update_status:
     get:

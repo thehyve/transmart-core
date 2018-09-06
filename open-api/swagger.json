@@ -2643,7 +2643,7 @@
         }
       }
     },
-    "/v2/tree_nodes/clear_cache": {
+    "/v2/admin/system/clear_cache": {
       "get": {
         "description": "Clears tree node and counts caches.\nOnly for administrators.\nDeprecated. Use `/v2/admin/system/after_data_loading_update` instead.\n",
         "deprecated": true,
@@ -2658,10 +2658,9 @@
         }
       }
     },
-    "/v2/tree_nodes/rebuild_cache": {
+    "/v2/admin/system/rebuild_cache": {
       "get": {
-        "description": "Clears tree node and counts caches and rebuilds the tree node cache per user.\nOnly for administrators.\nDeprecated. Use `/v2/admin/system/after_data_loading_update` instead.\n",
-        "deprecated": true,
+        "description": "Clears tree node and counts caches and rebuilds the tree node cache per user.\nOnly for administrators.\n",
         "tags": [
           "v2",
           "admin"
@@ -2678,7 +2677,7 @@
     },
     "/v2/admin/system/after_data_loading_update": {
       "get": {
-        "description": "This endpoint should be called after loading, deleting or updating data in the database.\nIt does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Refreshes the bitsets materialized view. Updates data for subscribed user queries.\nOnly for administrators.\n",
+        "description": "This endpoint should be called after loading, deleting or updating data in the database.\nIt does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Rebuilds the tree node cache per user.\nRefreshes the bitsets materialized view. Updates data for subscribed user queries.\nOnly for administrators.\n",
         "tags": [
           "v2",
           "admin"
