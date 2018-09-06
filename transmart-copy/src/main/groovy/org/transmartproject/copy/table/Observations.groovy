@@ -95,9 +95,11 @@ class Observations {
     }
 
     static final Map<String, List<String>> PARENT_TABLE_INDEXES = [
-            'idx_fact_patient_num'    : ['patient_num'],
-            'idx_fact_concept'        : ['concept_cd'],
-            'idx_fact_trial_visit_num': ['trial_visit_num'],
+            'idx_fact_patient_num'          : ['patient_num'],
+            'idx_fact_concept'              : ['concept_cd'],
+            'idx_fact_trial_visit_num'      : ['trial_visit_num'],
+            'observation_fact_tmceppis_idx' : ['trial_visit_num', 'modifier_cd', 'concept_cd', 'encounter_num',
+                                               'patient_num', 'provider_id', 'instance_num', 'start_date']
     ]
 
     static final Map<String, List<String>> CHILD_TABLE_INDEXES = [

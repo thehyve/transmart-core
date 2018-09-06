@@ -46,6 +46,11 @@ efficient patient counts per study and patient counts per concept.
 `increase_nval_num_scale` modifies the column type of numerical values to allow
 up to 16 decimals.
 
+### Add index on observation_fact
+
+`observation_fact_idx_pkey_and_trial_visit` adds an index that includes the primary key and the trial_visit_num column,
+for faster execution of queries that refer to modifiers other than `@` and to trial visits. 
+
 
 ## How to apply all changes
 

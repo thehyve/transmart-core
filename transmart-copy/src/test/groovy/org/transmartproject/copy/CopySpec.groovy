@@ -136,7 +136,8 @@ class CopySpec extends Specification {
                 'idx_fact_patient_num',
                 'idx_fact_trial_visit_num',
                 'idx_fact_concept',
-                'observation_fact_pct_idx'
+                'observation_fact_pct_idx',
+                'observation_fact_tmceppis_idx'
         ] as Set
     }
 
