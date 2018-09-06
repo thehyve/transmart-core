@@ -20,18 +20,22 @@ package org.transmartproject.rest
 
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
+import org.transmartproject.db.clinical.AbstractDataResourceService
 import org.transmartproject.rest.serialization.*
+import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 
 import java.util.zip.ZipOutputStream
 
 @Transactional
-class HypercubeDataSerializationService implements DataSerializer {
+class HypercubeDataSerializationService extends AbstractDataResourceService implements DataSerializer {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
@@ -51,7 +55,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                        DataRetrievalParameters parameters,
                        User user,
                        OutputStream out) {
-
+        checkAccess(parameters.constraint, user, PatientDataAccessLevel.MEASUREMENTS)
         Hypercube hypercube = multiDimService.retrieveClinicalData(parameters, user)
 
         try {
@@ -70,6 +74,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                       String projection,
                       User user,
                       OutputStream out) {
+        checkAccess(assayConstraint, user, PatientDataAccessLevel.MEASUREMENTS)
         Hypercube hypercube = multiDimService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
         try {
@@ -86,6 +91,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                     TableConfig tableConfig,
                     User user,
                     OutputStream out) {
+        checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
         if (format == Format.TSV) {
             StreamingDataTable datatable = multiDimService.retrieveStreamingDataTable(
                     tableConfig, 'clinical', constraint, user)
@@ -109,6 +115,7 @@ class HypercubeDataSerializationService implements DataSerializer {
                     PaginationParameters pagination,
                     User user,
                     OutputStream out) {
+        checkAccess(constraint, user, PatientDataAccessLevel.MEASUREMENTS)
         if (format == Format.JSON) {
             def datatable = multiDimService.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, user)
             try {

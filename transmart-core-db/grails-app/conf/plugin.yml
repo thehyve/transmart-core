@@ -2,6 +2,9 @@
 # 1: it is observed do not work for hibernate configurations.
 #    Current plugin tests (not application) would not see them.
 ---
+org.transmartproject.patientCountThreshold: 0
+
+---
 grails:
     databinding:
         convertEmptyStringsToNull: false

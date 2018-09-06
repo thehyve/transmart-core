@@ -85,6 +85,9 @@ class RestApiUrlMappings {
                 action = [GET: 'countsPerStudyAndConcept', POST: 'countsPerStudyAndConcept']
                 apiVersion = 'v2'
             }
+            "/patient_counts_threshold"(method: 'GET', controller: 'query', action: 'countsThreshold') {
+                apiVersion = 'v2'
+            }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
                 apiVersion = 'v2'
             }

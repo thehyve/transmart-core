@@ -19,15 +19,27 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.*
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.datatable.TableConfig
+import org.transmartproject.core.multidimquery.datatable.TableRetrievalParameters
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.*
+import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.OperationNotImplementedException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Combination
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.*
@@ -481,7 +493,7 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     }
 
     private List<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
-        def userStudies = studiesResource.getStudies(user, PatientDataAccessLevel.MEASUREMENTS) as Collection<MDStudy>
+        def userStudies = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(user, PatientDataAccessLevel.MEASUREMENTS) as Collection<MDStudy>
         List<MDStudy> assaySupportStudies = selectStudiesWithDimensionSupport(userStudies, ASSAY)
         if (!assaySupportStudies) {
             log.debug("No studies with assay dimension for user ${user.username} were found.")

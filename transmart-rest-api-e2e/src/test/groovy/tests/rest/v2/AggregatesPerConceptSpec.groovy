@@ -6,8 +6,8 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import base.RestHelper
 import org.springframework.http.HttpStatus
-import representations.AggregatesPerConcept
-import representations.ErrorResponse
+import org.transmartproject.core.multidimquery.ErrorResponse
+import org.transmartproject.core.multidimquery.aggregates.Aggregates
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
@@ -39,7 +39,7 @@ class AggregatesPerConceptSpec extends RESTSpec {
         ]
 
         when: 'I request aggregates for the Heart Rate and Race concepts'
-        def responseData = RestHelper.toObject(post(request), AggregatesPerConcept)
+        def responseData = RestHelper.toObject(post(request), Aggregates)
 
         then: 'The expected numerical and categorical aggregates are returned'
         responseData.aggregatesPerConcept.size() == 2
@@ -79,7 +79,7 @@ class AggregatesPerConceptSpec extends RESTSpec {
         ]
 
         when: 'I request aggregates for the favouritebook concept (of type Raw text)'
-        def response = RestHelper.toObject(post(request), AggregatesPerConcept)
+        def response = RestHelper.toObject(post(request), Aggregates)
 
         then: 'No values for that concept are returned'
         response.aggregatesPerConcept.size() == 0
@@ -115,7 +115,7 @@ class AggregatesPerConceptSpec extends RESTSpec {
                         constraint: [type: 'concept', conceptCode: conceptCode]
                 ],
                 user      : UNRESTRICTED_USER
-        ]), AggregatesPerConcept)
+        ]), Aggregates)
 
         then: 'I receive aggregates'
         response.aggregatesPerConcept

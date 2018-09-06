@@ -2,15 +2,12 @@ package org.transmartproject.rest.utils
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import grails.converters.JSON
-import groovy.util.logging.Slf4j
 import org.grails.web.json.JSONElement
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.users.User
 
-@Slf4j
 class ResponseEntityUtils {
 
     static <T> T toObject(ResponseEntity<Resource> response, Class<T> type) {
@@ -31,13 +28,8 @@ class ResponseEntityUtils {
     }
 
     static void checkResponseStatus(ResponseEntity<Resource> response, HttpStatus status, User user) {
-        if (response.statusCode != status) {
-            def message =
-                    "Unexpected status ${response.statusCode} for user ${user.username}. " +
-                            "${status.value()} expected.\n" +
-                            "Response: ${toString(response)}"
-            log.error message
-            throw new UnexpectedResultException(message)
-        }
+        assert response.statusCode == status: "Unexpected status ${response.statusCode} for user ${user.username}. " +
+                "${status.value()} expected.\n" +
+                "Response: ${toString(response)}"
     }
 }

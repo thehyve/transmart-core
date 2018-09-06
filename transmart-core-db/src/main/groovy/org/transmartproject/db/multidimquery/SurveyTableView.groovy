@@ -3,7 +3,7 @@ package org.transmartproject.db.multidimquery
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.*
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.ontology.VariableMetadata

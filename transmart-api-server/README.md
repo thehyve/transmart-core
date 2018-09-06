@@ -4,6 +4,16 @@ The TranSMART API server is an application that provides a REST API
 for a TranSMART database. It does not support the `v1` API. User management and authorisation should be provided
 by a separate identity provider. 
 
+## Patient counts threshold configuration
+
+It is possible to configure a threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission to a study. In this case, instead of the counts, a special value: `-2` will be returned. The threshold will be applied only, when the specified query relates to the study with `COUNTS_WITH_THRESHOLD` permission and there is at least one patient from thi study as a result of this query.
+
+```yaml
+org.transmartproject.patientCountThreshold: 5
+```
+
+In order not to apply the threshold, set the value to 0.
+
 ## How to set up authentication for the API server
 
 The TranSMART API server uses [OpenID Connect] for authorisation. 

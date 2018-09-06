@@ -2,9 +2,8 @@ package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.AggregateDataResource
-import org.transmartproject.core.multidimquery.CrossTable
-import org.transmartproject.core.multidimquery.CrossTableResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.AndConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -16,7 +15,7 @@ import org.transmartproject.core.users.User
 import java.util.stream.Collectors
 
 @CompileStatic
-class CrossTableService extends AbstractDataResourceService implements CrossTableResource {
+class CrossTableService extends AbstractDataResourceService {
 
     @Autowired
     PatientSetResource patientSetResource
@@ -27,7 +26,6 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
     @Autowired
     AggregateDataResource aggregateDataResource
 
-    @Override
     CrossTable retrieveCrossTable(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
                                   Constraint subjectConstraint, User user) {
         checkAccess(rowConstraints, columnConstraints, subjectConstraint, user)
@@ -41,7 +39,7 @@ class CrossTableService extends AbstractDataResourceService implements CrossTabl
 
     private void checkAccess(List<Constraint> rowConstraints, List<Constraint> columnConstraints,
                              Constraint subjectConstraint, User user) {
-        def requiredAccessLevel = PatientDataAccessLevel.SUMMARY
+        def requiredAccessLevel = PatientDataAccessLevel.COUNTS
         log.debug('Check access rights for row, column and subject constraints.')
         for (Constraint rowConstraint : rowConstraints) {
             checkAccess(rowConstraint, user, requiredAccessLevel)

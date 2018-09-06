@@ -1,9 +1,9 @@
 package org.transmartproject.db.multidimquery
 
 import org.hibernate.ScrollableResults
-import org.transmartproject.core.multidimquery.Dimension.Density
-import org.transmartproject.core.multidimquery.Dimension.Packable
-import org.transmartproject.core.multidimquery.Dimension.Size
+import org.transmartproject.core.multidimquery.hypercube.Dimension.Density
+import org.transmartproject.core.multidimquery.hypercube.Dimension.Packable
+import org.transmartproject.core.multidimquery.hypercube.Dimension.Size
 import org.transmartproject.db.i2b2data.ObservationFact
 import spock.lang.Specification
 

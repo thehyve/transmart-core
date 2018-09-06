@@ -13,7 +13,16 @@ interface MDStudiesResource {
      * @param requiredAccessLevel the minimal required level of access
      * @return the collection of studies.
      */
-    List<MDStudy> getStudies(User user, PatientDataAccessLevel requiredAccessLevel)
+    List<MDStudy> getStudiesWithMinimalPatientDataAccessLevel(User user, PatientDataAccessLevel requiredAccessLevel)
+
+    /**
+     * Returns all studies to which user has the specified patient data access level.
+     *
+     * @param user
+     * @param patientDataAccessLevel studies that have this patient data access level
+     * @return the collection of studies.
+     */
+    List<MDStudy> getStudiesWithPatientDataAccessLevel(User user, PatientDataAccessLevel patientDataAccessLevel)
 
     /**
      * Returns the study with the given id.

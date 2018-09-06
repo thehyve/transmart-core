@@ -7,7 +7,7 @@ import org.hibernate.internal.SessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.multidimquery.SortSpecification
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
@@ -69,7 +69,7 @@ class QueryServiceSpec extends Specification {
 
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createDefault()
         testData.mrnaData.patients = testData.i2b2Data.patients
@@ -89,7 +89,7 @@ class QueryServiceSpec extends Specification {
     }
 
     void setupHypercubeData(){
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         hypercubeTestData = TestData.createHypercubeDefault()
         hypercubeTestData.saveAll()

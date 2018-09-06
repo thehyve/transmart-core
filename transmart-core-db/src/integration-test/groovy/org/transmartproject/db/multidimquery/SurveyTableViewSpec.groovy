@@ -5,7 +5,7 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.dataquery.SortSpecification
+import org.transmartproject.core.multidimquery.SortSpecification
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource

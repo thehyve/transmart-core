@@ -55,7 +55,7 @@ class HighDimensionDataTypeResourceSpec extends Specification {
     I2b2 i2b2Node
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         TabularStudyTestData studyTestData = new TabularStudyTestData()
         studyTestData.saveAll()

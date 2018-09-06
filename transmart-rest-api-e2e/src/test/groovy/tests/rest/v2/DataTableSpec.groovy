@@ -3,11 +3,12 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.opencsv.CSVReader
 import groovy.transform.CompileStatic
-import representations.DataTable
-import representations.ExportJob
+import org.transmartproject.core.multidimquery.SortOrder
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.datatable.DataTable
+import org.transmartproject.core.multidimquery.export.ExportJob
 
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry
@@ -15,6 +16,7 @@ import java.util.zip.ZipInputStream
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.ZIP
+import static base.RestHelper.toObject
 import static config.Config.*
 
 class DataTableSpec extends RESTSpec {
@@ -29,28 +31,26 @@ class DataTableSpec extends RESTSpec {
         given: 'study EHR is loaded'
         def limit = 10
         def params = [
-                constraint: [
-                        type: 'concept',
+                constraint      : [
+                        type       : 'concept',
                         conceptCode: 'EHR:VSIGN:HR'
                 ],
-                type: 'clinical',
-                rowDimensions: ['patient', 'study'],
+                type            : 'clinical',
+                rowDimensions   : ['patient', 'study'],
                 columnDimensions: ['trial visit', 'concept'],
-                columnSort: [[dimension: 'trial visit', sortOrder: 'asc'], [dimension: 'concept', sortOrder: 'desc']],
-                rowSort: [[dimension: 'patient', sortOrder: 'desc']],
-                limit: limit,
+                columnSort      : [[dimension: 'trial visit', sortOrder: 'asc'], [dimension: 'concept', sortOrder: 'desc']],
+                rowSort         : [[dimension: 'patient', sortOrder: 'desc']],
+                limit           : limit,
         ]
         def request = [
-                path: PATH_TABLE,
+                path      : PATH_TABLE,
                 acceptType: JSON,
-                body: params
+                body      : params
         ]
 
         when: 'for that study I get all observations for heart rate in table format'
-        def mapper = new ObjectMapper()
         def responseData = post(request)
-        String responseBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseData)
-        DataTable dataTable = new ObjectMapper().readValue(responseBody, DataTable)
+        DataTable dataTable = toObject(responseData, DataTable)
 
         then: 'table is properly formatted'
         dataTable.columnDimensions.size() == 2
@@ -59,10 +59,10 @@ class DataTableSpec extends RESTSpec {
         dataTable.rows.size() == 3
         dataTable.rowCount == 3
         dataTable.offset == 0
-        dataTable.sort.find { it.dimension == 'study' }.sortOrder == 'asc'
-        dataTable.sort.find { it.dimension == 'patient' }.sortOrder == 'desc'
-        dataTable.sort.find { it.dimension == 'trial visit' }.sortOrder == 'asc'
-        dataTable.sort.find { it.dimension == 'concept' }.sortOrder == 'desc'
+        dataTable.sort.find { it.dimension == 'study' }.sortOrder == SortOrder.ASC
+        dataTable.sort.find { it.dimension == 'patient' }.sortOrder == SortOrder.DESC
+        dataTable.sort.find { it.dimension == 'trial visit' }.sortOrder == SortOrder.ASC
+        dataTable.sort.find { it.dimension == 'concept' }.sortOrder == SortOrder.DESC
 
         when: 'I specify an offset'
         def offset = 2
@@ -71,8 +71,7 @@ class DataTableSpec extends RESTSpec {
         params.limit = limit
         request.body = params
         def responseData2 = post(request)
-        String responseBody2 = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseData2)
-        DataTable dataTable2 = new ObjectMapper().readValue(responseBody2, DataTable)
+        DataTable dataTable2 = toObject(responseData2, DataTable)
 
         then: 'the number of results has decreased'
         dataTable2.offset == offset
@@ -90,35 +89,33 @@ class DataTableSpec extends RESTSpec {
     def 'get data table with a modifier dimension'() {
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
         def params = [
-                constraint: [
-                        type: 'study_name',
+                constraint      : [
+                        type   : 'study_name',
                         studyId: 'TUMOR_NORMAL_SAMPLES'
                 ],
-                type: 'clinical',
-                rowDimensions: ['patient'],
+                type            : 'clinical',
+                rowDimensions   : ['patient'],
                 columnDimensions: ['concept', 'sample_type'],
-                limit: 10
+                limit           : 10
         ]
         def request = [
-                path: PATH_TABLE,
+                path      : PATH_TABLE,
                 acceptType: JSON,
-                body: params
+                body      : params
         ]
 
         when: 'for that study I get all observations in table format'
-        def mapper = new ObjectMapper()
         def responseData = post(request)
-        String responseBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseData)
-        DataTable dataTable = new ObjectMapper().readValue(responseBody, DataTable)
+        DataTable dataTable = toObject(responseData, DataTable)
 
         then: 'the table contains the expected data'
         dataTable.columnDimensions.size() == 2
         dataTable.columnDimensions
         dataTable.columnHeaders.size() == 2
-        dataTable.columnHeaders.find { it.dimension == 'concept'}.keys ==
-            ['TNS:DEM:AGE', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPLUNG', 'TNS:HD:EXPLUNG', 'TNS:LAB:CELLCNT', 'TNS:LAB:CELLCNT']
-        dataTable.columnHeaders.find { it.dimension == 'sample_type'}.elements ==
-            [null, 'Normal', 'Tumor', 'Normal', 'Tumor', 'Normal', 'Tumor']
+        dataTable.columnHeaders.find { it.dimension == 'concept' }.keys ==
+                ['TNS:DEM:AGE', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPBREAST', 'TNS:HD:EXPLUNG', 'TNS:HD:EXPLUNG', 'TNS:LAB:CELLCNT', 'TNS:LAB:CELLCNT']
+        dataTable.columnHeaders.find { it.dimension == 'sample_type' }.elements ==
+                [null, 'Normal', 'Tumor', 'Normal', 'Tumor', 'Normal', 'Tumor']
 
         dataTable.rowDimensions.size() == 1
         dataTable.rowCount == 3
@@ -138,13 +135,13 @@ class DataTableSpec extends RESTSpec {
         ]
         // Patient TNS:43
         dataTable.rows[2].cells == [
-                 52,
-                 'sample9',
-                 null,
-                 ['sample7', 'sample8'],
-                 'sample6',
-                 [380, 240],
-                 28
+                52,
+                'sample9',
+                null,
+                ['sample7', 'sample8'],
+                'sample6',
+                [380, 240],
+                28
         ]
     }
 
@@ -180,9 +177,9 @@ class DataTableSpec extends RESTSpec {
     def 'export data table with a modifier dimension'() {
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
         def exportParams = [
-                constraint: [type: 'and', args: [
-                        [type: 'subselection', dimension: 'patient',
-                                constraint: [type: 'study_name', studyId: 'TUMOR_NORMAL_SAMPLES']],
+                constraint                   : [type: 'and', args: [
+                        [type      : 'subselection', dimension: 'patient',
+                         constraint: [type: 'study_name', studyId: 'TUMOR_NORMAL_SAMPLES']],
                         [type: 'or', args: [
                                 [type: 'and', args: [[type: "concept", conceptCode: "TNS:DEM:AGE"], [type: "study_name", studyId: "TUMOR_NORMAL_SAMPLES"]]],
                                 [type: 'and', args: [[type: "concept", conceptCode: "TNS:HD:EXPBREAST"], [type: "study_name", studyId: "TUMOR_NORMAL_SAMPLES"]]],
@@ -190,41 +187,41 @@ class DataTableSpec extends RESTSpec {
                                 [type: 'and', args: [[type: "concept", conceptCode: "TNS:LAB:CELLCNT"], [type: "study_name", studyId: "TUMOR_NORMAL_SAMPLES"]]]
                         ]]
                 ]],
-                elements: [
+                elements                     : [
                         [dataType: 'clinical',
-                         format: 'TSV',
+                         format  : 'TSV',
                          dataView: 'dataTable'
                         ]
                 ],
                 includeMeasurementDateColumns: true,
-                tableConfig: [
-                        rowDimensions: ["patient"],
-                        columnDimensions: ["study","concept","sample_type"],
-                        rowSort: [],
-                        columnSort: []
+                tableConfig                  : [
+                        rowDimensions   : ["patient"],
+                        columnDimensions: ["study", "concept", "sample_type"],
+                        rowSort         : [],
+                        columnSort      : []
                 ]
         ]
 
         when: 'I create an export job'
         def createJobRequest = [
-                path: "${PATH_DATA_EXPORT}/job",
+                path      : "${PATH_DATA_EXPORT}/job",
                 acceptType: JSON,
-                user: ADMIN_USER
+                user      : ADMIN_USER
         ]
         def response = post(createJobRequest)
-        def jobData = ExportJob.from(response.exportJob)
+        def jobData = toObject(response.exportJob, ExportJob)
         def jobId = jobData.id
         def jobName = jobData.jobName
 
         def exportRequest = [
-                path: "${PATH_DATA_EXPORT}/${jobId}/run",
-                body: exportParams,
+                path      : "${PATH_DATA_EXPORT}/${jobId}/run",
+                body      : exportParams,
                 acceptType: JSON,
-                user: ADMIN_USER
+                user      : ADMIN_USER
         ]
 
         response = post(exportRequest)
-        jobData = ExportJob.from(response.exportJob)
+        jobData = toObject(response.exportJob, ExportJob)
 
         then: "job has been started"
         assert jobData != null
@@ -236,12 +233,12 @@ class DataTableSpec extends RESTSpec {
         when: "checking the status of the job"
         int maxAttemptNumber = 10 // max number of status check attempts
         def statusRequest = [
-                path: "$PATH_DATA_EXPORT/$jobId/status",
+                path      : "$PATH_DATA_EXPORT/$jobId/status",
                 acceptType: JSON,
-                user: ADMIN_USER
+                user      : ADMIN_USER
         ]
         response = get(statusRequest)
-        jobData = ExportJob.from(response.exportJob)
+        jobData = toObject(response.exportJob, ExportJob)
 
         then: 'eventually status is Completed'
         assert jobData != null
@@ -251,16 +248,16 @@ class DataTableSpec extends RESTSpec {
         for (int attemptNum = 0; status != 'Completed' && attemptNum < maxAttemptNumber; attemptNum++) {
             sleep(500)
             response = get(statusRequest)
-            jobData = ExportJob.from(response.exportJob)
+            jobData = toObject(response.exportJob, ExportJob)
             status = jobData.jobStatus
         }
         assert status == 'Completed'
 
         when: 'I download the exported file'
         def downloadRequest = [
-                path: "${PATH_DATA_EXPORT}/${jobId}/download",
+                path      : "${PATH_DATA_EXPORT}/${jobId}/download",
                 acceptType: ZIP,
-                user: ADMIN_USER
+                user      : ADMIN_USER
         ]
         byte[] downloadResponse = get(downloadRequest)
         def exportData = readExportData(downloadResponse)

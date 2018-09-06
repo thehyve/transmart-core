@@ -3,8 +3,8 @@ package tests.rest.v1
 import annotations.RequiresStudy
 import annotations.RequiresV1ApiSupport
 import base.RESTSpec
+import org.transmartproject.core.multidimquery.ErrorResponse
 import base.RestHelper
-import representations.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.XML

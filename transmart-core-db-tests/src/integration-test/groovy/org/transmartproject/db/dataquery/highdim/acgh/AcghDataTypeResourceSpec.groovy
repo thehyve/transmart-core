@@ -49,7 +49,7 @@ class AcghDataTypeResourceSpec extends Specification {
     AcghTestData testData
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = new AcghTestData()
         acghResource = highDimensionResourceService.getSubResourceForType 'acgh'

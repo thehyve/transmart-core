@@ -31,7 +31,7 @@ class StudyQueryController extends AbstractQueryController {
      */
     def listStudies(@RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
-        def studies = studiesResource.getStudies(authContext.user, PatientDataAccessLevel.minimalAccessLevel)
+        def studies = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(authContext.user, PatientDataAccessLevel.minimalAccessLevel)
         respond wrapStudies(apiVersion, studies)
     }
 

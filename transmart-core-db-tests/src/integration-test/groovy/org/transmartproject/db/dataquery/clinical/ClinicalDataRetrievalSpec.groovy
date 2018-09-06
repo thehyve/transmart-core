@@ -108,7 +108,7 @@ class ClinicalDataRetrievalSpec extends Specification {
     }
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = createTestData()
         testData.saveAll()

@@ -1121,6 +1121,26 @@ var spec = {
         }
       }
     },
+    "/v2/patient_counts_threshold": {
+      "get": {
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Configured threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "threshold": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/observations/table": {
       "post": {
         "description": "Returns a tabular view of observations, as a table using specified dimensions for rows and columns\n",

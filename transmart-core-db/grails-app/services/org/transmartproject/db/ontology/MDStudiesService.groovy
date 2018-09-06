@@ -11,16 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.cache.annotation.Cacheable
-import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.AuthorisationHelper
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.i2b2data.Study
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
@@ -91,18 +91,32 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     }
 
     @Override
-    List<MDStudy> getStudies(User user, PatientDataAccessLevel requiredAccessLevel) {
+    List<MDStudy> getStudiesWithMinimalPatientDataAccessLevel(User user, PatientDataAccessLevel minimalPatientDataAccessLevel) {
         List<MDStudy> studies
         if (user.admin) {
             studies = Study.findAll() as List<MDStudy>
         } else {
-            def accessibleStudyTokens = AuthorisationHelper.getStudyTokensForUser(user, requiredAccessLevel)
+            def accessibleStudyTokens = AuthorisationHelper.getStudyTokensForUserWithMinimalPatientDataAccessLevel(user, minimalPatientDataAccessLevel)
             def criteria = DetachedCriteria.forClass(Study)
             criteria.add(Restrictions.in('secureObjectToken', accessibleStudyTokens))
             studies = criteria.getExecutableCriteria(sessionFactory.currentSession).list() as List<MDStudy>
         }
         studies.stream()
                 .filter({MDStudy study -> !isLegacyStudy(study) })
+                .collect(Collectors.toList())
+    }
+
+    @Override
+    List<MDStudy> getStudiesWithPatientDataAccessLevel(User user, PatientDataAccessLevel patientDataAccessLevel) {
+        def studyTokens = AuthorisationHelper.getStudyTokensForUserWithPatientDataAccessLevel(user, patientDataAccessLevel)
+        if (!studyTokens) {
+            return []
+        }
+        def criteria = DetachedCriteria.forClass(Study)
+        criteria.add(Restrictions.in('secureObjectToken', studyTokens))
+        criteria.getExecutableCriteria(sessionFactory.currentSession)
+                .list().stream()
+                .filter({ MDStudy study -> !isLegacyStudy(study) })
                 .collect(Collectors.toList())
     }
 

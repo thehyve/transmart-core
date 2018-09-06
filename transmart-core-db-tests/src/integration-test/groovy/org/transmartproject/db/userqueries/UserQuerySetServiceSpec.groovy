@@ -37,7 +37,7 @@ class UserQuerySetServiceSpec extends Specification {
     MockUsersResource mockUsersResource
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         regularUser = new SimpleUser('fake-user', 'Fake user', 'gijs+user@thehyve.nl', false, [:])
         adminUser = new SimpleUser('admin', 'Administrator', 'gijs+admin@thehyve.nl', true, [:])

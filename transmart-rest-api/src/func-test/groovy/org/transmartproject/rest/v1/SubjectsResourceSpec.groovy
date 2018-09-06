@@ -25,10 +25,11 @@
 
 package org.transmartproject.rest.v1
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
-import org.transmartproject.rest.TestData
-import org.transmartproject.rest.utils.DateUtils
+import org.transmartproject.mock.MockUser
+import org.transmartproject.rest.data.V1DefaultTestData
 
 import static org.hamcrest.Matchers.*
 import static org.springframework.http.HttpStatus.NOT_FOUND
@@ -42,6 +43,9 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class SubjectsResourceSpec extends V1ResourceSpec {
 
+    @Autowired
+    V1DefaultTestData testData
+
     def study = 'study_id_1'
     def defaultTrial = study.toUpperCase()
     def subjectId = -101
@@ -53,6 +57,12 @@ class SubjectsResourceSpec extends V1ResourceSpec {
     def subjectUrl = "${contextPath}/studies/${study}/subjects/${subjectId}"
     def subjectUrl2 = "${contextPath}/studies/${study}/subjects/-102"
     def subjectUrl3 = "${contextPath}/studies/${study}/subjects/-103"
+
+    void setup() {
+        selectUser(new MockUser('test', true))
+        testData.clearTestData()
+        testData.createTestData()
+    }
 
     void testShowAsJson() {
         when:
@@ -220,29 +230,28 @@ class SubjectsResourceSpec extends V1ResourceSpec {
 
     void testJsonResponseContent() {
         when:
-        def url = "${contextPath}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
+        def url = "${contextPath}/studies/STUDY_ID_1/subjects/42"
         ResponseEntity<Resource> response = get(url)
         def result = toJson(response)
 
         then:
         response.statusCode.value() == 200
         response.headers.getFirst('Content-Type').split(';')[0] == APPLICATION_JSON
-        that result as Map, allOf(
-                hasEntry('id', TestData.ID as Integer),
-                hasEntry('trial', TestData.TRIAL),
-                hasEntry('inTrialId', TestData.SUBJECT_ID),
-                hasEntry('birthDate', DateUtils.formatAsISO(TestData.BIRTH_DATE)),
-                hasEntry('sex', TestData.SEX.name()),
-                hasEntry(is('deathDate'), is(nullValue())),
-                hasEntry('age', TestData.AGE as Integer),
-                hasEntry('race', TestData.RACE),
-                hasEntry('maritalStatus', TestData.MARITAL_STATUS),
-                hasEntry('religion', TestData.RELIGION))
+        result.id == 42
+        result.trial == 'STUDY_ID_1'
+        result.inTrialId == 'SUBJECT_43'
+        result.birthDate == '2014-02-14T11:44:24Z'
+        result.sex == 'MALE'
+        result.deathDate == null
+        result.age == 44
+        result.race == 'Caucasian'
+        result.maritalStatus == 'Married'
+        result.religion == 'Judaism'
     }
 
     void testHalResponseContent() {
         when:
-        def url = "${contextPath}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
+        def url = "${contextPath}/studies/STUDY_ID_1/subjects/42"
         ResponseEntity<Resource> response = get(url, APPLICATION_HAL_JSON)
         def result = toJson(response)
 
@@ -250,13 +259,13 @@ class SubjectsResourceSpec extends V1ResourceSpec {
         response.statusCode == OK
         response.headers.getFirst('Content-Type').split(';')[0] == APPLICATION_HAL_JSON
         that result as Map, allOf(
-                hasEntry('age', TestData.AGE as Integer),
-                hasEntry('race', TestData.RACE),
-                hasEntry('maritalStatus', TestData.MARITAL_STATUS),
+                hasEntry('age', 44),
+                hasEntry('race', 'Caucasian'),
+                hasEntry('maritalStatus', 'Married'),
                 // do not test the rest
                 hasEntry(is('_links'),
                         hasEntry(is('self'),
-                                hasEntry(is('href'), is("${contextPath}/studies/${TestData.TRIAL_LC}/subjects/${TestData.ID}".toString()))
+                                hasEntry(is('href'), is("${contextPath}/studies/study_id_1/subjects/42".toString()))
                         )
                 )
         )

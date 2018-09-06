@@ -5,7 +5,7 @@ package org.transmartproject.core.multidimquery
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 
 /**
  * The Hypercube represents data as a multidimensional data cube. The primary interface is the iterator(), which

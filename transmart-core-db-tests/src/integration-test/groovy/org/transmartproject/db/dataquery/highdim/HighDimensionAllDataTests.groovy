@@ -56,7 +56,7 @@ class HighDimensionAllDataTests extends Specification {
     Map<String, Class> rowProperties
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
     }
 
     void testMetaboliteRetrieval() {

@@ -213,7 +213,7 @@ class AccessControlChecks implements AuthorisationChecks, LegacyAuthorisationChe
             return true
         }
 
-        Set<String> tokens = AuthorisationHelper.getStudyTokensForUser(user, requiredAccessLevel)
+        Set<String> tokens = AuthorisationHelper.getStudyTokensForUserWithMinimalPatientDataAccessLevel(user, requiredAccessLevel)
 
         def conceptCriteria = DetachedCriteria.forClass(ConceptDimension)
         conceptCriteria = conceptCriteria.add(StringUtils.like('conceptCode', concept.conceptCode, MatchMode.EXACT))

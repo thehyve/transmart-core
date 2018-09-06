@@ -33,7 +33,7 @@ class CrossTableSpec extends Specification {
     PatientSetResource patientSetResource
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
         testData.saveAll()

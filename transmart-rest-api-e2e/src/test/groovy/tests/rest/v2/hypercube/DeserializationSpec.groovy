@@ -4,6 +4,7 @@ package tests.rest.v2.hypercube
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import spock.lang.Unroll
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
@@ -15,7 +16,8 @@ import static tests.rest.constraints.StudyNameConstraint
 @RequiresStudy(CATEGORICAL_VALUES_ID)
 class DeserializationSpec extends RESTSpec {
 
-    def "reconstruct observations"() {
+    @Unroll
+    def "reconstruct observations for #acceptType"() {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
@@ -47,7 +49,8 @@ class DeserializationSpec extends RESTSpec {
     }
 
     @RequiresStudy(CLINICAL_TRIAL_ID)
-    def "reconstruct observations multi study"() {
+    @Unroll
+    def "reconstruct observations multi study for #acceptType"() {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
@@ -93,28 +96,28 @@ class DeserializationSpec extends RESTSpec {
     static def CATEGORICAL_VALUES_OBSERVATIONS_json = [
             ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CV:DEM:SEX:M', 'value': 'Male', 'study': 'CATEGORICAL_VALUES'],
             ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CV:DEM:RACE', 'value': 'Caucasian', 'study': 'CATEGORICAL_VALUES'],
-            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CV:DEM:AGE', 'value': new BigDecimal(26), 'study': 'CATEGORICAL_VALUES'],
+            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CV:DEM:AGE', 'value': 26.0G, 'study': 'CATEGORICAL_VALUES'],
             ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CV:DEM:SEX:M', 'value': 'Male', 'study': 'CATEGORICAL_VALUES'],
             ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CV:DEM:RACE', 'value': 'Latino', 'study': 'CATEGORICAL_VALUES'],
-            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CV:DEM:AGE', 'value': new BigDecimal(24), 'study': 'CATEGORICAL_VALUES'],
+            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CV:DEM:AGE', 'value': 24.0G, 'study': 'CATEGORICAL_VALUES'],
             ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CV:DEM:SEX:F', 'value': 'Female', 'study': 'CATEGORICAL_VALUES'],
             ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CV:DEM:RACE', 'value': 'Caucasian', 'study': 'CATEGORICAL_VALUES'],
-            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CV:DEM:AGE', 'value': new BigDecimal(20), 'study': 'CATEGORICAL_VALUES']
+            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CV:DEM:AGE', 'value': 20.0G, 'study': 'CATEGORICAL_VALUES']
     ]
 
     static def CLINICAL_TRIAL_OBSERVATIONS_json = [
-            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:DEM:AGE', 'value': new BigDecimal(26), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(80), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(90), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(88), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CT:DEM:AGE', 'value': new BigDecimal(24), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(56), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(57), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:DEM:AGE', 'value': new BigDecimal(20), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(66), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(68), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(56), 'study': 'CLINICAL_TRIAL'],
-            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': new BigDecimal(88), 'study': 'CLINICAL_TRIAL']
+            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:DEM:AGE', 'value': 26.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:VSIGN:HR', 'value': 80.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:VSIGN:HR', 'value': 90.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'male', 'race': 'Caucasian', 'age': 26, 'conceptCode': 'CT:VSIGN:HR', 'value': 88.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CT:DEM:AGE', 'value': 24.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CT:VSIGN:HR', 'value': 56.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'male', 'race': 'Latino', 'age': 24, 'conceptCode': 'CT:VSIGN:HR', 'value': 57.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:DEM:AGE', 'value': 20.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': 66.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': 68.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': 56.0G, 'study': 'CLINICAL_TRIAL'],
+            ['sex': 'female', 'race': 'Caucasian', 'age': 20, 'conceptCode': 'CT:VSIGN:HR', 'value': 88.0G, 'study': 'CLINICAL_TRIAL']
     ]
 
     static def CATEGORICAL_VALUES_OBSERVATIONS_proto = [

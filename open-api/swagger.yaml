@@ -1109,6 +1109,20 @@ paths:
               countsPerStudy:
                 $ref: '#/definitions/CountsMapMap'
 
+  /v2/patient_counts_threshold:
+    get:
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Configured threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission.
+          schema:
+            type: object
+            properties:
+              threshold:
+                type: integer
+
   /v2/observations/table:
     post:
       description: |
@@ -2670,8 +2684,11 @@ definitions:
     type: object
     properties:
       observationCount:
+        description: Number of observations. `-1` when the count is not calculated and `-2` when the patient count is `-2`.
         type: integer
       patientCount:
+        description: Number of patients. `-2` when the current user has `COUNTS_WITH_THRESHOLD` patient data access level
+         to a study and the count is below the threshold. See `/v2/patient_counts_threshold` call.
         type: integer
 
   CountsMap:

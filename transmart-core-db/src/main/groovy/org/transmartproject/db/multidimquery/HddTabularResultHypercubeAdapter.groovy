@@ -13,17 +13,17 @@ import groovy.transform.TupleConstructor
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.SortOrder
+import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
-import org.transmartproject.db.util.AbstractOneTimeCallIterable
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.db.util.IndexedArraySet
 
 @CompileStatic

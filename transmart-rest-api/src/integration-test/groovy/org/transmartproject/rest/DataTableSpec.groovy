@@ -7,9 +7,9 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.dataquery.TableConfig
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User
@@ -39,7 +39,7 @@ class DataTableSpec extends Specification {
 
 
     void setupData() {
-        TestData.clearAllDataInTransaction()
+        TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

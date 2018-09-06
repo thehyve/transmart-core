@@ -45,7 +45,7 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
     def sessionFactory
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()

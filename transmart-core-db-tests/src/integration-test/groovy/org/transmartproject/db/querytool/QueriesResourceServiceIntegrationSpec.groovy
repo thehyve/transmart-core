@@ -83,7 +83,7 @@ class QueriesResourceServiceIntegrationSpec extends Specification {
     }
 
     void setupData() {
-        TestData.clearAllData()
+        TestData.prepareCleanDatabase()
 
         /* 1. Define concepts */
         def concepts = [ /* level, concept_path, concept_cd */

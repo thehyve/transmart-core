@@ -6,18 +6,24 @@ import com.fasterxml.jackson.core.type.TypeReference
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.core.binding.BindingHelper
-import org.transmartproject.core.dataquery.PaginationParameters
-import org.transmartproject.core.dataquery.SortSpecification
-import org.transmartproject.core.dataquery.TableConfig
 import org.transmartproject.core.exceptions.*
-import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.AggregateDataResource
+import org.transmartproject.core.multidimquery.CrossTableResource
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableConfig
+import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.serialization.Format
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 import static org.transmartproject.rest.misc.RequestUtils.parseJson
@@ -33,6 +39,8 @@ class QueryController extends AbstractQueryController {
     @Autowired
     CrossTableResource crossTableResource
 
+    @Value('${org.transmartproject.patientCountThreshold}')
+    long patientCountThreshold
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -326,6 +334,20 @@ class QueryController extends AbstractQueryController {
             [(studyId): [countsPerConcept: countsPerConcept]]
         }
         def result = [countsPerStudy: counts]
+        render result as JSON
+    }
+
+    /**
+     * Count threshold endpoint:
+     * <code>/v2/patient_counts_threshold</code>
+     *
+     * @return a threshold value, below which counts are not available for users
+     * with `COUNTS_WITH_THRESHOLD` access permission.
+     */
+    def countsThreshold() {
+        checkForUnsupportedParams(params, [])
+
+        def result = [threshold: patientCountThreshold]
         render result as JSON
     }
 

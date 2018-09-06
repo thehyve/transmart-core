@@ -8,7 +8,7 @@ import org.grails.orm.hibernate.cfg.GrailsDomainBinder
 import org.grails.orm.hibernate.cfg.Mapping
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.multidimquery.query.QueryBuilderException
 import org.transmartproject.core.multidimquery.query.Type

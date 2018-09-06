@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.FullDataTableRow
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.StreamingDataTable
