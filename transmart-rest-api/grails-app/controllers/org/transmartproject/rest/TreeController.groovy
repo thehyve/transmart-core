@@ -8,7 +8,6 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.config.SystemResource
-import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
@@ -78,72 +77,6 @@ class TreeController {
                     nodes,
                     response.outputStream)
         }
-    }
-
-    /**
-     * Clears tree node and counts caches:
-     * <code>/${apiVersion}/tree_nodes/clear_cache</code>
-     *
-     * This endpoint should be called after loading, deleting or updating
-     * tree nodes in the database.
-     * Only available for administrators.
-     *
-     * @deprecated in favour of {@link SystemController#afterDataLoadingUpdate()}
-     */
-    @Deprecated
-    def clearCache() {
-        checkForUnsupportedParams(params, [])
-        if (!authContext.user.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
-        systemResource.clearCaches()
-        response.status = 200
-    }
-
-    /**
-     * Clears tree node and counts caches and rebuilds the tree node cache:
-     * <code>/${apiVersion}/tree_nodes/rebuild_cache</code>
-     *
-     * This endpoint should be called after loading, deleting or updating
-     * tree nodes in the database.
-     * Only available for administrators.
-     *
-     * Asynchronous call. The call returns when rebuilding has started.
-     * Code 503 is returned iff a rebuild operation is already in progress.
-     *
-     * @deprecated in favour of {@link SystemController#afterDataLoadingUpdate()}
-     */
-    @Deprecated
-    def rebuildCache() {
-        checkForUnsupportedParams(params, [])
-        if (!authContext.user.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
-        treeResource.rebuildCache()
-        response.status = 200
-    }
-
-    /**
-     * Checks if a cache rebuild task is running:
-     * <code>/${apiVersion}/tree_nodes/rebuild_status</code>
-     * Returns an object with a field <code>status</code> with value 'running'
-     * or 'stopped'.
-     * Example: <code>{"status": "running"}</code>.
-     *
-     * Only available for administrators.
-     *
-     * @return an object with a field <code>status</code> with value <code>running</code>
-     * or <code>stopped</code>.
-     *
-     * @deprecated in favour of {@link SystemController#afterDataLoadingUpdate()}
-     */
-    @Deprecated
-    def rebuildStatus() {
-        checkForUnsupportedParams(params, [])
-        if (!authContext.user.admin) {
-            throw new AccessDeniedException('Only allowed for administrators.')
-        }
-        respond status: treeResource.isRebuildActive() ? 'running' : 'stopped'
     }
 
     private setVersion(String apiVersion, List<TreeNode> nodes) {

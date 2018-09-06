@@ -259,11 +259,14 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         logEntries.size() == 1
 
         where:
-        method | action                         | body
-        GET    | "/after_data_loading_update"   | null
-        GET    | "/update_status"               | null
-        GET    | "/config"                      | null
-        PUT    | "/config"                      |[:]
+        method | action                       | body
+        GET    | "/after_data_loading_update" | null
+        GET    | "/update_status"             | null
+        GET    | "/config"                    | null
+        PUT    | "/config"                    | [:]
+        GET    | "/clear_cache"               | null
+        GET    | "/rebuild_cache"             | null
+        GET    | "/rebuild_status"            | null
     }
 
     @Unroll
@@ -281,9 +284,6 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         where:
         _| action
         _| ""
-        _| "/clear_cache"
-        _| "/rebuild_cache"
-        _| "/rebuild_status"
     }
 
     @Unroll
