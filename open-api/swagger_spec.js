@@ -1,41 +1,15 @@
 var spec = {
-  "swagger": "2.0",
+  "openapi": "3.0.0",
+  "servers": [],
   "info": {
-    "version": "2.4-dev",
-    "title": "Transmart",
+    "version": "2.5-dev",
+    "title": "tranSMART",
     "license": {
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "description": "\n# OAuth2\nAll calls need an Authorization header. https://wiki.transmartfoundation.org/display/transmartwiki/RESTful+API\n```\nAuthorization:Bearer {token}\n```\n\n# Constraints\nConstraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).\n\n## Combinations (And/Or)\nMost often a combination of constraints is needed to get the right result. This can be done by the constraints with type \"and\" and \"or\".\nThey take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.\nHowever an `and` constraint with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.\n(There is also a constraint with type \"combination\" on which the And and Or constraints are built. It does not provide any functionality not provided by And and Or constraints, and it should be considered deprecated for direct usage.)\n\nExample:\n```json\n{\"type\": \"and\",\n \"args\": [\n    {\"type\": \"patient_set\", \"patientIds\": -62},\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n```json\n{\"type\": \"or\",\n \"args\": [\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Blood Pressure\\\\\"}\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n## StudyName\nEvaluate if an observation is part of a particular study\n\nExample:\n```json\n{\n  \"type\": \"study_name\",\n  \"studyId\": \"EHR\"\n}\n```\n\n## Concept\nEvaluate if an observation is of a particular Concept. Either by `path` or `conceptCode`.\n\n```json\n{\n  \"type\": \"concept\",\n  \"path\": \"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\",\n  \"conceptCode\": \"HR\"\n}\n```\n\n## Value\nEvaluate if the value of an observation is within the given parameters. It needs a `valueType`, `operator` and `value`.\n\n  `valueType`: [\"NUMERIC\", \"STRING\"]\n\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains, &lt;--&gt;].\n\n  `operator` \"contains\" can be used only, when `valueType` equals \"STRING\".\n\n  `value` can be a collection of \"NUMERIC\" or \"STRING\" only when \"in\" `operator` is used or `valueType` equals \"NUMERIC\" and between(&lt;--&gt;) `operator` is used (it must hold two values then).\n\nExample:\n```json\n{\n  \"type\": \"value\",\n  \"valueType\": \"NUMERIC\",\n  \"operator\": \"=\", \"value\": 176\n}\n```\n\n## Field\nEvaluate if a specific field of an observation is within the given parameters. it needs a `field`, `operator` and `value`.\n\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains, &lt;-, -&gt;, &lt;--&gt;].\n\n  `operator` \"contains\" can be used only, when `field.type` equals \"STRING\".\n  `operator` \"&lt;-\", \"-&gt;\" or \"&lt;--&gt;\" can be used only when `field.type` equals \"DATE\".\n\n  `value` can be a collection only when \"in\" `operator` is used or `field.type` equals [\"DATE\", \"NUMERIC\"] and between(&lt;--&gt;) `operator` is used (it must hold two values then).\n\nExample:\n```json\n{\n  \"type\": \"field\",\n  \"field\": {\n      \"dimension\": \"patient\",\n      \"fieldName\": \"age\",\n      \"type\": \"NUMERIC\"\n      },\n  \"operator\": \"!=\",\n  \"value\": 100\n}\n```\n\n## Time\nEvaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.\nThe list must hold one date for the before(&lt;-), after(-&gt;), lower_or_equal(&lt;=) and grater_or_equal(&gt;=) operators. It must hold two dates for the between(&lt;--&gt;) operator. If the given date field for an observation is empty, the observation will be ignored.\n\n`operator`: [\"&lt;-\", \"-&gt;\", \"&lt;=\", \"&gt;=\", \"&lt;--&gt;\"]\n\nExample:\n```json\n{\n  \"type\": \"time\",\n  \"field\": {\n      \"dimension\": \"start time\",\n      \"fieldName\": \"startDate\",\n      \"type\": \"DATE\"\n      },\n  \"operator\": \"->\",\n  \"values\": [\"2016-01-01T00:00:00Z\"]\n}\n```\n\n## PatientSet\nEvaluate if an observation is liked to a patient in the set. You have to provide one of three: a `patientSetId`, a list of `patientIds` or a list of `subjectIds`.\n\nExamples:\nBy specifying a patient set id.\n```json\n{\n    \"type\": \"patient_set\",\n    \"patientSetId\": 28820\n}\n```\nBy specifying a list of patient identifiers.\n```json\n{\n    \"type\": \"patient_set\",\n    \"patientIds\": [-62, -63]\n}\n```\nAnd by specifying a list of subject identifiers (aka external identifiers).\n```json\n{\n    \"type\": \"patient_set\",\n    \"subjectIds\": [\"4543AB\", \"4543AC\"]\n}\n```\n\n## SubSelection\nCreate a subselection of patients, visits, or another dimension element, and then select all observations for these dimension elements.\n\nExample: Select all observations for patients who have a certain diagnosis.\n```json\n{\n    \"type\": \"subselection\",\n    \"dimension\": \"patient\",\n    \"constraint\": {\n        \"type\": \"and\",\n        \"args\": [{\n                \"type\": \"concept\",\n                \"path\": \"\\\\Public Studies\\\\EHR\\\\Diagnosis\\\\\",\n                \"conceptCode\": \"DIAG\"\n            }, {\n                \"type\": \"value\",\n                \"valueType\": \"STRING\",\n                \"operator\": \"=\",\n                \"value\": \"My eye hurts\"\n            }]\n    }\n}\n```\n\n## Temporal\nEvaluate if an observation happened before or after an event. It needs an `operator` and an `event`. Any constraint can be used as an event. Most likely a combination.\n`operator`: [\"&lt;-\", \"-&gt;\", \"exists\"]\n\nExample:\n```json\n{\n    \"type\": \"temporal\",\n    \"operator\": \"exists\",\n    \"event\": {\n          \"type\": \"value\",\n          \"valueType\": \"NUMERIC\",\n          \"operator\": \"=\",\n          \"value\": 60\n          }\n}\n```\n\n## Null\nEvaluate if an specific field of an observation is null. It needs a field.\n\nExample:\n```json\n{\n    \"type\": \"null\",\n    \"field\":{\n        \"dimension\": \"end time\",\n        \"fieldName\": \"endDate\",\n        \"type\": \"DATE\"\n        }\n}\n```\n\n## Modifier\nEvaluate if an observation is linked to the specified modifier. Optionally if that modifier has the specific value. It must have a `path`, `dimensionName` or `modifierCode` and may have `values` in the form of a ValueConstraint.\n\nExample:\n```json\n{\n    \"type\": \"modifier\",\n    \"modifierCode\": \"TNS:SMPL\",\n    \"path\": \"\\\\Public Studies\\\\TUMOR_NORMAL_SAMPLES\\\\Sample Type\\\\\",\n    \"dimensionName\": \"sample_type\",\n    \"values\": {\n        \"type\": \"value\",\n        \"valueType\": \"STRING\",\n        \"operator\": \"=\",\n        \"value\": \"Tumor\"\n        }\n}\n```\n\n## Negation\nEvaluate if for an observation the given `arg` is false. `arg` is a constraint.\n\nExample:\n```json\n{\n    \"type\": \"negation\",\n    \"arg\": {\n        \"type\": \"patient_set\",\n        \"patientIds\": [-62,-52,-42]\n        }\n}\n```\nreturns all observations not linked to patient with id -62, -52 or -42\n\n## Biomarker\nUsed to filter high dimensional observations. It needs a 'biomarkerType' and a 'params' object. It can only be used\nwhen retrieving high dimensional data, and if so needs to be specified in a separate url parameter\n`biomarker_constraint`.\n`biomarkerType`: `[\"transcripts\", \"genes\"]`.\n\nExample:\n```json\n{\n    \"type\": \"biomarker\",\n    \"biomarkerType\": \"genes\",\n    \"params\": {\n        \"names\": [\"TP53\"]\n        }\n}\n```\n\n## True\n**!!WARNING!!** Use mainly for testing.  \nThe most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.\n\nExample:\n```json\n{\n    \"type\": \"true\"\n}\n```\n\n## Relation\nPedigree relations constraints.\n`relationTypeLabel` is mandatory and specifies code of relation. e.g. PAR (Parent-Child)\n`relatedSubjectsConstraint` is optional and specifies a constraint to apply to the related subjects.\n`biological` is optional field to restrict whether relation biological or not. If not specified, no filtering on this flag applied.\n`shareHousehold` is optional field to restrict whether subjects share the same address or not. If not specified, no filtering on this flag applied.\n\nBelow is example of selecting subjects that are parents (`relationTypeLabel=PAR`) of subjects with ids `-62`, `-52` and `-42`.\n```json\n{\n    \"type\": \"relation\",\n    \"relatedSubjectsConstraint\": {\n       \"type\": \"patient_set\",\n       \"patientIds\": [-62,-52,-42]\n    }\n    \"relationTypeLabel\": \"PAR\",\n    \"biological\": true,\n    \"shareHousehold\": true\n}\n```\n\n# Response types\n#### application/json\nAll calls support json. however this might not always be the best option. You will find schemas for the responses in this documentation.\n\n#### `application/hal+json`\nOnly the tree_node endpoint supports the application/hal+json format.\n\n#### `application/x-protobuf`\nCalls that return observations support protobuf as a more efficient binary format. The description of the protobuf object can be found in [observations.proto](../transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).\n"
+    "description": "\n# OAuth2\nAll calls need an Authorization header. https://wiki.transmartfoundation.org/display/transmartwiki/RESTful+API\n```\nAuthorization:Bearer {token}\n```\n\n# Constraints\nConstraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).\n\n## Combinations (And/Or)\nMost often a combination of constraints is needed to get the right result. This can be done by the constraints with type \"and\" and \"or\".\nThey take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.\nHowever an `and` constraint with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.\n(There is also a constraint with type \"combination\" on which the And and Or constraints are built. It does not provide any functionality not provided by And and Or constraints, and it should be considered deprecated for direct usage.)\n\nExample:\n```json\n{\"type\": \"and\",\n \"args\": [\n    {\"type\": \"patient_set\", \"patientIds\": -62},\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n```json\n{\"type\": \"or\",\n \"args\": [\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Blood Pressure\\\\\"}\n    {\"type\": \"concept\", \"path\":\" \\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n## StudyName\nEvaluate if an observation is part of a particular study\n\nExample:\n```json\n{\n  \"type\": \"study_name\",\n  \"studyId\": \"EHR\"\n}\n```\n\n## Concept\nEvaluate if an observation is of a particular Concept. Either by `path` or `conceptCode`.\n\n```json\n{\n  \"type\": \"concept\",\n  \"path\": \"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\",\n  \"conceptCode\": \"HR\"\n}\n```\n\n## Value\nEvaluate if the value of an observation is within the given parameters. It needs a `valueType`, `operator` and `value`.\n\n  `valueType`: [\"NUMERIC\", \"STRING\"]\n\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains, &lt;--&gt;].\n\n  `operator` \"contains\" can be used only, when `valueType` equals \"STRING\".\n\n  `value` can be a collection of \"NUMERIC\" or \"STRING\" only when \"in\" `operator` is used or `valueType` equals \"NUMERIC\" and between(&lt;--&gt;) `operator` is used (it must hold two values then).\n\nExample:\n```json\n{\n  \"type\": \"value\",\n  \"valueType\": \"NUMERIC\",\n  \"operator\": \"=\", \"value\": 176\n}\n```\n\n## Field\nEvaluate if a specific field of an observation is within the given parameters. it needs a `field`, `operator` and `value`.\n\n  `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains, &lt;-, -&gt;, &lt;--&gt;].\n\n  `operator` \"contains\" can be used only, when `field.type` equals \"STRING\".\n  `operator` \"&lt;-\", \"-&gt;\" or \"&lt;--&gt;\" can be used only when `field.type` equals \"DATE\".\n\n  `value` can be a collection only when \"in\" `operator` is used or `field.type` equals [\"DATE\", \"NUMERIC\"] and between(&lt;--&gt;) `operator` is used (it must hold two values then).\n\nExample:\n```json\n{\n  \"type\": \"field\",\n  \"field\": {\n      \"dimension\": \"patient\",\n      \"fieldName\": \"age\",\n      \"type\": \"NUMERIC\"\n      },\n  \"operator\": \"!=\",\n  \"value\": 100\n}\n```\n\n## Time\nEvaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.\nThe list must hold one date for the before(&lt;-), after(-&gt;), lower_or_equal(&lt;=) and grater_or_equal(&gt;=) operators. It must hold two dates for the between(&lt;--&gt;) operator. If the given date field for an observation is empty, the observation will be ignored.\n\n`operator`: [\"&lt;-\", \"-&gt;\", \"&lt;=\", \"&gt;=\", \"&lt;--&gt;\"]\n\nExample:\n```json\n{\n  \"type\": \"time\",\n  \"field\": {\n      \"dimension\": \"start time\",\n      \"fieldName\": \"startDate\",\n      \"type\": \"DATE\"\n      },\n  \"operator\": \"->\",\n  \"values\": [\"2016-01-01T00:00:00Z\"]\n}\n```\n\n## PatientSet\nEvaluate if an observation is liked to a patient in the set. You have to provide one of three: a `patientSetId`, a list of `patientIds` or a list of `subjectIds`.\n\nExamples:\nBy specifying a patient set id.\n```json\n{\n    \"type\": \"patient_set\",\n    \"patientSetId\": 28820\n}\n```\nBy specifying a list of patient identifiers.\n```json\n{\n    \"type\": \"patient_set\",\n    \"patientIds\": [-62, -63]\n}\n```\nAnd by specifying a list of subject identifiers (aka external identifiers).\n```json\n{\n    \"type\": \"patient_set\",\n    \"subjectIds\": [\"4543AB\", \"4543AC\"]\n}\n```\n\n## SubSelection\nCreate a subselection of patients, visits, or another dimension element, and then select all observations for these dimension elements.\n\nExample: Select all observations for patients who have a certain diagnosis.\n```json\n{\n    \"type\": \"subselection\",\n    \"dimension\": \"patient\",\n    \"constraint\": {\n        \"type\": \"and\",\n        \"args\": [{\n                \"type\": \"concept\",\n                \"path\": \"\\\\Public Studies\\\\EHR\\\\Diagnosis\\\\\",\n                \"conceptCode\": \"DIAG\"\n            }, {\n                \"type\": \"value\",\n                \"valueType\": \"STRING\",\n                \"operator\": \"=\",\n                \"value\": \"My eye hurts\"\n            }]\n    }\n}\n```\n\n## Temporal\nEvaluate if an observation happened before or after an event. It needs an `operator` and an `event`. Any constraint can be used as an event. Most likely a combination.\n`operator`: [\"&lt;-\", \"-&gt;\", \"exists\"]\n\nExample:\n```json\n{\n    \"type\": \"temporal\",\n    \"operator\": \"exists\",\n    \"event\": {\n          \"type\": \"value\",\n          \"valueType\": \"NUMERIC\",\n          \"operator\": \"=\",\n          \"value\": 60\n          }\n}\n```\n\n## Null\nEvaluate if an specific field of an observation is null. It needs a field.\n\nExample:\n```json\n{\n    \"type\": \"null\",\n    \"field\":{\n        \"dimension\": \"end time\",\n        \"fieldName\": \"endDate\",\n        \"type\": \"DATE\"\n        }\n}\n```\n\n## Modifier\nEvaluate if an observation is linked to the specified modifier. Optionally if that modifier has the specific value. It must have a `path`, `dimensionName` or `modifierCode` and may have `values` in the form of a ValueConstraint.\n\nExample:\n```json\n{\n    \"type\": \"modifier\",\n    \"modifierCode\": \"TNS:SMPL\",\n    \"path\": \"\\\\Public Studies\\\\TUMOR_NORMAL_SAMPLES\\\\Sample Type\\\\\",\n    \"dimensionName\": \"sample_type\",\n    \"values\": {\n        \"type\": \"value\",\n        \"valueType\": \"STRING\",\n        \"operator\": \"=\",\n        \"value\": \"Tumor\"\n        }\n}\n```\n\n## Negation\nEvaluate if for an observation the given `arg` is false. `arg` is a constraint.\n\nExample:\n```json\n{\n    \"type\": \"negation\",\n    \"arg\": {\n        \"type\": \"patient_set\",\n        \"patientIds\": [-62,-52,-42]\n        }\n}\n```\nreturns all observations not linked to patient with id -62, -52 or -42\n\n## Biomarker\nUsed to filter high dimensional observations. It needs a 'biomarkerType' and a 'params' object. It can only be used\nwhen retrieving high dimensional data, and if so needs to be specified in a separate url parameter\n`biomarker_constraint`.\n`biomarkerType`: `[\"transcripts\", \"genes\"]`.\n\nExample:\n```json\n{\n    \"type\": \"biomarker\",\n    \"biomarkerType\": \"genes\",\n    \"params\": {\n        \"names\": [\"TP53\"]\n        }\n}\n```\n\n## True\n**!!WARNING!!** Use mainly for testing.\nThe most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.\n\nExample:\n```json\n{\n    \"type\": \"true\"\n}\n```\n\n## Relation\nPedigree relations constraints.\n`relationTypeLabel` is mandatory and specifies code of relation. e.g. PAR (Parent-Child)\n`relatedSubjectsConstraint` is optional and specifies a constraint to apply to the related subjects.\n`biological` is optional field to restrict whether relation biological or not. If not specified, no filtering on this flag applied.\n`shareHousehold` is optional field to restrict whether subjects share the same address or not. If not specified, no filtering on this flag applied.\n\nBelow is example of selecting subjects that are parents (`relationTypeLabel=PAR`) of subjects with ids `-62`, `-52` and `-42`.\n```json\n{\n    \"type\": \"relation\",\n    \"relatedSubjectsConstraint\": {\n       \"type\": \"patient_set\",\n       \"patientIds\": [-62,-52,-42]\n    }\n    \"relationTypeLabel\": \"PAR\",\n    \"biological\": true,\n    \"shareHousehold\": true\n}\n```\n\n# Response types\n#### application/json\nAll calls support json. however this might not always be the best option. You will find schemas for the responses in this documentation.\n\n#### `application/hal+json`\nOnly the tree_node endpoint supports the application/hal+json format.\n\n#### `application/x-protobuf`\nCalls that return observations support protobuf as a more efficient binary format. The description of the protobuf object can be found in [observations.proto](../transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).\n"
   },
-  "schemes": [
-    "http",
-    "https"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "securityDefinitions": {
-    "oauth": {
-      "type": "oauth2",
-      "flow": "implicit",
-      "authorizationUrl": "/oauth/authorize",
-      "scopes": {
-        "basic": "to be able to interact with transmart REST-API"
-      }
-    }
-  },
-  "security": [
-    {
-      "oauth": [
-        "basic"
-      ]
-    }
-  ],
   "paths": {
     "/versions": {
       "get": {
@@ -43,14 +17,18 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response. Example:\n`{ \"versions\": {\n    \"v2\": {\n        \"id\": \"v2\",\n        \"prefix\": \"/v2\",\n        \"version: \"2.1\",\n        \"major\": 2,\n        \"minor\": 1\n    }\n} }`'\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "versions": {
+            "content": {
+              "*/*": {
+                "schema": {
                   "type": "object",
                   "properties": {
-                    "version ids": {
-                      "$ref": "#/definitions/Version"
+                    "versions": {
+                      "type": "object",
+                      "properties": {
+                        "version ids": {
+                          "$ref": "#/components/schemas/Version"
+                        }
+                      }
                     }
                   }
                 }
@@ -69,14 +47,20 @@ var spec = {
             "in": "path",
             "description": "id of the version to fetch. Example: `GET /versions/v1`.\n",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful response.",
-            "schema": {
-              "$ref": "#/definitions/Version"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Version"
+                }
+              }
             }
           },
           "404": {
@@ -94,13 +78,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "studies": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/jsonStudy"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "studies": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/JsonStudy"
+                      }
+                    }
                   }
                 }
               }
@@ -112,17 +100,18 @@ var spec = {
     "/v1/studies (hal+json)": {
       "get": {
         "description": "Gets all `Study` objects.\n",
-        "produces": [
-          "application/hal+json"
-        ],
         "tags": [
           "v1"
         ],
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "$ref": "#/definitions/HalStudies"
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HalStudies"
+                }
+              }
             }
           }
         }
@@ -140,14 +129,20 @@ var spec = {
             "in": "path",
             "description": "studyid to fetch",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "$ref": "#/definitions/JsonStudy"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/JsonStudy"
+                }
+              }
             }
           }
         }
@@ -161,7 +156,9 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "description": "Gets all `concepts`  for a study.\n",
@@ -171,13 +168,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "ontology_terms": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/OntologyTerm"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ontology_terms": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OntologyTerm"
+                      }
+                    }
                   }
                 }
               }
@@ -194,14 +195,18 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "conceptPath",
             "in": "path",
             "description": "Concept path for which info will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "description": "Gets a `concept` objects.\n",
@@ -211,8 +216,12 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "$ref": "#/definitions/OntologyTerm"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OntologyTerm"
+                }
+              }
             }
           }
         }
@@ -226,7 +235,9 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "description": "Gets all `subjects` for a study.\n",
@@ -236,13 +247,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "subjects": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Patient"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "subjects": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Patient"
+                      }
+                    }
                   }
                 }
               }
@@ -259,14 +274,18 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "subjectid",
             "in": "path",
             "description": "Subject ID of the subject which will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "description": "Gets a `subject` objects.\n",
@@ -276,8 +295,12 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "$ref": "#/definitions/Patient"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Patient"
+                }
+              }
             }
           }
         }
@@ -291,14 +314,18 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "conceptPath",
             "in": "path",
             "description": "Concept path for which info will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "description": "Gets all `subjects` for a given study and concept.\n",
@@ -308,13 +335,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "subjects": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Patient"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "subjects": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Patient"
+                      }
+                    }
                   }
                 }
               }
@@ -331,7 +362,9 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched.",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "description": "Gets all `observations` for a study.\n",
@@ -341,10 +374,14 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/LegacyObservation"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LegacyObservation"
+                  }
+                }
               }
             }
           }
@@ -359,10 +396,14 @@ var spec = {
         "responses": {
           "200": {
             "description": "Successful response",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/LegacyObservation"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LegacyObservation"
+                  }
+                }
               }
             }
           }
@@ -377,39 +418,14 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "conceptPath",
             "in": "path",
             "description": "Concept path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "v1"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/LegacyObservation"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/patient_sets/": {
-      "post": {
-        "parameters": [
-          {
-            "name": "i2b2query_xml",
-            "in": "body",
-            "description": "Body should be a query definition in a subset of the i2b2 XML schema.",
             "required": true,
             "schema": {
               "type": "string"
@@ -420,9 +436,42 @@ var spec = {
           "v1"
         ],
         "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LegacyObservation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/patient_sets/": {
+      "post": {
+        "tags": [
+          "v1"
+        ],
+        "responses": {
           "201": {
             "description": "Successful response"
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Body should be a query definition in a subset of the i2b2 XML schema.",
+          "required": true
         }
       },
       "get": {
@@ -444,7 +493,9 @@ var spec = {
             "in": "path",
             "description": "ID of the patient set, called resultInstance ID because internally it refers to the result of a query",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
@@ -465,42 +516,54 @@ var spec = {
             "in": "path",
             "description": "Study ID of the study for which concepts will be fetched",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "conceptPath",
             "in": "path",
             "description": "Concept path",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "dataType",
             "in": "query",
             "description": "Data Type constraint",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "projection",
             "in": "query",
             "description": "Projection applied to the HDD",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "assayConstraints",
             "in": "query",
             "description": "Assay Constraints",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "dataConstraints",
             "in": "query",
             "description": "Data constraint",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
@@ -519,19 +582,20 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "produces": [
-          "application/json"
-        ],
         "responses": {
           "200": {
             "description": "Returns a list of studies\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "studies": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Study"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "studies": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Study"
+                      }
+                    }
                   }
                 }
               }
@@ -552,14 +616,20 @@ var spec = {
             "in": "path",
             "description": "id of the study to fetch",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns one study\n",
-            "schema": {
-              "$ref": "#/definitions/Study"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Study"
+                }
+              }
             }
           },
           "404": {
@@ -580,14 +650,20 @@ var spec = {
             "in": "path",
             "description": "the study id of the study to fetch",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns one study\n",
-            "schema": {
-              "$ref": "#/definitions/Study"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Study"
+                }
+              }
             }
           },
           "404": {
@@ -609,19 +685,25 @@ var spec = {
             "in": "query",
             "description": "Json list of strings, with each string being a study name. Example: `/v2/studies/studyIds?studyIds=[\"GSE8581\", \"EHR\"]`",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns a list of studies\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "studies": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Study"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "studies": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Study"
+                      }
+                    }
                   }
                 }
               }
@@ -642,19 +724,23 @@ var spec = {
         "responses": {
           "200": {
             "description": "Returns a list of supported fields\n",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "dimension": {
-                    "type": "string"
-                  },
-                  "fieldName": {
-                    "type": "string"
-                  },
-                  "type": {
-                    "type": "string"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "dimension": {
+                        "type": "string"
+                      },
+                      "fieldName": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
@@ -669,52 +755,67 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "produces": [
-          "application/json",
-          "application/x-protobuf"
-        ],
         "parameters": [
           {
             "name": "type",
             "required": true,
             "in": "query",
             "description": "specifies the type of the data you want to retrieve. For clinical data specify `clinical`, for high dimensional data specify the data type or use `autodetect`. If you use `autodetect` the constraints must be such that only a single type of high dimensional data matches.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "constraint",
             "required": true,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\", \"studyId\":\"EHR\"}` or `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\CLINICAL_TRIAL_HIGHDIM\\\\High Dimensional data\\\\Expression Lung\\\\\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "sort",
             "required": false,
             "in": "query",
-            "type": "string",
-            "description": "json string that specifies the sort order of the observations. Sorting can be done on multiple dimensions. `[\"patient\"]` sorts the observations on the patient dimension, `[\"patient\", \"concept\"]` sorts the observations first on the patient, and then on concept. The sort order is on the 'key' field of the chosen dimension, sorting on arbitrary fields is not yet supported. For patients, this is the `id`, for concepts the `conceptCode`.\nIt is also possible to specify the sort order to be ascending or descending. Use `[['patient', 'asc'], ['concept', 'desc']]` for that to sort the observations on patients first, ascending, and then on concepts descending.\nWhen requesting modifier dimensions, the supported sortings is very limited due to implementation constraints. Sorting support is limited to those dimensions that make up the primary key columns in the `i2b2demodata.observation_fact` table, and a few other supported dimensions. If you request a sort order that is not supported you will receive an HTTP 400 Bad Request error code.\n"
+            "description": "json string that specifies the sort order of the observations. Sorting can be done on multiple dimensions. `[\"patient\"]` sorts the observations on the patient dimension, `[\"patient\", \"concept\"]` sorts the observations first on the patient, and then on concept. The sort order is on the 'key' field of the chosen dimension, sorting on arbitrary fields is not yet supported. For patients, this is the `id`, for concepts the `conceptCode`.\nIt is also possible to specify the sort order to be ascending or descending. Use `[['patient', 'asc'], ['concept', 'desc']]` for that to sort the observations on patients first, ascending, and then on concepts descending.\nWhen requesting modifier dimensions, the supported sortings is very limited due to implementation constraints. Sorting support is limited to those dimensions that make up the primary key columns in the `i2b2demodata.observation_fact` table, and a few other supported dimensions. If you request a sort order that is not supported you will receive an HTTP 400 Bad Request error code.\n",
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "biomarker_constraint",
             "required": false,
             "in": "query",
             "description": "json that describes the biomarker. The only valid type is the 'biomarker' constraint Example: `{\"type\":\"biomarker\", \"biomarkerType\":\"genes\",\"params\":{\"names\":[\"TP53\"]}}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "projection",
             "required": false,
             "in": "query",
             "description": "The projection. Only used with high dimensional data Example: `all_data`, `zscore`, `log_intensity`. Default: `all_data`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.\n",
-            "schema": {
-              "$ref": "#/definitions/Observations"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observations"
+                }
+              },
+              "application/x-protobuf": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observations"
+                }
+              }
             }
           }
         }
@@ -724,57 +825,59 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json",
-          "application/x-protobuf"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "description": "The parameters",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                },
-                "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                },
-                "biomarker_constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                },
-                "projection": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                },
-                "sort": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                }
-              },
-              "required": [
-                "type",
-                "constraint"
-              ]
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.\n",
-            "schema": {
-              "$ref": "#/definitions/Observations"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observations"
+                }
+              },
+              "application/x-protobuf": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observations"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  },
+                  "constraint": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  },
+                  "biomarker_constraint": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  },
+                  "projection": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  }
+                },
+                "required": [
+                  "type",
+                  "constraint"
+                ]
+              }
+            }
+          },
+          "description": "The parameters",
+          "required": true
         }
       }
     },
@@ -790,18 +893,24 @@ var spec = {
             "name": "constraint",
             "required": true,
             "in": "query",
-            "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`.'\n",
-            "type": "object"
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns the result as a map from concept code to aggregates.\nExample: `{\"aggregatesPerConcept\":{\"EHR:VSIGN:HR\": {\"numericalValueAggregates\":{\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}}`.'\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "aggregatesPerConcept": {
-                  "$ref": "#/definitions/AggregatesMap"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "aggregatesPerConcept": {
+                      "$ref": "#/components/schemas/AggregatesMap"
+                    }
+                  }
                 }
               }
             }
@@ -814,33 +923,34 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "constraint": {
-                  "type": "object",
-                  "required": true,
-                  "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`.'\n"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "object",
+                    "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`."
+                  }
                 }
               }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Returns the result as a map from concept code to aggregates.\nExample: `{\"aggregatesPerConcept\":{\"EHR:VSIGN:HR\": {\"numericalValueAggregates\":{\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}}`.'\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "aggregatesPerConcept": {
-                  "$ref": "#/definitions/AggregatesMap"
+            "description": "Returns the result as a map from concept code to aggregates. Example: `{\"aggregatesPerConcept\":{\"EHR:VSIGN:HR\": {\"numericalValueAggregates\":{\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}}`.'\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "aggregatesPerConcept": {
+                      "$ref": "#/components/schemas/AggregatesMap"
+                    }
+                  }
                 }
               }
             }
@@ -854,23 +964,34 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "constraint",
-            "required": true,
-            "in": "query",
-            "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`.'\n",
-            "type": "object"
-          }
-        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "object",
+                    "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`."
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Returns numerical aggregates per concept.\nExample: `{\"aggregatesPerNumericalConcept\":{\"EHR:VSIGN:HR\": {\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}`.'\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "aggregatesPerNumericalConcept": {
-                  "$ref": "#/definitions/NumericalAggregatesMap"
+            "description": "Returns numerical aggregates per concept. Example: `{\"aggregatesPerNumericalConcept\":{\"EHR:VSIGN:HR\": {\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}`.'\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "aggregatesPerNumericalConcept": {
+                      "$ref": "#/components/schemas/NumericalAggregatesMap"
+                    }
+                  }
                 }
               }
             }
@@ -884,23 +1005,34 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "constraint",
-            "required": true,
-            "in": "query",
-            "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"DEM:SEX\"}`.'\n",
-            "type": "object"
-          }
-        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "object",
+                    "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`."
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Returns categorical aggregates per concept.\nExample: `{\"aggregatesPerCategoricalConcept\":{\"DEM:SEX\": {\"valueCounts\": {\"F\": 45, \"M\": 42}, \"nullValueCounts\": 0}}}`.'\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "aggregatesPerCategoricalConcept": {
-                  "$ref": "#/definitions/CategoricalAggregatesMap"
+            "description": "Returns categorical aggregates per concept. Example: `{\"aggregatesPerCategoricalConcept\":{\"DEM:SEX\": {\"valueCounts\": {\"F\": 45, \"M\": 42}, \"nullValueCounts\": 0}}}`.'\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "aggregatesPerCategoricalConcept": {
+                      "$ref": "#/components/schemas/CategoricalAggregatesMap"
+                    }
+                  }
                 }
               }
             }
@@ -920,14 +1052,20 @@ var spec = {
             "required": true,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.",
-            "schema": {
-              "$ref": "#/definitions/Counts"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Counts"
+                }
+              }
             }
           }
         }
@@ -937,35 +1075,36 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                }
-              },
-              "required": [
-                "constraint"
-              ]
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.",
-            "schema": {
-              "$ref": "#/definitions/Counts"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Counts"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  }
+                },
+                "required": [
+                  "constraint"
+                ]
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -981,17 +1120,23 @@ var spec = {
             "required": true,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The result as a json object with a map from study id to counts. Example: `{countsPerStudy: {SHARED_A: 2, SHARED_B: 3}}`.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "countsPerStudy": {
-                  "$ref": "#/definitions/CountsMap"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countsPerStudy": {
+                      "$ref": "#/components/schemas/CountsMap"
+                    }
+                  }
                 }
               }
             }
@@ -1003,40 +1148,41 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                }
-              },
-              "required": [
-                "constraint"
-              ]
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "The result as a json object with a map from study id to counts. Example: `{countsPerStudy: {SHARED_A: 2, SHARED_B: 3}}`.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "countsPerStudy": {
-                  "$ref": "#/definitions/CountsMap"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countsPerStudy": {
+                      "$ref": "#/components/schemas/CountsMap"
+                    }
+                  }
                 }
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  }
+                },
+                "required": [
+                  "constraint"
+                ]
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -1052,17 +1198,23 @@ var spec = {
             "required": true,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The result as a json object with a map from concept code to counts. Example: `{countsPerConcept: {\"DEM:AGE\": 2, \"HR\": 3}}`.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "countsPerConcept": {
-                  "$ref": "#/definitions/CountsMap"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countsPerConcept": {
+                      "$ref": "#/components/schemas/CountsMap"
+                    }
+                  }
                 }
               }
             }
@@ -1074,40 +1226,41 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                }
-              },
-              "required": [
-                "constraint"
-              ]
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "The result as a json object with a map from concept code to counts. Example: `{countsPerConcept: {\"DEM:AGE\": 2, \"HR\": 3}}`.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "countsPerConcept": {
-                  "$ref": "#/definitions/CountsMap"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countsPerConcept": {
+                      "$ref": "#/components/schemas/CountsMap"
+                    }
+                  }
                 }
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  }
+                },
+                "required": [
+                  "constraint"
+                ]
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -1123,17 +1276,23 @@ var spec = {
             "required": true,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The result as a json object with a map from study id to a map from concept code to counts.\nExample: `{countsPerStudy: {\"SHARED_A\": {\"DEM:AGE\": 2, \"HR\": 3}, \"SHARED_B\": {\"DEM:AGE\": 1}}}`.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "countsPerStudy": {
-                  "$ref": "#/definitions/CountsMapMap"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countsPerStudy": {
+                      "$ref": "#/components/schemas/CountsMapMap"
+                    }
+                  }
                 }
               }
             }
@@ -1145,40 +1304,41 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                }
-              },
-              "required": [
-                "constraint"
-              ]
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "The result as a json object with a map from study id to a map from concept code to counts.\nExample: `{countsPerStudy: {\"SHARED_A\": {\"DEM:AGE\": 2, \"HR\": 3}, \"SHARED_B\": {\"DEM:AGE\": 1}}}`.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "countsPerStudy": {
-                  "$ref": "#/definitions/CountsMapMap"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countsPerStudy": {
+                      "$ref": "#/components/schemas/CountsMapMap"
+                    }
+                  }
                 }
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  }
+                },
+                "required": [
+                  "constraint"
+                ]
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -1190,11 +1350,15 @@ var spec = {
         "responses": {
           "200": {
             "description": "Configured threshold value, below which counts are not available for users with `COUNTS_WITH_THRESHOLD` access permission.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "threshold": {
-                  "type": "integer"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "threshold": {
+                      "type": "integer"
+                    }
+                  }
                 }
               }
             }
@@ -1208,120 +1372,126 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "description": "Data table parameters",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "required": true,
-                  "type": "string",
-                  "description": "The type of data to retrieve. At the moment only 'clinical' is supported. High dimensional\ndata is not supported.\n"
-                },
-                "constraint": {
-                  "required": true,
-                  "type": "object",
-                  "description": "Constraint specification. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital\nSigns\\\\Heart Rate\\\\\"}`.\n"
-                },
-                "rowDimensions": {
-                  "required": true,
-                  "type": "array",
-                  "items": {
-                    "type": "string"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "The type of data to retrieve. At the moment only 'clinical' is supported. High dimensional\ndata is not supported.\n"
                   },
-                  "description": "List of strings, with each string being a dimension name. This specifies the dimensions\nthat form the vertical axis of the table (in order). Example: `['study', 'patient']`\n"
-                },
-                "columnDimensions": {
-                  "required": true,
-                  "type": "array",
-                  "items": {
-                    "type": "string"
+                  "constraint": {
+                    "type": "object",
+                    "description": "Constraint specification. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital\nSigns\\\\Heart Rate\\\\\"}`.\n"
                   },
-                  "description": "The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table"
-                },
-                "rowSort": {
-                  "required": false,
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/SortSpecification"
+                  "rowDimensions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of strings, with each string being a dimension name. This specifies the dimensions\nthat form the vertical axis of the table (in order). Example: `['study', 'patient']`\n"
                   },
-                  "description": "List of sort specifications for the row dimensions. A sort specification is\nan element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`\n"
-                },
-                "columnSort": {
-                  "required": false,
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/SortSpecification"
+                  "columnDimensions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The same as `rowDimensions`, but with the dimensions that specify the horizontal axis of the table"
                   },
-                  "description": "Analogous to `rowSort`, but for the column dimensions."
+                  "rowSort": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SortSpecification"
+                    },
+                    "description": "List of sort specifications for the row dimensions. A sort specification is\nan element `{dimension: <dimension>, sortOrder: <direction>}` where `<dimension>` is the name of a\ndimension and `<direction>` is either `'asc'` or `'desc'`. The dimension must be a dimension that is\npart of the `rowDimensions` parameter. This defaults to the order specified in `rowDimensions`.\nExample: `[{dimension: 'study', sortOrder: 'desc'}, {dimension: 'patient', sortOrder:'asc'}]`\n"
+                  },
+                  "columnSort": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SortSpecification"
+                    },
+                    "description": "Analogous to `rowSort`, but for the column dimensions."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "The maximum number of rows to return. This determines the size of the result."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "description": "The number of rows to skip before the first returned row. If the dataset does not contain at least\nlimit+offset number of rows, the returned result will contain the `limit` last rows of the dataset. (The\nresult also includes the actual offset of the returned rows.)\n"
+                  }
                 },
-                "limit": {
-                  "required": true,
-                  "type": "integer",
-                  "description": "The maximum number of rows to return. This determines the size of the result."
-                },
-                "offset": {
-                  "required": false,
-                  "type": "integer",
-                  "description": "The number of rows to skip before the first returned row. If the dataset does not contain at least\nlimit+offset number of rows, the returned result will contain the `limit` last rows of the dataset. (The\nresult also includes the actual offset of the returned rows.)\n"
-                }
+                "required": [
+                  "type",
+                  "constraint",
+                  "rowDimensions",
+                  "columnDimensions",
+                  "limit"
+                ],
+                "description": "Data table parameters"
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "$ref": "#/definitions/DataTable"
+            "$ref": "#/components/schemas/DataTable"
           }
         }
       }
     },
     "/v2/observations/crosstable": {
       "post": {
-        "description": "Returns a tabular view of subject counts, using specified constraints for rows and columns.\nEach cell represents a number of subjects computed as an intersection of column set, row set\nand selected subject set that is specified by subject constraint.\n",
+        "description": "Returns a tabular view of subject counts, using specified constraints for rows and columns. Each cell represents a number of subjects computed as an intersection of column set, row set and selected subject set that is specified by subject constraint.\n",
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "description": "Data table parameters",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "rowConstraints": {
-                  "required": true,
-                  "type": "array",
-                  "items": {
-                    "type": "object"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rowConstraints": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "description": "List of constraint specifications. Each constraint is a row header and specifies a row set part of the final set computed for a cell. Example: `[{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}, {\"type\":\"concept\",\"conceptCode\":\"height\"}]`.\n"
+                    }
                   },
-                  "description": "List of constraint specifications. Each constraint is a row header and specifies a row set\npart of the final set computed for a cell.\nExample: `[{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"},\n{\"type\":\"concept\",\"conceptCode\":\"height\"}]`.\n"
-                },
-                "columnConstraints": {
-                  "required": true,
-                  "type": "array",
-                  "items": {
-                    "type": "object"
+                  "columnConstraints": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "subjectConstraint": {
+                    "type": "object",
+                    "description": "The constraint for a subject set. In particular, subjectConstraint can be of type `patient_set` in order to explicitly specify the id of a set of patients. Example: `{\"type\": \"patient_set\", \"patientSetId\": 12345}`.\n"
                   }
                 },
-                "subjectConstraint": {
-                  "required": true,
-                  "type": "object",
-                  "description": "The constraint for a subject set. In particular, subjectConstraint can be\nof type `patient_set` in order to explicitly specify the id of a set of patients.\nExample: `{\"type\": \"patient_set\", \"patientSetId\": 12345}`.\n"
+                "required": [
+                  "rowConstraints",
+                  "columnConstraints",
+                  "subjectConstraint"
+                ]
+              }
+            }
+          },
+          "description": "Data table parameters"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrossTable"
                 }
               }
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/definitions/CrossTable"
           }
         }
       }
@@ -1338,19 +1508,25 @@ var spec = {
             "required": true,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\",\"studyId\":\"EHR\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "patients": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Patient"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "patients": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Patient"
+                      }
+                    }
                   }
                 }
               }
@@ -1363,43 +1539,44 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "constraint": {
-                  "type": "string",
-                  "description": "see GET parameters"
-                }
-              },
-              "required": [
-                "constraint"
-              ]
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "patients": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Patient"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "patients": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Patient"
+                      }
+                    }
                   }
                 }
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": "string",
+                    "description": "see GET parameters"
+                  }
+                },
+                "required": [
+                  "constraint"
+                ]
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -1415,14 +1592,20 @@ var spec = {
             "in": "path",
             "description": "id to fetch",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns one patient\n",
-            "schema": {
-              "$ref": "#/definitions/Patient"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Patient"
+                }
+              }
             }
           }
         }
@@ -1436,8 +1619,12 @@ var spec = {
         "responses": {
           "200": {
             "description": "Gets all patient_sets accessible by the user.\n",
-            "schema": {
-              "$ref": "#/definitions/PatientSet"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientSet"
+                }
+              }
             }
           }
         }
@@ -1452,13 +1639,6 @@ var spec = {
             "name": "name",
             "required": true,
             "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "constraint",
-            "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\",\"studyId\":\"EHR\"}`.",
-            "in": "body",
-            "required": true,
             "schema": {
               "type": "string"
             }
@@ -1467,10 +1647,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "an object with the created patient_set or error.\n",
-            "schema": {
-              "$ref": "#/definitions/PatientSet"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientSet"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Constraint"
         }
       }
     },
@@ -1482,7 +1669,9 @@ var spec = {
             "in": "path",
             "description": "ID of the patient set, called resultInstance ID because internally it refers to the result of a query\n",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
@@ -1491,8 +1680,12 @@ var spec = {
         "responses": {
           "200": {
             "description": "Returns one patient_set.\n",
-            "schema": {
-              "$ref": "#/definitions/PatientSet"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientSet"
+                }
+              }
             }
           }
         }
@@ -1507,13 +1700,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "Returns the concepts that the user has access to.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "concepts": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Concept"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "concepts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Concept"
+                      }
+                    }
                   }
                 }
               }
@@ -1534,14 +1731,20 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "Concept code of the concept.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns the concept if it exists and the user has access to it.\n",
-            "schema": {
-              "$ref": "#/definitions/Concept"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Concept"
+                }
+              }
             }
           },
           "404": {
@@ -1553,10 +1756,6 @@ var spec = {
     "/v2/tree_nodes": {
       "get": {
         "description": "Gets all tree nodes. Number of nodes can be limited by changing the `root` path and max `depth`. `counts` and `tags` are omitted if not requested.\n",
-        "produces": [
-          "application/json",
-          "application/hal+json"
-        ],
         "tags": [
           "v2"
         ],
@@ -1564,44 +1763,71 @@ var spec = {
           {
             "name": "root",
             "in": "query",
-            "type": "string",
-            "description": "The node the requested tree starts from. Example: `\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\`."
+            "description": "The node the requested tree starts from. Example: `\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\`.",
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "depth",
             "in": "query",
-            "type": "integer",
-            "description": "The max node depth returned"
+            "description": "The max node depth returned",
+            "schema": {
+              "type": "integer"
+            }
           },
           {
             "name": "constraints",
             "in": "query",
-            "type": "boolean",
-            "description": "Flag if the constraints should be included in the result (always false for hal, defaults to true for json)"
+            "description": "Flag if the constraints should be included in the result (always false for hal, defaults to true for json)",
+            "schema": {
+              "type": "boolean"
+            }
           },
           {
             "name": "counts",
             "in": "query",
-            "type": "boolean",
-            "description": "Patient and observation counts will be in the response if set to true."
+            "description": "Patient and observation counts will be in the response if set to true.",
+            "schema": {
+              "type": "boolean"
+            }
           },
           {
             "name": "tags",
             "in": "query",
-            "type": "boolean",
-            "description": "Metadata tags will be in the response if set to true."
+            "description": "Metadata tags will be in the response if set to true.",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "A forest stucture if there are several root nodes. For example when there are Public Studies, Private Studies and shared concepts.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "tree_nodes": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/TreeNode"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tree_nodes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TreeNode"
+                      }
+                    }
+                  }
+                }
+              },
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tree_nodes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TreeNode"
+                      }
+                    }
                   }
                 }
               }
@@ -1619,13 +1845,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "an object that contains an array with all storage systems.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "storageSystems": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/StorageSystem"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "storageSystems": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/StorageSystem"
+                      }
+                    }
                   }
                 }
               }
@@ -1638,40 +1868,44 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "systemType": {
-                  "type": "string"
-                },
-                "url": {
-                  "type": "string"
-                },
-                "systemVersion": {
-                  "type": "string"
-                },
-                "singleFileCollections": {
-                  "type": "boolean"
+        "responses": {
+          "201": {
+            "description": "returns the added storage system object.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageSystem"
                 }
               }
             }
           }
-        ],
-        "responses": {
-          "201": {
-            "description": "returns the added storage system object.\n",
-            "schema": {
-              "$ref": "#/definitions/StorageSystem"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "systemType": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "systemVersion": {
+                    "type": "string"
+                  },
+                  "singleFileCollections": {
+                    "type": "boolean"
+                  }
+                }
+              }
             }
-          }
+          },
+          "required": true
         }
       }
     },
@@ -1686,14 +1920,20 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "returns the storage system object.\n",
-            "schema": {
-              "$ref": "#/definitions/StorageSystem"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageSystem"
+                }
+              }
             }
           }
         }
@@ -1708,41 +1948,49 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "systemType": {
-                  "type": "string"
-                },
-                "url": {
-                  "type": "string"
-                },
-                "systemVersion": {
-                  "type": "string"
-                },
-                "singleFileCollections": {
-                  "type": "boolean"
-                }
-              }
+              "type": "integer"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "returns the updated storage system object.\n",
-            "schema": {
-              "$ref": "#/definitions/StorageSystem"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageSystem"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "systemType": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "systemVersion": {
+                    "type": "string"
+                  },
+                  "singleFileCollections": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       },
       "delete": {
@@ -1755,7 +2003,9 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -1774,13 +2024,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "an object that contains an array with all file links.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "files": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/FileLink"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FileLink"
+                      }
+                    }
                   }
                 }
               }
@@ -1793,37 +2047,41 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "sourceSystem": {
-                  "type": "integer"
-                },
-                "study": {
-                  "type": "string"
-                },
-                "uuid": {
-                  "type": "string"
+        "responses": {
+          "201": {
+            "description": "returns the added file link object.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileLink"
                 }
               }
             }
           }
-        ],
-        "responses": {
-          "201": {
-            "description": "returns the added file link object.\n",
-            "schema": {
-              "$ref": "#/definitions/FileLink"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "sourceSystem": {
+                    "type": "integer"
+                  },
+                  "study": {
+                    "type": "string"
+                  },
+                  "uuid": {
+                    "type": "string"
+                  }
+                }
+              }
             }
-          }
+          },
+          "required": true
         }
       }
     },
@@ -1838,14 +2096,20 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "returns the file link object.\n",
-            "schema": {
-              "$ref": "#/definitions/FileLink"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileLink"
+                }
+              }
             }
           }
         }
@@ -1860,38 +2124,46 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "sourceSystem": {
-                  "type": "integer"
-                },
-                "study": {
-                  "type": "string"
-                },
-                "uuid": {
-                  "type": "string"
-                }
-              }
+              "type": "integer"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "returns the updated file link object.\n",
-            "schema": {
-              "$ref": "#/definitions/FileLink"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileLink"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "sourceSystem": {
+                    "type": "integer"
+                  },
+                  "study": {
+                    "type": "string"
+                  },
+                  "uuid": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       },
       "delete": {
@@ -1904,7 +2176,9 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -1925,19 +2199,25 @@ var spec = {
             "name": "studyId",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "an object that contains an array with all file links related to a study.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "files": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/FileLink"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FileLink"
+                      }
+                    }
                   }
                 }
               }
@@ -1956,13 +2236,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "an object that contains an array with all supported workflows.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "supportedWorkflows": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/SupportedWorkflow"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supportedWorkflows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SupportedWorkflow"
+                      }
+                    }
                   }
                 }
               }
@@ -1976,44 +2260,48 @@ var spec = {
           "v2",
           "arvados"
         ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "arvadosInstanceUrl": {
-                  "type": "string"
-                },
-                "uuid": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "arvadosVersion": {
-                  "type": "string"
-                },
-                "defaultParams": {
-                  "description": "a map of key value pairs",
-                  "type": "object"
+        "responses": {
+          "201": {
+            "description": "returns the created supported workflow object.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportedWorkflow"
                 }
               }
             }
           }
-        ],
-        "responses": {
-          "201": {
-            "description": "returns the created supported workflow object.\n",
-            "schema": {
-              "$ref": "#/definitions/SupportedWorkflow"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arvadosInstanceUrl": {
+                    "type": "string"
+                  },
+                  "uuid": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "arvadosVersion": {
+                    "type": "string"
+                  },
+                  "defaultParams": {
+                    "description": "a map of key value pairs",
+                    "type": "object"
+                  }
+                }
+              }
             }
-          }
+          },
+          "required": true
         }
       }
     },
@@ -2029,14 +2317,20 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "returns the supported workflow object.\n",
-            "schema": {
-              "$ref": "#/definitions/SupportedWorkflow"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportedWorkflow"
+                }
+              }
             }
           }
         }
@@ -2052,45 +2346,53 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "arvadosInstanceUrl": {
-                  "type": "string"
-                },
-                "uuid": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "arvadosVersion": {
-                  "type": "string"
-                },
-                "defaultParams": {
-                  "description": "a map of key value pairs",
-                  "type": "object"
-                }
-              }
+              "type": "integer"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "returns the modified supported workflow object.\n",
-            "schema": {
-              "$ref": "#/definitions/SupportedWorkflow"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportedWorkflow"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arvadosInstanceUrl": {
+                    "type": "string"
+                  },
+                  "uuid": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "arvadosVersion": {
+                    "type": "string"
+                  },
+                  "defaultParams": {
+                    "description": "a map of key value pairs",
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       },
       "delete": {
@@ -2104,7 +2406,9 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -2125,21 +2429,29 @@ var spec = {
             "name": "dimensionName",
             "in": "path",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "constraint",
             "required": false,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns list of all elements from the given dimension that user has access to.\n",
-            "schema": {
-              "$ref": "#/definitions/DimensionElements"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DimensionElements"
+                }
+              }
             }
           }
         }
@@ -2149,31 +2461,37 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "consumes": [
-          "application/json"
-        ],
         "parameters": [
           {
             "name": "dimensionName",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "constraint",
-            "required": false,
-            "in": "body",
-            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Returns list of all elements from the given dimension that user has access to.\n",
-            "schema": {
-              "$ref": "#/definitions/DimensionElements"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DimensionElements"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`."
         }
       }
     },
@@ -2189,14 +2507,20 @@ var spec = {
             "required": false,
             "in": "query",
             "description": "(optional) name of the export job (has to be unique for the user). If it is not specified, a default name will be created.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "an object with the created export job or error.\n",
-            "schema": {
-              "$ref": "#/definitions/ExportJob"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportJob"
+                }
+              }
             }
           }
         }
@@ -2214,54 +2538,62 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "id of the export job. The job has to have a status `Created`.",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "required": true,
-            "in": "body",
-            "description": "contains json object to initialize export job.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "array",
-                  "description": "result instance ids. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                "constraint": {
-                  "type": "string",
-                  "description": "observations that meet this constraint get exported. Note: whether id or constraint has to be supplied, not both. Example: `constraint={\"type\": \"study_name\", \"studyId\": \"EHR\"}`."
-                },
-                "includeMeasurementDateColumns": {
-                  "type": "boolean",
-                  "description": "Flag specifies whether to include measurement date columns."
-                },
-                "elements": {
-                  "type": "string",
-                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,\nwhere `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,\nor one of the supported high dimensional data types and `format` is one of the supported file formats\nyou want to export current data type to. The tabular flag (optional, false by default) specifies whether\nrepresent hypercube data as wide filer format where patients are rows and columns are variables.\nExample: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.\n\n`dataView` is optional, it can be `\"surveyTable\"` or `\"dataTable\"`, resulting in either a survey\ntable or a data table export. When not set the export will default to a plain hypercube export.\n"
-                },
-                "tableConfig": {
-                  "type": "string",
-                  "description": "`tableConfig` is only used for data table exports. It must be a JSON map containing the\nkeys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with\nthe same meanings and optionality as in the `/v2/observations/table` call.\n"
-                }
-              },
-              "required": [
-                "id",
-                "elements"
-              ]
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "an object with the run export job with status 'Started' or 'Error'.\n",
-            "schema": {
-              "$ref": "#/definitions/ExportJob"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportJob"
+                }
+              }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "array",
+                    "description": "result instance ids. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "constraint": {
+                    "type": "string",
+                    "description": "observations that meet this constraint get exported. Note: whether id or constraint has to be supplied, not both. Example: `constraint={\"type\": \"study_name\", \"studyId\": \"EHR\"}`."
+                  },
+                  "includeMeasurementDateColumns": {
+                    "type": "boolean",
+                    "description": "Flag specifies whether to include measurement date columns."
+                  },
+                  "elements": {
+                    "type": "string",
+                    "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,\nwhere `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,\nor one of the supported high dimensional data types and `format` is one of the supported file formats\nyou want to export current data type to. The tabular flag (optional, false by default) specifies whether\nrepresent hypercube data as wide filer format where patients are rows and columns are variables.\nExample: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.\n\n`dataView` is optional, it can be `\"surveyTable\"` or `\"dataTable\"`, resulting in either a survey\ntable or a data table export. When not set the export will default to a plain hypercube export.\n"
+                  },
+                  "tableConfig": {
+                    "type": "string",
+                    "description": "`tableConfig` is only used for data table exports. It must be a JSON map containing the\nkeys `rowDimensions`, `columnDimensions`, `rowSort` and `columnSort`, with\nthe same meanings and optionality as in the `/v2/observations/table` call.\n"
+                  }
+                },
+                "required": [
+                  "id",
+                  "elements"
+                ]
+              }
+            }
+          },
+          "description": "contains json object to initialize export job.",
+          "required": true
         }
       }
     },
@@ -2277,14 +2609,16 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "id of the export job. The job has to have a status `Completed`.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Zip file stream with expoted data.\n",
-            "schema": {
-              "type": "file"
+            "content": {
+              "*/*": {}
             }
           }
         }
@@ -2303,14 +2637,20 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "Id of the export job.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "an object with the export job, including its status.\n",
-            "schema": {
-              "$ref": "#/definitions/ExportJob"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportJob"
+                }
+              }
             }
           }
         }
@@ -2328,14 +2668,20 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "Id of the export job.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "an object with the export job.\n",
-            "schema": {
-              "$ref": "#/definitions/ExportJob"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportJob"
+                }
+              }
             }
           }
         }
@@ -2351,7 +2697,9 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "Id of the export job.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2373,7 +2721,9 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "Id of the export job.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2389,16 +2739,17 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "produces": [
-          "application/json"
-        ],
         "responses": {
           "200": {
             "description": "Returns a list of export jobs\n",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ExportJob"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExportJob"
+                  }
+                }
               }
             }
           }
@@ -2411,30 +2762,28 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "constraint",
-            "required": true,
-            "in": "body",
-            "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\",\"studyId\":\"EHR\"}`.",
-            "type": "object"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Returns a list of known data formats for specified sets.\nExample: `{ \"dataFormats\": [\"clinical\", \"mrna\", \"rnaseq_transcript\"] }`\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "dataFormats": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataFormats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
             }
           }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Constraint"
         }
       }
     },
@@ -2450,22 +2799,25 @@ var spec = {
             "required": false,
             "in": "query",
             "description": "Data view.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
-        ],
-        "produces": [
-          "application/json"
         ],
         "responses": {
           "200": {
             "description": "Returns a list of file formats that data can be exported to. Example: `{ \"fileFormats\": [\"TSV\"] }`\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "supportedFileFormats": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supportedFileFormats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
@@ -2483,13 +2835,17 @@ var spec = {
         "responses": {
           "200": {
             "description": "an object that contains an array with all queries for current user.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "queries": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/UserQuery"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "queries": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserQuery"
+                      }
+                    }
                   }
                 }
               }
@@ -2502,46 +2858,50 @@ var spec = {
         "tags": [
           "v2"
         ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "patientsQuery": {
-                  "type": "object"
-                },
-                "observationsQuery": {
-                  "type": "object"
-                },
-                "bookmarked": {
-                  "type": "boolean"
-                },
-                "subscribed": {
-                  "type": "boolean"
-                },
-                "subscriptionFreq": {
-                  "type": "string"
-                },
-                "queryBlob": {
-                  "type": "object"
+        "responses": {
+          "201": {
+            "description": "returns the added user query object.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserQuery"
                 }
               }
             }
           }
-        ],
-        "responses": {
-          "201": {
-            "description": "returns the added user query object.\n",
-            "schema": {
-              "$ref": "#/definitions/UserQuery"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "patientsQuery": {
+                    "type": "object"
+                  },
+                  "observationsQuery": {
+                    "type": "object"
+                  },
+                  "bookmarked": {
+                    "type": "boolean"
+                  },
+                  "subscribed": {
+                    "type": "boolean"
+                  },
+                  "subscriptionFreq": {
+                    "type": "string"
+                  },
+                  "queryBlob": {
+                    "type": "object"
+                  }
+                }
+              }
             }
-          }
+          },
+          "required": true
         }
       }
     },
@@ -2556,14 +2916,20 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "returns the user query object.\n",
-            "schema": {
-              "$ref": "#/definitions/UserQuery"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserQuery"
+                }
+              }
             }
           }
         }
@@ -2578,28 +2944,8 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "bookmarked": {
-                  "type": "boolean"
-                },
-                "subscribed": {
-                  "type": "boolean"
-                },
-                "subscriptionFreq": {
-                  "type": "string"
-                }
-              }
+              "type": "integer"
             }
           }
         ],
@@ -2607,6 +2953,30 @@ var spec = {
           "204": {
             "description": "replies with the 204 http status if the update finished successfully."
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "bookmarked": {
+                    "type": "boolean"
+                  },
+                  "subscribed": {
+                    "type": "boolean"
+                  },
+                  "subscriptionFreq": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       },
       "delete": {
@@ -2619,7 +2989,9 @@ var spec = {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -2638,10 +3010,14 @@ var spec = {
         "responses": {
           "200": {
             "description": "returns the list of the relation types.\n",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/RelationType"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RelationType"
+                  }
+                }
               }
             }
           }
@@ -2660,19 +3036,25 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "Id of a user query.",
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "an object that contains an array of all querySets related to the query with a set change history.\n",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "querySets": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/UserQuerySet"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "querySets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserQuerySet"
+                      }
+                    }
                   }
                 }
               }
@@ -2692,11 +3074,15 @@ var spec = {
         "responses": {
           "201": {
             "description": "Successful response",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "numberOfUpdatedSets": {
-                  "type": "integer"
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "numberOfUpdatedSets": {
+                      "type": "integer"
+                    }
+                  }
                 }
               }
             }
@@ -2728,10 +3114,17 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "description": "Clearing and rebuilding the cache has been started.\n"
+            "description": "A status report about the started cache rebuild task.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
           },
           "503": {
-            "description": "A rebuild operation is already in progress.\n"
+            "description": "An update operation is already in progress.\n"
           }
         }
       }
@@ -2745,10 +3138,10 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "schema": {
-              "$ref": "#/definitions/UpdateStatus"
-            },
             "description": "A status report about the started update task.\n"
+          },
+          "503": {
+            "description": "An update operation is already in progress.\n"
           }
         }
       }
@@ -2762,10 +3155,14 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "schema": {
-              "$ref": "#/definitions/UpdateStatus"
-            },
-            "description": "A status report about the latest update task.\n"
+            "description": "A status report about the latest update task.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
           },
           "404": {
             "description": "No update task has been created.\n"
@@ -2782,10 +3179,14 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "schema": {
-              "$ref": "#/definitions/RuntimeConfig"
-            },
-            "description": "The runtime configuration options.\n"
+            "description": "The runtime configuration options.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeConfig"
+                }
+              }
+            }
           }
         }
       },
@@ -2795,26 +3196,27 @@ var spec = {
           "v2",
           "admin"
         ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "schema": {
-                "$ref": "#/definitions/RuntimeConfig"
+        "responses": {
+          "200": {
+            "description": "The configuration has been updated.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeConfig"
+                }
               }
             }
           }
-        ],
-        "responses": {
-          "200": {
-            "schema": {
-              "$ref": "#/definitions/RuntimeConfig"
-            },
-            "description": "The configuration has been updated.\n"
-          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuntimeConfig"
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -2831,7 +3233,9 @@ var spec = {
             "required": true,
             "in": "path",
             "description": "DAILY|WEEKLY - determines whether the email should be sent to users with a DAILY or WEEKLY subscription.",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2842,172 +3246,174 @@ var spec = {
       }
     }
   },
-  "definitions": {
-    "Version": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "prefix": {
-          "type": "string",
-          "description": "the url prefix where this api can be found"
-        },
-        "version": {
-          "type": "string",
-          "description": "the full version string"
-        },
-        "major": {
-          "type": "integer"
-        },
-        "minor": {
-          "type": "integer"
-        },
-        "patch": {
-          "type": "integer"
-        },
-        "tag": {
-          "type": "string"
-        },
-        "features": {
-          "type": "object",
-          "properties": {
-            "features": {
-              "type": "integer",
-              "description": "string keys and numeric values that indicate features and their revision level. These are only present for -dev versions."
-            }
-          }
-        }
-      },
-      "required": [
-        "id",
-        "prefix",
-        "major"
-      ]
-    },
-    "LegacyObservation": {
-      "type": "object",
-      "properties": {
-        "subject": {
-          "$ref": "#/definitions/Patient"
-        },
-        "label": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        }
-      }
-    },
-    "OntologyTerm": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "key": {
-          "type": "string"
-        },
-        "fullName": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        }
-      }
-    },
-    "JsonStudy": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "ontologyTerm": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "key": {
-              "type": "string"
-            },
-            "fullName": {
-              "type": "string"
-            },
-            "type": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    },
-    "HalStudy": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "_links": {
-          "type": "object",
-          "properties": {
-            "self": {
-              "type": "object",
-              "properties": {
-                "href": {
-                  "type": "string"
-                }
+  "components": {
+    "schemas": {
+      "Version": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string",
+            "description": "the url prefix where this api can be found"
+          },
+          "version": {
+            "type": "string",
+            "description": "the full version string"
+          },
+          "major": {
+            "type": "integer"
+          },
+          "minor": {
+            "type": "integer"
+          },
+          "patch": {
+            "type": "integer"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "features": {
+            "type": "object",
+            "properties": {
+              "features": {
+                "type": "integer",
+                "description": "string keys and numeric values that indicate features and their revision level. These are only present for -dev versions."
               }
             }
           }
         },
-        "_embedded": {
-          "type": "object",
-          "properties": {
-            "ontologyTerm": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "key": {
-                  "type": "string"
-                },
-                "fullName": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string",
-                  "default": "STUDY"
-                },
-                "_links": {
-                  "type": "object",
-                  "properties": {
-                    "self": {
-                      "type": "object",
-                      "properties": {
-                        "href": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "observations": {
-                      "type": "object",
-                      "properties": {
-                        "href": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "children": {
-                      "type": "array",
-                      "items": {
+        "required": [
+          "id",
+          "prefix",
+          "major"
+        ]
+      },
+      "LegacyObservation": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "$ref": "#/components/schemas/Patient"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "OntologyTerm": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "JsonStudy": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ontologyTerm": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "fullName": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "HalStudy": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "_links": {
+            "type": "object",
+            "properties": {
+              "self": {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "_embedded": {
+            "type": "object",
+            "properties": {
+              "ontologyTerm": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "default": "STUDY"
+                  },
+                  "_links": {
+                    "type": "object",
+                    "properties": {
+                      "self": {
                         "type": "object",
                         "properties": {
                           "href": {
                             "type": "string"
-                          },
-                          "title": {
+                          }
+                        }
+                      },
+                      "observations": {
+                        "type": "object",
+                        "properties": {
+                          "href": {
                             "type": "string"
+                          }
+                        }
+                      },
+                      "children": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
                           }
                         }
                       }
@@ -3018,428 +3424,429 @@ var spec = {
             }
           }
         }
-      }
-    },
-    "HalStudies": {
-      "type": "object",
-      "properties": {
-        "_links": {
-          "type": "object",
-          "properties": {
-            "self": {
-              "type": "object",
-              "properties": {
-                "href": {
-                  "type": "string"
+      },
+      "HalStudies": {
+        "type": "object",
+        "properties": {
+          "_links": {
+            "type": "object",
+            "properties": {
+              "self": {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "_embedded": {
+            "type": "object",
+            "properties": {
+              "studies": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/HalStudy"
                 }
               }
             }
           }
-        },
-        "_embedded": {
-          "type": "object",
-          "properties": {
-            "studies": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/HalStudy"
+        }
+      },
+      "StorageSystem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "systemType": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "systemVersion": {
+            "type": "string"
+          },
+          "singleFileCollections": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FileLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "description": "sourceSystem field is an integer ID representing #storage_system from `/v2/storage`",
+            "type": "integer"
+          },
+          "study": {
+            "description": "Short case insensitive String identifying tranSMART study, usually study name, given during ETL, can be retrieved by `/v2/studies`.",
+            "type": "string"
+          },
+          "uuid": {
+            "type": "string"
+          }
+        }
+      },
+      "SupportedWorkflow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "arvadosInstanceUrl": {
+            "type": "string"
+          },
+          "uuid": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "arvadosVersion": {
+            "type": "string"
+          },
+          "defaultParams": {
+            "description": "a map of key value pairs",
+            "type": "object"
+          }
+        }
+      },
+      "TreeNode": {
+        "type": "object",
+        "properties": {
+          "children": {
+            "type": "array",
+            "description": "A list of treeNodes if there are any children. ",
+            "items": {
+              "type": "object"
+            }
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Example: `\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\`"
+          },
+          "name": {
+            "type": "string",
+            "description": "Example: SHARED_CONCEPTS_STUDY_A"
+          },
+          "type": {
+            "description": "Example: STUDY",
+            "type": "string"
+          },
+          "visualAttributes": {
+            "type": "array",
+            "items": {
+              "description": "Example: [FOLDER, ACTIVE, STUDY]",
+              "type": "string"
+            }
+          },
+          "observationCount": {
+            "description": "only available on concept nodes",
+            "type": "integer"
+          },
+          "patientCount": {
+            "description": "only available on concept nodes",
+            "type": "integer"
+          },
+          "constraint": {
+            "description": "only available on concept nodes; not available for HAL.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Example: `concept`",
+                "type": "string"
+              },
+              "conceptCode": {
+                "description": "Example: `age`",
+                "type": "string"
               }
             }
           }
         }
-      }
-    },
-    "StorageSystem": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "name": {
-          "type": "string"
-        },
-        "systemType": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        },
-        "systemVersion": {
-          "type": "string"
-        },
-        "singleFileCollections": {
-          "type": "boolean"
-        }
-      }
-    },
-    "FileLink": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "name": {
-          "type": "string"
-        },
-        "sourceSystem": {
-          "description": "sourceSystem field is an integer ID representing #storage_system from `/v2/storage`",
-          "type": "integer"
-        },
-        "study": {
-          "description": "Short case insensitive String identifying tranSMART study, usually study name, given during ETL, can be retrieved by `/v2/studies`.",
-          "type": "string"
-        },
-        "uuid": {
-          "type": "string"
-        }
-      }
-    },
-    "SupportedWorkflow": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "name": {
-          "type": "string"
-        },
-        "arvadosInstanceUrl": {
-          "type": "string"
-        },
-        "uuid": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "arvadosVersion": {
-          "type": "string"
-        },
-        "defaultParams": {
-          "description": "a map of key value pairs",
-          "type": "object"
-        }
-      }
-    },
-    "TreeNode": {
-      "type": "object",
-      "properties": {
-        "children": {
-          "type": "array",
-          "description": "A list of treeNodes if there are any children. ",
-          "items": {
-            "type": "object"
-          }
-        },
-        "fullName": {
-          "type": "string",
-          "description": "Example: `\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\`"
-        },
-        "name": {
-          "type": "string",
-          "description": "Example: SHARED_CONCEPTS_STUDY_A"
-        },
-        "type": {
-          "description": "Example: STUDY",
-          "type": "string"
-        },
-        "visualAttributes": {
-          "type": "array",
-          "items": {
-            "description": "Example: [FOLDER, ACTIVE, STUDY]",
+      },
+      "Study": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "studyID": {
             "type": "string"
-          }
-        },
-        "observationCount": {
-          "description": "only available on concept nodes",
-          "type": "integer"
-        },
-        "patientCount": {
-          "description": "only available on concept nodes",
-          "type": "integer"
-        },
-        "constraint": {
-          "description": "only available on concept nodes; not available for HAL.",
-          "type": "object",
-          "properties": {
-            "type": {
-              "description": "Example: `concept`",
+          },
+          "bioExperimentId": {
+            "type": "integer"
+          },
+          "dimensions": {
+            "type": "array",
+            "items": {
               "type": "string"
+            }
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/StudyMetadata"
+          }
+        }
+      },
+      "StudyMetadata": {
+        "type": "object",
+        "properties": {
+          "conceptToVariableName": {
+            "description": "a map from concept code to variable name in the study.",
+            "type": "object",
+            "properties": {
+              "<conceptCode>": {
+                "type": "string"
+              }
             },
-            "conceptCode": {
-              "description": "Example: `age`",
+            "additionalProperties": {
               "type": "string"
             }
           }
         }
-      }
-    },
-    "Study": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "studyID": {
-          "type": "string"
-        },
-        "bioExperimentId": {
-          "type": "integer"
-        },
-        "dimensions": {
-          "type": "array",
-          "items": {
+      },
+      "Patient": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "integer"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "deathDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "inTrialId": {
+            "type": "integer"
+          },
+          "maritalStatus": {
+            "type": "string"
+          },
+          "race": {
+            "type": "string"
+          },
+          "religion": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "trial": {
             "type": "string"
           }
-        },
-        "metadata": {
-          "$ref": "#/definitions/StudyMetadata"
         }
-      }
-    },
-    "StudyMetadata": {
-      "type": "object",
-      "properties": {
-        "conceptToVariableName": {
-          "description": "a map from concept code to variable name in the study.",
-          "type": "object",
-          "properties": {
-            "<conceptCode>": {
+      },
+      "PatientSet": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "setSize": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "requestConstraints": {
+            "type": "string"
+          },
+          "apiVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "Concept": {
+        "type": "object",
+        "properties": {
+          "conceptCode": {
+            "type": "string"
+          },
+          "conceptPath": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/VariableMetadata"
+          }
+        }
+      },
+      "VariableMetadata": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "NUMERIC, DATE, STRING",
+            "type": "string"
+          },
+          "measure": {
+            "description": "NOMINAL, ORDINAL, SCALE",
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer"
+          },
+          "decimals": {
+            "type": "integer"
+          },
+          "columns": {
+            "type": "integer"
+          },
+          "valueLabels": {
+            "description": "a map from value (of type integer) to label (of type string)",
+            "type": "object",
+            "properties": {
+              "<value>": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": {
               "type": "string"
             }
           },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "Patient": {
-      "type": "object",
-      "properties": {
-        "age": {
-          "type": "integer"
-        },
-        "birthDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "deathDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "id": {
-          "type": "integer"
-        },
-        "inTrialId": {
-          "type": "integer"
-        },
-        "maritalStatus": {
-          "type": "string"
-        },
-        "race": {
-          "type": "string"
-        },
-        "religion": {
-          "type": "string"
-        },
-        "sex": {
-          "type": "string"
-        },
-        "trial": {
-          "type": "string"
-        }
-      }
-    },
-    "PatientSet": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "errorMessage": {
-          "type": "string"
-        },
-        "id": {
-          "type": "integer"
-        },
-        "setSize": {
-          "type": "integer"
-        },
-        "status": {
-          "type": "string"
-        },
-        "username": {
-          "type": "string"
-        },
-        "requestConstraints": {
-          "type": "string"
-        },
-        "apiVersion": {
-          "type": "string"
-        }
-      }
-    },
-    "Concept": {
-      "type": "object",
-      "properties": {
-        "conceptCode": {
-          "type": "string"
-        },
-        "conceptPath": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "metadata": {
-          "$ref": "#/definitions/VariableMetadata"
-        }
-      }
-    },
-    "VariableMetadata": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "description": "NUMERIC, DATE, STRING",
-          "type": "string"
-        },
-        "measure": {
-          "description": "NOMINAL, ORDINAL, SCALE",
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "width": {
-          "type": "integer"
-        },
-        "decimals": {
-          "type": "integer"
-        },
-        "columns": {
-          "type": "integer"
-        },
-        "valueLabels": {
-          "description": "a map from value (of type integer) to label (of type string)",
-          "type": "object",
-          "properties": {
-            "<value>": {
-              "type": "string"
+          "missingValues": {
+            "type": "array",
+            "items": {
+              "type": "integer"
             }
-          },
-          "additionalProperties": {
-            "type": "string"
           }
-        },
-        "missingValues": {
-          "type": "array",
-          "items": {
+        }
+      },
+      "Counts": {
+        "type": "object",
+        "properties": {
+          "observationCount": {
+            "description": "Number of observations. `-1` when the count is not calculated and `-2` when the patient count is `-2`.",
+            "type": "integer"
+          },
+          "patientCount": {
+            "description": "Number of patients. `-2` when the current user has `COUNTS_WITH_THRESHOLD` patient data access level to a study and the count is below the threshold. See `/v2/patient_counts_threshold` call.",
             "type": "integer"
           }
         }
-      }
-    },
-    "Counts": {
-      "type": "object",
-      "properties": {
-        "observationCount": {
-          "description": "Number of observations. `-1` when the count is not calculated and `-2` when the patient count is `-2`.",
-          "type": "integer"
-        },
-        "patientCount": {
-          "description": "Number of patients. `-2` when the current user has `COUNTS_WITH_THRESHOLD` patient data access level to a study and the count is below the threshold. See `/v2/patient_counts_threshold` call.",
-          "type": "integer"
-        }
-      }
-    },
-    "CountsMap": {
-      "description": "a map from string to Counts.",
-      "properties": {
-        "<key>": {
-          "$ref": "#/definitions/Counts"
-        }
       },
-      "additionalProperties": {
-        "$ref": "#/definitions/Counts"
-      }
-    },
-    "CountsMapMap": {
-      "description": "a map from string to a map from string to Counts.",
-      "properties": {
-        "<key>": {
-          "$ref": "#/definitions/CountsMap"
-        }
-      },
-      "additionalProperties": {
-        "$ref": "#/definitions/CountsMap"
-      }
-    },
-    "DataTable": {
-      "description": "A JSON object that represents the dataset in a tabular form. The actual row data can be found in\n`rows*.cells`, with the headers and other metadata available in other keys.\n",
-      "properties": {
-        "columnHeaders": {
-          "description": "This property describes the top header of the table. The header can contain multiple rows, each row is\nfound in the `keys` or `elements` property of an item. If the `keys` property is set, it contains\nreferences to dimension elements that are further elaborated in the `column_dimensions` property.\n",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "dimension": {
-                "type": "string",
-                "description": "the name of a column dimension"
-              },
-              "keys": {
-                "type": "array",
-                "items": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "number"
-                    }
-                  ]
-                },
-                "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table (unless no column dimensions were specified, in which case this list is empty). The items\ndescribe a dimension element, they refer to keys in the\n`rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
-              },
-              "elements": {
-                "type": "array",
-                "items": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "number"
-                    }
-                  ]
-                },
-                "description": "A list of column headers for one dimension, but in this property the items do not refer to a\nfurther description, the dimension element is just a single string or number. The string may also\nbe a formatted date.\n\nThe size of this list is equal to the number of columns in the table, or empty if no column\ndimensions were specified.\n\nThis property is mutually exclusive with the `keys` property.\n"
-              }
-            },
-            "required": [
-              "dimension"
-            ]
+      "CountsMap": {
+        "description": "a map from string to Counts.",
+        "properties": {
+          "<key>": {
+            "$ref": "#/components/schemas/Counts"
           }
         },
-        "rows": {
-          "description": "This property contains the row data and the left table header. The row data is found in the `row`\nproperty, the left header cells in the `dimensions` property.\n",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "rowHeaders": {
-                "description": "The left header cells for this row. Each cell contains the element or a reference to the element of\none row dimension. There is one item for each row dimension in this list, in order.\n",
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "dimension": {
-                      "type": "string",
-                      "description": "The name of this row dimension"
-                    },
-                    "key": {
-                      "type": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Counts"
+        },
+        "type": "object"
+      },
+      "CountsMapMap": {
+        "description": "a map from string to a map from string to Counts.",
+        "properties": {
+          "<key>": {
+            "$ref": "#/components/schemas/CountsMap"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/CountsMap"
+        },
+        "type": "object"
+      },
+      "DataTable": {
+        "description": "A JSON object that represents the dataset in a tabular form. The actual row data can be found in\n`rows*.cells`, with the headers and other metadata available in other keys.\n",
+        "type": "object",
+        "properties": {
+          "columnHeaders": {
+            "description": "This property describes the top header of the table. The header can contain multiple rows, each row is\nfound in the `keys` or `elements` property of an item. If the `keys` property is set, it contains\nreferences to dimension elements that are further elaborated in the `column_dimensions` property.\n",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "dimension": {
+                  "type": "string",
+                  "description": "the name of a column dimension"
+                },
+                "keys": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "description": "A list of column headers for one dimension. This list has the same size as the number of columns in\nthe table (unless no column dimensions were specified, in which case this list is empty). The items\ndescribe a dimension element, they refer to keys in the\n`rowDimensions*.elements` dictionary for the given dimension. Further properties of this dimension\nelement can be found there.\n\nThis property is mutually exclusive with the `elements` property.\n"
+                },
+                "elements": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "description": "A list of column headers for one dimension, but in this property the items do not refer to a\nfurther description, the dimension element is just a single string or number. The string may also\nbe a formatted date.\n\nThe size of this list is equal to the number of columns in the table, or empty if no column\ndimensions were specified.\n\nThis property is mutually exclusive with the `keys` property.\n"
+                }
+              },
+              "required": [
+                "dimension"
+              ]
+            }
+          },
+          "rows": {
+            "description": "This property contains the row data and the left table header. The row data is found in the `row`\nproperty, the left header cells in the `dimensions` property.\n",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rowHeaders": {
+                  "description": "The left header cells for this row. Each cell contains the element or a reference to the element of\none row dimension. There is one item for each row dimension in this list, in order.\n",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "dimension": {
+                        "type": "string",
+                        "description": "The name of this row dimension"
+                      },
+                      "key": {
                         "oneOf": [
                           {
                             "type": "string"
@@ -3447,12 +3854,10 @@ var spec = {
                           {
                             "type": "number"
                           }
-                        ]
+                        ],
+                        "description": "Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element\nspecified in `rowDimensions*.elements` for the specified dimension.\n\nThis property is mutually exclusive with the `element` property.\n"
                       },
-                      "description": "Analogous to `columnHeaders*.keys`. The value is a reference to a dimension element\nspecified in `rowDimensions*.elements` for the specified dimension.\n\nThis property is mutually exclusive with the `element` property.\n"
-                    },
-                    "element": {
-                      "type": {
+                      "element": {
                         "oneOf": [
                           {
                             "type": "string"
@@ -3460,634 +3865,644 @@ var spec = {
                           {
                             "type": "number"
                           }
-                        ]
-                      },
-                      "description": "Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension\nelement is a single string, number or date. A date is represented as a formatted string.\n\nThis property is mutually exclusive with the `key` property.\n"
+                        ],
+                        "description": "Analogous to `columnHeaders*.elements`. This is a single dimension element if that dimension\nelement is a single string, number or date. A date is represented as a formatted string.\n\nThis property is mutually exclusive with the `key` property.\n"
+                      }
                     }
                   },
                   "required": [
                     "dimension"
                   ]
-                }
-              },
-              "cells": {
-                "type": "array",
-                "items": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "array",
-                      "items": {
-                        "oneOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "number"
-                          }
-                        ]
+                },
+                "cells": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        }
                       }
-                    }
-                  ]
-                },
-                "description": "The row data for a single table row. The items are strings or numbers or dates (represented as a\nformatted string). The length of each row is the same, and is the same as the size of the\n`columnHeaders*.keys` and `columnHeaders*.elements` lists.\n\nThe item can also be an array of strings, numbers or dates. This happens if multiple values fall\ninto the same table cell.\n"
-              }
-            }
-          }
-        },
-        "rowDimensions": {
-          "description": "This property contains a description of the row dimensions. It is a list of objects, with each object\ndescribing one dimension. If the dimension has its elements inlined the description here will only\ncontain the dimension name. If the headers contain keys the full dimension elements can be found in the\n`elements` map. This map is indexed by the key found in the headers. The elements themselves are a\nfree-form maps with the properties depending on the dimension type, but every element has at least a\n`label` property (which is often the same as the key, though not always).\n",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "the dimension name"
-              },
-              "elements": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string"
-                    }
+                    ]
                   },
-                  "additionalProperties": true,
-                  "description": "A dimension element, the available properties depend on the dimension, but 'label' is always\nincluded.\n"
-                },
-                "description": "The dimension elements, indexed by the key used in the header. This property is only present if the\ndimension elements are compound and referenced by keys, simple elements will be inlined in the header.\n"
-              }
-            },
-            "required": [
-              "name"
-            ]
-          }
-        },
-        "columnDimensions": {
-          "description": "The same as `rowDimensions`, but for the column dimensions.\n",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "the dimension name"
-              },
-              "elements": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": true
+                  "description": "The row data for a single table row. The items are strings or numbers or dates (represented as a\nformatted string). The length of each row is the same, and is the same as the size of the\n`columnHeaders*.keys` and `columnHeaders*.elements` lists.\n\nThe item can also be an array of strings, numbers or dates. This happens if multiple values fall\ninto the same table cell.\n"
                 }
               }
-            },
-            "required": [
-              "name"
-            ]
-          }
-        },
-        "sort": {
-          "description": "This property lists the sort order that was used in creating the dataset. This will generally include all\nthe dimensions that were specified as row or column dimensions. This property includes both the row\nand column dimensions, with row dimensions first and column dimensions followed by that.\n",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/SortResponse"
-          }
-        },
-        "offset": {
-          "type": "integer",
-          "description": "the offset of the first returned row in the full dataset"
-        },
-        "rowCount": {
-          "type": "integer",
-          "description": "The total number of rows available. This property is only set if the total is known, which is\ngenerally only the case if the last row is part of this result.\n"
-        }
-      },
-      "required": [
-        "columnHeaders",
-        "rows",
-        "rowDimensions",
-        "sort",
-        "offset"
-      ]
-    },
-    "CrossTable": {
-      "description": "A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains\na list with numbers of subjects for each cell.\n",
-      "type": "object",
-      "properties": {
-        "rows": {
-          "description": "This property contains the row data. Items are cells, each cell is a number of subject, computed as a result\nof an intersection of constraints specified for a row, for a column and for a selected subject set.\n",
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        }
-      },
-      "required": [
-        "rows"
-      ]
-    },
-    "Observation": {
-      "type": "object",
-      "properties": {
-        "conceptCode": {
-          "type": "string"
-        },
-        "encounterNum": {
-          "type": "integer"
-        },
-        "endDate": {
-          "type": "string",
-          "format": "datetime"
-        },
-        "instanceNum": {
-          "type": "integer"
-        },
-        "locationCd": {
-          "type": "string"
-        },
-        "modifierCd": {
-          "type": "string"
-        },
-        "numberValue": {
-          "type": "integer"
-        },
-        "patient": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer"
             }
-          }
-        },
-        "providerId": {
-          "type": "string"
-        },
-        "sourcesystemCd": {
-          "type": "string"
-        },
-        "startDate": {
-          "type": "string",
-          "format": "datetime"
-        },
-        "textValue": {
-          "type": "string"
-        },
-        "trialVisit": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer"
-            }
-          }
-        },
-        "valueFlag": {
-          "type": "string"
-        },
-        "valueType": {
-          "type": "string"
-        }
-      }
-    },
-    "Observations": {
-      "type": "object",
-      "properties": {
-        "header": {
-          "type": "object",
-          "properties": {
-            "dimensionDeclarations": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/DimensionDeclaration"
-              }
-            },
-            "sort": {
+          },
+          "rowDimensions": {
+            "description": "This property contains a description of the row dimensions. It is a list of objects, with each object\ndescribing one dimension. If the dimension has its elements inlined the description here will only\ncontain the dimension name. If the headers contain keys the full dimension elements can be found in the\n`elements` map. This map is indexed by the key found in the headers. The elements themselves are a\nfree-form maps with the properties depending on the dimension type, but every element has at least a\n`label` property (which is often the same as the key, though not always).\n",
+            "type": "array",
+            "items": {
               "type": "object",
               "properties": {
-                "dimensionIndex": {
-                  "type": "number",
-                  "description": "An index into the dimensionDeclarations list, indicating the dimension on which the result is sorted.\n"
-                },
-                "sortOrder": {
+                "name": {
                   "type": "string",
-                  "enum": [
-                    "asc",
-                    "desc"
-                  ],
-                  "description": "'asc' or 'desc', indicating the sort order."
+                  "description": "the dimension name"
                 },
-                "field": {
-                  "type": "number",
-                  "description": "always 0. A non-zero value indicates that a different sorting is used that this version of the api does not know about. This only applies to the protobuf representation, in JSON this property is omitted.\n"
+                "elements": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/DimensionAdditionalElements"
+                  },
+                  "description": "The dimension elements, indexed by the key used in the header. This property is only present if the\ndimension elements are compound and referenced by keys, simple elements will be inlined in the header.\n"
                 }
-              }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "columnDimensions": {
+            "description": "The same as `rowDimensions`, but for the column dimensions.\n",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "the dimension name"
+                },
+                "elements": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/DimensionAdditionalElements"
+                  }
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "sort": {
+            "description": "This property lists the sort order that was used in creating the dataset. This will generally include all\nthe dimensions that were specified as row or column dimensions. This property includes both the row\nand column dimensions, with row dimensions first and column dimensions followed by that.\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SortResponse"
+            }
+          },
+          "offset": {
+            "type": "integer",
+            "description": "the offset of the first returned row in the full dataset"
+          },
+          "rowCount": {
+            "type": "integer",
+            "description": "The total number of rows available. This property is only set if the total is known, which is\ngenerally only the case if the last row is part of this result.\n"
+          }
+        },
+        "required": [
+          "columnHeaders",
+          "rows",
+          "rowDimensions",
+          "sort",
+          "offset"
+        ]
+      },
+      "CrossTable": {
+        "description": "A JSON object that represents the subject counts in a tabular form. List of rows, each of which contains\na list with numbers of subjects for each cell.\n",
+        "type": "object",
+        "properties": {
+          "rows": {
+            "description": "This property contains the row data. Items are cells, each cell is a number of subject, computed as a result\nof an intersection of constraints specified for a row, for a column and for a selected subject set.\n",
+            "type": "array",
+            "items": {
+              "type": "number"
             }
           }
         },
-        "cells": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Cell"
+        "required": [
+          "rows"
+        ]
+      },
+      "Observation": {
+        "type": "object",
+        "properties": {
+          "conceptCode": {
+            "type": "string"
+          },
+          "encounterNum": {
+            "type": "integer"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "instanceNum": {
+            "type": "integer"
+          },
+          "locationCd": {
+            "type": "string"
+          },
+          "modifierCd": {
+            "type": "string"
+          },
+          "numberValue": {
+            "type": "integer"
+          },
+          "patient": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              }
+            }
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "sourcesystemCd": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "textValue": {
+            "type": "string"
+          },
+          "trialVisit": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              }
+            }
+          },
+          "valueFlag": {
+            "type": "string"
+          },
+          "valueType": {
+            "type": "string"
           }
-        },
-        "footer": {
-          "type": "object",
-          "properties": {
-            "dimensions": {
-              "type": "array",
-              "items": {
+        }
+      },
+      "Observations": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "type": "object",
+            "properties": {
+              "dimensionDeclarations": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/definitions/DimensionValue"
+                  "$ref": "#/components/schemas/DimensionDeclaration"
+                }
+              },
+              "sort": {
+                "type": "object",
+                "properties": {
+                  "dimensionIndex": {
+                    "type": "number",
+                    "description": "An index into the dimensionDeclarations list, indicating the dimension on which the result is sorted.\n"
+                  },
+                  "sortOrder": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "description": "'asc' or 'desc', indicating the sort order."
+                  },
+                  "field": {
+                    "type": "number",
+                    "description": "always 0. A non-zero value indicates that a different sorting is used that this version of the api does not know about. This only applies to the protobuf representation, in JSON this property is omitted.\n"
+                  }
+                }
+              }
+            }
+          },
+          "cells": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Cell"
+            }
+          },
+          "footer": {
+            "type": "object",
+            "properties": {
+              "dimensions": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DimensionValue"
+                  }
                 }
               }
             }
           }
         }
-      }
-    },
-    "DimensionDeclaration": {
-      "type": "object",
-      "properties": {
-        "inline": {
-          "description": "If true, this dimension will be inlined in the cell. Only present if true.",
-          "type": "boolean"
-        },
-        "fields": {
-          "description": "Fields is omitted if the dimension consists of one field.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Field"
+      },
+      "DimensionDeclaration": {
+        "type": "object",
+        "properties": {
+          "inline": {
+            "description": "If true, this dimension will be inlined in the cell. Only present if true.",
+            "type": "boolean"
+          },
+          "fields": {
+            "description": "Fields is omitted if the dimension consists of one field.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Field"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "description": "STRING, INTEGER, DATE, OBJECT",
+            "type": "string"
+          }
+        }
+      },
+      "Field": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "description": "STRING, INTEGER, DATE",
+            "type": "string"
+          }
+        }
+      },
+      "Cell": {
+        "type": "object",
+        "description": "numericValue or stringValue, never both.",
+        "properties": {
+          "dimensionIndexes": {
+            "description": "The index in the array is equal to the index of the dimension in the dimensions array in the footer. The number is the index of the dimensionValue in the dimension.",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "inlineDimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DimensionValue"
+            }
+          },
+          "numericValue": {
+            "type": "number"
+          },
+          "stringValue": {
+            "type": "string"
+          }
+        }
+      },
+      "DimensionValue": {
+        "type": "object",
+        "description": "The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header."
+      },
+      "DimensionElements": {
+        "type": "object",
+        "properties": {
+          "apiVersion": {
+            "type": "string"
+          },
+          "elements": {
+            "description": "List of dimension elements with properties specific to a given dimension.",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "DimensionAdditionalElements": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
           }
         },
-        "name": {
-          "type": "string"
-        },
-        "type": {
-          "description": "STRING, INTEGER, DATE, OBJECT",
-          "type": "string"
-        }
-      }
-    },
-    "Field": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "type": {
-          "description": "STRING, INTEGER, DATE",
-          "type": "string"
-        }
-      }
-    },
-    "Cell": {
-      "type": "object",
-      "description": "numericValue or stringValue, never both.",
-      "properties": {
-        "dimensionIndexes": {
-          "description": "The index in the array is equal to the index of the dimension in the dimensions array in the footer. The number is the index of the dimensionValue in the dimension.",
-          "type": "array",
-          "items": {
+        "additionalProperties": true,
+        "description": "A dimension element, the available properties depend on the dimension,\nbut 'label' is always included.\n"
+      },
+      "ExportJob": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "integer"
+          },
+          "jobName": {
+            "type": "string"
+          },
+          "jobStatus": {
+            "type": "string"
+          },
+          "jobStatusTime": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "viewerURL": {
+            "type": "string"
           }
-        },
-        "inlineDimensions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/DimensionValue"
-          }
-        },
-        "numericValue": {
-          "type": "number"
-        },
-        "stringValue": {
-          "type": "string"
         }
-      }
-    },
-    "DimensionValue": {
-      "type": "object",
-      "description": "The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header."
-    },
-    "DimensionElements": {
-      "type": "object",
-      "properties": {
-        "apiVersion": {
-          "type": "string"
-        },
-        "elements": {
-          "description": "List of dimension elements with properties specific to a given dimension.",
-          "type": "array",
-          "items": {
+      },
+      "UserQuery": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "patientsQuery": {
+            "type": "object"
+          },
+          "observationsQuery": {
+            "type": "object"
+          },
+          "apiVersion": {
+            "type": "string"
+          },
+          "bookmarked": {
+            "type": "boolean"
+          },
+          "subscribed": {
+            "type": "boolean"
+          },
+          "subscriptionFreq": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "queryBlob": {
             "type": "object"
           }
         }
-      }
-    },
-    "ExportJob": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "jobName": {
-          "type": "string"
-        },
-        "jobStatus": {
-          "type": "string"
-        },
-        "jobStatusTime": {
-          "type": "string",
-          "format": "datetime"
-        },
-        "userId": {
-          "type": "string"
-        },
-        "viewerURL": {
-          "type": "string"
-        }
-      }
-    },
-    "UserQuery": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "name": {
-          "type": "string"
-        },
-        "patientsQuery": {
-          "type": "object"
-        },
-        "observationsQuery": {
-          "type": "object"
-        },
-        "apiVersion": {
-          "type": "string"
-        },
-        "bookmarked": {
-          "type": "boolean"
-        },
-        "subscribed": {
-          "type": "boolean"
-        },
-        "subscriptionFreq": {
-          "type": "string"
-        },
-        "createDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updateDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "queryBlob": {
-          "type": "object"
-        }
-      }
-    },
-    "UserQuerySet": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "queryId": {
-          "type": "integer"
-        },
-        "queryName": {
-          "type": "string"
-        },
-        "setSize": {
-          "type": "integer"
-        },
-        "setTyp": {
-          "type": "string"
-        },
-        "createDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "objectsAdded": {
-          "type": "array",
-          "items": {
+      },
+      "UserQuerySet": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "integer"
-          }
-        },
-        "objectsRemoved": {
-          "type": "array",
-          "items": {
+          },
+          "queryId": {
             "type": "integer"
+          },
+          "queryName": {
+            "type": "string"
+          },
+          "setSize": {
+            "type": "integer"
+          },
+          "setTyp": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "objectsAdded": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "objectsRemoved": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           }
         }
-      }
-    },
-    "AggregatesMap": {
-      "type": "object",
-      "description": "Map from string to aggregates.",
-      "properties": {
-        "<conceptCode>": {
-          "$ref": "#/definitions/Aggregates"
+      },
+      "AggregatesMap": {
+        "type": "object",
+        "description": "Map from string to aggregates.",
+        "properties": {
+          "<conceptCode>": {
+            "$ref": "#/components/schemas/Aggregates"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Aggregates"
         }
       },
-      "additionalProperties": {
-        "$ref": "#/definitions/Aggregates"
-      }
-    },
-    "Aggregates": {
-      "description": "Object for numerical aggregates or categorical value counts. Only the value of the requested aggregate type will be present.",
-      "type": "object",
-      "properties": {
-        "numericalValueAggregatesPerConcept": {
-          "$ref": "#/definitions/NumericalAggregates"
-        },
-        "categoricalValueAggregatesPerConcept": {
-          "$ref": "#/definitions/CategoricalAggregates"
-        }
-      }
-    },
-    "NumericalAggregatesMap": {
-      "type": "object",
-      "description": "Map from string to numerical aggregates.",
-      "properties": {
-        "<conceptCode>": {
-          "$ref": "#/definitions/NumericalAggregates"
+      "Aggregates": {
+        "description": "Object for numerical aggregates or categorical value counts. Only the value of the requested aggregate type will be present.",
+        "type": "object",
+        "properties": {
+          "numericalValueAggregatesPerConcept": {
+            "$ref": "#/components/schemas/NumericalAggregates"
+          },
+          "categoricalValueAggregatesPerConcept": {
+            "$ref": "#/components/schemas/CategoricalAggregates"
+          }
         }
       },
-      "additionalProperties": {
-        "$ref": "#/definitions/NumericalAggregates"
-      }
-    },
-    "CategoricalAggregatesMap": {
-      "type": "object",
-      "description": "Map from string to categorical aggregates.",
-      "properties": {
-        "<conceptCode>": {
-          "$ref": "#/definitions/CategoricalAggregates"
+      "NumericalAggregatesMap": {
+        "type": "object",
+        "description": "Map from string to numerical aggregates.",
+        "properties": {
+          "<conceptCode>": {
+            "$ref": "#/components/schemas/NumericalAggregates"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/NumericalAggregates"
         }
       },
-      "additionalProperties": {
-        "$ref": "#/definitions/CategoricalAggregates"
-      }
-    },
-    "NumericalAggregates": {
-      "type": "object",
-      "properties": {
-        "min": {
-          "type": "number"
+      "CategoricalAggregatesMap": {
+        "type": "object",
+        "description": "Map from string to categorical aggregates.",
+        "properties": {
+          "<conceptCode>": {
+            "$ref": "#/components/schemas/CategoricalAggregates"
+          }
         },
-        "max": {
-          "type": "number"
-        },
-        "avg": {
-          "type": "number"
-        },
-        "count": {
-          "type": "number"
-        },
-        "stdDev": {
-          "type": "number"
+        "additionalProperties": {
+          "$ref": "#/components/schemas/CategoricalAggregates"
         }
-      }
-    },
-    "CategoricalAggregates": {
-      "type": "object",
-      "properties": {
-        "valueCounts": {
-          "description": "map from value to count",
-          "type": "object",
-          "properties": {
-            "<value>": {
+      },
+      "NumericalAggregates": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "avg": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          },
+          "stdDev": {
+            "type": "number"
+          }
+        }
+      },
+      "CategoricalAggregates": {
+        "type": "object",
+        "properties": {
+          "valueCounts": {
+            "description": "map from value to count",
+            "type": "object",
+            "properties": {
+              "<value>": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": {
               "type": "number"
             }
           },
-          "additionalProperties": {
+          "nullValueCounts": {
+            "description": "count of null values",
             "type": "number"
           }
+        }
+      },
+      "RelationType": {
+        "description": "Relation type",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "symmetrical": {
+            "type": "boolean"
+          },
+          "biological": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SortSpecification": {
+        "description": "Specifies dimension to sort on and the sorting direction.",
+        "type": "object",
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "description": "the name of the dimension to sort on"
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
+          }
         },
-        "nullValueCounts": {
-          "description": "count of null values",
-          "type": "number"
+        "required": [
+          "dimension",
+          "sortOrder"
+        ]
+      },
+      "SortResponse": {
+        "description": "Specifies dimension to sort on and the sorting direction.",
+        "type": "object",
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "description": "the name of the dimension to sort on"
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
+          },
+          "userRequested": {
+            "type": "boolean",
+            "description": "Whether sorting on this dimension was explicitly requested by the client, i.e., set to\ntrue if this dimension was part of the `rowSort` or `columnSort` request parameter.\nThis parameter is optional, the default is `false`.\n"
+          }
+        },
+        "required": [
+          "dimension",
+          "sortOrder"
+        ]
+      },
+      "UpdateStatus": {
+        "description": "Update status",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "CREATED, RUNNING, FAILED, COMPLETED\n"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tasks": {
+            "type": "object",
+            "properties": {
+              "<task>": {
+                "type": "string"
+              }
+            }
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          }
+        }
+      },
+      "RuntimeConfig": {
+        "description": "Configuration of the server that can be managed at runtime.",
+        "type": "object",
+        "properties": {
+          "numberOfWorkers": {
+            "type": "number",
+            "description": "Number of threads used for parallel tasks."
+          },
+          "patientSetChunkSize": {
+            "type": "number",
+            "description": "Chunk size for splitting patient set based tasks into smaller subtasks."
+          }
         }
       }
     },
-    "RelationType": {
-      "description": "Relation type",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "label": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "symmetrical": {
-          "type": "boolean"
-        },
-        "biological": {
-          "type": "boolean"
-        }
-      }
-    },
-    "SortSpecification": {
-      "description": "Specifies dimension to sort on and the sorting direction.",
-      "type": "object",
-      "properties": {
-        "dimension": {
-          "type": "string",
-          "description": "the name of the dimension to sort on"
-        },
-        "sortOrder": {
-          "type": "string",
-          "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
-        }
-      },
-      "required": [
-        "dimension",
-        "sortOrder"
-      ]
-    },
-    "SortResponse": {
-      "description": "Specifies dimension to sort on and the sorting direction.",
-      "type": "object",
-      "properties": {
-        "dimension": {
-          "type": "string",
-          "description": "the name of the dimension to sort on"
-        },
-        "sortOrder": {
-          "type": "string",
-          "description": "'asc' or 'desc', describing if sorting is ascending or descending.\n"
-        },
-        "userRequested": {
-          "type": "boolean",
-          "description": "Whether sorting on this dimension was explicitly requested by the client, i.e., set to\ntrue if this dimension was part of the `rowSort` or `columnSort` request parameter.\nThis parameter is optional, the default is `false`.\n"
-        }
-      },
-      "required": [
-        "dimension",
-        "sortOrder"
-      ]
-    },
-    "UpdateStatus": {
-      "description": "Update status",
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "description": "CREATED, RUNNING, FAILED, COMPLETED\n"
-        },
-        "createDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updateDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "tasks": {
-          "type": "object",
-          "properties": {
-            "<task>": {
+    "requestBodies": {
+      "Constraint": {
+        "content": {
+          "application/json": {
+            "schema": {
               "type": "string"
             }
           }
         },
-        "message": {
-          "type": "string",
-          "description": "Error message"
-        }
-      }
-    },
-    "RuntimeConfig": {
-      "description": "Configuration of the server that can be managed at runtime.",
-      "type": "object",
-      "properties": {
-        "numberOfWorkers": {
-          "type": "number",
-          "description": "Number of threads used for parallel tasks."
-        },
-        "patientSetChunkSize": {
-          "type": "number",
-          "description": "Chunk size for splitting patient set based tasks into smaller subtasks."
-        }
+        "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\",\"studyId\":\"EHR\"}`.",
+        "required": true
       }
     }
   }
