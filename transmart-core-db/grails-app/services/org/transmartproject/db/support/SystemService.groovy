@@ -129,8 +129,6 @@ class SystemService implements SystemResource {
                 clearCaches() } as Runnable,
             'refresh study concept bitset materialized view': { ->
                 aggregateDataOptimisationsService.clearPatientSetBitset() } as Runnable,
-            'clear patient set ids cache': { ->
-                patientSetService.clearPatientSetIdsCache() } as Runnable,
             'user query set scan': { ->
                 userQuerySetResource.scan() } as Runnable,
             'rebuild caches': { ->
@@ -201,7 +199,7 @@ class SystemService implements SystemResource {
     /**
      * Checks if a cache rebuild task is active.
      *
-     * @return true if a cache rebuild task is active.
+     * @return an {@link org.transmartproject.core.config.UpdateStatus} object.
      */
     UpdateStatus getUpdateStatus() {
         synchronized (updateStatusLock) {
@@ -276,6 +274,7 @@ class SystemService implements SystemResource {
      *
      * Asynchronous call. The call returns when rebuilding has started.
      *
+     * @return an {@link org.transmartproject.core.config.UpdateStatus} object.
      * @throws ServiceNotAvailableException iff an update operation is already in progress.
      */
     UpdateStatus rebuildCache() throws ServiceNotAvailableException {

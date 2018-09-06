@@ -59,6 +59,7 @@ class SystemController {
     /**
      * Clears tree node and counts caches and rebuilds the cache:
      * <code>GET /v2/admin/system/rebuild_cache</code>
+     * Returns an {@link org.transmartproject.core.config.UpdateStatus} object.
      *
      * This endpoint should be called after loading, deleting or updating
      * tree nodes in the database.
