@@ -602,9 +602,9 @@ class AggregateDataService extends AbstractDataResourceService {
     Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(
             Constraint constraint, User user) {
         assert constraint instanceof Constraint
-        checkAccess(constraint, user, PatientDataAccessLevel.SUMMARY)
+        checkAccess(constraint, user, PatientDataAccessLevel.COUNTS)
 
-        def builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.SUMMARY)
+        def builder = getCheckedQueryBuilder(user, PatientDataAccessLevel.COUNTS)
         DetachedCriteria criteria = builder.buildCriteria(constraint)
         def projections = Projections.projectionList()
         projections.add(Projections.groupProperty('conceptCode'), 'conceptCode')
