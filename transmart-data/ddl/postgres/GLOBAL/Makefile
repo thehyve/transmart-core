@@ -51,7 +51,7 @@ createdb:
 load_%:
 	$(PSQL_COMMAND) -f $*.sql
 
-load: load_cast_varchar_numeric load_roles load_extensions pg_bitcount_extension tablespaces
+load: load_cast_varchar_numeric load_roles load_extensions tablespaces
 	$(MAKE) load_passwords
 
 load_passwords:
