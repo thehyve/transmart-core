@@ -1,5 +1,6 @@
 package org.transmartproject.db.clinical
 
+import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
 import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.ontology.MDStudiesResource
@@ -264,6 +265,61 @@ class AggregateDataResourceImplServiceSpec extends Specification {
 
         expect:
         testee.getDimensionElementsCount(DimensionImpl.CONCEPT, constraintMock, userMock) == 50L
+    }
+
+    def 'categorical aggregates do not give exact counts when threshold is on and user has a count with threshold permission'() {
+        testee.patientCountThreshold = 10
+        def categoricalValueAggregates = [
+                cat1: new CategoricalValueAggregates(valueCounts: [val11: 5, val12: 10], nullValueCounts: 5),
+                cat2: new CategoricalValueAggregates(valueCounts: [val21: 10, val22: 5], nullValueCounts: 10),
+        ]
+        aggregateDataServiceMock.categoricalValueAggregatesPerConcept(constraintMock, {
+            it.username == userMock.username
+        }) >> categoricalValueAggregates
+        mdStudiesResourceMock.getStudiesWithPatientDataAccessLevel(userMock, COUNTS_WITH_THRESHOLD) >> [study1Mock]
+
+        when:
+        Map<String, CategoricalValueAggregates> result = testee.categoricalValueAggregatesPerConcept(constraintMock, userMock)
+
+        then:
+        result.cat1
+        result.cat1.valueCounts == [val11: -2, val12: -2]
+        result.cat1.nullValueCounts == -2
+        result.cat2
+        result.cat2.valueCounts == [val21: -2, val22: -2]
+        result.cat2.nullValueCounts == -2
+    }
+
+    def 'categorical aggregates give exact counts when threshold is off and user has a count with threshold permission'() {
+        testee.patientCountThreshold = 0
+        def categoricalValueAggregates = [
+                cat1: new CategoricalValueAggregates(valueCounts: [val11: 5, val12: 10], nullValueCounts: 5),
+        ]
+        aggregateDataServiceMock.categoricalValueAggregatesPerConcept(constraintMock, {
+            it.username == userMock.username
+        }) >> categoricalValueAggregates
+        mdStudiesResourceMock.getStudiesWithPatientDataAccessLevel(userMock, COUNTS_WITH_THRESHOLD) >> [study1Mock]
+
+        when:
+        Map<String, CategoricalValueAggregates> result = testee.categoricalValueAggregatesPerConcept(constraintMock, userMock)
+
+        then:
+        result == categoricalValueAggregates
+    }
+
+    def 'categorical aggregates give exact counts when threshold is on and user does not have a count with threshold permission'() {
+        testee.patientCountThreshold = 10
+        def categoricalValueAggregates = [
+                cat1: new CategoricalValueAggregates(valueCounts: [val11: 5, val12: 10], nullValueCounts: 5),
+        ]
+        aggregateDataServiceMock.categoricalValueAggregatesPerConcept(constraintMock, userMock) >> categoricalValueAggregates
+        mdStudiesResourceMock.getStudiesWithPatientDataAccessLevel(userMock, COUNTS_WITH_THRESHOLD) >> []
+
+        when:
+        Map<String, CategoricalValueAggregates> result = testee.categoricalValueAggregatesPerConcept(constraintMock, userMock)
+
+        then:
+        result == categoricalValueAggregates
     }
 
 }

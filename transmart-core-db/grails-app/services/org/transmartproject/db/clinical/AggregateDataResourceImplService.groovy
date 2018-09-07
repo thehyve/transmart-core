@@ -10,17 +10,18 @@ import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggreg
 import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
 import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.hypercube.Dimension
-import org.transmartproject.core.multidimquery.query.*
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.User
 
+import java.util.function.Function
 import java.util.stream.Collectors
 
+import static org.transmartproject.core.multidimquery.query.CommonConstraints.getConstraintLimitedToStudyPatients
 import static org.transmartproject.core.users.AuthorisationHelper.copyUserWithChangedPatientDataAccessLevel
 import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS
 import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS_WITH_THRESHOLD
-import static org.transmartproject.core.multidimquery.query.CommonConstraints.getConstraintLimitedToStudyPatients
 
 /**
  * Service to obfuscate patient counts data.
@@ -164,7 +165,28 @@ class AggregateDataResourceImplService implements AggregateDataResource {
 
     @Override
     Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(Constraint constraint, User user) {
-        aggregateDataService.categoricalValueAggregatesPerConcept(constraint, user)
+        List<MDStudy> ctStudies = mdStudiesResource.getStudiesWithPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD)
+        if (!ctStudies) {
+            return aggregateDataService.categoricalValueAggregatesPerConcept(constraint, user)
+        }
+        User exactCountsAccessUserCopy = copyUserWithChangedPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD, COUNTS)
+        Map<String, CategoricalValueAggregates> originalResult = aggregateDataService.categoricalValueAggregatesPerConcept(constraint, exactCountsAccessUserCopy)
+        if (patientCountThreshold < 1) {
+            return originalResult
+        }
+        return originalResult.entrySet().stream().collect(Collectors.toMap(
+                { Map.Entry<String, CategoricalValueAggregates> entry -> entry.key } as Function<Map.Entry, String>,
+                { Map.Entry<String, CategoricalValueAggregates> entry ->
+                    Map<String, Integer> valuesWithBelowThresholdCounts = copyWithCountsBelwoThreshold(entry.value.valueCounts)
+                    new CategoricalValueAggregates(valueCounts: valuesWithBelowThresholdCounts, nullValueCounts: (Integer) Counts.BELOW_THRESHOLD)
+                } as Function<Map.Entry, CategoricalValueAggregates>
+        ))
+    }
+
+    protected static Map<String, Integer> copyWithCountsBelwoThreshold(Map<String, Integer> valueCounts) {
+        return valueCounts.entrySet().stream().collect(Collectors.toMap(
+                { Map.Entry<String, Integer> entry -> entry.key } as Function<Map.Entry, String>,
+                { _ -> (Integer) Counts.BELOW_THRESHOLD } as Function<Map.Entry, Integer>))
     }
 
     protected boolean isBelowThreshold(Counts counts) {
