@@ -62,7 +62,7 @@ class ExportService {
 
             if (element.dataType == 'clinical') {
                 try {
-                    if (jobDataMap.tableConfig) {
+                    if (jobDataMap.dataView == 'dataTable') {
                         TableConfig tableConfig = jobDataMap.tableConfig
                         dataSerializer.writeTable(element.format, constraint, tableConfig, user, output)
                     } else {

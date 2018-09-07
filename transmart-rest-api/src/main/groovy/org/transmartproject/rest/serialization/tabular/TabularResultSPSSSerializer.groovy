@@ -193,7 +193,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         if (columnsWithMissingValues) {
             buffer << 'MISSING VALUES\n'
             buffer << columnsWithMissingValues.collect { column ->
-                "${toSpssLabel(column.label)} ${missingValueExpression(column.metadata.missingValues)}"
+                "${toSpssLabel(column.label)} ${missingValueExpression(column.metadata.type, column.metadata.missingValues)}"
             }.join('\n/')
             buffer << '\n.\n'
         }
@@ -224,13 +224,20 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         outputStream << buffer
     }
 
-    private static String missingValueExpression(MissingValues missingValues) {
+    private static String missingValueExpression(VariableDataType type, MissingValues missingValues) {
         List<String> parts = []
         if (missingValues.lower || missingValues.upper) {
             parts.add((missingValues.lower as String ?: 'LOWEST') + ' THRU ' + (missingValues.upper as String ?: 'HIGHEST'))
         }
         if (missingValues.values) {
-            parts.add(missingValues.values.join(', '))
+            def valuesText = missingValues.values.collect({ value ->
+                if (type == VariableDataType.STRING) {
+                    quote(value as String)
+                } else {
+                    value as String
+                }
+            }).join(', ')
+            parts.add(valuesText)
         }
         "(${parts.join(', ')})"
     }

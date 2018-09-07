@@ -65,7 +65,8 @@
           ""type"": ""String"",
           ""width"": 200,
           ""columns"": 210,
-          ""measure"": ""Nominal""
+          ""measure"": ""Nominal"",
+          ""missingValues"": {""values"": [""-1""] }
       }
    }
 }"

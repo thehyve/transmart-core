@@ -239,7 +239,15 @@ class TabularResultSPSSSerializerSpec extends Specification {
                         lower: new BigDecimal(100),
                 )
         )
-        table.indicesList >> [column1, column2, column3, column4]
+        def column5 = Mock(MetadataAwareDataColumn)
+        column5.label >> 'column5'
+        column5.metadata >> new VariableMetadata(
+                type: VariableDataType.STRING,
+                missingValues: new MissingValues(
+                        values: ['-1'],
+                )
+        )
+        table.indicesList >> [column1, column2, column3, column4, column5]
 
         when:
         def out = new ByteArrayOutputStream()
@@ -250,11 +258,12 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def missingValuesCommand = commands.find { it.startsWith('MISSING VALUES') }
         missingValuesCommand
         def missingValuesDeclarations = (missingValuesCommand - 'MISSING VALUES ').split('/')*.trim()
-        missingValuesDeclarations.size() == 4
+        missingValuesDeclarations.size() == 5
         'column1 (-10 THRU -1, -12.5)' in missingValuesDeclarations
         'column2 (-100, -200, -300)' in missingValuesDeclarations
         'column3 (LOWEST THRU -1)' in missingValuesDeclarations
         'column4 (100 THRU HIGHEST)' in missingValuesDeclarations
+        'column5 (\'-1\')' in missingValuesDeclarations
     }
 
     static List<String> parseSpsCommands(ByteArrayOutputStream out) {
