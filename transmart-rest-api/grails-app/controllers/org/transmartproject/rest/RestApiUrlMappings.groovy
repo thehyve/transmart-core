@@ -65,8 +65,19 @@ class RestApiUrlMappings {
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
+            /**
+             * @deprecated use aggregates_per_numerical_concept and aggregates_per_categorical_concept instead
+             */
             "/observations/aggregates_per_concept"(controller: 'query') {
                 action = [GET: 'aggregatesPerConcept', POST: 'aggregatesPerConcept']
+                apiVersion = 'v2'
+            }
+            "/observations/aggregates_per_numerical_concept"(controller: 'query') {
+                action = [POST: 'aggregatesPerNumericalConcept']
+                apiVersion = 'v2'
+            }
+            "/observations/aggregates_per_categorical_concept"(controller: 'query') {
+                action = [POST: 'aggregatesPerCategoricalConcept']
                 apiVersion = 'v2'
             }
             "/observations/counts"(controller: 'query') {

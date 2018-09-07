@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.multidimquery.ConstraintHolder
 import org.transmartproject.core.multidimquery.aggregates.Aggregates
+import org.transmartproject.core.multidimquery.aggregates.AggregatesPerCategoricalConcept
+import org.transmartproject.core.multidimquery.aggregates.AggregatesPerNumericalConcept
 import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.counts.CountsPerConcept
 import org.transmartproject.core.multidimquery.counts.CountsPerStudy
@@ -170,7 +172,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         s1sS2sUser | ['numerical_concept2': 3, 'categorical_concept1': [value1: 2, value2: 2, value3: 1, value4: 1]]
         s1mUser    | ['numerical_concept2': 2, 'categorical_concept1': [value1: 2, value2: 2, value3: 1]]
         s2sUser    | ['numerical_concept2': 1, 'categorical_concept1': [value1: 1, value4: 1]]
-        s1ctUser   | ['categorical_concept1': [value1: 1]]
+        s1ctUser   | ['categorical_concept1': [value1: 2, value2: 2, value3: 1]]
         publicUser | ['categorical_concept1': [value1: 1]]
     }
 
@@ -403,6 +405,44 @@ class AccessPolicySpec extends V2ResourceSpec {
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
+    }
+
+    @Unroll
+    void 'test observation aggregates forbidden access (POST .../observations/aggregates_per_numerical_concept) for #user.username when constraint explicitly refers to the protected resource.'() {
+
+        given:
+        selectUser(user)
+        def body = new ConstraintHolder(study1Constraint)
+
+        when:
+        def response = post("${contextPath}/observations/aggregates_per_numerical_concept", body)
+
+        then:
+        checkResponseStatus(response, FORBIDDEN, user)
+        def error = toObject(response, Map)
+        error.message.startsWith('Access denied to study or study does not exist')
+
+        where:
+        user << [s1ctUser, s2sUser, publicUser]
+    }
+
+    @Unroll
+    void 'test observation aggregates forbidden access (POST .../observations/aggregates_per_categorical_concept) for #user.username when constraint explicitly refers to the protected resource.'() {
+
+        given:
+        selectUser(user)
+        def body = new ConstraintHolder(study1Constraint)
+
+        when:
+        def response = post("${contextPath}/observations/aggregates_per_categorical_concept", body)
+
+        then:
+        checkResponseStatus(response, FORBIDDEN, user)
+        def error = toObject(response, Map)
+        error.message.startsWith('Access denied to study or study does not exist')
+
+        where:
+        user << [s2sUser, publicUser]
     }
 
     @Unroll
@@ -674,6 +714,73 @@ class AccessPolicySpec extends V2ResourceSpec {
         2         | COUNTS_WITH_THRESHOLD | 2         | 4         | -2        | -2        | COUNTS_WITH_THRESHOLD | -2        | -2        | -2        | -2
         2         | COUNTS_WITH_THRESHOLD | 2         | 4         | -2        | -2        | SUMMARY               | 1         | 1         | 1         | 1
         3         | COUNTS_WITH_THRESHOLD | -2        | -2        | -2        | -2        | COUNTS_WITH_THRESHOLD | -2        | -2        | -2        | -2
+    }
+
+    @Unroll
+    void 'test aggregates per categorical concept with threshold (POST .../observations/aggregates_per_categorical_concept) for user with st1AccLvl=#study1AccessLevel and threshold=#threshold.'() {
+        given:
+        def url = "${contextPath}/observations/aggregates_per_categorical_concept"
+        def user = new MockUser('test-user', [study1: study1AccessLevel])
+        selectUser(user)
+        aggregateDataResourceImplService.patientCountThreshold = threshold
+        def body = new ConstraintHolder(trueConstraint)
+
+        when:
+        def response = post(url, body)
+
+        then:
+        checkResponseStatus(response, OK, user)
+        AggregatesPerCategoricalConcept aggregates = toObject(response, AggregatesPerCategoricalConcept)
+        aggregates
+        aggregates.aggregatesPerCategoricalConcept
+        aggregates.aggregatesPerCategoricalConcept.size() == 1
+        aggregates.aggregatesPerCategoricalConcept.categorical_concept1
+        aggregates.aggregatesPerCategoricalConcept.categorical_concept1.nullValueCounts == nullValueCounts
+        aggregates.aggregatesPerCategoricalConcept.categorical_concept1.valueCounts == valueCounts
+
+        where:
+        threshold | study1AccessLevel     | nullValueCounts | valueCounts
+        1         | COUNTS_WITH_THRESHOLD | -2              | [value1: -2, value2: -2, value3: -2]
+        0         | COUNTS_WITH_THRESHOLD | 0               | [value1: 2, value2: 2, value3: 1]
+        1         | COUNTS                | 0               | [value1: 2, value2: 2, value3: 1]
+    }
+
+    void 'test aggregates per numerical concept (POST .../observations/aggregates_per_numerical_concept) for counts with threshold user.'() {
+        given:
+        def url = "${contextPath}/observations/aggregates_per_numerical_concept"
+        def user = new MockUser('test-user', [study1: COUNTS_WITH_THRESHOLD])
+        selectUser(user)
+        def body = new ConstraintHolder(trueConstraint)
+
+        when:
+        def response = post(url, body)
+
+        then:
+        checkResponseStatus(response, OK, user)
+        AggregatesPerNumericalConcept aggregates = toObject(response, AggregatesPerNumericalConcept)
+        aggregates
+        aggregates.aggregatesPerNumericalConcept.isEmpty()
+    }
+
+    void 'test aggregates per numerical concept (POST .../observations/aggregates_per_numerical_concept) for summary user.'() {
+        given:
+        def url = "${contextPath}/observations/aggregates_per_numerical_concept"
+        def user = new MockUser('test-user', [study1: SUMMARY])
+        selectUser(user)
+        def body = new ConstraintHolder(trueConstraint)
+
+        when:
+        def response = post(url, body)
+
+        then:
+        checkResponseStatus(response, OK, user)
+        AggregatesPerNumericalConcept aggregates = toObject(response, AggregatesPerNumericalConcept)
+        aggregates
+        aggregates.aggregatesPerNumericalConcept
+        aggregates.aggregatesPerNumericalConcept.size() == 1
+        aggregates.aggregatesPerNumericalConcept.numerical_concept2
+        aggregates.aggregatesPerNumericalConcept.numerical_concept2.min == 100D
+        aggregates.aggregatesPerNumericalConcept.numerical_concept2.max == 200D
     }
 
     /**

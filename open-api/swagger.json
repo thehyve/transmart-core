@@ -780,7 +780,7 @@
     },
     "/v2/observations/aggregates_per_concept": {
       "get": {
-        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical. Deprecated. Use POST instead.\n",
+        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical. Deprecated. Use `aggregates_per_numerical_concept` or `aggregates_per_categorical_concept` calls instead.\n",
         "deprecated": true,
         "tags": [
           "v2"
@@ -809,7 +809,8 @@
         }
       },
       "post": {
-        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical.\n",
+        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical. Deprecated. Use `aggregates_per_numerical_concept` or `aggregates_per_categorical_concept` calls instead.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -840,6 +841,66 @@
               "properties": {
                 "aggregatesPerConcept": {
                   "$ref": "#/definitions/AggregatesMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/aggregates_per_numerical_concept": {
+      "post": {
+        "description": "Calculates and returns an aggregates numerical concepts.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"EHR:VSIGN:HR\"}`.'\n",
+            "type": "object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns numerical aggregates per concept.\nExample: `{\"aggregatesPerNumericalConcept\":{\"EHR:VSIGN:HR\": {\"min\":56,\"max\":102,\"count\":9,\"avg\":74.78,\"stdDev\":14.7}}}`.'\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "aggregatesPerNumericalConcept": {
+                  "$ref": "#/definitions/NumericalAggregatesMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/aggregates_per_categorical_concept": {
+      "post": {
+        "description": "Calculates and returns an aggregates categorical concepts.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "Constraint specification. Example: `{\"type\":\"concept\",\"conceptCode\":\"DEM:SEX\"}`.'\n",
+            "type": "object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns categorical aggregates per concept.\nExample: `{\"aggregatesPerCategoricalConcept\":{\"DEM:SEX\": {\"valueCounts\": {\"F\": 45, \"M\": 42}, \"nullValueCounts\": 0}}}`.'\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "aggregatesPerCategoricalConcept": {
+                  "$ref": "#/definitions/CategoricalAggregatesMap"
                 }
               }
             }
@@ -3852,45 +3913,75 @@
       "type": "object",
       "properties": {
         "numericalValueAggregatesPerConcept": {
-          "type": "object",
-          "properties": {
-            "min": {
-              "type": "number"
-            },
-            "max": {
-              "type": "number"
-            },
-            "avg": {
-              "type": "number"
-            },
-            "count": {
-              "type": "number"
-            },
-            "stdDev": {
-              "type": "number"
-            }
-          }
+          "$ref": "#/definitions/NumericalAggregates"
         },
         "categoricalValueAggregatesPerConcept": {
+          "$ref": "#/definitions/CategoricalAggregates"
+        }
+      }
+    },
+    "NumericalAggregatesMap": {
+      "type": "object",
+      "description": "Map from string to numerical aggregates.",
+      "properties": {
+        "<conceptCode>": {
+          "$ref": "#/definitions/NumericalAggregates"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/NumericalAggregates"
+      }
+    },
+    "CategoricalAggregatesMap": {
+      "type": "object",
+      "description": "Map from string to categorical aggregates.",
+      "properties": {
+        "<conceptCode>": {
+          "$ref": "#/definitions/CategoricalAggregates"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/CategoricalAggregates"
+      }
+    },
+    "NumericalAggregates": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "avg": {
+          "type": "number"
+        },
+        "count": {
+          "type": "number"
+        },
+        "stdDev": {
+          "type": "number"
+        }
+      }
+    },
+    "CategoricalAggregates": {
+      "type": "object",
+      "properties": {
+        "valueCounts": {
+          "description": "map from value to count",
           "type": "object",
           "properties": {
-            "valueCounts": {
-              "description": "map from value to count",
-              "type": "object",
-              "properties": {
-                "<value>": {
-                  "type": "number"
-                }
-              },
-              "additionalProperties": {
-                "type": "number"
-              }
-            },
-            "nullValueCounts": {
-              "description": "count of null values",
+            "<value>": {
               "type": "number"
             }
+          },
+          "additionalProperties": {
+            "type": "number"
           }
+        },
+        "nullValueCounts": {
+          "description": "count of null values",
+          "type": "number"
         }
       }
     },
