@@ -62,7 +62,7 @@ class VersionController {
                 version: '1.1'
             ],[
                 id: 'v2',
-                version: '2.3',
+                version: '2.4',
                 features: [
                         'versioning',
                         'and-or-constraints',
@@ -74,6 +74,7 @@ class VersionController {
                         'query-subscription',
                         'crosstable',
                         'after_data_loading_update',
+                        'aggregates_per_numerical_and_categorical_concept',
                 ]
             ]
     ])

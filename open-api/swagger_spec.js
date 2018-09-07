@@ -1,7 +1,7 @@
 var spec = {
   "swagger": "2.0",
   "info": {
-    "version": 2.3,
+    "version": 2.4,
     "title": "Transmart",
     "license": {
       "name": "Apache 2.0",
@@ -2728,10 +2728,13 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "description": "Clearing and rebuilding the cache has been started.\n"
+            "schema": {
+              "$ref": "#/definitions/UpdateStatus"
+            },
+            "description": "A status report about the started cache rebuild task.\n"
           },
           "503": {
-            "description": "A rebuild operation is already in progress.\n"
+            "description": "An update operation is already in progress.\n"
           }
         }
       }
@@ -2749,6 +2752,9 @@ var spec = {
               "$ref": "#/definitions/UpdateStatus"
             },
             "description": "A status report about the started update task.\n"
+          },
+          "503": {
+            "description": "An update operation is already in progress.\n"
           }
         }
       }
