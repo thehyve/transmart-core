@@ -3145,7 +3145,14 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "description": "A status report about the started update task.\n"
+            "description": "A status report about the started update task.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
           },
           "503": {
             "description": "An update operation is already in progress.\n"
@@ -3198,7 +3205,7 @@ var spec = {
         }
       },
       "put": {
-        "description": "This endpoint updates some configuration options at runtime.\nOnly for administrators.\n",
+        "description": "This endpoint updates some configuration options at runtime.\nThe number of workers is not updated at runtime.\nOnly for administrators.\n",
         "tags": [
           "v2",
           "admin"
