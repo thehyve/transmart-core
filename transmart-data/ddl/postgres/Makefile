@@ -87,12 +87,15 @@ LOAD_TARGETS = $(foreach schema, $(SCHEMAS), load_$(schema))
 load_global:
 	test -n "$$skip_ddl_global" || $(MAKE) -C GLOBAL load
 
+pg_bitcount_extension:
+	$(MAKE) -C GLOBAL pg_bitcount_extension
+
 load_cross: $(wildcard */_cross.sql)
 	#before executing _cross.sql, execute SET statements from prelude
 	$(foreach cf,$?, { grep SET $(patsubst %/_cross.sql,%/prelude.sql,$(cf)); \
 		cat $(cf); } | $(PSQL_COMMAND);)
 
-$(LOAD_TARGETS): load_global
+$(LOAD_TARGETS): load_global pg_bitcount_extension
 
 #dependency just to get an error when nothing's available
 load_%: %/_load_all.sql

@@ -282,3 +282,5 @@ CREATE VIEW biomart_user.folder_study_mapping AS
 \i biomart_user/materialized_views/study_concept_bitset.sql
 \i biomart_user/views/patient_set_bitset.sql
 \i biomart_user/views/study_concept_patient_set_bitset.sql
+\i biomart_user/views/concept_patient_set_bitset.sql
+\i biomart_user/views/study_patient_set_bitset.sql
