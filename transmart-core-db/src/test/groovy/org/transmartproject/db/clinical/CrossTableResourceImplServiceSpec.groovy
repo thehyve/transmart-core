@@ -35,20 +35,20 @@ class CrossTableResourceImplServiceSpec extends Specification {
             it.username == userMock.username
         }) >>> [
                 new CrossTable([
-                        [0, 10, 5],
-                        [20, 9, 1],
+                        [0, 10, 5, 0],
+                        [20, 9, 1, 0],
                 ]),
                 new CrossTable([
-                        [1, 1, 1],
-                        [0, 0, 0],
+                        [1, 1, 1, 0],
+                        [0, 0, 0, 0],
                 ])
         ]
         mdStudiesResourceMock.getStudiesWithPatientDataAccessLevel(userMock, COUNTS_WITH_THRESHOLD) >> [study1Mock]
 
         expect:
         testee.retrieveCrossTable(rowConstraints, columnConstraints, constraintMock, userMock) == new CrossTable([
-                [-2, 10, -2],
-                [20, 9, 1],
+                [-2, 10, -2, -2],
+                [20, 9, 1, -2],
         ])
     }
 

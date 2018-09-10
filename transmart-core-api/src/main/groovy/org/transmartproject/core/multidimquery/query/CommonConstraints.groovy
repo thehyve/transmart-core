@@ -1,5 +1,7 @@
 package org.transmartproject.core.multidimquery.query
 
+import org.transmartproject.core.ontology.MDStudy
+
 import java.util.stream.Collectors
 
 /**
@@ -9,16 +11,17 @@ class CommonConstraints {
 
     /**
      * Applies constraint to patients only observed under list of studies
-     * @param constraint contraint to apply
-     * @param studyNames limit to patients observed in following studies
-     * @return composit constraint
+     * @param constraint constraint to apply
+     * @param studies limit to patients observed in following studies
+     * @return composite constraint
      */
-    static Constraint getConstraintLimitedToStudyPatients(Constraint constraint, Set<String> studyNames) {
-        List<Constraint> cTSTudyNameConstraints = studyNames.stream()
-                .map({ String studyName -> new StudyNameConstraint(studyName) }).collect(Collectors.toList())
-        SubSelectionConstraint patientsFromSTudiesConstraint = new SubSelectionConstraint(
+    static Constraint getConstraintLimitedToStudyPatients(Constraint constraint, Collection<MDStudy> studies) {
+        List<Constraint> cTStudyNameConstraints = studies.stream()
+                .map({ MDStudy study -> new StudyNameConstraint(study.name) }).collect(Collectors.toList())
+        SubSelectionConstraint patientsFromStudiesConstraint = new SubSelectionConstraint(
                 dimension: 'patient',
-                constraint: new OrConstraint(cTSTudyNameConstraints))
-        return new AndConstraint([constraint, patientsFromSTudiesConstraint])
+                constraint: new OrConstraint(cTStudyNameConstraints))
+        return new AndConstraint([constraint, patientsFromStudiesConstraint])
     }
+
 }
