@@ -13,8 +13,6 @@ import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.User
 
-import java.util.stream.Collectors
-
 import static org.transmartproject.core.multidimquery.query.CommonConstraints.getConstraintLimitedToStudyPatients
 import static org.transmartproject.core.users.AuthorisationHelper.copyUserWithChangedPatientDataAccessLevel
 import static org.transmartproject.core.users.PatientDataAccessLevel.COUNTS
@@ -48,8 +46,8 @@ class CrossTableResourceImpService implements CrossTableResource {
         if (isAnyBelowThreshold(crossTable)) {
             List<MDStudy> ctStudies = mdStudiesResource.getStudiesWithPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD)
             if (ctStudies) {
-                Set<String> cTStudyNames = ctStudies.stream().map({ it.name }).collect(Collectors.toSet())
-                Constraint subjectConstraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(subjectConstraint, cTStudyNames)
+                Constraint subjectConstraintLimitedToCTStudyPatients =
+                        getConstraintLimitedToStudyPatients(subjectConstraint, ctStudies)
                 CrossTable cTCrossTable = crossTableService.retrieveCrossTable(rowConstraints, columnConstraints,
                         subjectConstraintLimitedToCTStudyPatients, exactCountsAccessUserCopy)
                 List<List<Long>> originalPatientCountRows = crossTable.rows
@@ -61,7 +59,9 @@ class CrossTableResourceImpService implements CrossTableResource {
                     List<Long> resultPatientCountRow = new ArrayList<>(originalPatientCountRow.size())
                     for (int colIndx = 0; colIndx < originalPatientCountRow.size(); colIndx++) {
                         Long originalPatientCount = originalPatientCountRow.get(colIndx)
-                        if (originalPatientCount < patientCountThreshold && ctPatientCountRow.get(colIndx) > 0) {
+                        if (originalPatientCount == 0) {
+                            resultPatientCountRow.add(Counts.BELOW_THRESHOLD)
+                        } else if (originalPatientCount < patientCountThreshold && ctPatientCountRow.get(colIndx) > 0) {
                             resultPatientCountRow.add(Counts.BELOW_THRESHOLD)
                         } else {
                             resultPatientCountRow.add(originalPatientCount)

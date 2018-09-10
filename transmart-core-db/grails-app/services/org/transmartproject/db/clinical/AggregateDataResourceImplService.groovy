@@ -53,13 +53,10 @@ class AggregateDataResourceImplService implements AggregateDataResource {
                 if (counts.patientCount == 0) {
                     return BELOW_THRESHOLD_COUNTS
                 }
-                Set<String> cTStudyNames = ctStudies.stream().map({ it.name }).collect(Collectors.toSet())
-                if (cTStudyNames) {
-                    Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, cTStudyNames)
-                    Counts cTCounts = aggregateDataService.counts(constraintLimitedToCTStudyPatients, exactCountsAccessUserCopy)
-                    if (cTCounts && cTCounts.patientCount > 0) {
-                        return BELOW_THRESHOLD_COUNTS
-                    }
+                Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, ctStudies)
+                Counts cTCounts = aggregateDataService.counts(constraintLimitedToCTStudyPatients, exactCountsAccessUserCopy)
+                if (cTCounts && cTCounts.patientCount > 0) {
+                    return BELOW_THRESHOLD_COUNTS
                 }
             }
         }
@@ -74,8 +71,7 @@ class AggregateDataResourceImplService implements AggregateDataResource {
         if (isAnyBelowThreshold(counts)) {
             List<MDStudy> ctStudies = mdStudiesResource.getStudiesWithPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD)
             if (ctStudies) {
-                Set<String> cTStudyNames = ctStudies.stream().map({ it.name }).collect(Collectors.toSet())
-                Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, cTStudyNames)
+                Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, ctStudies)
                 Map<String, Counts> cTCounts = aggregateDataService
                         .countsPerConcept(constraintLimitedToCTStudyPatients, exactCountsAccessUserCopy)
                 Map<String, Counts> repackedCounts = new LinkedHashMap<>(counts.size())
