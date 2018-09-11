@@ -21,10 +21,6 @@ class RuntimeConfigImpl implements RuntimeConfig {
         return numberOfWorkers.intValue()
     }
 
-    void setNumberOfWorkers(int numberOfWorkers) {
-        this.numberOfWorkers.set(numberOfWorkers)
-    }
-
     Integer getPatientSetChunkSize() {
         return patientSetChunkSize.intValue()
     }
