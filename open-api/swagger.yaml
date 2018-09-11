@@ -13,8 +13,7 @@ info:
 
     # OAuth2
 
-    All calls need an Authorization header.
-    https://wiki.transmartfoundation.org/display/transmartwiki/RESTful+API
+    All calls need an [Authorization header](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+REST+API).
 
     ```
 
@@ -1575,8 +1574,12 @@ paths:
                 - limit
               description: Data table parameters
       responses:
-        200:
-          $ref: '#/components/schemas/DataTable'
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DataTable'
 
   /v2/observations/crosstable:
     post:
@@ -2891,6 +2894,7 @@ paths:
     put:
       description: |
         This endpoint updates some configuration options at runtime.
+        The number of workers is not updated at runtime.
         Only for administrators.
       tags:
         - v2
