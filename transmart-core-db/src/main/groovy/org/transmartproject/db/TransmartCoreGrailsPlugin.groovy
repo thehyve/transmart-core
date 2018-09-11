@@ -104,6 +104,8 @@ A runtime dependency for tranSMART that implements the Core API
                     expression: Component.canonicalName)
         }
 
+        context.'component-scan'('base-package': 'org.transmartproject.db.config')
+
         if (!config.org.transmartproject.i2b2.user_id) {
             config.org.transmartproject.i2b2.user_id = 'i2b2'
         }

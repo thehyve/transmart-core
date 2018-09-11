@@ -1,6 +1,5 @@
 package org.transmartproject.api.server.server
 
-import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.keycloak.adapters.KeycloakConfigResolver
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver

@@ -2894,6 +2894,7 @@ paths:
     put:
       description: |
         This endpoint updates some configuration options at runtime.
+        The number of workers is not updated at runtime.
         Only for administrators.
       tags:
         - v2

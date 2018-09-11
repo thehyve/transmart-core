@@ -3,6 +3,7 @@
 package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.integration.Integration
+import grails.util.Holders
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.RuntimeConfigRepresentation
 import org.transmartproject.core.config.SystemResource
@@ -47,6 +48,7 @@ class ParallelAggregateDataServicePgSpec extends Specification {
         Constraint patientSetConstraint = new PatientSetConstraint(patientSetId: patientSet.id)
 
         when: 'fetching all counts per study and concept for the patient set containing all patients with 4 workers'
+        Holders.config['org.transmartproject.system.numberOfWorkers'] = 4
         systemResource.updateRuntimeConfig(new RuntimeConfigRepresentation(4, 10))
         def countsPerStudyAndConcept = aggregateDataService.parallelCountsPerStudyAndConcept(patientSetConstraint, user)
         def counts = aggregateDataService.counts(new TrueConstraint(), user)

@@ -12,6 +12,7 @@ import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
+import jsr166y.ForkJoinPool
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
@@ -22,7 +23,6 @@ import org.hibernate.type.StandardBasicTypes
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
@@ -52,7 +52,7 @@ import java.util.function.Predicate
 import java.util.function.ToIntFunction
 import java.util.stream.Collectors
 
-import static groovyx.gpars.GParsPool.withPool
+import static groovyx.gpars.GParsPool.withExistingPool
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 
@@ -72,13 +72,13 @@ class AggregateDataService extends AbstractDataResourceService {
     UserQueryResource userQueryResource
 
     @Autowired
-    SystemResource systemResource
-
-    @Autowired
     AggregateDataOptimisationsService aggregateDataOptimisationsService
 
     @Autowired
     PatientSetResource patientSetResource
+
+    @Autowired
+    ForkJoinPool workerPool
 
     /**
      * Instance of this object wrapped with the cache proxy.
@@ -452,13 +452,12 @@ class AggregateDataService extends AbstractDataResourceService {
         def t1 = new Date()
         log.info "Fetching counts per study and concept for ${studyIds.size()} studies ..."
 
-        int workers = systemResource.runtimeConfig.numberOfWorkers
         int numTasks = studyIds.size()
         final result = new ConcurrentHashMap<String, Map<String, Counts>>()
         final error = new AtomicBoolean(false)
         final numCompleted = new AtomicInteger(0)
         if (numTasks) {
-            withPool(workers) {
+            withExistingPool(workerPool) {
                 (1..numTasks).eachParallel { int i ->
                     def start = new Date()
                     try {

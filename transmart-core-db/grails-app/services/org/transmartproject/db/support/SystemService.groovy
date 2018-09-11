@@ -80,13 +80,11 @@ class SystemService implements SystemResource {
     @Autowired
     SessionFactory sessionFactory
 
-
     RuntimeConfig getRuntimeConfig() {
         return modelMapper.map(runtimeConfig, RuntimeConfigRepresentation.class)
     }
 
     RuntimeConfig updateRuntimeConfig(@Valid RuntimeConfig config) {
-        runtimeConfig.setNumberOfWorkers(config.numberOfWorkers)
         runtimeConfig.setPatientSetChunkSize(config.patientSetChunkSize)
         getRuntimeConfig()
     }

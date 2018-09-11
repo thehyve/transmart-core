@@ -2,6 +2,7 @@ package org.transmartproject.db.support
 
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import jsr166y.ForkJoinPool
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -19,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Function
 
-import static groovyx.gpars.GParsPool.withPool
+import static groovyx.gpars.GParsPool.withExistingPool
 
 class ParallelPatientSetTaskService {
 
@@ -31,6 +32,9 @@ class ParallelPatientSetTaskService {
 
     @Autowired
     PatientSetResource patientSetResource
+
+    @Autowired
+    ForkJoinPool workerPool
 
 
     @Canonical
@@ -116,7 +120,7 @@ class ParallelPatientSetTaskService {
         final error = new AtomicBoolean(false)
         final numCompleted = new AtomicInteger(0)
         if (numTasks) {
-            withPool(workers) {
+            withExistingPool(workerPool) {
                 (1..numTasks).eachParallel { int i ->
                     try {
                         int offset = chunkSize * (i - 1)
