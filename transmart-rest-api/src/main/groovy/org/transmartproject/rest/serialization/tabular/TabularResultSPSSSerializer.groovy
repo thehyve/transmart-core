@@ -106,7 +106,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                         new OutputStreamWriter(outputStream, 'utf-8'),
                         // large 32k chars buffer to reduce overhead
                         32*1024),
-                COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
+                COLUMN_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER)
         csvWriter.writeNext(columns.collect { toSpssLabel(it.label) } as String[])
         csvWriter.flush()
     }
@@ -117,7 +117,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                         new OutputStreamWriter(outputStream, 'utf-8'),
                         // large 32k chars buffer to reduce overhead
                         32*1024),
-                COLUMN_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER)
+                COLUMN_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER)
         Iterator<DataRow> rows = tabularResult.rows
         while (rows.hasNext()) {
             DataRow row = rows.next()
@@ -162,6 +162,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
                 '/FILE = "' + dataFile + '"',
                 '/DELCASE = LINE',
                 '/DELIMITERS = "\\t"',
+                '/QUALIFIER = \'"\'',
                 '/ARRANGEMENT = DELIMITED',
                 '/FIRSTCASE = 2',
                 '/VARIABLES =',
