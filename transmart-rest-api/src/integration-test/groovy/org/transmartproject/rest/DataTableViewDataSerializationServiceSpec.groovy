@@ -36,7 +36,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     User adminUser
 
     @Autowired
-    HypercubeDataSerializationService serializationService
+    DataTableViewDataSerializationService serializationService
 
     void setupData() {
         TestData.prepareCleanDatabase()

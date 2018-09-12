@@ -17,8 +17,7 @@ class ExportElement {
     @Size(min = 1)
     String dataType
 
-    @Size(min = 1)
-    String dataView
+    DataView dataView
 
     static final TypeReference<List<ExportElement>> exportElementListTypeReference =
             new TypeReference<List<ExportElement>>(){}

@@ -7,10 +7,11 @@ import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.export.DataView
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.job.AsyncJobCoreDb
-import org.transmartproject.rest.HypercubeDataSerializationService
+import org.transmartproject.rest.DataTableViewDataSerializationService
 import org.transmartproject.rest.SurveyTableViewDataSerializationService
 import org.transmartproject.rest.serialization.DataSerializer
 import org.transmartproject.core.multidimquery.export.ExportElement
@@ -18,25 +19,18 @@ import org.transmartproject.core.multidimquery.export.Format
 
 import java.util.zip.ZipOutputStream
 
-import static Format.SPSS
-import static Format.TSV
-
 @Transactional
 @Component("restExportService")
 class ExportService {
 
     @Autowired
-    HypercubeDataSerializationService hypercubeDataSerializationService
-
-    Set<Format> exportFormats =  EnumSet.of(TSV, SPSS)
-
-    @Autowired
     SurveyTableViewDataSerializationService surveyTableViewDataSerializationService
 
-    Set<Format> getSupportedFormats(String dataView) {
-        Set<Format> supportedExportFormats = new LinkedHashSet<Format>(exportFormats)
-        supportedExportFormats.retainAll(getDataSerializerByDataView(dataView).supportedFormats)
-        return supportedExportFormats
+    @Autowired
+    DataTableViewDataSerializationService dataTableViewDataSerializationService
+
+    Set<Format> getSupportedFormats(DataView dataView) {
+        getDataSerializerByDataView(dataView).supportedFormats
     }
 
     def downloadFile(AsyncJobCoreDb job) {
@@ -62,16 +56,21 @@ class ExportService {
 
             if (element.dataType == 'clinical') {
                 try {
-                    if (jobDataMap.dataView == 'dataTable') {
-                        TableConfig tableConfig = jobDataMap.tableConfig
-                        dataSerializer.writeTable(element.format, constraint, tableConfig, user, output)
-                    } else {
-                        DataRetrievalParameters parameters = new DataRetrievalParameters(
-                                constraint: constraint,
-                                includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns,
-                                exportFileName: fileName
-                        )
-                        dataSerializer.writeClinical(element.format, parameters, user, output)
+                    switch(element.dataView) {
+                        case DataView.DATA_TABLE:
+                            TableConfig tableConfig = jobDataMap.tableConfig
+                            dataSerializer.writeTable(element.format, constraint, tableConfig, user, output)
+                            break
+                        case DataView.SURVEY_TABLE:
+                            DataRetrievalParameters parameters = new DataRetrievalParameters(
+                                    constraint: constraint,
+                                    includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns,
+                                    exportFileName: fileName
+                            )
+                            dataSerializer.writeClinical(element.format, parameters, user, output)
+                            break
+                        default:
+                            throw new InvalidRequestException("Data view not supported.")
                     }
                 } catch (LegacyStudyException e) {
                     throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
@@ -86,11 +85,15 @@ class ExportService {
         }
     }
 
-    DataSerializer getDataSerializerByDataView(String dataView) {
-        if (dataView == 'surveyTable') {
-            surveyTableViewDataSerializationService
-        } else {
-            hypercubeDataSerializationService
+    DataSerializer getDataSerializerByDataView(DataView dataView) {
+        switch(dataView) {
+            case DataView.SURVEY_TABLE:
+                return surveyTableViewDataSerializationService
+            case DataView.DATA_TABLE:
+                return dataTableViewDataSerializationService
+            default:
+                throw new InvalidRequestException("Data view not supported: ${dataView}")
         }
     }
+
 }

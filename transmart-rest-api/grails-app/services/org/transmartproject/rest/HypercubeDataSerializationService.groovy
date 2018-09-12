@@ -45,8 +45,7 @@ class HypercubeDataSerializationService extends AbstractDataResourceService impl
 
     Map<Format, HypercubeSerializer> formatToSerializer = [
             (Format.JSON)    : new HypercubeJsonSerializer(),
-            (Format.PROTOBUF): new HypercubeProtobufSerializer(),
-            (Format.TSV)     : new HypercubeCSVSerializer(),
+            (Format.PROTOBUF): new HypercubeProtobufSerializer()
     ]
             .withDefault { Format format -> throw new UnsupportedOperationException("Unsupported format: ${format}") }
 

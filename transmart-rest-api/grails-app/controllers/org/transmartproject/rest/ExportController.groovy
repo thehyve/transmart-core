@@ -8,6 +8,7 @@ import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.export.DataView
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.core.users.User
@@ -205,7 +206,11 @@ class ExportController {
      */
     def fileFormats(@RequestParam('dataView') String dataView) {
         checkForUnsupportedParams(params, ['dataView'])
-        def fileFormats = restExportService.getSupportedFormats(dataView)
+        def view = DataView.from(dataView)
+        if (view == DataView.NONE) {
+            throw new InvalidArgumentsException("Unknown data view: ${dataView}")
+        }
+        def fileFormats = restExportService.getSupportedFormats(view)
         def results = [fileFormats: fileFormats]
         render results as JSON
     }
