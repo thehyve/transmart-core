@@ -2585,7 +2585,7 @@ var spec = {
                   },
                   "elements": {
                     "type": "string",
-                    "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,\nwhere `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,\nor one of the supported high dimensional data types and `format` is one of the supported file formats\nyou want to export current data type to. The tabular flag (optional, false by default) specifies whether\nrepresent hypercube data as wide filer format where patients are rows and columns are variables.\nExample: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.\n\n`dataView` is optional, it can be `\"surveyTable\"` or `\"dataTable\"`, resulting in either a survey\ntable or a data table export. When not set the export will default to a plain hypercube export.\n"
+                    "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,\nwhere `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types, and `format` is one of the supported file formats you want to export current data type to, `dataView` determines the way the data is serialised to a tabular format and can be `\"surveyTable\"` or `\"dataTable\"`, resulting in either a survey table or a data table export (only for clinical data).\nExample: `[{\"dataType\": \"clinical\", \"format\": \"TSV\", \"dataView\": \"dataTable\"},\n {\"dataType\": \"rnaseq_transcript\", \"format\": \"JSON\"}]`.\n"
                   },
                   "tableConfig": {
                     "type": "string",
@@ -2765,13 +2765,13 @@ var spec = {
     },
     "/v2/export/data_formats": {
       "post": {
-        "description": "Analyses the constraint and gets result data formats, including `clinical` type and high dimensional types.\n",
+        "description": "Analyses the constraint and gets result data formats, currently only `clinical`.\n",
         "tags": [
           "v2"
         ],
         "responses": {
           "200": {
-            "description": "Returns a list of known data formats for specified sets.\nExample: `{ \"dataFormats\": [\"clinical\", \"mrna\", \"rnaseq_transcript\"] }`\n",
+            "description": "Returns a list of known data formats for specified sets.\nExample: `{\"dataFormats\": [\"clinical\"]}`\n",
             "content": {
               "*/*": {
                 "schema": {
@@ -2803,9 +2803,9 @@ var spec = {
         "parameters": [
           {
             "name": "dataView",
-            "required": false,
+            "required": true,
             "in": "query",
-            "description": "Data view.",
+            "description": "Data view ('dataTable' or 'surveyTable')",
             "schema": {
               "type": "string"
             }
@@ -3198,7 +3198,7 @@ var spec = {
         }
       },
       "put": {
-        "description": "This endpoint updates some configuration options at runtime.\nOnly for administrators.\n",
+        "description": "This endpoint updates some configuration options at runtime.\nThe number of workers is not updated at runtime.\nOnly for administrators.\n",
         "tags": [
           "v2",
           "admin"
