@@ -2537,7 +2537,7 @@ paths:
   /v2/export/jobs:
     get:
       description: |
-        Gets all export jobs accessible by the user.
+        Gets all export jobs created by the user.
       tags:
         - v2
       responses:
