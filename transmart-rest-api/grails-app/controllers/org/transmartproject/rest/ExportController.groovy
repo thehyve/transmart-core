@@ -9,8 +9,6 @@ import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.export.DataView
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.query.ConstraintFactory
 import org.transmartproject.core.users.User
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
@@ -59,10 +57,9 @@ class ExportController {
      * {
      *      constraint: <constraint json>
      *      elements: {
-     *          dataType: "<clinical/mrna/...>" //supported data type
+     *          dataType: "clinical" //supported data type
      *          format: "<TSV/SPSS/...>" //supported file format
      *          dataView: "<data view>" //optional
-     *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
      *      }
      *      tableConfig: { //additional config, required for the data table export
      *          rowDimensions: [ "<list of dimension names>" ] //specifies the row dimensions of the data table
@@ -85,7 +82,7 @@ class ExportController {
 
         def exportJob = BindingHelper.read(request.inputStream, ExportJobRepresentation.class)
 
-        if (exportJob.elements.any { it.dataView == 'dataTable' }) {
+        if (exportJob.elements.any { it.dataView == DataView.DATA_TABLE }) {
             if (!exportJob.tableConfig) {
                 throw new InvalidArgumentsException("No tableConfig provided.")
             }
@@ -179,23 +176,18 @@ class ExportController {
     }
 
     /**
-     * Analyses the constraint and gets result types of the data,
-     * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats?criteria=${criteria}
+     * Returns the supported data format: `clinical`.
+     * The constraint parameter is for future use, to check if
+     * data of a certain type is available that is supported by a data format.
+     * <code>/v2/export/data_formats?constraint=${criteria}
      *
-     * @param criteria to fetch all data for which data format is detected
+     * @param constraint to check if data for a data format is present
      * @return data formats
      */
     def dataFormats() {
-        def requestBody = request.JSON as Map
         checkForUnsupportedParams(params, ['constraint'])
 
-        Constraint constraint = ConstraintFactory.create(requestBody.constraint)
-        def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, authContext.user)
-        def results = [
-                dataFormats: formats
-        ]
-        render results as JSON
+        render dataFormats: ['clinical']
     }
 
     /**

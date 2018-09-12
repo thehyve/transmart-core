@@ -13,7 +13,6 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.rest.DataTableViewDataSerializationService
 import org.transmartproject.rest.SurveyTableViewDataSerializationService
-import org.transmartproject.rest.serialization.DataSerializer
 import org.transmartproject.core.multidimquery.export.ExportElement
 import org.transmartproject.core.multidimquery.export.Format
 
@@ -30,7 +29,14 @@ class ExportService {
     DataTableViewDataSerializationService dataTableViewDataSerializationService
 
     Set<Format> getSupportedFormats(DataView dataView) {
-        getDataSerializerByDataView(dataView).supportedFormats
+        switch(dataView) {
+            case DataView.SURVEY_TABLE:
+                return surveyTableViewDataSerializationService.supportedFormats
+            case DataView.DATA_TABLE:
+                return [Format.TSV] as Set<Format>
+            default:
+                throw new InvalidRequestException("Data view not supported: ${dataView}")
+        }
     }
 
     def downloadFile(AsyncJobCoreDb job) {
@@ -49,50 +55,32 @@ class ExportService {
         Constraint constraint = jobDataMap.constraint
 
         dataTypeAndFormatList.each { element ->
-            DataSerializer dataSerializer = getDataSerializerByDataView(element.dataView)
-            if (!dataSerializer.supportedFormats.contains(element.format)) {
+            if (element.dataType != 'clinical') {
+                throw new InvalidRequestException("Export for data type ${element.dataType} is not supported.")
+            }
+            if (!getSupportedFormats(element.dataView).contains(element.format)) {
                 throw new InvalidRequestException("Export for ${element.format} format is not supported.")
             }
-
-            if (element.dataType == 'clinical') {
-                try {
-                    switch(element.dataView) {
-                        case DataView.DATA_TABLE:
-                            TableConfig tableConfig = jobDataMap.tableConfig
-                            dataSerializer.writeTable(element.format, constraint, tableConfig, user, output)
-                            break
-                        case DataView.SURVEY_TABLE:
-                            DataRetrievalParameters parameters = new DataRetrievalParameters(
-                                    constraint: constraint,
-                                    includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns,
-                                    exportFileName: fileName
-                            )
-                            dataSerializer.writeClinical(element.format, parameters, user, output)
-                            break
-                        default:
-                            throw new InvalidRequestException("Data view not supported.")
-                    }
-                } catch (LegacyStudyException e) {
-                    throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
+            try {
+                switch(element.dataView) {
+                    case DataView.DATA_TABLE:
+                        TableConfig tableConfig = jobDataMap.tableConfig
+                        dataTableViewDataSerializationService.writeTableToTsv(constraint, tableConfig, user, output)
+                        break
+                    case DataView.SURVEY_TABLE:
+                        DataRetrievalParameters parameters = new DataRetrievalParameters(
+                                constraint: constraint,
+                                includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns,
+                                exportFileName: fileName
+                        )
+                        surveyTableViewDataSerializationService.writeClinical(element.format, parameters, user, output)
+                        break
+                    default:
+                        throw new InvalidRequestException("Data view not supported.")
                 }
-            } else {
-                try {
-                    dataSerializer.writeHighdim(element.format, element.dataType, constraint, null, null, user, output)
-                } catch (LegacyStudyException e) {
-                    throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
-                }
+            } catch (LegacyStudyException e) {
+                throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
             }
-        }
-    }
-
-    DataSerializer getDataSerializerByDataView(DataView dataView) {
-        switch(dataView) {
-            case DataView.SURVEY_TABLE:
-                return surveyTableViewDataSerializationService
-            case DataView.DATA_TABLE:
-                return dataTableViewDataSerializationService
-            default:
-                throw new InvalidRequestException("Data view not supported: ${dataView}")
         }
     }
 

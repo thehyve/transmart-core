@@ -59,7 +59,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
                 columnDimensions: ['trial visit', 'concept']
         )
 
-        serializationService.writeTable(Format.TSV, constraint, tableConfig, adminUser, zipFile)
+        serializationService.writeTableToTsv(constraint, tableConfig, adminUser, zipFile)
         def files = parseTSVZip(file)
 
         expect:
