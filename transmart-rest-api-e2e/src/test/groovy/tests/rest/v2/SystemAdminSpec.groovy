@@ -4,12 +4,40 @@ package tests.rest.v2
 
 import base.RESTSpec
 import base.RestHelper
+import org.transmartproject.core.multidimquery.ErrorResponse
 import tests.rest.constraints
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 class SystemAdminSpec extends RESTSpec {
+
+    def "clear cache as admin"() {
+        when: "I try to clear the tree node cache as admin"
+        def responseData = get([
+                path      : PATH_SYSTEM_CLEAR_CACHE,
+                acceptType: JSON,
+                user      : ADMIN_USER,
+        ])
+        then: "an empty body is returned"
+        assert responseData == null
+    }
+
+    def "clear cache"() {
+        when: "I try to clear the tree node cache as a regular user"
+        def request = [
+                path      : PATH_SYSTEM_CLEAR_CACHE,
+                acceptType: JSON,
+                statusCode: 403,
+                user: DEFAULT_USER
+        ]
+        def responseData = RestHelper.toObject get(request), ErrorResponse
+
+        then: "I do not have an access"
+        responseData.status == 403
+        responseData.error == 'Forbidden'
+        responseData.message == 'Access is denied'
+    }
 
     def "after data loading call cache counts pers study and concept for admin user"() {
         given:
