@@ -1,21 +1,22 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.binding.BindingHelper
-import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.export.DataView
-import org.transmartproject.core.users.User
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
+
+import java.util.stream.Collectors
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
@@ -42,10 +43,7 @@ class ExportController {
     def createJob(@RequestParam('name') String name) {
         checkForUnsupportedParams(params, ['name'])
 
-        def user = authContext.user
-        checkJobNameUnique(name, user)
-
-        def instance = exportAsyncJobService.createNewJob(user, name)
+        def instance = exportAsyncJobService.createNewJob(name, authContext.user)
         render wrapExportJob(instance) as JSON
     }
 
@@ -87,11 +85,8 @@ class ExportController {
                 throw new InvalidArgumentsException("No tableConfig provided.")
             }
         }
-        def user = authContext.user
-        checkJobAccess(jobId, user)
 
-        def job = exportAsyncJobService.exportData(exportJob, user, jobId)
-
+        def job = exportAsyncJobService.exportData(exportJob, jobId, authContext.user)
         render wrapExportJob(job) as JSON
     }
 
@@ -102,7 +97,7 @@ class ExportController {
      */
     def cancel(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        exportAsyncJobService.cancelJob(jobId)
+        exportAsyncJobService.cancelJob(jobId, authContext.user)
         return true
     }
 
@@ -113,7 +108,7 @@ class ExportController {
      */
     def delete(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        exportAsyncJobService.deleteJob(jobId)
+        exportAsyncJobService.deleteJob(jobId, authContext.user)
         return true
     }
 
@@ -125,7 +120,7 @@ class ExportController {
      */
     def get(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        def job = exportAsyncJobService.getJobById(jobId)
+        def job = exportAsyncJobService.getJobById(jobId, authContext.user)
         render wrapExportJob(job) as JSON
     }
 
@@ -138,9 +133,8 @@ class ExportController {
      */
     def download(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
-        checkJobAccess(jobId, authContext.user)
 
-        def job = exportAsyncJobService.getJobById(jobId)
+        def job = exportAsyncJobService.getJobById(jobId, authContext.user)
         InputStream inputStream = restExportService.downloadFile(job)
 
         response.setContentType 'application/zip'
@@ -187,7 +181,7 @@ class ExportController {
     def dataFormats() {
         checkForUnsupportedParams(params, ['constraint'])
 
-        render dataFormats: ['clinical']
+        render dataFormats: ['clinical'] as JSON
     }
 
     /**
@@ -203,32 +197,11 @@ class ExportController {
             throw new InvalidArgumentsException("Unknown data view: ${dataView}")
         }
         def fileFormats = restExportService.getSupportedFormats(view)
-        def results = [fileFormats: fileFormats]
-        render results as JSON
+
+        render fileFormats: fileFormats as JSON
     }
 
-    private checkJobAccess(Long jobId, User user) {
-        String jobUsername = exportAsyncJobService.getJobUser(jobId)
-        if (!jobUsername) {
-            throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
-        }
-
-        if (!user.isAdmin() && jobUsername != user.username) {
-            log.warn("Denying access to job $jobId because the " +
-                    "corresponding username ($jobUsername) does not match " +
-                    "that of the current user")
-            throw new AccessDeniedException("Job $jobId was not created by " +
-                    "this user")
-        }
-    }
-
-    private void checkJobNameUnique(String jobName, User user) {
-        String name = jobName?.trim()
-        if (name && !exportAsyncJobService.isJobNameUniqueForUser(name, user)) {
-            throw new InvalidArgumentsException("Given job name: '$name' already exists for user '$user'.")
-        }
-    }
-
+    @CompileStatic
     private static Map<String, Object> convertToMap(AsyncJobCoreDb job) {
         [
                 id           : job.id,
@@ -238,28 +211,30 @@ class ExportController {
                 userId       : job.userId,
                 viewerUrl    : job.viewerURL,
                 message      : job.results
-        ]
+        ] as Map<String, Object>
     }
 
+    @CompileStatic
     private static ContainerResponseWrapper wrapExportJob(AsyncJobCoreDb source) {
         Map<String, Object> serializedJob = convertToMap(source)
 
         new ContainerResponseWrapper(
                 key: 'exportJob',
                 container: serializedJob,
-                componentType: Map,
+                componentType: Map
         )
     }
 
+    @CompileStatic
     private static ContainerResponseWrapper wrapExportJobs(List<AsyncJobCoreDb> sources) {
-        List<Map<String, Object>> serializedJobs = sources.collect {
-            convertToMap(it)
-        }
+        List<Map<String, Object>> serializedJobs = sources.stream()
+                .map({ AsyncJobCoreDb job -> convertToMap(job) })
+                .collect(Collectors.toList())
 
         new ContainerResponseWrapper(
                 key: 'exportJobs',
                 container: serializedJobs,
-                componentType: Map,
+                componentType: Map
         )
     }
 
