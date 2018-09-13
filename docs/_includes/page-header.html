@@ -1,7 +1,0 @@
-<section class="page-header">
-	<h1 class="project-name"><img src="images/tranSMART logo square.png" width="80" style="vertical-align:middle"> {{ site.title }}</h1>
-	<h2 class="project-tagline">{{ site.tagline }}</h2>
-	{% for p in site.html_pages %}
-		<a class="{% if p.url == page.url %}active{% endif %} btn" href="{{ site.baseurl }}{{ p.url }}">{{ p.title }}</a>
-    {% endfor %}
-</section>

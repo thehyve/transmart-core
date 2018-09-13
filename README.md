@@ -18,7 +18,7 @@ Its `v1` endpoints are documented there, the `v2` endpoints are documented using
 There are two main applications available: [transmart-server](transmart-server) and [transmart-api-server](transmart-api-server), both exposing the API and extended by multiple plugins.
 The OAuth2 authentication of the API for transmart-server is managed by [transmart-oauth](transmart-oauth) plugin, while transmart-api-server uses an external identity provider - [Keycloak](https://www.keycloak.org/).
 
-As an user interface for transmart-server there is a frontend application [transmartApp](transmartApp) built as a "web" profiled Grails platform plugin. There is also a modern cohort selector for i2b2 tranSMART named [glowing bear](https://github.com/thehyve/glowing-bear) that can used both with transmart-server and transmart-api-server.
+As an user interface for transmart-server there is a frontend application [transmartApp](transmartApp) built as a "web" profiled Grails platform plugin. There is also a modern cohort selector for i2b2 tranSMART named [Glowing Bear](https://github.com/thehyve/glowing-bear) that can used both with transmart-server and transmart-api-server.
 
 
 Database definitions and installation instructions are in [transmart-data](transmart-data).
@@ -40,6 +40,11 @@ The master branch can locally be connected to the history with `git replace`.
 # replace the master-base object with transmart-history
 git replace 58a48ff dd57ce1
 ```
+
+## Further reading
+
+* [tranSMART - Wikipedia](https://en.wikipedia.org/wiki/TranSMART)
+* [tranSMART Foundation Wiki](https://wiki.transmartfoundation.org/)
 
 ## License
 
