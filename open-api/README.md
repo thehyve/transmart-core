@@ -1,5 +1,6 @@
 # Open API specification for the tranSMART platform
-[![Validation status](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)](http://online.swagger.io/validator/debug?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)
+<!-- http://online.swagger.io does not support OpenApi 3 yet -->
+<!-- [![Validation status](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)](http://online.swagger.io/validator/debug?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json) -->
 
 ## Overview
 
