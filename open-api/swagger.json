@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "servers": [],
   "info": {
-    "version": "2.5-dev",
+    "version": "2.5",
     "title": "tranSMART",
     "license": {
       "name": "Apache 2.0",

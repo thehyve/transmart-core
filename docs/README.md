@@ -1,6 +1,6 @@
-# tranSMART 17.1 Installation
+# tranSMART 17.1-HYVE-5 Installation
 
-Below are the installation instructions for tranSMART version 17.1. If you already have an older version of tranSMART, follow the [upgrade guide](upgrade.md) instead.
+Below are the installation instructions for tranSMART version 17.1-HYVE-5. If you already have an older version of tranSMART, follow the [upgrade guide](upgrade.md) instead.
 
   1. [Prerequisites](#1-prerequisites)
   2. [Setup database](#2-setup-database)
@@ -66,14 +66,14 @@ Scripts to generate the configuration are shipped with
 Either use the sources in this repository (`transmart-core/transmart-data`),
 or fetch `transmart-data` from a Nexus repository:
 ```
-mvn dependency:get -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/
-mvn dependency:unpack -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DoutputDirectory=.
+mvn dependency:get -Dartifact=org.transmartproject:transmart-data:17.1-HYVE-5-SNAPSHOT:tar -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/
+mvn dependency:unpack -Dartifact=org.transmartproject:transmart-data:17.1-HYVE-5-SNAPSHOT:tar -DoutputDirectory=.
 ```
 To generate the configuration, please consult the documentation of [transmart-data](../transmart-data).
 Once a correct `vars` file has been created, the configuration can be generated and installed
 with these commands (requires `php`):
 ```bash
-pushd transmart-data-17.1-SNAPSHOT
+pushd transmart-data-17.1-HYVE-5-SNAPSHOT
 source vars
 make -C config install
 popd
@@ -91,10 +91,10 @@ To build the project, run:
 ```
 gradle :transmart-server:assemble
 ```
-This should create the file `transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war`.
+This should create the file `transmart-server/build/libs/transmart-server-17.1-HYVE-5-SNAPSHOT.war`.
 Run it in production mode with:
 ```
-java -jar transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war
+java -jar transmart-server/build/libs/transmart-server-17.1-HYVE-5-SNAPSHOT.war
 ```
 Or in development mode with:
 ```
@@ -104,7 +104,7 @@ grails run-app
 For the API Server, the location of the configuration file needs to be passed on the command line:
 ```
 gradle :transmart-api-server:assemble
-java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server/build/libs/transmart-server-17.1-SNAPSHOT.war
+java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server/build/libs/transmart-server-17.1-HYVE-5-SNAPSHOT.war
 ```
 
 
@@ -115,10 +115,10 @@ Deployment artefacts are published to [the Nexus repository of The Hyve](https:/
 To fetch and run `transmart-server`:
 ```bash
 # Fetch artefacts using Maven
-mvn dependency:get -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/,https://repo.grails.org/grails/core
-mvn dependency:copy -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DoutputDirectory=.
+mvn dependency:get -Dartifact=org.transmartproject:transmart-server:17.1-HYVE-5-SNAPSHOT:war -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/,https://repo.grails.org/grails/core
+mvn dependency:copy -Dartifact=org.transmartproject:transmart-server:17.1-HYVE-5-SNAPSHOT:war -DoutputDirectory=.
 # Run it with:
-java -jar transmart-server-17.1-SNAPSHOT.war
+java -jar transmart-server-17.1-HYVE-5-SNAPSHOT.war
 ```
 
 
@@ -134,7 +134,7 @@ Note that `Rserve` and `Solr` are not necessarily needed for a development insta
 
 Start `Solr`:
 ```bash
-pushd transmart-data-17.1-SNAPSHOT/solr
+pushd transmart-data-17.1-HYVE-5-SNAPSHOT/solr
 java -jar start.jar &
 popd
 ```
