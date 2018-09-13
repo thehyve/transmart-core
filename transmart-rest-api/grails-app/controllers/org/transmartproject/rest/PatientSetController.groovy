@@ -7,14 +7,13 @@ import grails.rest.render.util.AbstractLinkingRenderer
 import grails.web.mime.MimeType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
-import org.transmartproject.rest.misc.CurrentUser
-
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
+import org.transmartproject.rest.user.AuthContext
 
 /**
  * Exposes patient set resources.
@@ -29,10 +28,13 @@ class PatientSetController {
     private QueriesResource queriesResource
 
     @Autowired
+    LegacyAuthorisationChecks authorisationChecks
+
+    @Autowired
     QueryDefinitionXmlConverter queryDefinitionXmlConverter
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     /**
      * Not yet supported in core-api.
@@ -40,7 +42,7 @@ class PatientSetController {
      * GET /v1/patient_sets
      */
     def index() {
-        List result = queriesResource.getQueryResultsSummaryByUsername(currentUser.getUsername())
+        List result = queriesResource.getQueryResults(authContext.user)
         respond wrapPatients(result)
     }
 
@@ -50,9 +52,7 @@ class PatientSetController {
      * GET /v1/patient_sets/<result_instance_id>
      */
     def show(Long id) {
-        QueryResult queryResult = queriesResource.getQueryResultFromId(id)
-
-        currentUser.checkAccess(READ, queryResult)
+        QueryResult queryResult = queriesResource.getQueryResultFromId(id, authContext.user)
 
         respond new QueryResultWrapper(
                 apiVersion: VERSION,
@@ -80,11 +80,13 @@ class PatientSetController {
         QueryDefinition queryDefinition =
                 queryDefinitionXmlConverter.fromXml(request.reader)
 
-        currentUser.checkAccess(BUILD_COHORT, queryDefinition)
+        if (!authorisationChecks.canRun(authContext.user, queryDefinition)) {
+            throw new AccessDeniedException()
+        }
 
         respond new QueryResultWrapper(
                 apiVersion: VERSION,
-                queryResult: queriesResource.runQuery(queryDefinition, currentUser.username),
+                queryResult: queriesResource.runQuery(queryDefinition, authContext.user),
                 embedPatients: true
         ),
                 [status: 201]
@@ -96,7 +98,7 @@ class PatientSetController {
      * DELETE /patient_sets/<result_instance_id>
      */
     def disable(Long id) {
-        queriesResource.disablingQuery(id, currentUser.username)
+        queriesResource.disableQuery(id, authContext.user)
         respond status: 204
     }
 

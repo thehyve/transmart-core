@@ -29,7 +29,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.test.Matchers
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -40,7 +40,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class VcfEndToEndRetrievalSpec extends TransmartSpecification {
+class VcfEndToEndRetrievalSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService
 

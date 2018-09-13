@@ -20,17 +20,76 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.binding.BindingHelper
+import org.transmartproject.core.log.AccessLogEntryResource
+import org.transmartproject.interceptors.ApiAuditInterceptor
 import org.transmartproject.rest.http.BusinessExceptionResolver
+import org.transmartproject.rest.user.AuthContext
 
 class BusinessExceptionController {
 
+    @Autowired
+    AccessLogEntryResource accessLogEntryResource
+
+    @Autowired
+    AuthContext authContext
+
+    protected String getIp() {
+        return request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr
+    }
+
+    protected String getUrl() {
+        return "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
+    }
+
+    /**
+     * Request handling time in milliseconds.
+     */
+    protected Long getDuration() {
+        def startDate = (Date)request.getAttribute(ApiAuditInterceptor.AUDIT_START_TIME_ATTRIBUTE)
+        if (!startDate) {
+            return null
+        }
+        new Date().time - startDate.time
+    }
+
+    protected String getEventMessage(Throwable throwable) {
+        Map<String, Object> message = [
+                ip     : (Object)ip,
+                action : (Object)actionName,
+                duration: (Object)duration,
+                status : (Object)response.status.toInteger(),
+                message: (Object)throwable.message
+        ]
+        if (request.isPost()) {
+            try {
+                message.put("body", request.JSON as Map)
+            } catch (IllegalStateException e) {
+                log.error "Cannot read body for request ${url}: ${e.message}" +
+                        "\nTry to use request.inputStream instead of request.reader."
+            }
+        }
+        return BindingHelper.objectMapper.writeValueAsString(message)
+    }
+
     def index() {
-        Integer httpStatus = request.getAttribute(
+        Integer httpStatus = (Integer)request.getAttribute(
                 BusinessExceptionResolver.REQUEST_ATTRIBUTE_STATUS)
-        Exception e = request.getAttribute(
+        Exception e = (Exception)request.getAttribute(
                 BusinessExceptionResolver.REQUEST_ATTRIBUTE_EXCEPTION)
 
         response.setStatus(httpStatus)
+
+        try {
+                accessLogEntryResource.report(
+                    authContext.user,
+                    'error',
+                    eventMessage: (Object) getEventMessage(e),
+                    requestURL: (Object) url)
+        } catch (Throwable t) {
+            log.error "Error writing error message to the audit log.", t
+        }
 
         render([
                 httpStatus: httpStatus,

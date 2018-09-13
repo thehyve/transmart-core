@@ -24,7 +24,7 @@ import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
-import static org.hibernate.sql.JoinFragment.LEFT_OUTER_JOIN
+import static org.hibernate.sql.JoinType.LEFT_OUTER_JOIN
 
 /**
  * Created by j.hudecek on 21-2-14.

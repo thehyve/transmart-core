@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -38,8 +39,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealPr
 
 import javax.annotation.PostConstruct
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
@@ -134,29 +134,35 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
-    @Override
+    @Override @CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
                                    Projection projection) {
         Map assayIndexes = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<MetaboliteDataRow>(
                 rowsDimensionLabel:    'Metabolites',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.annotationId == b.annotationId },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
-                    def firstNonNullCell = list.find()
+                allowMissingAssays:    true
+            ) {
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
+
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId }
+
+                @Override @CompileStatic
+                MetaboliteDataRow finalizeRow(List<Map> list) {
+                    Map firstNonNullCell = findFirst list
                     new MetaboliteDataRow(
-                            biochemicalName: firstNonNullCell[0].biochemicalName,
-                            hmdbId:          firstNonNullCell[0].hmdbId,
+                            biochemicalName: (String) firstNonNullCell.biochemicalName,
+                            hmdbId:          (String) firstNonNullCell.hmdbId,
                             assayIndexMap:   assayIndexes,
-                            data:            list.collect { projection.doWithResult it?.getAt(0) }
+                            data:            doWithProjection(projection, list)
                     )
                 }
-        )
+            }
     }
 }

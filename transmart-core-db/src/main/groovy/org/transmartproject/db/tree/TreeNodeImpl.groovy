@@ -8,7 +8,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
 import org.transmartproject.core.tree.TreeNode
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.ontology.I2b2Secure
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.*

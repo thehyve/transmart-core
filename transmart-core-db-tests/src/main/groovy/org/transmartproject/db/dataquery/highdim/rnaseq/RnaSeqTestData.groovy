@@ -107,7 +107,7 @@ class RnaSeqTestData {
 
     List<PatientDimension> patients = createTestPatients(2, -2010, 'REGION_SAMP_TRIAL_RNASEQ')
 
-    QtQueryMaster allPatientsQueryResult = createQueryResult(patients)
+    QtQueryMaster allPatientsQueryResult = createQueryResult('rnaseq-patients-set', patients)
 
     List<DeSubjectSampleMapping> assays = createTestAssays(patients,
             -3010L,

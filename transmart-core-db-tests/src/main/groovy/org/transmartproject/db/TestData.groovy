@@ -19,12 +19,10 @@
 
 package org.transmartproject.db
 
-import grails.core.GrailsApplication
 import grails.util.Holders
-import org.hibernate.Session
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
-import org.hibernate.exception.GenericJDBCException
-import org.springframework.context.ApplicationContext
+import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.arvados.ArvadosTestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
@@ -32,25 +30,27 @@ import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.i2b2data.I2b2Data
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.storage.StorageTestData
 
+import static org.transmartproject.db.utils.SessionUtils.getAllTables
+import static org.transmartproject.db.utils.SessionUtils.truncateTables
+
+@Slf4j
 class TestData {
 
     ConceptTestData conceptData
     I2b2Data i2b2Data
     I2b2Data secondI2b2Data // yeah...
-    ClinicalTestData clinicalData
     MrnaTestData mrnaData
     AcghTestData acghData
     SampleBioMarkerTestData bioMarkerTestData
     StorageTestData storageTestData
     ArvadosTestData arvadosTestData
-
-    static void reset() {
-        ClinicalTestData.reset()
-    }
+    TrialVisit trialVisit
+    ClinicalTestData clinicalData
 
     static TestData createDefault() {
         def conceptData = ConceptTestData.createDefault()
@@ -61,15 +61,6 @@ class TestData {
                 trialName: 'STUDY_ID_2',
                 patients: study2Patients,
                 patientTrials: I2b2Data.createPatientTrialLinks(study2Patients, 'STUDY_ID_2'))
-        def extraFacts = ClinicalTestData.createDiagonalCategoricalFacts(
-                2,
-                [conceptData.i2b2List.find { it.name == 'male' }, // on study 2
-                 conceptData.i2b2List.find { it.name == 'female' }],
-                study2Patients)
-
-        def clinicalData = ClinicalTestData.createDefault(conceptData.i2b2List, i2b2Data.patients)
-
-        clinicalData.facts += extraFacts
 
         def bioMarkerTestData = new SampleBioMarkerTestData()
         def mrnaData = new MrnaTestData('2', bioMarkerTestData) //concept code '2'
@@ -77,16 +68,31 @@ class TestData {
         def storageTestData = StorageTestData.createDefault()
         def arvadosTestData = ArvadosTestData.createDefault()
 
+        def trialVisit = new TrialVisit(study: storageTestData.studies[0], relTimeUnit: 'week', relTime: 3, relTimeLabel: '3 weeks')
+
+        def extraFacts = ClinicalTestData.createDiagonalCategoricalFacts(
+                2,
+                [conceptData.i2b2List.find { it.name == 'male' }, // on study 2
+                 conceptData.i2b2List.find { it.name == 'female' }],
+                study2Patients,
+                trialVisit
+        )
+
+        def clinicalData = ClinicalTestData.createDefault(conceptData.i2b2List, i2b2Data.patients, trialVisit)
+
+        clinicalData.facts += extraFacts
+
         new TestData(
                 conceptData: conceptData,
                 i2b2Data: i2b2Data,
                 secondI2b2Data: i2b2DataStudy2,
-                clinicalData: clinicalData,
                 mrnaData: mrnaData,
                 acghData: acghData,
                 bioMarkerTestData: bioMarkerTestData,
                 storageTestData: storageTestData,
                 arvadosTestData: arvadosTestData,
+                trialVisit: trialVisit,
+                clinicalData: clinicalData,
         )
     }
 
@@ -133,44 +139,27 @@ class TestData {
     }
 
 
-
     void saveAll() {
         conceptData?.saveAll()
         i2b2Data?.saveAll()
         secondI2b2Data?.saveAll()
-        clinicalData?.saveAll()
         bioMarkerTestData?.saveAll()
         mrnaData?.saveAll()
         mrnaData?.updateDoubleScaledValues()
         acghData?.saveAll()
         storageTestData?.saveAll()
         arvadosTestData?.saveAll()
+        trialVisit?.save(flush: true)
+        clinicalData?.saveAll()
     }
 
-    @Lazy
-    static List<String> h2TruncateScript = {
-        SessionFactory sessionFactory = Holders.applicationContext.getBean(SessionFactory)
-        List<Class> domainClasses = Holders.grailsApplication.getArtefacts("Domain")*.clazz
-        List<String> tables = domainClasses.collect { sessionFactory.getClassMetadata(it).tableName }
+    static void prepareCleanDatabase() {
+        def session = Holders.applicationContext.getBean(SessionFactory).currentSession
+        truncateTables(session, getAllTables(session))
 
-        def commands = tables.collect { "TRUNCATE TABLE $it;".toString() }
-        commands
-    }()
+        SystemResource systemResource = Holders.applicationContext.getBean(SystemResource)
+        systemResource.clearCaches()
 
-    static void clearAllData() {
-        reset()
-
-        Session session = Holders.applicationContext.getBean(SessionFactory).currentSession
-        session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate()
-
-        getH2TruncateScript().each {
-            try {
-                session.createSQLQuery(it).executeUpdate()
-            } catch(GenericJDBCException e) {
-                //ignore CANNOT TRUNCATE xxx, as several domain classes are backed by views
-            }
-        }
-        session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate()
-        session.clear()
+        new Dictionaries().saveAll()
     }
 }

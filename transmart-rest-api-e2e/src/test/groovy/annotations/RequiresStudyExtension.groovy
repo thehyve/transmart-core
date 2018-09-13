@@ -1,6 +1,7 @@
 package annotations
 
 import base.RestHelper
+import base.TestContext
 import org.spockframework.runtime.extension.AbstractAnnotationDrivenExtension
 import org.spockframework.runtime.extension.ExtensionException
 import org.spockframework.runtime.model.FeatureInfo
@@ -33,15 +34,17 @@ class RequiresStudyExtension extends AbstractAnnotationDrivenExtension<RequiresS
     private studiesLoaded(String... studies) {
         if (loadedStudies?.empty) {
             try {
-                println("retrieving studies loaded on ${BASE_URL}")
-                def v1studies = RestHelper.get(testContext, [path: V1_PATH_STUDIES, acceptType: JSON, user: ADMIN_USER]).studies as List
-                loadedStudies.addAll(v1studies*.id as Set)
-
+                def testContext = newTestContext()
+                if(IS_V1_API_SUPPORTED) {
+                    println("retrieving studies loaded on ${BASE_URL}")
+                    def v1studies = RestHelper.get(testContext, [path: V1_PATH_STUDIES, acceptType: JSON, user: ADMIN_USER]).studies as List
+                    loadedStudies.addAll(v1studies*.id as Set)
+                }
                 def v2studies = RestHelper.get(testContext, [path: PATH_STUDIES, acceptType: JSON, user: ADMIN_USER]).studies as List
                 loadedStudies.addAll(v2studies*.studyId as Set)
                 println("studies retrieved. loadedStudies: ${loadedStudies}")
             } catch (Exception e) {
-                throw new ExtensionException("Failed to retrieve loadedStudies for @RequiresStudy", e);
+                throw new ExtensionException("Failed to retrieve loadedStudies for @RequiresStudy", e)
             }
         }
         return loadedStudies.containsAll(studies)

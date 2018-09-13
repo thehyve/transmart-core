@@ -10,14 +10,14 @@ appender('STDOUT', ConsoleAppender) {
 
 if (Environment.current in [Environment.TEST, Environment.DEVELOPMENT]) {
     root(INFO, ['STDOUT'])
-    logger('org.hibernate.type', TRACE)
+    //logger('org.hibernate.type', TRACE)
 } else {
     root(ERROR, ['STDOUT'])
 }
 
 logger('org.codehaus.groovy.grails.commons.spring', WARN)
 logger('org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner', WARN)
-logger('org.hibernate.type', TRACE)
+//logger('org.hibernate.type', TRACE)
 
 def targetDir = BuildSettings.TARGET_DIR
 if (Environment.isDevelopmentMode() && targetDir) {

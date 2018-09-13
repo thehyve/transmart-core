@@ -1,0 +1,25 @@
+# configurations that are used only when plugin gets run (e.g. testing)
+# for grails configurations that get merged with the host application see plugin.yml
+---
+environments:
+    test:
+        hibernate:
+            cache:
+                queries: false
+                use_second_level_cache: true
+                use_query_cache: false
+                region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+        dataSource:
+            url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'
+            driverClassName: org.h2.Driver
+            dialect: org.hibernate.dialect.H2Dialect
+            username: sa
+            password:
+            dbCreate: create-drop
+            logSql: true
+            formatql: true
+
+        grails:
+            dbconsole.enabled: true
+            converters.json.pretty.print: true

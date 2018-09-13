@@ -13,12 +13,10 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultSummary
+import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.User
 
 import javax.annotation.Resource
-
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 @Slf4j
 class QueriesResourceAuthorizationDecorator
@@ -28,49 +26,35 @@ class QueriesResourceAuthorizationDecorator
     User currentUserBean
 
     @Autowired
+    LegacyAuthorisationChecks authorisationChecks
+
+    @Autowired
     QueriesResource delegate
 
     @Override
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        if (!currentUserBean.canPerform(BUILD_COHORT, definition)) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "for building cohort based on $definition")
-        }
-
-        delegate.runQuery definition
+        delegate.runQuery definition, currentUserBean
     }
 
     @Override
-    QueryResult runQuery(QueryDefinition definition, String username) throws InvalidRequestException {
-        if (!currentUserBean.canPerform(BUILD_COHORT, definition)) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "for building cohort based on $definition")
-        }
-        if (username != currentUserBean.username) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "to building a cohort in name of ${username}")
-        }
+    QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
+        delegate.runQuery definition, user
+    }
 
-        delegate.runQuery definition, username
+    @Override
+    QueryResult getQueryResultFromId(Long id, User user) throws NoSuchResourceException {
+        delegate.getQueryResultFromId id, user
     }
 
     @Override
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
-        def res = delegate.getQueryResultFromId id
-
-        if (!currentUserBean.canPerform(READ, res)) {
-            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
-                    "to query result with id $id")
-        }
-
-        res
+        delegate.getQueryResultFromId id, currentUserBean
     }
 
     @Override
-    QueryResult disablingQuery(Long id,
-                               String username) throws InvalidRequestException
+    QueryResult disableQuery(Long id, User user) throws InvalidRequestException
     {
-        delegate.disablingQuery(id, username)
+        delegate.disableQuery(id, user)
     }
 
 
@@ -137,7 +121,7 @@ class QueriesResourceAuthorizationDecorator
     }
 
     @Override
-    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username) {
-        delegate.getQueryResultsSummaryByUsername(username)
+    List<QueryResultSummary> getQueryResults(User user) {
+        delegate.getQueryResults(user)
     }
 }

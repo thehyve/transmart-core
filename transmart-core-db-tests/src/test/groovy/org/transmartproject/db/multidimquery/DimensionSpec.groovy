@@ -28,7 +28,7 @@ class DimensionSpec extends Specification {
         Map properties = [id: null, birthDate: d, deathDate: null, age: 20,
                           race: 'caucasian', maritalStatus: null, sourcesystemCd: 'SS_FOO_CD:1234', sexCd: 'FEMALE',
                         // not in the I2b2PatientDimension object, but in the result
-                        inTrialId: "1234", trial: 'SS_FOO_CD', sex: 'female',
+                        inTrialId: "1234", trial: 'SS_FOO_CD', sex: 'female', subjectIds: [:],
         ]
         Patient p = new I2b2PatientDimension(properties)
 

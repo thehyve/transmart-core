@@ -2,21 +2,38 @@
 
 package org.transmartproject.db.multidimquery
 
-import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.counts.Counts
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Combination
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.ModifierConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.OrConstraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
+import org.transmartproject.core.multidimquery.query.TimeConstraint
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
-import org.transmartproject.db.multidimquery.query.*
+import org.transmartproject.db.clinical.PatientSetService
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 
 import static org.hamcrest.Matchers.*
@@ -29,6 +46,19 @@ class QueryServicePgSpec extends Specification {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+
+    @Autowired
+    AggregateDataResource aggregateDataResource
+
+    @Autowired
+    PatientSetService patientSetResource
+
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+    private static final DateFormat UTC_DATE_FORMAT
+    static {
+        UTC_DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+        UTC_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone('UTC'))
+    }
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
@@ -56,13 +86,7 @@ class QueryServicePgSpec extends Specification {
             sourcesystemCd == 'CLINICAL_TRIAL_HIGHDIM:1'
         }
         Constraint assayConstraint = new PatientSetConstraint(patientIds: malesIn26*.id)
-        Constraint combinationConstraint = new Combination(
-                operator: Operator.AND,
-                args: [
-                        conceptConstraint,
-                        assayConstraint
-                ]
-        )
+        Constraint combinationConstraint = new AndConstraint([conceptConstraint, assayConstraint])
 
         when:
         Hypercube hypercube = multiDimService.highDimension(combinationConstraint, user, 'autodetect')
@@ -109,7 +133,7 @@ class QueryServicePgSpec extends Specification {
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def trialVisitConstraint = new FieldConstraint(
                 field: new Field(
-                        dimension: TRIAL_VISIT,
+                        dimension: TRIAL_VISIT.name,
                         fieldName: 'relTimeLabel',
                         type: 'STRING'
                 ),
@@ -119,7 +143,7 @@ class QueryServicePgSpec extends Specification {
 
         when:
         trialVisitConstraint.value = 'Baseline'
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
+        combination = new AndConstraint([conceptConstraint, trialVisitConstraint])
         Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -130,7 +154,7 @@ class QueryServicePgSpec extends Specification {
 
         when:
         trialVisitConstraint.value = 'Week 1'
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
+        combination = new Combination(Operator.AND, [conceptConstraint, trialVisitConstraint])
         hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -138,7 +162,7 @@ class QueryServicePgSpec extends Specification {
 
         hypercube.dimensionElements(ASSAY).size() == 1
         def patient = hypercube.dimensionElement(PATIENT, 0)
-        patient.id == -601
+        patient.subjectIds.get('SUBJ_ID') == 'CTHD:601'
         patient.age == 26
 
         cleanup:
@@ -148,31 +172,48 @@ class QueryServicePgSpec extends Specification {
     void 'get hd data for selected time constraint'() {
         def user = User.findByUsername('test-public-user-2')
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def startDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: START_TIME,
+                        dimension: START_TIME.name,
                         fieldName: 'startDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-03-29 10:30:30')],
+                values: [DATE_FORMAT.parse('2016-03-29 10:30:30')],
                 operator: Operator.AFTER
+        )
+        def startDateTimeInclusiveConstraint = new TimeConstraint(
+                field: new Field(
+                        dimension: START_TIME.name,
+                        fieldName: 'startDate',
+                        type: 'DATE'
+                ),
+                values: [DATE_FORMAT.parse('2016-03-29 10:30:30')],
+                operator: Operator.GREATER_THAN_OR_EQUALS
         )
 
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: END_TIME,
+                        dimension: END_TIME.name,
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-04-02 01:00:00')],
+                values: [DATE_FORMAT.parse('2016-04-02 00:00:00')],
                 operator: Operator.BEFORE
+        )
+        def endDateTimeInclusiveConstraint = new TimeConstraint(
+                field: new Field(
+                        dimension: END_TIME.name,
+                        fieldName: 'endDate',
+                        type: 'DATE'
+                ),
+                values: [DATE_FORMAT.parse('2016-04-02 00:00:00')],
+                operator: Operator.LESS_THAN_OR_EQUALS
         )
 
         def combination
         Hypercube hypercube
         when:
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, startDateTimeConstraint])
+        combination = new Combination(Operator.AND, [conceptConstraint, startDateTimeConstraint])
         hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -180,7 +221,22 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(ASSAY).size() == 3
 
         when:
-        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
+        combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeConstraint])
+        hypercube = multiDimService.highDimension(combination, user, 'autodetect')
+
+        then:
+        hypercube.toList().empty
+
+        when:
+        combination = new Combination(Operator.AND, [conceptConstraint, startDateTimeInclusiveConstraint])
+        hypercube = multiDimService.highDimension(combination, user, 'autodetect')
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(ASSAY).size() == 4
+
+        when:
+        combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeInclusiveConstraint])
         hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
@@ -204,13 +260,12 @@ class QueryServicePgSpec extends Specification {
 
     void 'Clinical data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
-        def minDate = sdf.parse('2016-04-01 10:00:00')
+        def minDate = DATE_FORMAT.parse('2016-04-01 10:00:00')
         def visitStartConstraint = new FieldConstraint(
                 operator: Operator.AFTER,
                 value: minDate,
                 field: new Field(
-                        dimension: VISIT,
+                        dimension: VISIT.name,
                         fieldName: 'startDate',
                         type: 'DATE'
                 )
@@ -218,10 +273,7 @@ class QueryServicePgSpec extends Specification {
         def studyNameConstraint = new StudyNameConstraint(
                 studyId: 'EHR'
         )
-        def combination = new Combination(
-                args: [visitStartConstraint, studyNameConstraint],
-                operator: Operator.AND
-        )
+        def combination = new Combination(Operator.AND, [visitStartConstraint, studyNameConstraint])
         when:
         Hypercube hypercube = multiDimService.retrieveClinicalData(combination, user)
         def observations = hypercube.toList()
@@ -236,15 +288,13 @@ class QueryServicePgSpec extends Specification {
         if (hypercube) hypercube.close()
     }
 
-
     void 'HD data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def timeDimensionConstraint = new FieldConstraint(
                 operator: Operator.AFTER,
-                value: sdf.parse('2016-05-05 10:00:00'),
+                value: DATE_FORMAT.parse('2016-05-05 10:00:00'),
                 field: new Field(
-                        dimension: VISIT,
+                        dimension: VISIT.name,
                         fieldName: 'endDate',
                         type: 'DATE'
                 )
@@ -254,8 +304,8 @@ class QueryServicePgSpec extends Specification {
                 path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\'
         )
         def combination = new Combination(
-                args: [timeDimensionConstraint, conceptConstraint],
-                operator: Operator.AND
+                Operator.AND,
+                [timeDimensionConstraint, conceptConstraint]
         )
         when:
         Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
@@ -267,7 +317,6 @@ class QueryServicePgSpec extends Specification {
         cleanup:
         if (hypercube) hypercube.close()
     }
-
 
     void 'HD data selected based on sample type (modifier)'() {
         def user = User.findByUsername('test-public-user-1')
@@ -286,8 +335,8 @@ class QueryServicePgSpec extends Specification {
         )
 
         def combination = new Combination(
-                operator: Operator.AND,
-                args: [modifierConstraint, conceptConstraint]
+                Operator.AND,
+                [modifierConstraint, conceptConstraint]
         )
         when:
         Hypercube hypercube = multiDimService.retrieveClinicalData(combination, user)
@@ -302,19 +351,18 @@ class QueryServicePgSpec extends Specification {
 
     void 'Test for empty set of assayIds'() {
         def user = User.findByUsername('test-public-user-1')
-        def sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: END_TIME,
+                        dimension: END_TIME.name,
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
-                values: [sdf.parse('2016-04-02 01:00:00')],
+                values: [DATE_FORMAT.parse('2016-04-02 01:00:00')],
                 operator: Operator.AFTER //only exist one before, none after
         )
         when:
-        Combination combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
+        Combination combination = new Combination(Operator.AND, [conceptConstraint, endDateTimeConstraint])
         Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
 
 
@@ -327,14 +375,14 @@ class QueryServicePgSpec extends Specification {
 
     void 'get data for the patient with given id'() {
         def user = User.findByUsername('test-public-user-1')
-        Constraint subjectIdConstraint = new PatientSetConstraint(subjectIds: ['123457'])
+        Constraint subjectIdConstraint = new PatientSetConstraint(subjectIds: ['2'])
 
 
         when:
         Hypercube hypercube = multiDimService.retrieveClinicalData(subjectIdConstraint, user)
         then:
         hypercube.dimensionElements(PATIENT).size() == 1
-        hypercube.dimensionElements(PATIENT).first().id == -3001L
+        hypercube.dimensionElements(PATIENT).first().subjectIds.get('SUBJ_ID') == '2'
 
         cleanup:
         if (hypercube) hypercube.close()
@@ -348,8 +396,8 @@ class QueryServicePgSpec extends Specification {
         }
         Constraint assayConstraint = new PatientSetConstraint(patientIds: secondSubject*.id)
         Constraint combinationConstraint = new Combination(
-                operator: Operator.AND,
-                args: [
+                Operator.AND,
+                [
                         conceptConstraint,
                         assayConstraint
                 ]
@@ -408,8 +456,8 @@ class QueryServicePgSpec extends Specification {
         def user = User.findByUsername('test-public-user-1')
 
         Constraint constraint = new SubSelectionConstraint(
-                dimension: VISIT,
-                constraint: new AndConstraint(args: [
+                dimension: VISIT.name,
+                constraint: new AndConstraint([
                         new ValueConstraint(
                                 valueType: "NUMERIC",
                                 operator: Operator.EQUALS,
@@ -469,11 +517,11 @@ class QueryServicePgSpec extends Specification {
                 '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        QueryResult patientSetQueryResult = multiDimService.createPatientSetQueryResult("Test set",
+        QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult("Test set",
                 constraint,
                 user,
-                (constraint as JSON).toString(),
-                'v2')
+                'v2',
+                false)
 
         then:
         patientSetQueryResult.id > 0
@@ -486,8 +534,80 @@ class QueryServicePgSpec extends Specification {
         def patientSetEntries = QtPatientSetCollection
                 .findAllByResultInstance(QtQueryResultInstance.load(patientSetQueryResult.id))
         patientSetEntries.size() == 3
-        (patientSetEntries*.setIndex - (1..3 as List)).empty
         patientSetEntries*.patient.id != null
+    }
+
+    void "reuse patient set query if one with similar constraints already exists for the user"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        QueryResult patientSetQueryResult1 = patientSetResource.createPatientSetQueryResult("Test set",
+                constraint,
+                user,
+                'v2',
+                false)
+
+        when:
+        QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
+                constraint,
+                user,
+                'v2',
+                true)
+
+        then:
+        patientSetQueryResult1
+        patientSetQueryResult1 == patientSetQueryResult2
+    }
+
+    void "test a new patient set created even there is possibility to reuse"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        QueryResult patientSetQueryResult1 = patientSetResource.createPatientSetQueryResult("Test set",
+                constraint,
+                user,
+                'v2',
+                false)
+
+        when:
+        QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
+                constraint,
+                user,
+                'v2',
+                false)
+
+        then:
+        patientSetQueryResult1
+        patientSetQueryResult1 != patientSetQueryResult2
+    }
+
+    void "test reusing patient set query after the patient set ids cache cleanup"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        QueryResult patientSetQueryResult1 = patientSetResource.createPatientSetQueryResult("Test set",
+                constraint,
+                user,
+                'v2',
+                false)
+
+        when:
+        patientSetResource.clearPatientSetIdsCache()
+        QueryResult patientSetQueryResult2 = patientSetResource.createPatientSetQueryResult("Test set 2",
+                constraint,
+                user,
+                'v2',
+                true)
+
+        then:
+        patientSetQueryResult1
+        patientSetQueryResult1 != patientSetQueryResult2
     }
 
     void "test large text values (raw data type)"() {
@@ -496,12 +616,12 @@ class QueryServicePgSpec extends Specification {
         ConceptConstraint constraint = new ConceptConstraint(conceptCode: 'favouritebook')
 
         when:
-        Long observationCount = multiDimService.count(constraint, user)
+        Counts counts = aggregateDataResource.counts(constraint, user)
         Hypercube data = multiDimService.retrieveClinicalData(constraint, user)
         def values = data.collect { HypercubeValue value -> value.value as String }
 
         then:
-        observationCount == 2
+        counts.observationCount == 2
         that values, hasSize(2)
         that values, hasItems(containsString('The Brothers Karamazov'), containsString('funny dialogues'))
     }
@@ -509,229 +629,129 @@ class QueryServicePgSpec extends Specification {
     void "test searching for large text values (raw data type)"() {
         def user = User.findByUsername('test-public-user-1')
 
-        Constraint constraint = new AndConstraint(args: [
+        Constraint constraint = new AndConstraint([
                 new ConceptConstraint(conceptCode: 'favouritebook'),
                 new ValueConstraint(Type.TEXT, Operator.CONTAINS, 'Karamazov')
         ])
 
         when:
-        Long observationCount = multiDimService.count(constraint, user)
+        Counts counts = aggregateDataResource.counts(constraint, user)
         Hypercube data = multiDimService.retrieveClinicalData(constraint, user)
         def values = data.collect { HypercubeValue value -> value.value as String }
 
         then:
-        observationCount == 1
+        counts.observationCount == 1
         that values, hasSize(1)
         that values, hasItems(containsString('The Brothers Karamazov'))
     }
 
-    /**
-     * Test the functionality to count patients and observations grouped by
-     * study, concept, or concept and study.
-     */
-    void "test counts per study, concept"() {
-        def user = User.findByUsername('test-public-user-1')
-        Constraint studyConstraint = new StudyNameConstraint(studyId: "EHR")
-
-        when: "fetching all counts per concept for study EHR"
-        def countsPerConcept = multiDimService.countsPerConcept(studyConstraint, user)
-
-        then: "the result should contain entries for both concepts in the study"
-        !countsPerConcept.empty
-        countsPerConcept.keySet() == ['EHR:DEM:AGE', 'EHR:VSIGN:HR'] as Set
-
-        then: "the result should contain the correct counts for both concepts"
-        countsPerConcept['EHR:DEM:AGE'].patientCount == 3
-        countsPerConcept['EHR:DEM:AGE'].observationCount == 3
-        countsPerConcept['EHR:VSIGN:HR'].patientCount == 3
-        countsPerConcept['EHR:VSIGN:HR'].observationCount == 9
-
-        when: "fetching all counts per study"
-        def countsPerStudy = multiDimService.countsPerStudy(new TrueConstraint(), user)
-
-        then: "the result should contain all study ids as key"
-        !countsPerStudy.empty
-        countsPerStudy.keySet() == [
-                'CATEGORICAL_VALUES',
-                'CLINICAL_TRIAL',
-                'CLINICAL_TRIAL_HIGHDIM',
-                'EHR',
-                'EHR_HIGHDIM',
-                'MIX_HD',
-                'ORACLE_1000_PATIENT',
-                'RNASEQ_TRANSCRIPT',
-                'SHARED_CONCEPTS_STUDY_A',
-                'SHARED_CONCEPTS_STUDY_B',
-                'SHARED_HD_CONCEPTS_STUDY_A',
-                'SHARED_HD_CONCEPTS_STUDY_B',
-                'TUMOR_NORMAL_SAMPLES',
-                'SURVEY1',
-                'SURVEY2',
-        ] as Set
-
-        then: "the result should have the correct counts for study EHR"
-        countsPerStudy['EHR'].patientCount == 3
-        countsPerStudy['EHR'].observationCount == 12
-
-        when: "fetching all counts per study and concept"
-        def countsPerStudyAndConcept = multiDimService.countsPerStudyAndConcept(new TrueConstraint(), user)
-        def observationCount = multiDimService.count(new TrueConstraint(), user)
-
-        then: "the result should contain the counts for study EHR and concept EHR:VSIGN:HR"
-        !countsPerStudyAndConcept.empty
-        countsPerStudyAndConcept.keySet() == countsPerStudy.keySet()
-        countsPerStudyAndConcept['EHR']['EHR:VSIGN:HR'].patientCount == 3
-        countsPerStudyAndConcept['EHR']['EHR:VSIGN:HR'].observationCount == 9
-
-        then: "the total observation count should be equal to the sum of observation counts of the returned map"
-        observationCount == countsPerStudyAndConcept.values().sum { Map<String, Counts> countsMap ->
-            countsMap.values().sum { Counts counts -> counts.observationCount }
-        }
-    }
-
-    void 'test numerical value aggregates'() {
-        def user = User.findByUsername('test-public-user-1')
-        def userWithAccessToMoreData = User.findByUsername('test-public-user-2')
-
-        when:
-        def heartRate = new ConceptConstraint(path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
-        def result = multiDimService.numericalValueAggregatesPerConcept(heartRate, user)
-        then: 'expected aggregates are calculated'
-        result.size() == 1
-        'EHR:VSIGN:HR' in result
-        result['EHR:VSIGN:HR'].min == 56d
-        result['EHR:VSIGN:HR'].max == 102d
-        result['EHR:VSIGN:HR'].avg.round(2) == 74.78d
-        result['EHR:VSIGN:HR'].count == 9
-        result['EHR:VSIGN:HR'].stdDev.round(2) == 14.7d
-
-        when: 'numerical aggregates run on categorical measures'
-        def categoricalConceptConstraint = new ConceptConstraint(
-                path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
-        def emptyResult = multiDimService.numericalValueAggregatesPerConcept(categoricalConceptConstraint, user)
-        then: 'no numerical aggregates returned'
-        emptyResult.isEmpty()
-
-        when: 'aggregate runs for dataset with one value and one missing value'
-        def missingValuesConstraint = new ConceptConstraint(path: '\\Demographics\\Height\\')
-        def oneValueResult = multiDimService.numericalValueAggregatesPerConcept(missingValuesConstraint, user)
-        then: 'aggregates calculates on the single value'
-        oneValueResult.size() == 1
-        'height' in oneValueResult
-        oneValueResult['height'].min == 169d
-        oneValueResult['height'].max == 169d
-        oneValueResult['height'].avg == 169d
-        oneValueResult['height'].count == 1
-        oneValueResult['height'].stdDev == null
-
-        when: 'we calculate aggregates for shared concept with user that don\'t have access to one study'
-        def crossStudyHeartRate = new ConceptConstraint(path: '\\Vital Signs\\Heart Rate\\')
-        def excludingSecuredRecords = multiDimService
-                .numericalValueAggregatesPerConcept(crossStudyHeartRate, user)
-        then: 'only values user have access are taken to account'
-        excludingSecuredRecords.size() == 1
-        'VSIGN:HR' in excludingSecuredRecords
-        excludingSecuredRecords['VSIGN:HR'].count == 5
-
-        when: 'we calculate the same aggregates with user that have access right to the protected study'
-        def includingSecuredRecords = multiDimService
-                .numericalValueAggregatesPerConcept(crossStudyHeartRate, userWithAccessToMoreData)
-        then: 'the protected study numerical observations are taken to account'
-        includingSecuredRecords.size() == 1
-        'VSIGN:HR' in includingSecuredRecords
-        includingSecuredRecords['VSIGN:HR'].count == 7
-    }
-
-    void 'test categorical value aggregates'() {
-        def user = User.findByUsername('test-public-user-1')
-        def userWithAccessToMoreData = User.findByUsername('test-public-user-2')
-
-        when:
-        def race = new ConceptConstraint(path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
-        def result = multiDimService.categoricalValueAggregatesPerConcept(race, user)
-        then: 'expected categorical values counts have been returned'
-        result.size() == 1
-        'CV:DEM:RACE' in result
-        result['CV:DEM:RACE'].valueCounts == [ Caucasian: 2, Latino: 1 ]
-        result['CV:DEM:RACE'].nullValueCounts == null
-
-        when: 'categorical aggregates run on numerical measures'
-        def heartRate = new ConceptConstraint(path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
-        def emptyResult = multiDimService.categoricalValueAggregatesPerConcept(heartRate, user)
-        then: 'no categorical aggregates returned'
-        emptyResult.isEmpty()
-
-        when: 'aggregate runs for dataset with one value and one missing value'
-        def gender = new ConceptConstraint(path: '\\Demographics\\Gender\\')
-        def withMissingValueResult = multiDimService.categoricalValueAggregatesPerConcept(gender, user)
-        then: 'answer contains count for the value and count for null value'
-        withMissingValueResult.size() == 1
-        'gender' in withMissingValueResult
-        withMissingValueResult['gender'].valueCounts.size() == 1
-        withMissingValueResult['gender'].valueCounts['Male'] == 1
-        withMissingValueResult['gender'].nullValueCounts == 1
-
-        when: 'categorical aggregates runs on crosstudy concept with user that have limite access'
-        def placeOfBirth = new ConceptConstraint(path: '\\Demographics\\Place of birth\\')
-        def excludingSecuredRecords = multiDimService.categoricalValueAggregatesPerConcept(placeOfBirth, user)
-        then: 'answer excludes not visible observations for the user'
-        excludingSecuredRecords.size() == 1
-        'DEMO:POB' in excludingSecuredRecords
-        excludingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 1
-        excludingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 3
-        excludingSecuredRecords['DEMO:POB'].nullValueCounts == null
-
-        when: 'now by user who has access to the private study'
-        def includingSecuredRecords = multiDimService.categoricalValueAggregatesPerConcept(placeOfBirth,
-                userWithAccessToMoreData)
-        then: 'answer includes observations from the private study'
-        includingSecuredRecords.size() == 1
-        'DEMO:POB' in includingSecuredRecords
-        includingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 2
-        includingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 4
-        includingSecuredRecords['DEMO:POB'].nullValueCounts == null
-    }
-
-    void 'test missing values aggregates'() {
-        def user = User.findByUsername('test-public-user-1')
-
-        when: 'querying for null values for concept gender'
-        Constraint constraint = new AndConstraint(
-                args: [
-                        new ConceptConstraint(conceptCode: 'gender'),
-                        new ValueConstraint(Type.STRING, Operator.EQUALS, null)
-                ])
-        def result = multiDimService.counts(constraint, user)
-
-        then: 'one observation is found'
-        result.patientCount == 1
-        result.observationCount == 1
-    }
-
     void "test time values constraint"() {
         def user = User.findByUsername('test-public-user-1')
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
 
         Constraint constraint = new AndConstraint(
-                args: [
+                [
                         new ConceptConstraint(path: '\\Demographics\\Birth Date\\'),
                         new TimeConstraint(
                             field: new Field(
-                                    dimension: VALUE,
+                                    dimension: VALUE.name,
+                                    //TODO Has to fail after TMT-420
                                     fieldName: 'numberValue',
-                                    type: 'DATE'
+                                    type: Type.DATE
                             ),
-                            values: [sdf.parse('1986-10-21 00:00:00'), sdf.parse('1986-10-23 00:00:00')],
+                            values: [DATE_FORMAT.parse('1986-10-21 00:00:00'), DATE_FORMAT.parse('1986-10-23 00:00:00')],
                             operator: Operator.BETWEEN
                         )
                 ]
         )
 
         when:
-        def result = multiDimService.retrieveClinicalData(constraint, user).asList()
+        def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
 
         then:
-        result.size() == 1
+        values.size() == 1
+        values[0] instanceof Date
+        values[0] == UTC_DATE_FORMAT.parse('1986-10-22 00:00:00')
+    }
+
+    void "test values of date type"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint constraint = new ValueConstraint(valueType: Type.DATE, operator: Operator.AFTER,
+                value: DATE_FORMAT.parse('1986-10-21 00:00:00'))
+
+        when:
+        def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
+
+        then:
+        values.size() == 1
+        values[0] instanceof Date
+        values[0] == UTC_DATE_FORMAT.parse('1986-10-22 00:00:00')
+    }
+
+    void 'test multiple subselect constraints'() {
+        given: 'a query with two subselect subqueries'
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint subConstraint1 = new AndConstraint([
+                new StudyNameConstraint('SURVEY1'),
+                new ConceptConstraint('favouritebook')
+        ])
+
+        Constraint subselectConstraint1 = new SubSelectionConstraint('patient', subConstraint1)
+
+        Constraint subConstraint2 = new ConceptConstraint('twin')
+
+        Constraint subselectConstraint2 = new SubSelectionConstraint('patient', subConstraint2)
+
+        Constraint multipleSubselectConstraint = new OrConstraint([
+                subselectConstraint1,
+                subselectConstraint2
+        ])
+
+        when: 'executing the query and the subqueries of which it is are composed'
+        def subselectResult1 = multiDimService.retrieveClinicalData(subselectConstraint1, user).asList()
+        def subselectResult2 = multiDimService.retrieveClinicalData(subselectConstraint2, user).asList()
+        def multipleSubselectResult = multiDimService.retrieveClinicalData(multipleSubselectConstraint, user).asList()
+
+        then: 'the combined subselect result match the results of the separate subselect queries'
+        subselectResult1.size() == 16
+        subselectResult2.size() == 15
+        // in this case the selected patient sets (and, hence, the observation sets)
+        // happen to be disjoint, so the result should equal to the sum of the separate queries
+        multipleSubselectResult.size() == subselectResult1.size() + subselectResult2.size()
+    }
+
+    void 'test numerical constraints'() {
+        given: 'a constraint for temperature readings'
+        def user = User.findByUsername('test-public-user-2')
+
+        Constraint temperature = new ConceptConstraint('VSIGN:TEMP')
+
+        when: 'retrieving aggregates for the concept'
+        def aggregates = aggregateDataResource.numericalValueAggregatesPerConcept(temperature, user)
+
+        then: 'the aggregates match expected values'
+        aggregates['VSIGN:TEMP'].count == 7
+        aggregates['VSIGN:TEMP'].min == 55
+        aggregates['VSIGN:TEMP'].max == 89
+
+        when: 'restricting to values < 82'
+        Constraint lessThan = new AndConstraint([temperature, new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN, 82)])
+        def aggregates2 = aggregateDataResource.numericalValueAggregatesPerConcept(lessThan, user)
+
+        then: 'the aggregates differ from the previous accordingly'
+        aggregates2['VSIGN:TEMP'].count == 4
+        aggregates2['VSIGN:TEMP'].min == 55
+        aggregates2['VSIGN:TEMP'].max == 81
+
+        when: 'restricting to values <= 82'
+        Constraint lessThanOrEquals = new AndConstraint([temperature, new ValueConstraint(Type.NUMERIC, Operator.LESS_THAN_OR_EQUALS, 82)])
+        def aggregates3 = aggregateDataResource.numericalValueAggregatesPerConcept(lessThanOrEquals, user)
+
+        then: 'the aggregates differ from the previous accordingly'
+        aggregates3['VSIGN:TEMP'].count == 6
+        aggregates3['VSIGN:TEMP'].min == 55
+        aggregates3['VSIGN:TEMP'].max == 82
     }
 
 }

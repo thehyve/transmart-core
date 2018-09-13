@@ -1,0 +1,89 @@
+---
+grails:
+    profile: rest-api
+    codegen:
+        defaultPackage: org.transmartproject.api.server
+    spring:
+        transactionManagement:
+            proxies: false
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    main:
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+
+# Spring Actuator Endpoints are Disabled by Default
+endpoints:
+    enabled: false
+    jmx:
+        enabled: true
+
+---
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: true
+        use_query_cache: false
+        region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+dataSource:
+    url: jdbc:postgresql://localhost:5432/transmart
+    driverClassName: org.postgresql.Driver
+    username: biomart_user
+    password: biomart_user
+    dbCreate: none
+    pooled: true
+    jmxExport: true
+    logSql: false
+    formatql: false
+    properties:
+        jmxEnabled: true
+        initialSize: 5
+        maxActive: 50
+        minIdle: 5
+        maxIdle: 25
+        maxWait: 10000
+        maxAge: 600000
+        timeBetweenEvictionRunsMillis: 5000
+        minEvictableIdleTimeMillis: 60000
+        validationQuery: SELECT 1
+        validationQueryTimeout: 3
+        validationInterval: 15000
+        testOnBorrow: true
+        testWhileIdle: true
+        testOnReturn: false
+        jdbcInterceptors: ConnectionState
+        defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+
+grails:
+    cors:
+        enabled: true
+
+server:
+    port: 8081
+
+environments:
+    test:
+        keycloak:
+            realm: test
+            bearer-only: true
+            auth-server-url: http://localhost:8080/auth
+            resource: transmart
+            use-resource-role-mappings: true
+    development:
+        keycloak:
+            realm: dev
+            bearer-only: true
+            auth-server-url: http://localhost:8080/auth
+            resource: transmart
+            use-resource-role-mappings: true
+#            disable-trust-manager: false  # when true, SSL certificate checking is disabled. Do not use that in production!
+
+#        keycloakOffline:
+#            offlineToken: <offline token>

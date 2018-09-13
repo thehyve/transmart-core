@@ -3,6 +3,7 @@
 package org.transmartproject.db.dataquery.highdim.rnaseq.transcript
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -22,8 +23,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqValuesProjection
-
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /**
  * Created by olafmeuwese on 14/10/16.
@@ -126,37 +125,43 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
-    @Override
+    @Override @CompileStatic
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
 
         Map assayIndexMap = createAssayIndexMap(assays)
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<RegionRowImpl>(
                 rowsDimensionLabel: "Transcripts",
                 columnsDimensionLabel: "Sample codes",
                 indicesList: assays,
                 results: results,
                 allowMissingAssays: true,
-                assayIdFromRow: { it[0].assayId },
-                inSameGroup: { a, b -> a.transcript == b.transcript },
-                finalizeGroup: { List list ->
-                    def firstRow = list.find()[0]
+            ) {
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
+
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.transcript == b.transcript }
+
+                @Override @CompileStatic
+                RegionRowImpl finalizeRow(List<Map> list) {
+                    Map firstRow = findFirst list
                     new RegionRowImpl(
-                            id: firstRow.id,
-                            chromosome: firstRow.chromosome,
-                            start: firstRow.start,
-                            end: firstRow.end,
-                            bioMarker: firstRow.transcript,
+                            id: (Long) firstRow.id,
+                            chromosome: (String) firstRow.chromosome,
+                            start: (Long) firstRow.start,
+                            end: (Long) firstRow.end,
+                            bioMarker: (String) firstRow.transcript,
                             platform: new PlatformImpl(
-                                    id: firstRow.platformId,
-                                    markerType: firstRow.platformMarkerType,
-                                    genomeReleaseId: firstRow.platformGenomeReleaseId
+                                    id: (String) firstRow.platformId,
+                                    markerType: (String) firstRow.platformMarkerType,
+                                    genomeReleaseId: (String) firstRow.platformGenomeReleaseId
 
                             ),
                             assayIndexMap: assayIndexMap,
-                            data: list.collect { projection.doWithResult(it?.getAt(0)) }
+                            data: doWithProjection(projection, list)
                     )
                 }
-        )
+        }
     }
 }

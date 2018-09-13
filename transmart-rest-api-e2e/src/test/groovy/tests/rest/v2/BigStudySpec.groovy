@@ -23,9 +23,8 @@ class BigStudySpec extends RESTSpec {
         def request = [
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([
-                        type    : Combination,
-                        operator: AND,
+                query     : [constraint: [
+                        type    : 'and',
                         args    : [
                                 [type: StudyNameConstraint, studyId: ORACLE_1000_PATIENT_ID],
                                 [type    : FieldConstraint,
@@ -35,27 +34,23 @@ class BigStudySpec extends RESTSpec {
                                  operator: LESS_THAN,
                                  value   : 70]
                         ]
-                ]),
+                ]],
                 statusCode: 200
         ]
 
-
         when:
-
         def responseData = get(request)
 
         then:
         println(responseData.patients.size())
         assert responseData.patients.size() > 1000
-
     }
 
     def "get observations for 1000 patients"() {
-
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
+                query     : [constraint: [
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -67,13 +62,11 @@ class BigStudySpec extends RESTSpec {
                                  operator: LESS_THAN,
                                  value   : 70]
                         ]
-                ]),
+                ]],
                 statusCode: 200
         ]
 
-
         when:
-
         def responseData = get(request)
         def selector = newSelector(responseData)
 

@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.rnaseq
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -34,9 +34,10 @@ import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqModule.RNASEQ_VALUES_PROJECTION
@@ -46,10 +47,11 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
+class RnaSeqEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
 
+    @Autowired
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource<RegionRow> rnaseqResource
@@ -58,13 +60,13 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
 
     Projection<RnaSeqValues> projection
 
-    SessionFactory sessionFactory
-
     RnaSeqTestData testData
 
     AssayConstraint trialNameConstraint
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         testData = new RnaSeqTestData()
         testData.saveAll()
 
@@ -88,7 +90,7 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = []
 
@@ -211,7 +213,7 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
@@ -236,7 +238,7 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
@@ -294,7 +296,7 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
@@ -325,7 +327,7 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 rnaseqResource.createDataConstraint([keyword_ids: [testData.searchKeywords.

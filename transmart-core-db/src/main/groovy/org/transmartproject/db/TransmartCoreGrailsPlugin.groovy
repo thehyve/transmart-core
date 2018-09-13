@@ -1,6 +1,7 @@
 package org.transmartproject.db
 
 import grails.plugins.Plugin
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
 /*
  * Copyright © 2013-2014 The Hyve B.V.
@@ -29,6 +30,7 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.ontology.AcrossTrialsConceptsResourceDecorator
 import org.transmartproject.db.ontology.DefaultOntologyTermsResource
 import org.transmartproject.db.support.DatabasePortabilityService
+import org.transmartproject.db.user.UsersResourceService
 
 class TransmartCoreGrailsPlugin extends Plugin {
     // the version or versions of Grails the plugin is designed for
@@ -69,6 +71,7 @@ A runtime dependency for tranSMART that implements the Core API
                 config.org.transmartproject.enableAcrossTrials != false
 
         accessControlChecks(AccessControlChecks)
+        userResource(UsersResourceService)
 
         clinicalVariableFactory(ClinicalVariableFactory) {
             disableAcrossTrials = !haveAcrossTrials
@@ -101,12 +104,17 @@ A runtime dependency for tranSMART that implements the Core API
                     expression: Component.canonicalName)
         }
 
+        context.'component-scan'('base-package': 'org.transmartproject.db.config')
+
         if (!config.org.transmartproject.i2b2.user_id) {
             config.org.transmartproject.i2b2.user_id = 'i2b2'
         }
         if (!config.org.transmartproject.i2b2.group_id) {
             config.org.transmartproject.i2b2.group_id = 'Demo'
         }
+
+        namedParameterJdbcTemplate(NamedParameterJdbcTemplate, ref('dataSource'))
+
     }}
 
     void doWithDynamicMethods() {

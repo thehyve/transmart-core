@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -37,7 +38,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinType.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
@@ -93,6 +93,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
+    @CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                      List<AssayColumn> assays,
                                      Projection projection) {
@@ -100,49 +101,52 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        def preliminaryResult = new DefaultHighDimensionTabularResult(
+        def preliminaryResult = new DefaultHighDimensionTabularResult<ProbeRow>(
                 rowsDimensionLabel:    'Probes',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.probeId == b.probeId && a.geneSymbol == b.geneSymbol },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
+                allowMissingAssays:    true
+            ) {
+                @Override @CompileStatic
+                def assayIdFromRow(Map row) { row.assayId }
+
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) {a.probeId == b.probeId && a.geneSymbol == b.geneSymbol }
+
+                @Override @CompileStatic
+                ProbeRow finalizeRow(List<Map> list) {
                     /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
-                    def firstNonNullCell = list.find()
+                    Map firstNonNullCell = findFirst list
                     new ProbeRow(
-                            probe:         firstNonNullCell[0].probeName,
-                            geneSymbol:    firstNonNullCell[0].geneSymbol,
-                            geneId:        firstNonNullCell[0].geneId,
+                            probe:         (String) firstNonNullCell.probeName,
+                            geneSymbol:    (String) firstNonNullCell.geneSymbol,
+                            geneId:        (String) firstNonNullCell.geneId,
                             assayIndexMap: assayIndexMap,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
+                            data:          doWithProjection(projection, list),
                     )
                 }
-        )
+        }
 
         /* In some implementations, probeset_id is actually not a primary key on
          * the annotations table and several rows will be returned for the same
          * probeset_id, just with different genes.
          * Hence the order by clause and the definition of inSameGroup above */
-        new RepeatedEntriesCollectingTabularResult(
-                tabularResult: preliminaryResult,
-                collectBy: { it.probe },
-                resultItem: {collectedList ->
-                    if (collectedList) {
-                        new ProbeRow(
-                                probe:         collectedList[0].probe,
-                                geneSymbol:    RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneSymbol, '/'),
-                                geneId:        RepeatedEntriesCollectingTabularResult.safeJoin(
-                                        collectedList*.geneId, '/'),
-                                assayIndexMap: collectedList[0].assayIndexMap,
-                                data:          collectedList[0].data
-                        )
+        new RepeatedEntriesCollectingTabularResult<ProbeRow>(preliminaryResult) {
+            @Override @CompileStatic def collectBy(ProbeRow it) { it.probe }
+            @Override @CompileStatic ProbeRow resultItem(List<ProbeRow> collectedList) {
+                if (collectedList) {
+                    new ProbeRow(
+                            probe: collectedList[0].probe,
+                            geneSymbol: safeJoin(collectedList*.geneSymbol, '/'),
+                            geneId: safeJoin(collectedList*.geneId, '/'),
+                            assayIndexMap: collectedList[0].assayIndexMap,
+                            data: collectedList[0].data
+                    )
+                } else {null}
             }
-            }
-        )
+        }
     }
 
     @Override

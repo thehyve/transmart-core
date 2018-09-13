@@ -70,6 +70,10 @@ grails.databinding.trimStrings = false
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 
+// Runtime configuration for the parallel export and counting implementations.
+org.transmartproject.system.numberOfWorkers = Runtime.getRuntime().availableProcessors()
+org.transmartproject.system.patientSetChunkSize = 10000
+
 com.recomdata.skipdisclaimer = true
 
 //core-db settings
@@ -259,6 +263,7 @@ grails { plugin { springsecurity {
                 [pattern: '/userGroup/**',               access: ['ROLE_ADMIN']],
                 //TODO This looks dangerous. It opens acess to the gwas data for everybody.
                 [pattern: '/gwasWeb/**',                 access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/v2/admin/**',                access: ['ROLE_ADMIN']],
                 [pattern: '/oauthAdmin/**',              access: ['ROLE_ADMIN']],
                 [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']]
         ] +
@@ -335,8 +340,6 @@ dataSources {
         username = 'sa'
         password = ''
         dbCreate = 'update'
-        logSql = true
-        formatSql = true
     }
 }
 hibernate {
@@ -369,7 +372,7 @@ environments {
                 username = 'sa'
                 password = ''
                 dbCreate = 'update'
-                logSql = true
+                logSql = false
                 formatSql = true
             }
         }

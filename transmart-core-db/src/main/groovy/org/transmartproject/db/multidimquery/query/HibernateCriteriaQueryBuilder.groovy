@@ -2,74 +2,96 @@
 
 package org.transmartproject.db.multidimquery.query
 
+import grails.util.Holders
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
-import org.hibernate.criterion.Criterion
-import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.MatchMode
-import org.hibernate.criterion.ProjectionList
-import org.hibernate.criterion.Projections
-import org.hibernate.criterion.Restrictions
-import org.hibernate.criterion.Subqueries
+import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
-import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.PatientMapping
-import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.i2b2data.TrialVisit
+import org.hibernate.type.IntegerType
+import org.hibernate.type.LongType
+import org.transmartproject.core.multidimquery.query.*
+import org.transmartproject.core.ontology.MDStudiesResource
+import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.pedigree.RelationTypeResource
+import org.transmartproject.db.i2b2data.*
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
+import org.transmartproject.db.ontology.TrialVisitsService
+import org.transmartproject.db.pedigree.Relation
+import org.transmartproject.db.pedigree.RelationType
+import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.support.DatabasePortabilityService
+import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
  * the query.
  * Example:
  * <code>
- *     def builder = new CriteriaQueryBuilder(
- *         studies: studies
- *     )
- *     def query = new ObservationQuery(
- *         constraint: new TrueConstraint(),
- *         queryType: QueryType.VALUES)
- *     def results = builder.build(query).list()
+ *     def builder = HibernateCriteriaQueryBuilder.forStudies(studies)
+ *     def query = new ConceptConstraint(conceptCode: 'favouritebook')
+ *     def criteria = builder.buildCriteria(query)
+ *     def results = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
  * </code>
  */
 @Slf4j
-class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedCriteria> {
+@CompileStatic
+class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> implements QueryBuilder<DetachedCriteria> {
 
     public static final String SUBJECT_ID_SOURCE = 'SUBJ_ID'
+    public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+    static final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
+
+    static HibernateCriteriaQueryBuilder forStudies(Collection<MDStudy> studies) {
+        new HibernateCriteriaQueryBuilder(false, studies)
+    }
+
+    static HibernateCriteriaQueryBuilder forAllStudies() {
+        new HibernateCriteriaQueryBuilder(true, null)
+    }
+
+    static MDStudiesResource getStudiesResource() {
+        ((MDStudiesResource)Holders.grailsApplication.mainContext['MDStudiesService'])
+    }
+
+    static TrialVisitsService getTrialVisitsService() {
+        ((TrialVisitsService)Holders.grailsApplication.mainContext['trialVisitsService'])
+    }
+
+    static RelationTypeResource getRelationTypeResource() {
+        ((RelationTypeResource)Holders.grailsApplication.mainContext['relationTypeService'])
+    }
+
     final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(VALUE)
     final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
     final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
     final Field textValueField = valueMetadata.fields.find { it.fieldName == 'textValue' }
     final Field rawValueField = valueMetadata.fields.find { it.fieldName == 'rawValue' }
-    final Field patientIdField = new Field(dimension: PATIENT, fieldName: 'id', type: Type.ID)
-    final Field startTimeField = new Field(dimension: START_TIME, fieldName: 'startDate', type: Type.DATE)
-
-    public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+    final Field patientIdField = new Field(dimension: PATIENT.name, fieldName: 'id', type: Type.ID)
+    final Field startTimeField = new Field(dimension: START_TIME.name, fieldName: 'startDate', type: Type.DATE)
 
     protected Map<String, Integer> aliasSuffixes = [:]
     Map<String, String> aliases = [:]
-    Collection<Study> studies = null
+    final Collection<MDStudy> studies
+    final boolean accessToAllStudies
 
-    Collection<Study> getStudies() {
-        if (studies == null) {
-            throw new QueryBuilderException("Studies not set. Please set the accessible studies.")
-        }
-        studies
+
+    private HibernateCriteriaQueryBuilder(boolean accessToAllStudies, Collection<MDStudy> studies) {
+        this.accessToAllStudies = accessToAllStudies
+        this.studies = studies
     }
 
     HibernateCriteriaQueryBuilder subQueryBuilder() {
-        new HibernateCriteriaQueryBuilder(
-                aliasSuffixes: aliasSuffixes,
-                studies: studies
-        )
+        HibernateCriteriaQueryBuilder subQueryBuilder =
+                accessToAllStudies ? forAllStudies() : forStudies(studies)
+        subQueryBuilder.aliasSuffixes = aliasSuffixes
+        subQueryBuilder
     }
 
     /**
@@ -97,13 +119,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * Compiles the property name for <code>field</code> from the dimension property name and the field name.
      */
     String getFieldPropertyName(Field field) {
-        def metadata = DimensionMetadata.forDimension(field.dimension)
+        def metadata = DimensionMetadata.forDimensionName(field.dimension)
+        log.debug "Field property name: field = ${field}, dimension: ${field.dimension}, metadata: ${metadata} | ${metadata.type}"
         switch (metadata.type) {
-            case DimensionImpl.ImplementationType.COLUMN:
+            case ImplementationType.COLUMN:
                 return metadata.fieldName
-            case DimensionImpl.ImplementationType.MODIFIER:
-            case DimensionImpl.ImplementationType.VALUE:
-            case DimensionImpl.ImplementationType.VISIT:
+            case ImplementationType.MODIFIER:
+            case ImplementationType.VALUE:
+            case ImplementationType.VISIT:
                 return field.fieldName
             default:
                 break
@@ -140,7 +163,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
 
     /**
      * Creates a criteria for matching value type and value of a {@link ObservationFact} row with
-     * the type and value in the {@link RowValueConstraint}.
+     * the type and value in the {@link org.transmartproject.core.multidimquery.query.RowValueConstraint}.
      */
     Criterion build(RowValueConstraint constraint) {
         String valueTypeCode
@@ -158,6 +181,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 valueTypeCode = ObservationFact.TYPE_RAW_TEXT
                 valueField = rawValueField
                 break
+            case Type.DATE:
+                valueTypeCode = ObservationFact.TYPE_DATE
+                valueField = numberValueField
+                break
             default:
                 throw new QueryBuilderException("Value type not supported: ${constraint.valueType}.")
         }
@@ -168,10 +195,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for value type '${constraint.valueType}'.")
         }
 
-        Constraint conjunction = new AndConstraint(args: [
+        Constraint conjunction = new AndConstraint([
                 new FieldConstraint(field: valueTypeField, operator: Operator.EQUALS, value: valueTypeCode),
                 new FieldConstraint(field: valueField, operator: constraint.operator, value: constraint.value)
-        ])
+        ] as List<Constraint>)
         build(conjunction)
     }
 
@@ -181,8 +208,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      */
     Criterion build(ModifierConstraint constraint) {
         def observationFactAlias = getAlias('observation_fact')
-        def modifierCriterion
-        if (constraint.modifierCode != null) {
+        Criterion modifierCriterion = null
+        if (constraint.modifierCode == '@') {
+            // no need for a subquery
+        } else if (constraint.modifierCode != null) {
             modifierCriterion = Restrictions.eq('modifierCd', constraint.modifierCode)
         } else if (constraint.path != null) {
             String modifierAlias = 'modifier_dimension'
@@ -190,12 +219,11 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             subCriteria.add(Restrictions.eq("${modifierAlias}.path", constraint.path))
             modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("code")))
         } else if (constraint.dimensionName != null) {
-            String dimensionAlias = 'dimesion_description'
+            String dimensionAlias = 'dimension_description'
             DetachedCriteria subCriteria = DetachedCriteria.forClass(DimensionDescription, dimensionAlias)
             subCriteria.add(Restrictions.eq("${dimensionAlias}.name", constraint.dimensionName))
             modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("modifierCode")))
-        }
-        else {
+        } else {
             throw new QueryBuilderException("Modifier constraint shouldn't have a null value for all modifier path, code and dimension name")
         }
         def valueConstraint
@@ -209,23 +237,28 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             // match all records with the modifier
             valueConstraint = new TrueConstraint()
         }
-        QueryBuilder subQueryBuilder = subQueryBuilder()
-        DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
-                .add(Restrictions.eqProperty('encounterNum',    "${observationFactAlias}.encounterNum"))
-                .add(Restrictions.eqProperty('patient',         "${observationFactAlias}.patient"))
-                .add(Restrictions.eqProperty('conceptCode',     "${observationFactAlias}.conceptCode"))
-                .add(Restrictions.eqProperty('providerId',      "${observationFactAlias}.providerId"))
-                .add(Restrictions.eqProperty('startDate',       "${observationFactAlias}.startDate"))
-                .add(Restrictions.eqProperty('instanceNum',     "${observationFactAlias}.instanceNum"))
+        if (modifierCriterion == null) {
+            def valueCriterion = build(valueConstraint)
+            return Restrictions.and(valueCriterion, defaultModifierCriterion)
+        } else {
+            def subQueryBuilder = subQueryBuilder()
+            DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
+                    .add(Restrictions.eqProperty('encounterNum', "${observationFactAlias}.encounterNum"))
+                    .add(Restrictions.eqProperty('patient', "${observationFactAlias}.patient"))
+                    .add(Restrictions.eqProperty('conceptCode', "${observationFactAlias}.conceptCode"))
+                    .add(Restrictions.eqProperty('providerId', "${observationFactAlias}.providerId"))
+                    .add(Restrictions.eqProperty('startDate', "${observationFactAlias}.startDate"))
+                    .add(Restrictions.eqProperty('instanceNum', "${observationFactAlias}.instanceNum"))
 
-        subQuery = subQuery.setProjection(Projections.id())
-        Subqueries.exists(subQuery)
+            subQuery = subQuery.setProjection(Projections.id())
+            Subqueries.exists(subQuery)
+        }
     }
 
     /**
      * Creates a subquery to find observations with the same primary key
      * with observation modifier code '@' and matching the constraint specified by
-     * type, operator and value in the {@link ValueConstraint}.
+     * type, operator and value in the {@link org.transmartproject.core.multidimquery.query.ValueConstraint}.
      */
     Criterion build(ValueConstraint constraint) {
         build(new ModifierConstraint(
@@ -248,10 +281,11 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             if (field.type == Type.OBJECT || field.type == Type.ID) {
                 convertedValue = value as Long
             } else {
-                def fieldType = DimensionMetadata.forDimension(field?.dimension).fieldTypes[field.fieldName]
+                def fieldType = DimensionMetadata.forDimensionName(field?.dimension).fieldTypes[field.fieldName]
                 if (fieldType != null && !fieldType.isInstance(value)) {
                     if (Number.isAssignableFrom(fieldType) && value instanceof Date) {
-                        convertedValue = toNumber(value)
+                        //TODO Remove in TMT-420
+                        convertedValue = toNumber((Date)value)
                     } else {
                         convertedValue = value == null ? null : fieldType.newInstance(value)
                     }
@@ -290,7 +324,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @return a {@link Criterion} object representing the operation.
      */
     static Criterion criterionForOperator(Operator operator, String propertyName, Type type, Object value) {
-        if(!operator.supportsNullValue() && (value == null || (value instanceof Collection && value.contains(null)))) {
+        if(!operator.supportsNullValue() && (value == null || (value instanceof Collection && ((Collection)value).contains(null)))) {
             throw new QueryBuilderException("Null value not supported for '${operator.symbol}' operator.")
         }
         switch(operator) {
@@ -307,30 +341,29 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                     return Restrictions.ne(propertyName, value)
                 }
             case Operator.GREATER_THAN:
+            case Operator.AFTER:
                 return Restrictions.gt(propertyName, value)
             case Operator.GREATER_THAN_OR_EQUALS:
                 return Restrictions.ge(propertyName, value)
             case Operator.LESS_THAN:
+            case Operator.BEFORE:
                 return Restrictions.lt(propertyName, value)
             case Operator.LESS_THAN_OR_EQUALS:
                 return Restrictions.le(propertyName, value)
-            case Operator.BEFORE:
-                return Restrictions.lt(propertyName, value)
-            case Operator.AFTER:
-                return Restrictions.gt(propertyName, value)
             case Operator.BETWEEN:
                 def values = value as List<Date>
                 return Restrictions.between(propertyName, values[0], values[1])
             case Operator.CONTAINS:
-                if (type == Type.STRING) {
+                if (type == Type.STRING || type == Type.TEXT) {
                     return StringUtils.like(propertyName, value.toString(), MatchMode.ANYWHERE)
                 } else {
-                    return Restrictions.in(propertyName, value)
+                    throw new QueryBuilderException(
+                            "Operator '${operator.symbol}' supported only for STRING and TEXT property types.")
                 }
             case Operator.LIKE:
                 return StringUtils.like(propertyName, value.toString(), MatchMode.EXACT)
             case Operator.IN:
-                return Restrictions.in(propertyName, value)
+                return Restrictions.in(propertyName, ((Collection)value).toArray())
             default:
                 throw new QueryBuilderException("Operator '${operator.symbol}' not supported.")
         }
@@ -350,7 +383,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         String propertyName = getFieldPropertyName(field)
         def convertedValue = convertValue(field, value)
         Criterion criterion = criterionForOperator(operator, propertyName, field.type, convertedValue)
-        def fieldType = DimensionMetadata.forDimension(field.dimension).fieldTypes[propertyName]
+        def fieldType = DimensionMetadata.forDimensionName(field.dimension).fieldTypes[propertyName]
         if (fieldType && Date.isAssignableFrom(fieldType)) {
             Restrictions.and(
                     Restrictions.isNotNull(propertyName),
@@ -371,31 +404,33 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      */
     Criterion build(FieldConstraint constraint) {
         assert constraint.field != null
-        if (!constraint.operator.supportsType(constraint.field.type)) {
-            throw new QueryBuilderException("Field type ${constraint.field.type} not supported for operator '${constraint.operator.symbol}'.")
+        def metadata = DimensionMetadata.forDimensionName(constraint.field.dimension)
+        def field = metadata.getMappedField(constraint.field.fieldName)
+        if (!constraint.operator.supportsType(field.type)) {
+            throw new QueryBuilderException("Field type ${field.type} not supported for operator '${constraint.operator.symbol}'.")
         }
-        if (constraint.operator in [Operator.BETWEEN, Operator.IN]) {
+        if (constraint.operator.operatesOnCollection()) {
             if (constraint.value instanceof Collection) {
                 constraint.value.each {
-                    if (!constraint.field.type.supportsValue(it)) {
-                        throw new QueryBuilderException("Value of class ${it?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
+                    if (!field.type.supportsValue(it)) {
+                        throw new QueryBuilderException("Value of class ${it?.class?.simpleName} not supported for field type '${field.type}'.")
                     }
                 }
             } else {
                 throw new QueryBuilderException("Expected collection, got ${constraint.value?.class?.simpleName}.")
             }
         } else {
-            if (!constraint.field.type.supportsValue(constraint.value)) {
-                throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
+            if (!field.type.supportsValue(constraint.value)) {
+                throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${field.type}'.")
             }
         }
-        Criterion criterion = applyOperator(constraint.operator, constraint.field, constraint.value)
-        if (constraint.field.dimension == VISIT) {
+        Criterion criterion = applyOperator(constraint.operator, field, constraint.value)
+        if (field.dimension == VISIT.name) {
             /**
              * special case that requires a subquery, because there is no proper
              * reference to the visit dimension in {@link ObservationFact}.
              */
-            DetachedCriteria subCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.VisitDimension, 'visit')
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(VisitDimension, 'visit')
             subCriteria.add(criterion)
             return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[],
                     subCriteria.setProjection(Projections.projectionList()
@@ -413,12 +448,9 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     Criterion build(TimeConstraint constraint) {
         switch(constraint.operator) {
             case Operator.BEFORE:
-                return build(new FieldConstraint(
-                                field: constraint.field,
-                                operator: constraint.operator,
-                                value: constraint.values[0]
-                ))
             case Operator.AFTER:
+            case Operator.GREATER_THAN_OR_EQUALS:
+            case Operator.LESS_THAN_OR_EQUALS:
                 return build(new FieldConstraint(
                         field: constraint.field,
                         operator: constraint.operator,
@@ -445,41 +477,72 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
 
     /**
      * Creates a criteria object for a patient set by conversion to a field constraint for the patient id field.
+     * Note: OFFSET is a syntax tthat is used by Oracle starting from
      */
     Criterion build(PatientSetConstraint constraint) {
         if (constraint.patientIds) {
             build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
         } else if (constraint.patientSetId != null) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
-            subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))
-            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property("patient")))
+            log.debug "Subquery on patient set with id ${constraint.patientSetId}"
+            if (constraint.offset != null && constraint.limit != null) {
+                log.debug "Restrict subquery to offset ${constraint.offset}, limit ${constraint.limit}"
+                subCriteria.add(Restrictions.sqlRestriction(
+                        '{alias}.result_instance_id = ? order by {alias}.patient_num OFFSET ?' + dbTypeSpecificLimit(),
+                        [constraint.patientSetId, constraint.offset, constraint.limit].toArray(),
+                        [LongType.INSTANCE, IntegerType.INSTANCE, IntegerType.INSTANCE] as org.hibernate.type.Type[]))
+            } else {
+                subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))
+            }
+            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property('patient')))
         } else if (constraint.subjectIds) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(PatientMapping, 'patient_mapping')
             subCriteria.add(Restrictions.in('encryptedId', constraint.subjectIds))
             subCriteria.add(Restrictions.eq('source', SUBJECT_ID_SOURCE))
-            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property("patient")))
+            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property('patient')))
         } else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
         }
     }
 
-    Criterion build(SubSelectionConstraint constraint) {
-        def constraintDim = DimensionMetadata.forDimension(constraint.dimension)
+    /**
+     * Oracle uses different syntax to limit the number of rows
+     * (starting from Oracle 12c R1 (12.1))
+     */
+    private static String dbTypeSpecificLimit() {
+        def dataSource = Holders.applicationContext.getBean(DatabasePortabilityService)
+        if (dataSource.databaseType == ORACLE) {
+            return ' ROWS FETCH NEXT ? ROWS ONLY'
+        } else {
+            return ' limit ?'
+        }
+    }
 
-        switch(constraintDim.type) {
-            case DimensionImpl.ImplementationType.TABLE:
-            case DimensionImpl.ImplementationType.COLUMN:
-                def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
-                String fieldName = constraintDim.fieldName
+    /**
+     * Builds a subquery for a constraint that appears in a subselect constraint.
+     * Creates a new subquery on {@link ObservationFact} with the given constraint
+     * and projects for the subselect dimension.
+     *
+     * @param dimension the dimension to subselect on.
+     * @param constraint the subquery constraint.
+     * @return the subquery.
+     */
+    DetachedCriteria buildSubselect(DimensionMetadata dimension, Constraint constraint) {
+        log.debug "Subselect on dimension ${dimension.dimension.name}."
+        def subQuery = subQueryBuilder().buildCriteria(constraint)
+        switch (dimension.type) {
+            case ImplementationType.TABLE:
+            case ImplementationType.COLUMN:
+                String fieldName = dimension.fieldName
                 subQuery.projection = Projections.property(fieldName)
-                return Subqueries.propertyIn(fieldName, subQuery)
-            case DimensionImpl.ImplementationType.VISIT:
-                def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
+                return subQuery
+            case ImplementationType.VISIT:
                 def projection = subQuery.projection = Projections.projectionList()
                 ['encounterNum', 'patient'].each {
-                    projection.add(Projections.property(it)) }
-                return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], subQuery)
-            case DimensionImpl.ImplementationType.STUDY:
+                    projection.add(Projections.property(it))
+                }
+                return subQuery
+            case ImplementationType.STUDY:
                 // What we actually want is something like
                 //
                 // def subquery = subQueryBuilder().buildCriteria(constraint.constraint)
@@ -490,74 +553,170 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 // with joins, so now using a bunch of subqueries
 
                 // select trial visits from subselection observations
-                def subQuery0 = subQueryBuilder().buildCriteria(constraint.constraint)
-                subQuery0.projection = Projections.property('trialVisit')
+                subQuery.projection = Projections.property('trialVisit')
 
                 // select studies from trial visits
                 def subQuery1 = DetachedCriteria.forClass(TrialVisit).setProjection(Projections.property('study'))
-                subQuery1.add(Subqueries.propertyIn('id', subQuery0))
+                subQuery1.add(Subqueries.propertyIn('id', subQuery))
 
                 // select trial visits from studies
                 def subQuery2 = DetachedCriteria.forClass(TrialVisit)
                 subQuery2.projection = Projections.property('id')
                 subQuery2.add(Subqueries.propertyIn('study', subQuery1))
+                subQuery2
 
                 // limit to the last set of trial visits
-                return Subqueries.propertyIn('trialVisit', subQuery2)
+                return subQuery2
 
-            case DimensionImpl.ImplementationType.MODIFIER:
-                throw new QueryBuilderException("${constraint.constraintName} constraints for modifier dimensions are" +
-                        " not implemented")
+            case ImplementationType.MODIFIER:
+                throw new QueryBuilderException('Subquery constraints for modifier dimensions are not implemented')
+
         }
-        throw new QueryBuilderException("Dimension ${constraint.dimension.name} is not supported in " +
-                "${SubSelectionConstraint.constraintName} constraints")
+        throw new QueryBuilderException("Dimension ${dimension.dimension.name} is not supported in subselection constraints")
+    }
+
+    /**
+     * Fetches the property names to project on for subselects on a dimension.
+     *
+     * @param dimension the dimension to get the subselect projection for.
+     * @return the list of property names, to be used in the subselection projection.
+     */
+    static List<String> subSelectionPropertyNames(DimensionMetadata dimension) {
+        switch(dimension.type) {
+            case ImplementationType.TABLE:
+            case ImplementationType.COLUMN:
+                String fieldName = dimension.fieldName
+                return [fieldName]
+            case ImplementationType.VISIT:
+                return ['encounterNum', 'patient']
+            case ImplementationType.STUDY:
+                return ['trialVisit']
+            case ImplementationType.MODIFIER:
+                throw new QueryBuilderException('Subquery constraints for modifier dimensions are not implemented')
+        }
+        throw new QueryBuilderException("Dimension ${dimension.dimension.name} is not supported in subselection constraints")
+    }
+
+    /**
+     * Builds a subquery for checking if an observation appears in a intersection or union or several subqueries.
+     * The constraint object should have operator {@link Operator#INTERSECT} or {@link Operator#UNION},
+     * a dimension to subquery on, and a non-empty list of subquery constraints.
+     *
+     * Because the Hibernate API does not directly support intersect and union operators, nested subqueries are constructed:
+     * instead of querying { p | p in (A intersect B) } directly, a nested quer
+     * { p | p in { p' in A | p' in B } }.
+     *
+     * Example SQL for subselections on the patient dimension, for constraints A and B:
+     * <code>patient_num in (select o1.patient_num from ObservationFact o1 where A and o1.patient_num in
+     *      (select o2.patient_num from ObservationFact o2 where B))</code>
+     * This is equivalent to :
+     * <code>patient_num in ((select o1.patient_num from ObservationFact o1 where A) intersect
+     *      (select o2.patient_num from ObservationFact o2 where B))</code>.
+     *
+     * @param constraint the constraint object.
+     * @return the criterion for this constraint.
+     */
+    Criterion build(MultipleSubSelectionsConstraint constraint) {
+        if (constraint.args.empty) {
+            throw new QueryBuilderException('Empty list of subselection constraints.')
+        }
+        def dimension = DimensionMetadata.forDimensionName(constraint.dimension)
+        log.debug "Build subselection constraints (${constraint.dimension}, ${constraint.operator}, ${constraint.args.size()})"
+        Constraint query = constraint.args.head()
+        List<Constraint> tail = constraint.args.tail()
+        if (!tail.empty) {
+            def tailConstraint = new MultipleSubSelectionsConstraint(dimension.dimension.name, constraint.operator, tail)
+            switch(constraint.operator) {
+                case Operator.INTERSECT:
+                    query = new AndConstraint([query, tailConstraint])
+                    break
+                case Operator.UNION:
+                    query = new OrConstraint([query, tailConstraint])
+                    break
+                default:
+                    throw new QueryBuilderException("Operator not supported: ${constraint.operator.name()}")
+            }
+        }
+        DetachedCriteria criteria = buildSubselect(dimension, query)
+        List<String> propertyNames = subSelectionPropertyNames(dimension)
+        Criterion result
+        if (propertyNames.size() == 1) {
+            result = Subqueries.propertyIn(propertyNames[0], criteria)
+        } else {
+            result = Subqueries.propertiesIn(propertyNames as String[], criteria)
+        }
+        result
+    }
+
+    Criterion build(SubSelectionConstraint constraint) {
+        build(new MultipleSubSelectionsConstraint(constraint.dimension, Operator.INTERSECT, [constraint.constraint]))
     }
 
     Criterion build(ConceptConstraint constraint){
-        DetachedCriteria subCriteria = DetachedCriteria.forClass(ConceptDimension, 'concept_dimension')
-        if (constraint.path) {
-            // SELECT * from OBSERVATION_FACT WHERE CONCEPT_CD =
-            //                             (SELECT CONCEPT_CD FROM CONCEPT_DIMENSION WHERE CONCEPT_PATH = ?)
+        if (constraint.conceptCode) {
+            return Restrictions.eq('conceptCode', constraint.conceptCode)
+        } else if (constraint.conceptCodes) {
+            return InQuery.inValues('conceptCode', constraint.conceptCodes)
+        } else if (constraint.path) {
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(ConceptDimension, 'concept_dimension')
             subCriteria.add(Restrictions.eq('concept_dimension.conceptPath', constraint.path))
-        } else if (constraint.conceptCode) {
-            // SELECT * from OBSERVATION_FACT WHERE CONCEPT_CD =
-            //                             (SELECT CONCEPT_CD FROM CONCEPT_DIMENSION WHERE CONCEPT_CD = ?)
-            subCriteria.add(Restrictions.eq('concept_dimension.conceptCode', constraint.conceptCode))
+            return Subqueries.propertyEq('conceptCode', subCriteria.setProjection(Projections.property('conceptCode')))
         } else {
             throw new QueryBuilderException("No path or conceptCode in concept constraint.")
         }
-        return Subqueries.propertyEq('conceptCode', subCriteria.setProjection(Projections.property('conceptCode')))
     }
 
     Criterion build(StudyNameConstraint constraint){
         if (constraint.studyId == null){
             throw new QueryBuilderException("Study constraint shouldn't have a null value for studyId")
         }
-        def trialVisitAlias = getAlias('trialVisit')
-        DetachedCriteria subCriteria = DetachedCriteria.forClass(Study, 'study')
-        subCriteria.add(Restrictions.eq('study.studyId', constraint.studyId))
-                .setProjection(Projections.id())
-        return Subqueries.propertyIn("${trialVisitAlias}.study", subCriteria)
+        MDStudy study = studiesResource.getStudyByStudyId(constraint.studyId)
+        return build(new StudyObjectConstraint(study: study))
     }
 
     Criterion build(StudyObjectConstraint constraint){
         if (constraint.study == null){
             throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
         }
-        def trialVisitAlias = getAlias('trialVisit')
-        return Restrictions.eq("${trialVisitAlias}.study", constraint.study)
+        def trialVisits = trialVisitsService.findTrialVisitsForStudy(constraint.study)
+        if (trialVisits.empty) {
+            // Return false if there are no trial visits to filter on
+            return build(new Negation(new TrueConstraint()))
+        }
+        return Restrictions.in('trialVisit', trialVisits)
     }
-
 
     Criterion build(NullConstraint constraint){
         String propertyName = getFieldPropertyName(constraint.field)
         Restrictions.isNull(propertyName)
     }
+
     /**
      * Creates a criteria object the represents the negation of <code>constraint.arg</code>.
      */
     Criterion build(Negation constraint) {
         Restrictions.not(build(constraint.arg))
+    }
+
+    /**
+     * Gets the set operator that corresponds to the boolean operator:
+     * {@link Operator#INTERSECT} for {@link Operator#AND},
+     * {@link Operator#UNION} for {@link Operator#OR}.
+     * Correspondence in the sense that:
+     * <code>A intersect B == { v | v in A and v in B }}</code>
+     *
+     * @param booleanOperator the boolean operator.
+     * @return the corresponding set operator.
+     */
+    static final Operator getSetOperator(Operator booleanOperator) {
+        switch (booleanOperator) {
+            case Operator.AND:
+                return Operator.INTERSECT
+            case Operator.OR:
+                return Operator.UNION
+            default:
+                throw new QueryBuilderException("Operator not supported: ${booleanOperator.name()}")
+        }
     }
 
     /**
@@ -567,14 +726,36 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @return
      */
     Criterion build(Combination constraint) {
-        Criterion[] parts = constraint.args.collect {
+        def args = constraint.args.split { it instanceof SubSelectionConstraint }
+        def subSelectConstraints = args[0] as List<SubSelectionConstraint>
+        def currentLevelConstraints = args[1]
+        List<Criterion> parts = currentLevelConstraints.collect {
             build(it)
-        } as Criterion[]
+        }
+        /**
+         * Combine subselect queries for the same dimension into a single {@link MultipleSubSelectionsConstraint}.
+         *
+         * Rationale:
+         * { p | (p in A) and (p in B) } is equivalent to { p | p in (A intersect B) }.
+         *
+         * It appears that the latter results in a better query plan on PostgreSQL databases.
+         */
+        def subSelectConstraintsByDimension = subSelectConstraints.groupBy { it.dimension }
+        subSelectConstraintsByDimension.each { String dimension, List<SubSelectionConstraint> constraints ->
+            def dimensionSubselect = new MultipleSubSelectionsConstraint(
+                    dimension,
+                    getSetOperator(constraint.operator),
+                    constraints.collect { it.constraint })
+            parts.add(build(dimensionSubselect))
+        }
+        if (parts.size() == 1) {
+            return parts[0]
+        }
         switch (constraint.operator) {
             case Operator.AND:
-                return Restrictions.and(parts)
+                return Restrictions.and(parts as Criterion[])
             case Operator.OR:
-                return Restrictions.or(parts)
+                return Restrictions.or(parts as Criterion[])
             default:
                 throw new QueryBuilderException("Operator not supported: ${constraint.operator.name()}")
         }
@@ -590,10 +771,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      */
     Criterion build(TemporalConstraint constraint) {
         Constraint eventConstraint = constraint.eventConstraint
-        QueryBuilder subQueryBuilder = new HibernateCriteriaQueryBuilder(
-                aliasSuffixes: aliasSuffixes,
-                studies: studies
-        )
+        def subQueryBuilder = subQueryBuilder()
         def subquery = subQueryBuilder.buildCriteria(eventConstraint)
         def observationFactAlias = getAlias('observation_fact')
         def subqueryAlias = subQueryBuilder.getAlias('observation_fact')
@@ -616,11 +794,35 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
     }
 
-    Criterion build(Constraint constraint) {
-        throw new QueryBuilderException("Constraint type not supported: ${constraint.class}.")
+    /**
+     * Builds a hibernate criterion to find observations for the patients that have a relation
+     * of the given type (e.g. Parent-child) and with optionally specified, by constraint, patients.
+     */
+    Criterion build(RelationConstraint relationConstraint) {
+        DetachedCriteria relationCriteria = DetachedCriteria.forClass(Relation, 'relation')
+        if (relationConstraint.relatedSubjectsConstraint) {
+            DetachedCriteria patientCriteria = subQueryBuilder().buildElementsCriteria(PATIENT, relationConstraint.relatedSubjectsConstraint)
+            //I get NPE when I use whole object instead of id projection
+            //TODO For some cases the sub-query could be made more efficient to execute bypassing unnecessary table joins/nested sub-queries.
+            relationCriteria.add(Subqueries.propertyIn('rightSubject.id',
+                    patientCriteria.setProjection(Projections.id())))
+        }
+        def relationType = relationTypeResource.getByLabel(relationConstraint.relationTypeLabel)
+        if (!relationType) {
+            throw new QueryBuilderException("No ${relationConstraint.relationTypeLabel} relation type found.")
+        }
+        DetachedCriteria relationTypeCriteria = DetachedCriteria.forClass(RelationType, 'relation_type')
+        relationTypeCriteria.add(Restrictions.eq('relation_type.label', relationConstraint.relationTypeLabel))
+        relationCriteria.add(Subqueries.propertyEq('relationType', relationTypeCriteria.setProjection(Projections.id())))
+        if (relationConstraint.biological != null) {
+            relationCriteria.add(Restrictions.eq('biological', relationConstraint.biological))
+        }
+        if (relationConstraint.shareHousehold != null) {
+            relationCriteria.add(Restrictions.eq('shareHousehold', relationConstraint.shareHousehold))
+        }
+        //def patientAlias = getAlias('patient')
+        Subqueries.propertyIn('patient', relationCriteria.setProjection(Projections.property("leftSubject")))
     }
-
-    static final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
 
     /**
      * Builds a DetachedCriteria object representing the query for observation facts that satisfy
@@ -629,46 +831,29 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param constraint
      * @return
      */
-    DetachedCriteria buildCriteria(Constraint constraint=null, Criterion modifierCriterion=defaultModifierCriterion) {
-        aliases = [:]
+    DetachedCriteria buildCriteria(Constraint constraint,
+                                   Criterion modifierCriterion = defaultModifierCriterion,
+                                   Set<String> propertiesToReserveAliases = [] as Set) {
+        assert constraint instanceof Constraint
+        aliases.clear()
+        propertiesToReserveAliases.each { String property -> getAlias(property) }
         def result = builder()
-        def trialVisitAlias = getAlias('trialVisit')
-        List restrictions = [constraint ? build(constraint) : null,
-                            Restrictions.in("${trialVisitAlias}.study", getStudies()),
-                            modifierCriterion
-        ].findAll()
-        def criterion = Restrictions.and(*restrictions)
+        List restrictions = [ build(constraint) ]
+        if (!accessToAllStudies) {
+            restrictions << studiesCriterion
+        }
+        if (modifierCriterion) {
+            restrictions << modifierCriterion
+        }
         aliases.each { property, alias ->
             if (property != 'observation_fact') {
                 result.createAlias(property, alias)
             }
         }
+        def criterion = Restrictions.and(restrictions as Criterion[])
         result.add(criterion)
         result
     }
-
-//    /**
-//     * Builds a DetachedCriteria object representing the query for observation facts without additional constraints
-//     *
-//     * @param constraint
-//     * @return
-//     */
-//    DetachedCriteria buildCriteria(Criterion modifierCriterion) {
-//        aliases = [:]
-//        def result = builder()
-//        def trialVisitAlias = getAlias('trialVisit')
-//        def criterion = Restrictions.and(
-//                Restrictions.in("${trialVisitAlias}.study", getStudies()),
-//                modifierCriterion
-//        )
-//        aliases.each { property, alias ->
-//            if (property != 'observation_fact') {
-//                result.createAlias(property, alias)
-//            }
-//        }
-//        result.add(criterion)
-//        result
-//    }
 
     /**
      * Builds a DetachedCriteria object representing the query for elements of specified dimension
@@ -676,14 +861,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param constraint
      * @return
      */
-    DetachedCriteria buildElementsCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
-        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
+    DetachedCriteria buildElementsCriteria(DimensionImpl dimension, Constraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria(constraint, null)
 
         dimension.selectDimensionElements(constraintCriteria)
     }
 
-    DetachedCriteria buildElementCountCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
-        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
+    DetachedCriteria buildElementCountCriteria(DimensionImpl dimension, Constraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria(constraint, null)
 
         dimension.elementCount(constraintCriteria)
     }
@@ -695,22 +880,21 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param criteria
      * @param constraint
      */
-    void applyToCriteria(CriteriaImpl criteria, Collection<Constraint> constraint) {
+    void applyToCriteria(CriteriaImpl criteria, Collection<Constraint> constraints) {
         // grab existing aliases.
         // Note: If projection aliases are reused in the constraints, the alias is assumed to be the same as the
         // property.
         // TODO: refactor all of this so we don't need to access privates here
         aliases = (criteria.projection as ProjectionList).aliases.collectEntries {[it, it]}
         aliases['observation_fact'] = criteria.alias
-        criteria.subcriteriaList.each { CriteriaImpl.Subcriteria sub ->
+        criteria.iterateSubcriteria().each { CriteriaImpl.Subcriteria sub ->
             aliases[sub.path] = sub.alias
         }
         def alreadyAddedAliases = aliases.keySet() + ['observation_fact']
-        def trialVisitAlias = getAlias('trialVisit')
-        Criterion criterion = Restrictions.and(
-                build(new Combination(operator: Operator.AND, args: constraint)),
-                Restrictions.in("${trialVisitAlias}.study", getStudies())
-        )
+        def criterion = build(new Combination(Operator.AND, constraints as List<Constraint>))
+        if (!accessToAllStudies) {
+            criterion = Restrictions.and(criterion, studiesCriterion)
+        }
         this.aliases.each { property, alias ->
             if(!(property in alreadyAddedAliases)) {
                 criteria.createAlias(property, alias)
@@ -720,8 +904,15 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         criteria
     }
 
-    void build(Object obj) {
-        throw new QueryBuilderException("Type not supported: ${obj?.class?.simpleName}")
+    /**
+     * Returns a criterion that filters on studies.
+     */
+    private Criterion getStudiesCriterion() {
+        if (studies.empty) {
+            // Return false if there are no studies to filter on
+            return build(new Negation(new TrueConstraint()))
+        }
+        Restrictions.in("${getAlias('trialVisit')}.study", studies)
     }
-}
 
+}

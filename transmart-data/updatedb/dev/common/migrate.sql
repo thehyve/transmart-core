@@ -1,0 +1,1 @@
+--- Here migration commands can be put that work for both DBMSs.

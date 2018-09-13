@@ -3,9 +3,12 @@ include 'transmartApp', 'transmart-core-db', 'transmart-core-db-tests', 'transma
         'transmart-rest-api',
         'transmart-data',
         'transmart-batch',
+        'transmart-copy',
         'transmart-gwas-plugin',
         'transmart-rest-api-e2e',
         'ontology-service',
         'transmart-server',
         'transmart-oauth',
-        'transmart-solr-indexing'
+        'transmart-solr-indexing',
+        'transmart-notifications',
+        'transmart-api-server'

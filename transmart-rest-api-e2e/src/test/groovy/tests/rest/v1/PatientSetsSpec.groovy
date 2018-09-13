@@ -3,12 +3,14 @@
 package tests.rest.v1
 
 import annotations.RequiresStudy
+import annotations.RequiresV1ApiSupport
 import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.XML
 import static config.Config.*
 
+@RequiresV1ApiSupport(true)
 @RequiresStudy(EHR_ID)
 class PatientSetsSpec extends RESTSpec {
 
@@ -33,9 +35,7 @@ class PatientSetsSpec extends RESTSpec {
         then: "a set is created and returned"
         assert responseData.id != null
         assert responseData.patients.size() == 2
-        responseData.patients.each {
-            assert [-67, -57].contains(it.id)
-        }
+        responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['SCSA:67', 'SCSA:57'] as Set
     }
 
     /**
@@ -64,9 +64,7 @@ class PatientSetsSpec extends RESTSpec {
         then: "a set is returned"
         assert responseData.id == id
         assert responseData.patients.size() == 2
-        responseData.patients.each {
-            assert [-67, -57].contains(it.id)
-        }
+        responseData.patients.collect { it.subjectIds['SUBJ_ID'] } as Set == ['SCSA:67', 'SCSA:57'] as Set
     }
 
 }

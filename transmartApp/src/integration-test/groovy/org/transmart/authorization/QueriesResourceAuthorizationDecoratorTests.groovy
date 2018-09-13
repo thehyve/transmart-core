@@ -12,6 +12,7 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.User
 import org.transmartproject.db.user.AccessLevelTestData
 
 import static groovy.util.GroovyAssert.shouldFail
@@ -55,7 +56,7 @@ class QueriesResourceAuthorizationDecoratorTests {
         // fourth user has no access to study 2
         def user = accessLevelTestData.users[3]
 
-        mockCurrentUser user.username, {
+        mockCurrentUser user, {
             shouldFail AccessDeniedException, {
                 queriesResourceAuthorizationDecorator.
                         runQuery(study2SampleDefinition)
@@ -69,10 +70,10 @@ class QueriesResourceAuthorizationDecoratorTests {
         // fourth user has no access to study 2
         def user = accessLevelTestData.users[3]
 
-        mockCurrentUser user.username, {
+        mockCurrentUser user, {
             shouldFail AccessDeniedException, {
                 queriesResourceAuthorizationDecorator.runQuery(
-                        study2SampleDefinition, user.username)
+                        study2SampleDefinition, user)
             }
         }
     }
@@ -171,12 +172,12 @@ class QueriesResourceAuthorizationDecoratorTests {
         }
     }
 
-    void mockCurrentUser(String username, Closure closure) {
+    void mockCurrentUser(User user, Closure closure) {
         GrailsWebUtil.bindMockWebRequest()
 
         def proxyMetaClass = ProxyMetaClass.getInstance(SpringSecurityService)
         proxyMetaClass.interceptor =
-                new SpringSecurityProxyMetaClassInterceptor(username: username)
+                new SpringSecurityProxyMetaClassInterceptor(username: user.username)
         proxyMetaClass.use springSecurityService, closure
     }
 

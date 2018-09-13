@@ -4,58 +4,48 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import base.RestHelper
+import org.springframework.http.HttpStatus
+import org.transmartproject.core.multidimquery.ErrorResponse
+import org.transmartproject.core.multidimquery.aggregates.Aggregates
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
-import static tests.rest.Operator.OR
-import static tests.rest.constraints.Combination
-import static tests.rest.constraints.ConceptConstraint
 
 class AggregatesPerConceptSpec extends RESTSpec {
 
     /**
-     *  given: "study EHR is loaded"
-     *  when: "for that study I Aggregated the concept Heart Rate with type max"
-     *  then: "the number 102.0 is returned"
+     *  Given: Studies EHR and CATEGORICAL_VALUES are loaded
+     *  When: I request aggregates for the Heart Rate and Race concepts
+     *  Then: The expected numerical and categorical aggregates are returned
      */
-    @RequiresStudy(EHR_ID)
-    def "aggregated timeseries maximum"() {
-        given: "study EHR is loaded"
+    @RequiresStudy([EHR_ID, CATEGORICAL_VALUES_ID])
+    def "numerical and categorical aggregates"() {
+        given: 'Studies EHR and CATEGORICAL_VALUES are loaded'
         def params = [
-                constraint: toJSON(
-                        [
-                                type    : Combination,
-                                operator: OR,
-                                args    : [
-                                        [
-                                                type: ConceptConstraint,
-                                                path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\'
-                                        ],
-
-                                        [
-                                                type: ConceptConstraint,
-                                                path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\'
-                                        ]
-                                ]
+                constraint: [
+                        type    : 'or',
+                        args    : [
+                                [type: 'concept', conceptCode: 'EHR:VSIGN:HR'],
+                                [type: 'concept', conceptCode: 'CV:DEM:RACE']
                         ]
-
-                ),
+                ]
         ]
 
         def request = [
                 path      : PATH_AGGREGATES_PER_CONCEPT,
-                acceptType: JSON
+                acceptType: JSON,
+                body: params
         ]
 
-        when: "for that study I Aggregated the concept Heart Rate with type max"
-        def responseData = getOrPostRequest(method, request, params)
+        when: 'I request aggregates for the Heart Rate and Race concepts'
+        def responseData = RestHelper.toObject(post(request), Aggregates)
 
-        then:
+        then: 'The expected numerical and categorical aggregates are returned'
         responseData.aggregatesPerConcept.size() == 2
 
         def hr = responseData.aggregatesPerConcept['EHR:VSIGN:HR']
         hr
-        hr.size() == 1
         def numericalValueAggregates = hr.numericalValueAggregates
         numericalValueAggregates.min == 56
         numericalValueAggregates.max == 102
@@ -65,47 +55,72 @@ class AggregatesPerConceptSpec extends RESTSpec {
 
         def race = responseData.aggregatesPerConcept['CV:DEM:RACE']
         race
-        race.size() == 1
         def categoricalValueAggregates = race.categoricalValueAggregates
         def valueCounts = categoricalValueAggregates.valueCounts
         valueCounts == [Caucasian: 2, Latino: 1]
+    }
 
-        where:
-        method | _
-        "POST" | _
-        "GET"  | _
+    /**
+     *  Given: Study Survey 1 is loaded
+     *  When: I request aggregates for the favouritebook concept (of type Raw text)
+     *  Then: No values for that concept are returned
+     */
+    @RequiresStudy(SURVEY1_ID)
+    def "aggregates for raw text concept does not contain values"() {
+        given: 'Study Survey 1 is loaded'
+        def params = [
+                constraint: [type: 'concept', conceptCode: 'favouritebook']
+        ]
+
+        def request = [
+                path      : PATH_AGGREGATES_PER_CONCEPT,
+                acceptType: JSON,
+                body: params
+        ]
+
+        when: 'I request aggregates for the favouritebook concept (of type Raw text)'
+        def response = RestHelper.toObject(post(request), Aggregates)
+
+        then: 'No values for that concept are returned'
+        response.aggregatesPerConcept.size() == 0
     }
 
     @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
-    def "test access rights respected"() {
-        def conceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
+    def "access policy respected for aggregates call"() {
+        given: 'I do not have access to the restricted access study'
+        def conceptCode = 'SCSCP:DEM:AGE'
 
-        when: "I do not have access for that study. I Aggregated the concept Heart Rate."
-        def responseData = get([
+        when: 'I request aggregates for a concept only associated with that study'
+        def errorResponse = RestHelper.toObject(post([
                 path      : PATH_AGGREGATES_PER_CONCEPT,
                 acceptType: JSON,
-                query     : [
-                        constraint: toJSON([type: ConceptConstraint, path: conceptPath])
+                body     : [
+                        constraint: [type: 'concept', conceptCode: conceptCode]
                 ],
-                statusCode: 403
-        ])
+                statusCode: HttpStatus.FORBIDDEN.value()
+        ]), ErrorResponse)
 
-        then: "I get an access error"
-        responseData.httpStatus == 403
-        responseData.type == 'AccessDeniedException'
-        responseData.message == "Access denied to concept path: ${conceptPath}"
+        then: 'Access is denied'
+        errorResponse.httpStatus == HttpStatus.FORBIDDEN.value()
+        errorResponse.type == 'AccessDeniedException'
+        errorResponse.message == "Access denied to concept code: ${conceptCode}"
 
-        when: "I have access for that study. I Aggregated the concept Heart Rate."
-        responseData = get([
+        when: 'I do have access to the restricted access study'
+
+        and: 'I request aggregates for a concept only associated with that study'
+        def response = RestHelper.toObject(post([
                 path      : PATH_AGGREGATES_PER_CONCEPT,
                 acceptType: JSON,
-                query     : [
-                        constraint: toJSON([type: ConceptConstraint, path: conceptPath])
+                body     : [
+                        constraint: [type: 'concept', conceptCode: conceptCode]
                 ],
                 user      : UNRESTRICTED_USER
-        ])
-        then: "I get a result"
-        responseData.aggregatesPerConcept
+        ]), Aggregates)
+
+        then: 'I receive aggregates'
+        response.aggregatesPerConcept
+        response.aggregatesPerConcept.containsKey(conceptCode)
+        response.aggregatesPerConcept[conceptCode].numericalValueAggregates
     }
 
 }

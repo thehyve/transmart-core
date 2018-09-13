@@ -76,6 +76,31 @@ clean:
 clean_generated: clean
 	rm -f roles.sql
 
+postgresql-server-dev-all:
+	@if [ `uname` = "Linux" ]; then \
+	    if [ -f "/etc/debian_version" ]; then \
+            sudo apt -y install gcc postgresql-server-dev-all; \
+        else \
+            sudo yum -y install gcc postgresql-devel; \
+        fi \
+	else \
+		echo 'You might need to install gcc and postgresql dev package.'; \
+	fi
+
+pg_bitcount-master.tar.gz:
+	curl -L -f https://github.com/thehyve/pg_bitcount/archive/master.tar.gz > $@
+
+pg_bitcount-master: pg_bitcount-master.tar.gz
+	tar -xvzf pg_bitcount-master.tar.gz
+
+install_pg_bitcount: pg_bitcount-master postgresql-server-dev-all
+	$(MAKE) -C pg_bitcount-master $(PGCONFIG_PARAMS)
+	sudo $(MAKE) -C pg_bitcount-master $(PGCONFIG_PARAMS) install
+
+pg_bitcount_extension: install_pg_bitcount
+	$(PSQL_COMMAND_NO_TRANSACTION) -d $(PGDATABASE) -c "CREATE EXTENSION IF NOT EXISTS pg_bitcount;"
+
 .PHONY: $(TBDROP_TARGETS)
 .PHONY: createdb clean_generated clean tablespaces load drop_roles \
-	drop_database drop_tablespaces drop load_passwords
+	drop_database drop_tablespaces drop load_passwords install_pg_bitcount \
+	pg_bitcount_extension postgresql-server-dev-all

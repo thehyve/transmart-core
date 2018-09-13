@@ -20,6 +20,7 @@
 package org.transmartproject.db.querytool
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultSummary
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.dataquery.clinical.PatientQuery
 import org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint
@@ -90,4 +91,15 @@ class QtQueryResultInstance implements QueryResult {
     String getUsername() {
         queryInstance.userId
     }
+
+    @Override
+    String getName() {
+        queryInstance.queryMaster.name
+    }
+
+    @Override
+    String getQueryXML() {
+        queryInstance.queryMaster.requestXml
+    }
+
 }

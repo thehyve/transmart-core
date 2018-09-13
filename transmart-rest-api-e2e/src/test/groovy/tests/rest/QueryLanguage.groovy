@@ -58,6 +58,17 @@ interface constraints {
            ConceptConstraint = 'concept',
            NullConstraint = 'null',
            StudyNameConstraint = 'study_name',
-           SubSelectionConstraint = 'subselection'
+           SubSelectionConstraint = 'subselection',
+           RelationConstraint = 'relation'
+}
+
+interface dimensions {
+    String Study = 'study',
+           Concept = 'concept',
+           Patient = "patient",
+           TrialVisit = 'trial visit',
+           Visit = 'visit',
+           StartTime = 'start time',
+           EndTime = 'end time'
 }
 

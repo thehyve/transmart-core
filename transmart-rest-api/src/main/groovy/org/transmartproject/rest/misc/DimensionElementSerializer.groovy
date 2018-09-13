@@ -1,7 +1,7 @@
 package org.transmartproject.rest.misc
 
 import groovy.transform.Canonical
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 
 @Canonical
 class DimensionElementSerializer implements Iterator {

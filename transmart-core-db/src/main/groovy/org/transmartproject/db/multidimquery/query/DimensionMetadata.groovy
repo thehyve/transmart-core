@@ -8,7 +8,10 @@ import org.grails.orm.hibernate.cfg.GrailsDomainBinder
 import org.grails.orm.hibernate.cfg.Mapping
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.QueryBuilderException
+import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.db.dataquery.highdim.AssayColumnImpl
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
@@ -30,8 +33,12 @@ class DimensionMetadata {
 
     static final Mapping observationFactMapping = GrailsDomainBinder.getMapping(ObservationFact)
 
+    @Memoized
     static final DimensionMetadata forDimensionName(String dimensionName) {
-        def dim = DimensionImpl.fromName(dimensionName)
+        Dimension dim = DimensionImpl.getBuiltinDimension(dimensionName)
+        if (!dim) {
+            dim = DimensionImpl.fromName(dimensionName)
+        }
         if (dim == null) throw new QueryBuilderException("Dimension not found: ${dimensionName}")
         forDimension(dim)
     }
@@ -88,7 +95,7 @@ class DimensionMetadata {
         } else if (String.class.isAssignableFrom(field.type)) {
             type = Type.STRING
         }
-        new Field(dimension: this.dimension, type: type, fieldName: field.name)
+        new Field(dimension: this.dimension.name, type: type, fieldName: field.name)
     }
 
     DimensionMetadata(Dimension dim) {

@@ -2,7 +2,7 @@
 
 package selectors
 
-class ObservationSelectorJson {
+class ObservationSelectorJson implements Selector {
     final ObservationsMessageJson hyperCubeMessage
     final int cellCount
     List<String> notInlined = []
@@ -22,7 +22,7 @@ class ObservationSelectorJson {
 
     final static Set<String> validValueTypes = (["Double", "String", "Int", "Timestamp"] as HashSet).asImmutable()
 
-    def select(cellIndex, dimension, fieldName, valueType) {
+    def select(int cellIndex, String dimension, String fieldName, String valueType) {
         assert valueType in validValueTypes
         def result
         int index = inlined.indexOf(dimension)
@@ -52,7 +52,7 @@ class ObservationSelectorJson {
         }
     }
 
-    def select(cellIndex, dimension, valueType = null) {
+    def select(int cellIndex, String dimension, String valueType = null) {
         //valueType is unused but needed to make the interface for json and protobuf selecter the same.
         int index = notInlined.indexOf(dimension)
         if (index != -1) {
@@ -73,7 +73,7 @@ class ObservationSelectorJson {
      * @param cellIndex
      * @return
      */
-    def select(cellIndex) {
+    def select(int cellIndex) {
         String stringValue = hyperCubeMessage.cells[cellIndex].stringValue
         return stringValue == null ? hyperCubeMessage.cells[cellIndex].numericValue : stringValue
     }

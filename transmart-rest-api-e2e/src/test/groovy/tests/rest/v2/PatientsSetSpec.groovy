@@ -4,6 +4,8 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import base.RestHelper
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
@@ -26,14 +28,13 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_set'],
-                body      : toJSON([
-                        type    : Combination,
-                        operator: AND,
+                body      : [
+                        type    : 'and',
                         args    : [
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Demography\\Age\\"],
                                 [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 30]
                         ]
-                ]),
+                ],
                 statusCode: 201
         ]
 
@@ -45,7 +46,7 @@ class PatientsSetSpec extends RESTSpec {
         assert get([
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id])
+                query     : [constraint: [type: PatientSetConstraint, patientSetId: responseData.id]]
         ]).patients.size() == 2
 
     }
@@ -62,7 +63,7 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_set'],
-                body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
+                body      : [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"],
                 statusCode: 201
         ]
 
@@ -74,7 +75,7 @@ class PatientsSetSpec extends RESTSpec {
         assert get([
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id])
+                query     : [constraint: [type: PatientSetConstraint, patientSetId: responseData.id]]
         ]).patients.size() == 4
     }
 
@@ -90,7 +91,7 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_set'],
-                body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
+                body      : [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"],
                 statusCode: 201
         ]
 
@@ -102,7 +103,7 @@ class PatientsSetSpec extends RESTSpec {
         assert get([
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id])
+                query     : [constraint: [type: PatientSetConstraint, patientSetId: responseData.id]]
         ]).patients.size() == 4
     }
 
@@ -118,7 +119,7 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_set'],
-                body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
+                body      : [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"],
                 statusCode: 201,
                 user      : UNRESTRICTED_USER
         ]
@@ -131,7 +132,7 @@ class PatientsSetSpec extends RESTSpec {
         assert get([
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id]),
+                query     : [constraint: [type: PatientSetConstraint, patientSetId: responseData.id]],
                 user      : UNRESTRICTED_USER
         ]).patients.size() == 6
     }
@@ -148,7 +149,7 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_set'],
-                body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
+                body      : [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"],
                 statusCode: 201,
                 user      : UNRESTRICTED_USER
         ]
@@ -156,12 +157,12 @@ class PatientsSetSpec extends RESTSpec {
         int setID = response.id
 
         when: "When I use a patient set that contains patients that I do not have access to"
-        def responseData = get([
+        def responseData = RestHelper.toObject(get([
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
-                query     : toQuery([type: PatientSetConstraint, patientSetId: setID]),
+                query     : [constraint: [type: PatientSetConstraint, patientSetId: setID]],
                 statusCode: 403
-        ])
+        ]), ErrorResponse)
 
         then: "I get a access error"
         assert responseData.httpStatus == 403
@@ -181,14 +182,14 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENT_SET,
                 acceptType: JSON,
                 query     : [name: 'test_set'],
-                body      : toJSON([
+                body      : [
                         type    : Combination,
                         operator: AND,
                         args    : [
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Demography\\Age\\"],
                                 [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 30]
                         ]
-                ]),
+                ],
                 statusCode: 201
         ]
         def newSet = post(createPatientSetRequest)

@@ -7,10 +7,11 @@ import grails.rest.render.util.AbstractLinkingRenderer
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.config.SystemResource
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.serialization.TreeJsonSerializer
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
@@ -21,10 +22,13 @@ class TreeController {
     static responseFormats = ['json', 'hal']
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     @Autowired
     TreeResource treeResource
+
+    @Autowired
+    SystemResource systemResource
 
     /**
      * Tree nodes endpoint:
@@ -36,7 +40,7 @@ class TreeController {
      * @param root (Optional) the root element from which to fetch.
      * @param depth (Optional) the maximum number of levels to fetch.
      * @param constraints flag if the constraints should be included in the result
-     *   (always true for hal, defaults to true for json)
+     *   (always false for hal, defaults to true for json)
      * @param counts flag if counts should be included in the result (default: false)
      * @param tags flag if tags should be included in the result (default: false)
      *
@@ -58,7 +62,7 @@ class TreeController {
                 depth,
                 counts,
                 tags,
-                currentUser)
+                authContext.user)
         log.info "${nodes.size()} results."
         if (request.format == 'hal') {
             respond wrapNodes(apiVersion, root, depth, nodes)
@@ -73,54 +77,6 @@ class TreeController {
                     nodes,
                     response.outputStream)
         }
-    }
-
-    /**
-     * Clears tree node and counts caches:
-     * <code>/${apiVersion}/tree_nodes/clear_cache</code>
-     *
-     * This endpoint should be called after loading, deleting or updating
-     * tree nodes in the database.
-     * Only available for administrators.
-     */
-    def clearCache() {
-        checkForUnsupportedParams(params, [])
-        treeResource.clearCache(currentUser)
-        response.status = 200
-    }
-
-    /**
-     * Clears tree node and counts caches and rebuilds the tree node cache:
-     * <code>/${apiVersion}/tree_nodes/rebuild_cache</code>
-     *
-     * This endpoint should be called after loading, deleting or updating
-     * tree nodes in the database.
-     * Only available for administrators.
-     *
-     * Asynchronous call. The call returns when rebuilding has started.
-     * Code 503 is returned iff a rebuild operation is already in progress.
-     */
-    def rebuildCache() {
-        checkForUnsupportedParams(params, [])
-        treeResource.rebuildCache(currentUser)
-        response.status = 200
-    }
-
-    /**
-     * Checks if a cache rebuild task is running:
-     * <code>/${apiVersion}/tree_nodes/rebuild_status</code>
-     * Returns an object with a field <code>status</code> with value 'running'
-     * or 'stopped'.
-     * Example: <code>{"status": "running"}</code>.
-     *
-     * Only available for administrators.
-     *
-     * @return an object with a field <code>status</code> with value <code>running</code>
-     * or <code>stopped</code>.
-     */
-    def rebuildStatus() {
-        checkForUnsupportedParams(params, [])
-        respond status: treeResource.isRebuildActive(currentUser) ? 'running' : 'stopped'
     }
 
     private setVersion(String apiVersion, List<TreeNode> nodes) {

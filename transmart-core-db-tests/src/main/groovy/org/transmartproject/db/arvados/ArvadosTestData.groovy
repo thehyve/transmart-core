@@ -14,7 +14,7 @@ class ArvadosTestData {
         save supportedWorkflows
     }
 
-    public static ArvadosTestData createDefault() {
+    static ArvadosTestData createDefault() {
         ArvadosTestData arvadosTestData = new ArvadosTestData()
         arvadosTestData.supportedWorkflows = []
         SupportedWorkflow exampleWorkflow = new SupportedWorkflow()

@@ -28,17 +28,17 @@ package org.transmartproject.rest
 import grails.rest.Link
 import grails.rest.render.util.AbstractLinkingRenderer
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.core.ontology.StudiesResource
+import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.db.ontology.StudyAccessImpl
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+import org.transmartproject.rest.user.AuthContext
 
 import javax.annotation.Resource
 
-import org.transmartproject.core.ontology.StudiesResource
-import org.transmartproject.core.ontology.Study
-import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.db.ontology.StudyAccessImpl
-
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.API_READ
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
+import static org.transmartproject.core.users.PatientDataAccessLevel.MEASUREMENTS
+import static org.transmartproject.core.users.PatientDataAccessLevel.SUMMARY
 
 class StudyController {
 
@@ -48,7 +48,10 @@ class StudyController {
     private StudiesResource studiesResourceService
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
+
+    @Autowired
+    LegacyAuthorisationChecks authorisationChecks
 
     private static final String VERSION = "v1"
 
@@ -61,8 +64,8 @@ class StudyController {
         def studies = studiesResourceService.studySet
         //Checks to which studies the user has access.
         studies.each { study ->
-            boolean view = currentUser.canPerform(API_READ, study)
-            boolean export = currentUser.canPerform(EXPORT, study)
+            boolean view = authorisationChecks.canReadPatientData(authContext.user, SUMMARY, study)
+            boolean export = authorisationChecks.canReadPatientData(authContext.user, MEASUREMENTS, study)
             //Possibility of adding more access types.
             Map accessibleByUser = [
                     view:view,
@@ -84,8 +87,8 @@ class StudyController {
     def show(String id) {
         def studyImpl =  studiesResourceService.getStudyById(id)
         //Check if the user has access to the specific study.
-        boolean view = currentUser.canPerform(API_READ, studyImpl)
-        boolean export = currentUser.canPerform(EXPORT, studyImpl)
+        boolean view = authorisationChecks.canReadPatientData(authContext.user, SUMMARY, studyImpl)
+        boolean export = authorisationChecks.canReadPatientData(authContext.user, MEASUREMENTS, studyImpl)
         //Possibility of adding more access types.
         Map accessibleByUser = [
                 view:view,

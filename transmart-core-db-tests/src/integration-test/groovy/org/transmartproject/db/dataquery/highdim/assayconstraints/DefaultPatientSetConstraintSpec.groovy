@@ -23,17 +23,19 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QueryResultData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class DefaultPatientSetConstraintSpec extends TransmartSpecification {
+class DefaultPatientSetConstraintSpec extends Specification {
 
     /* patient set with only the first patient (AssayTestData.patients[0]) */
     QueryResult firstPatientResult
@@ -41,9 +43,11 @@ class DefaultPatientSetConstraintSpec extends TransmartSpecification {
     AssayTestData testData = new AssayTestData()
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         testData.saveAll()
 
-        QtQueryMaster master = QueryResultData.createQueryResult([
+        QtQueryMaster master = QueryResultData.createQueryResult('default-patient-set', [
                 testData.patients[0]
         ])
 

@@ -24,6 +24,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.hibernate.ScrollableResults
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -92,16 +93,34 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
     List<C>           indicesList
 
     ScrollableResults results
-    Closure<Boolean>  inSameGroup
-    Closure<R>        finalizeGroup
 
     Boolean           allowMissingColumns = false
-    Closure<Object>   columnIdFromRow
 
     Boolean           closeSession = true
 
     private Boolean   getRowsCalled = false
     private Boolean   closeCalled = false
+
+    CollectingTabularResult() {
+        indicesListIds = indicesList*.getAt("id")
+    }
+
+    CollectingTabularResult(Map properties) {
+        for(Map.Entry e : properties) {
+            this.metaClass.setProperty(this, (String) e.key, e.value)
+        }
+        indicesListIds = indicesList*.getAt("id")
+    }
+
+    abstract protected boolean inSameGroup(Object[] a, Object[] b)
+    abstract protected R finalizeGroup(List<Object[]> collectedEntries)
+
+    protected Object columnIdFromRow(/*Object[]*/ row) {
+        throw new UnsupportedOperationException("not implemented")
+    }
+    private Boolean hasColumnIdFromRow = null
+
+    private List indicesListIds
 
     abstract protected String getColumnEntityName()
 
@@ -110,9 +129,19 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
     private RuntimeException initialException =
         new RuntimeException('Instantiated at this point')
 
+    private void checkValidColumnIdFromRow(Object[] row) {
+        if (hasColumnIdFromRow != null) return
+        try {
+            columnIdFromRow(row)
+        } catch (UnsupportedOperationException e) {
+            hasColumnIdFromRow = false
+        }
+        hasColumnIdFromRow = true
+    }
+
     // We expect results.next() to already be called before the first time this method is called.
     // Compiler crashes with the correct return type of R on groovy 2.2.0
-    def /*R*/ getNextRow() {
+    def R getNextRow() {
         def firstEntry = results.get()
         if (firstEntry == null) {
             return null
@@ -130,7 +159,7 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
         finalizeGroup collectedEntries
     }
 
-    protected void finalizeCollectedEntries(ArrayList collectedEntries) {
+    protected void finalizeCollectedEntries(ArrayList<Object[]> collectedEntries) {
         if (collectedEntries.size() == indicesList.size()) {
             return
         }
@@ -148,7 +177,7 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
 
         if (allowMissingColumns) {
             /* fill with nulls till we have the expected size */
-            collectedEntries.addAll(Collections.nCopies(
+            collectedEntries.addAll((List) Collections.nCopies(
                     indicesList.size() - collectedEntries.size(),
                     null
             ))
@@ -158,12 +187,14 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
 
         // !allowMissingColumns
         Set columnsNotFound
-        if (columnIdFromRow) {
-            Set expectedColumnIds = indicesList*.getAt("id") as Set
-            Set gottenColumnIds = collectedEntries.collect { row ->
-                columnIdFromRow.call(row)
-            } as Set
-            columnsNotFound = expectedColumnIds - gottenColumnIds
+        if (collectedEntries) {
+            checkValidColumnIdFromRow(collectedEntries[0])
+        }
+        if (hasColumnIdFromRow == null || hasColumnIdFromRow) {
+            columnsNotFound = new LinkedHashSet(indicesListIds)
+            for(def e : collectedEntries) {
+                columnsNotFound.remove(columnIdFromRow(e))
+            }
         }
 
         String message = "Expected row group to be of size ${indicesList.size()}; " +
@@ -180,9 +211,15 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
         object.getAt("id")
     }
 
-    private void addToCollectedEntries(List collectedEntries, Object row) {
+    private void addToCollectedEntries(List collectedEntries, Object[] row) {
         if (allowMissingColumns) {
-            def currentColumnId = columnIdFromRow.call(row)
+            checkValidColumnIdFromRow(row)
+            if(!hasColumnIdFromRow) {
+                throw new IllegalStateException("columnIdFromRow() must be overridden if allowMissingColumns is set " +
+                        "to true")
+            }
+
+            def currentColumnId = columnIdFromRow(row)
             def startSize = collectedEntries.size()
             def i
             for (i = startSize;
@@ -220,10 +257,6 @@ abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
             throw new IllegalStateException('getRows() cannot be called more than once')
         }
         getRowsCalled = true
-        if (allowMissingColumns && !columnIdFromRow) {
-            throw new IllegalArgumentException(
-                    'columnIdFromRow must be set when allowMissingColumns is true')
-        }
 
         // Load first result
         results.next()

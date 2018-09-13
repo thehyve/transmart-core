@@ -1,99 +1,197 @@
 package org.transmartproject.rest
 
-import groovy.json.JsonSlurper
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import grails.converters.JSON
+import grails.web.mime.MimeType
+import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
-import org.transmartproject.core.userquery.UserQuery
+import org.transmartproject.core.binding.BindingException
+import org.transmartproject.core.binding.BindingHelper
+import org.transmartproject.core.concept.ConceptsResource
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.userquery.UserQueryResource
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.core.userquery.UserQuerySetResource
+import org.transmartproject.core.users.AuthorisationChecks
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class UserQueryController {
 
+    static responseFormats = ['json']
+
     @Autowired
     VersionController versionController
 
     @Autowired
-    CurrentUser currentUser
+    AuthContext authContext
 
     @Autowired
     UserQueryResource userQueryResource
 
-    private static final JsonSlurper JSON_SLURPER = new JsonSlurper()
+    @Autowired
+    UserQuerySetResource userQuerySetResource
 
-    static responseFormats = ['json']
+    @Autowired
+    AuthorisationChecks authorisationChecks
 
+    @Autowired
+    LegacyAuthorisationChecks legacyAuthorisationChecks
+
+    @Autowired
+    ConceptsResource conceptsResource
+
+    /**
+     * GET /v2/queries
+     *
+     * @returns the list of all queries saved by the user.
+     */
     def index() {
-        List<UserQuery> queries = userQueryResource.list(currentUser)
-        respond([queries: queries.collect { toResponseMap(it) }])
+        def queries = userQueryResource.list(authContext.user)
+
+        response.status = HttpStatus.OK.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, [queries: queries])
     }
 
+    /**
+     * GET /v2/queries/{id}
+     *
+     * @param id the id of the saved query
+     * @returns the saved query with the provided id, if it exists and is owned by the user,
+     *      status 404 (Not Found) or 403 (Forbidden) otherwise.
+     */
     def get(@PathVariable('id') Long id) {
         checkForUnsupportedParams(params, ['id'])
-        UserQuery query = userQueryResource.get(id, currentUser)
-        respond toResponseMap(query)
+        def query = userQueryResource.get(id, authContext.user)
+
+        response.status = HttpStatus.OK.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, query)
     }
 
-    def save(@RequestParam('api_version') String apiVersion) {
-        def requestJson = request.JSON as Map
-        checkForUnsupportedParams(requestJson, ['name', 'patientsQuery', 'observationsQuery', 'bookmarked'])
-        UserQuery query = userQueryResource.create(currentUser)
-        query.apiVersion = versionController.currentVersion(apiVersion)
-        query.with {
-            name = requestJson.name
-            patientsQuery = requestJson.patientsQuery?.toString()
-            observationsQuery = requestJson.observationsQuery?.toString()
-            bookmarked = requestJson.bookmarked ?: false
+    protected static UserQueryRepresentation getUserQueryFromString(String src) {
+        if (src == null || src.trim().empty) {
+            throw new InvalidArgumentsException('Empty user query.')
+        }
+        try {
+            try {
+                UserQueryRepresentation userQuery = BindingHelper.objectMapper.readValue(src, UserQueryRepresentation.class)
+                BindingHelper.validate(userQuery)
+                userQuery
+            } catch (JsonProcessingException e) {
+                throw new BindingException("Cannot parse user query parameter: ${e.message}", e)
+            }
+        } catch (ConverterException c) {
+            throw new InvalidArgumentsException('Cannot parse user query parameter', c)
+        }
+    }
+
+    /**
+     * Deserialises the request body to a user query representation object using Jackson.
+     *
+     * Uses a serialised version of request.JSON, because using request.inputStream
+     * directly prevents the {@link org.transmartproject.interceptors.ApiAuditInterceptor}
+     * from reading the request body.
+     *
+     * @returns the user query representation object is deserialisation was successful;
+     * responds with code 400 and returns null otherwise.
+     */
+    protected UserQueryRepresentation bindUserQuery() {
+        if (!request.contentType) {
+            throw new InvalidRequestException('No content type provided')
+        }
+        MimeType mimeType = new MimeType(request.contentType)
+        if (mimeType != MimeType.JSON) {
+            throw new InvalidRequestException("Content type should be ${MimeType.JSON.name}; got ${mimeType}.")
         }
 
-        userQueryResource.save(query, currentUser)
-        response.status = 201
-        respond toResponseMap(query)
+        try {
+            def src = BindingHelper.objectMapper.writeValueAsString(request.JSON)
+            return getUserQueryFromString(src)
+        } catch (BindingException e) {
+            def error = [
+                    httpStatus: HttpStatus.BAD_REQUEST.value(),
+                    message   : e.message,
+                    type      : e.class.simpleName,
+            ] as Map<String, Object>
+
+            if (e.errors) {
+                error.errors = e.errors
+                        .collect { [propertyPath: it.propertyPath.toString(), message: it.message] }
+            }
+
+            response.status = HttpStatus.BAD_REQUEST.value()
+            render error as JSON
+            return null
+        }
     }
 
+    /**
+     * POST /v2/queries
+     * Saves the user query in the body, which is of type {@link UserQueryRepresentation}.
+     *
+     * @param apiVersion
+     * @returns a representation of the saved query.
+     */
+    def save(@RequestParam('api_version') String apiVersion) {
+        UserQueryRepresentation body = bindUserQuery()
+        if (body == null) {
+            return
+        }
+        body.apiVersion = versionController.currentVersion(apiVersion)
+        def query = userQueryResource.create(body, authContext.user)
+
+        response.status = HttpStatus.CREATED.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, query)
+    }
+
+    /**
+     * PUT /v2/queries/{id}
+     * Saves changes to an existing user query.
+     * Changes are specified in the body, which is of type {@link UserQueryRepresentation}.
+     *
+     * @param apiVersion
+     * @param id the identifier of the user query to update.
+     * @returns status 204 and the updated query object, if it exists and is owned by the current user;
+     *      404 (Not Found) or 403 (Forbidden) otherwise.
+     */
     def update(@RequestParam('api_version') String apiVersion,
                @PathVariable('id') Long id) {
-        def requestJson = request.JSON as Map
-        checkForUnsupportedParams(requestJson, ['name', 'patientsQuery', 'observationsQuery', 'bookmarked'])
-        UserQuery query = userQueryResource.get(id, currentUser)
-        if (requestJson.containsKey('name')) {
-            query.name = requestJson.name
+        UserQueryRepresentation body = bindUserQuery()
+        if (body == null) {
+            return
         }
-        if (requestJson.containsKey('patientsQuery')) {
-            query.patientsQuery = requestJson.patientsQuery?.toString()
-        }
-        if (requestJson.containsKey('observationsQuery')) {
-            query.observationsQuery = requestJson.observationsQuery?.toString()
-        }
-        if (requestJson.containsKey('patientsQuery') || requestJson.containsKey('observationsQuery')) {
-            query.apiVersion = versionController.currentVersion(apiVersion)
-        }
-        if (requestJson.containsKey('bookmarked')) {
-            query.bookmarked = requestJson.bookmarked
-        }
-        userQueryResource.save(query, currentUser)
-        response.status = 204
+        def query = userQueryResource.update(id, body, authContext.user)
+
+        response.status = HttpStatus.OK.value()
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, query)
     }
 
+    /**
+     * DELETE /v2/queries/{id}
+     * Deletes the user query with the provided id.
+     *
+     * @param id the database id of the user query.
+     * @returns status 204, if the user query exists and is owned by the current user;
+     *      404 (Not Found) or 403 (Forbidden) otherwise.
+     */
     def delete(@PathVariable('id') Long id) {
-        userQueryResource.delete(id, currentUser)
-        response.status = 204
+        userQueryResource.delete(id, authContext.user)
+        response.status = HttpStatus.NO_CONTENT.value()
     }
 
-    private static Map<String, Object> toResponseMap(UserQuery query) {
-        query.with {
-            [
-                    id               : id,
-                    name             : name,
-                    patientsQuery    : patientsQuery ? JSON_SLURPER.parseText(patientsQuery) : null,
-                    observationsQuery: observationsQuery ? JSON_SLURPER.parseText(observationsQuery) : null,
-                    apiVersion       : apiVersion,
-                    bookmarked       : bookmarked,
-                    createDate       : createDate,
-                    updateDate       : updateDate,
-            ]
-        }
-    }
 }

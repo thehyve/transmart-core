@@ -3,14 +3,14 @@ package org.transmartproject.db.log
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.users.User
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class AccessLogServiceSpec extends TransmartSpecification {
+class AccessLogServiceSpec extends Specification {
 
     def accessLogService
 

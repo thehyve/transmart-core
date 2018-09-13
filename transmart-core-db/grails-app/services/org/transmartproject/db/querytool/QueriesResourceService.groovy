@@ -19,40 +19,63 @@
 
 package org.transmartproject.db.querytool
 
+import grails.core.GrailsApplication
 import grails.transaction.Transactional
+import grails.util.Environment
+import grails.util.Holders
+import org.hibernate.SessionFactory
 import org.hibernate.jdbc.Work
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.*
-import org.transmartproject.db.user.User
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.core.users.User
+import org.transmartproject.core.users.UsersResource
 
 import java.sql.Connection
 
 @Transactional
 class QueriesResourceService implements QueriesResource {
 
-    def grailsApplication
-    def patientSetQueryBuilderService
-    def queryDefinitionXmlService
-    def sessionFactory
-    def usersResourceService
+    GrailsApplication grailsApplication
+    PatientSetQueryBuilderService patientSetQueryBuilderService
+    QueryDefinitionXmlService queryDefinitionXmlService
+    SessionFactory sessionFactory
+    @Autowired
+    UsersResource usersResource
+    @Autowired
+    LegacyAuthorisationChecks authorisationChecks
+
 
     @Override
     @Deprecated
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        runQuery(definition,
-                (String) grailsApplication.config.org.transmartproject.i2b2.user_id)
+        if (Environment.current.name != 'test') {
+            // This functionality is not secured.
+            throw new RuntimeException("Functionality is disabled.")
+        }
+        String username = Holders.config.org.transmartproject.i2b2.user_id
+        if (!username) {
+            throw new IllegalStateException('org.transmartproject.i2b2.user_id is not specified.')
+        }
+        User user = usersResource.getUserFromUsername(username)
+        runQuery(definition, user)
     }
 
     @Override
-    QueryResult runQuery(QueryDefinition definition,
-                         String username) throws InvalidRequestException {
+    QueryResult runQuery(QueryDefinition definition, User user) throws InvalidRequestException {
+        if (!authorisationChecks.canRun(user, definition)) {
+            throw new AccessDeniedException("Denied ${user.username} access " +
+                    "for building cohort based on $definition")
+        }
+
         // 1. Populate qt_query_master
         QtQueryMaster queryMaster = new QtQueryMaster(
             name           : definition.name,
-            userId         : username,
-            groupId        : grailsApplication.config.org.transmartproject.i2b2.group_id,
+            userId         : user.username,
+            groupId        : Holders.config.org.transmartproject.i2b2.group_id,
             createDate     : new Date(),
             generatedSql   : null,
             requestXml     : queryDefinitionXmlService.toXml(definition),
@@ -63,8 +86,8 @@ class QueriesResourceService implements QueriesResource {
 
         // 2. Populate qt_query_instance
         QtQueryInstance queryInstance = new QtQueryInstance(
-                userId       : username,
-                groupId      : grailsApplication.config.org.transmartproject.i2b2.group_id,
+                userId       : user.username,
+                groupId      : Holders.config.org.transmartproject.i2b2.group_id,
                 startDate    : new Date(),
                 statusTypeId : QueryStatus.PROCESSING.id,
                 queryMaster  : queryMaster,
@@ -102,7 +125,7 @@ class QueriesResourceService implements QueriesResource {
             } as Work)
 
             sql = patientSetQueryBuilderService.buildPatientSetQuery(
-                    resultInstance, definition, tryLoadingUser(username))
+                    resultInstance, definition, user)
 
             sessionFactory.currentSession.doWork ({ Connection conn ->
                 def statement = conn.prepareStatement(sql)
@@ -163,15 +186,9 @@ class QueriesResourceService implements QueriesResource {
         resultInstance
     }
 
-    QueryResult disablingQuery(Long id,
-                               String username) throws InvalidRequestException
-    {
-        QtQueryResultInstance resultInstance = getQueryResultFromId(id)
+    QueryResult disableQuery(Long id, User user) throws InvalidRequestException {
+        QtQueryResultInstance resultInstance = (QtQueryResultInstance)getQueryResultFromId(id, user)
 
-        if (resultInstance.queryInstance.userId != username) {
-            throw new AccessDeniedException("User ${username} has no permission" +
-                    " to disable query result instance with id $id")
-        }
         resultInstance.deleteFlag = "Y"
 
         def newResultInstance = resultInstance.save()
@@ -185,22 +202,36 @@ class QueriesResourceService implements QueriesResource {
     }
 
     @Override
-    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
-        QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
-        if (!qtQueryResultInstance) {
+    QueryResult getQueryResultFromId(Long id, User user) throws NoSuchResourceException {
+        QtQueryResultInstance resultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
+        if (!resultInstance || resultInstance.queryInstance.userId != user.username) {
             throw new NoSuchResourceException(
-                    "Could not find query result instance with id $id and delete_flag = 'N'")
+                    "Could not find query result instance with id ${id} and delete_flag = 'N' for user ${user.username}")
         }
-        qtQueryResultInstance
+        resultInstance
     }
 
     @Override
-    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username) {
+    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
+        if (Environment.current.name != 'test') {
+            // This functionality is not secured.
+            throw new RuntimeException("Functionality is disabled.")
+        }
+        QtQueryResultInstance resultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
+        if (!resultInstance) {
+            throw new NoSuchResourceException(
+                    "Could not find query result instance with id ${id} and delete_flag = 'N'")
+        }
+        resultInstance
+    }
+
+    @Override
+    List<QueryResultSummary> getQueryResults(User user) {
         def query = QtQueryResultInstance.where {
-            queryInstance.userId == username
+            queryInstance.userId == user.username
             deleteFlag == 'N'
         }
-        query.collect { new QueryResultSummaryImplementation(it)}
+        query.collect { it }
     }
 
     @Override
@@ -217,25 +248,4 @@ class QueriesResourceService implements QueriesResource {
         queryDefinitionXmlService.fromXml(new StringReader(requestXml))
     }
 
-    User tryLoadingUser(String user) {
-        /* this doesn't fail if the user doesn't exist. This is for historical
-         * reasons. The user associated with the query used to be an I2B2 user,
-         * not a tranSMART user. This lax behavior is to allow core-db to work
-         * under this old assumption (useful only for interoperability with
-         * i2b2). Though, arguably, this should not be supported in transmart
-         * as across trials queries and permission checks will fail if the
-         * user is not a tranSMART user. Log a warning.
-         */
-        if (user == null) {
-            throw new NullPointerException("Username not provided")
-        }
-        try {
-            usersResourceService.getUserFromUsername(user)
-        } catch (NoSuchResourceException unf) {
-            log.warn("User $user not found. This is permitted for " +
-                    "compatibility with i2b2, but tranSMART functionality " +
-                    "will be degraded, and this behavior is deprecated")
-            return null
-        }
-    }
 }

@@ -4,12 +4,14 @@ package tests.rest.v2.hypercube
 
 import annotations.RequiresStudy
 import base.RESTSpec
-import groovy.json.JsonBuilder
+import base.RestHelper
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
 import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.startsWith
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.Operator.*
 import static tests.rest.ValueType.*
@@ -42,8 +44,8 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'mrna',
-                        constraint          : new JsonBuilder(assayConstraint),
-                        biomarker_constraint: new JsonBuilder(biomarkerConstraint),
+                        constraint          : assayConstraint,
+                        biomarker_constraint: biomarkerConstraint,
                         projection          : projection
                 ]
         ]
@@ -88,8 +90,8 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'autodetect',
-                        constraint          : new JsonBuilder(assayConstraint),
-                        biomarker_constraint: new JsonBuilder(biomarkerConstraint),
+                        constraint          : assayConstraint,
+                        biomarker_constraint: biomarkerConstraint,
                         projection          : projection
                 ]
         ]
@@ -129,10 +131,10 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'autodetect',
-                        constraint: new JsonBuilder([
+                        constraint: [
                                 type: ConceptConstraint,
                                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Breast\\"
-                        ])
+                        ]
                 ]
         ]
 
@@ -171,9 +173,8 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'mrna',
-                        constraint: new JsonBuilder([
-                                type    : Combination,
-                                operator: AND,
+                        constraint: [
+                                type    : 'and',
                                 args    : [
                                         [type    : FieldConstraint,
                                          field   : [dimension: 'patient', fieldName: 'age', type: NUMERIC],
@@ -182,7 +183,7 @@ class HighDimSpec extends RESTSpec {
                                          field   : [dimension: 'patient', fieldName: 'age', type: NUMERIC],
                                          operator: EQUALS, value: 30]
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -214,7 +215,7 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'mrna',
-                        constraint: new JsonBuilder(assayConstraint),
+                        constraint: assayConstraint,
                         projection: 'zscore'
                 ]
         ]
@@ -224,7 +225,7 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'mrna',
-                        constraint: new JsonBuilder(assayConstraint),
+                        constraint: assayConstraint,
                         projection: 'log_intensity'
                 ]
         ]
@@ -269,17 +270,17 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type                : 'mrna',
-                        constraint          : new JsonBuilder([
+                        constraint          : [
                                 type: ConceptConstraint,
                                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
+                        ],
+                        biomarker_constraint: [
                                 type         : BiomarkerConstraint,
                                 biomarkerType: 'genes',
                                 params       : [
                                         names: ['TP53']
                                 ]
-                        ]),
+                        ],
                         projection          : 'log_intensity'
                 ]
         ]
@@ -310,9 +311,8 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'mrna',
-                        constraint: new JsonBuilder([
-                                type    : Combination,
-                                operator: AND,
+                        constraint: [
+                                type    : 'and',
                                 args    : [
                                         [
                                                 "type": ConceptConstraint,
@@ -327,7 +327,7 @@ class HighDimSpec extends RESTSpec {
                                          operator: AFTER,
                                          values  : [toDateString("01-04-2016Z")]]
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -366,9 +366,8 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'rnaseq_transcript',
-                        constraint: new JsonBuilder([
-                                type    : Combination,
-                                operator: AND,
+                        constraint: [
+                                type    : 'and',
                                 args    : [
                                         [
                                                 "type": ConceptConstraint,
@@ -381,7 +380,7 @@ class HighDimSpec extends RESTSpec {
                                         [type  : ModifierConstraint, path: "\\Public Studies\\RNASEQ_TRANSCRIPT\\Sample Type\\",
                                          values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]]
                                 ]
-                        ])
+                        ]
                 ]
         ]
 
@@ -422,18 +421,18 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'mrna',
-                        constraint: new JsonBuilder([type: 'invalidConstraint'])
+                        constraint: [type: 'invalidConstraint']
                 ],
                 statusCode: 400
         ]
 
         when:
-        def responseData = get(request)
+        def responseData = RestHelper.toObject get(request), ErrorResponse
 
         then:
         that responseData.httpStatus, is(400)
-        that responseData.type, is('ConstraintBindingException')
-        that responseData.message, is('Constraint not supported: invalidConstraint.')
+        that responseData.type, is('BindingException')
+        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'invalidConstraint\' into a subtype of ')
 
         where:
         acceptType | newSelector
@@ -453,7 +452,7 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'rnaseq_transcript',
-                        constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
+                        constraint: [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                 ],
         ]
 
@@ -477,13 +476,10 @@ class HighDimSpec extends RESTSpec {
                 acceptType: acceptType,
                 query     : [
                         type      : 'autodetect',
-                        constraint: new JsonBuilder(["type": Combination, "operator": AND,
-                                                     "args": [
-                                                             ["type": ConceptConstraint, "conceptCode": "CTHD:HD:EXPLUNG"],
-                                                             ["type" : FieldConstraint,
-                                                              "field": ["dimension": "trial visit", "fieldName": "id", "type": "ID"], "operator": "=", "value": -402]
-                                                     ]
-                        ])
+                        constraint: ["type": 'and', "args": [
+                                ["type": ConceptConstraint, "conceptCode": "CTHD:HD:EXPLUNG"],
+                                ["type" : FieldConstraint, "field": ["dimension": "trial visit", "fieldName": "id", "type": "ID"], "operator": "=", "value": -402]
+                        ]]
                 ]
         ]
 
@@ -501,7 +497,6 @@ class HighDimSpec extends RESTSpec {
         where:
         acceptType | newSelector
         JSON       | jsonSelector
-
-
     }
+
 }

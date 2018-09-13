@@ -17,6 +17,11 @@ interface UserQuery {
     void setName(String name)
 
     /**
+     * The query username
+     */
+    String getUsername()
+
+    /**
      * The patient selection part of the query in json format.
      */
     String getPatientsQuery()
@@ -45,6 +50,20 @@ interface UserQuery {
     void setBookmarked(Boolean bookmarked)
 
     /**
+     * Flag to indicate if the user has subscribed for the query.
+     */
+    Boolean getSubscribed()
+
+    void setSubscribed(Boolean subscribed)
+
+    /**
+     * Frequency of the subscription: daily or weekly
+     */
+    SubscriptionFrequency getSubscriptionFreq()
+
+    void setSubscriptionFreq(SubscriptionFrequency subscriptionFreq)
+
+    /**
      * Creation date and time of this query.
      */
     Date getCreateDate()
@@ -53,4 +72,16 @@ interface UserQuery {
      * When this query was updated.
      */
     Date getUpdateDate()
+
+    /**
+     * Change the update date to now.
+     */
+    void updateUpdateDate()
+
+    /**
+     * Additional information about the query, e.g. a state of the data table
+     */
+    String getQueryBlob()
+
+    void setQueryBlob(String queryBlob)
 }

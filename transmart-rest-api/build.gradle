@@ -5,9 +5,9 @@ dependencies {
     compile "com.google.protobuf:protobuf-java-util:${protobufVersion}"
 
     testCompile 'org.gmock:gmock:0.8.3'
-    testCompile 'junit:junit:4.11'
-    testCompile 'org.hamcrest:hamcrest-library:1.3'
-    testCompile 'org.hamcrest:hamcrest-core:1.3'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
     testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
 
     compile "org.springframework.boot:spring-boot-starter-logging"
@@ -18,7 +18,9 @@ dependencies {
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:scaffolding"
-    console "org.grails:grails-console"
+    console("org.grails:grails-console") {
+        exclude group: 'org.fusesource.jansi', module: 'jansi'
+    }
 
     compile "org.hibernate:hibernate-ehcache"
 
@@ -31,10 +33,16 @@ dependencies {
     testCompile 'org.grails:grails-datastore-rest-client'
     compile "com.opencsv:opencsv:${openCsvVersion}"
     compile "org.grails.plugins:quartz:${quartzVersion}"
+    compile "commons-io:commons-io:2.5"
+    compile "commons-fileupload:commons-fileupload:1.3.1"
+    compile 'log4j:apache-log4j-extras:1.2.17'
+    compile 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
+    compile 'ch.qos.logback.contrib:logback-jackson:0.1.5'
 
-    compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
+    compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
     compile project(':transmart-core-api')
-    compile project(':transmart-core-db-tests')
+    compile project(':transmart-core-db')
+    testCompile project(':transmart-core-db-tests')
 }
 
 assets {
@@ -47,7 +55,41 @@ bootRun {
     jvmArgs = ['-Xmx4096m']
 }
 
+sourceSets {
+    functionalTest {
+        java.srcDir 'src/func-test/java'
+        groovy.srcDir 'src/func-test/groovy'
+        resources.srcDir 'src/func-test/resources'
+        compileClasspath += sourceSets.integrationTest.compileClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    functionalTestCompile.extendsFrom testCompile
+    functionalTestRuntime.extendsFrom testRuntime
+}
+
+task functionalTest(type: Test) {
+    testClassesDir = sourceSets.functionalTest.output.classesDir
+    classpath += sourceSets.functionalTest.runtimeClasspath
+    jvmArgs = ['-Dgrails.env=test']
+}
+
+check.dependsOn functionalTest
+
+gradlePlugin {
+    testSourceSets sourceSets.functionalTest
+}
+
+// Force selected tests to always run, even if Gradle thinks they are up to date
+test.outputs.upToDateWhen { false }
+integrationTest.outputs.upToDateWhen { false }
+functionalTest.outputs.upToDateWhen { false }
+
 // Uncomment to show standard out/error output
 //test.testLogging.showStandardStreams = true
 
-
+integrationTest.testLogging.exceptionFormat = 'full'
+test.testLogging.exceptionFormat = 'full'
+functionalTest.testLogging.exceptionFormat = 'full'

@@ -21,15 +21,18 @@ package org.transmartproject.db.dataquery.highdim
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.TabularStudyTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
+import org.transmartproject.db.user.AccessLevelTestData
 
 import javax.annotation.Resource
 
@@ -37,18 +40,23 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
+class HighDimensionDataTypeResourceSpec extends Specification {
+
+    @Autowired
+    QueriesResource queriesResourceService
 
     @Resource
     HighDimensionDataTypeModule mrnaModule
 
-    HighDimensionDataTypeResource resource
-    QueriesResource queriesResourceService
+    AccessLevelTestData accessLevelTestData
 
+    HighDimensionDataTypeResource resource
 
     I2b2 i2b2Node
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         TabularStudyTestData studyTestData = new TabularStudyTestData()
         studyTestData.saveAll()
         i2b2Node = studyTestData.i2b2List[0]
@@ -59,6 +67,8 @@ class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
         assert mrnaModule != null
 
         resource = new HighDimensionDataTypeResourceImpl(mrnaModule)
+        accessLevelTestData = new AccessLevelTestData()
+        accessLevelTestData.saveAuthorities()
     }
 
     void testBasic() {
@@ -73,7 +83,7 @@ class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
                 )
         ])
 
-        def result = queriesResourceService.runQuery(definition)
+        def result = queriesResourceService.runQuery(definition, accessLevelTestData.users[0])
         def ontologyTerms = resource.getAllOntologyTermsForDataTypeBy(result)
 
         expect:

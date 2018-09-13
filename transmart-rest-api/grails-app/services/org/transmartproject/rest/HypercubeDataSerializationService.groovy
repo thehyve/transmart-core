@@ -20,32 +20,45 @@ package org.transmartproject.rest
 
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.*
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
+import org.transmartproject.db.clinical.AbstractDataResourceService
 import org.transmartproject.rest.serialization.*
+import org.transmartproject.core.multidimquery.export.Format
 
 @Transactional
-class HypercubeDataSerializationService implements DataSerializer {
+class HypercubeDataSerializationService extends AbstractDataResourceService {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
 
+    @Autowired
+    PatientSetResource patientSetService
+
     Map<Format, HypercubeSerializer> formatToSerializer = [
             (Format.JSON)    : new HypercubeJsonSerializer(),
-            (Format.PROTOBUF): new HypercubeProtobufSerializer(),
-            (Format.TSV)     : new HypercubeCSVSerializer(),
+            (Format.PROTOBUF): new HypercubeProtobufSerializer()
     ]
             .withDefault { Format format -> throw new UnsupportedOperationException("Unsupported format: ${format}") }
 
-    @Override
+    /**
+     * Write clinical data to the output stream
+     *
+     * @param format
+     * @param parameters
+     * @param user The user accessing the data
+     * @param out
+     * @param options
+     */
     void writeClinical(Format format,
-                       MultiDimConstraint constraint,
+                       DataRetrievalParameters parameters,
                        User user,
                        OutputStream out) {
-
-        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
+        checkAccess(parameters.constraint, user, PatientDataAccessLevel.MEASUREMENTS)
+        Hypercube hypercube = multiDimService.retrieveClinicalData(parameters, user)
 
         try {
             log.info "Writing to format: ${format}"
@@ -55,14 +68,25 @@ class HypercubeDataSerializationService implements DataSerializer {
         }
     }
 
-    @Override
+    /**
+     * Write high dimensional data to the output stream
+     *
+     * @param format
+     * @param type The type of highdim data or 'autodetect'
+     * @param assayConstraint
+     * @param biomarkerConstraint
+     * @param projection
+     * @param user
+     * @param out
+     */
     void writeHighdim(Format format,
                       String type,
-                      MultiDimConstraint assayConstraint,
-                      MultiDimConstraint biomarkerConstraint,
+                      Constraint assayConstraint,
+                      Constraint biomarkerConstraint,
                       String projection,
                       User user,
                       OutputStream out) {
+        checkAccess(assayConstraint, user, PatientDataAccessLevel.MEASUREMENTS)
         Hypercube hypercube = multiDimService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
         try {
@@ -73,8 +97,4 @@ class HypercubeDataSerializationService implements DataSerializer {
         }
     }
 
-    @Override
-    Set<Format> getSupportedFormats() {
-        formatToSerializer.keySet()
-    }
 }

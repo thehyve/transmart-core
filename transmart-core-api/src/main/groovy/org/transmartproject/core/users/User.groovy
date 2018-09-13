@@ -1,20 +1,17 @@
 package org.transmartproject.core.users
+
 /**
  * Represents a tranSMART user.
  */
-public interface User {
+interface User {
 
     /**
-     * An numerical identifier for the user.
+     * The name for the user. Has to be unique in the system.
      *
-     * @return numeric unique identifier for the user
-     */
-    Long getId()
-
-    /**
-     * The local name for the user. If the user logs in through tranSMART (as
-     * opposed to some SSO solution), this is the username he should input.
-     *
+     * In case of the basic local identity provider this field is stored in the database.
+     * In case of Open ID Connect it's the `sub` field.
+     *  Note not `username` or `preferred_username` as it does not identify a user.
+     *  See http://openid.net/specs/openid-connect-core-1_0.html
      * @return the local username
      */
     String getUsername()
@@ -27,13 +24,20 @@ public interface User {
     String getRealName()
 
     /**
-     * Returns true iif this user is authorized to perform the given operation
-     * on the given object.
+     * The email for the user
      *
-     * @param operation
-     * @param protectedResource
-     * @return true iif access is granted
+     * @return the user email
      */
-    boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource)
+    String getEmail()
 
+    /**
+     * @return true if user is admin, otherwise false
+     */
+    boolean isAdmin()
+
+    /**
+     * The key of the map is a study token (could be study id). The study token is a string that give access to the study.
+     * Patient data access level of access specified by the value part of the map {@link PatientDataAccessLevel}.
+     */
+    Map<String, PatientDataAccessLevel> getStudyToPatientDataAccessLevel()
 }

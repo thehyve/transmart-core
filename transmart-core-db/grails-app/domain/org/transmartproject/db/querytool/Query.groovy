@@ -20,6 +20,7 @@
 package org.transmartproject.db.querytool
 
 import org.springframework.validation.Errors
+import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 
 class Query implements UserQuery {
@@ -31,16 +32,23 @@ class Query implements UserQuery {
     String apiVersion
     Boolean bookmarked = false
     Boolean deleted = false
+    Boolean subscribed = false
+    SubscriptionFrequency subscriptionFreq
     Date createDate = new Date()
     Date updateDate = new Date()
+    String queryBlob
+
+    void updateUpdateDate() {
+        updateDate = new Date()
+    }
 
     static mapping = {
         table schema: 'BIOMART_USER'
+        id generator: 'sequence', params: [sequence: 'query_id_seq', schema: 'biomart_user']
         version false
     }
 
     static constraints = {
-        id generator: 'sequence', params: [sequence: 'query_id_seq', schema: 'biomart_user']
         name maxSize: 1000
         username maxSize: 50
         patientsQuery nullable: true
@@ -53,8 +61,12 @@ class Query implements UserQuery {
         }
         apiVersion nullable: true, maxSize: 25
         bookmarked nullable: true
+        subscribed nullable: true
+        subscriptionFreq nullable: true
         deleted nullable: true
         createDate nullable: true
         updateDate nullable: true
+        queryBlob nullable: true
     }
+
 }

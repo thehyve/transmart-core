@@ -1,5 +1,6 @@
 # Open API specification for the tranSMART platform
-[![Validation status](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)](http://online.swagger.io/validator/debug?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)
+<!-- http://online.swagger.io does not support OpenApi 3 yet -->
+<!-- [![Validation status](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)](http://online.swagger.io/validator/debug?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json) -->
 
 ## Overview
 
@@ -10,7 +11,7 @@ The specification is in the file [swagger.yaml](swagger.yaml).
 This directory also contains a copy of [Swagger UI](https://github.com/swagger-api/swagger-ui)
 (released under Apache 2.0 license), that provides a UI to explore the API specification.
 You can open the UI [locally](index.html), or visit a
-[public copy](http://transmart-pro-test.thehyve.net/open-api).
+[public copy](http://transmart.thehyve.net/open-api).
 
 
 

@@ -1,0 +1,19 @@
+# configurations that are used only when plugin gets run (e.g. testing)
+# for grails configurations that get merged with the host application see plugin.yml
+---
+environments:
+    test:
+        hibernate:
+            cache:
+                queries: false
+                use_second_level_cache: true
+                use_query_cache: false
+                region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+        dataSource:
+            url: jdbc:postgresql://localhost:5432/transmart
+            driverClassName: org.postgresql.Driver
+            username: biomart_user
+            password: biomart_user
+            logSql: true
+            formatql: true

@@ -1,12 +1,11 @@
 package org.transmartproject.core.ontology
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.users.ProtectedResource
 
 /**
  * A study (or trial) represents a unit of patients and data for these patients.
  */
-public interface Study extends ProtectedResource {
+public interface Study {
 
     /**
      * The (hopefully unique) name of the study.

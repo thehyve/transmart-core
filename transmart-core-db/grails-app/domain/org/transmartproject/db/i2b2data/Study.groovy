@@ -2,6 +2,8 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.Memoized
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.StudyMetadata
 import org.transmartproject.db.metadata.DimensionDescription
@@ -22,6 +24,7 @@ import org.transmartproject.db.multidimquery.DimensionImpl
  * Metadata is available in the form of a label {@link Study#studyId} and a link to the <code>bio_experiment</code>
  * table in {@link Study#bioExperimentId}.
  */
+@EqualsAndHashCode(includes = ['id'])
 class Study implements MDStudy {
 
     static final String PUBLIC = 'PUBLIC'
@@ -61,8 +64,9 @@ class Study implements MDStudy {
         studyId             column: 'study_id'
         secureObjectToken   column: 'secure_obj_token'
         bioExperimentId     column: 'bio_experiment_id'
-        dimensionDescriptions joinTable: [schema: 'i2b2metadata']
+        dimensionDescriptions joinTable: [schema: 'i2b2metadata', name: 'study_dimension_descriptions']
         version false
+        cache true
     }
 
     @Override String getName() {
@@ -79,7 +83,7 @@ class Study implements MDStudy {
         dd.dimension
     }
 
-    @Override
+    @Memoized
     StudyMetadata getMetadata() {
         StudyMetadata.fromJson(studyBlob)
     }

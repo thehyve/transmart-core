@@ -12,6 +12,7 @@
 | Command | Description |
 ---------|-------------------
 | `make oracle_test_data` | Uploads all tsv files found in this folder to the corresponding tables. |
+| `make oracle_clean_all_data` | Deletes *all rows* for the database tables data files of which could be found in the folder. |
 
 ## Notes
 

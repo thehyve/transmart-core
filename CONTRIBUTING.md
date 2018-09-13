@@ -5,6 +5,7 @@
 Are you ready to contribute to TranSMART? We'd love to have you on board, and we will help you as much as we can. Here are the guidelines we'd like you to follow so that we can be of more help:
 
  - [Contributing Code Changes via a Pull Request](#pull-request)
+ - [Adding database changes](#db-changes)
  - [Automated tests on Travis CI](#test-travis)
  - [Coding Rules](#rules)
  - [Git Commit Guidelines](#commit)
@@ -112,12 +113,25 @@ After your pull request is merged, you have to delete your branch (if it was not
     git pull --ff upstream master
     ```
 
+## <a name="db-changes"></a> Adding database changes
+
+Database schemas for both Oracle and Postgres are stored in the [transmart-data](transmart-data/ddl/) project. In order to add a change there, follow the steps below:
+
+1. Add a change to both [Postgres and Oracle ddl](transmart-data/ddl/).
+2. Add a migration script for both Postgres and Oracle in [a folder with a current development version scripts](transmart-data/updatedb/dev/).
+3. Add a short description of the change in the release folder README. See the README for [17.1 release folder](transmart-data/updatedb/release-17.1/).
+4. If required, change [the test data](transmart-data/test_data/).
+
 ## <a name="test-travis"></a> Automated tests on Travis CI
 All Pull Requests are automatically tested on [Travis CI](https://travis-ci.org/thehyve/transmart-core). Currently there is a set of tests for the core modules:
 * Tests for transmart-core-db module against H2 database, 
 * Tests for transmart-rest-api module, 
 * Tests for transmart-core-db module against Postgres database,
-* Tests for transmart-batch module. 
+* Tests for transmart-api-server module,
+* Tests for transmart-batch module,
+* Tests for transmart-solr-indexing module against Postgres database,
+* Tests for transmart-copy data uploader tool against Postgres database.
+
 ## <a name="rules"></a> Coding Rules
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
 

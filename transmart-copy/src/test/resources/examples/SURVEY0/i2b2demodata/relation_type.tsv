@@ -1,0 +1,8 @@
+id	label	description	symmetrical	biological
+0	PAR	Parent	f	f
+1	SPO	Spouse	t	f
+2	SIB	Sibling	t	f
+3	MZ	Monozygotic twin	t	t
+4	DZ	Dizygotic twin	t	t
+5	COT	Twin with unknown zygosity	t	t
+6	CHI	Child	f	f

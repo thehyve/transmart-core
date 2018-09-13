@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -41,8 +42,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class AcghModule extends AbstractHighDimensionDataTypeModule {
 
@@ -155,7 +155,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
-    @Override
+    @Override @CompileStatic
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
                                    Projection projection) {
@@ -163,46 +163,48 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<RegionRowImpl>(
                 rowsDimensionLabel: 'Regions',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
-                results: results,
-                inSameGroup: { a, b -> a.id == b.id },
-                finalizeGroup: { List list -> /* list of arrays with 15 elements (1/projection) */
+                results: results
+            ) {
+                @Override @CompileStatic
+                boolean inSameGroup(Map a, Map b) { a.id == b.id }
+
+                @Override @CompileStatic
+                RegionRowImpl finalizeRow(List<Map> list) {
                     if (list.size() != assays.size()) {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def cell = list.find()[0]
+                    Map cell = findFirst list
                     def regionRow = new RegionRowImpl(
-                            id: cell.id,
-                            name: cell.name,
-                            cytoband: cell.cytoband,
-                            chromosome: cell.chromosome,
-                            start: cell.start,
-                            end: cell.end,
-                            numberOfProbes: cell.numberOfProbes,
-                            bioMarker: cell.geneSymbol,
+                            id: (Long) cell.id,
+                            name: (String) cell.name,
+                            cytoband: (String) cell.cytoband,
+                            chromosome: (String) cell.chromosome,
+                            start: (Long) cell.start,
+                            end: (Long) cell.end,
+                            numberOfProbes: (Integer) cell.numberOfProbes,
+                            bioMarker: (String) cell.geneSymbol,
                             platform: new PlatformImpl(
-                                    id:              cell.platformId,
-                                    title:           cell.platformTitle,
-                                    organism:        cell.platformOrganism,
+                                    id:              (String) cell.platformId,
+                                    title:           (String) cell.platformTitle,
+                                    organism:        (String) cell.platformOrganism,
                                     //It converts timestamp to date
                                     annotationDate:  cell.platformAnnotationDate ?
-                                            new Date(cell.platformAnnotationDate.getTime())
+                                            new Date(((Date) cell.platformAnnotationDate).getTime())
                                             : null,
-                                    markerType:      cell.platformMarkerType,
-                                    genomeReleaseId: cell.platformGenomeReleaseId
+                                    markerType:      (String) cell.platformMarkerType,
+                                    genomeReleaseId: (String) cell.platformGenomeReleaseId
                             ),
 
                             assayIndexMap: assayIndexMap
                     )
-                    regionRow.data = list.collect {
-                        projection.doWithResult(it?.getAt(0))
-                    }
+                    regionRow.data = doWithProjection(projection, list)
                     regionRow
                 }
-        )
+            }
     }
 }

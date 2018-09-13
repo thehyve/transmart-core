@@ -1,31 +1,37 @@
 package org.transmart.server.interceptors
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.audit.AuditLogger
-import org.transmartproject.core.users.User
+import groovy.transform.CompileStatic
+import org.transmartproject.core.log.AccessLogEntryResource
+import org.transmartproject.rest.user.AuthContext
 
-
+@CompileStatic
 class UserLandingInterceptor {
 
-    @Autowired(required = false)
-    AuditLogger auditLogService
-    @Autowired
-    User currentUserBean
+    AccessLogEntryResource accessLogService
+    AuthContext authContext
 
     UserLandingInterceptor(){
         match(controller: 'userLanding').excludes(action: 'checkHeartBeat')
     }
 
     boolean before() {
-        auditLogService.report("User Access", request,
-                user: currentUserBean,
-        )
+        def eventMessage = ''
+        if (actionName == 'index'){
+            eventMessage = "Login Attempt"
+        } else if (actionName == 'agree') {
+            eventMessage = "Login Successful"
+        } else if (actionName == 'disagree') {
+            eventMessage = "Login Failed"
+        }
+
+        accessLogService.report(
+                authContext.user,
+                "User Access",
+                eventMessage: eventMessage as Object,
+                accessTime: new Date() as Object)
         true
     }
 
     boolean after() { true }
 
-    void afterView() {
-        // no-op
-    }
 }

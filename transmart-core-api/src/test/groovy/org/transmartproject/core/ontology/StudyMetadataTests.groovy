@@ -85,7 +85,7 @@ class StudyMetadataTests {
     }
 
     @Test
-    void testAllFieldsParsing() {
+    void testVarMetaAllFieldsParsing() {
         def jsonText = """
             {
                 "conceptCodeToVariableMetadata": {
@@ -153,6 +153,54 @@ class StudyMetadataTests {
                     hasProperty('lower', nullValue()),
                     hasProperty('values', equalTo([new BigDecimal('-2.0'), new BigDecimal('-3.2')])))
                 )))
+    }
+
+    @Test
+    void testLabelKeysWithSpaces() {
+        def jsonText = """
+            {
+                "conceptCodeToVariableMetadata": {
+                    "test": {  
+                       "valueLabels":{  
+                          "-1.0            ":"Minus One"
+                       }
+                    }
+                }
+            }
+        """
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+
+        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'), allOf(
+                hasProperty('valueLabels',
+                        equalTo([(new BigDecimal('-1.0')): 'Minus One'])),
+        )))
+    }
+
+    @Test
+    void testInvalidTabRepresentationMeta() {
+        def jsonText = """
+            {
+                "defaultTabularRepresentation": {
+                    "rowDimensions": [
+                       "patient",
+                        "study"
+                    ],
+                    "failed": [1, 2, 3],
+                    "columnDimensions": [
+                       "concept",
+                       "trial visit"
+                    ]
+                }
+            }
+        """
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+
+        assertThat metadata, hasProperty('defaultTabularRepresentation', allOf(
+                hasProperty('rowDimensions', hasItems('patient', "study")),
+                hasProperty('columnDimensions', hasItems('concept', "trial visit"))
+        ))
     }
 
 }

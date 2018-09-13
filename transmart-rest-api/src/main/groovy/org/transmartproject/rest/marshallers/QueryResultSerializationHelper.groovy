@@ -1,10 +1,8 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
-import org.transmartproject.core.querytool.QueryResult
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
-import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropertySubsetForSuperType
 
 /**
  * Serialization of {@link QueryResultWrapper} objects.
@@ -20,18 +18,26 @@ class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelpe
 
     @Override
     Map<String, Object> convertToMap(QueryResultWrapper object) {
-        def map = getPropertySubsetForSuperType(object.queryResult, QueryResult, ['patients', 'queryResultType'] as Set)
-        map.status = map.status.name()
+        def queryResult = object.queryResult
+        def result = [
+                id: queryResult.id,
+                description: queryResult.description,
+                status: queryResult.status.name(),
+                setSize: queryResult.setSize,
+                username: queryResult.username,
+                errorMessage: queryResult.errorMessage,
+                queryXML: queryResult.queryXML
+        ] as Map<String, Object>
         if (object.embedPatients) {
-            map.patients = object.queryResult.patients.collect {
+            result.patients = object.queryResult.patients.collect {
                 new PatientWrapper(apiVersion: object.apiVersion, patient: it)
             }
         }
-        if(object.requestConstraint) {
-            map.requestConstraints = object.requestConstraint
-            map.apiVersion = object.apiVersion
+        if (object.requestConstraint) {
+            result.requestConstraints = object.requestConstraint
+            result.apiVersion = object.apiVersion
         }
-        map
+        result
     }
 
     @Override

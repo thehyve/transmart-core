@@ -115,11 +115,11 @@ class StudiesSpec extends RESTSpec {
         def studyResponse = get([
                 path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
                 acceptType: JSON,
-                statusCode: 403
+                statusCode: 404
         ])
 
-        then: "the study object is returned"
-        assert studyResponse.httpStatus == 403
+        then: "we don't distinguish between study not found and the user does not have access to"
+        assert studyResponse.httpStatus == 404
         assert studyResponse.message == "Access denied to study or study does not exist: ${SHARED_CONCEPTS_RESTRICTED_DB_ID}"
     }
 
@@ -141,4 +141,54 @@ class StudiesSpec extends RESTSpec {
         assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
     }
 
+    def "list of studies is fetched by names"() {
+        given: "Shared concepts studies are loaded and I do have limited access"
+
+        when: "I try to fetch studies A and B by studyIds with limited access"
+        def studyResponse1 = get([
+                path      : "${PATH_STUDIES}/studyIds",
+                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_DB_ID]],
+                acceptType: JSON,
+                user      : DEFAULT_USER
+        ])
+
+        then: "only one study is returned"
+        assert studyResponse1.studies.size() == 1
+        assert studyResponse1.studies*.studyId == [SHARED_CONCEPTS_A_ID]
+
+        when: "I try to fetch studies A and B by studyIds with the admin user"
+        def studyResponse2 = get([
+                path      : "${PATH_STUDIES}/studyIds",
+                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID]],
+                acceptType: JSON,
+                user      : ADMIN_USER
+        ])
+
+        then: "both study objects are returned"
+        assert studyResponse2.studies.size() == 2
+        assert studyResponse2.studies*.studyId.sort() == [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID].sort()
+    }
+
+    /**
+     *  given: "Shared concepts study is loaded with the default tabular representation"
+     *  when: "I try to fetch study A by studyId"
+     *  then: "the study object is returned with the defaultTabularRepresentation metadata
+     */
+    def "default tabular representation for a study is fetched by study name"() {
+        given: "Shared concepts studies are loaded and I do have limited access"
+
+        when: "I try to fetch study A by studyId"
+        def studyResponse = get([
+                path      : "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}",
+                acceptType: JSON,
+        ])
+        def metadata = studyResponse.metadata
+
+        then: "the study object is returned with the defaultTabularRepresentation metadata"
+        assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
+        assert metadata != null
+        assert metadata.defaultTabularRepresentation.rowDimensions == ['patient', "study"]
+        assert metadata.defaultTabularRepresentation.columnDimensions == ['concept']
+
+    }
 }

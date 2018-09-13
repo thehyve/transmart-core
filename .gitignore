@@ -5,7 +5,6 @@ Thumbs.db
 # Gradle
 .gradle
 build/
-gradle/
 gradlew*
 
 # IDEs
@@ -18,6 +17,12 @@ gradlew*
 .project
 .settings
 .classpath
+
+# Jekyll
+docs/_site/
+docs/.sass-cache
+docs/.jekyll-metadata
+docs/Gemfile.lock
 
 # Misc
 logs/

@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.user
 
-import org.transmartproject.db.accesscontrol.AccessLevel
+import org.transmartproject.db.accesscontrol.AccessLevelCoreDb
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccess
 import org.transmartproject.db.i2b2data.Study
@@ -127,14 +127,14 @@ class AccessLevelTestData {
         }
     }()
 
-    List<AccessLevel> accessLevels = {
+    List<AccessLevelCoreDb> accessLevels = {
         long id = -600L
         [
-                [name: 'OWN', value: 255],
-                [name: 'EXPORT', value: 8],
-                [name: 'VIEW', value: 1],
+                [name: 'MEASUREMENTS', value: 8],
+                [name: 'SUMMARY', value: 5],
+                [name: 'COUNTS_WITH_THRESHOLD', value: 1],
         ].collect {
-            def accessLevel = new AccessLevel()
+            def accessLevel = new AccessLevelCoreDb()
             it.each { k, v ->
                 accessLevel."$k" = v
             }
@@ -216,8 +216,8 @@ class AccessLevelTestData {
      * 2 second user is in group test_-201, which has access to study 2
      * 3 third user has direct access to study 2
      * 4 fourth user has no access to study 2
-     * 5 fifth user has only VIEW permissions on study 2
-     * 6 sixth user has both VIEW and EXPORT permissions on study2 (this
+     * 5 fifth user has only SUMMARY permissions on study 2
+     * 6 sixth user has both SUMMARY and MEASUREMENTS permissions on study2 (this
      *   probably can't happen in transmart anyway).
      * 7 EVERYONE_GROUP has access to study 3
      */
@@ -229,30 +229,30 @@ class AccessLevelTestData {
                     createSecuredObjectAccess( // 2
                             principal: groups.find { it.category == 'group_-201' },
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel: accessLevels.find { it.name == 'EXPORT' }),
+                            accessLevel: accessLevels.find { it.name == 'MEASUREMENTS' }),
                     createSecuredObjectAccess( // 3
                             principal: users[2],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel: accessLevels.find { it.name == 'OWN' }),
+                            accessLevel: accessLevels.find { it.name == 'COUNTS_WITH_THRESHOLD' }),
                     createSecuredObjectAccess( // 5
                             principal: users[4],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel: accessLevels.find { it.name == 'VIEW' }),
+                            accessLevel: accessLevels.find { it.name == 'SUMMARY' }),
                     createSecuredObjectAccess( // 6 (1)
                             principal: users[5],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel: accessLevels.find { it.name == 'VIEW' }),
+                            accessLevel: accessLevels.find { it.name == 'SUMMARY' }),
                     createSecuredObjectAccess( // 6 (2)
                             principal: users[5],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel: accessLevels.find { it.name == 'EXPORT' }),
+                            accessLevel: accessLevels.find { it.name == 'MEASUREMENTS' }),
             ]
         }
         if (STUDY3 in studies) {
             ret += createSecuredObjectAccess( // 7
                     principal: groups.find { it.category == EVERYONE_GROUP_NAME },
                     securedObject: securedObjects.find { it.bioDataUniqueId == STUDY3_SECURE_TOKEN },
-                    accessLevel: accessLevels.find { it.name == 'EXPORT' })
+                    accessLevel: accessLevels.find { it.name == 'MEASUREMENTS' })
         }
 
         long id = -700L
@@ -261,20 +261,23 @@ class AccessLevelTestData {
     }()
 
 
-    void saveAll() {
-        conceptTestData.saveAll()
-
-        save i2b2Secures
-        save securedObjects
+    void saveAuthorities() {
         save accessLevels
         save roles
         save groups
         save users
         users[0].addToRoles(roles.find { it.authority == 'ROLE_ADMIN' })
         users[1].addToGroups(groups.find { it.category == 'group_-201' })
+    }
+
+    void saveAll() {
+        conceptTestData.saveAll()
+
+        save i2b2Secures
+        save securedObjects
+        saveAuthorities()
         save securedObjectAccesses
         save dimensionStudies
     }
-
 
 }

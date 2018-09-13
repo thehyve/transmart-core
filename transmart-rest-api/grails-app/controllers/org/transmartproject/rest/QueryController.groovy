@@ -2,24 +2,52 @@
 
 package org.transmartproject.rest
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.multidimquery.CategoricalValueAggregates
-import org.transmartproject.core.multidimquery.NumericalValueAggregates
-import org.transmartproject.db.multidimquery.query.*
-import org.transmartproject.db.user.User
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
+import org.transmartproject.core.binding.BindingHelper
+import org.transmartproject.core.exceptions.*
+import org.transmartproject.core.multidimquery.AggregateDataResource
+import org.transmartproject.core.multidimquery.CrossTableResource
+import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.SortSpecification
+import org.transmartproject.core.multidimquery.aggregates.AggregatesPerCategoricalConcept
+import org.transmartproject.core.multidimquery.aggregates.AggregatesPerNumericalConcept
+import org.transmartproject.core.multidimquery.aggregates.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.aggregates.NumericalValueAggregates
+import org.transmartproject.core.multidimquery.crosstable.CrossTable
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableConfig
+import org.transmartproject.core.multidimquery.export.Format
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.db.multidimquery.query.DimensionMetadata
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.serialization.Format
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
+import static org.transmartproject.rest.misc.RequestUtils.parseJson
 
 @Slf4j
 class QueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal', 'protobuf']
+
+    @Autowired
+    AggregateDataResource aggregateDataResource
+
+    @Autowired
+    CrossTableResource crossTableResource
+
+    @Autowired
+    DataTableViewDataSerializationService dataTableViewDataSerializationService
+
+    @Value('${org.transmartproject.patientCountThreshold}')
+    long patientCountThreshold
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -60,25 +88,32 @@ class QueryController extends AbstractQueryController {
      */
     def observations() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint',
+                                         'projection', 'sort'])
 
         if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
         if (args.type == 'clinical') {
-            clinicalObservations(args.constraint)
+            clinicalObservations(args.constraint, args.sort)
         } else {
             if(args.assay_constraint) {
                 response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
             }
+            if(args.sort) {
+                throw new UnsupportedByDataTypeException("Sorting is currently not supported for high dimensional data")
+            }
             highdimObservations(args.type, args.constraint, args.biomarker_constraint, args.projection)
         }
     }
 
+    static final TypeReference<List<SortSpecification>> sortListTypeReference =
+            new TypeReference<List<SortSpecification>>(){}
+
     /**
      * Helper function for retrieving clinical hypercube data
      */
-    private def clinicalObservations(constraint_text) {
+    private def clinicalObservations(String constraint_text, String sort_text) {
 
         def format = contentFormat
         if (format == Format.NONE) {
@@ -88,12 +123,14 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+
+        def sort = BindingHelper.readList(sort_text, sortListTypeReference)
 
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeClinical(format, constraint, user, out)
+            def args = new DataRetrievalParameters(constraint: constraint, sort: sort)
+            hypercubeDataSerializationService.writeClinical(format, args, authContext.user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -112,28 +149,112 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
-     * Count endpoint:
-     * <code>/v2/observations/count?constraint=${constraint}</code>
+     * Data table endpoint:
+     * <code>POST /v2/observations/table</code>
+     * Body:
+     * <code>{
+     *      "type": ${type},
+     *      "constraint": ${constraint},
+     *      "rowDimensions": ${rowDimensions},
+     *      "columnDimensions": ${columnDimensions},
+     *      "rowSort": ${rowSort},
+     *      "columnSort": ${columnSort},
+     *      "limit": ${limit},
+     *      "offset": ${offset}
+     * }</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
+     * Only 'clinical' type is currently supported.
+     * Expects columnDimensions and rowDimensions parameters.
+     * Optional rowSort and columnSort parameters allow to define the sorting.
+     * Pagination is supported via limit and offset parameters.
      *
-     * Deprecated in favour of {@link #counts()}.
-     *
-     * @return a the number of observations that satisfy the constraint.
+     * @return a tabular representation of hypercube in JSON format.
      */
-    @Deprecated
-    def count() {
+    def table() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['constraint'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'rowDimensions', 'columnDimensions',
+                                         'rowSort', 'columnSort', 'limit', 'offset'])
 
-        Constraint constraint = bindConstraint(args.constraint)
-        if (constraint == null) {
-            return
+        if ((!args.type)) {
+            throw new InvalidArgumentsException("No data type provided.")
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def count = multiDimService.count(constraint, user)
-        def result = [count: count]
-        render result as JSON
+        if (args.type != 'clinical') {
+            throw new OperationNotImplementedException("High dimensional data is not yet " +
+                "implemented for the data table")
+        }
+
+        Constraint constraint = bindConstraint((String) args.constraint)
+
+        if (args.limit == null) {
+            throw new InvalidArgumentsException("Parameter 'limit' is required")
+        }
+        int limit = Integer.parseInt((String) args.limit)
+        Long offset = args.offset ? Long.parseLong((String) args.offset) : 0
+
+        def rowSort = BindingHelper.readList((String)args.rowSort, sortListTypeReference)
+        def columnSort = BindingHelper.readList((String)args.columnSort, sortListTypeReference)
+        def rowDimensions = parseIfJson(args.rowDimensions)
+        def columnDimensions = parseIfJson(args.columnDimensions)
+
+        [rowDimensions: rowDimensions, columnDimensions: columnDimensions].each { name, list ->
+            if(! list instanceof List || list.any { ! it instanceof String }) {
+                throw new InvalidArgumentsException("$name must be a JSON array of strings")
+            }
+        }
+
+        OutputStream out = getLazyOutputStream(Format.JSON)
+
+        def tableConfig = new TableConfig(
+                rowDimensions: rowDimensions,
+                columnDimensions: columnDimensions,
+                rowSort: rowSort,
+                columnSort: columnSort
+        )
+        BindingHelper.validate(tableConfig)
+        def pagination = new PaginationParameters(
+                limit: limit,
+                offset: offset
+        )
+        BindingHelper.validate(pagination)
+        dataTableViewDataSerializationService.writeTablePageToJson(constraint, tableConfig, pagination, authContext.user, out)
+    }
+
+    /**
+     * Cross table endpoint:
+     * <code>POST /v2/observations/crosstable</code>
+     * Body:
+     * <code>{
+     *      "rowConstraints": ${rowConstraints},
+     *      "columnConstraints": ${columnConstraints},
+     *      "subjectConstraint": {subjectConstraint}
+ *      }</code>
+     *
+     * Expects a list of {@link Constraint} <code>rowConstraints</code>
+     * and a list of {@link Constraint} <code>columnConstraints</code>.
+     *
+     * Expects a {@link Constraint} <code>subjectConstraint</code> as a constraints for a related set of patients.
+     * In particular, subjectConstraint can be of type {@link org.transmartproject.core.multidimquery.query.PatientSetConstraint}
+     * in order to explicitly specify the id of the set of patients.
+     *
+     * @return a tabular representation of counts in JSON format.
+     */
+    def crosstable() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['rowConstraints', 'columnConstraints', 'subjectConstraint'])
+
+        [rowConstraints: args.rowConstraints, columnConstraints: args.columnConstraints].each { name, list ->
+            if (!list instanceof List || list.any { !it instanceof String }) {
+                throw new InvalidArgumentsException("$name must be a JSON array of strings")
+            }
+        }
+        List<Constraint> rowConstraints = args.rowConstraints.collect { constraint -> bindConstraint((String) constraint) }
+        List<Constraint> columnConstraints = args.columnConstraints.collect { constraint -> bindConstraint((String) constraint) }
+        Constraint subjectConstraint = bindConstraint((String) args.subjectConstraint)
+
+        CrossTable crossTable = crossTableResource.retrieveCrossTable(rowConstraints, columnConstraints, subjectConstraint,
+                authContext.user)
+        respond crossTable
     }
 
     /**
@@ -152,8 +273,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.counts(constraint, user)
+        def counts = aggregateDataResource.counts(constraint, authContext.user)
         render counts as JSON
     }
 
@@ -173,8 +293,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countsPerConcept(constraint, user)
+        def counts = aggregateDataResource.countsPerConcept(constraint, authContext.user)
         def result = [countsPerConcept: counts]
         render result as JSON
     }
@@ -195,8 +314,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countsPerStudy(constraint, user)
+        def counts = aggregateDataResource.countsPerStudy(constraint, authContext.user)
         def result = [countsPerStudy: counts]
         render result as JSON
     }
@@ -218,12 +336,25 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countsPerStudyAndConcept(constraint, user)
+        def counts = aggregateDataResource.countsPerStudyAndConcept(constraint, authContext.user)
         counts.collectEntries { studyId, countsPerConcept ->
             [(studyId): [countsPerConcept: countsPerConcept]]
         }
         def result = [countsPerStudy: counts]
+        render result as JSON
+    }
+
+    /**
+     * Count threshold endpoint:
+     * <code>/v2/patient_counts_threshold</code>
+     *
+     * @return a threshold value, below which counts are not available for users
+     * with `COUNTS_WITH_THRESHOLD` access permission.
+     */
+    def countsThreshold() {
+        checkForUnsupportedParams(params, [])
+
+        def result = [threshold: patientCountThreshold]
         render result as JSON
     }
 
@@ -236,6 +367,7 @@ class QueryController extends AbstractQueryController {
      *
      * @return a map with the aggregates.
      */
+    @Deprecated
     def aggregatesPerConcept() {
         def args = getGetOrPostParams()
         checkForUnsupportedParams(args, ['constraint'])
@@ -244,11 +376,10 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = multiDimService
-                .numericalValueAggregatesPerConcept(constraint, user)
-        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = multiDimService
-                .categoricalValueAggregatesPerConcept(constraint, user)
+        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = aggregateDataResource
+                .numericalValueAggregatesPerConcept(constraint, authContext.user)
+        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = aggregateDataResource
+                .categoricalValueAggregatesPerConcept(constraint, authContext.user)
 
         Map resultMap = buildResultMap(numericalValueAggregatesPerConcept, categoricalValueAggregatesPerConcept)
         render resultMap as JSON
@@ -272,6 +403,44 @@ class QueryController extends AbstractQueryController {
         [ aggregatesPerConcept: aggregatesPerConcept ]
     }
 
+    def aggregatesPerNumericalConcept() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = aggregateDataResource
+                .numericalValueAggregatesPerConcept(constraint, authContext.user)
+
+        def aggregatesPerNumericalConcept = new AggregatesPerNumericalConcept(numericalValueAggregatesPerConcept)
+        writeAsJsonToOutputStream(aggregatesPerNumericalConcept)
+    }
+
+    def aggregatesPerCategoricalConcept() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = aggregateDataResource
+                .categoricalValueAggregatesPerConcept(constraint, authContext.user)
+
+        def aggregatesPerCategoricalConcept = new AggregatesPerCategoricalConcept(categoricalValueAggregatesPerConcept)
+        writeAsJsonToOutputStream(aggregatesPerCategoricalConcept)
+    }
+
+    protected void writeAsJsonToOutputStream(Object result) {
+        response.contentType = 'application/json'
+        response.characterEncoding = 'utf-8'
+        new ObjectMapper().writeValue(response.outputStream, result)
+        response.status = HttpStatus.OK.value()
+        response.outputStream.flush()
+    }
+
     /**
      * Helper function for retrieving high dimensional hypercube data.
      *
@@ -283,20 +452,19 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, assay_constraint, biomarker_constraint, projection) {
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-
-        Constraint assayConstraint = getConstraintFromStringOrJson(assay_constraint)
+        Constraint assayConstraint = getConstraintFromString(assay_constraint)
 
         BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
-                (BiomarkerConstraint) getConstraintFromStringOrJson(biomarker_constraint) : new BiomarkerConstraint()
+                (BiomarkerConstraint) getConstraintFromString(biomarker_constraint) : new BiomarkerConstraint()
 
         Format format = contentFormat
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
+            hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection,
+                    authContext.user, out)
         } finally {
             out.close()
         }
@@ -307,7 +475,7 @@ class QueryController extends AbstractQueryController {
      * Supported fields endpoint:
      * <code>/v2/supportedFields</code>
      *
-     * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
+     * @return the list of fields supported by {@link org.transmartproject.core.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
         checkForUnsupportedParams(params, [])
@@ -316,4 +484,21 @@ class QueryController extends AbstractQueryController {
         render fields as JSON
     }
 
+    /**
+     * Helper function to parse params of different types in GET and POST calls
+     * This will no longer be needed after fixing getGetOrPostParams
+     * TODO add a proper validation and error handling
+     */
+    private static Object parseIfJson(value){
+        if(value instanceof ArrayList) {
+            value.collect { parseIfJson(it) }
+        } else {
+            try {
+                def result = parseJson(value)
+                return result
+            } catch (InvalidArgumentsException ex) {
+                return value
+            }
+        }
+    }
 }

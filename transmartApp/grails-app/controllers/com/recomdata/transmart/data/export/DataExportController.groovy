@@ -108,7 +108,7 @@ class DataExportController {
         if (!dataExportService
                 .isUserAllowedToExport(currentUserBean,
                     resultInstanceIds)) {
-            throw new AccessDeniedException("User ${currentUserBean.username} has no EXPORT permission" +
+            throw new AccessDeniedException("User ${currentUserBean.username} has no export permission" +
                     " on one of the result sets: ${resultInstanceIds}")
         }
     }

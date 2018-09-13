@@ -44,6 +44,9 @@ class RestApiUrlMappings {
             "/studies/$id"(method: 'GET', controller: 'studyQuery', action: 'findStudy') {
                 apiVersion = 'v2'
             }
+            "/studies/studyIds"(method: 'GET', controller: 'studyQuery', action: 'findStudiesByStudyIds') {
+                apiVersion = 'v2'
+            }
             "/studies/studyId/$studyId"(method: 'GET', controller: 'studyQuery', action: 'findStudyByStudyId') {
                 apiVersion = 'v2'
             }
@@ -51,15 +54,30 @@ class RestApiUrlMappings {
                 action = [GET: 'observations', POST: 'observations']
                 apiVersion = 'v2'
             }
+            "/observations/table"(controller: 'query') {
+                action = [POST: 'table']
+                apiVersion = 'v2'
+            }
+            "/observations/crosstable"(controller: 'query') {
+                action = [POST: 'crosstable']
+                apiVersion = 'v2'
+            }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
+            /**
+             * @deprecated use aggregates_per_numerical_concept and aggregates_per_categorical_concept instead
+             */
             "/observations/aggregates_per_concept"(controller: 'query') {
                 action = [GET: 'aggregatesPerConcept', POST: 'aggregatesPerConcept']
                 apiVersion = 'v2'
             }
-            "/observations/count"(controller: 'query') {
-                action = [GET: 'count', POST: 'count']
+            "/observations/aggregates_per_numerical_concept"(controller: 'query') {
+                action = [POST: 'aggregatesPerNumericalConcept']
+                apiVersion = 'v2'
+            }
+            "/observations/aggregates_per_categorical_concept"(controller: 'query') {
+                action = [POST: 'aggregatesPerCategoricalConcept']
                 apiVersion = 'v2'
             }
             "/observations/counts"(controller: 'query') {
@@ -76,6 +94,9 @@ class RestApiUrlMappings {
             }
             "/observations/counts_per_study_and_concept"(controller: 'query') {
                 action = [GET: 'countsPerStudyAndConcept', POST: 'countsPerStudyAndConcept']
+                apiVersion = 'v2'
+            }
+            "/patient_counts_threshold"(method: 'GET', controller: 'query', action: 'countsThreshold') {
                 apiVersion = 'v2'
             }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
@@ -102,15 +123,6 @@ class RestApiUrlMappings {
                 apiVersion = 'v2'
             }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
-                apiVersion = 'v2'
-            }
-            "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
-                apiVersion = 'v2'
-            }
-            "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
-                apiVersion = 'v2'
-            }
-            "/tree_nodes/rebuild_status"(method: 'GET', controller: 'tree', action: 'rebuildStatus') {
                 apiVersion = 'v2'
             }
             "/files"(method: 'GET', controller: 'storage', action: 'index') {
@@ -161,7 +173,8 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
+            "/dimensions/$dimensionName/elements"(controller: 'dimension') {
+                action = [GET: 'list', POST: 'list']
                 apiVersion = 'v2'
             }
             "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {
@@ -194,8 +207,12 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
-            "/queries"(method: 'GET', controller: 'userQuery', action: 'index')
-            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get')
+            "/queries"(method: 'GET', controller: 'userQuery', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get') {
+                apiVersion = "v2"
+            }
             "/queries"(method: 'POST', controller: 'userQuery', action: 'save') {
                 apiVersion = "v2"
             }
@@ -203,6 +220,31 @@ class RestApiUrlMappings {
                 apiVersion = "v2"
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
+            "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId')
+            "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
+
+            // Deprecated administrator actions
+            "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
+
+            group "/admin", {
+                "/system/after_data_loading_update"(method: 'GET', controller: 'system', action: 'afterDataLoadingUpdate') {
+                    apiVersion = 'v2'
+                }
+                "/system/update_status"(method: 'GET', controller: 'system', action: 'updateStatus') {
+                    apiVersion = 'v2'
+                }
+                "/system/rebuild_cache"(method: 'GET', controller: 'system', action: 'rebuildCache') {
+                    apiVersion = 'v2'
+                }
+                "/system/config"(controller: 'config') {
+                    action = [GET: 'index', PUT: 'update']
+                }
+
+                // Deprecated administrator actions
+                "/system/clear_cache"(method: 'GET', controller: 'system', action: 'clearCache') {
+                    apiVersion = 'v2'
+                }
+            }
         }
 
         group "/v1", {

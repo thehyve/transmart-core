@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.acgh
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -34,9 +34,10 @@ import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VALUES_PROJECTION
@@ -46,8 +47,9 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class AcghEndToEndRetrievalSpec extends TransmartSpecification {
+class AcghEndToEndRetrievalSpec extends Specification {
 
+    @Autowired
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource<RegionRow> acghResource
@@ -56,11 +58,11 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
 
     Projection<AcghValues> projection
 
-    SessionFactory sessionFactory
-
     AcghTestData testData
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         testData = new AcghTestData()
         testData.saveAll()
 
@@ -81,7 +83,7 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = []
 
@@ -149,7 +151,7 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
@@ -174,7 +176,7 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
@@ -232,7 +234,7 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
@@ -276,7 +278,7 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
         def dataConstraints = [
                 acghResource.createDataConstraint([keyword_ids: [testData.searchKeywords.

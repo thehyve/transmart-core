@@ -25,6 +25,7 @@
 
 package org.transmartproject.rest
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.exceptions.AccessDeniedException
@@ -32,10 +33,17 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
+/**
+ * Service that retrieves the current study based on the study id in the request path.
+ *
+ * @deprecated Study ids should be passed explicitly to controllers and services when required,
+ * instead of prefixing every request with a study path.
+ */
+@Deprecated
 class StudyLoadingService {
 
     static scope = 'request'
@@ -44,7 +52,11 @@ class StudyLoadingService {
 
     def studiesResourceService
 
-    CurrentUser currentUser
+    @Autowired
+    AuthContext authContext
+
+    @Autowired
+    LegacyAuthorisationChecks authorisationChecks
 
     private Study cachedStudy
 
@@ -66,22 +78,11 @@ class StudyLoadingService {
 
         def study = studiesResourceService.getStudyById(studyId)
 
-        if (!checkAccess(study)) {
+        if (!authorisationChecks.hasAccess(authContext.user, study)) {
             throw new AccessDeniedException("Denied access to study ${study.id}")
         }
 
         study
-    }
-
-    private boolean checkAccess(Study study) {
-        def result = currentUser.canPerform(
-                ProtectedOperation.WellKnownOperations.API_READ, study)
-        if (!result) {
-            def username = currentUser.username
-            log.warn "User $username denied access to study ${study.id}"
-        }
-
-        result
     }
 
     String getStudyLowercase() {

@@ -10,7 +10,9 @@ dependencies {
     compile "org.grails.plugins:scaffolding"
     compile "org.grails.plugins:hibernate5"
     compile "org.hibernate:hibernate-ehcache"
-    console "org.grails:grails-console"
+    console("org.grails:grails-console") {
+        exclude group: 'org.fusesource.jansi', module: 'jansi'
+    }
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
@@ -39,3 +41,5 @@ assets {
 bootRun {
     jvmArgs = ['-Dspring.output.ansi.enabled=always']
 }
+
+integrationTest.testLogging.exceptionFormat = 'full'

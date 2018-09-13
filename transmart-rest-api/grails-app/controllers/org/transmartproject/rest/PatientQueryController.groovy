@@ -6,17 +6,16 @@ import com.google.common.base.Function
 import com.google.common.collect.Iterators
 import grails.converters.JSON
 import grails.web.mime.MimeType
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
@@ -31,7 +30,7 @@ class PatientQueryController extends AbstractQueryController {
      * Patients endpoint:
      * <code>/v2/patients?constraint=${constraint}</code>
      *
-     * Expects a {@link org.transmartproject.db.multidimquery.query.Constraint} parameter <code>constraint</code>.
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
      * @return a list of {@link org.transmartproject.db.i2b2data.PatientDimension} objects for
      * which there are observations that satisfy the constraint.
@@ -44,8 +43,7 @@ class PatientQueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, user)
+        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, authContext.user)
         respond wrapPatients(apiVersion, patients)
     }
 
@@ -68,8 +66,8 @@ class PatientQueryController extends AbstractQueryController {
         checkForUnsupportedParams(params, ['id'])
 
         Constraint constraint = new PatientSetConstraint(patientIds: [id])
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def patient = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, user)[0]
+        def patient = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                constraint, authContext.user)[0]
         if (patient == null) {
             throw new NoSuchResourceException("Patient not found with id ${id}.")
         }
@@ -102,16 +100,14 @@ class PatientQueryController extends AbstractQueryController {
             @PathVariable('id') Long id) {
         checkForUnsupportedParams(params, ['id'])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-
-        QueryResult patientSet = multiDimService.findQueryResult(id, user)
-        def constraint = patientSet.queryInstance.queryMaster.apiVersion
-        def version = patientSet.queryInstance.queryMaster.requestConstraints
+        QueryResult patientSet = patientSetResource.findQueryResult(id, authContext.user)
+        def version = patientSet.queryInstance.queryMaster.apiVersion
+        def constraintText = patientSet.queryInstance.queryMaster.requestConstraints
 
         render new QueryResultWrapper(
-                apiVersion: constraint,
+                apiVersion: version,
                 queryResult: patientSet,
-                requestConstraint: version
+                requestConstraint: constraintText
         ) as JSON
     }
 
@@ -127,23 +123,28 @@ class PatientQueryController extends AbstractQueryController {
             @RequestParam('api_version') String apiVersion) {
         checkForUnsupportedParams(params, [])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Iterable<QueryResult> patientSets = multiDimService.findPatientSetQueryResults(user)
+        Iterable<QueryResult> patientSets = patientSetResource.findPatientSetQueryResults(authContext.user)
 
         respond wrapPatientSets(patientSets)
     }
 
     /**
      * Patient set creation endpoint:
-     * <code>POST /v2/patient_sets?constraint=${constraint}&name=${name}</code>
+     * <code>POST /v2/patient_sets?name=${name}&reuse=${reuse}</code>
      *
-     * Creates a patient set ({@link org.transmartproject.core.querytool.QueryResult}) based the {@link Constraint} parameter <code>constraint</code>.
+     * Creates a patient set ({@link org.transmartproject.core.querytool.QueryResult}) based on
+     * the request body of type {@link Constraint}.
+     *
+     * @param apiVersion
+     * @param name
+     * @param reuse (default: false)
      *
      * @return a map with the query result id, description, size, status, constraints and api version.
      */
     def createPatientSet(
             @RequestParam('api_version') String apiVersion,
-            @RequestParam('name') String name) {
+            @RequestParam('name') String name,
+            @RequestParam('reuse') Boolean reuse) {
         if (name) {
             name = URLDecoder.decode(name, 'UTF-8').trim()
         } else {
@@ -162,31 +163,33 @@ class PatientQueryController extends AbstractQueryController {
                     "${MimeType.JSON.name}; got ${mimeType}.")
         }
 
-        def bodyJson = request.JSON
-        log.debug "body JSON: $bodyJson"
-
         // FIXME: we now expect a plain constraint in the body, this should be wrapped in a {"constraint": ...} wrapper
         // for consistency with other calls
-        Constraint constraint = getConstraintFromStringOrJson(bodyJson)
+        def src = BindingHelper.objectMapper.writeValueAsString(request.JSON)
+        Constraint constraint = getConstraintFromString(src)
         if (constraint == null) {
-            return null
+            throw new InvalidArgumentsException("No valid constraint in the body.")
         }
 
-        checkForUnsupportedParams(params, ['name', 'constraint'])
+        checkForUnsupportedParams(params, ['name', 'constraint', 'reuse'])
 
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        
         String currentVersion = VersionController.currentVersion(apiVersion)
 
-        // This converts bodyJson back to string, but the request doesn't save the body, it only provides an
-        // inputstream.
-        QueryResult patientSet = multiDimService.createPatientSetQueryResult(name, constraint, user, bodyJson.toString(), currentVersion)
+        // Canonise the constraint, to enable reuse
+        constraint = constraint.canonise()
+
+        if (reuse == null) {
+            reuse = false
+        }
+
+        QueryResult patientSet = patientSetResource.createPatientSetQueryResult(name, constraint, authContext.user,
+                currentVersion, reuse)
 
         response.status = 201
         render new QueryResultWrapper(
                 apiVersion: currentVersion,
                 queryResult: patientSet,
-                requestConstraint: bodyJson
+                requestConstraint: constraint.toJson()
         ) as JSON
     }
 

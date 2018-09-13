@@ -10,16 +10,20 @@ php:
 env:
   global:
     - TERM=dumb
+    - PGCONFIG_PARAMS="PG_CONFIG=/usr/lib/postgresql/9.6/bin/pg_config"
   matrix:
+    - DIR=transmart-core-api; TEST=check
     - DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
     - DIR=transmart-rest-api; TEST=check
-    - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
+    - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST=check
+    - DIR=transmart-api-server; TEST=check
     - DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
     - DIR=transmart-solr-indexing; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-batch:travisProperties :transmart-batch:loadPublicTestStudy"; TEST="check"; START_SOLR=true
-    - DIR=.; TEST=":transmart-core-api:publishToMavenLocal :transmart-data:publishToMavenLocal :transmart-server:publishToMavenLocal :transmart-batch:publishToMavenLocal"
+    - DIR=transmart-copy; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; PREPARE=shadowJar; TEST=check
+    - DIR=.; TEST="publishToMavenLocal"
 
 addons:
-  postgresql: 9.4
+  postgresql: 9.6
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -34,7 +38,7 @@ cache:
 before_install:
   - gradle wrapper
   - GRADLE_SCRIPT="$(pwd)/gradlew"
-  - ${GRADLE_SCRIPT} --version
+  - $GRADLE_SCRIPT --version
   - groovy --version
   - sudo chmod a+rX $HOME
 # We don't currently use these sources, but they can be re-enabled if necessary
@@ -52,22 +56,22 @@ before_install:
 
 install:
   - pushd "$DIR"
-  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; ${GRADLE_SCRIPT} $INSTALL)
+  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; $GRADLE_SCRIPT $INSTALL)
   - popd
 
 before_script:
   - pushd "$DIR"
-  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; ${GRADLE_SCRIPT} $PREPARE)
+  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; $GRADLE_SCRIPT $PREPARE)
   - popd
   - pushd transmart-data
   - >
-    (( ! [ "$START_SOLR" == "true" ]) && echo "Skipping Solr.") || (${GRADLE_SCRIPT} setupSolr; echo "Starting Solr ...";
+    (( ! [ "$START_SOLR" == "true" ]) && echo "Skipping Solr.") || ($GRADLE_SCRIPT setupSolr; echo "Starting Solr ...";
     source vars; (make -C solr start > solr.log 2> solr.err &); sleep 10; echo "Solr started.")
   - popd
 
 script:
   - pushd "$DIR"
-  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; ${GRADLE_SCRIPT} $TEST)
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; $GRADLE_SCRIPT $TEST)
   - popd
 
 after_success:
@@ -75,6 +79,8 @@ after_success:
   - ([ -d "$DIR/build/reports/tests" ]) && html2text $DIR/build/reports/tests/index.html
 
 after_failure:
+  - echo "Writing error logs..."
+  - for f in "$DIR"/hs_err_*.log; do echo "$f"; cat "$f"; done
   - echo "Writing reports..."
   - html2text "$DIR/build/reports/tests/index.html"
   - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done

@@ -3,17 +3,19 @@ package org.transmartproject.db.multidimquery
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 
 @Rollback
 @Integration
-class StudyIntegrationSpec extends TransmartSpecification {
+class StudyIntegrationSpec extends Specification {
 
     TestData testData
     ClinicalTestData clinicalData
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         clinicalData.saveAll()

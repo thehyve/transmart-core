@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -36,8 +37,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.hibernate.sql.JoinType.INNER_JOIN
 
 class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
@@ -121,44 +121,51 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder
     }
 
+    @CompileStatic
     @Override
     TabularResult transformResults(ScrollableResults results,
                                    List<AssayColumn> assays,
                                    Projection projection) {
         Map assayIndexes = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        new DefaultHighDimensionTabularResult<ProteinDataRow>(
                 rowsDimensionLabel:    'Proteins',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
-                inSameGroup:           { a, b -> a.annotationId == b.annotationId },
-                finalizeGroup:         { List list -> /* list of arrays with one element: a map */
-                    def cell = list.find()[0]
-                    new ProteinDataRow(
-                            id:            cell.annotationId,
-                            peptide:       cell.peptide,
-                            uniprotName:   cell.uniprotName,
-                            platform:      new PlatformImpl(
-                                                id:              cell.platformId,
-                                                title:           cell.platformTitle,
-                                                organism:        cell.platformOrganism,
-                                                //It converts timestamp to date
-                                                annotationDate:  cell.platformAnnotationDate ?
-                                                        new Date(cell.platformAnnotationDate.getTime())
-                                                        : null,
-                                                markerType:      cell.platformMarkerType,
-                                                genomeReleaseId: cell.platformGenomeReleaseId
-                            ),
-                            chromosome:     cell.chromosome,
-                            start:          cell.startBp,
-                            end:            cell.endBp,
-                            assayIndexMap: assayIndexes,
-                            data:          list.collect { projection.doWithResult it?.getAt(0) }
-                    )
-                }
-        )
+                allowMissingAssays:    true
+            ) {
+            @Override @CompileStatic
+            def assayIdFromRow(Map row) { row.assayId }
+
+            @Override @CompileStatic
+            boolean inSameGroup(Map a, Map b) { a.annotationId == b.annotationId }
+
+            @Override @CompileStatic
+            ProteinDataRow finalizeRow(List<Map> list) {
+                Map cell = findFirst list
+                new ProteinDataRow(
+                        id: (Long) cell.annotationId,
+                        peptide: (String) cell.peptide,
+                        uniprotName: (String) cell.uniprotName,
+                        platform: new PlatformImpl(
+                                id: (String) cell.platformId,
+                                title: (String) cell.platformTitle,
+                                organism: (String) cell.platformOrganism,
+                                //It converts timestamp to date
+                                annotationDate: cell.platformAnnotationDate ?
+                                        new Date(((Date) cell.platformAnnotationDate).getTime())
+                                        : null,
+                                markerType: (String) cell.platformMarkerType,
+                                genomeReleaseId: (String) cell.platformGenomeReleaseId
+                        ),
+                        chromosome: (String) cell.chromosome,
+                        start: (Long) cell.startBp,
+                        end: (Long) cell.endBp,
+                        assayIndexMap: assayIndexes,
+                        data: doWithProjection(projection, list)
+                )
+            }
+        }
     }
 }

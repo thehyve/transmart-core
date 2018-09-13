@@ -4,6 +4,7 @@ package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
@@ -12,16 +13,17 @@ import groovy.transform.TupleConstructor
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
-import org.transmartproject.db.util.AbstractOneTimeCallIterable
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.db.util.IndexedArraySet
 
 @CompileStatic
@@ -233,6 +235,9 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
         final String label
         final String biomarker
     }
+
+    @Override
+    ImmutableMap<Dimension, SortOrder> getSortOrder() { ImmutableMap.of() }
 
     @Override
     void close() {

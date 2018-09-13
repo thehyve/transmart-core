@@ -19,10 +19,12 @@
 
 package org.transmartproject.rest.serialization.tabular
 
-import org.transmartproject.core.ontology.Measure
+import com.google.common.collect.ImmutableList
+import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.ontology.Measure
+import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.ontology.VariableDataType
 import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
@@ -37,15 +39,11 @@ class TabularResultSPSSSerializerSpec extends Specification {
     def 'responses on empty table'() {
         def table = Mock(TabularResult)
         table.indicesList >> []
-
-        when: 'producing sps syntax file for empty table'
-        writeSpsFile(table, Mock(OutputStream), 'data.tsv')
-        then: 'exception is thrown'
-        def e1 = thrown(IllegalArgumentException)
-        e1.message == "Can't write sps expression file for empty table."
+        def columns = ImmutableList.copyOf([] as List<DataColumn>)
 
         when: 'producing spss files for empty table'
-        new TabularResultSPSSSerializer().writeFilesToZip(Mock(User), table, Mock(ZipOutputStream))
+        new TabularResultSPSSSerializer(Mock(User), Mock(ZipOutputStream), columns, 'testFile')
+                .writeParallel(table, 1)
         then: 'exception is thrown'
         def e3 = thrown(IllegalArgumentException)
         e3.message == "Can't write spss files for empty table."
@@ -58,7 +56,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         table.indicesList >> [metadatalessColumn]
 
         when: 'producing sps syntax file for such table'
-        writeSpsFile(table, Mock(OutputStream), 'data.tsv')
+        writeSpsFile([metadatalessColumn], Mock(OutputStream), 'data.tsv')
         then: 'exception is thrown'
         def e1 = thrown(IllegalArgumentException)
         e1.message == "All table columns have to contain metadata."
@@ -71,7 +69,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
         table.indicesList >> [typelessColumn]
 
         when: 'producing sps syntax file for such table'
-        writeSpsFile(table, Mock(OutputStream), 'data.tsv')
+        writeSpsFile(table.indicesList, Mock(OutputStream), 'data.tsv', 'data.sps')
         then: 'exception is thrown'
         def e = thrown(IllegalArgumentException)
         e.message == "Variable has to have a type specified."
@@ -88,10 +86,10 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 2
+        commands.size() == 3
         commands.first().startsWith('GET DATA ')
         def attributes = commands[0].split('/')*.trim()
         'FILE = "data.tsv"' in attributes
@@ -133,10 +131,10 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 6
+        commands.size() == 7
 
         commands.first().startsWith('GET DATA ')
         def getDataAttributes = commands[0].split('/')*.trim()
@@ -187,10 +185,10 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 4
+        commands.size() == 5
 
         def varLabelsCommand = commands.find { it.startsWith('VARIABLE LABELS') }
         varLabelsCommand
@@ -241,22 +239,31 @@ class TabularResultSPSSSerializerSpec extends Specification {
                         lower: new BigDecimal(100),
                 )
         )
-        table.indicesList >> [column1, column2, column3, column4]
+        def column5 = Mock(MetadataAwareDataColumn)
+        column5.label >> 'column5'
+        column5.metadata >> new VariableMetadata(
+                type: VariableDataType.STRING,
+                missingValues: new MissingValues(
+                        values: ['-1'],
+                )
+        )
+        table.indicesList >> [column1, column2, column3, column4, column5]
 
         when:
         def out = new ByteArrayOutputStream()
-        writeSpsFile(table, out, 'data.tsv')
+        writeSpsFile(table.indicesList, out, 'data.tsv', 'data.sps')
         then:
         def commands = parseSpsCommands(out)
-        commands.size() == 3
+        commands.size() == 4
         def missingValuesCommand = commands.find { it.startsWith('MISSING VALUES') }
         missingValuesCommand
         def missingValuesDeclarations = (missingValuesCommand - 'MISSING VALUES ').split('/')*.trim()
-        missingValuesDeclarations.size() == 4
+        missingValuesDeclarations.size() == 5
         'column1 (-10 THRU -1, -12.5)' in missingValuesDeclarations
         'column2 (-100, -200, -300)' in missingValuesDeclarations
         'column3 (LOWEST THRU -1)' in missingValuesDeclarations
         'column4 (100 THRU HIGHEST)' in missingValuesDeclarations
+        'column5 (\'-1\')' in missingValuesDeclarations
     }
 
     static List<String> parseSpsCommands(ByteArrayOutputStream out) {

@@ -8,11 +8,10 @@
 "PROVIDER_ID" VARCHAR2(50 BYTE) NOT NULL ENABLE, 
 "START_DATE" DATE, 
 "MODIFIER_CD" VARCHAR2(100 BYTE) NOT NULL ENABLE, 
-"INSTANCE_NUM" NUMBER(18,0), 
-"TRIAL_VISIT_NUM" NUMBER(38,0), 
+"INSTANCE_NUM" NUMBER(18,0),
 "VALTYPE_CD" VARCHAR2(50 BYTE), 
 "TVAL_CHAR" VARCHAR2(255 BYTE), 
-"NVAL_NUM" NUMBER(18,5), 
+"NVAL_NUM" NUMBER(29,16),
 "VALUEFLAG_CD" VARCHAR2(50 BYTE), 
 "QUANTITY_NUM" NUMBER(18,5), 
 "UNITS_CD" VARCHAR2(50 BYTE), 
@@ -25,7 +24,8 @@
 "IMPORT_DATE" DATE, 
 "SOURCESYSTEM_CD" VARCHAR2(50 BYTE), 
 "UPLOAD_ID" NUMBER(38,0), 
-"SAMPLE_CD" VARCHAR2(200 BYTE), 
+"SAMPLE_CD" VARCHAR2(200 BYTE),
+"TRIAL_VISIT_NUM" NUMBER(38,0),
  CONSTRAINT "OBSERVATION_FACT_PKEY" PRIMARY KEY ("ENCOUNTER_NUM", "PATIENT_NUM", "CONCEPT_CD", "PROVIDER_ID", "INSTANCE_NUM", "MODIFIER_CD", "START_DATE")
  USING INDEX
  TABLESPACE "TRANSMART"  ENABLE
@@ -34,11 +34,6 @@
 LOB ("OBSERVATION_BLOB") STORE AS BASICFILE (
  TABLESPACE "TRANSMART" ENABLE STORAGE IN ROW CHUNK 8192 PCTVERSION 10
  NOCACHE NOLOGGING ) ;
---
--- Type: INDEX; Owner: I2B2DEMODATA; Name: IDX_OB_FACT_2
---
-CREATE INDEX "I2B2DEMODATA"."IDX_OB_FACT_2" ON "I2B2DEMODATA"."OBSERVATION_FACT" ("CONCEPT_CD", "PATIENT_NUM", "ENCOUNTER_NUM")
-TABLESPACE "TRANSMART" ;
 
 --
 -- Type: INDEX; Owner: I2B2DEMODATA; Name: IDX_OB_FACT_1
@@ -47,9 +42,9 @@ CREATE INDEX "I2B2DEMODATA"."IDX_OB_FACT_1" ON "I2B2DEMODATA"."OBSERVATION_FACT"
 TABLESPACE "TRANSMART" ;
 
 --
--- Type: INDEX; Owner: I2B2DEMODATA; Name: IDX_OB_FACT_PATIENT_NUMBER
+-- Type: INDEX; Owner: I2B2DEMODATA; Name: OBSERVATION_FACT_PCT_IDX
 --
-CREATE INDEX "I2B2DEMODATA"."IDX_OB_FACT_PATIENT_NUMBER" ON "I2B2DEMODATA"."OBSERVATION_FACT" ("PATIENT_NUM", "CONCEPT_CD")
+CREATE INDEX "I2B2DEMODATA"."OBSERVATION_FACT_PCT_IDX" ON "I2B2DEMODATA"."OBSERVATION_FACT" ("PATIENT_NUM", "CONCEPT_CD", "TRIAL_VISIT_NUM")
 TABLESPACE "TRANSMART" ;
 
 --
@@ -79,7 +74,7 @@ COMMENT ON COLUMN observation_fact.modifier_cd IS 'Primary key. Refers to modifi
 COMMENT ON COLUMN observation_fact.instance_num IS 'Primary key. Default: 1.';
 COMMENT ON COLUMN observation_fact.trial_visit_num IS 'Refers to the new trial_visit dimension. Is not part of the primary key to make the primary key of observation_fact identical with that used by i2b2.';
 
-COMMENT ON COLUMN observation_fact.valtype_cd IS 'Either T for string values or N for numeric values.';
+COMMENT ON COLUMN observation_fact.valtype_cd IS 'T for string, N for numeric, B for raw text and D for date values.';
 COMMENT ON COLUMN observation_fact.tval_char IS 'If valtype_cd is T, the observations text value. If valtype_cd is N, an i2b2 supported operator [E = Equals, NE = Not equal, L = Less than, LE = Less than or Equal to, G = Greater than, GE = Greater than or Equal to]';
 COMMENT ON COLUMN observation_fact.nval_num IS 'Used in conjunction with valtype_cd = N to store a numerical value';
 

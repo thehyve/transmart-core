@@ -2,6 +2,7 @@ package org.transmartproject.rest.dataExport
 
 import grails.persistence.support.PersistenceContextInterceptor
 import grails.util.Holders
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.quartz.InterruptableJob
 import org.quartz.JobExecutionContext
@@ -15,25 +16,28 @@ import java.util.zip.ZipOutputStream
  * This class will encompass the job scheduled by Quartz.
  */
 @Slf4j
+@CompileStatic
 class ExportJobExecutor implements InterruptableJob, AutoCloseable {
 
     ApplicationContext ctx = Holders.applicationContext
-    ExportService exportService = ctx.restExportService
-    ExportAsyncJobService asyncJobService = ctx.exportAsyncJobService
-    PersistenceContextInterceptor interceptor = ctx.persistenceInterceptor
+    ExportService exportService = ctx.getBean('restExportService') as ExportService
+    ExportAsyncJobService asyncJobService = ctx.getBean('exportAsyncJobService') as ExportAsyncJobService
+    PersistenceContextInterceptor interceptor = ctx.getBean('persistenceInterceptor') as PersistenceContextInterceptor
 
     ZipOutputStream zipFile
 
     @Override
     void execute(JobExecutionContext jobExecutionContext) {
         Map jobDataMap = jobExecutionContext.jobDetail.getJobDataMap()
+        def jobId = jobDataMap.jobId as Long
+        def user = jobDataMap.user as User
         try {
             interceptor.init()
             zipData(jobDataMap)
             interceptor.flush()
         } catch (Throwable e) {
             log.error("Error during exporting data.", e)
-            asyncJobService.updateStatus(jobDataMap.jobId as Long, JobStatus.ERROR, null, e.message)
+            asyncJobService.updateStatus(jobId, user, JobStatus.ERROR, null, e.message)
         } finally {
             interceptor.destroy()
             close()
@@ -41,14 +45,14 @@ class ExportJobExecutor implements InterruptableJob, AutoCloseable {
     }
 
     private void zipData(Map jobDataMap) {
-        Long jobId = jobDataMap.jobId
-        String jobName = jobDataMap.jobName
-        User user = jobDataMap.user
+        def jobId = jobDataMap.jobId as Long
+        def jobName = jobDataMap.jobName as String
+        def user = jobDataMap.user as User
         String file = getFilePath(user, "${jobName}.zip")
         zipFile = new ZipOutputStream(new FileOutputStream(file))
-        asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
-        exportService.exportData(jobDataMap, zipFile)
-        asyncJobService.updateStatus(jobId, JobStatus.COMPLETED, file.toString())
+        asyncJobService.updateStatus(jobId, user, JobStatus.GATHERING_DATA)
+        exportService.exportData(jobDataMap, jobName, zipFile)
+        asyncJobService.updateStatus(jobId, user, JobStatus.COMPLETED, file.toString())
     }
 
     private static File getFilePath(User user, String inputFileName) {

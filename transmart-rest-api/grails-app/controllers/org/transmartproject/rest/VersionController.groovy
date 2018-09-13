@@ -42,7 +42,7 @@ class VersionController {
      *     {
      *       'id': 'v2',
      *       'prefix': '/v2',
-     *       'version': '2.1-dev',
+     *       'version': '2.1',
      *       'major': 2,
      *       'minor': 1,
      *       'tag': 'dev',
@@ -62,14 +62,20 @@ class VersionController {
                 version: '1.1'
             ],[
                 id: 'v2',
-                version: '2.1-dev',
+                version: '2.5',
                 features: [
                         'versioning',
                         'and-or-constraints',
                         'values_aggregate',
                         'inline-selections',
                         'observation-sets',
+                        'pedigree',
                         'survey-table-view',
+                        'query-subscription',
+                        'crosstable',
+                        'after_data_loading_update',
+                        'aggregates_per_numerical_and_categorical_concept',
+                        'counts_with_threshold'
                 ]
             ]
     ])
@@ -137,3 +143,4 @@ class VersionController {
         ImmutableMap version
     }
 }
+

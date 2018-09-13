@@ -3,11 +3,14 @@
 package tests.rest.v2
 
 import base.RESTSpec
+import base.RestHelper
+import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
 import static config.Config.*
 import static tests.rest.constraints.Negation
 import static tests.rest.constraints.TrueConstraint
+import static tests.rest.dimensions.*
 
 /**
  *  CRUD endpoint for user queries.
@@ -34,10 +37,10 @@ class UserQuerySpec extends RESTSpec {
         responseData.id == id
 
         when: 'trying to access the query by different user'
-        def responseData2 = getQuery(id, 403, UNRESTRICTED_USER)
+        def responseData2 = getQuery(id, 404, UNRESTRICTED_USER)
 
         then:
-        responseData2.message == 'Query does not belong to the current user.'
+        responseData2.message == "Query with id ${id} not found for user."
     }
 
     def "save query"() {
@@ -53,66 +56,74 @@ class UserQuerySpec extends RESTSpec {
         responseData.observationsQuery.type == 'negation'
         responseData.apiVersion != null
         responseData.bookmarked == true
+        responseData.subscribed == true
+        responseData.subscriptionFreq == 'DAILY'
+        responseData.queryBlob.dataTableState.rowDimensions == [Patient, Study]
+        responseData.queryBlob.dataTableState.columnDimensions == [TrialVisit, Concept]
+        responseData.queryBlob.dataTableState.sorting.dimensionName == Study
+        responseData.queryBlob.dataTableState.sorting.order == "asc"
+
         responseData.createDate.endsWith('Z')
         responseData.updateDate.endsWith('Z')
     }
 
     def "save query wo patients and observations queries"() {
         when:
-        def responseData = post([
+        def responseData = RestHelper.toObject post([
                 path      : PATH_QUERY,
                 acceptType: JSON,
                 user      : DEFAULT_USER,
                 statusCode: 400,
-                body      : toJSON([
+                body      : [
                         name             : 'test query',
                         patientsQuery    : null,
                         observationsQuery: null,
-                        bookmarked       : true
-                ]),
-        ])
+                        bookmarked       : true,
+                        subscribed       : true,
+                        subscriptionFreq : 'DAILY'
+                ],
+        ]), ErrorResponse
+
         then:
-        responseData.message == 'patientsQuery or observationsQuery has to be not null.'
+        responseData.message == 'Cannot subscribe to an empty query.'
     }
 
     def "update query"() {
         Long id = createQuery(DEFAULT_USER).id
 
         when:
-        def updateResponseData = put([
+        def updatedQuery = put([
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : DEFAULT_USER,
-                statusCode: 204,
-                body      : toJSON([
+                statusCode: 200,
+                body      : [
                         name             : 'test query 2',
-                        patientsQuery    : [type: Negation, arg: [type: TrueConstraint]],
-                        observationsQuery: null,
-                        bookmarked       : false
-                ]),
+                        bookmarked       : false,
+                        subscribed       : false,
+                        subscriptionFreq : 'WEEKLY'
+                ],
         ])
 
         then:
-        updateResponseData == null
-        def updatedQuery = getQuery(id)
         updatedQuery.name == 'test query 2'
-        updatedQuery.patientsQuery.type == 'negation'
-        updatedQuery.observationsQuery == null
         updatedQuery.bookmarked == false
+        updatedQuery.subscribed == false
+        updatedQuery.subscriptionFreq == 'WEEKLY'
 
         when: 'try to update query by a different user'
-        def updateResponseData1 = put([
+        def updateResponseData1 = RestHelper.toObject put([
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER,
-                statusCode: 403,
-                body      : toJSON([
+                statusCode: 404,
+                body      : [
                         bookmarked: true
-                ]),
-        ])
+                ],
+        ]), ErrorResponse
 
         then:
-        updateResponseData1.message == 'Query does not belong to the current user.'
+        updateResponseData1.message == "Query with id ${id} not found for user."
     }
 
     def "delete query"() {
@@ -123,10 +134,10 @@ class UserQuerySpec extends RESTSpec {
                 path      : "${PATH_QUERY}/${id}",
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER,
-                statusCode: 403,
+                statusCode: 404,
         ])
         then:
-        forbidDeleteResponseData.message == 'Query does not belong to the current user.'
+        forbidDeleteResponseData.message == "Query with id ${id} not found for user."
 
         when:
         def deleteResponseData = delete([
@@ -138,7 +149,7 @@ class UserQuerySpec extends RESTSpec {
 
         then:
         deleteResponseData == null
-        getQuery(id, 404).message == "Query with id ${id} has not found."
+        getQuery(id, 404).message == "Query with id ${id} not found for user."
         !getQueriesForUser().queries.any { it.id == id }
     }
 
@@ -148,12 +159,24 @@ class UserQuerySpec extends RESTSpec {
                 acceptType: JSON,
                 user      : user,
                 statusCode: 201,
-                body      : toJSON([
+                body      : [
                         name             : 'test query',
                         patientsQuery    : [type: TrueConstraint],
                         observationsQuery: [type: Negation, arg: [type: TrueConstraint]],
-                        bookmarked       : true
-                ]),
+                        bookmarked       : true,
+                        subscribed       : true,
+                        subscriptionFreq : 'DAILY',
+                        queryBlob        : [
+                                dataTableState: [
+                                        rowDimensions   : [Patient, Study],
+                                        columnDimensions: [TrialVisit, Concept],
+                                        sorting         : [
+                                                dimensionName: Study,
+                                                order        : 'asc'
+                                        ]
+                                ]
+                        ]
+                ],
         ])
     }
 

@@ -2,15 +2,15 @@ package org.transmartproject.db.tree
 
 import groovy.transform.CompileStatic
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
-import org.transmartproject.db.multidimquery.query.FieldConstraint
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.ModifierConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.MODIFIER_LEAF
@@ -32,9 +32,9 @@ class TreeNodeConstraintHelper {
         }
         switch (node.tableName) {
             case 'concept_dimension':
-                if (node.columnName in ['concept_path', 'concept_code'] && node.hasOperator(['=', 'like'])) {
+                if (node.columnName in ['concept_path', 'concept_cd'] && node.hasOperator(['=', 'like'])) {
                     // constraint for the concept
-                    def conceptConstraint = new ConceptConstraint(conceptCode: node.conceptCode)
+                    def conceptConstraint = new ConceptConstraint(node.conceptCode)
                     // lookup study for this node
                     def parentStudyId = node.study?.studyId
                     if (!parentStudyId) {
@@ -42,8 +42,8 @@ class TreeNodeConstraintHelper {
                         return conceptConstraint
                     }
                     // combine concept constraint with study constraint
-                    def studyConstraint = new StudyNameConstraint(studyId: parentStudyId)
-                    return new AndConstraint(args: [conceptConstraint, studyConstraint])
+                    def studyConstraint = new StudyNameConstraint(parentStudyId)
+                    return new AndConstraint([conceptConstraint, studyConstraint])
                 }
                 return null
             case 'patient_dimension':

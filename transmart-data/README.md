@@ -34,8 +34,9 @@ Requirements
 
 The following are required:
 
+* PostgreSQL (9.5 recommended, 10.2 is known to not work currently) or Oracle database server
 * GNU make
-* PostgreSQL client utilities (`psql`, `psql_dump`, etc.)
+* PostgreSQL client utilities (`psql`, `psql_dump`, version matching your database), if you use PostgreSQL
 * curl
 * php (>= 5.4)
 * tar with support for the -J switch (GNU tar only?)
@@ -45,7 +46,7 @@ The following are required:
   `PATH` (Oracle and some secondary functionality only)
 * [Kettle][kettle] (ETL only)
 * rsync (Solr only)
-* Java environment (JDK 7)
+* Java environment (JDK 7 or 8)
 * build-essentials tools and gcc-fortran (building R from source only)
 
 If you are using Ubuntu and you intend to use PostgreSQL, you should be able to
@@ -55,7 +56,7 @@ install all these dependencies by running
 	make -C env ubuntu_deps_regular
 
 which will also prepare some directories for the tablespaces and assign them the
-correct ownership .
+correct ownership.
 
 Usage
 -----
@@ -75,6 +76,9 @@ created for you. You can skip the previous step and do only:
 The several options are fairly self-explanatory.
 
 ### PostgreSQL-specific notes
+
+These scripts were tested with PostgreSQL version 9.5. PostgreSQL version 10.2 
+is known to not work.
 
 The configured PostgreSQL user must be a database superuser. You can connect to
 PostgreSQL with UNIX sockets by specifying the parent directory of the socket
@@ -120,7 +124,7 @@ Transmart will not run against a lower level edition of Oracle.
 
     make oracle_drop
 
-### Create the database and load everything
+### Create the database and load the essentials
 
     make -j4 postgres
 
@@ -243,6 +247,13 @@ For instance:
 
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.
+
+### Refreshing Oracle Materialized Views
+After loading new data you might need to update materialized views. e.g. `BIOMART.BIO_MARKER_CORREL_MV`
+You could do this with help of the following command:
+```
+make -C data/oracle refresh_mvs
+```
 
 ### For MacOSX
 The loading scripts use the -e option from the  function readlink. This is a function that is not in the readlink that is installed on Mac OSX, to bypass this problem you are required to install greadlink (stands for GNU readlink). After installing greadlink edit ~/transmart-data/samples/postgres/process_params.inc and on change readlink to greadlink (line 20). Save the changes and the upload should work.

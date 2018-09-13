@@ -21,15 +21,16 @@ package org.transmartproject.db.dataquery.highdim.acgh
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
-import org.transmartproject.db.TransmartSpecification
+import spock.lang.Specification
 
-import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 /**
@@ -38,8 +39,9 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Integration
 @Rollback
-class AcghDataTypeResourceSpec extends TransmartSpecification {
+class AcghDataTypeResourceSpec extends Specification {
 
+    @Autowired
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource acghResource
@@ -47,6 +49,8 @@ class AcghDataTypeResourceSpec extends TransmartSpecification {
     AcghTestData testData
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         testData = new AcghTestData()
         acghResource = highDimensionResourceService.getSubResourceForType 'acgh'
     }
@@ -67,7 +71,7 @@ class AcghDataTypeResourceSpec extends TransmartSpecification {
         def assayConstraints = [
                 resource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
+                        result_instance_id: testData.allPatientsQueryResult.queryInstances[0].queryResults[0].id),
         ]
 
         List<ChromosomalSegment> result =

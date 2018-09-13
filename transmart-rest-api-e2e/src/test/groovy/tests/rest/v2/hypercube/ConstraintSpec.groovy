@@ -9,6 +9,7 @@ import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
 import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.startsWith
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.Operator.*
 import static tests.rest.ValueType.*
@@ -32,12 +33,12 @@ class ConstraintSpec extends RESTSpec {
      NullConstraint.class
      */
     def final INVALIDARGUMENTEXCEPTION = "InvalidArgumentsException"
-    def final CONSTRAINTBINDINGEXCEPTION = "ConstraintBindingException"
+    def final BINDING_EXCEPTION = "BindingException"
     def final EMPTYCONTSTRAINT = "Empty constraint parameter."
 
     /**
      *  when:" I do a Get query/observations with a wrong type."
-     *  then: "then I get a 400 with 'Constraint not supported: BadType.'"
+     *  then: "then I get a 400 with 'Cannot parse constraint parameter: {"type":"BadType"}'"
      */
     def "Get /query/observations malformed query"() {
         when: " I do a Get query/observations with a wrong type."
@@ -50,10 +51,10 @@ class ConstraintSpec extends RESTSpec {
 
         def responseData = get(request)
 
-        then: "then I get a 400 with 'Constraint not supported: BadType.'"
+        then: "then I get a 400 with 'Cannot parse constraint parameter'"
         that responseData.httpStatus, is(400)
-        that responseData.type, is(CONSTRAINTBINDINGEXCEPTION)
-        that responseData.message, is('Constraint not supported: BadType.')
+        that responseData.type, is(BINDING_EXCEPTION)
+        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'BadType\' into a subtype of')
 
         where:
         acceptType | _
@@ -213,7 +214,7 @@ class ConstraintSpec extends RESTSpec {
                 acceptType    : JSON,
                 'Content-Type': JSON,
                 query         : [name: 'test_PatientSetConstraint'],
-                body          : toJSON([type: PatientSetConstraint, patientIds: -62]),
+                body          : [type: PatientSetConstraint, subjectIds: ['EHR:62']],
                 statusCode    : 201
 
         ]
@@ -222,7 +223,7 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: PatientSetConstraint, patientSetId: setID.id])
+                query     : [constraint: [type: PatientSetConstraint, patientSetId: setID.id]]
         ]
 
         when:
@@ -238,7 +239,7 @@ class ConstraintSpec extends RESTSpec {
         request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: PatientSetConstraint, patientIds: -62])
+                query     : [constraint: [type: PatientSetConstraint, subjectIds: ['EHR:62']]]
         ]
         responseData = get(request)
         selector = newSelector(responseData)
@@ -259,10 +260,10 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
+                query     : [constraint: [
                         type: Negation,
-                        arg : [type: PatientSetConstraint, patientIds: [-62, -52, -42]]
-                ])
+                        arg : [type: PatientSetConstraint, subjectIds: ['EHR:62', 'EHR:52', 'EHR:42']]
+                ]]
         ]
 
         when:
@@ -284,14 +285,13 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
-                        type    : Combination,
-                        operator: AND,
+                query     : [constraint: [
+                        type    : 'and',
                         args    : [
-                                [type: PatientSetConstraint, patientSetId: 0, patientIds: -62],
+                                [type: PatientSetConstraint, patientSetId: 0, subjectIds: ['EHR:62']],
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                         ]
-                ])
+                ]]
         ]
 
         when:
@@ -313,7 +313,7 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
+                query     : [constraint: [
                         type           : TemporalConstraint,
                         operator       : AFTER,
                         eventConstraint: [
@@ -322,7 +322,7 @@ class ConstraintSpec extends RESTSpec {
                                 operator : LESS_THAN,
                                 value    : 60
                         ]
-                ])
+                ]]
         ]
 
         when:
@@ -347,7 +347,7 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
+                query     : [constraint: [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]]
         ]
 
         when:
@@ -369,7 +369,7 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: StudyNameConstraint, studyId: EHR_ID])
+                query     : [constraint: [type: StudyNameConstraint, studyId: EHR_ID]]
         ]
 
         when:
@@ -392,10 +392,10 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
+                query     : [constraint: [
                         type : NullConstraint,
                         field: [dimension: 'end time', fieldName: 'endDate', type: DATE]
-                ])
+                ]]
         ]
 
         when:
@@ -420,7 +420,7 @@ class ConstraintSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
+                query     : [constraint: [
                         type      : SubSelectionConstraint,
                         dimension : 'patient',
                         constraint: [type    : FieldConstraint,
@@ -429,7 +429,7 @@ class ConstraintSpec extends RESTSpec {
                                                 type     : NUMERIC],
                                      operator: EQUALS,
                                      value   : 30],
-                ])
+                ]]
         ]
 
         def responseData = get(request)
@@ -444,7 +444,7 @@ class ConstraintSpec extends RESTSpec {
         request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
+                query     : [constraint: [
                         type      : SubSelectionConstraint,
                         dimension : 'visit',
                         constraint: [type: 'and',
@@ -459,7 +459,7 @@ class ConstraintSpec extends RESTSpec {
                                             ]
                                      ]
                         ]
-                ])
+                ]]
         ]
 
         responseData = get(request)

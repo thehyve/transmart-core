@@ -4,71 +4,68 @@ package org.transmartproject.rest
 
 import grails.artefact.Controller
 import grails.converters.JSON
-import groovy.json.JsonSlurper
+import groovy.transform.CompileStatic
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.binding.BindingException
+import org.transmartproject.core.binding.BindingHelper
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintBindingException
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
-import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.core.multidimquery.PatientSetResource
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.ConstraintFactory
+import org.transmartproject.rest.user.AuthContext
 import org.transmartproject.rest.misc.RequestUtils
 
+@CompileStatic
 abstract class AbstractQueryController implements Controller {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
 
     @Autowired
-    CurrentUser currentUser
+    PatientSetResource patientSetResource
 
     @Autowired
-    UsersResource usersResource
+    AuthContext authContext
 
     @Autowired
     HypercubeDataSerializationService hypercubeDataSerializationService
 
-    protected static Constraint getConstraintFromStringOrJson(constraintParam) {
-        if (!constraintParam) {
+    protected static Constraint getConstraintFromString(String constraintText) {
+        if (!constraintText) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
-
-        if (constraintParam instanceof String) {
-            try {
-                def constraintData = JSON.parse(constraintParam) as Map
-                return ConstraintFactory.create(constraintData)
-            } catch (ConverterException c) {
-                throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
+        try {
+            def constraint = ConstraintFactory.read(constraintText)
+            if (constraint) {
+                return constraint.normalise()
             }
-        } else {
-            return ConstraintFactory.create(constraintParam)
+            throw new InvalidArgumentsException("Invalid constraint parameter: ${constraintText}")
+        } catch (ConverterException c) {
+            throw new InvalidArgumentsException("Cannot parse constraint parameter: ${constraintText}", c)
         }
     }
 
-    protected Constraint bindConstraint(constraintParam) {
+    protected Constraint bindConstraint(String constraintText) {
         try {
-            return getConstraintFromStringOrJson(constraintParam)
-        } catch (ConstraintBindingException e) {
-            if(e.errors?.hasErrors()) {
+            return getConstraintFromString(constraintText)
+        } catch (BindingException e) {
+            def error = [
+                    httpStatus: 400,
+                    message   : e.message,
+                    type      : e.class.simpleName,
+            ] as Map<String, Object>
 
-                // This representation is compatible with what is returned when an exception is not caught.
-                //
-                // I want to add properties to the `e.errors as JSON`, but getting at a map representation of e.errors
-                // is not so easy. This is an ugly workaround, but this only happens for error conditions.
-                Map error = new JsonSlurper().parseText((e.errors as JSON).toString())
-                error = [
-                        httpStatus: 400,
-                        message: e.message,
-                        type: e.class.simpleName,
-                ] + error
+            if (e.errors) {
+                error.errors = e.errors
+                        .collect { [propertyPath: it.propertyPath.toString(), message: it.message] }
 
-                response.status = 400
-                render error as JSON
-                return null
             }
-            throw e
+
+            response.status = 400
+            render error as JSON
+            return null
         }
     }
 
@@ -80,15 +77,29 @@ abstract class AbstractQueryController implements Controller {
      * @return Map with passed arguments
      */
     protected Map getGetOrPostParams() {
-        if(request.method == "POST") {
-            return request.JSON as Map
+        if(request.method == 'POST') {
+            def parameters = request.JSON as Map<String, Object>
+            return parameters.collectEntries { String k, v ->
+                if (v instanceof Object[] || v instanceof List) {
+                    [k, v.collect {
+                        if (it instanceof Map) {
+                            BindingHelper.objectMapper.writeValueAsString((Map) it)
+                        } else
+                            it.toString()
+                    }]
+                } else if (v instanceof Map) {
+                    [k, BindingHelper.objectMapper.writeValueAsString((Map)v)]
+                } else {
+                    [k, v.toString()]
+                }
+            }
         }
-        return params.collectEntries { String k, v ->
+        return (params as Map<String, Object>).collectEntries { String k, v ->
             if (!RequestUtils.GLOBAL_PARAMS.contains(k)) {
                 if(v instanceof Object[] || v instanceof List) {
-                    [k, v.collect { URLDecoder.decode(it, 'UTF-8') }]
+                    [k, v.collect { URLDecoder.decode(it.toString(), 'UTF-8') }]
                 } else {
-                    [k, URLDecoder.decode(v, 'UTF-8')]
+                    [k, URLDecoder.decode(v.toString(), 'UTF-8')]
                 }
             } else [:]
         }

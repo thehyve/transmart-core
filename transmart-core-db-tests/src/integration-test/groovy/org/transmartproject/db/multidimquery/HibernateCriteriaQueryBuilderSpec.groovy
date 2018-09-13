@@ -9,23 +9,42 @@ import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.ModifierConstraint
+import org.transmartproject.core.multidimquery.query.Negation
+import org.transmartproject.core.multidimquery.query.NullConstraint
+import org.transmartproject.core.multidimquery.query.Operator
+import org.transmartproject.core.multidimquery.query.PatientSetConstraint
+import org.transmartproject.core.multidimquery.query.QueryBuilder
+import org.transmartproject.core.multidimquery.query.QueryBuilderException
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
+import org.transmartproject.core.multidimquery.query.TemporalConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.multidimquery.query.Type
+import org.transmartproject.core.multidimquery.query.ValueConstraint
+import org.transmartproject.core.users.SimpleUser
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestData
-import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.dataquery.clinical.ClinicalTestData
+import spock.lang.Specification
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.query.*
 
 @Slf4j
 @Rollback
 @Integration
-class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
+class HibernateCriteriaQueryBuilderSpec extends Specification {
+
+    @Autowired
+    SessionFactory sessionFactory
 
     Field patientAgeField
     Field conceptCodeField
     TestData testData
     TestData hypercubeTestData
-
-    SessionFactory sessionFactory
 
     Object get(DetachedCriteria criteria) {
         criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
@@ -40,8 +59,10 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     }
 
     void setupData() {
-        patientAgeField = new Field(dimension: DimensionImpl.PATIENT, fieldName: 'age', type: Type.NUMERIC)
-        conceptCodeField = new Field(dimension: DimensionImpl.CONCEPT, fieldName: 'conceptCode', type: Type.STRING)
+        TestData.prepareCleanDatabase()
+
+        patientAgeField = new Field(dimension: DimensionImpl.PATIENT.name, fieldName: 'age', type: Type.NUMERIC)
+        conceptCodeField = new Field(dimension: DimensionImpl.CONCEPT.name, fieldName: 'conceptCode', type: Type.STRING)
 
         testData = new TestData().createDefault()
         testData.i2b2Data.patients[0].age = 70
@@ -50,6 +71,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     }
 
     void setupHypercubeData(){
+        TestData.prepareCleanDatabase()
+
         hypercubeTestData = TestData.createHypercubeDefault()
         hypercubeTestData.saveAll()
     }
@@ -84,9 +107,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     void 'test CriteriaQueryBuilder with patient set constraint'() {
         setupData()
 
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
 
         when:
         def patientIds = [this.testData.clinicalData.patients[1].id,
@@ -123,9 +144,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = patientAgeField
         constraint.operator = Operator.GREATER_THAN
         constraint.value = 60L
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
 
         DetachedCriteria criteria = builder.buildCriteria(new Negation(arg: constraint))
 
@@ -145,9 +164,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.valueType = Type.NUMERIC
         constraint.operator = Operator.GREATER_THAN
         constraint.value = 1L
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
 
         DetachedCriteria criteria = builder.buildCriteria(constraint)
 
@@ -169,9 +186,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = conceptCodeField
         constraint.operator = Operator.EQUALS
         constraint.value = concept.conceptCode
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
 
         DetachedCriteria criteria = builder.buildCriteria(constraint)
 
@@ -192,9 +207,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
                 operator: Operator.BEFORE,
                 eventConstraint: constraint
         )
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        builder = HibernateCriteriaQueryBuilder.forAllStudies()
         DetachedCriteria temporalCriteria = builder.buildCriteria(beforeConstraint)
         List temporalResults = getList(temporalCriteria)
         log.info "Main query results:"
@@ -216,9 +229,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = conceptCodeField
         constraint.operator = Operator.EQUALS
         constraint.value = concept.conceptCode
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
 
         def criteria = builder.buildCriteria(constraint)
 
@@ -230,9 +241,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         result
 
         when:
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        builder = HibernateCriteriaQueryBuilder.forAllStudies()
         criteria = builder.buildCriteria(new Negation(arg: constraint))
         result = exists(criteria)
         log.info "Exists: ${result}"
@@ -242,9 +251,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         when:
         constraint.value = "xyzabc"
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        builder = HibernateCriteriaQueryBuilder.forAllStudies()
         criteria = builder.buildCriteria(constraint)
         result = exists(criteria)
         log.info "Exists: ${result}"
@@ -259,9 +266,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         when:
         def constraint= new ConceptConstraint(path: '\\foo\\study1\\bar\\')
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
         def criteria = builder.buildCriteria(constraint)
 
         def result = getList(criteria)
@@ -290,14 +295,12 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         when:
         def constraint = new NullConstraint(
                 field: new Field(
-                        dimension: DimensionImpl.VALUE,
+                        dimension: DimensionImpl.VALUE.name,
                         fieldName: 'textValue',
                         type: 'STRING'
                 )
         )
-        def builder = new HibernateCriteriaQueryBuilder(
-            studies: Study.findAll()
-        )
+        def builder = HibernateCriteriaQueryBuilder.forAllStudies()
 
         def criteria = builder.buildCriteria(constraint)
         def result = getList(criteria)
@@ -311,9 +314,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
     void 'test CriteriaQueryBuilder with default modifier code'() {
         setupHypercubeData()
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: [hypercubeTestData.clinicalData.sampleStudy]
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([hypercubeTestData.clinicalData.sampleStudy])
 
         when:
         def patientIds = hypercubeTestData.clinicalData.sampleClinicalFacts*.patientId
@@ -333,9 +334,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
     void 'test CriteriaQueryBuilder with modifier constraints'() {
         setupHypercubeData()
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: [hypercubeTestData.clinicalData.sampleStudy]
-        )
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([hypercubeTestData.clinicalData.sampleStudy])
 
         // test modifierCode + textValue.equals
         when:
@@ -450,4 +449,82 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         results.size() == expectedResults.size()
         results.sort() == expectedResults.sort()
     }
+
+    void 'test queries for empty database'() {
+        given: 'No studies loaded'
+        TestData.prepareCleanDatabase()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([])
+
+        when: 'Querying for all observations'
+        def criteria = builder.buildCriteria(new TrueConstraint())
+        def results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+    }
+
+    void 'test queries for user with no access to any study'() {
+        given: 'No access to any study'
+        setupHypercubeData()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forStudies([])
+
+        when: 'Querying for all observations'
+        def criteria = builder.buildCriteria(new TrueConstraint())
+        def results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+
+        when: 'Querying for a particular study'
+        criteria = builder.buildCriteria(new StudyNameConstraint(hypercubeTestData.clinicalData.multidimsStudy.studyId))
+        results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+    }
+
+    void 'test queries for a study without trial visits'() {
+        given: 'A study without trial visits'
+        setupHypercubeData()
+        def studyWithoutTrialVisits =
+                StudyTestData.createStudy('studyWithoutTrialVisits', ['patient', 'concept'], false)
+        studyWithoutTrialVisits.save()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
+
+        when: 'Querying for the study'
+        def criteria = builder.buildCriteria(new StudyNameConstraint(studyWithoutTrialVisits.studyId))
+        def results = getList(criteria) as List
+
+        then: 'The result is empty'
+        results.empty
+    }
+
+    void 'test queries with collection operators'() {
+        setupData()
+        QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
+
+        when: 'A collection operator is used'
+        FieldConstraint constraint1 = new FieldConstraint()
+        constraint1.field = patientAgeField
+        constraint1.operator = Operator.IN
+        constraint1.value = [70L, 31L]
+        DetachedCriteria criteria1 = builder.buildCriteria(constraint1)
+        List results1 = getList(criteria1)
+
+        then: 'Constraint passes validation and results are returned'
+        results1.size() == 2
+
+        when: 'A non-collection operator is used'
+        FieldConstraint constraint2 = new FieldConstraint()
+        constraint2.field = constraint1.field
+        constraint2.value = constraint1.value
+        constraint2.operator = Operator.CONTAINS
+        builder.buildCriteria(constraint2)
+
+        then: 'Validation of the constraint fails'
+        def e = thrown(QueryBuilderException)
+        e.message.contains("Field type NUMERIC not supported for operator 'contains'.")
+
+    }
+
 }

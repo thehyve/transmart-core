@@ -25,7 +25,8 @@ import org.springframework.context.ApplicationContext
 import org.springframework.web.servlet.HandlerExceptionResolver
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.any
+import static org.hamcrest.Matchers.equalTo
 
 @Integration
 class BusinessExceptionResolverSpec extends Specification {
@@ -40,4 +41,5 @@ class BusinessExceptionResolverSpec extends Specification {
         beans Matchers.hasEntry(equalTo('businessExceptionResolver'),
                 any(BusinessExceptionResolver))
     }
+
 }
