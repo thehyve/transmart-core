@@ -2,11 +2,11 @@
 
 Below are the installation instructions for tranSMART version 17.1. If you already have an older version of tranSMART, follow the [upgrade guide](upgrade.md) instead.
 
-  * [1. Prerequisites](#1-prerequisites)
-  * [2. Setup database](#2-setup-database)
-  * [3. Setup configuration](#3-setup-configuration)
-  * [4. Build and run tranSMART Server or tranSMART API Server](#4-build-and-run-transmart-server-or-transmart-api-server)
-  * [5. Start services](#5-start-services)
+  1. [Prerequisites](#1-prerequisites)
+  2. [Setup database](#2-setup-database)
+  3. [Setup configuration](#3-setup-configuration)
+  4. [Build and run tranSMART Server or tranSMART API Server](#4-build-and-run-transmart-server-or-transmart-api-server)
+  5. [Start services](#5-start-services)
 
 
 ## 1. Prerequisites
@@ -145,4 +145,4 @@ For `yum`, use the following repository url with `gpgcheck=0`: `https://repo.the
 
 ### tranSMART API Server:
 
-tranSMART API Server requires an external identity provider - [Keycloak](https://www.keycloak.org/). Setting it up requires [just a few steps](.../transmart-api-server#how-to-set-up-authentication-for-the-api-server).
+tranSMART API Server requires an external identity provider - [Keycloak](https://www.keycloak.org/). Setting it up requires [just a few steps](../transmart-api-server#how-to-set-up-authentication-for-the-api-server).
