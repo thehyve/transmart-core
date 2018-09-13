@@ -151,6 +151,11 @@ class ExportAsyncJobService extends AbstractDataResourceService {
         return job
     }
 
+    AsyncJobCoreDb updateStatus(Long jobId, User user, JobStatus status, String viewerURL = null, String results = null) {
+        def job = getJobById(jobId, user)
+        updateStatus(job, status, viewerURL, results)
+    }
+
     private static JobKey getJobKeyForId(Long jobId) {
         new JobKey(jobId.toString(), 'DataExport')
     }
