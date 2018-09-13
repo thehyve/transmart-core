@@ -2408,31 +2408,20 @@ paths:
                   type: string
                   description: >
                     json that specifies the list of pairs:
-                    `[{dataType:${dataType}, format:${fileFormat},
-                    dataView:${dataView}]`,
+                    `[{dataType:${dataType}, format:${fileFormat}, dataView:${dataView}]`,
 
                     where `dataType` is a type of the data you want to retrieve,
                     either `clinical` for clinical data,
+                    or one of the supported high dimensional data types,
+                    and `format` is one of the supported file formats
+                    you want to export current data type to,
+                    `dataView` determines the way the data is serialised to a tabular format and can be
+                    `"surveyTable"` or `"dataTable"`, resulting in either a survey
+                    table or a data table export (only for clinical data).
 
-                    or one of the supported high dimensional data types and
-                    `format` is one of the supported file formats
+                    Example: `[{"dataType": "clinical", "format": "TSV", "dataView": "dataTable"},
+                     {"dataType": "rnaseq_transcript", "format": "JSON"}]`.
 
-                    you want to export current data type to. The tabular flag
-                    (optional, false by default) specifies whether
-
-                    represent hypercube data as wide filer format where patients
-                    are rows and columns are variables.
-
-                    Example: `[{"dataType":clinical, "format":TSV,
-                    "tabular":true},{"dataType":rnaseq_transcript,
-                    "format":TSV}]`.
-
-
-                    `dataView` is optional, it can be `"surveyTable"` or
-                    `"dataTable"`, resulting in either a survey
-
-                    table or a data table export. When not set the export will
-                    default to a plain hypercube export.
                 tableConfig:
                   type: string
                   description: >
@@ -2548,7 +2537,7 @@ paths:
   /v2/export/jobs:
     get:
       description: |
-        Gets all export jobs accessible by the user.
+        Gets all export jobs created by the user.
       tags:
         - v2
       responses:
@@ -2564,8 +2553,8 @@ paths:
   /v2/export/data_formats:
     post:
       description: >
-        Analyses the constraint and gets result data formats, including
-        `clinical` type and high dimensional types.
+        Analyses the constraint and gets result data formats, currently
+        only `clinical`.
       tags:
         - v2
       responses:
@@ -2573,8 +2562,7 @@ paths:
           description: >
             Returns a list of known data formats for specified sets.
 
-            Example: `{ "dataFormats": ["clinical", "mrna", "rnaseq_transcript"]
-            }`
+            Example: `{"dataFormats": ["clinical"]}`
           content:
             '*/*':
               schema:
@@ -2594,9 +2582,9 @@ paths:
         - v2
       parameters:
         - name: dataView
-          required: false
+          required: true
           in: query
-          description: Data view.
+          description: Data view ('dataTable' or 'surveyTable')
           schema:
             type: string
       responses:
@@ -2846,6 +2834,10 @@ paths:
         '200':
           description: |
             A status report about the started update task.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UpdateStatus'
         '503':
           description: |
             An update operation is already in progress.

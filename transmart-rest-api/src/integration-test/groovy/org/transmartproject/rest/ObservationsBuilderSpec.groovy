@@ -18,13 +18,10 @@ import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
-import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import spock.lang.Ignore
 import spock.lang.Specification
-
-import java.util.zip.ZipOutputStream
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -214,32 +211,6 @@ class ObservationsBuilderSpec extends Specification {
 
         then:
         patientElement.fieldsList[idFieldIndex].intValueList as Set<Long> == [-101, -102, -103] as Set<Long>
-    }
-
-    void testCSVSerialization() {
-        setupData()
-        def dataType = 'clinical'
-        def fileExtension = '.tsv'
-        Constraint constraint = new StudyNameConstraint(studyId: 'longitudinal study')
-        def args = new DataRetrievalParameters(constraint: constraint)
-        def cube = queryResource.retrieveData(args, dataType, adminUser)
-        def builder = new HypercubeCSVSerializer()
-
-        when:
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
-        ZipOutputStream out = new ZipOutputStream(byteArrayOutputStream)
-        builder.write([dataType : dataType], cube, out)
-        out.close()
-        out.flush()
-        List expectedEntries = ["${dataType}_observations$fileExtension",
-                                "${dataType}_concept$fileExtension",
-                                "${dataType}_patient$fileExtension",
-                                "${dataType}_study$fileExtension",
-                                "${dataType}_trial_visit$fileExtension"]
-
-        then:
-        out.xentries != null
-        out.names.sort() == expectedEntries.sort()
     }
 
 }

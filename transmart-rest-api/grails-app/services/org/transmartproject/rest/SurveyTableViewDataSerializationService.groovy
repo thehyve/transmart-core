@@ -27,15 +27,11 @@ import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.multidimquery.SortSpecification
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.multidimquery.query.Constraint
-import org.transmartproject.core.multidimquery.datatable.PaginationParameters
-import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.SurveyTableColumnService
 import org.transmartproject.db.multidimquery.HypercubeDataColumn
 import org.transmartproject.db.multidimquery.SurveyTableView
 import org.transmartproject.db.support.ParallelPatientSetTaskService
-import org.transmartproject.rest.serialization.DataSerializer
 import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.rest.serialization.tabular.TabularResultSPSSSerializer
 import org.transmartproject.rest.serialization.tabular.TabularResultSerializer
@@ -48,7 +44,7 @@ import static org.transmartproject.db.support.ParallelPatientSetTaskService.Task
 
 @Transactional
 @CompileStatic
-class SurveyTableViewDataSerializationService implements DataSerializer {
+class SurveyTableViewDataSerializationService {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
@@ -111,7 +107,6 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
      * @param out
      * @param options
      */
-    @Override
     void writeClinical(Format format,
                        DataRetrievalParameters parameters,
                        User user,
@@ -137,27 +132,6 @@ class SurveyTableViewDataSerializationService implements DataSerializer {
                 {SubtaskParameters params -> writeClinicalSubtask(params, serializer, columns)},
                 {taskResults -> serializer.combine()}
         )
-    }
-
-    @Override
-    void writeTable(Format format, Constraint constraint, TableConfig tableConfig, User user, OutputStream out) {
-        throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
-    }
-
-    @Override
-    void writeTablePage(Format format, Constraint constraint, TableConfig tableConfig, PaginationParameters pagination, User user, OutputStream out) {
-        throw new UnsupportedOperationException("Writing tabular data for this view is not supported.")
-    }
-
-    @Override
-    void writeHighdim(Format format,
-                      String type,
-                      Constraint assayConstraint,
-                      Constraint biomarkerConstraint,
-                      String projection,
-                      User user,
-                      OutputStream out) {
-        throw new UnsupportedOperationException("Writing HD data for this view is not supported.")
     }
 
 }

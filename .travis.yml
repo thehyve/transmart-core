@@ -38,7 +38,7 @@ cache:
 before_install:
   - gradle wrapper
   - GRADLE_SCRIPT="$(pwd)/gradlew"
-  - ${GRADLE_SCRIPT} --version
+  - $GRADLE_SCRIPT --version
   - groovy --version
   - sudo chmod a+rX $HOME
 # We don't currently use these sources, but they can be re-enabled if necessary
@@ -56,22 +56,22 @@ before_install:
 
 install:
   - pushd "$DIR"
-  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; ${GRADLE_SCRIPT} $INSTALL)
+  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; $GRADLE_SCRIPT $INSTALL)
   - popd
 
 before_script:
   - pushd "$DIR"
-  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; ${GRADLE_SCRIPT} $PREPARE)
+  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; $GRADLE_SCRIPT $PREPARE)
   - popd
   - pushd transmart-data
   - >
-    (( ! [ "$START_SOLR" == "true" ]) && echo "Skipping Solr.") || (${GRADLE_SCRIPT} setupSolr; echo "Starting Solr ...";
+    (( ! [ "$START_SOLR" == "true" ]) && echo "Skipping Solr.") || ($GRADLE_SCRIPT setupSolr; echo "Starting Solr ...";
     source vars; (make -C solr start > solr.log 2> solr.err &); sleep 10; echo "Solr started.")
   - popd
 
 script:
   - pushd "$DIR"
-  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; ${GRADLE_SCRIPT} $TEST)
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; $GRADLE_SCRIPT $TEST)
   - popd
 
 after_success:

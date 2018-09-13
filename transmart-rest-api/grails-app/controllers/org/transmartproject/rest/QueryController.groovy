@@ -43,6 +43,9 @@ class QueryController extends AbstractQueryController {
     @Autowired
     CrossTableResource crossTableResource
 
+    @Autowired
+    DataTableViewDataSerializationService dataTableViewDataSerializationService
+
     @Value('${org.transmartproject.patientCountThreshold}')
     long patientCountThreshold
 
@@ -214,7 +217,7 @@ class QueryController extends AbstractQueryController {
                 offset: offset
         )
         BindingHelper.validate(pagination)
-        hypercubeDataSerializationService.writeTablePage(Format.JSON, constraint, tableConfig, pagination, authContext.user, out)
+        dataTableViewDataSerializationService.writeTablePageToJson(constraint, tableConfig, pagination, authContext.user, out)
     }
 
     /**

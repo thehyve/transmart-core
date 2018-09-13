@@ -101,7 +101,7 @@ class Config {
     public static final String PATH_PATIENTS = "/v2/patients"
     public static final String PATH_CONCEPTS = "/v2/concepts"
     public static final String PATH_TREE_NODES = "/v2/tree_nodes"
-    public static final String PATH_TREE_NODES_CLEAR_CACHE = "/v2/tree_nodes/clear_cache"
+    public static final String PATH_SYSTEM_CLEAR_CACHE = "/v2/admin/system/clear_cache"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
     public static final String PATH_STORAGE = "/v2/storage"

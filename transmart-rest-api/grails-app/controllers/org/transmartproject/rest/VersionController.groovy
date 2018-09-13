@@ -62,7 +62,7 @@ class VersionController {
                 version: '1.1'
             ],[
                 id: 'v2',
-                version: '2.3',
+                version: '2.5-dev',
                 features: [
                         'versioning',
                         'and-or-constraints',
@@ -74,6 +74,8 @@ class VersionController {
                         'query-subscription',
                         'crosstable',
                         'after_data_loading_update',
+                        'aggregates_per_numerical_and_categorical_concept',
+                        'counts_with_threshold'
                 ]
             ]
     ])
@@ -141,3 +143,4 @@ class VersionController {
         ImmutableMap version
     }
 }
+
