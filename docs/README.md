@@ -119,7 +119,7 @@ java -jar transmart-server-17.1-SNAPSHOT.war
 
 ### tranSMART Server:
 
-`Rserve` and `Solr` services can be run using `transmart-data`, see [Generate configuration files](#3-generate-configuration-files)
+`Rserve` and `Solr` services can be run using `transmart-data`, see [Setup configuration](#3-setup-configuration)
 to fetch it from a Nexus repository. 
 These instructions are using downloaded binaries, see the documentation of [transmart-data](../transmart-data) if you want 
 to use the sources. 
