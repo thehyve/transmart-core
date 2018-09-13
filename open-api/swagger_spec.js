@@ -3145,7 +3145,14 @@ var spec = {
         ],
         "responses": {
           "200": {
-            "description": "A status report about the started update task.\n"
+            "description": "A status report about the started update task.\n",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
           },
           "503": {
             "description": "An update operation is already in progress.\n"
