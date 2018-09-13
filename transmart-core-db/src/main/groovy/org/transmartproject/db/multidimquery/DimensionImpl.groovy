@@ -29,6 +29,8 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
 
+import java.util.function.Supplier
+
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.DENSE
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.SPARSE
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Packable.NOT_PACKABLE
@@ -198,10 +200,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         assert (elementFields == null) == serializable
     }
 
-    static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
-        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
+    static List<ELT> resolveWithInQuery(Supplier<HibernateCriteriaBuilder> builderProducer, List<ELKey> elementKeys, String property = 'id') {
+        List res = InQuery.listIn(builderProducer, property, elementKeys)
         sort(res, elementKeys, property)
-        res
+        res as List<ELT>
     }
 
     static void sort(List res, List<ELKey> elementKeys, String property) {
@@ -601,7 +603,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
 
     @CompileDynamic
     @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
+        resolveWithInQuery({ -> I2B2PatientDimension.createCriteria() as HibernateCriteriaBuilder }, elementKeys)
     }
 }
 
@@ -621,7 +623,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 
     @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
-        resolveWithInQuery(I2b2ConceptDimensions.createCriteria(), elementKeys, columnName)
+        resolveWithInQuery({ -> I2b2ConceptDimensions.createCriteria() as HibernateCriteriaBuilder }, elementKeys, columnName)
     }
 }
 
@@ -637,7 +639,7 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     @CompileDynamic
     @Override
     List<TrialVisit> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
+        resolveWithInQuery({ -> TrialVisit.createCriteria() as HibernateCriteriaBuilder}, elementKeys)
     }
 }
 
@@ -662,7 +664,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
 
     @CompileDynamic
     @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
+        resolveWithInQuery({ -> I2B2Study.createCriteria() as HibernateCriteriaBuilder}, elementKeys)
     }
     @Override
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {

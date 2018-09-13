@@ -8,7 +8,7 @@ class InQueryTest extends Specification {
 
     void testNumOfItemsLessThenMax() {
         when:
-        def choppedList = InQuery.collateValues([1, 2, 3])
+        def choppedList = InQuery.collateValues([1, 2, 3], InQuery.ORACLE_MAX_LIST_SIZE)
         then:
         assertThat choppedList, hasSize(1)
         assertThat choppedList[0], contains(1, 2, 3)
@@ -16,7 +16,7 @@ class InQueryTest extends Specification {
 
     void testNumOfItemsMoreThenMax() {
         when:
-        def choppedList = InQuery.collateValues((1..2500).toList())
+        def choppedList = InQuery.collateValues((1..2500).toList(), InQuery.ORACLE_MAX_LIST_SIZE)
         then:
         assertThat choppedList, hasSize(3)
         assertThat choppedList[0], hasSize(1000)
@@ -27,7 +27,7 @@ class InQueryTest extends Specification {
 
     void testEmptyIds() {
         when:
-        def choppedList = InQuery.collateValues([[]])
+        def choppedList = InQuery.collateValues([[]], InQuery.ORACLE_MAX_LIST_SIZE)
         then:
         assertThat choppedList[0][0], hasSize(0)
     }
