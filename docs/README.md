@@ -55,7 +55,8 @@ And then a data loading tool based on Spring Batch is available as [transmart-ba
 
 ## 3. Setup configuration
 
-**tranSMART API Server** is configured in the [application.yml file](../transmart-api-server/grails-app/conf/application.yml). The settings, especially for the database connection and Keycloak identity provider, can be overwritten by an external file. See the [description](../transmart-api-server#configure-transmart-to-accept-tokens-from-keycloak) of how to create and use the external file.
+**tranSMART API Server** is configured in the [application.yml file](../transmart-api-server/grails-app/conf/application.yml). The settings, especially for the database connection and [Keycloak](https://www.keycloak.org/) identity provider, should be overwritten by an external file. See the [transmart-api-server documentation](../transmart-api-server#configure-transmart-to-accept-tokens-from-keycloak) on how to create and use the external file.
+Setting it up Keycloak requires [just a few steps](../transmart-api-server#how-to-set-up-authentication-for-the-api-server).
 
 
 **tranSMART Server** requires a configuration file to be generated in `~/.grails/transmartConfig`.
@@ -100,6 +101,12 @@ Or in development mode with:
 cd transmart-server
 grails run-app
 ```
+For the API Server, the location of the configuration file needs to be passed on the command line:
+```
+gradle :transmart-api-server:assemble
+java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server/build/libs/transmart-server-17.1-SNAPSHOT.war
+```
+
 
 ### From a Nexus repository
 
@@ -142,7 +149,3 @@ sudo apt-get update
 sudo apt-get install transmart-r
 ```
 For `yum`, use the following repository url with `gpgcheck=0`: `https://repo.thehyve.nl/content/repositories/releases`.
-
-### tranSMART API Server:
-
-tranSMART API Server requires an external identity provider - [Keycloak](https://www.keycloak.org/). Setting it up requires [just a few steps](../transmart-api-server#how-to-set-up-authentication-for-the-api-server).
