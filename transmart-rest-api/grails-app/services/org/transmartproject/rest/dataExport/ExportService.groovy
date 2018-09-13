@@ -1,6 +1,7 @@
 package org.transmartproject.rest.dataExport
 
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.multidimquery.datatable.TableConfig
@@ -20,6 +21,7 @@ import java.util.zip.ZipOutputStream
 
 @Transactional
 @Component("restExportService")
+@CompileStatic
 class ExportService {
 
     @Autowired
@@ -39,7 +41,7 @@ class ExportService {
         }
     }
 
-    def downloadFile(AsyncJobCoreDb job) {
+    InputStream downloadFile(AsyncJobCoreDb job) {
         if (job.jobStatus != JobStatus.COMPLETED.value) {
             throw new InvalidRequestException("Job with a name is not completed. Current status: '$job.jobStatus'")
         }
@@ -48,11 +50,11 @@ class ExportService {
         return exportJobExecutor.getExportJobFileStream(job.viewerURL)
     }
 
-    def exportData(Map jobDataMap, String fileName, ZipOutputStream output) {
+    void exportData(Map jobDataMap, String fileName, ZipOutputStream output) {
 
-        List<ExportElement> dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList
-        User user = jobDataMap.user
-        Constraint constraint = jobDataMap.constraint
+        def dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList as List<ExportElement>
+        def user = jobDataMap.user as User
+        def constraint = jobDataMap.constraint as Constraint
 
         dataTypeAndFormatList.each { element ->
             if (element.dataType != 'clinical') {
@@ -62,15 +64,15 @@ class ExportService {
                 throw new InvalidRequestException("Export for ${element.format} format is not supported.")
             }
             try {
-                switch(element.dataView) {
+                switch (element.dataView) {
                     case DataView.DATA_TABLE:
-                        TableConfig tableConfig = jobDataMap.tableConfig
+                        def tableConfig = jobDataMap.tableConfig as TableConfig
                         dataTableViewDataSerializationService.writeTableToTsv(constraint, tableConfig, user, output)
                         break
                     case DataView.SURVEY_TABLE:
                         DataRetrievalParameters parameters = new DataRetrievalParameters(
                                 constraint: constraint,
-                                includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns,
+                                includeMeasurementDateColumns: jobDataMap.includeMeasurementDateColumns as Boolean,
                                 exportFileName: fileName
                         )
                         surveyTableViewDataSerializationService.writeClinical(element.format, parameters, user, output)
