@@ -181,7 +181,7 @@ class ExportController {
     def dataFormats() {
         checkForUnsupportedParams(params, ['constraint'])
 
-        render dataFormats: ['clinical'] as JSON
+        respond dataFormats: ['clinical']
     }
 
     /**
@@ -198,7 +198,7 @@ class ExportController {
         }
         def fileFormats = restExportService.getSupportedFormats(view)
 
-        render fileFormats: fileFormats as JSON
+        respond fileFormats: fileFormats
     }
 
     @CompileStatic
