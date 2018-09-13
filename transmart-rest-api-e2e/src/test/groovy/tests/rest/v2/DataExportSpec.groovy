@@ -372,7 +372,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers["${fileName}_spss/data.tsv"] == 15
-        filesLineNumbers["${fileName}_spss/data.sps"] == 92
+        filesLineNumbers["${fileName}_spss/data.sps"] == 93
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
@@ -426,7 +426,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file ${fileName}_spss/${fileName}.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers["${fileName}_spss/data.tsv"] == 15
-        filesLineNumbers["${fileName}_spss/data.sps"] == 92
+        filesLineNumbers["${fileName}_spss/data.sps"] == 93
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
@@ -473,7 +473,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file ${fileName}_spss/${fileName}.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers["${fileName}_spss/data.tsv"] == 4
-        filesLineNumbers["${fileName}_spss/data.sps"] == 41
+        filesLineNumbers["${fileName}_spss/data.sps"] == 42
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
