@@ -5,6 +5,7 @@ import grails.transaction.Rollback
 import grails.util.Holders
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.query.Negation
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.SubscriptionFrequency
@@ -68,14 +69,14 @@ class UserQuerySetServiceSpec extends Specification {
         def query2Representation = new UserQueryRepresentation()
         query2Representation.with {
             name = 'test query 2'
-            patientsQuery = new TrueConstraint()
+            patientsQuery = new Negation(new TrueConstraint())
             observationsQuery = null
             apiVersion = 'v2_test'
             bookmarked = false
             subscribed = true
             subscriptionFreq = SubscriptionFrequency.WEEKLY
         }
-        def query2 = userQueryService.create(query2Representation, regularUser)
+        userQueryService.create(query2Representation, regularUser)
 
         then: 'two query set instances have been created'
         def querySets = QuerySet.list()
@@ -86,7 +87,7 @@ class UserQuerySetServiceSpec extends Specification {
             assert querySet.setSize == 0
         }
 
-        // TODO: add new data
+        TestData.createHypercubeDefault().saveAll()
 
         when: 'admin user triggers computing query diffs'
         def result = userQuerySetService.scan()
@@ -95,15 +96,14 @@ class UserQuerySetServiceSpec extends Specification {
         querySetElements = QuerySetInstance.list()
         def setDiffs = QuerySetDiff.list()
 
-        then: 'no changes have been made'
-        // check number of updated queries (number of created sets)
-        result == 0
+        then: 'only one query got a new patient'
+        result == 1
         // check query history
-        querySetChanges.size() == 1
-        querySetElements.size() == 0
+        querySetChanges.size() == 2
+        querySetElements.size() == 1
 
-        setDiffs.size() == 0
-        setDiffs.count { it.changeFlag == ChangeFlag.ADDED } == 0
+        setDiffs.size() == 1
+        setDiffs.count { it.changeFlag == ChangeFlag.ADDED } == 1
         setDiffs.count { it.changeFlag == ChangeFlag.REMOVED } == 0
 
         when: 'checking querySet changes for an email with daily updates'
@@ -111,7 +111,7 @@ class UserQuerySetServiceSpec extends Specification {
                 .getQueryChangeHistoryByUsernameAndFrequency(SubscriptionFrequency.DAILY, regularUser.username, 20)
 
         then: 'No elements found to be send in the daily email'
-        resultForDailySubscription.size() == 0
+        resultForDailySubscription.size() == 1
 
         when: 'checking querySet changes for the email with weekly updates'
         def resultForWeeklySubscription = userQuerySetService
