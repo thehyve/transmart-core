@@ -56,7 +56,7 @@ class UserQuerySetServiceSpec extends Specification {
         when: 'two queries are saved with subscription'
         def noExecQueryRepresentation = new UserQueryRepresentation()
         noExecQueryRepresentation.with {
-            name = 'must not executre this query'
+            name = 'must not execute this query'
             patientsQuery = new TrueConstraint()
             observationsQuery = new TrueConstraint()
             apiVersion = 'v2_test'
