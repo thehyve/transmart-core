@@ -54,6 +54,19 @@ class UserQuerySetServiceSpec extends Specification {
         Holders.config.org.transmartproject.notifications.enabled = true
 
         when: 'two queries are saved with subscription'
+        def noExecQueryRepresentation = new UserQueryRepresentation()
+        noExecQueryRepresentation.with {
+            name = 'must not executre this query'
+            patientsQuery = new TrueConstraint()
+            observationsQuery = new TrueConstraint()
+            apiVersion = 'v2_test'
+            bookmarked = true
+            subscribed = true
+            subscriptionFreq = SubscriptionFrequency.DAILY
+        }
+        userQueryService.create(noExecQueryRepresentation, new SimpleUser(username: 'removed-from-idm-user',
+                studyToPatientDataAccessLevel: [:]))
+
         def query1Representation = new UserQueryRepresentation()
         query1Representation.with {
             name = 'test query 1'
@@ -81,7 +94,8 @@ class UserQuerySetServiceSpec extends Specification {
         then: 'two query set instances have been created'
         def querySets = QuerySet.list()
         def querySetElements = QuerySetInstance.list()
-        querySets.size() == 2
+        int querySetsBeforeScan = 3
+        querySets.size() == querySetsBeforeScan
         querySetElements.size() == 0
         for (def querySet : querySets) {
             assert querySet.setSize == 0
@@ -91,6 +105,7 @@ class UserQuerySetServiceSpec extends Specification {
 
         when: 'admin user triggers computing query diffs'
         def result = userQuerySetService.scan()
+        def querySetsNumber = QuerySet.count()
         def querySetChanges = userQuerySetService.getQueryChangeHistory(query1.id,
                 regularUser, 999)
         querySetElements = QuerySetInstance.list()
@@ -98,6 +113,7 @@ class UserQuerySetServiceSpec extends Specification {
 
         then: 'only one query got a new patient'
         result == 1
+        querySetsNumber == querySetsBeforeScan + 1
         // check query history
         querySetChanges.size() == 2
         querySetElements.size() == 1
