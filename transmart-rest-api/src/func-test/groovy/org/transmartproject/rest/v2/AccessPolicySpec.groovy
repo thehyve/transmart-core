@@ -360,7 +360,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -382,7 +382,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -401,7 +401,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -420,7 +420,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -439,7 +439,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s2sUser, publicUser]
@@ -460,7 +460,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         rowConstraints     | columnConstraints  | subjectConstraint
@@ -483,7 +483,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         url << [
@@ -506,7 +506,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -563,7 +563,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -583,7 +583,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
     }
 
