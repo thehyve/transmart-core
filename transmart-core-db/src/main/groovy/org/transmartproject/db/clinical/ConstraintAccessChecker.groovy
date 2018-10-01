@@ -135,36 +135,37 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
 
     @Override
     Void build(ConceptConstraint constraint) {
-        Concept concept
         if (constraint.path) {
-            try {
-                concept = conceptsResource.getConceptByConceptPath(constraint.path)
-            } catch (NoSuchResourceException e) {
-                throw new AccessDeniedException("Access denied for ${user.username} user to concept path: ${constraint.path}")
-            }
-            if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
-                throw new AccessDeniedException("Access denied for ${user.username} user to concept path: ${constraint.path}")
-            }
+            checkConceptAccessByPath(constraint.path)
         } else if (constraint.conceptCodes) {
             for (String conceptCode: constraint.conceptCodes) {
-                try {
-                    concept = conceptsResource.getConceptByConceptCode(conceptCode)
-                } catch (NoSuchResourceException e) {
-                    throw new AccessDeniedException("Access denied for ${user.username} user to concept code: ${conceptCode}")
-                }
-                if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
-                    throw new AccessDeniedException("Access denied for ${user.username} user to concept code: ${conceptCode}")
-                }
+                checkConceptAccessByCode(conceptCode)
             }
         } else {
-            try {
-                concept = conceptsResource.getConceptByConceptCode(constraint.conceptCode)
-            } catch (NoSuchResourceException e) {
-                throw new AccessDeniedException("Access denied for ${user.username} user to concept code: ${constraint.conceptCode}")
-            }
-            if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
-                throw new AccessDeniedException("Access denied for ${user.username} user to concept code: ${constraint.conceptCode}")
-            }
+            checkConceptAccessByCode(constraint.conceptCode)
+        }
+        return
+    }
+
+    protected void checkConceptAccessByCode(String conceptCode) {
+        Concept concept = null
+        try {
+            concept = conceptsResource.getConceptByConceptCode(conceptCode)
+        } catch (NoSuchResourceException e) {}
+        if (!concept || !legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
+            throw new AccessDeniedException(
+                    "Access denied for ${user.username} user to concept code or it does not exist: ${conceptCode}")
+        }
+    }
+
+    protected void checkConceptAccessByPath(String conceptPath) {
+        Concept concept = null
+        try {
+            concept = conceptsResource.getConceptByConceptPath(conceptPath)
+        } catch (NoSuchResourceException e) {}
+        if (!concept || !legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
+            throw new AccessDeniedException(
+                    "Access denied for ${user.username} user to concept path or it does not exist: ${conceptPath}")
         }
     }
 
