@@ -11,7 +11,6 @@ import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
-import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.userquery.*
 import org.transmartproject.core.users.User
@@ -82,7 +81,7 @@ class UserQuerySetService implements UserQuerySetResource {
                 if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
                     numberOfResults++
                 }
-            } catch (NoSuchResourceException e) {
+            } catch (Exception e) {
                 log.error "Could not compute updates for user query ${query.id}", e
             }
         }

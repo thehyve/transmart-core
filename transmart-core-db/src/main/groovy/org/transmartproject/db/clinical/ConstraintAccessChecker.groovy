@@ -123,7 +123,7 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
         if (constraint.patientSetId) {
             QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
             if (queryResult == null || !legacyAuthorisationChecks.hasAccess(user, queryResult)) {
-                throw new AccessDeniedException("Access denied to patient set or patient set does not exist: ${constraint.patientSetId}")
+                throw new AccessDeniedException("Access denied for ${user.username} user to patient set or patient set does not exist: ${constraint.patientSetId}")
             }
         }
     }
@@ -135,36 +135,37 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
 
     @Override
     Void build(ConceptConstraint constraint) {
-        Concept concept
         if (constraint.path) {
-            try {
-                concept = conceptsResource.getConceptByConceptPath(constraint.path)
-            } catch (NoSuchResourceException e) {
-                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
-            }
-            if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
-                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
-            }
+            checkConceptAccessByPath(constraint.path)
         } else if (constraint.conceptCodes) {
             for (String conceptCode: constraint.conceptCodes) {
-                try {
-                    concept = conceptsResource.getConceptByConceptCode(conceptCode)
-                } catch (NoSuchResourceException e) {
-                    throw new AccessDeniedException("Access denied to concept code: ${conceptCode}")
-                }
-                if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
-                    throw new AccessDeniedException("Access denied to concept code: ${conceptCode}")
-                }
+                checkConceptAccessByCode(conceptCode)
             }
         } else {
-            try {
-                concept = conceptsResource.getConceptByConceptCode(constraint.conceptCode)
-            } catch (NoSuchResourceException e) {
-                throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
-            }
-            if (!legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
-                throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
-            }
+            checkConceptAccessByCode(constraint.conceptCode)
+        }
+        return
+    }
+
+    protected void checkConceptAccessByCode(String conceptCode) {
+        Concept concept = null
+        try {
+            concept = conceptsResource.getConceptByConceptCode(conceptCode)
+        } catch (NoSuchResourceException e) {}
+        if (!concept || !legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
+            throw new AccessDeniedException(
+                    "Access denied for ${user.username} user to concept code or it does not exist: ${conceptCode}")
+        }
+    }
+
+    protected void checkConceptAccessByPath(String conceptPath) {
+        Concept concept = null
+        try {
+            concept = conceptsResource.getConceptByConceptPath(conceptPath)
+        } catch (NoSuchResourceException e) {}
+        if (!concept || !legacyAuthorisationChecks.canAccessConcept(user, requiredAccessLevel, concept)) {
+            throw new AccessDeniedException(
+                    "Access denied for ${user.username} user to concept path or it does not exist: ${conceptPath}")
         }
     }
 
@@ -173,14 +174,14 @@ class ConstraintAccessChecker extends ConstraintBuilder<Void> {
     Void build(StudyNameConstraint constraint) {
         def study = Study.findByStudyId(constraint.studyId) as MDStudy
         if (study == null || !authorisationChecks.canReadPatientData(user, requiredAccessLevel, study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.studyId}")
+            throw new AccessDeniedException("Access denied for ${user.username} user to study or study does not exist: ${constraint.studyId}")
         }
     }
 
     @Override
     Void build(StudyObjectConstraint constraint) {
         if (constraint.study == null || !authorisationChecks.canReadPatientData(user, requiredAccessLevel, constraint.study)) {
-            throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.study?.name}")
+            throw new AccessDeniedException("Access denied for ${user.username} user to study or study does not exist: ${constraint.study?.name}")
         }
     }
 
