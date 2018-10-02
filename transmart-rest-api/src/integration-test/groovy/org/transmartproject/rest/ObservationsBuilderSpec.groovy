@@ -59,11 +59,11 @@ class ObservationsBuilderSpec extends Specification {
         Constraint constraint = new StudyNameConstraint(studyId: 'longitudinal study')
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
         def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
-        def builder = new HypercubeJsonSerializer()
+        def out = new ByteArrayOutputStream()
+        def builder = new HypercubeJsonSerializer(mockedCube, out)
 
         when:
-        def out = new ByteArrayOutputStream()
-        builder.write(mockedCube, out)
+        builder.write()
         out.flush()
         def result = new JsonSlurper().parse(out.toByteArray())
         def declarations = result.dimensionDeclarations
@@ -92,11 +92,11 @@ class ObservationsBuilderSpec extends Specification {
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
         def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
         def patientDimension = DimensionImpl.PATIENT
-        def builder = new HypercubeProtobufSerializer()
+        def s_out = new ByteArrayOutputStream()
+        def builder = new HypercubeProtobufSerializer(mockedCube, s_out, packedDimension: patientDimension)
 
         when:
-        def s_out = new ByteArrayOutputStream()
-        builder.write(mockedCube, s_out, packedDimension: patientDimension)
+        builder.write()
         s_out.flush()
         def data = s_out.toByteArray()
 
@@ -157,11 +157,11 @@ class ObservationsBuilderSpec extends Specification {
         Constraint constraint = new StudyNameConstraint(studyId: 'longitudinal study')
         def args = new DataRetrievalParameters(constraint: constraint, sort: [new SortSpecification(dimension: 'patient')])
         def mockedCube = queryResource.retrieveData(args, 'clinical', adminUser)
-        def builder = new HypercubeProtobufSerializer()
+        def s_out = new ByteArrayOutputStream()
+        def builder = new HypercubeProtobufSerializer(mockedCube, s_out)
 
         when:
-        def s_out = new ByteArrayOutputStream()
-        builder.write(mockedCube, s_out)
+        builder.write()
         s_out.flush()
         def data = s_out.toByteArray()
 
