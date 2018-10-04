@@ -14,16 +14,18 @@ class DimensionsPgSpec extends Specification {
     def 'studyDim.resolveElements guarantees order'() {
         expect:
         resolveElementsGuaranteesOrder(DimensionImpl.STUDY, [
-                -20,
-                -31,
-                -30,
-                -22,
-                -27,
-                -28,
-                -23,
-                -29,
-                -21,
-        ].collect { it.toLong()})
+                'CATEGORICAL_VALUES',
+                'CLINICAL_TRIAL',
+                'CLINICAL_TRIAL_HIGHDIM',
+                'EHR',
+                'EHR_HIGHDIM',
+                'MIX_HD',
+                'SURVEY2',
+                'ORACLE_1000_PATIENT',
+                'RNASEQ_TRANSCRIPT',
+                'TUMOR_NORMAL_SAMPLES',
+                'SURVEY1'
+        ])
     }
 
     def 'conceptDim.resolveElements guarantees order'() {
