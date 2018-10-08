@@ -1,6 +1,6 @@
 include ../../../makefile.inc
 
-PG_BITCOUNT_VERSION = 0.0.1
+PG_BITCOUNT_VERSION = 0.0.3
 
 TBNAMES = transmart \
           indx
