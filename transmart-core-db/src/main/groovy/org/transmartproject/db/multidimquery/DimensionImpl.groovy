@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.*
 import org.apache.commons.lang.NotImplementedException
-import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
@@ -28,6 +27,8 @@ import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
+
+import java.util.function.Supplier
 
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.DENSE
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.SPARSE
@@ -198,10 +199,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         assert (elementFields == null) == serializable
     }
 
-    static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
-        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
+    static List<ELT> resolveWithInQuery(Supplier<HibernateCriteriaBuilder> builderProducer, List<ELKey> elementKeys, String property = 'id') {
+        List res = InQuery.listIn(builderProducer, property, elementKeys)
         sort(res, elementKeys, property)
-        res
+        res as List<ELT>
     }
 
     static void sort(List res, List<ELKey> elementKeys, String property) {
@@ -326,7 +327,7 @@ trait CompositeElemDim<ELT,ELKey> {
                     "$elementKeys")
         } else if (resultSize < keysSize) {
             throw new DataInconsistencyException("Unable to find ${this.class.simpleName} elements for all keys, this" +
-                    " may be a database inconsitency.\nkeys: $elementKeys\nelements: $results")
+                    " may be a database inconsistency.\nkeys: $elementKeys\nelements: $results")
         } else { // resultSize > keysSize
             throw new DataInconsistencyException("Duplicate ${this.class.simpleName} elements found. Elements must " +
                     "have unique keys. keys: $elementKeys")
@@ -574,23 +575,10 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String columnName = 'patient.id'
     String keyProperty = 'id'
 
-    // FIXME: do not rely on hardcoded id source
-    final static String SOURCE_SUBJECT_KEY = 'SUBJ_ID'
-
-    // For patients there are several identifiers. The internal `id` is guaranteed unique, but only meaningful within
-    // the TM database. `inTrialId` and `subjectIds[SOURCE_SUBJECT_KEY]` are external identifiers, but therefore are
-    // not guaranteed to be unique, but they are much more useful for users. `subjectIds[SOURCE_SUBJECT_KEY]` is the
-    // newer way so that is preferred over `inTrialId` if it is available.
+    // For patients there are several identifiers. The internal `id` is guaranteed unique.
     @Override def getKey(element) {
         def patient = (I2B2PatientDimension) element
-        def source_subj_id = patient.subjectIds[SOURCE_SUBJECT_KEY]
-        if(source_subj_id) {
-            return "${patient.id}/$source_subj_id".toString()
-        } else if (patient.inTrialId) {
-            return "${patient.id}/${patient.trial}:${patient.inTrialId}".toString()
-        } else {
-            return patient.id
-        }
+        return patient.id
     }
 
     @Override def selectIDs(Query query) {
@@ -601,7 +589,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
 
     @CompileDynamic
     @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
+        resolveWithInQuery({ -> I2B2PatientDimension.createCriteria() as HibernateCriteriaBuilder }, elementKeys)
     }
 }
 
@@ -621,7 +609,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 
     @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
-        resolveWithInQuery(I2b2ConceptDimensions.createCriteria(), elementKeys, columnName)
+        resolveWithInQuery({ -> I2b2ConceptDimensions.createCriteria() as HibernateCriteriaBuilder }, elementKeys, columnName)
     }
 }
 
@@ -637,12 +625,12 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     @CompileDynamic
     @Override
     List<TrialVisit> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
+        resolveWithInQuery({ -> TrialVisit.createCriteria() as HibernateCriteriaBuilder}, elementKeys)
     }
 }
 
 @CompileStatic @InheritConstructors
-class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeElemDim<MDStudy, Long> {
+class StudyDimension extends I2b2Dimension<MDStudy, String> implements CompositeElemDim<MDStudy, String> {
     Class elemType = MDStudy
     List elemFields = ["name"]
     String name = 'study'
@@ -655,14 +643,16 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     def selectIDs(Query query) {
         query.criteria.with {
             trialVisit {
-                property 'study.id', alias
+                study {
+                    property 'studyId', alias
+                }
             }
         }
     }
 
     @CompileDynamic
-    @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
+    @Override List<MDStudy> doResolveElements(List<String> elementKeys) {
+        resolveWithInQuery({ -> I2B2Study.createCriteria() as HibernateCriteriaBuilder}, elementKeys, 'studyId')
     }
     @Override
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
@@ -673,7 +663,6 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
         dimensionCriteria.createAlias('trialVisits', 'trialVisits')
         dimensionCriteria.add(Subqueries.propertyIn('trialVisits.id', criteria))
         dimensionCriteria
-
     }
 
     @Override

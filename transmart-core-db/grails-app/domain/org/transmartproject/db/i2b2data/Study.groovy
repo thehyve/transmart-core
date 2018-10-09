@@ -30,7 +30,7 @@ class Study implements MDStudy {
     static final String PUBLIC = 'PUBLIC'
 
     /**
-     * String label (optional)
+     * Unique study name
      * E.g., GSE8581.
      */
     String studyId

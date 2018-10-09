@@ -83,18 +83,18 @@ class SurveyTableColumnService {
     }
 
     VariableMetadata getStudyVariableMetadata(HypercubeDataColumn originalColumn) {
-        def study = studiesResource.getStudyById((Long)originalColumn.coordinates[DimensionImpl.STUDY])
+        def study = studiesResource.getStudyByStudyId((String)originalColumn.coordinates[DimensionImpl.STUDY])
         def conceptCode = (String)originalColumn.coordinates[DimensionImpl.CONCEPT]
         study.metadata?.conceptCodeToVariableMetadata?.get(conceptCode)
     }
 
     ImmutableList<MetadataAwareDataColumn> getMetadataAwareColumns(List<HypercubeDataColumn> columns) {
         boolean includeMeasurementDateColumns = columns.any {
-            Long studyId = (Long) it.coordinates[DimensionImpl.STUDY]
+            String studyId = (String) it.coordinates[DimensionImpl.STUDY]
             if (!studyId) {
                 return false
             }
-            MDStudy study = studiesResource.getStudyById(studyId)
+            MDStudy study = studiesResource.getStudyByStudyId(studyId)
             DimensionImpl.START_TIME in study.dimensions
         }
         getMetadataAwareColumns(columns, includeMeasurementDateColumns)
@@ -196,7 +196,7 @@ class SurveyTableColumnService {
                 if (counts.observationCount > 0 || counts.patientCount > 0) {
                     ImmutableMap<Dimension, Object> coordinates = ImmutableMap.builder()
                             .put((Dimension) DimensionImpl.CONCEPT, (Object) conceptCode)
-                            .put((Dimension) DimensionImpl.STUDY, (Object) studiesResource.getStudyByStudyId(studyId).id)
+                            .put((Dimension) DimensionImpl.STUDY, (Object) studiesResource.getStudyByStudyId(studyId).name)
                             .build()
                     columns.add(new HypercubeDataColumn(coordinates))
                 }
@@ -354,7 +354,7 @@ class SurveyTableColumnService {
         for (StudyConceptPair studyConceptPair: studyConceptPairs) {
             ImmutableMap<Dimension, Object> coordinates = ImmutableMap.builder()
                     .put((Dimension)DimensionImpl.CONCEPT, (Object)studyConceptPair.conceptCode)
-                    .put((Dimension)DimensionImpl.STUDY, (Object)studyConceptPair.study.id)
+                    .put((Dimension)DimensionImpl.STUDY, (Object)studyConceptPair.study.name)
                     .build()
             columns.add(new HypercubeDataColumn(coordinates))
         }

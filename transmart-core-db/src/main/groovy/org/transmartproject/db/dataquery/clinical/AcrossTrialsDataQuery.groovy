@@ -77,7 +77,7 @@ class AcrossTrialsDataQuery {
             def hibDetachedCriteria = HibernateCriteriaBuilder.getHibernateDetachedCriteria(null, patients.forIds())
             criteriaBuilder.add(Subqueries.propertyIn('patient.id', hibDetachedCriteria))
         } else {
-            InQuery.addIn(criteriaBuilder, 'patient', patients)
+            InQuery.addIn(criteriaBuilder, 'patient', patients.toList())
         }
 
         InQuery.addIn(criteriaBuilder, 'modifierCd', clinicalVariables*.code).scroll ScrollMode.FORWARD_ONLY
@@ -106,14 +106,15 @@ class AcrossTrialsDataQuery {
             }
         }
 
-        def builder = ModifierDimensionView.createCriteria()
+        HibernateCriteriaBuilder builder = (HibernateCriteriaBuilder)ModifierDimensionView.createCriteria()
         builder.with {
             projections {
                 property 'path'
                 property 'code'
             }
         }
-        def res = InQuery.addIn(builder, 'path', conceptPaths.keySet()).list()
+        builder
+        def res = InQuery.addIn(builder, 'path', conceptPaths.keySet().toList()).list()
 
         for (modifier in res) {
             String path = modifier[0],

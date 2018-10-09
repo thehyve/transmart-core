@@ -5,10 +5,14 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import com.opencsv.CSVReader
 import groovy.transform.CompileStatic
+import org.transmartproject.core.multidimquery.PagingDataTable
 import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.multidimquery.SortSpecification
 import org.transmartproject.core.multidimquery.datatable.DataTable
+import org.transmartproject.core.multidimquery.datatable.PaginationParameters
+import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.multidimquery.export.ExportJob
+import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry
@@ -274,7 +278,7 @@ class DataTableSpec extends RESTSpec {
         exportData[2] == ['', '', 'Normal', 'Tumor', 'Normal', 'Tumor', 'Normal', 'Tumor']
 
         // Patient TNS:63
-        exportData[3][0] == '-63/TNS:63'
+        exportData[3][0] == '-63'
         new BigDecimal(exportData[3][1]).compareTo(new BigDecimal('40')) == 0
         exportData[3][2] == ''
         exportData[3][3] == 'sample3'
@@ -284,7 +288,7 @@ class DataTableSpec extends RESTSpec {
         new BigDecimal(exportData[3][7]).compareTo(new BigDecimal('100')) == 0
 
         // Patient TNS:43
-        exportData[5][0] == '-43/TNS:43'
+        exportData[5][0] == '-43'
         new BigDecimal(exportData[5][1]).compareTo(new BigDecimal('52')) == 0
         exportData[5][2] == 'sample9'
         exportData[5][3] == ''
@@ -293,6 +297,37 @@ class DataTableSpec extends RESTSpec {
         new BigDecimal(exportData[5][6].split(';')[0]).compareTo(new BigDecimal('380')) == 0
         new BigDecimal(exportData[5][6].split(';')[1]).compareTo(new BigDecimal('240')) == 0
         new BigDecimal(exportData[5][7]).compareTo(new BigDecimal('28')) == 0
+    }
+
+    // Only the dimension elements contained in the current page needs to be sent,
+    // instead of all dimensions elements for the complete query.
+    @RequiresStudy(ORACLE_1000_PATIENT_ID)
+    def 'test data table pagination'() {
+        given: 'the admin user, study constraint for 1000 patients'
+        def params = [
+                constraint      : ['type': 'study_name', 'studyId': 'ORACLE_1000_PATIENT'],
+                type            : 'clinical',
+                rowDimensions   : ['study', 'patient'],
+                columnDimensions: ['concept'],
+                limit           : 10
+        ]
+        def request = [
+                path      : PATH_TABLE,
+                acceptType: JSON,
+                user      : ADMIN_USER,
+                body      : params
+        ]
+
+        when: 'for that study I get all observations in table format'
+        def responseData = post(request)
+        DataTable page = toObject(responseData, DataTable)
+
+        then: 'the result should be limited to 10 rows and associated dimension elements'
+        page.rowDimensions.collect { it.name } == ['study', 'patient']
+        page.columnDimensions.collect { it.name } == ['concept']
+        page.rows.size() == 10
+        def patientDimension = page.rowDimensions.find { it.name == 'patient'}
+        patientDimension.elements.size() <= 10
     }
 
 }

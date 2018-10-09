@@ -15,7 +15,7 @@ import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.crosstable.CrossTableRequest
 import org.transmartproject.core.multidimquery.datatable.DataTable
 import org.transmartproject.core.multidimquery.datatable.DataTableRequest
-import org.transmartproject.core.multidimquery.datatable.DimensionRequest
+import org.transmartproject.core.multidimquery.datatable.Dimension
 import org.transmartproject.core.multidimquery.export.ExportElement
 import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
 import org.transmartproject.core.multidimquery.export.Format
@@ -123,24 +123,23 @@ class AccessPolicySpec extends V2ResourceSpec {
         checkResponseStatus(response, OK, user)
         DataTable result = toObject(response, DataTable)
         result.columnDimensions.size() == 2
-        DimensionRequest studyDim = result.columnDimensions.find { it.name == 'study' }
-        Set<String> studyIds = studyDim.elements.keySet()
+        Dimension studyDim = result.columnDimensions.find { it.name == 'study' }
+        def studyIds = studyDim.elements.keySet() as Set<String>
         studyIds == expectedStudies as Set<String>
-        DimensionRequest patientDim = result.rowDimensions.find { it.name == 'patient' }
-        patientDim.elements.keySet() == expectedSubjects as Set<String>
-        Set<String> subjectsFromRowHeaders = result.rows.collect { row -> row.rowHeaders.find { el -> el.dimension == 'patient' }.key } as Set<String>
-        subjectsFromRowHeaders == expectedSubjects as Set<String>
+        Dimension patientDim = result.rowDimensions.find { it.name == 'patient' }
+        patientDim.elements.keySet().collect{ it as Long } as Set<Long> == expectedSubjects as Set<Long>
+        def subjectsFromRowHeaders = result.rows.collect { row -> row.rowHeaders.find { el -> el.dimension == 'patient' }.key } as Set<Long>
+        subjectsFromRowHeaders == expectedSubjects as Set<Long>
 
         where:
         user       | expectedStudies                     | expectedSubjects
-        admin      | ['study1', 'study2', 'publicStudy'] | ['1/Subject 1', '2/Subject 2', '3/Subject 3', '4/Subject from public study']
-        s1mUser    | ['study1', 'publicStudy']           | ['1/Subject 1', '2/Subject 2', '4/Subject from public study']
-        s1sS2sUser | ['publicStudy']                     | ['4/Subject from public study']
-        s1ctUser   | ['publicStudy']                     | ['4/Subject from public study']
-        s2sUser    | ['publicStudy']                     | ['4/Subject from public study']
-        publicUser | ['publicStudy']                     | ['4/Subject from public study']
+        admin      | ['study1', 'study2', 'publicStudy'] | [1L, 2L, 3L, 4L]
+        s1mUser    | ['study1', 'publicStudy']           | [1L, 2L, 4L]
+        s1sS2sUser | ['publicStudy']                     | [4L]
+        s1ctUser   | ['publicStudy']                     | [4L]
+        s2sUser    | ['publicStudy']                     | [4L]
+        publicUser | ['publicStudy']                     | [4L]
     }
-
 
     @Unroll
     void 'test aggregates (POST .../observations/aggregates_per_concept) for #user.username.'() {

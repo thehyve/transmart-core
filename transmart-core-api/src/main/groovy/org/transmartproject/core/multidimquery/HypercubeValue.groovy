@@ -44,8 +44,6 @@ interface HypercubeValue {
      * Get the dimension element's key. Each dimension  element has a key that uniquely identifies it. This key is
      * always a 'simple' object, i.e. a number, String, or Date.
      *
-     * TODO: Do we need this method?
-     *
      * @param dim the dimension
      * @return the dimension element's key value
      * @throws IllegalArgumentException if dim is not part of this Hypercube
