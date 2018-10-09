@@ -19,9 +19,11 @@
 package org.transmartproject.rest
 
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
+import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
@@ -30,19 +32,24 @@ import org.transmartproject.rest.serialization.*
 import org.transmartproject.core.multidimquery.export.Format
 
 @Transactional
+@CompileStatic
 class HypercubeDataSerializationService extends AbstractDataResourceService {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
 
-    @Autowired
-    PatientSetResource patientSetService
-
-    Map<Format, HypercubeSerializer> formatToSerializer = [
-            (Format.JSON)    : new HypercubeJsonSerializer(),
-            (Format.PROTOBUF): new HypercubeProtobufSerializer()
-    ]
-            .withDefault { Format format -> throw new UnsupportedOperationException("Unsupported format: ${format}") }
+    void writeToFormat(Format format, Hypercube cube, OutputStream out) {
+        switch (format) {
+            case Format.JSON:
+                new HypercubeJsonSerializer(cube, out).write()
+                break
+            case Format.PROTOBUF:
+                new HypercubeProtobufSerializer(cube, out).write()
+                break
+            default:
+                throw new UnsupportedOperationException("Unsupported format: ${format}")
+        }
+    }
 
     /**
      * Write clinical data to the output stream
@@ -62,7 +69,7 @@ class HypercubeDataSerializationService extends AbstractDataResourceService {
 
         try {
             log.info "Writing to format: ${format}"
-            formatToSerializer[format].write(hypercube, out, dataType: 'clinical')
+            writeToFormat(format, hypercube, out)
         } finally {
             hypercube.close()
         }
@@ -82,7 +89,7 @@ class HypercubeDataSerializationService extends AbstractDataResourceService {
     void writeHighdim(Format format,
                       String type,
                       Constraint assayConstraint,
-                      Constraint biomarkerConstraint,
+                      BiomarkerConstraint biomarkerConstraint,
                       String projection,
                       User user,
                       OutputStream out) {
@@ -91,7 +98,7 @@ class HypercubeDataSerializationService extends AbstractDataResourceService {
 
         try {
             log.info "Writing to format: ${format}"
-            formatToSerializer[format].write(hypercube, out, dataType: type)
+            writeToFormat(format, hypercube, out)
         } finally {
             hypercube.close()
         }
