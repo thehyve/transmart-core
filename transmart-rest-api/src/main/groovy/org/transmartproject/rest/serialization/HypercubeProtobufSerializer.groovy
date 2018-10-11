@@ -19,7 +19,7 @@ import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
 @Slf4j
 @CompileStatic
-class HypercubeProtobufSerializer extends HypercubeSerializer {
+class HypercubeProtobufSerializer {
 
     protected Hypercube cube
     protected Dimension packedDimension
@@ -30,6 +30,19 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     private List<Dimension> inlineDims
     private List<Dimension> indexedDims
 
+    /**
+     * Creates a hypercube serializer.
+     *
+     * @param cube the hypercube to serialize.
+     * @param out the stream to write to.
+     * @param args a map with optional parameters.
+     */
+    HypercubeProtobufSerializer(Map args = [:], Hypercube cube, OutputStream out) {
+        this.cube = cube
+        this.out = out
+        this.packedDimension = (Dimension) args.packedDimension
+        this.packingEnabled = packedDimension != null
+    }
 
     protected List<DimensionDeclaration> getDimensionsDefs() {
         cube.dimensions.collect { Dimension dim ->
@@ -291,12 +304,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         Error.newBuilder().setError(error).build()
     }
 
-    void write(Map args, Hypercube cube, OutputStream out) {
-        this.cube = cube
-        this.out = out
-        this.packedDimension = (Dimension) args.packedDimension
-        this.packingEnabled = packedDimension != null
-
+    void write() {
         this.iterator = cube.iterator()
         this.inlineDims = cube.dimensions.findAll { it != packedDimension && !it.density.isDense }
         this.indexedDims = cube.dimensions.findAll { it != packedDimension && it.density.isDense }

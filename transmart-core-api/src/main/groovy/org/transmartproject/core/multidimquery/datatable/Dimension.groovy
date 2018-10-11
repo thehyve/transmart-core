@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 @Canonical
-class DimensionRequest {
+class Dimension {
     String name
-    Map<String, Object> elements
+    Map<Object, Object> elements
 }

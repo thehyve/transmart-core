@@ -52,7 +52,7 @@ import java.time.Instant
  * Serializes a {@link Hypercube} to JSON format.
  */
 @CompileStatic
-class HypercubeJsonSerializer extends HypercubeSerializer {
+class HypercubeJsonSerializer {
 
     /**
      * Contains information about a field of a dimension
@@ -96,6 +96,20 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
 
     protected Hypercube cube
     protected JsonWriter writer
+
+    /**
+     * Creates a hypercube serializer.
+     *
+     * @param cube the hypercube to serialize.
+     * @param out the stream to write to.
+     */
+    HypercubeJsonSerializer(Hypercube cube, OutputStream out) {
+        this.cube = cube
+        this.writer = new JsonWriter(new BufferedWriter(
+                new OutputStreamWriter(out),
+                // large 32k chars buffer to reduce overhead
+                32*1024))
+    }
 
     /**
      * Begins the output message.
@@ -318,15 +332,8 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      * First the header is written ({@link #writeHeader}, then the cells serializing
      * the values in the cube ({@link #writeCells}), then the footer containing referenced objects
      * (@link #writeFooter).
-     *
-     * @param out the stream to write to.
      */
-    void write(Map args, Hypercube cube, OutputStream out) {
-        this.cube = cube
-        this.writer = new JsonWriter(new BufferedWriter(
-                new OutputStreamWriter(out),
-                // large 32k chars buffer to reduce overhead
-                32*1024))
+    void write() {
         begin()
         writeHeader()
         writeCells()

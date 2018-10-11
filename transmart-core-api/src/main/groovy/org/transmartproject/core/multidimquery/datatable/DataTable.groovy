@@ -8,8 +8,8 @@ import org.transmartproject.core.multidimquery.SortSpecification
 @Canonical
 class DataTable {
     List<ColumnHeader> columnHeaders
-    List<DimensionRequest> rowDimensions
-    List<DimensionRequest> columnDimensions
+    List<Dimension> rowDimensions
+    List<Dimension> columnDimensions
     Integer rowCount
     List<Row> rows
     Integer offset
