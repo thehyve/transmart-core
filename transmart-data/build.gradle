@@ -74,6 +74,7 @@ downloadR.dependsOn 'createVars'
 distTar.dependsOn 'downloadR'
 
 task generateRequiredFiles << {
+    make('-C ddl/postgres extension_sources')
     make('-C ddl/postgres drivers')
     make('-C ddl/oracle drivers')
     make('-C data/common makefiles')

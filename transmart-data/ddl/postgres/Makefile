@@ -90,6 +90,9 @@ load_global:
 pg_bitcount_extension:
 	$(MAKE) -C GLOBAL pg_bitcount_extension
 
+extension_sources:
+	$(MAKE) -C GLOBAL pg_bitcount_sources
+
 load_cross: $(wildcard */_cross.sql)
 	#before executing _cross.sql, execute SET statements from prelude
 	$(foreach cf,$?, { grep SET $(patsubst %/_cross.sql,%/prelude.sql,$(cf)); \
