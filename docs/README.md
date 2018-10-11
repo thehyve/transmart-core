@@ -65,15 +65,16 @@ Scripts to generate the configuration are shipped with
 
 Either use the sources in this repository (`transmart-core/transmart-data`),
 or fetch `transmart-data` from a Nexus repository:
-```
-mvn dependency:get -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/
-mvn dependency:unpack -Dartifact=org.transmartproject:transmart-data:17.1-SNAPSHOT:tar -DoutputDirectory=.
+```bash
+TRANSMART_VERSION=17.1-HYVE-5.2
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-data/${TRANSMART_VERSION}/transmart-data-${TRANSMART_VERSION}.tar -o transmart-data-${TRANSMART_VERSION}.tar && \
+tar xf transmart-data-${TRANSMART_VERSION}.tar 
 ```
 To generate the configuration, please consult the documentation of [transmart-data](../transmart-data).
 Once a correct `vars` file has been created, the configuration can be generated and installed
 with these commands (requires `php`):
 ```bash
-pushd transmart-data-17.1-SNAPSHOT
+pushd transmart-data-${TRANSMART_VERSION}
 source vars
 make -C config install
 popd
@@ -91,10 +92,10 @@ To build the project, run:
 ```
 gradle :transmart-server:assemble
 ```
-This should create the file `transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war`.
+This should create the file `transmart-server/build/libs/transmart-server-17.1-HYVE-5-SNAPSHOT.war`.
 Run it in production mode with:
 ```
-java -jar transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war
+java -jar transmart-server/build/libs/transmart-server-17.1-HYVE-5-SNAPSHOT.war
 ```
 Or in development mode with:
 ```
@@ -104,7 +105,7 @@ grails run-app
 For the API Server, the location of the configuration file needs to be passed on the command line:
 ```
 gradle :transmart-api-server:assemble
-java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server/build/libs/transmart-server-17.1-SNAPSHOT.war
+java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server/build/libs/transmart-server-17.1-HYVE-5-SNAPSHOT.war
 ```
 
 
@@ -114,11 +115,20 @@ Deployment artefacts are published to [the Nexus repository of The Hyve](https:/
 
 To fetch and run `transmart-server`:
 ```bash
-# Fetch artefacts using Maven
-mvn dependency:get -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/,https://repo.grails.org/grails/core
-mvn dependency:copy -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DoutputDirectory=.
+# Fetch artefacts from Maven
+TRANSMART_VERSION=17.1-HYVE-5.2
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-server-${TRANSMART_VERSION}.war -o transmart-server-${TRANSMART_VERSION}.war && \
 # Run it with:
-java -jar transmart-server-17.1-SNAPSHOT.war
+java -jar transmart-server-${TRANSMART_VERSION}.war
+```
+
+To fetch and run `transmart-api-server`:
+```bash
+# Fetch artefacts from Maven
+TRANSMART_VERSION=17.1-HYVE-5.2
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-api-server-${TRANSMART_VERSION}.war -o transmart-api-server-${TRANSMART_VERSION}.war && \
+# Run it with:
+java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server-${TRANSMART_VERSION}.war
 ```
 
 
@@ -130,11 +140,12 @@ java -jar transmart-server-17.1-SNAPSHOT.war
 to fetch it from a Nexus repository. 
 These instructions are using downloaded binaries, see the documentation of [transmart-data](../transmart-data) if you want 
 to use the sources. 
-Note that `Rserve` and `Solr` are not necessarily needed for a development installation.
+Note that `Rserve` and `Solr` are not necessarily needed for a development installation and 
+that they are not used by `transmart-api-server`.
 
 Start `Solr`:
 ```bash
-pushd transmart-data-17.1-SNAPSHOT/solr
+pushd transmart-data-17.1-HYVE-5.2/solr
 java -jar start.jar &
 popd
 ```

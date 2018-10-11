@@ -6,11 +6,11 @@ only substituting indexes for database identifiers for subjects, trial visits an
 
 ### Download
 The latest version can be downloaded here:
-[transmart-copy.jar](https://github.com/thehyve/transmart-core/releases/download/v17.1-rc.X/transmart-copy-17.1-RCX.jar).
+[transmart-copy-17.1-HYVE-5.2.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-5.2/transmart-copy-17.1-HYVE-5.2.jar).
 
 ```bash
 # Download transmart-copy
-curl -L https://github.com/thehyve/transmart-core/releases/download/v17.1-rc.X/transmart-copy-17.1-RCX.jar -o transmart-copy.jar
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-5.2/transmart-copy-17.1-HYVE-5.2.jar -o transmart-copy.jar
 ```
 
 ### Usage
