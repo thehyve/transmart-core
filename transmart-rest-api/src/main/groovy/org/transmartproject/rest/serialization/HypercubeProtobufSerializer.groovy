@@ -14,6 +14,7 @@ import org.transmartproject.rest.hypercubeProto.ObservationsProto.SortOrder as P
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
 
 import javax.annotation.Nonnull
+import java.time.Instant
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
@@ -95,8 +96,10 @@ class HypercubeProtobufSerializer {
         if (value.value != null) {
             if (value.value instanceof Number) {
                 builder.numericValue = ((Number) value.value).doubleValue()
+            } else if (value.value instanceof Date) {
+                builder.stringValue = Instant.ofEpochMilli(((Date) value.value).time).toString()
             } else {
-                builder.stringValue = value.value
+                builder.stringValue = value.value.toString()
             }
         }
         for (int i=0; i<indexedDims.size(); i++) {

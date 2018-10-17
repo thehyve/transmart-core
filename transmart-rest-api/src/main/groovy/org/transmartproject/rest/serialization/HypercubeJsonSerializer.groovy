@@ -158,6 +158,8 @@ class HypercubeJsonSerializer {
         if (value.value != null) {
             if (value.value instanceof Number) {
                 cell.numericValue = (Double) value.value
+            } else if (value.value instanceof Date) {
+                cell.stringValue = Instant.ofEpochMilli(((Date) value.value).time).toString()
             } else {
                 cell.stringValue = value.value.toString()
             }
