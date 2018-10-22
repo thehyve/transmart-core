@@ -78,10 +78,10 @@ clean:
 clean_generated: clean
 	rm -f roles.sql
 
-postgresql-server-dev-all:
+postgresql-server-dev-$(PGVERSION):
 	@if [ `uname` = "Linux" ]; then \
 	    if [ -f "/etc/debian_version" ]; then \
-            sudo apt -y install gcc postgresql-server-dev-all; \
+            sudo apt -y install gcc postgresql-server-dev-$(PGVERSION); \
         else \
             sudo yum -y install gcc postgresql-devel; \
         fi \
@@ -97,7 +97,7 @@ pg_bitcount-$(PG_BITCOUNT_VERSION): pg_bitcount-$(PG_BITCOUNT_VERSION).tar.gz
 
 pg_bitcount_sources: pg_bitcount-$(PG_BITCOUNT_VERSION).tar.gz
 
-install_pg_bitcount: pg_bitcount-$(PG_BITCOUNT_VERSION) postgresql-server-dev-all
+install_pg_bitcount: pg_bitcount-$(PG_BITCOUNT_VERSION) postgresql-server-dev-$(PGVERSION)
 	$(MAKE) -C pg_bitcount-$(PG_BITCOUNT_VERSION) $(PGCONFIG_PARAMS)
 	sudo $(MAKE) -C pg_bitcount-$(PG_BITCOUNT_VERSION) $(PGCONFIG_PARAMS) install
 
