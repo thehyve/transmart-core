@@ -78,6 +78,9 @@ clean:
 clean_generated: clean
 	rm -f roles.sql
 
+# Check if variable PGVERSION is declared, otherwise make it all
+PGVERSION ?= all
+
 postgresql-server-dev-$(PGVERSION):
 	@if [ `uname` = "Linux" ]; then \
 	    if [ -f "/etc/debian_version" ]; then \
