@@ -1,10 +1,11 @@
 package org.transmartproject.db.userqueries
 
 import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.transaction.NotTransactional
+import grails.transaction.Transactional
 import grails.util.Holders
-import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Negation
 import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.userquery.ChangeFlag
@@ -13,6 +14,8 @@ import org.transmartproject.core.userquery.UserQueryRepresentation
 import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
+import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.querytool.Query
 import org.transmartproject.db.querytool.QuerySet
 import org.transmartproject.db.querytool.QuerySetDiff
 import org.transmartproject.db.querytool.QuerySetInstance
@@ -20,7 +23,6 @@ import org.transmartproject.db.user.MockUsersResource
 import spock.lang.Specification
 
 @Integration
-@Rollback
 class UserQuerySetServiceSpec extends Specification {
 
     @Autowired
@@ -29,17 +31,13 @@ class UserQuerySetServiceSpec extends Specification {
     @Autowired
     UserQuerySetService userQuerySetService
 
-    @Autowired
-    SessionFactory sessionFactory
-
     User regularUser
     User adminUser
 
     MockUsersResource mockUsersResource
 
-    void setupData() {
-        TestData.prepareCleanDatabase()
-
+    void setup() {
+        assert prepareCleanDatabase()
         regularUser = new SimpleUser('fake-user', 'Fake user', 'gijs+user@thehyve.nl', false, [:])
         adminUser = new SimpleUser('admin', 'Administrator', 'gijs+admin@thehyve.nl', true, [:])
         mockUsersResource = new MockUsersResource()
@@ -48,15 +46,20 @@ class UserQuerySetServiceSpec extends Specification {
         userQuerySetService.usersResource = mockUsersResource
     }
 
+    void cleanup() {
+        clearData()
+    }
+
+    @NotTransactional
+    //To make sure transaction does not propagate on the scan (testee) method
     void 'test scanning for query set changes'() {
         given: 'subscription is enabled'
-        setupData()
         Holders.config.org.transmartproject.notifications.enabled = true
 
-        when: 'two queries are saved with subscription'
+        when: 'three queries are saved with subscription'
         def noExecQueryRepresentation = new UserQueryRepresentation()
         noExecQueryRepresentation.with {
-            name = 'must not execute this query'
+            name = 'fail on scan query'
             patientsQuery = new TrueConstraint()
             observationsQuery = new TrueConstraint()
             apiVersion = 'v2_test'
@@ -64,8 +67,8 @@ class UserQuerySetServiceSpec extends Specification {
             subscribed = true
             subscriptionFreq = SubscriptionFrequency.DAILY
         }
-        userQueryService.create(noExecQueryRepresentation, new SimpleUser(username: 'removed-from-idm-user',
-                studyToPatientDataAccessLevel: [:]))
+        noExecQueryRepresentation = userQueryService.create(noExecQueryRepresentation, regularUser)
+        modifyQueryToFail(noExecQueryRepresentation.id) //modify query that would fail on scan
 
         def query1Representation = new UserQueryRepresentation()
         query1Representation.with {
@@ -89,11 +92,11 @@ class UserQuerySetServiceSpec extends Specification {
             subscribed = true
             subscriptionFreq = SubscriptionFrequency.WEEKLY
         }
-        userQueryService.create(query2Representation, regularUser)
+        userQueryService.create(query2Representation, adminUser)
 
         then: 'two query set instances have been created'
-        def querySets = QuerySet.list()
-        def querySetElements = QuerySetInstance.list()
+        def querySets = getAllQuerySet()
+        def querySetElements = getAllQuerySetInstance()
         int querySetsBeforeScan = 3
         querySets.size() == querySetsBeforeScan
         querySetElements.size() == 0
@@ -101,17 +104,17 @@ class UserQuerySetServiceSpec extends Specification {
             assert querySet.setSize == 0
         }
 
-        TestData.createHypercubeDefault().saveAll()
+        loadData()
 
         when: 'admin user triggers computing query diffs'
         def result = userQuerySetService.scan()
-        def querySetsNumber = QuerySet.count()
+        def querySetsNumber = getAllQuerySet().size()
         def querySetChanges = userQuerySetService.getQueryChangeHistory(query1.id,
                 regularUser, 999)
-        querySetElements = QuerySetInstance.list()
-        def setDiffs = QuerySetDiff.list()
+        querySetElements = getAllQuerySetInstance()
+        def setDiffs = getAllQuerySetDiffs()
 
-        then: 'only one query got a new patient'
+        then: 'Only one query got a new patient. The failing query did not stop the process.'
         result == 1
         querySetsNumber == querySetsBeforeScan + 1
         // check query history
@@ -136,6 +139,45 @@ class UserQuerySetServiceSpec extends Specification {
         then: 'No elements found to be send in the weekly email'
         resultForWeeklySubscription.size() == 0
 
+    }
+
+    @Transactional
+    boolean prepareCleanDatabase() {
+        TestData.prepareCleanDatabase()
+        return ObservationFact.count() == 0
+    }
+
+    @Transactional
+    void clearData() {
+        TestData.clearData()
+    }
+
+    @Transactional
+    boolean loadData() {
+        TestData.createHypercubeDefault().saveAll()
+        return ObservationFact.count() > 0
+    }
+
+    @Transactional
+    List<QuerySetDiff> getAllQuerySetDiffs() {
+        return QuerySetDiff.list()
+    }
+
+    @Transactional
+    List<QuerySetInstance> getAllQuerySetInstance() {
+        return QuerySetInstance.list()
+    }
+
+    @Transactional
+    List<QuerySet> getAllQuerySet() {
+        return QuerySet.list()
+    }
+
+    @Transactional
+    boolean modifyQueryToFail(Long queryId) {
+        def query = Query.get(queryId)
+        query.patientsQuery = new ConceptConstraint(conceptCode: 'UNEXISTENT').toJson()
+        return query.save(flush: true, failOnError: true)
     }
 
 }

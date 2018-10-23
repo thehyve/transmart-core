@@ -154,12 +154,16 @@ class TestData {
     }
 
     static void prepareCleanDatabase() {
+        clearData()
+
+        new Dictionaries().saveAll()
+    }
+
+    static void clearData() {
         def session = Holders.applicationContext.getBean(SessionFactory).currentSession
         truncateTables(session, getAllTables(session))
 
         SystemResource systemResource = Holders.applicationContext.getBean(SystemResource)
         systemResource.clearCaches()
-
-        new Dictionaries().saveAll()
     }
 }
