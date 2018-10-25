@@ -267,9 +267,13 @@ class AggregateDataService extends AbstractDataResourceService {
             long timePoint = System.currentTimeMillis()
             log.debug("Updating counts for ${user.username} query with ${userQuery.id} (${bookmarkedUserQueries.size()}).")
             Constraint patientQueryConstraint = userQuery.patientsQuery
-            rebuildCountsCacheForConstraint(patientQueryConstraint, user)
-            long cachingTookInMsek = System.currentTimeMillis() - timePoint
-            log.debug("Updating counts for ${user.username} query with ${userQuery.id} took ${cachingTookInMsek} ms.")
+            try {
+                rebuildCountsCacheForConstraint(patientQueryConstraint, user)
+                long cachingTookInMsek = System.currentTimeMillis() - timePoint
+                log.debug("Updating counts for ${user.username} query with ${userQuery.id} took ${cachingTookInMsek} ms.")
+            } catch (Exception e) {
+                log.error("Can't build cache for result of the user query with id=${userQuery.id}", e)
+            }
         }
         log.info("Done with updating counts cache for bookmarked queries of ${user.username} user.")
     }
