@@ -131,6 +131,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         valuesRow.stream().map({value ->
             if (value == null) return ''
             if (value instanceof Date) {
+                // TODO remove the hardcoded date format
                 synchronized (DATE_FORMAT) {
                     DATE_FORMAT.format(value)
                 }
@@ -260,12 +261,14 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             case VariableDataType.NUMERIC:
                 return 'F' + (metadata.width ?: '') + (metadata.decimals ? '.' + metadata.decimals : '')
             case VariableDataType.DATE:
+            case VariableDataType.DATETIME:
+                def typeName = type.name()
                 def width = metadata.width
                 if (!width || width < 17 || width > 40) {
-                    log.warn "Invalid width for DATETIME type: ${width}."
+                    log.warn "Invalid width for ${typeName} type: ${width}."
                     width = 22
                 }
-                return 'DATETIME' + (width ?: '')
+                return typeName + (width ?: '')
             case VariableDataType.STRING:
                 return 'A' + (metadata.width ?: '255')
             default: throw new UnsupportedOperationException()
