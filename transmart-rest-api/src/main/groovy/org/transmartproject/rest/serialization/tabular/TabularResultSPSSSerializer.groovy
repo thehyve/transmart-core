@@ -27,7 +27,8 @@ import java.util.zip.ZipOutputStream
 class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
-    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy hh:mm")
+    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd")
+    private final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
 
     private final static toSpssLabel(String label) {
         label?.replaceAll(/[^a-zA-Z0-9_.]/, '_')
@@ -133,6 +134,7 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
             if (value instanceof Date) {
                 // TODO remove the hardcoded date format
                 synchronized (DATE_FORMAT) {
+                    DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"))
                     DATE_FORMAT.format(value)
                 }
             } else {
