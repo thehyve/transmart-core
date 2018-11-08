@@ -50,7 +50,7 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
         then: 'counts present for all studies in the system'
         (allStudyids - counts.keySet()).empty
         then: 'for the given study all concept are represented'
-        counts['SURVEY1'].size() == 7
+        counts['SURVEY1'].size() == 8
         then: 'patient count per study per concept is correct'
         counts['SURVEY1']['gender'].patientCount == 14
     }
