@@ -1,6 +1,7 @@
 gender	\Demographics\Gender\	Gender							A
 height	\Demographics\Height\	Height							
 birthdate	\Demographics\Birth Date\	Birth Date							
+deathdate	\Demographics\Death Date\	Death Date							
 description	\General\Description\	Description							
 favouritebook	\Interests\Favourite Book\	Favourite Book							
 sport	\Interests\Sport\	Sport							

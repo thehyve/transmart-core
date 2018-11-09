@@ -27,7 +27,8 @@ import java.util.zip.ZipOutputStream
 class TabularResultSPSSSerializer implements TabularResultSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
-    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy hh:mm")
+    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy")
+    private final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss")
 
     private final static toSpssLabel(String label) {
         label?.replaceAll(/[^a-zA-Z0-9_.]/, '_')
@@ -121,23 +122,52 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         Iterator<DataRow> rows = tabularResult.rows
         while (rows.hasNext()) {
             DataRow row = rows.next()
-            List<Object> valuesRow = columns.stream().map({ DataColumn column -> row[column] }).collect(Collectors.toList())
-            csvWriter.writeNext(formatRowValues(valuesRow))
+            String[] formattedValuesRow = getFormattedValuesRow(columns, row)
+            csvWriter.writeNext(formattedValuesRow)
         }
         csvWriter.flush()
     }
 
-    private String[] formatRowValues(List<Object> valuesRow) {
-        valuesRow.stream().map({value ->
-            if (value == null) return ''
-            if (value instanceof Date) {
-                synchronized (DATE_FORMAT) {
-                    DATE_FORMAT.format(value)
-                }
-            } else {
-                value.toString()
-            }
+    private String[] getFormattedValuesRow(ImmutableList<DataColumn> columns, DataRow row) {
+        columns.stream().map({ DataColumn column ->
+            getFormattedValue(column, row)
         }).collect(Collectors.toList()).toArray(new String[0])
+    }
+
+    private String getFormattedValue(DataColumn column, DataRow row) {
+        VariableMetadata metadata = getColumnMetadata(column)
+        def value = row[column]
+        return formatRowValue(value, metadata)
+    }
+
+    private static VariableMetadata getColumnMetadata(DataColumn column) {
+        if (column instanceof MetadataAwareDataColumn && ((MetadataAwareDataColumn)column).metadata) {
+            return ((MetadataAwareDataColumn)column).metadata
+        } else {
+            return null
+        }
+    }
+
+    private String formatRowValue(Object value, VariableMetadata metadata) {
+        if (value == null)
+            return ''
+        else if (value instanceof Date) {
+            return formatDateRowValue((Date)value, metadata)
+        } else {
+            return value.toString()
+        }
+    }
+
+    private String formatDateRowValue(Date value, VariableMetadata metadata) {
+        if (metadata.type == VariableDataType.DATE) {
+            synchronized (DATE_FORMAT) {
+                return DATE_FORMAT.format(value)
+            }
+        } else {
+            synchronized (DATETIME_FORMAT) {
+                return DATETIME_FORMAT.format(value)
+            }
+        }
     }
 
     static writeSpsFile(List<DataColumn> columnList,
@@ -256,18 +286,20 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         if (!type) {
             throw new IllegalArgumentException("Variable has to have a type specified.")
         }
+        def width = metadata.width
         switch (type) {
             case VariableDataType.NUMERIC:
-                return 'F' + (metadata.width ?: '') + (metadata.decimals ? '.' + metadata.decimals : '')
+                return 'F' + (width ?: '') + (metadata.decimals ? '.' + metadata.decimals : '')
             case VariableDataType.DATE:
-                def width = metadata.width
-                if (!width || width < 17 || width > 40) {
-                    log.warn "Invalid width for DATETIME type: ${width}."
+            case VariableDataType.DATETIME:
+                def typeName = type.name()
+                if (!width || width < 10 || width > 40) {
+                    log.warn "Invalid width for ${typeName} type: ${width}."
                     width = 22
                 }
-                return 'DATETIME' + (width ?: '')
+                return typeName + (width ?: '')
             case VariableDataType.STRING:
-                return 'A' + (metadata.width ?: '255')
+                return 'A' + (width ?: '255')
             default: throw new UnsupportedOperationException()
         }
     }
@@ -301,6 +333,8 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         this.workingDir = WorkingDirectory.createDirectoryUser(user, 'transmart-sav-', '-tmpdir')
         this.fileName = fileName
         this.spssDirectoryName = "${fileName}_spss"
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"))
+        DATETIME_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"))
     }
 
     @Override
