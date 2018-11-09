@@ -57,9 +57,16 @@ class StudyMetadata {
     }
 
     private static VariableMetadata toVariableMetadata(Object json) {
+        def type = json.type?.toUpperCase() as VariableDataType
+        def missingValues
+        if (type == VariableDataType.NUMERIC) {
+            missingValues = toNumericMissingValues(json.missingValues)
+        } else {
+            missingValues = toMissingValues(json.missingValues)
+        }
         new VariableMetadata(
                 name: json.name,
-                type: json.type?.toUpperCase() as VariableDataType,
+                type: type,
                 measure: json.measure?.toUpperCase() as Measure,
                 description: json.description,
                 width: json.width as Integer,
@@ -67,12 +74,12 @@ class StudyMetadata {
                 valueLabels: json.valueLabels?.collectEntries { String key, String value ->
                     [new BigDecimal(key.trim()), value]
                 } ?: [:],
-                missingValues: toMissingValues(json.missingValues),
+                missingValues: missingValues,
                 columns: json.columns as Integer
         )
     }
 
-    private static toMissingValues(json) {
+    private static toNumericMissingValues(json) {
         if (json == null) {
             return null
         }
@@ -85,6 +92,21 @@ class StudyMetadata {
         new MissingValues(
                 upper: json.upper as BigDecimal,
                 lower: json.lower as BigDecimal,
+                values: values,
+        )
+    }
+
+    private static toMissingValues(json) {
+        if (json == null) {
+            return null
+        }
+        List values = []
+        if (json.value) {
+            values.add(json.value)
+        } else if (json.values) {
+            json.values.each { values.add(it) }
+        }
+        new MissingValues(
                 values: values,
         )
     }

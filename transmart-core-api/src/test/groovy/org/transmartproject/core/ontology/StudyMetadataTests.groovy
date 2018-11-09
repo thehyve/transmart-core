@@ -135,11 +135,12 @@ class StudyMetadataTests {
     }
 
     @Test
-    void testQuotedMissingValues() {
+    void testQuotedMissingNumericValues() {
         def jsonText = """
             {
                 "conceptCodeToVariableMetadata": {
-                    "test": {  
+                    "test": {
+                       "type":"Numeric",
                        "missingValues":{"values": ["-2.0", "-3.2"]}
                     }
                 }
@@ -201,6 +202,28 @@ class StudyMetadataTests {
                 hasProperty('rowDimensions', hasItems('patient', "study")),
                 hasProperty('columnDimensions', hasItems('concept', "trial visit"))
         ))
+    }
+
+    @Test
+    void testStringMissingValues() {
+        def jsonText = """
+            {
+                "conceptCodeToVariableMetadata": {
+                    "test": {
+                       "missingValues": {"values":["None"]}
+                    }
+                }
+            }
+        """
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+
+        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'),
+                hasProperty('missingValues', allOf(
+                        hasProperty('upper', nullValue()),
+                        hasProperty('lower', nullValue()),
+                        hasProperty('values', equalTo(["None"])))
+                )))
     }
 
 }
