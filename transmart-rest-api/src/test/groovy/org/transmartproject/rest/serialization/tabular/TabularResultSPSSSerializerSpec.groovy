@@ -212,6 +212,43 @@ class TabularResultSPSSSerializerSpec extends Specification {
         'column1 \'1\' \'val\'\'1\' \'2\' \'val\'\'2\'' in valLabels
     }
 
+    def 'new lines escaping'() {
+        def user = Mock(User)
+        user.getUsername() >> { 'test' }
+        ByteArrayOutputStream bout = new ByteArrayOutputStream()
+        def out = new ZipOutputStream(bout)
+        def table = Mock(TabularResult)
+        def column1 = Mock(MetadataAwareValueFetchingDataColumn)
+        column1.label >> 'column1'
+        column1.metadata >> new VariableMetadata(
+                type: VariableDataType.STRING,
+                width: 30,
+                columns: 40,
+                measure: Measure.NOMINAL,
+                description: 'string variable',
+        )
+        def columns = ImmutableList.copyOf([column1] as List<DataColumn>)
+        table.indicesList >> [column1]
+        def row1 = Mock(HypercubeDataRow)
+        row1.getAt(column1) >> "this string contains line break\nin the middle"
+        List<DataRow> rows = [row1]
+        table.rows >> rows.iterator()
+
+        when: 'producing tsv files '
+        new TabularResultSPSSSerializer(user, out, columns, 'testFile')
+                .writeValues(columns, table, bout)
+        def bytes = new ByteArrayInputStream(bout.toByteArray())
+        def tsvReader = new CSVReaderBuilder(new InputStreamReader(bytes))
+                .withCSVParser(new CSVParserBuilder().withSeparator(AbstractTSVSerializer.COLUMN_SEPARATOR).build())
+                .build()
+        def lines = tsvReader.readAll()
+
+        then:
+        !lines.isEmpty()
+        lines.size() == 1
+        lines[0][0] == "this string contains line break in the middle"
+    }
+
     def 'missing values'() {
         def table = Mock(TabularResult)
         def column1 = Mock(MetadataAwareDataColumn)

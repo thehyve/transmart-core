@@ -154,8 +154,14 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
         else if (value instanceof Date) {
             return formatDateRowValue((Date)value, metadata)
         } else {
-            return value.toString()
+            return toStringWithoutNewLineChar(value)
         }
+    }
+
+    private static String toStringWithoutNewLineChar(value) {
+        // in pspp the end of a line always separates fields, regardless of DELIMITERS
+        // so field with new line char, even surrounded by qualifier, breaks the sav file
+        value.toString().replaceAll("\r", "").replaceAll("\n", " ")
     }
 
     private String formatDateRowValue(Date value, VariableMetadata metadata) {
