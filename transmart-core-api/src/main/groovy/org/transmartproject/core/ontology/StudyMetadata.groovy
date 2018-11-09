@@ -79,24 +79,17 @@ class StudyMetadata {
         )
     }
 
-    private static toNumericMissingValues(json) {
-        if (json == null) {
-            return null
+    private static MissingValues toNumericMissingValues(json) {
+        MissingValues result = toMissingValues(json)
+        result.with {
+            values = values.collect { it as BigDecimal }
+            upper = json.upper as BigDecimal
+            lower =  json.lower as BigDecimal
         }
-        List<BigDecimal> values = []
-        if (json.value) {
-            values.add(json.value as BigDecimal)
-        } else if (json.values) {
-            json.values.each { values.add(it as BigDecimal) }
-        }
-        new MissingValues(
-                upper: json.upper as BigDecimal,
-                lower: json.lower as BigDecimal,
-                values: values,
-        )
+        return result
     }
 
-    private static toMissingValues(json) {
+    private static MissingValues toMissingValues(json) {
         if (json == null) {
             return null
         }
@@ -106,7 +99,7 @@ class StudyMetadata {
         } else if (json.values) {
             json.values.each { values.add(it) }
         }
-        new MissingValues(
+        return new MissingValues(
                 values: values,
         )
     }
