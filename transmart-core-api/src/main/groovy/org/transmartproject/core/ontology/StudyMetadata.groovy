@@ -57,9 +57,16 @@ class StudyMetadata {
     }
 
     private static VariableMetadata toVariableMetadata(Object json) {
+        def type = json.type?.toUpperCase() as VariableDataType
+        def missingValues
+        if (type == VariableDataType.NUMERIC) {
+            missingValues = toNumericMissingValues(json.missingValues)
+        } else {
+            missingValues = toMissingValues(json.missingValues)
+        }
         new VariableMetadata(
                 name: json.name,
-                type: json.type?.toUpperCase() as VariableDataType,
+                type: type,
                 measure: json.measure?.toUpperCase() as Measure,
                 description: json.description,
                 width: json.width as Integer,
@@ -67,24 +74,32 @@ class StudyMetadata {
                 valueLabels: json.valueLabels?.collectEntries { String key, String value ->
                     [new BigDecimal(key.trim()), value]
                 } ?: [:],
-                missingValues: toMissingValues(json.missingValues),
+                missingValues: missingValues,
                 columns: json.columns as Integer
         )
     }
 
-    private static toMissingValues(json) {
+    private static MissingValues toNumericMissingValues(json) {
+        MissingValues result = toMissingValues(json)
+        result.with {
+            values = values.collect { it as BigDecimal }
+            upper = json.upper as BigDecimal
+            lower =  json.lower as BigDecimal
+        }
+        return result
+    }
+
+    private static MissingValues toMissingValues(json) {
         if (json == null) {
             return null
         }
-        List<BigDecimal> values = []
+        List values = []
         if (json.value) {
-            values.add(json.value as BigDecimal)
+            values.add(json.value)
         } else if (json.values) {
-            json.values.each { values.add(it as BigDecimal) }
+            json.values.each { values.add(it) }
         }
-        new MissingValues(
-                upper: json.upper as BigDecimal,
-                lower: json.lower as BigDecimal,
+        return new MissingValues(
                 values: values,
         )
     }
