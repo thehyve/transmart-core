@@ -226,4 +226,21 @@ class StudyMetadataTests {
                 )))
     }
 
+    @Test
+    void testNoMissingNumericValuesSpecified() {
+        def jsonText = """
+            {
+                "conceptCodeToVariableMetadata": {
+                    "test": {
+                       "type":"Numeric"
+                    }
+                }
+            }
+        """
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'),
+                hasProperty('missingValues', nullValue())))
+    }
+
 }

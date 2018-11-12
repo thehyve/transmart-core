@@ -81,7 +81,7 @@ class StudyMetadata {
 
     private static MissingValues toNumericMissingValues(json) {
         MissingValues result = toMissingValues(json)
-        result.with {
+        result?.with {
             values = values.collect { it as BigDecimal }
             upper = json.upper as BigDecimal
             lower =  json.lower as BigDecimal
