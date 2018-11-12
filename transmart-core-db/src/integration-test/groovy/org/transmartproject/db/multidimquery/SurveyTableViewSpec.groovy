@@ -21,6 +21,7 @@ import org.transmartproject.db.user.User
 import spock.lang.Specification
 
 import static org.hamcrest.CoreMatchers.containsString
+import static org.hamcrest.CoreMatchers.equalTo
 import static org.transmartproject.core.ontology.Measure.NOMINAL
 import static org.transmartproject.core.ontology.Measure.SCALE
 import static org.transmartproject.core.ontology.VariableDataType.*
@@ -86,6 +87,7 @@ class SurveyTableViewSpec extends Specification {
         def rows = transformedView.rows.toList()
         then: 'content matches expectations'
         rows.size() == 14
+
         def secondSubjRow = rows.find { row ->  row[columns[0]] == '2' }
         secondSubjRow
         secondSubjRow[columns[0]] == '2'
@@ -98,6 +100,7 @@ class SurveyTableViewSpec extends Specification {
         secondSubjRow[columns[7]] == -2
         secondSubjRow[columns[8]] == null
         secondSubjRow[columns[13]] == '3'
+
         def firstSubjRow = rows.find { row ->  row[columns[0]] == '1' }
         firstSubjRow[columns[0]] == '1'
         firstSubjRow[columns[1]] == Date.parse('yyyy-MM-dd', '1980-08-12', UTC)
@@ -109,6 +112,9 @@ class SurveyTableViewSpec extends Specification {
         firstSubjRow[columns[7]] == 2
         firstSubjRow[columns[8]] == null
         firstSubjRow[columns[13]] == 10
+
+        def ninthSubjRow = rows.find { row ->  row[columns[0]] == '9' }
+        that ninthSubjRow[columns[5]] as String, equalTo('NA')
 
         when: 'do not include MeasurementDateColumn'
         includeMeasurementDateColumns = false

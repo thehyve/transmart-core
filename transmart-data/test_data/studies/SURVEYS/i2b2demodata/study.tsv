@@ -40,7 +40,8 @@
          ""type"":""String"",
          ""width"":400,
          ""columns"":400,
-         ""measure"":""Nominal""
+         ""measure"":""Nominal"",
+         ""missingValues"": {""values"":[""NA""]}
       },
       ""sport"": {  
          ""name"": ""sport"",
