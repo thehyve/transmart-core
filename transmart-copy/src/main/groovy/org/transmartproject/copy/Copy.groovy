@@ -160,9 +160,13 @@ class Copy implements AutoCloseable {
         def parser = new DefaultParser()
         try {
             CommandLine cl = parser.parse(options, args)
-            if (cl.hasOption('help') || !cl.options) {
+            if (!cl.options) {
                 printHelp()
-                return
+                System.exit(1)
+            }
+            if (cl.hasOption('help')) {
+                printHelp()
+                System.exit(0)
             }
             runCopy(cl, [:].withDefault { Object key -> System.getenv((String) key) })
         } catch (ParseException e) {

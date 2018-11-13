@@ -21,6 +21,7 @@ import org.transmartproject.db.user.User
 import spock.lang.Specification
 
 import static org.hamcrest.CoreMatchers.containsString
+import static org.hamcrest.CoreMatchers.equalTo
 import static org.transmartproject.core.ontology.Measure.NOMINAL
 import static org.transmartproject.core.ontology.Measure.SCALE
 import static org.transmartproject.core.ontology.VariableDataType.*
@@ -62,20 +63,22 @@ class SurveyTableViewSpec extends Specification {
         def transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns = transformedView.indicesList
-        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date',
-                           'gender1', 'gender1.date', 'nmultbab', 'nmultbab.date', 'nmultfam', 'nmultfam.date',
-                           'sport', 'sport.date', 'twin', 'twin.date']
+        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'deathdate1', 'deathdate1.date',
+                           'favouritebook', 'favouritebook.date', 'gender1', 'gender1.date', 'nmultbab', 'nmultbab.date',
+                           'nmultfam', 'nmultfam.date', 'sport', 'sport.date', 'twin', 'twin.date']
         then: 'columns metadata matches expectations'
         def metadata = columns*.metadata
-        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE, STRING, DATE, STRING, DATE, STRING, DATE, STRING, DATE]
-        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
-        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book',
+        metadata*.type == [NUMERIC, DATE, DATE, DATETIME, DATE, STRING, DATE, NUMERIC, DATE, STRING, DATE, STRING, DATE,
+                           STRING, DATE, STRING, DATE]
+        metadata*.measure == [SCALE, SCALE, SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL,
+                              SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
+        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Death Date', 'Date of measurement', 'Favourite Book',
                                   'Date of measurement', 'Gender', 'Date of measurement', 'Number of children that are multiplet',
                                   'Date of measurement', 'Numbers of multiples in family', 'Date of measurement',
                                   'How often do you do sport activities?', 'Date of measurement', 'Is a Twin', 'Date of measurement']
-        metadata*.width == [12, 22, 22, 400, 22, 12, 22, 25, 22, 25, 22, null, 22, 25, 22]
-        metadata*.decimals == [0, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
-        metadata*.columns == [12, 22, 22, 400, 22, 14, 22, 25, 22, 25, 22, null, 22, 25, 22]
+        metadata*.width == [12, 22, 22, 22, 22, 400, 22, 12, 22, 25, 22, 25, 22, null, 22, 25, 22]
+        metadata*.decimals == [0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+        metadata*.columns == [12, 22, 22, 22, 22, 400, 22, 14, 22, 25, 22, 25, 22, null, 22, 25, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
         height1Metadata.valueLabels == [(new BigDecimal(1)): 'Female', (new BigDecimal(2)): 'Male', (new BigDecimal(-2)): 'Not Specified']
         height1Metadata.missingValues.values == [new BigDecimal(-2)]
@@ -84,25 +87,34 @@ class SurveyTableViewSpec extends Specification {
         def rows = transformedView.rows.toList()
         then: 'content matches expectations'
         rows.size() == 14
+
         def secondSubjRow = rows.find { row ->  row[columns[0]] == '2' }
         secondSubjRow
         secondSubjRow[columns[0]] == '2'
-        secondSubjRow[columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1986-10-22 00:00:00', UTC)
+        secondSubjRow[columns[1]] == Date.parse('yyyy-MM-dd', '1986-10-22', UTC)
         secondSubjRow[columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2010-12-16 20:23:15')
-        that secondSubjRow[columns[3]] as String, containsString('Dostoyevsky')
-        secondSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
-        secondSubjRow[columns[5]] == -2
-        secondSubjRow[columns[6]] == null
-        secondSubjRow[columns[11]] == '3'
+        secondSubjRow[columns[3]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2001-09-01 05:30:05', UTC)
+        secondSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2010-12-16 20:23:15')
+        that secondSubjRow[columns[5]] as String, containsString('Dostoyevsky')
+        secondSubjRow[columns[6]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
+        secondSubjRow[columns[7]] == -2
+        secondSubjRow[columns[8]] == null
+        secondSubjRow[columns[13]] == '3'
+
         def firstSubjRow = rows.find { row ->  row[columns[0]] == '1' }
         firstSubjRow[columns[0]] == '1'
-        firstSubjRow[columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00', UTC)
+        firstSubjRow[columns[1]] == Date.parse('yyyy-MM-dd', '1980-08-12', UTC)
         firstSubjRow[columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2015-11-14 19:05:00')
-        that firstSubjRow[columns[3]] as String, containsString('Hofstadter')
-        firstSubjRow[columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
-        firstSubjRow[columns[5]] == 2
-        firstSubjRow[columns[6]] == null
-        firstSubjRow[columns[11]] == 10
+        firstSubjRow[columns[3]] == null
+        firstSubjRow[columns[4]] == null
+        that firstSubjRow[columns[5]] as String, containsString('Hofstadter')
+        firstSubjRow[columns[6]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
+        firstSubjRow[columns[7]] == 2
+        firstSubjRow[columns[8]] == null
+        firstSubjRow[columns[13]] == 10
+
+        def ninthSubjRow = rows.find { row ->  row[columns[0]] == '9' }
+        that ninthSubjRow[columns[5]] as String, equalTo('NA')
 
         when: 'do not include MeasurementDateColumn'
         includeMeasurementDateColumns = false
@@ -111,12 +123,12 @@ class SurveyTableViewSpec extends Specification {
         transformedView = new SurveyTableView(columnList, hypercube)
         then: 'header matches expectations'
         def columns2 = transformedView.indicesList
-        columns2*.label == ['FISNumber', 'birthdate1', 'favouritebook', 'gender1', 'nmultbab', 'nmultfam', 'sport', 'twin']
+        columns2*.label == ['FISNumber', 'birthdate1', 'deathdate1', 'favouritebook', 'gender1', 'nmultbab', 'nmultfam', 'sport', 'twin']
         then: 'columns metadata matches expectations'
         def metadata2 = columns2*.metadata
-        metadata2*.type == [NUMERIC, DATE, STRING, NUMERIC, STRING, STRING, STRING, STRING]
-        metadata2*.measure == [SCALE, SCALE, NOMINAL, NOMINAL, NOMINAL, NOMINAL, NOMINAL, NOMINAL]
-        metadata2*.description == ['FIS Number', 'Birth Date', 'Favourite Book', 'Gender', 'Number of children that are multiplet',
+        metadata2*.type == [NUMERIC, DATE, DATETIME, STRING, NUMERIC, STRING, STRING, STRING, STRING]
+        metadata2*.measure == [SCALE, SCALE, SCALE, NOMINAL, NOMINAL, NOMINAL, NOMINAL, NOMINAL, NOMINAL]
+        metadata2*.description == ['FIS Number', 'Birth Date', 'Death Date', 'Favourite Book', 'Gender', 'Number of children that are multiplet',
                                   'Numbers of multiples in family', 'How often do you do sport activities?', 'Is a Twin']
 
         cleanup:

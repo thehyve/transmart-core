@@ -621,8 +621,8 @@ class QueryServicePgSpec extends Specification {
         def values = data.collect { HypercubeValue value -> value.value as String }
 
         then:
-        counts.observationCount == 2
-        that values, hasSize(2)
+        counts.observationCount == 3
+        that values, hasSize(3)
         that values, hasItems(containsString('The Brothers Karamazov'), containsString('funny dialogues'))
     }
 
@@ -683,9 +683,11 @@ class QueryServicePgSpec extends Specification {
         def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
 
         then:
-        values.size() == 1
+        values.size() == 2
         values[0] instanceof Date
         values[0] == UTC_DATE_FORMAT.parse('1986-10-22 00:00:00')
+        values[1] instanceof Date
+        values[1] == UTC_DATE_FORMAT.parse('2001-09-01 05:30:05')
     }
 
     void 'test multiple subselect constraints'() {
@@ -714,7 +716,7 @@ class QueryServicePgSpec extends Specification {
         def multipleSubselectResult = multiDimService.retrieveClinicalData(multipleSubselectConstraint, user).asList()
 
         then: 'the combined subselect result match the results of the separate subselect queries'
-        subselectResult1.size() == 16
+        subselectResult1.size() == 20
         subselectResult2.size() == 15
         // in this case the selected patient sets (and, hence, the observation sets)
         // happen to be disjoint, so the result should equal to the sum of the separate queries

@@ -26,13 +26,22 @@
          ""columns"":22,
          ""measure"":""Scale""
       },
+      ""deathdate"": {
+         ""name"": ""deathdate1"",
+         ""description"": ""Death Date"",
+         ""type"":""DATETIME"",
+         ""width"":22,
+         ""columns"":22,
+         ""measure"":""Scale""
+      },
       ""favouritebook"": {  
          ""name"": ""favouritebook"",
          ""description"": ""Favourite Book"",
          ""type"":""String"",
          ""width"":400,
          ""columns"":400,
-         ""measure"":""Nominal""
+         ""measure"":""Nominal"",
+         ""missingValues"": {""values"":[""NA""]}
       },
       ""sport"": {  
          ""name"": ""sport"",
