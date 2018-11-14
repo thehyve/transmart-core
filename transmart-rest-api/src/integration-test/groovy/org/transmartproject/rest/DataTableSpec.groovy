@@ -107,4 +107,34 @@ class DataTableSpec extends Specification {
         (rows*.rowHeaders.collect{it[0].key} as Set).size() == rowDim[0].elements.size()
     }
 
+    void testDataTableSerializationWithVisitDim() {
+        setupData()
+        def dataType = 'clinical'
+        def rowDimensions = ['patient']
+        def columnDimensions = ['study', 'concept', 'visit']
+        def limit = 10
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.ehrStudy.studyId)
+        def tableConfig = new TableConfig(
+                rowSort: [new SortSpecification(dimension: 'patient')],
+                rowDimensions: rowDimensions,
+                columnDimensions: columnDimensions
+        )
+        def pagination = new PaginationParameters(limit: limit)
+        def dataTable = queryResource.retrieveDataTablePage(tableConfig, pagination, dataType, constraint, adminUser)
+
+        when:
+        def out = new ByteArrayOutputStream()
+        DataTableSerializer.write(dataTable, out)
+        out.flush()
+        def result = new JsonSlurper().parse(out.toByteArray())
+        def offset = result.offset
+        def columnHeaders = result.columnHeaders
+        def columnDim = result.columnDimensions
+
+        then:
+        offset == 0
+        columnHeaders[2].keys == ["1.00/-103", "2.00/-103", "3.00/-103"]
+        columnDim[2].elements.size() == 3
+    }
+
 }
