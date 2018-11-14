@@ -114,7 +114,7 @@ class PatientsSpec extends RESTSpec {
         then: "I get an access error"
         assert responseData.httpStatus == 403
         assert responseData.type == 'AccessDeniedException'
-        assert responseData.message == "Access denied to study or study does not exist: ${SHARED_CONCEPTS_RESTRICTED_ID}"
+        assert responseData.message.contains(SHARED_CONCEPTS_RESTRICTED_ID)
     }
 
     /**

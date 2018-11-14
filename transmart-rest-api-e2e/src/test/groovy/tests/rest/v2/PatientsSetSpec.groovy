@@ -167,7 +167,7 @@ class PatientsSetSpec extends RESTSpec {
         then: "I get a access error"
         assert responseData.httpStatus == 403
         assert responseData.type == 'AccessDeniedException'
-        assert responseData.message == "Access denied to patient set or patient set does not exist: ${setID}"
+        assert responseData.message.contains(setID.toString())
     }
 
     /**
