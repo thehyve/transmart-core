@@ -713,13 +713,18 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
     ImplementationType implementationType = ImplementationType.VISIT
 
     /**
-     * This must return a unique key for this dimension, and it must be a number, string or date (used in e.g. json
-     * serialization) so VisitKey is not going to work here.
+     * This must return a unique key of type VisitKey for this dimension
+     * and must be parsed to string during serialisation
      */
     @Override
     def getKey(element) {
-        def visit = (I2b2VisitDimension) element
-        visit ? "${visit.encounterNum}/${visit.patient.id}".toString() : null
+        if (element) {
+            BigDecimal encounterNum = ((I2b2VisitDimension) element).encounterNum
+            Long patientId = (Long) ((I2b2VisitDimension) element).patientId
+            encounterNum == minusOne ? null : new VisitKey(encounterNum, patientId)
+        } else {
+            null
+        }
     }
 
     @Override def selectIDs(Query query) {
@@ -777,8 +782,9 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
             this.encounterNum = encounterNum; this.patientId = patientId
         }
 
-        String toString() { "VisitKey(encounterNum: $encounterNum, patientId: $patientId)" }
+        String toString() { "${encounterNum}/${patientId}".toString() }
     }
+
 }
 
 @CompileStatic @InheritConstructors
