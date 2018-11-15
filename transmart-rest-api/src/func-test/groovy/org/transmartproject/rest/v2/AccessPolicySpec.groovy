@@ -586,6 +586,31 @@ class AccessPolicySpec extends V2ResourceSpec {
 
     }
 
+    @Unroll
+    void 'test patient sets size (POST .../patient_sets) for constraint=#constraint and user with st1AccLvl=#s1AccLvl,  st2AccLvl=#s2AccLvl and threshold=#threshold.'() {
+
+        given:
+        def user = new MockUser('counts with threshold user', [study1: s1AccLvl, study2: s2AccLvl])
+        selectUser(user)
+        aggregateDataResourceImplService.patientCountThreshold = threshold
+
+        when:
+        def response = post("${contextPath}/patient_sets?name=test&reuse=false", constraint)
+
+        then:
+        checkResponseStatus(response, CREATED, user)
+        def result = toObject(response, Map)
+        result.setSize == size
+
+        where:
+        constraint         | threshold | s1AccLvl              | s2AccLvl              | size
+        trueConstraint     | 5         | SUMMARY               | SUMMARY               | 4L
+        trueConstraint     | 5         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | -2L
+        trueConstraint     | 4         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | 4L
+        trueConstraint     | 5         | SUMMARY               | COUNTS_WITH_THRESHOLD | -2L
+        study1OnlySubjects | 5         | SUMMARY               | COUNTS_WITH_THRESHOLD | 1L
+    }
+
     @Autowired
     AggregateDataResourceImplService aggregateDataResourceImplService
 

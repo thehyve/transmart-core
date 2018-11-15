@@ -47,18 +47,8 @@ class AggregateDataResourceImplService implements AggregateDataResource {
         User exactCountsAccessUserCopy = copyUserWithChangedPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD, COUNTS)
         Counts counts = aggregateDataService.counts(constraint, exactCountsAccessUserCopy)
 
-        if (isBelowThreshold(counts)) {
-            List<MDStudy> ctStudies = mdStudiesResource.getStudiesWithPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD)
-            if (ctStudies) {
-                if (counts.patientCount == 0) {
-                    return BELOW_THRESHOLD_COUNTS
-                }
-                Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, ctStudies)
-                Counts cTCounts = aggregateDataService.counts(constraintLimitedToCTStudyPatients, exactCountsAccessUserCopy)
-                if (cTCounts && cTCounts.patientCount > 0) {
-                    return BELOW_THRESHOLD_COUNTS
-                }
-            }
+        if (hidePatientCount(constraint, user, counts.patientCount)) {
+            return BELOW_THRESHOLD_COUNTS
         }
         return counts
     }
@@ -177,6 +167,24 @@ class AggregateDataResourceImplService implements AggregateDataResource {
                     new CategoricalValueAggregates(valueCounts: valuesWithBelowThresholdCounts, nullValueCounts: (Integer) Counts.BELOW_THRESHOLD)
                 } as Function<Map.Entry, CategoricalValueAggregates>
         ))
+    }
+
+    boolean hidePatientCount(Constraint constraint, User user, Long patientCount) {
+        if (isBelowThreshold(patientCount)) {
+            List<MDStudy> ctStudies = mdStudiesResource.getStudiesWithPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD)
+            if (ctStudies) {
+                if (patientCount == 0L) {
+                    return true
+                }
+                Constraint constraintLimitedToCTStudyPatients = getConstraintLimitedToStudyPatients(constraint, ctStudies)
+                User exactCountsAccessUserCopy = copyUserWithChangedPatientDataAccessLevel(user, COUNTS_WITH_THRESHOLD, COUNTS)
+                Counts cTCounts = aggregateDataService.counts(constraintLimitedToCTStudyPatients, exactCountsAccessUserCopy)
+                if (cTCounts && cTCounts.patientCount > 0) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     protected static Map<String, Integer> copyWithCountsBelwoThreshold(Map<String, Integer> valueCounts) {
