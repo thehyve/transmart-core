@@ -105,6 +105,8 @@ class QueryController extends AbstractQueryController {
             }
             highdimObservations(args.type, args.constraint, args.biomarker_constraint, args.projection)
         }
+
+        return false //to prevent Grails seeking for view
     }
 
     static final TypeReference<List<SortSpecification>> sortListTypeReference =
@@ -134,8 +136,6 @@ class QueryController extends AbstractQueryController {
         } catch (LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         }
-
-        return false
     }
 
     private getLazyOutputStream(Format format) {
