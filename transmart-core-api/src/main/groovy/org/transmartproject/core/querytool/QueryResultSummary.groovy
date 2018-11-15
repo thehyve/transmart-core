@@ -16,7 +16,9 @@ interface QueryResultSummary {
     Long getId()
 
     /**
-     * The size of the set, or -1 if there was an error.
+     * The size of the set,
+     * or -1 if there was an error,
+     * or -2 if user does not have permission to the count.
      *
      * @return the size of the set
      */
