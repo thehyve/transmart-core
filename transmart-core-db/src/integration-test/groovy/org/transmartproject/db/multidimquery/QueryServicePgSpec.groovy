@@ -44,6 +44,7 @@ import static spock.util.matcher.HamcrestSupport.that
 @Integration
 class QueryServicePgSpec extends Specification {
 
+    public static final String DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss'
     @Autowired
     MultiDimensionalDataResource multiDimService
 
@@ -53,10 +54,10 @@ class QueryServicePgSpec extends Specification {
     @Autowired
     PatientSetService patientSetResource
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT)
     private static final DateFormat UTC_DATE_FORMAT
     static {
-        UTC_DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+        UTC_DATE_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT)
         UTC_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone('UTC'))
     }
 

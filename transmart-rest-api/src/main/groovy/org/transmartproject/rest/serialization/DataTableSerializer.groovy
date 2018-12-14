@@ -3,10 +3,8 @@ package org.transmartproject.rest.serialization
 import com.google.common.collect.Table
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
-import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.hypercube.Dimension
-
 import java.time.Instant
 import java.util.stream.Collectors
 
@@ -123,12 +121,14 @@ class DataTableSerializer {
                 dimensionKeys = table.rowKeys.stream()
                         .map({ DataTableRow row -> dimension.getKey(row.elements[i]) })
                         .distinct()
+                        .filter({key -> Objects.nonNull(key)})
                         .collect(Collectors.toList())
             } else {
                 int i = table.columnDimensions.indexOf(dimension)
                 dimensionKeys = table.columnKeys.stream()
                         .map({ DataTableColumn column -> dimension.getKey(column.elements[i]) })
                         .distinct()
+                        .filter({key -> Objects.nonNull(key)})
                         .collect(Collectors.toList())
             }
             writer.name('elements').beginObject()
@@ -206,7 +206,7 @@ class DataTableSerializer {
             }
             writer.endObject()
         } else {
-            throw new UnexpectedResultException("Unexpected value of type ${value.class.simpleName}: $value")
+            writer.value(value.toString())
         }
     }
 }
