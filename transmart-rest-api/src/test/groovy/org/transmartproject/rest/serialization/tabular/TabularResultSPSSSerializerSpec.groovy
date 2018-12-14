@@ -40,6 +40,7 @@ import static org.transmartproject.rest.serialization.tabular.TabularResultSPSSS
 
 class TabularResultSPSSSerializerSpec extends Specification {
 
+    public static final String DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss'
     private static interface MetadataAwareValueFetchingDataColumn extends MetadataAwareDataColumn, ValueFetchingDataColumn {}
 
     private final UTC = TimeZone.getTimeZone('UTC')
@@ -348,13 +349,13 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def columns = ImmutableList.copyOf([column1, column2, column3] as List<DataColumn>)
         table.indicesList >> [column1, column2, column3]
         def row1 = Mock(HypercubeDataRow)
-        row1.getAt(column1) >> Date.parse('yyyy-MM-dd hh:mm:ss', '2001-09-01 09:45:18', UTC)
-        row1.getAt(column2) >> Date.parse('yyyy-MM-dd hh:mm:ss', '2009-12-01 09:45:18', UTC)
-        row1.getAt(column3) >> Date.parse('yyyy-MM-dd hh:mm:ss', '2001-09-01 09:45:18', UTC)
+        row1.getAt(column1) >> Date.parse(DATE_TIME_FORMAT, '2001-09-01 09:45:18', UTC)
+        row1.getAt(column2) >> Date.parse(DATE_TIME_FORMAT, '2009-12-01 09:45:18', UTC)
+        row1.getAt(column3) >> Date.parse(DATE_TIME_FORMAT, '2001-09-01 09:45:18', UTC)
         def row2 = Mock(HypercubeDataRow)
         row2.getAt(column1) >> Date.parse('dd-MM-yyyy', '28-11-2005', UTC)
-        row2.getAt(column2) >> Date.parse('dd-MM-yyyy hh:mm:ss', '12-02-1998 00:45:33', CEST)
-        row2.getAt(column3) >> Date.parse('dd-MM-yyyy hh:mm:ss', '12-02-1998 18:30:05', CEST)
+        row2.getAt(column2) >> Date.parse(DATE_TIME_FORMAT, '1998-02-12 00:45:33', CEST)
+        row2.getAt(column3) >> Date.parse(DATE_TIME_FORMAT, '1998-02-12 18:30:05', CEST)
         List<DataRow> rows = [row1, row2]
         table.rows >> rows.iterator()
 
@@ -373,9 +374,9 @@ class TabularResultSPSSSerializerSpec extends Specification {
         lines[0][0] == "01-09-2001 09:45:18"
         lines[0][1] == "01-12-2009"
         lines[0][2] == "01-09-2001 09:45:18"
-        lines[1][0] == "28-11-2005 12:00:00"
+        lines[1][0] == "28-11-2005 00:00:00"
         lines[1][1] == "12-02-1998"
-        lines[1][2] == "12-02-1998 06:30:05"
+        lines[1][2] == "12-02-1998 18:30:05"
 
     }
 
