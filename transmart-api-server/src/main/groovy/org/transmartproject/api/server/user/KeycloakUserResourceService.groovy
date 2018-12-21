@@ -79,9 +79,6 @@ class KeycloakUserResourceService implements UsersResource {
     @Override
     User getUserFromPrincipal(Principal principal) {
         assert principal instanceof Authentication
-        if (!principal.authenticated) {
-            throw new IllegalArgumentException("${principal.name} principal has authenticated flag set to false.")
-        }
 
         final String username = principal.name
         List<String> authorities = principal.authorities.collect { GrantedAuthority ga -> ga.authority }
