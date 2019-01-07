@@ -45,7 +45,7 @@ class InsertOntologyTreeTasklet implements Tasklet {
             def result = entryMap[code]
             if (!result) {
                 log.error "Perhaps a cycle in the ontology mapping?"
-                throw new RuntimeException("Unexpected state: node visited before, but no result available.")
+                throw new IllegalStateException("Unexpected state: node visited before, but no result available.")
             }
             return result
         }

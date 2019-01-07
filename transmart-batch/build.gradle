@@ -214,3 +214,12 @@ publishing {
         }
     }
 }
+
+//FIXME A fix should apear here https://discuss.gradle.org/t/sudden-issue-with-gradle-3-5-1-and-codenarc/30064
+configurations.codenarc {
+    resolutionStrategy.eachDependency { DependencyResolveDetails d ->
+        if (d.requested.group == 'org.codehaus.groovy') {
+            d.useVersion '2.1.8'
+        }
+    }
+}
