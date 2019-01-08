@@ -32,8 +32,7 @@ class Patients {
     final LinkedHashMap<String, Class> patientMappingColumns
 
     final Map<String, Long> subjectIdToPatientNum = [:]
-    final Map<Integer, Long> indexToPatientNum = [:]
-    final List<String> indexToSubjectId = []
+    final Map<Long, Long> indexToPatientNum = [:]
 
     Patients(Database database) {
         this.database = database
@@ -69,8 +68,8 @@ class Patients {
         log.info "Reading patient data from files ..."
         def insertCount = 0
         def existingCount = 0
-        Set<Integer> missingPatients = []
-        Map<Integer, Map> missingPatientsMappingData = [:]
+        Set<Long> missingPatients = []
+        Map<Long, Map> missingPatientsMappingData = [:]
         LinkedHashMap<String, Class> patientMappingHeader = patientMappingColumns
         def mappingFile = new File(rootPath, PATIENT_MAPPING_TABLE.fileName)
         mappingFile.withReader { reader ->
@@ -83,16 +82,10 @@ class Patients {
                 }
                 try {
                     def patientMappingData = Util.asMap(patientMappingHeader, data)
-                    int patientIndex = ((BigDecimal) patientMappingData['patient_num']).intValueExact()
-                    if (i != patientIndex + 1) {
-                        throw new IllegalStateException(
-                                "The patients in the patient mapping are not in order." +
-                                        " (Found ${patientIndex} on line ${i}.)")
-                    }
+                    Long patientIndex = ((BigDecimal) patientMappingData['patient_num']).longValueExact()
                     def patientIde = patientMappingData['patient_ide'] as String
                     def patientIdeSource = patientMappingData['patient_ide_source'] as String
                     def key = "${patientIdeSource}:${patientIde}".toString()
-                    indexToSubjectId.add(key)
                     def patientNum = subjectIdToPatientNum[key]
                     if (patientNum) {
                         existingCount++
@@ -121,18 +114,14 @@ class Patients {
                 }
                 try {
                     def patientData = Util.asMap(patientDimensionHeader, data)
-                    int patientIndex = ((BigDecimal) patientData['patient_num']).intValueExact()
-                    if (i != patientIndex + 1) {
-                        throw new IllegalStateException(
-                                "The patients are not in order. (Found ${patientIndex} on line ${i}.)")
-                    }
+                    Long patientIndex = ((BigDecimal) patientData['patient_num']).longValueExact()
                     if (patientIndex in missingPatients) {
                         insertCount++
                         Long patientNum = database.insertEntry(
                                 PATIENT_DIMENSION_TABLE, patientDimensionHeader, 'patient_num', patientData)
                         log.debug "Patient inserted [patient_num: ${patientNum}]."
                         indexToPatientNum[patientIndex] = patientNum
-                        def patientMappingData = missingPatientsMappingData[patientIndex]
+                        Map<String, Object> patientMappingData = missingPatientsMappingData[patientIndex]
                         patientMappingData['patient_num'] = patientNum
                         database.insertEntry(PATIENT_MAPPING_TABLE, patientMappingHeader, patientMappingData)
                         log.debug "Patient mapping inserted [patient_num: ${patientNum}]."

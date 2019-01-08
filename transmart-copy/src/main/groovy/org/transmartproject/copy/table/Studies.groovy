@@ -38,8 +38,8 @@ class Studies {
     final LinkedHashMap<String, Class> studyDimensionsColumns
 
     final Map<String, Long> studyIdToStudyNum = [:]
-    final List<Long> indexToStudyNum = []
-    final List<Long> indexToTrialVisitNum = []
+    final Map<Long, Long> indexToStudyNum = [:]
+    final Map<Long, Long> indexToTrialVisitNum = [:]
 
     Studies(Database database, Dimensions dimensions) {
         this.database = database
@@ -197,11 +197,6 @@ class Studies {
                     return
                 }
                 def studyData = Util.asMap(header, data)
-                def studyIndex = studyData['study_num'] as long
-                if (i != studyIndex + 1) {
-                    throw new IllegalStateException(
-                            "The studies ${STUDY_TABLE.fileName} are not in order. (Found ${studyIndex} on line ${i}.)")
-                }
                 def studyId = studyData['study_id'] as String
                 checkIfStudyExists(studyId)
             }
@@ -238,10 +233,11 @@ class Studies {
                 }
                 try {
                     def studyData = Util.asMap(studyHeader, data)
+                    Long studyIndex = studyData['study_num'] as Long
                     def studyId = studyData['study_id'] as String
                     def studyNum = database.insertEntry(STUDY_TABLE, studyHeader, 'study_num', studyData)
                     log.info "Study ${studyId} inserted [study_num: ${studyNum}]."
-                    indexToStudyNum.add(studyNum)
+                    indexToStudyNum.put(studyIndex, studyNum)
                     studyIdToStudyNum[studyId] = studyNum
                 } catch(Throwable e) {
                     log.error "Error on line ${i} of ${STUDY_TABLE.fileName}: ${e.message}."
@@ -264,17 +260,14 @@ class Studies {
                 }
                 try {
                     def trialVisitData = Util.asMap(trialVisitHeader, data)
-                    def studyIndex = trialVisitData['study_num'] as int
-                    if (studyIndex >= indexToStudyNum.size()) {
-                        throw new IllegalStateException(
-                                "Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
-                    }
-                    def studyNum = indexToStudyNum[studyIndex]
+                    Long studyIndex = trialVisitData['study_num'] as Long
+                    Long studyNum = indexToStudyNum[studyIndex]
                     trialVisitData['study_num'] = studyNum
+                    Long trialVisitIndex = trialVisitData['trial_visit_num'] as Long
                     def trialVisitNum = database.insertEntry(
                             TRIAL_VISIT_TABLE, trialVisitHeader, 'trial_visit_num', trialVisitData)
                     log.info "Trial visit inserted [trial_visit_num: ${trialVisitNum}]."
-                    indexToTrialVisitNum.add(trialVisitNum)
+                    indexToTrialVisitNum.put(trialVisitIndex, trialVisitNum)
                 } catch(Throwable e) {
                     log.error "Error on line ${i} of ${TRIAL_VISIT_TABLE.fileName}: ${e.message}."
                     throw e
@@ -299,20 +292,14 @@ class Studies {
                 }
                 try {
                     def studyDimensionData = Util.asMap(studyDimensionsHeader, data)
-                    def studyIndex = studyDimensionData['study_id'] as int
-                    if (studyIndex >= indexToStudyNum.size()) {
-                        throw new IllegalStateException(
-                                "Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
-                    }
+                    Long studyIndex = studyDimensionData['study_id'] as Long
                     def studyNum = indexToStudyNum[studyIndex]
                     studyDimensionData['study_id'] = studyNum
-                    def dimensionIndex = studyDimensionData['dimension_description_id'] as int
-                    if (dimensionIndex >= dimensions.indexToDimensionId.size()) {
-                        throw new IllegalStateException(
-                                "Invalid dimension index (${dimensionIndex}). " +
-                                        "Only ${dimensions.indexToDimensionId.size()} dimensions found.")
-                    }
+                    Long dimensionIndex = studyDimensionData['dimension_description_id'] as Long
                     def dimensionId = dimensions.indexToDimensionId[dimensionIndex]
+                    if (dimensionId == null) {
+                        throw new IllegalStateException("Dimension with id = ${dimensionIndex} does not exist.")
+                    }
                     studyDimensionData['dimension_description_id'] = dimensionId
                     database.insertEntry(STUDY_DIMENSIONS_TABLE, studyDimensionsHeader, studyDimensionData)
                     insertCount++

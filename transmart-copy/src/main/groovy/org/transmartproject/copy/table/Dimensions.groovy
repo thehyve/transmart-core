@@ -30,7 +30,7 @@ class Dimensions {
     final LinkedHashMap<String, Class> columns
 
     final Map<String, Long> dimensionNameToId = [:]
-    final List<Long> indexToDimensionId = []
+    final Map<Long, Long> indexToDimensionId = [:]
     final Set<String> modifierDimensionCodes = []
 
     Dimensions(Database database) {
@@ -84,10 +84,6 @@ class Dimensions {
                 try {
                     def dimensionData = Util.asMap(header, data)
                     def dimensionIndex = dimensionData['id'] as long
-                    if (i != dimensionIndex + 1) {
-                        throw new IllegalStateException(
-                                "The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")
-                    }
                     def dimensionName = dimensionData['name'] as String
                     def dimensionId = dimensionNameToId[dimensionName]
                     if (dimensionId) {
@@ -105,7 +101,7 @@ class Dimensions {
                         dimensionId = database.insertEntry(TABLE, header, 'id', dimensionData)
                         log.debug "Dimension description inserted [id: ${dimensionId}]."
                     }
-                    indexToDimensionId.add(dimensionId)
+                    indexToDimensionId.put(dimensionIndex, dimensionId)
                     log.debug "Registered dimension at index ${dimensionIndex}: ${dimensionName} [${dimensionId}]."
                 } catch(Throwable e) {
                     log.error "Error on line ${i} of ${TABLE.fileName}: ${e.message}."

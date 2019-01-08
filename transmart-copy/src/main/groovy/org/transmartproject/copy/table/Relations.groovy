@@ -34,12 +34,12 @@ class Relations {
 
     final LinkedHashMap<String, Class> relationTypeColumns
     final LinkedHashMap<String, Class> relationColumns
-    final int relationTypeIdIndex
-    final int leftSubjectIdIndex
-    final int rightSubjectIdIndex
+    final Long relationTypeIdIndex
+    final Long leftSubjectIdIndex
+    final Long rightSubjectIdIndex
 
     final Map<String, Long> relationTypeLabelToId = [:]
-    final List<Long> indexToRelationTypeId = []
+    final Map<Long, Long> indexToRelationTypeId = [:]
 
     final boolean tablesExists
 
@@ -100,27 +100,24 @@ class Relations {
 
     void transformRow(Map<String, Object> row) {
         // replace patient index with patient num
-        int relationTypeIndex = ((BigDecimal) row.relation_type_id).intValueExact()
-        if (relationTypeIndex >= indexToRelationTypeId.size()) {
-            throw new IllegalStateException(
-                    "Invalid relation type index (${relationTypeIndex}). " +
-                            "Only ${indexToRelationTypeId.size()} relation types found.")
+        Long relationTypeIndex = ((BigDecimal) row.relation_type_id).longValueExact()
+        Long leftSubjectIndex = ((BigDecimal) row.left_subject_id).longValueExact()
+        Long rightSubjectIndex = ((BigDecimal) row.right_subject_id).longValueExact()
+        Long relationTypeId = indexToRelationTypeId[relationTypeIndex]
+        if (relationTypeId == null) {
+            throw new IllegalStateException("Relation type with id = ${relationTypeId} does not exist.")
         }
-        int leftSubjectIndex = ((BigDecimal) row.left_subject_id).intValueExact()
-        if (leftSubjectIndex >= patients.indexToPatientNum.size()) {
-            throw new IllegalStateException(
-                    "Invalid patient index (${leftSubjectIndex}). " +
-                            "Only ${patients.indexToPatientNum.size()} patients found.")
+        row.relation_type_id = relationTypeId
+        Long leftSubjectId = patients.indexToPatientNum[leftSubjectIndex]
+        if (leftSubjectId == null) {
+            throw new IllegalStateException("Subject with id = ${leftSubjectId} does not exist.")
         }
-        int rightSubjectIndex = ((BigDecimal) row.right_subject_id).intValueExact()
-        if (rightSubjectIndex >= patients.indexToPatientNum.size()) {
-            throw new IllegalStateException(
-                    "Invalid patient index (${rightSubjectIndex}). " +
-                            "Only ${patients.indexToPatientNum.size()} patients found.")
+        row.left_subject_id = leftSubjectId
+        Long rightSubjectId = patients.indexToPatientNum[rightSubjectIndex]
+        if (rightSubjectId == null) {
+            throw new IllegalStateException("Subject with id = ${rightSubjectId} does not exist.")
         }
-        row.relation_type_id = indexToRelationTypeId[relationTypeIndex]
-        row.left_subject_id = patients.indexToPatientNum[leftSubjectIndex]
-        row.right_subject_id = patients.indexToPatientNum[rightSubjectIndex]
+        row.right_subject_id = rightSubjectId
     }
 
     private void loadRelationTypes(String rootPath) {
@@ -136,13 +133,10 @@ class Relations {
                 }
                 try {
                     def relationTypeData = Util.asMap(header, data)
-                    def relationTypeIndex = relationTypeData['id'] as long
-                    if (i != relationTypeIndex + 1) {
-                        throw new IllegalStateException(
-                                "The relation types are not in order. " +
-                                        "(Found ${relationTypeIndex} on line ${i}.)")
+                    Long index = relationTypeData['id'] as Long
+                    if (index == null) {
+                        throw new IllegalStateException("${i + 1} row does not have id specified.")
                     }
-
                     def label = relationTypeData['label'] as String
                     def id = relationTypeLabelToId[label]
                     if (id) {
@@ -152,7 +146,7 @@ class Relations {
                         id = database.insertEntry(RELATION_TYPE_TABLE, header, 'id', relationTypeData)
                         relationTypeLabelToId[label] = id
                     }
-                    indexToRelationTypeId.add(id)
+                    indexToRelationTypeId.put(index, id)
                 } catch (Throwable e) {
                     log.error "Error on line ${i} of ${RELATION_TYPE_TABLE.fileName}: ${e.message}."
                     throw e
