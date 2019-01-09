@@ -17,6 +17,7 @@ postgres_test:
 	$(MAKE) -C ddl/postgres load
 	$(MAKE) -C data/postgres load_schema_amapp
 	$(MAKE) -C test_data/ postgres_test_data
+	$(MAKE) -C test_studies/ load
 	$(MAKE) -C data/postgres refresh_mvs
 
 oracle:
@@ -28,6 +29,7 @@ oracle_test:
 	$(MAKE) -C ddl/oracle load
 	$(MAKE) -C data/oracle load_schema_amapp
 	$(MAKE) -C test_data/ oracle_test_data
+	$(MAKE) -C test_studies/ load
 	$(MAKE) -C data/oracle refresh_mvs
 
 oracle_drop:
