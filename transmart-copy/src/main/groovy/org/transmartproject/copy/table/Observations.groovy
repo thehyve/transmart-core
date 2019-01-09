@@ -71,23 +71,15 @@ class Observations {
 
     void transformRow(final Map<String, Object> row, final int baseInstanceNum) {
         // replace patient index with patient num
-        int patientIndex = ((BigDecimal) row.get('patient_num')).intValueExact()
-        if (patientIndex >= patients.indexToPatientNum.size()) {
-            throw new IllegalStateException(
-                    "Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
-        }
+        Long patientIndex = ((BigDecimal) row.get('patient_num')).longValueExact()
         row.put('patient_num', patients.indexToPatientNum[patientIndex])
-        int trialVisitIndex = ((BigDecimal) row.get('trial_visit_num')).intValueExact()
-        if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
-            throw new IllegalStateException(
-                    "Trial visit index higher than the number of trial visits (${studies.indexToTrialVisitNum.size()})")
-        }
+        Long trialVisitIndex = ((BigDecimal) row.get('trial_visit_num')).longValueExact()
         row.put('trial_visit_num', studies.indexToTrialVisitNum[trialVisitIndex])
         String conceptCode = (String) row.get('concept_cd')
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new IllegalStateException("Unknown concept code: ${conceptCode}")
         }
-        int instanceIndex = ((BigDecimal) row.get('instance_num')).intValueExact()
+        Long instanceIndex = ((BigDecimal) row.get('instance_num')).longValueExact()
         row.put('instance_num', baseInstanceNum + instanceIndex)
         if (!row.get('start_date')) {
             row.put('start_date', EMPTY_DATE)
