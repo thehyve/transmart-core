@@ -134,7 +134,7 @@ distributions {
             exclude 'lib/schemaSpy_*.jar', 'solr/solr-*/**'
             from '.'
             include 'config/**', 'data/**', 'ddl/**','env/**', 'lib/**', 'R/**', 'samples/**', 'solr/**',
-                    'test_data/**', 'updatedb/**',
+                    'test_data/**', 'test_studies/**', 'updatedb/**',
                     'LICENSE', 'Makefile', 'makefile.inc', 'README.md', 'vars.sample', 'VERSION'
         }
     }
