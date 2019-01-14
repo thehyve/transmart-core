@@ -1,0 +1,7 @@
+id	density	modifier_code	value_type	name	packable	size_cd
+0				study		
+1				concept		
+2				patient		
+3	DENSE	CSR_DIAGNOSIS_MOD	T	Diagnosis ID	NOT_PACKABLE	SMALL
+4	DENSE	CSR_BIOSOURCE_MOD	T	Biosource ID	NOT_PACKABLE	SMALL
+5	DENSE	CSR_BIOMATERIAL_MOD	T	Biomaterial ID	NOT_PACKABLE	SMALL

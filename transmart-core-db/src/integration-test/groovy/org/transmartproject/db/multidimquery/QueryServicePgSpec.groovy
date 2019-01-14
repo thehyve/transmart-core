@@ -677,8 +677,11 @@ class QueryServicePgSpec extends Specification {
     void "test values of date type"() {
         def user = User.findByUsername('test-public-user-1')
 
-        Constraint constraint = new ValueConstraint(valueType: Type.DATE, operator: Operator.AFTER,
-                value: DATE_FORMAT.parse('1986-10-21 00:00:00'))
+        Constraint constraint = new AndConstraint([
+                new StudyNameConstraint(studyId: 'SURVEY1'),
+                new ValueConstraint(valueType: Type.DATE, operator: Operator.AFTER,
+                        value: DATE_FORMAT.parse('1986-10-21 00:00:00'))
+        ])
 
         when:
         def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
