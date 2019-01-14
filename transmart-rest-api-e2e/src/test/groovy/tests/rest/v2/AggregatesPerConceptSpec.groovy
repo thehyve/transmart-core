@@ -103,7 +103,7 @@ class AggregatesPerConceptSpec extends RESTSpec {
         then: 'Access is denied'
         errorResponse.httpStatus == HttpStatus.FORBIDDEN.value()
         errorResponse.type == 'AccessDeniedException'
-        errorResponse.message == "Access denied to concept code: ${conceptCode}"
+        errorResponse.message.contains(conceptCode.toString())
 
         when: 'I do have access to the restricted access study'
 

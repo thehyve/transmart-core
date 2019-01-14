@@ -39,7 +39,7 @@ class AccessLevelSpec extends RESTSpec {
         then: "I get an access error"
         assert responseData.httpStatus == 403
         assert responseData.type == 'AccessDeniedException'
-        assert responseData.message == 'Access denied to concept path: \\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
+        assert responseData.message.contains('\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\')
 
         where:
         acceptType | _
