@@ -286,9 +286,12 @@ class HypercubeImpl implements Hypercube {
         Map<String, Object> next() {
             Map<String, ProjectionMap> group = nextGroup()
 
-            Map result = group['@']?.toMutable() ?:
-                    //TODO Decide: Add keys part, skip with warning or throw an exception?
-                    [valueType: ObservationFact.TYPE_TEXT, textValue: null]
+            if (!group.containsKey('@')) {
+                throw new IllegalStateException(
+                        'Modifier observations have to be selected together with the corresponding measurement obesrvation (modifierCd = "@")')
+            }
+
+            Map result = group['@'].toMutable()
 
             for (dim in modifierDimensions) {
                 ProjectionMap modResult = group[dim.modifierCode]
