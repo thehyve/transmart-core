@@ -160,7 +160,7 @@ class SubSelectionConstraintQueriesSpec extends Specification {
 
         then: 'D2, D3 and D13 do not have associated biosource'
         def diagnosisDim = hypercube.dimensions.find { it.name == diagnosisDimName }
-        hypercube.dimensionElements(diagnosisDim) as Set == ['D1', 'D4', 'D5', 'D6', 'D7',
+        hypercube.dimensionElements(diagnosisDim) as Set == ['D1', 'D5', 'D6', 'D7',
                                                           'D8', 'D9', 'D10', 'D11', 'D12'] as Set
         then: 'we get all biosources'
         def biosourceDim = hypercube.dimensions.find { it.name == biosourceDimName }

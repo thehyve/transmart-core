@@ -60,20 +60,20 @@ class CSRQueriesSpec extends Specification {
         then: 'there are observations for different concepts'
         hypercube.dimensionElements(CONCEPT).size() > 1
 
-        then: 'we get P1 and P4. We loose P7 that have a diagnosis of the type, but he does not have sample information.'
-        hypercube.dimensionElements(PATIENT).size() == 2
+        then: 'we get P1. We loose P4 and P7 that have do not have the diagnosis or biosource respectively.'
+        hypercube.dimensionElements(PATIENT).size() == 1
 
         then: 'You get information about following diagnoses.'
         def diagnosisDim = hypercube.dimensions.find { it.name == diagnosisDimName }
-        hypercube.dimensionElements(diagnosisDim) as Set == ['D1', 'D4', 'D10'] as Set
+        hypercube.dimensionElements(diagnosisDim) as Set == ['D1', 'D10'] as Set
 
         then: 'You get info about following biosources.'
         def biosourceDim = hypercube.dimensions.find { it.name == biosourceDimName }
-        hypercube.dimensionElements(biosourceDim) as Set == ['BS1', 'BS3', 'BS10'] as Set
+        hypercube.dimensionElements(biosourceDim) as Set == ['BS1', 'BS10'] as Set
 
         then: 'You get info about following biosources. Note BM15 is selected despite it does not have the requested type.'
         def biomaterialDim = hypercube.dimensions.find { it.name == biomaterialDimName }
-        hypercube.dimensionElements(biomaterialDim) as Set == ['BM1', 'BM3', 'BM9', 'BM15'] as Set
+        hypercube.dimensionElements(biomaterialDim) as Set == ['BM1', 'BM9', 'BM15'] as Set
     }
 
     void 'select all data of biomaterials with Y seququnce type that have diagnosis with X tumor type'() {
@@ -110,20 +110,20 @@ class CSRQueriesSpec extends Specification {
         then: 'there are observations for different concepts'
         hypercube.dimensionElements(CONCEPT).size() > 1
 
-        then: 'we get P1 and P4. We loose P7 that have a diagnosis of the type, but he does not have sample information.'
-        hypercube.dimensionElements(PATIENT).size() == 2
+        then: 'we get P1. We loose P4 and P7 that have do not have the diagnosis or biosource respectively.'
+        hypercube.dimensionElements(PATIENT).size() == 1
 
         then: 'You get information about following diagnoses.'
         def diagnosisDim = hypercube.dimensions.find { it.name == diagnosisDimName }
-        hypercube.dimensionElements(diagnosisDim) as Set == ['D1', 'D4', 'D10'] as Set
+        hypercube.dimensionElements(diagnosisDim) as Set == ['D1', 'D10'] as Set
 
         then: 'You get info about following biosources.'
         def biosourceDim = hypercube.dimensions.find { it.name == biosourceDimName }
-        hypercube.dimensionElements(biosourceDim) as Set == ['BS1', 'BS3', 'BS10'] as Set
+        hypercube.dimensionElements(biosourceDim) as Set == ['BS1', 'BS10'] as Set
 
         then: 'You get info about following biosources. Note BM15 is not selected.'
         def biomaterialDim = hypercube.dimensions.find { it.name == biomaterialDimName }
-        hypercube.dimensionElements(biomaterialDim) as Set == ['BM1', 'BM3', 'BM9'] as Set
+        hypercube.dimensionElements(biomaterialDim) as Set == ['BM1', 'BM9'] as Set
     }
 
 }
