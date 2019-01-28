@@ -245,7 +245,7 @@ info:
 
     ## SubSelection
 
-    Create a subselection of patients, visits, or another dimension element, and
+    Create a subselection of patients, visits, or another dimension element (including modifier-based), and
     then select all observations for these dimension elements.
 
 
@@ -267,6 +267,49 @@ info:
                     "valueType": "STRING",
                     "operator": "=",
                     "value": "My eye hurts"
+                }]
+        }
+    }
+
+    ```
+    
+    Example that includes modifier-based dimensions: Select all observations for patients who have certain tumor type and it's biomaterial with certain type.
+
+    ```json
+
+    {
+        "type": "subselection",
+        "dimension": "patient",
+        "constraint": {
+            "type": "and",
+            "args": [{
+                    "type": "concept",
+                    "path": "\\Public Studies\\CSR\\02. Diagnosis information\\02. Tumor type\\"
+                }, {
+                    "type": "value",
+                    "valueType": "STRING",
+                    "operator": "=",
+                    "value": "neuroblastoma"
+                }, {
+                    "type": "subselection",
+                    "dimension": "Diagnosis ID",
+                    "constraint": {
+                        "type": "subselection",
+                        "dimension": "Biomaterial ID",
+                        "constraint": {
+                            "type": "and",
+                            "args": [{
+                                    "type": "concept",
+                                    "path": "\\Public Studies\\CSR\\04. Biomaterial information\\03. Biomaterial type\\"
+                                }, {
+                                    "type": "value",
+                                    "valueType": "STRING",
+                                    "operator": "=",
+                                    "value": "RNA"
+                                }]
+                        }
+                    }
+
                 }]
         }
     }
