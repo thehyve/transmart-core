@@ -77,14 +77,13 @@ class PatientSetResourceSpec extends Specification {
         def user1 = new SimpleUser(username: USERNAME1, admin: false, studyToPatientDataAccessLevel: ['EXP:sample study': MEASUREMENTS])
         def user2 = new SimpleUser(username: USERNAME2, admin: false, studyToPatientDataAccessLevel: ['EXP:sample study': MEASUREMENTS])
         def constraint = new StudyNameConstraint(studyId: 'sample study')
-        def patientDim = multiDimService.getDimension('patient')
         QueryResult queryResultForUser1 = patientSetResource.createPatientSetQueryResult(
                 'test user1 data access level',
                 constraint,
                 user1,
                 'v2',
                 false)
-        Set<Patient> patientsForUser1 = multiDimService.getDimensionElements(patientDim,
+        Set<Patient> patientsForUser1 = multiDimService.getDimensionElements('patient',
                 new PatientSetConstraint(patientSetId: queryResultForUser1.id), user1).toList() as Set<Patient>
 
         when:
@@ -94,7 +93,7 @@ class PatientSetResourceSpec extends Specification {
                 user2,
                 'v2',
                 reusePatientSet)
-        Set<Patient> patientsForUser2 = multiDimService.getDimensionElements(patientDim,
+        Set<Patient> patientsForUser2 = multiDimService.getDimensionElements('patient',
                 new PatientSetConstraint(patientSetId: queryResultForUser2.id), user2).toList() as Set<Patient>
 
 

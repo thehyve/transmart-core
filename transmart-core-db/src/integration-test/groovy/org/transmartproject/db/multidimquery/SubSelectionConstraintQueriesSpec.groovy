@@ -93,10 +93,9 @@ class SubSelectionConstraintQueriesSpec extends Specification {
         def biosourceDimensionName = 'Biosource ID'
         def trueConstraint = new TrueConstraint()
         def allBiosourceIdsConstraint = new SubSelectionConstraint(biosourceDimensionName, trueConstraint)
-        def biosourceDimension = multiDimService.getDimension(biosourceDimensionName)
 
         when: 'we select all biosource elements (ids) constrained by biosource subselection of true constraint'
-        Set biosourceIds = multiDimService.getDimensionElements(biosourceDimension,
+        Set biosourceIds = multiDimService.getDimensionElements(biosourceDimensionName,
                 allBiosourceIdsConstraint, user).toSet()
 
         then: 'result has to contain all biosources ids'
@@ -109,10 +108,9 @@ class SubSelectionConstraintQueriesSpec extends Specification {
         def biosourceDimensionName = 'Biosource ID'
         def dedicationConceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CSR\\03. Biosource information\\06. Biosource dedicated for specific study\\')
         def biosourceIdsWithDedicationInfoConstraint = new SubSelectionConstraint(biosourceDimensionName, dedicationConceptConstraint)
-        def biosourceDimension = multiDimService.getDimension(biosourceDimensionName)
 
         when: 'we select all biosource ids that have dedicated observation set to Yes or No'
-        Set biosourceIds = multiDimService.getDimensionElements(biosourceDimension,
+        Set biosourceIds = multiDimService.getDimensionElements(biosourceDimensionName,
                 biosourceIdsWithDedicationInfoConstraint, user).toSet()
 
         then: 'result has to contain only specific biosource ids'
@@ -131,10 +129,9 @@ class SubSelectionConstraintQueriesSpec extends Specification {
                 ),
         ])
         def dedicatedBiosourceIdsConstraint = new SubSelectionConstraint(biosourceDimensionName, dedicationConceptConstraint)
-        def biosourceDimension = multiDimService.getDimension(biosourceDimensionName)
 
         when: 'we select all biosource ids that have dedicated observation set to Yes'
-        Set biosourceIds = multiDimService.getDimensionElements(biosourceDimension,
+        Set biosourceIds = multiDimService.getDimensionElements(biosourceDimensionName,
                 dedicatedBiosourceIdsConstraint, user).toSet()
 
         then: 'result has to contain only specific biosource ids'
