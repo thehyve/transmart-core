@@ -15,6 +15,7 @@ import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
+import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,9 +37,6 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.OperationNotImplementedException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.core.multidimquery.query.Combination
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -55,6 +53,7 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.*
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
+import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.util.HibernateUtils
 
 import java.util.stream.Collectors
@@ -71,6 +70,8 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
     @Autowired
     MDStudiesResource studiesResource
 
+    @Autowired
+    PatientSetService patientSetService
 
     @Override
     Dimension getDimension(String name) {
@@ -290,18 +291,31 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
             [CONCEPT.name, STUDY.name, TRIAL_VISIT.name] as List<String>)
 
     @Override
-    IterableResult getDimensionElements(Dimension dimension, Constraint constraint, User user) {
+    IterableResult getDimensionElements(String dimensionName, Constraint constraint, User user) {
+        def dimension = getDimension(dimensionName)
 
-        PatientDataAccessLevel accessLevelToDimension = patientDataAccessLevelToDimension(dimension.name)
+        PatientDataAccessLevel accessLevelToDimension = dimensionToPatientDataAccessLevel(dimension.name)
         checkAccess(constraint, user, accessLevelToDimension)
 
-        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user, accessLevelToDimension)
-        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
+        DetachedCriteria dimensionElementsCriteria
+        if (constraint instanceof PatientSetConstraint && constraint.patientSetId && dimension.name == 'patient') {
+            // fetch patients directly based on the patient set
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
+            subCriteria.add(Restrictions.eq('resultInstance.id', ((PatientSetConstraint)constraint).patientSetId))
 
-        return getIterable(dimensionCriteria)
+            dimensionElementsCriteria = DetachedCriteria
+                    .forClass(org.transmartproject.db.i2b2data.PatientDimension)
+                    .add(Subqueries.propertyIn('id', subCriteria.setProjection(Projections.property('patient'))))
+        } else {
+            // create an observations query and extract only the dimension elements
+            HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user, accessLevelToDimension)
+            dimensionElementsCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
+        }
+
+        return getIterable(dimensionElementsCriteria)
     }
 
-    private static PatientDataAccessLevel patientDataAccessLevelToDimension(String dimensionName) {
+    private static PatientDataAccessLevel dimensionToPatientDataAccessLevel(String dimensionName) {
         if (dimensionName in minimalAccessLevelDimensions) {
             return PatientDataAccessLevel.minimalAccessLevel
         } else {

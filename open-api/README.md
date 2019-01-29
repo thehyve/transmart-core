@@ -11,20 +11,4 @@ The specification is in the file [swagger.yaml](swagger.yaml).
 This directory also contains a copy of [Swagger UI](https://github.com/swagger-api/swagger-ui)
 (released under Apache 2.0 license), that provides a UI to explore the API specification.
 You can open the UI [locally](index.html), or visit a
-[public copy](http://transmart.thehyve.net/open-api).
-
-
-
-## Development
-
-To generate `swagger.json` and `swagger_spec.js` from `swagger.yaml`, run:
-```bash
-js-yaml swagger.yaml > swagger.json
-{ echo -n "var spec = "; cat swagger.json; echo ";"; } > swagger_spec.js
-```
-
-The `js-yaml` tool can be obtained by:
-
-```bash
-npm -g install js-yaml
-```
+[public copy](https://transmart.thehyve.net/open-api).
