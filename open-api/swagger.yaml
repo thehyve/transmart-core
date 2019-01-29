@@ -294,20 +294,16 @@ info:
                     "type": "subselection",
                     "dimension": "Diagnosis ID",
                     "constraint": {
-                        "type": "subselection",
-                        "dimension": "Biomaterial ID",
-                        "constraint": {
-                            "type": "and",
-                            "args": [{
-                                    "type": "concept",
-                                    "path": "\\Public Studies\\CSR\\04. Biomaterial information\\03. Biomaterial type\\"
-                                }, {
-                                    "type": "value",
-                                    "valueType": "STRING",
-                                    "operator": "=",
-                                    "value": "RNA"
-                                }]
-                        }
+                        "type": "and",
+                        "args": [{
+                                "type": "concept",
+                                "path": "\\Public Studies\\CSR\\04. Biomaterial information\\03. Biomaterial type\\"
+                            }, {
+                                "type": "value",
+                                "valueType": "STRING",
+                                "operator": "=",
+                                "value": "RNA"
+                            }]
                     }
 
                 }]

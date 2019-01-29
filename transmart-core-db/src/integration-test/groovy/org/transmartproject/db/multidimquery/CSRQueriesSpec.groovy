@@ -38,16 +38,14 @@ class CSRQueriesSpec extends Specification {
                                 value: 'neuroblastoma'
                         ),
                         new SubSelectionConstraint(diagnosisDimName,
-                                new SubSelectionConstraint(biomaterialDimName,
-                                        new AndConstraint([
-                                                new ConceptConstraint(path: '\\Public Studies\\CSR\\04. Biomaterial information\\03. Biomaterial type\\'),
-                                                new ValueConstraint(
-                                                        valueType: "STRING",
-                                                        operator: Operator.EQUALS,
-                                                        value: 'RNA'
-                                                ),
-                                        ])
-                                )
+                            new AndConstraint([
+                                    new ConceptConstraint(path: '\\Public Studies\\CSR\\04. Biomaterial information\\03. Biomaterial type\\'),
+                                    new ValueConstraint(
+                                            valueType: "STRING",
+                                            operator: Operator.EQUALS,
+                                            value: 'RNA'
+                                    ),
+                            ])
                         )
                 ])
         )
@@ -87,17 +85,15 @@ class CSRQueriesSpec extends Specification {
                                 value: 'RNA'
                         ),
 
-                        new SubSelectionConstraint(biomaterialDimName,
-                                new SubSelectionConstraint(diagnosisDimName,
-                                        new AndConstraint([
-                                                new ConceptConstraint(path: '\\Public Studies\\CSR\\02. Diagnosis information\\02. Tumor type\\'),
-                                                new ValueConstraint(
-                                                        valueType: "STRING",
-                                                        operator: Operator.EQUALS,
-                                                        value: 'neuroblastoma'
-                                                ),
-                                        ])
-                                )
+                        new SubSelectionConstraint(diagnosisDimName,
+                                new AndConstraint([
+                                        new ConceptConstraint(path: '\\Public Studies\\CSR\\02. Diagnosis information\\02. Tumor type\\'),
+                                        new ValueConstraint(
+                                                valueType: "STRING",
+                                                operator: Operator.EQUALS,
+                                                value: 'neuroblastoma'
+                                        ),
+                                ])
                         )
                 ])
         )
