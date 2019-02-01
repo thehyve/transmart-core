@@ -22,6 +22,7 @@ package org.transmartproject.db.querytool
 import org.transmartproject.core.userquery.SetType
 import org.transmartproject.core.userquery.UserQuerySet
 
+@Deprecated
 class QuerySet implements UserQuerySet {
 
     Long id

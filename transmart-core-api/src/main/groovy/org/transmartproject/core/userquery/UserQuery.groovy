@@ -2,7 +2,9 @@ package org.transmartproject.core.userquery
 
 /**
  *  Stores patients and observations parts of queries
+ *  @deprecated user queries related functionality has been moved to a gb-backend application
  */
+@Deprecated
 interface UserQuery {
     /**
      * Internal system identifier of the query.

@@ -1,5 +1,6 @@
 --
 -- Type: TABLE; Owner: BIOMART_USER; Name: QUERY_SET
+-- DEPRECATED! user queries related functionality has been moved to a gb-backend application
 --
 CREATE TABLE "BIOMART_USER"."QUERY_SET"
 (
@@ -35,7 +36,7 @@ ALTER TRIGGER "BIOMART_USER"."TRG_QUERY_SET_ID" ENABLE;
 --
 -- Table documentation
 --
-COMMENT ON TABLE biomart_user.query_set IS 'Table stores information about data sets for user queries.';
+COMMENT ON TABLE biomart_user.query_set IS 'Table stores information about data sets for user queries. DEPRECATED! This table has been moved to a gb-backend application database';
 
 COMMENT ON COLUMN biomart_user.query_set.query_id IS 'Foreign key to id in a query table.';
 COMMENT ON COLUMN biomart_user.query_set.set_size IS 'The size of the set';

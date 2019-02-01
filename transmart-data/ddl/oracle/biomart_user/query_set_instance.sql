@@ -1,5 +1,6 @@
 --
 -- Type: TABLE; Owner: BIOMART_USER; Name: QUERY_SET_INSTANCE
+-- DEPRECATED! user queries related functionality has been moved to a gb-backend application
 --
 CREATE TABLE "BIOMART_USER"."QUERY_SET_INSTANCE"
 (
@@ -33,7 +34,7 @@ ALTER TRIGGER "BIOMART_USER"."TRG_QUERY_SET_INSTANCE_ID" ENABLE;
 --
 -- Table documentation
 --
-COMMENT ON TABLE biomart_user.query_set_instance IS 'Table stores information about specific instances of the query set';
+COMMENT ON TABLE biomart_user.query_set_instance IS 'Table stores information about specific instances of the query set. DEPRECATED! This table has been moved to a gb-backend application database.';
 
 COMMENT ON COLUMN biomart_user.query_set_instance.query_set_id IS 'Foreign key to id in query_set table.';
 COMMENT ON COLUMN biomart_user.query_set_instance.object_id IS 'The id of the object that is being represented by the set instance, e.g. id of an i2b2demodata.patient_dimension instance.';

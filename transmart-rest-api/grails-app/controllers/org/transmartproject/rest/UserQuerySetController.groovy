@@ -9,6 +9,7 @@ import org.transmartproject.rest.user.AuthContext
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
+@Deprecated
 class UserQuerySetController {
 
     @Autowired

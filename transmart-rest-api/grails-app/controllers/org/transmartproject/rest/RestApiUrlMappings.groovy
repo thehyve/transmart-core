@@ -212,6 +212,11 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
+            "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
+
+            /**
+             * @deprecated user queries related functionality has been moved to a gb-backend application
+             */
             "/queries"(method: 'GET', controller: 'userQuery', action: 'index') {
                 apiVersion = "v2"
             }
@@ -226,9 +231,6 @@ class RestApiUrlMappings {
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
             "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId')
-            "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
-
-            // Deprecated administrator actions
             "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
 
             group "/admin", {

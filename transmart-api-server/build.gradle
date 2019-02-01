@@ -28,6 +28,7 @@ dependencies {
 
     //Custom dependencies
     compile project(':transmart-rest-api')
+    //Deprecated plugin - user queries related functionality has been moved to a gb-backend application
     compile project(':transmart-notifications')
 
     compile "org.keycloak:keycloak-spring-boot-starter:4.0.0.Final"
