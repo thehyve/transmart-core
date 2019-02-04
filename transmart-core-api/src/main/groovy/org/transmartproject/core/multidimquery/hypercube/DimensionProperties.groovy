@@ -15,7 +15,11 @@ class DimensionProperties {
 
     String name
 
-    Type type
+    DimensionType dimensionType
+
+    Integer sortIndex
+
+    ValueType valueType
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     List<Field> fields
@@ -23,19 +27,19 @@ class DimensionProperties {
     Boolean inline
 
     static DimensionProperties forDimension(Dimension dimension) {
-        Type type
+        ValueType valueType
         List<Field> fields = null
         if (dimension.elementsSerializable) {
             // Sparse dimensions are inlined, dense dimensions are referred to by indexes
             // (referring to objects in the footer message).
-            type = Type.forClass(dimension.elementType)
+            valueType = ValueType.forClass(dimension.elementType)
         } else {
-            type = Type.MAP
+            valueType = ValueType.MAP
             fields = dimension.elementFields.values().asList().collect {
-                new Field(it.name, Type.forClass(it.type))
+                new Field(it.name, ValueType.forClass(it.type))
             }
         }
-        new DimensionProperties(dimension.name, type, fields, dimension.density.isSparse)
+        new DimensionProperties(dimension.name, dimension.dimensionType, dimension.sortIndex, valueType, fields, dimension.density.isSparse)
     }
 
 }

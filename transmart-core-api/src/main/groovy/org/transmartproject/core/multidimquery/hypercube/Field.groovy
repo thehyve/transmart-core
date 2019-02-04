@@ -10,5 +10,5 @@ import groovy.transform.CompileStatic
 @Canonical
 class Field {
     String name
-    Type type
+    ValueType type
 }

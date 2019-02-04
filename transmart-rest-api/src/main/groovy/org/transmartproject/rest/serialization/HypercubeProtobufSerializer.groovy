@@ -6,7 +6,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.multidimquery.hypercube.Dimension
-import org.transmartproject.core.multidimquery.hypercube.Type as HypercubeType
+import org.transmartproject.core.multidimquery.hypercube.ValueType
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.hypercube.Property
@@ -60,13 +60,13 @@ class HypercubeProtobufSerializer {
                 builder.packed = true
             }
             builder.type = dim.elementsSerializable ?
-                    TypeProtobufSerializer.mapToProtobufType(HypercubeType.forClass(dim.elementType)) : ProtoType.OBJECT
+                    TypeProtobufSerializer.mapToProtobufType(ValueType.forClass(dim.elementType)) : ProtoType.OBJECT
 
             if (!dim.elementsSerializable) {
                 dim.elementFields.values().each { field ->
                     builder.addFields FieldDefinition.newBuilder().with {
                         name = field.name
-                        type = TypeProtobufSerializer.mapToProtobufType(HypercubeType.forClass(field.type))
+                        type = TypeProtobufSerializer.mapToProtobufType(ValueType.forClass(field.type))
                         build()
                     }
                 }
@@ -128,7 +128,7 @@ class HypercubeProtobufSerializer {
     private Value.Builder buildValue(@Nonnull value) {
         def builder = Value.newBuilder()
         builder.clear()
-        TypeProtobufSerializer.setValue(HypercubeType.forClass(value.class), builder, value)
+        TypeProtobufSerializer.setValue(ValueType.forClass(value.class), builder, value)
         builder
     }
 
@@ -164,7 +164,7 @@ class HypercubeProtobufSerializer {
 
         if (dim.elementsSerializable) {
             def fieldColumnBuilder = DimensionElementFieldColumn.newBuilder()
-            org.transmartproject.core.multidimquery.hypercube.Type type = HypercubeType.forClass(dim.elementType)
+            def type = ValueType.forClass(dim.elementType)
             boolean allEmpty = true
             for(int i=0; i<dimElements.size(); i++) {
                 def element = dimElements[i]
@@ -200,9 +200,9 @@ class HypercubeProtobufSerializer {
     protected DimensionElementFieldColumn buildElementFields(Property prop, List dimElements) {
         DimensionElementFieldColumn.Builder builder = DimensionElementFieldColumn.newBuilder()
 
-        def type = HypercubeType.forClass(prop.type)
+        def type = ValueType.forClass(prop.type)
 
-        if (type == HypercubeType.MAP) {
+        if (type == ValueType.MAP) {
             return buildMapFields(prop, type, dimElements)
         }
 
@@ -224,7 +224,7 @@ class HypercubeProtobufSerializer {
         }
     }
 
-    protected DimensionElementFieldColumn buildMapFields(Property prop, org.transmartproject.core.multidimquery.hypercube.Type type, List dimElements) {
+    protected DimensionElementFieldColumn buildMapFields(Property prop, ValueType type, List dimElements) {
         // assert type == Type.MAP
 
         DimensionElementFieldColumn.Builder builder = DimensionElementFieldColumn.newBuilder()
@@ -251,7 +251,7 @@ class HypercubeProtobufSerializer {
                     def mapColumn = builders.mapColumn = MapColumn.newBuilder()
 
                     Value.Builder keyBuilder = Value.newBuilder()
-                    TypeProtobufSerializer.setValue(HypercubeType.forClass(entry.key.class), keyBuilder, entry.key)
+                    TypeProtobufSerializer.setValue(ValueType.forClass(entry.key.class), keyBuilder, entry.key)
                     mapColumn.setKey(keyBuilder)
 
                     def values = builders.values = DimensionElementFieldColumn.newBuilder()
@@ -266,10 +266,10 @@ class HypercubeProtobufSerializer {
                     continue
                 }
                 if (builders.type == null) {
-                    builders.type = HypercubeType.forClass(entry.value.class)
+                    builders.type = ValueType.forClass(entry.value.class)
                 }
 
-                if (builders.type == HypercubeType.MAP) {
+                if (builders.type == ValueType.MAP) {
                     def valueBuilder = Value.newBuilder()
                     TypeProtobufSerializer.setValue(builders.type, valueBuilder, entry.value)
                     builders.values.addUnpackedValue(valueBuilder)
@@ -297,7 +297,7 @@ class HypercubeProtobufSerializer {
     static class MapFieldBuilders {
         MapColumn.Builder mapColumn
         DimensionElementFieldColumn.Builder values
-        org.transmartproject.core.multidimquery.hypercube.Type type
+        ValueType type
     }
 
     protected Footer buildFooter() {
