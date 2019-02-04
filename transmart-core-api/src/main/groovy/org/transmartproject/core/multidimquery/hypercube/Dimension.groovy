@@ -55,6 +55,10 @@ interface Dimension {
 
     Packable getPackable()
 
+    DimensionType getDimensionType()
+
+    Integer getSortIndex()
+
     List resolveElements(List elementKeys)
 
     def resolveElement(elementKey)
@@ -99,19 +103,4 @@ interface Dimension {
      * @return a String, Number, Date or Map<String,something serializable>
      */
     def asSerializable(element)
-}
-
-/**
- * A property descriptor returned from getElementFields()
- */
-interface Property {
-
-    /** The name to use for this property externally, e.g. for serialization */
-    String getName()
-
-    /** The type of this property. This is the return type for `get` */
-    Class getType()
-
-    /** Given an element, return the value for this property */
-    def get(element)
 }

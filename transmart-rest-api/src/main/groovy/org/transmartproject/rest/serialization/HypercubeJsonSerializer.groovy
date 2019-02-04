@@ -9,6 +9,7 @@ import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.hypercube.DimensionProperties
+import org.transmartproject.core.multidimquery.hypercube.DimensionType
 import org.transmartproject.core.multidimquery.hypercube.Field
 
 import java.time.Instant
@@ -240,7 +241,9 @@ class HypercubeJsonSerializer {
     protected void writeDimensionProperties(DimensionProperties dimension) {
         writer.beginObject()
         writer.name('name').value(dimension.name)
-        writer.name('type').value(dimension.type?.toJson() ?: 'Object')
+        writer.name('dimensionType').value(dimension.dimensionType?.toJson())
+        writer.name('sortIndex').value(dimension.sortIndex)
+        writer.name('valueType').value(dimension.valueType?.toJson() ?: 'Object')
         if (dimension.fields) {
             writer.name('fields')
             writer.beginArray()

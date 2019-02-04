@@ -1,7 +1,9 @@
 package org.transmartproject.core.multidimquery
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import groovy.transform.CompileStatic
 
+@CompileStatic
 enum SortOrder {
     ASC,
     DESC,

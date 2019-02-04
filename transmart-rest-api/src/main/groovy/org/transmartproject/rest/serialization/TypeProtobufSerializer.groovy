@@ -1,6 +1,6 @@
 package org.transmartproject.rest.serialization
 
-import org.transmartproject.core.multidimquery.hypercube.Type
+import org.transmartproject.core.multidimquery.hypercube.ValueType
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 
 /**
@@ -11,21 +11,21 @@ class TypeProtobufSerializer {
     /**
      * Add a value compatible with this Type to a DimensionElementFieldColumn
      */
-    static void addToColumn(Type type, ObservationsProto.DimensionElementFieldColumn.Builder builder, elem) {
+    static void addToColumn(ValueType type, ObservationsProto.DimensionElementFieldColumn.Builder builder, elem) {
         switch(type) {
-            case Type.STRING:
+            case ValueType.STRING:
                 builder.addStringValue((String) elem)
                 break
-            case Type.INT:
+            case ValueType.INT:
                 builder.addIntValue((Long) elem)
                 break
-            case Type.DOUBLE:
+            case ValueType.DOUBLE:
                 builder.addDoubleValue((Double) elem)
                 break
-            case Type.TIMESTAMP:
+            case ValueType.TIMESTAMP:
                 builder.addTimestampValue(((Date) elem).time)
                 break
-            case Type.MAP:
+            case ValueType.MAP:
                 // It is simpler to special-case serialising a map into protobuf messages in the calling code than to
                 // extend this method to support maps
                 throw new UnsupportedOperationException("not implemented for type MAP, use custom code")
@@ -37,27 +37,27 @@ class TypeProtobufSerializer {
     /**
      * Set a value compatible with this Type on a Value.Builder
      */
-    static void setValue(Type type, ObservationsProto.Value.Builder builder, elem) {
+    static void setValue(ValueType type, ObservationsProto.Value.Builder builder, elem) {
         switch(type) {
-            case Type.STRING:
+            case ValueType.STRING:
                 builder.stringValue = (String) elem
                 break
-            case Type.INT:
+            case ValueType.INT:
                 builder.intValue = (Long) elem
                 break
-            case Type.DOUBLE:
+            case ValueType.DOUBLE:
                 builder.doubleValue = (Double) elem
                 break
-            case Type.TIMESTAMP:
+            case ValueType.TIMESTAMP:
                 builder.timestampValue = ((Date) elem).time
                 break
-            case Type.MAP:
+            case ValueType.MAP:
                 Map map = (Map) elem
                 for(def entry : map) {
                     def keyBuilder = ObservationsProto.Value.newBuilder()
-                    setValue(Type.forClass(entry.key.class), keyBuilder, entry.key)
+                    setValue(ValueType.forClass(entry.key.class), keyBuilder, entry.key)
                     def valueBuilder = ObservationsProto.Value.newBuilder()
-                    setValue(Type.forClass(entry.value.class), valueBuilder, entry.value)
+                    setValue(ValueType.forClass(entry.value.class), valueBuilder, entry.value)
                     def objectValue = ObservationsProto.MapEntry.newBuilder()
                             .setKey(keyBuilder)
                             .setValue(valueBuilder)
@@ -70,17 +70,17 @@ class TypeProtobufSerializer {
         }
     }
 
-    static ObservationsProto.Type mapToProtobufType(Type type) {
+    static ObservationsProto.Type mapToProtobufType(ValueType type) {
         switch(type) {
-            case Type.STRING:
+            case ValueType.STRING:
                 return ObservationsProto.Type.STRING
-            case Type.INT:
+            case ValueType.INT:
                 return ObservationsProto.Type.INT
-            case Type.DOUBLE:
+            case ValueType.DOUBLE:
                 return ObservationsProto.Type.DOUBLE
-            case Type.TIMESTAMP:
+            case ValueType.TIMESTAMP:
                 return ObservationsProto.Type.TIMESTAMP
-            case Type.MAP:
+            case ValueType.MAP:
                 return ObservationsProto.Type.OBJECT
             default:
                 throw new RuntimeException("Unsupported type: ${type}. This type is not serializable")

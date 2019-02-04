@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonValue
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum Type {
+enum ValueType {
 
     STRING('String'),
     INT('Int'),
@@ -18,7 +18,7 @@ enum Type {
 
     private String jsonType
 
-    Type(String jsonType) {
+    ValueType(String jsonType) {
         this.jsonType = jsonType
     }
 
@@ -31,15 +31,15 @@ enum Type {
         name().toLowerCase()
     }
 
-    private static final Map<String, Type> mapping = new HashMap<>()
+    private static final Map<String, ValueType> mapping = new HashMap<>()
     static {
-        for (Type type : values()) {
+        for (ValueType type : values()) {
             mapping.put(type.name().toLowerCase(), type)
         }
     }
 
     @JsonCreator
-    static Type forName(String name) {
+    static ValueType forName(String name) {
         name = name.toLowerCase()
         if (mapping.containsKey(name)) {
             return mapping[name]
@@ -48,7 +48,7 @@ enum Type {
         }
     }
 
-    static Type forClass(Class cls) {
+    static ValueType forClass(Class cls) {
         switch (cls) {
             case String:
                 return STRING
