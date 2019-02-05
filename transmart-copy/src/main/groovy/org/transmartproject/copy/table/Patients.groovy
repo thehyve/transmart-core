@@ -9,6 +9,7 @@ package org.transmartproject.copy.table
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -28,8 +29,8 @@ class Patients {
 
     final Database database
 
-    final LinkedHashMap<String, Class> patientDimensionColumns
-    final LinkedHashMap<String, Class> patientMappingColumns
+    final LinkedHashMap<String, ColumnMetadata> patientDimensionColumns
+    final LinkedHashMap<String, ColumnMetadata> patientMappingColumns
 
     final Map<String, Long> subjectIdToPatientNum = [:]
     final Map<Integer, Long> indexToPatientNum = [:]
@@ -71,7 +72,7 @@ class Patients {
         def existingCount = 0
         Set<Integer> missingPatients = []
         Map<Integer, Map> missingPatientsMappingData = [:]
-        LinkedHashMap<String, Class> patientMappingHeader = patientMappingColumns
+        LinkedHashMap<String, Class> patientMappingHeader
         def mappingFile = new File(rootPath, PATIENT_MAPPING_TABLE.fileName)
         mappingFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
@@ -109,7 +110,7 @@ class Patients {
             }
         }
         def tx = database.beginTransaction()
-        LinkedHashMap<String, Class> patientDimensionHeader = patientDimensionColumns
+        LinkedHashMap<String, Class> patientDimensionHeader
         def patientsFile = new File(rootPath, PATIENT_DIMENSION_TABLE.fileName)
         patientsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
