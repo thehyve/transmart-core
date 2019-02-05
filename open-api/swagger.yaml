@@ -3106,6 +3106,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/HalStudy'
+
     StorageSystem:
       type: object
       properties:
@@ -3121,6 +3122,7 @@ components:
           type: string
         singleFileCollections:
           type: boolean
+
     FileLink:
       type: object
       properties:
@@ -3140,6 +3142,7 @@ components:
           type: string
         uuid:
           type: string
+
     SupportedWorkflow:
       type: object
       properties:
@@ -3158,6 +3161,7 @@ components:
         defaultParams:
           description: a map of key value pairs
           type: object
+
     TreeNode:
       type: object
       properties:
@@ -3196,6 +3200,7 @@ components:
             conceptCode:
               description: 'Example: `age`'
               type: string
+
     Study:
       type: object
       properties:
@@ -3211,17 +3216,20 @@ components:
             type: string
         metadata:
           $ref: '#/components/schemas/StudyMetadata'
+
     StudyMetadata:
       type: object
       properties:
-        conceptToVariableName:
-          description: a map from concept code to variable name in the study.
+        conceptCodeToVariableMetadata:
+          description: a map from concept code to variable metadata in the study.
           type: object
           properties:
             <conceptCode>:
-              type: string
+              $ref: '#/components/schemas/VariableMetadata'
+
           additionalProperties:
             type: string
+
     Patient:
       type: object
       properties:
@@ -3247,6 +3255,7 @@ components:
           type: string
         trial:
           type: string
+
     PatientSet:
       type: object
       properties:
@@ -3266,6 +3275,7 @@ components:
           type: string
         apiVersion:
           type: string
+
     Concept:
       type: object
       properties:
@@ -3275,8 +3285,7 @@ components:
           type: string
         name:
           type: string
-        metadata:
-          $ref: '#/components/schemas/VariableMetadata'
+
     VariableMetadata:
       type: object
       properties:
@@ -3306,6 +3315,7 @@ components:
           type: array
           items:
             type: integer
+
     Counts:
       type: object
       properties:
@@ -3321,6 +3331,7 @@ components:
             count is below the threshold. See `/v2/patient_counts_threshold`
             call.
           type: integer
+
     CountsMap:
       description: a map from string to Counts.
       properties:
