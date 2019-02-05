@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -40,7 +41,7 @@ class Tags {
 
     final Database database
 
-    final LinkedHashMap<String, Class> columns
+    final LinkedHashMap<String, ColumnMetadata> columns
 
     final TreeNodes treeNodes
 
@@ -96,7 +97,7 @@ class Tags {
             log.info "Reading tags from file ..."
             def insertCount = 0
             def existingCount = 0
-            LinkedHashMap<String, Class> header = columns
+            LinkedHashMap<String, Class> header
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {

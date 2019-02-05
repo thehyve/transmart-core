@@ -9,6 +9,7 @@ package org.transmartproject.copy.table
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Counts
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
@@ -28,7 +29,7 @@ class Concepts {
 
     final Database database
 
-    final LinkedHashMap<String, Class> columns
+    final LinkedHashMap<String, ColumnMetadata> columns
 
     final Set<String> conceptCodes = []
     final Set<String> conceptPaths = []
@@ -142,7 +143,7 @@ class Concepts {
             log.info "Reading concepts from file ..."
             def counts = new Counts()
             def tsvReader = Util.tsvReader(reader)
-            LinkedHashMap<String, Class> header = columns
+            LinkedHashMap<String, Class> header
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
                     header = Util.verifyHeader(TABLE.fileName, data, columns)

@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
@@ -32,8 +33,8 @@ class Relations {
     final Patients patients
     final Copy.Config config
 
-    final LinkedHashMap<String, Class> relationTypeColumns
-    final LinkedHashMap<String, Class> relationColumns
+    final LinkedHashMap<String, ColumnMetadata> relationTypeColumns
+    final LinkedHashMap<String, ColumnMetadata> relationColumns
     final int relationTypeIdIndex
     final int leftSubjectIdIndex
     final int rightSubjectIdIndex
@@ -127,7 +128,7 @@ class Relations {
         def relationTypesFile = new File(rootPath, RELATION_TYPE_TABLE.fileName)
         // Insert relation types
         relationTypesFile.withReader { reader ->
-            LinkedHashMap<String, Class> header = relationTypeColumns
+            LinkedHashMap<String, Class> header
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
