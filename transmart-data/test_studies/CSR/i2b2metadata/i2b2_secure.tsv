@@ -32,7 +32,7 @@ c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode
 4	\Public Studies\CSR\05. Study information\STD2\04. Individual Study ID\	04. Individual Study ID	N	LAN		eecc1d9cbd2b8ac72e1fc9771e574b248931328c		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\CSR\05. Study information\STD2\04. Individual Study ID\			@				CSR						PUBLIC
 4	\Public Studies\CSR\05. Study information\STD2\02. Study acronym\	02. Study acronym	N	LAC		bb02b2fe41e213d2f2511228236e63c8144c2bd9		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\CSR\05. Study information\STD2\02. Study acronym\			@				CSR						PUBLIC
 4	\Public Studies\CSR\05. Study information\STD2\03. Study title\	03. Study title	N	LAC		e2823a4ea40466a199a724b967a1cd8f9f28b533		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\CSR\05. Study information\STD2\03. Study title\			@				CSR						PUBLIC
-1	\Public Studies\CSR\	CSR	N	FA				@	STUDY	STUDY_ID	T	=	CSR			@				CSR						PUBLIC
+1	\Public Studies\CSR\	CSR	N	FAS				@	STUDY	STUDY_ID	T	=	CSR			@				CSR						PUBLIC
 0	\Public Studies\	Public Studies	N	CA				@	@	@	T	=	@			@										PUBLIC
 2	\Public Studies\CSR\03. Biosource information\	03. Biosource information	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\CSR\03. Biosource information\			@				CSR						PUBLIC
 2	\Public Studies\CSR\04. Biomaterial information\	04. Biomaterial information	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\CSR\04. Biomaterial information\			@				CSR						PUBLIC
