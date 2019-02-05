@@ -141,4 +141,19 @@ class ObservationFact implements Serializable {
                         "must be one of ${ALL_TYPES.join(', ')}. Found '${valueType}'.")
         }
     }
+
+    @CompileStatic
+    static final String observationFactValueField(final String valueType) {
+        switch (valueType) {
+            case TYPE_NUMBER:
+            case TYPE_DATE:
+                return 'numberValue'
+            case TYPE_TEXT:
+                return 'textValue'
+            default:
+                throw new DataInconsistencyException("Unsupported database value: ObservationFact.valueType " +
+                        "must be one of ${ALL_TYPES.join(', ')}. Found '${valueType}'.")
+        }
+    }
+
 }
