@@ -3,7 +3,7 @@
 --
 CREATE TABLE i2b2_tags (
     tag_id integer NOT NULL,
-    path character varying(400) NOT NULL,
+    path character varying(700) NOT NULL,
     tag text,
     tag_type character varying(400) NOT NULL,
     tags_idx integer NOT NULL,
