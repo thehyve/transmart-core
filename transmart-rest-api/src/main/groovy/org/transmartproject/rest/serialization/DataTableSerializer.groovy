@@ -111,6 +111,25 @@ class DataTableSerializer {
         writer.endArray()
     }
 
+    /**
+     * Build an dimensional object to serialize using the field descriptions of the dimension.
+     * @param dim the dimension to serialize the object for.
+     * @param dimElement the value to serialize.
+     * @return an object to use for writing.
+     */
+    protected static Object buildDimensionElement(Dimension dim, Object dimElement) {
+        if (dimElement == null) return null
+        if (dim.elementsSerializable) {
+            return dimElement
+        } else {
+            def value = [:] as Map<String, Object>
+            for(prop in dim.elementFields.values()) {
+                value[prop.name] = prop.get(dimElement)
+            }
+            return value
+        }
+    }
+
     protected void writeDimension(Dimension dimension) {
         writer.beginObject()
         writer.name('name').value(dimension.name)
@@ -135,9 +154,7 @@ class DataTableSerializer {
             for (def element: dimension.resolveElements(dimensionKeys)) {
                 def key = dimension.getKey(element)
                 writer.name(key.toString())
-                Map value = (Map) dimension.asSerializable(element)
-                value.label = key
-                writeValue(value)
+                writeValue(buildDimensionElement(dimension, element))
             }
             writer.endObject()
         }

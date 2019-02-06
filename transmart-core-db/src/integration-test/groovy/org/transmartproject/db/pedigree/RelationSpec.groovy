@@ -81,13 +81,13 @@ class RelationSpec extends Specification {
         def user = User.findByUsername('test-public-user-1')
 
         when: 'no relation type specified'
-        multiDimService.getDimensionElements(PATIENT, new RelationConstraint(), user)
+        multiDimService.getDimensionElements(PATIENT.name, new RelationConstraint(), user)
         then: 'exception is thrown'
         def e1 = thrown(QueryBuilderException)
         e1.message == 'No null relation type found.'
 
         when: 'not-existed relation type specified'
-        multiDimService.getDimensionElements(PATIENT,
+        multiDimService.getDimensionElements(PATIENT.name,
                 new RelationConstraint(
                         relationTypeLabel: 'NON-EXISTENT'
                 ), user)
@@ -96,7 +96,7 @@ class RelationSpec extends Specification {
         e2.message == 'No NON-EXISTENT relation type found.'
 
         when: 'get parents for the subject'
-        def allParents = multiDimService.getDimensionElements(PATIENT,
+        def allParents = multiDimService.getDimensionElements(PATIENT.name,
                 new RelationConstraint(
                         relationTypeLabel: 'PAR'
                 ), user)
@@ -104,7 +104,7 @@ class RelationSpec extends Specification {
         allParents.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['1', '2', '3', '4', '5', '10', '11'] as Set
 
         when: 'get parents for the subject'
-        def parentsForSubject = multiDimService.getDimensionElements(PATIENT,
+        def parentsForSubject = multiDimService.getDimensionElements(PATIENT.name,
                 new RelationConstraint(
                         relatedSubjectsConstraint: new PatientSetConstraint(
                                 subjectIds: ['14']
@@ -115,7 +115,7 @@ class RelationSpec extends Specification {
         parentsForSubject.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['10', '11'] as Set
 
         when: 'get all step parents'
-        def stepParents = multiDimService.getDimensionElements(PATIENT,
+        def stepParents = multiDimService.getDimensionElements(PATIENT.name,
                 new RelationConstraint(
                         relationTypeLabel: 'PAR',
                         biological: false
@@ -124,7 +124,7 @@ class RelationSpec extends Specification {
         stepParents.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['4', '5'] as Set
 
         when: 'get all parents that don\'t live with theirs kids at the same address'
-        def parentsThatLiveSeparateFromTheirKids = multiDimService.getDimensionElements(PATIENT,
+        def parentsThatLiveSeparateFromTheirKids = multiDimService.getDimensionElements(PATIENT.name,
                 new RelationConstraint(
                         relationTypeLabel: 'PAR',
                         shareHousehold: false
@@ -133,7 +133,7 @@ class RelationSpec extends Specification {
         parentsThatLiveSeparateFromTheirKids.collect { it.subjectIds.get('SUBJ_ID') } as Set == ['2', '3', '4', '5'] as Set
 
         when: 'get all biological siblings that have twin kids.'
-        def siblingsWithTwins = multiDimService.getDimensionElements(PATIENT,
+        def siblingsWithTwins = multiDimService.getDimensionElements(PATIENT.name,
                 new RelationConstraint(
                         relatedSubjectsConstraint: new AndConstraint([
                                 new ConceptConstraint(path: '\\Pedigree\\Number of children that are multiplet\\'),

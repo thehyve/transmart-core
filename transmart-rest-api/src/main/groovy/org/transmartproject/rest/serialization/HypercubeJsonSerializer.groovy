@@ -8,8 +8,11 @@ import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.hypercube.DimensionProperties
+import org.transmartproject.core.multidimquery.hypercube.Field
 
 import java.time.Instant
+import java.util.stream.Collectors
 
 /**
  * <code>
@@ -55,24 +58,6 @@ import java.time.Instant
 class HypercubeJsonSerializer {
 
     /**
-     * Contains information about a field of a dimension
-     */
-    static class Field {
-        String name
-        Type type
-    }
-
-    /**
-     * Contains information about a dimension
-     */
-    static class DimensionProperties {
-        String name
-        Type type
-        List<Field> fields
-        boolean inline = false
-    }
-
-    /**
      * Contains information about an observation.
      */
     static class Cell {
@@ -113,7 +98,6 @@ class HypercubeJsonSerializer {
 
     /**
      * Begins the output message.
-     * @param out the stream to write to.
      */
     protected void begin() {
         writer.beginObject()
@@ -121,7 +105,6 @@ class HypercubeJsonSerializer {
 
     /**
      * Ends the output message.
-     * @param out the stream to write to.
      */
     protected void end() {
         writer.endObject()
@@ -224,7 +207,6 @@ class HypercubeJsonSerializer {
     /**
      * Writes the sequence of messages representing the values passed by the
      * value iterator.
-     * @param out the stream to write to.
      * @param valueIterator an iterator for the values to serialize.
      */
     protected void writeCells() {
@@ -243,34 +225,22 @@ class HypercubeJsonSerializer {
      * @return a list of dimension declarations.
      */
     protected List<DimensionProperties> buildDimensionDeclarations() {
-        def declarations = cube.dimensions.collect { dim ->
-            // Sparse dimensions are inlined, dense dimensions are referred to by indexes
-            // (referring to objects in the footer message).
-            def dimensionProperties = new DimensionProperties(name: dim.name, inline: dim.density.isSparse)
-            if(dim.elementsSerializable) {
-                dimensionProperties.type = Type.get(dim.elementType)
-            } else {
-                dimensionProperties.fields = dim.elementFields.values().asList().collect {
-                    new Field(name: it.name, type: Type.get(it.type))
-                }
-            }
-
-            dimensionProperties
-        }
-        declarations
+        cube.dimensions.stream()
+                .map({Dimension dim -> DimensionProperties.forDimension(dim)})
+                .collect(Collectors.toList())
     }
 
     protected void writeField(Field field) {
         writer.beginObject()
         writer.name('name').value(field.name)
-        writer.name('type').value(field.type.jsonType)
+        writer.name('type').value(field.type.toJson())
         writer.endObject()
     }
 
     protected void writeDimensionProperties(DimensionProperties dimension) {
         writer.beginObject()
         writer.name('name').value(dimension.name)
-        writer.name('type').value(dimension.type?.jsonType ?: 'Object')
+        writer.name('type').value(dimension.type?.toJson() ?: 'Object')
         if (dimension.fields) {
             writer.name('fields')
             writer.beginArray()
@@ -288,7 +258,6 @@ class HypercubeJsonSerializer {
     /**
      * Writes a header message describing the dimensions of the value messages that
      * will be written.
-     * @param out the stream to write to.
      */
     protected void writeHeader() {
         writer.name('dimensionDeclarations')
@@ -312,7 +281,6 @@ class HypercubeJsonSerializer {
     /**
      * Writes a footer message containing the indexed dimension elements referred to in the value
      * messages.
-     * @param out the stream to write to.
      */
     protected void writeFooter() {
         writer.name('dimensionElements')

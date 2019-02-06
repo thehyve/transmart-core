@@ -460,7 +460,7 @@ class QueryServicePgSpec extends Specification {
         def expectedResult = results.collect { it[VISIT] }.findAll { it } as Set
 
         when: "I query for all visits for a constraint"
-        def visits = multiDimService.getDimensionElements(dimension, constraint, user).collect {
+        def visits = multiDimService.getDimensionElements(dimension.name, constraint, user).collect {
             dimension.asSerializable(it)
         }
 
