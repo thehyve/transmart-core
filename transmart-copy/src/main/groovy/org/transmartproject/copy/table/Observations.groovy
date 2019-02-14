@@ -12,6 +12,7 @@ import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.transaction.TransactionStatus
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Copy
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
@@ -34,7 +35,7 @@ class Observations {
     final Database database
     final Copy.Config config
 
-    final LinkedHashMap<String, Class> columns
+    final LinkedHashMap<String, ColumnMetadata> columns
 
     final Studies studies
     final Concepts concepts

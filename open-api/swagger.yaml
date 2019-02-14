@@ -3671,7 +3671,12 @@ components:
           type: boolean
         name:
           type: string
-        type:
+        dimensionType:
+          type: string
+          enum: [subject, attribute]
+        sortIndex:
+          type: number
+        valueType:
           type: string
           enum: [String, Int, Double, Timestamp, Object]
         fields:

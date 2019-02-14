@@ -126,14 +126,15 @@ class Database implements AutoCloseable {
         resultSet.next()
     }
 
-    LinkedHashMap<String, Class> getColumnMetadata(Table table) {
+    LinkedHashMap<String, ColumnMetadata> getColumnMetadata(Table table) {
         log.debug "Fetching metadata for ${table} ..."
         def resultSet = connection.metaData.getColumns(null, table.schema, table.name, null)
         def result = [:] as LinkedHashMap
         while (resultSet.next()) {
             String columnName   = resultSet.getString('COLUMN_NAME')
             String dataTypeName = resultSet.getString('TYPE_NAME')
-            result[columnName] = getClassForType(dataTypeName)
+            Boolean nullable = resultSet.getBoolean('NULLABLE')
+            result[columnName] = new ColumnMetadata(getClassForType(dataTypeName), nullable)
         }
         result
     }
