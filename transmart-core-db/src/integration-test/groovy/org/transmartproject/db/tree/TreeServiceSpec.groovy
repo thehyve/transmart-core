@@ -71,6 +71,7 @@ class TreeServiceSpec extends Specification {
                 'CSR',
                 'EHR',
                 'EHR_HIGHDIM',
+                'IMAGES',
                 'MIX_HD',
                 'Oracle_1000_Patient',
                 'RNASEQ_TRANSCRIPT',
