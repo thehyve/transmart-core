@@ -25,7 +25,7 @@ class DimensionSpec extends RESTSpec {
         dimensionNames as Set == ['study', 'patient', 'concept', 'trial visit',
                                   'biomarker', 'assay', 'projection',
                                   'end time', 'visit', 'start time', 'missing_value', 'sample_type',
-                                  'Biomaterial ID', 'Diagnosis ID', 'Biosource ID'] as Set
+                                  'Biomaterial ID', 'Diagnosis ID', 'Biosource ID', 'Images Id'] as Set
     }
 
     @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
@@ -58,7 +58,7 @@ class DimensionSpec extends RESTSpec {
         ])
 
         then: "the list of trial visits for unrestricted studies is returned"
-        responseData.elements.size() == 23
+        responseData.elements.size() == 24
     }
 
     @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
@@ -74,7 +74,7 @@ class DimensionSpec extends RESTSpec {
         ])
 
         then: "the list of trial visits for all studies is returned"
-        responseData.elements.size() == 25
+        responseData.elements.size() == 26
     }
 
     def "Invalid dimension name"() {
