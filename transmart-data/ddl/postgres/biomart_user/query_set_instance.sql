@@ -1,5 +1,6 @@
 --
 -- Name: query_set_instance; Type: TABLE; Schema: biomart_user; Owner: -
+-- DEPRECATED! user queries related functionality has been moved to a gb-backend application
 --
 CREATE TABLE biomart_user.query_set_instance (
     id SERIAL PRIMARY KEY,
@@ -16,7 +17,7 @@ ALTER TABLE ONLY biomart_user.query_set_instance
 --
 -- Table documentation
 --
-COMMENT ON TABLE biomart_user.query_set_instance IS 'Table stores information about specific instances of the query set';
+COMMENT ON TABLE biomart_user.query_set_instance IS 'Table stores information about specific instances of the query set. DEPRECATED! This table has been moved to a gb-backend application.';
 
 COMMENT ON COLUMN biomart_user.query_set_instance.query_set_id IS 'Foreign key to id in query_set table.';
 COMMENT ON COLUMN biomart_user.query_set_instance.object_id IS 'The id of the object that is being represented by the set instance, e.g. id of an i2b2demodata.patient_dimension instance.';

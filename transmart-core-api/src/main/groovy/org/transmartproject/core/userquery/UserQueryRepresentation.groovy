@@ -12,6 +12,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 
 @Canonical
 @CompileStatic
+@Deprecated
 class UserQueryRepresentation {
 
     Long id

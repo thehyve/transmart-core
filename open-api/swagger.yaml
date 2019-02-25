@@ -272,7 +272,7 @@ info:
     }
 
     ```
-    
+
     Example that includes modifier-based dimensions: Select all observations for patients who have certain tumor type and it's biomaterial with certain type.
 
     ```json
@@ -2673,10 +2673,29 @@ paths:
                     items:
                       type: string
 
+  /v2/pedigree/relation_types:
+    get:
+      description: |
+        Gets the list of the relation types.
+      tags:
+        - v2
+      responses:
+        '200':
+          description: |
+            returns the list of the relation types.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RelationType'
+
   /v2/queries:
     get:
       description: |
         Gets a list of all queries for current user.
+        Deprecated. User queries related functionality has been moved to a gb-backend application
+      deprecated: true
       tags:
         - v2
       responses:
@@ -2695,6 +2714,8 @@ paths:
     post:
       description: |
         Adds a new user query with the properties provided in the body.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       responses:
@@ -2730,7 +2751,9 @@ paths:
   '/v2/queries/{id}':
     get:
       description: |
-        Gets the user query with the given `id`
+        Gets the user query with the given `id`.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2750,6 +2773,8 @@ paths:
     put:
       description: |
         Updates the user query with given id with the values in the body.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2781,6 +2806,8 @@ paths:
     delete:
       description: |
         Deletes the user query with the given id.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2793,28 +2820,13 @@ paths:
         '204':
           description: returns null
 
-  /v2/pedigree/relation_types:
-    get:
-      description: |
-        Gets the list of the relation types.
-      tags:
-        - v2
-      responses:
-        '200':
-          description: |
-            returns the list of the relation types.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RelationType'
-
   '/v2/queries/{queryId}/sets':
     get:
       description: |
         Gets a list of query result change entries by query id.
         History of data changes for specific query.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2988,12 +3000,16 @@ paths:
     get:
       description: >
         Triggers sending of emails to users that subscribed for updates
+
         regarding queries they have created.
 
         Only for administrators.
 
         This requires transmart-notifications plugin and
         `/v2/admin/notifications/notify` endpoint to be enabled.
+
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
         - admin

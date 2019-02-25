@@ -11,7 +11,9 @@ import static config.Config.*
  * These tests requires transmart-notifications plugin and /v2/admin/notifications/notify endpoint
  * to be enabled and properly configured.
  * See transmart-notifications configuration description.
+ * @deprecated user queries related functionality has been moved to a gb-backend application
  */
+@Deprecated
 class NotificationsSpec extends RESTSpec {
 
     void 'test triggering email sending by a regular user is denied'() {

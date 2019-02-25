@@ -29,6 +29,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.PATIENT
 
 @Transactional
 @CompileStatic
+@Deprecated
 class UserQuerySetService implements UserQuerySetResource {
 
     @Autowired
