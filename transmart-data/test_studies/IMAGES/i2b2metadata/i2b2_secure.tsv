@@ -1,9 +1,9 @@
 c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode	c_metadataxml	c_facttablecolumn	c_tablename	c_columnname	c_columndatatype	c_operator	c_dimcode	c_comment	c_tooltip	m_applied_path	update_date	download_date	import_date	sourcesystem_cd	valuetype_cd	m_exclusion_cd	c_path	c_symbol	i2b2_id	secure_obj_token
 0	\Public Studies\	Public Studies	N	CA				@	@	@	T	=	@			@										PUBLIC
-1	\Public Studies\IMAGES\	IMAGES	N	FA				@	STUDY	STUDY_ID	T	=	IMAGES			@				IMAGES						PUBLIC
+1	\Public Studies\IMAGES\	IMAGES	N	FAS				@	STUDY	STUDY_ID	T	=	IMAGES			@				IMAGES						PUBLIC
 2	\Public Studies\IMAGES\Demography\	Demography	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\IMAGES\Demography\			@				IMAGES						PUBLIC
 2	\Public Studies\IMAGES\Images\	Images	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\IMAGES\Images\			@				IMAGES						PUBLIC
-3	\Public Studies\IMAGES\Demography\Age\	Age	N	LAC		IMAGES:DEM:AGE		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\IMAGES\Demography\Age\			@				IMAGES						PUBLIC
+3	\Public Studies\IMAGES\Demography\Age\	Age	N	LAN		IMAGES:DEM:AGE		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\IMAGES\Demography\Age\			@				IMAGES						PUBLIC
 3	\Public Studies\IMAGES\Demography\Gender\	Gender	N	LAC		IMAGES:DEM:GENDER		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\IMAGES\Demography\Gender\			@				IMAGES						PUBLIC
 3	\Public Studies\IMAGES\Images\Tissue\	Tissue	N	LAC		IMAGES:DEM:TISSUE		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\IMAGES\Images\Tissue\			@				IMAGES						PUBLIC
 3	\Public Studies\IMAGES\Images\Type\	Type	N	LAC		IMAGES:DEM:TYPE		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Public Studies\IMAGES\Images\Type\			@				IMAGES						PUBLIC
