@@ -79,7 +79,7 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         mocksSetup()
 
         when: "A request is made to the dimensions endpoint"
-        def response = get("${contextPath}/dimensions/patient/elements")
+        def response = post("${contextPath}/dimensions/patient/elements", null)
         sleep(1000)
 
         then: "A log entry is created"

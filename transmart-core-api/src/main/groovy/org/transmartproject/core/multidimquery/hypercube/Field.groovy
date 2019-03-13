@@ -4,13 +4,11 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 
 /**
- * @see Property
+ * Contains information about a field of a dimension
  */
 @CompileStatic
 @Canonical
-class DimensionProperty {
+class Field {
     String name
-    String type
-    Set<DimensionProperty> fields
-    Boolean inline
+    ValueType type
 }

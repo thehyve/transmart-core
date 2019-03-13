@@ -22,7 +22,7 @@ package org.transmartproject.db.querytool
 import org.transmartproject.core.userquery.ChangeFlag
 import org.transmartproject.core.userquery.UserQuerySetDiff
 
-
+@Deprecated
 class QuerySetDiff implements UserQuerySetDiff {
 
     Long id

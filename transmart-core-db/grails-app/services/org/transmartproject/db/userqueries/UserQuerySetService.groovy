@@ -29,6 +29,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.PATIENT
 
 @Transactional
 @CompileStatic
+@Deprecated
 class UserQuerySetService implements UserQuerySetResource {
 
     @Autowired
@@ -243,7 +244,7 @@ class UserQuerySetService implements UserQuerySetResource {
 
     private List<Long> getPatientsForQuery(UserQueryRepresentation query, User user) {
         userQueryService.checkConstraintAccess(query.patientsQuery, user)
-        List<Patient> newPatients = multiDimService.getDimensionElements(PATIENT, query.patientsQuery, user).toList()
+        List<Patient> newPatients = multiDimService.getDimensionElements(PATIENT.name, query.patientsQuery, user).toList()
         newPatients.id
     }
 

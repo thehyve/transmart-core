@@ -81,7 +81,7 @@ class RelationSpec extends RESTSpec {
         def selector = jsonSelector(responseData)
 
         then: "there are 16 observations"
-        assert selector.cellCount == 16
+        assert selector.cellCount == 17
     }
 
     def "get male parent of a twin"() {

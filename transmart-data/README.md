@@ -126,9 +126,9 @@ Transmart will not run against a lower level edition of Oracle.
 
 ### Create the database and load the essentials
 
-    make -j4 postgres
+    make postgres
 
-    make -j4 oracle
+    make oracle
 
 For PostgreSQL, you can skip the tablespace assignments, which are not really
 important for development, by setting the environment variable
@@ -147,9 +147,9 @@ to generate the hashes.
 
 ### Create the database and load test data
 
-    make -j4 postgres_test
+    make postgres_test
 
-    make -j4 oracle_test
+    make oracle_test
 
 ### Only fix permissions, owners or tablespace assignments (PostgreSQL only)
 

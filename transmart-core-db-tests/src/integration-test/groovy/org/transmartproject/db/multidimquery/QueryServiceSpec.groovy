@@ -183,7 +183,7 @@ class QueryServiceSpec extends Specification {
     }
 
     private List<Patient> getPatients(Constraint constraint) {
-        multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+        multiDimService.getDimensionElements('patient',
                 constraint, accessLevelTestData.users[0]).toList()
     }
 
@@ -480,7 +480,7 @@ class QueryServiceSpec extends Specification {
         def expectedResults = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
 
         when:"I query for all trial visits for a constraint"
-        def trialVisits = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[1]).collect {
+        def trialVisits = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[1]).collect {
             dimension.asSerializable(it)
         }
 
@@ -510,7 +510,7 @@ class QueryServiceSpec extends Specification {
                 findAll {it.modifierCd == dimension.modifierCode}?.numberValue as Set<BigDecimal>
 
         when:"I query for all dose dimension elements from sample study"
-        def doseDimElements = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+        def doseDimElements = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[0]).collect {
             dimension.asSerializable(it)
         }
 
@@ -534,7 +534,7 @@ class QueryServiceSpec extends Specification {
         def expectedResults = hypercubeTestData.clinicalData.ehrClinicalFacts.startDate.collect {
             it?.toTimestamp()
         } as Set<Timestamp>
-        def startTimes = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+        def startTimes = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[0]).collect {
             dimension.asSerializable(it)
         }
 
@@ -553,7 +553,7 @@ class QueryServiceSpec extends Specification {
         expectedResults = hypercubeTestData.clinicalData.ehrClinicalFacts.endDate.collect {
             it?.toTimestamp()
         } as Set<Timestamp>
-        def endTimes = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+        def endTimes = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[0]).collect {
             dimension.asSerializable(it)
         }
         then: "List of all end dates matching the constraints is returned"
@@ -570,7 +570,7 @@ class QueryServiceSpec extends Specification {
         when: "I query for all location dimension elements"
         dimension = DimensionImpl.LOCATION
         expectedResults = hypercubeTestData.clinicalData.ehrClinicalFacts.locationCd as Set<String>
-        def locations = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+        def locations = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[0]).collect {
             dimension.asSerializable(it)
         }
         then: "List of all locations matching the constraints is returned"
@@ -596,7 +596,7 @@ class QueryServiceSpec extends Specification {
         def expectedResults = hypercubeTestData.clinicalData.longitudinalStudy
 
         when:"I query for all studies for a constraint with admin user"
-        def studies = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+        def studies = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[0]).collect {
             dimension.asSerializable(it)
         }
 
@@ -613,7 +613,7 @@ class QueryServiceSpec extends Specification {
         studiesCount == 1
 
         when:"I query for all studies for a constraint with user without access to any study"
-        def studies2 = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[4]).collect {
+        def studies2 = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[4]).collect {
             dimension.asSerializable(it)
         }
 

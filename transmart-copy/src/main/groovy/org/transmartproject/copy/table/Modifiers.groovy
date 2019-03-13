@@ -9,6 +9,7 @@ package org.transmartproject.copy.table
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -27,7 +28,7 @@ class Modifiers {
 
     final Database database
 
-    final LinkedHashMap<String, Class> columns
+    final LinkedHashMap<String, ColumnMetadata> columns
 
     final Set<String> modifierCodes = []
 
@@ -64,7 +65,7 @@ class Modifiers {
             return
         }
         def tx = database.beginTransaction()
-        LinkedHashMap<String, Class> header = columns
+        LinkedHashMap<String, Class> header
         modifiersFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             tsvReader.eachWithIndex { String[] data, int i ->

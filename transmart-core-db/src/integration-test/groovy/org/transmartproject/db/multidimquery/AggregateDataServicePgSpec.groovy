@@ -72,6 +72,9 @@ class AggregateDataServicePgSpec extends Specification {
                 'TUMOR_NORMAL_SAMPLES',
                 'SURVEY1',
                 'SURVEY2',
+                '100_CATS',
+                'CSR',
+                'IMAGES'
         ] as Set
 
         then: "the result should have the correct counts for study EHR"

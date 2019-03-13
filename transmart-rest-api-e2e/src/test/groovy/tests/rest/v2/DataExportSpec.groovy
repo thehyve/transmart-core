@@ -73,7 +73,7 @@ class DataExportSpec extends RESTSpec {
 
         then: "I get data formats for both clinical and highDim types"
         assert getDataFormatsResponse != null
-        assert getDataFormatsResponse.dataFormats.containsAll(["clinical", "mrna"])
+        assert getDataFormatsResponse.dataFormats.contains("clinical")
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
@@ -108,11 +108,8 @@ class DataExportSpec extends RESTSpec {
                         elements  :
                                 [[
                                          dataType: 'clinical',
-                                         format  : 'TSV'
-                                 ],
-                                 [
-                                         dataType: 'mrna',
-                                         format  : 'TSV'
+                                         format  : 'TSV',
+                                         dataView : 'surveyTable'
                                  ]],
                 ],
                 user      : DEFAULT_USER,
@@ -121,7 +118,8 @@ class DataExportSpec extends RESTSpec {
         def responseData = toObject(response, ErrorResponse)
 
        then:
-       responseData.message == "Access denied to patient set or patient set does not exist: ${patientSetId}"
+       responseData.message.startsWith("Access denied")
+       responseData.message.contains(patientSetId.toString())
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
@@ -146,11 +144,8 @@ class DataExportSpec extends RESTSpec {
                         ],
                         elements  : [[
                                              dataType: 'clinical',
-                                             format  : 'TSV'
-                                     ],
-                                     [
-                                             dataType: 'mrna',
-                                             format  : 'TSV'
+                                             format  : 'TSV',
+                                             dataView : 'surveyTable'
                                      ]],
                 ],
                 acceptType: JSON,
@@ -200,17 +195,13 @@ class DataExportSpec extends RESTSpec {
         assert downloadResponse != null
 
 
-        when: "Try to download the file"
-        def downloadRequest2 = [
+        expect: 'users who did not request file has to get 404 code'
+        get([
                 path      : "$PATH_DATA_EXPORT/$jobId/download",
                 acceptType: ZIP,
                 user      : DEFAULT_USER,
-                statusCode: 403
-        ]
-        def downloadResponse2 = get(downloadRequest2)
-
-        then: "error is returned"
-        downloadResponse2.message == "Job ${jobId} was not created by this user"
+                statusCode: 404
+        ])
 
     }
 
@@ -240,6 +231,7 @@ class DataExportSpec extends RESTSpec {
         def request = [
                 path      : "$PATH_DATA_EXPORT/file_formats",
                 acceptType: JSON,
+                query: [dataView : 'dataTable']
         ]
 
         when: "I request all supported fields"
@@ -266,7 +258,8 @@ class DataExportSpec extends RESTSpec {
                 body      : [
                         elements: [[
                                            dataType: 'clinical',
-                                           format  : 'TSV'
+                                           format  : 'TSV',
+                                           dataView : 'surveyTable'
                                    ]],
                 ],
                 acceptType: JSON,
@@ -285,21 +278,19 @@ class DataExportSpec extends RESTSpec {
                              path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"],
                 elements  : [[
                                      dataType: 'clinical',
-                                     format  : 'TSV'
-                             ]]
+                                     format  : 'TSV',
+                                     dataView: 'dataTable'
+                             ]],
+                tableConfig: [rowDimensions: ['patient'], columnDimensions: ['concept']]
         ])
 
         then:
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
-        filesLineNumbers['clinical_observations.tsv'] == 10
-        filesLineNumbers['clinical_study.tsv'] == 2
-        filesLineNumbers['clinical_concept.tsv'] == 2
-        filesLineNumbers['clinical_patient.tsv'] == 4
-        filesLineNumbers['clinical_visit.tsv'] == 8
-        filesLineNumbers['clinical_trial_visit.tsv'] == 2
-        filesLineNumbers['clinical_provider.tsv'] == 1
-        filesLineNumbers['clinical_sample_type.tsv'] == 1
+        filesLineNumbers['metadata.json']
+        filesLineNumbers['data.tsv']
+        filesLineNumbers['patient.tsv']
+        filesLineNumbers['concept.tsv']
     }
 
     @RequiresStudy(SURVEY1_ID)
@@ -320,8 +311,8 @@ class DataExportSpec extends RESTSpec {
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         filesLineNumbers.size() == 3
-        filesLineNumbers['data.tsv'] == 15
-        filesLineNumbers['variables.tsv'] == 16
+        filesLineNumbers['data.tsv'] == 16
+        filesLineNumbers['variables.tsv'] == 18
         filesLineNumbers['value_labels.tsv'] == 6
 
     }
@@ -345,8 +336,8 @@ class DataExportSpec extends RESTSpec {
         assert downloadResponse.downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse.downloadResponse as byte[])
         filesLineNumbers.size() == 3
-        filesLineNumbers['data.tsv'] == 15
-        filesLineNumbers['variables.tsv'] == 9
+        filesLineNumbers['data.tsv'] == 16
+        filesLineNumbers['variables.tsv'] == 10
         filesLineNumbers['value_labels.tsv'] == 6
 
     }
@@ -372,7 +363,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file spss/data.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers["${fileName}_spss/data.tsv"] == 15
-        filesLineNumbers["${fileName}_spss/data.sps"] == 93
+        filesLineNumbers["${fileName}_spss/data.sps"] == 102
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
@@ -426,7 +417,7 @@ class DataExportSpec extends RESTSpec {
         // Number of files depends on pspp being installed. If so, a file ${fileName}_spss/${fileName}.sav is added as well.
         filesLineNumbers.size() == 2 || filesLineNumbers.size() == 3
         filesLineNumbers["${fileName}_spss/data.tsv"] == 15
-        filesLineNumbers["${fileName}_spss/data.sps"] == 93
+        filesLineNumbers["${fileName}_spss/data.sps"] == 102
         if (filesLineNumbers.size() == 3) {
             assert filesLineNumbers["${fileName}_spss/${fileName}.sav"] > 0
         }
@@ -611,7 +602,8 @@ class DataExportSpec extends RESTSpec {
                         elements  :
                                 [[
                                          dataType: 'clinical',
-                                         format  : 'TSV'
+                                         format  : 'TSV',
+                                         dataView: 'surveyTable'
                                  ]],
                 ],
         ]) as Map

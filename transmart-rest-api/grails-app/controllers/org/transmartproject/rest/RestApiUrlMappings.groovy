@@ -173,8 +173,13 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/dimensions/$dimensionName/elements"(controller: 'dimension') {
-                action = [GET: 'list', POST: 'list']
+            "/dimensions"(method: 'GET', controller: 'dimension', action: 'list') {
+                apiVersion = 'v2'
+            }
+            "/dimensions/$dimensionName"(method: 'GET', controller: 'dimension', action: 'show') {
+                apiVersion = 'v2'
+            }
+            "/dimensions/$dimensionName/elements"(method: 'POST', controller: 'dimension', action: 'listElements') {
                 apiVersion = 'v2'
             }
             "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {
@@ -207,6 +212,11 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
+            "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
+
+            /**
+             * @deprecated user queries related functionality has been moved to a gb-backend application
+             */
             "/queries"(method: 'GET', controller: 'userQuery', action: 'index') {
                 apiVersion = "v2"
             }
@@ -221,9 +231,6 @@ class RestApiUrlMappings {
             }
             "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
             "/queries/$queryId/sets"(method: 'GET', controller: 'userQuerySet', action: 'getSetChangesByQueryId')
-            "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
-
-            // Deprecated administrator actions
             "/queries/sets/scan"(method: 'POST', controller: 'userQuerySet', action: 'scan')
 
             group "/admin", {

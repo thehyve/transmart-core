@@ -23,6 +23,7 @@ import org.transmartproject.db.user.MockUsersResource
 import spock.lang.Specification
 
 @Integration
+@Deprecated
 class UserQuerySetServiceSpec extends Specification {
 
     @Autowired

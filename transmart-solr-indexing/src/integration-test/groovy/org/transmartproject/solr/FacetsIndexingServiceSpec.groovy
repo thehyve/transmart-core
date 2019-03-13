@@ -7,9 +7,6 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
-import static FacetsIndexingService.FIELD_NAME_CONCEPT_PATH
-import static FacetsIndexingService.FIELD_NAME_FOLDER_ID
-
 /**
  * This test class assumes the test data and the GSE8581 to be loaded:
  * - transmart-data: source vars && make postgres_test
@@ -18,9 +15,6 @@ import static FacetsIndexingService.FIELD_NAME_FOLDER_ID
 @Integration
 @Transactional
 class FacetsIndexingServiceSpec extends Specification {
-
-    public static final int NUMBER_OF_CONCEPTS = 234
-    public static final int TOTAL_NUMBER_OF_DOCUMENTS = NUMBER_OF_CONCEPTS
 
     @Autowired
     SolrFacetsCore solrFacetsCore
@@ -32,7 +26,7 @@ class FacetsIndexingServiceSpec extends Specification {
         indexingService.clearIndex()
     }
 
-    void 'testFullIndex' () {
+    void testFullIndex() {
         given:
         clearIndex()
 
@@ -40,10 +34,10 @@ class FacetsIndexingServiceSpec extends Specification {
         indexingService.fullIndex()
 
         then:
-        assert countDocuments('*:*') == TOTAL_NUMBER_OF_DOCUMENTS
+        countDocuments('*:*') > 0
     }
 
-    void 'testTagsAreIndexed' () {
+    void testTagsAreIndexed() {
         given:
         clearIndex()
 
@@ -55,7 +49,7 @@ class FacetsIndexingServiceSpec extends Specification {
         assert countDocuments('TEXT:Human Chronic Obstructive Pulmonary Disorder') == 2
     }
 
-    void 'testDataTypesAreIndexed' () {
+    void testDataTypesAreIndexed() {
         given:
         clearIndex()
 

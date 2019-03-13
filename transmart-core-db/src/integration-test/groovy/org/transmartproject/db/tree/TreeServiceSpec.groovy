@@ -64,11 +64,14 @@ class TreeServiceSpec extends Specification {
         then: "the top level should contain one node with all public studies as children"
         forest*.name == ['Public Studies']
         forest[0].children*.name == [
+                '100 CATS',
                 'CATEGORICAL_VALUES',
                 'CLINICAL_TRIAL',
                 'CLINICAL_TRIAL_HIGHDIM',
+                'CSR',
                 'EHR',
                 'EHR_HIGHDIM',
+                'IMAGES',
                 'MIX_HD',
                 'Oracle_1000_Patient',
                 'RNASEQ_TRANSCRIPT',
@@ -77,7 +80,6 @@ class TreeServiceSpec extends Specification {
                 'SHARED_HD_CONCEPTS_STUDY_A',
                 'SHARED_HD_CONCEPTS_STUDY_B',
                 'TUMOR_NORMAL_SAMPLES'
-
         ]
     }
 

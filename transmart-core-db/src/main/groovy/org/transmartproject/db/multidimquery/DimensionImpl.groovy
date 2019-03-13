@@ -15,6 +15,7 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.hypercube.Dimension
+import org.transmartproject.core.multidimquery.hypercube.DimensionType
 import org.transmartproject.core.multidimquery.hypercube.Property
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.clinical.Query
@@ -43,10 +44,11 @@ typed twice for every dimension due to the use of generic traits.
 @CompileStatic
 abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
-    final Dimension.Size size
-    final Dimension.Density density
-    final Dimension.Packable packable
-
+    final Size size
+    final Density density
+    final Packable packable
+    private DimensionType dimensionType
+    private Integer sortIndex
 
     // Size is currently not used.
     //
@@ -69,9 +71,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static final TrialVisitDimension TRIAL_VISIT = new TrialVisitDimension(SMALL, DENSE, PACKABLE)
     static final ProviderDimension PROVIDER =      new ProviderDimension(SMALL, DENSE, NOT_PACKABLE)
 
-    // Todo: implement sample dimension as a marker for studies that can have multiple samples
-    //static final DimensionImpl SAMPLE =         new SampleDimension(SMALL, DENSE, NOT_PACKABLE)
-
     static final BioMarkerDimension BIOMARKER =    new BioMarkerDimension(LARGE, DENSE, PACKABLE)
     static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
     static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
@@ -91,8 +90,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
             (LOCATION.name)   : LOCATION,
             (TRIAL_VISIT.name): TRIAL_VISIT,
             (PROVIDER.name)   : PROVIDER,
-//            (SAMPLE.name) : SAMPLE,
-
             (BIOMARKER.name) : BIOMARKER,
             (ASSAY.name)     : ASSAY,
             (PROJECTION.name): PROJECTION,
@@ -107,24 +104,36 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
 
     @CompileDynamic
+    static DimensionDescription findDimensionDescriptionByName(String name) {
+        DimensionDescription.findByName(name)
+    }
+
     static DimensionImpl fromName(String name) {
         if (name == 'value') {
             return VALUE
         }
-        DimensionDescription.findByName(name)?.dimension
+        findDimensionDescriptionByName(name)?.dimension
     }
 
-    DimensionImpl(Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
+    DimensionImpl(Size size, Density density, Packable packable, DimensionType dimensionType = null, Integer sortIndex = null) {
         this.size = size
         this.density = density
         this.packable = packable
+        this.dimensionType = dimensionType
+        this.sortIndex = sortIndex
     }
-    
-    enum SelectType {
-        ELEMENTS,
-        COUNT,
+
+    @Memoized
+    DimensionType getDimensionType() {
+        findDimensionDescriptionByName(name).dimensionType ?:
+                (name == 'patient' ? DimensionType.SUBJECT : DimensionType.ATTRIBUTE)
     }
-    
+
+    @Memoized
+    Integer getSortIndex() {
+        findDimensionDescriptionByName(name).sortIndex
+    }
+
     abstract DetachedCriteria selectDimensionElements(DetachedCriteria criteria)
 
     abstract DetachedCriteria elementCount(DetachedCriteria criteria)
@@ -428,20 +437,24 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 }
 
 
-// ModifierDimension is currently only implemented for serializable types. If desired, the implementation could be
-// extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
-// element types
-// See DimensionDescription for how the instances of modifier dimensions are stored in the database.
+/**
+ * ModifierDimension is currently only implemented for serializable types. If desired, the implementation could be
+ * extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
+ * element types
+ * @see {@link DimensionDescription} for how the instances of modifier dimensions are stored in the database.
+ */
 @CompileStatic
 class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object> {
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
+
     synchronized static ModifierDimension get(String name, String modifierCode, String valueType,
-                                              Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
-        if(name in byName) {
+                                              Size size, Density density, Packable packable,
+                                              DimensionType dimensionType, Integer sortIndex) {
+        if (name in byName) {
             ModifierDimension dim = byName[name]
             assert dim.is(byCode[dim.modifierCode])
-            if(modifierCode == dim.modifierCode && size == dim.size && density == dim.density
+            if (modifierCode == dim.modifierCode && size == dim.size && density == dim.density
                     && packable == dim.packable) {
                 return dim
             }
@@ -452,7 +465,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         }
         assert !byCode.containsKey(modifierCode)
 
-        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable)
+        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable, dimensionType, sortIndex)
         dim.verify()
         byName[name] = dim
         byCode[modifierCode] = dim
@@ -460,13 +473,17 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         dim
     }
 
-    private ModifierDimension(String name, String modifierCode, String valueType, Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
-        super(size, density, packable)
+    private ModifierDimension(String name, String modifierCode, String valueType,
+                              Size size, Density density, Packable packable,
+                              DimensionType dimensionType, Integer sortIndex) {
+        super(size, density, packable, dimensionType, sortIndex)
         this.name = name
+        this.dimensionType = dimensionType
+        this.sortIndex = sortIndex
         this.modifierCode = modifierCode
         this.valueType = valueType
         Class elementType = DimensionDescription.classForType(valueType)
-        if(!isSerializableType(elementType)) {
+        if (!isSerializableType(elementType)) {
             throw new NotImplementedException("Support for non-serializable modifier dimensions is not implemented: ${name}")
         }
         this.elemType = elementType
@@ -478,6 +495,8 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     final Class elemType
     final String name
     final String modifierCode
+    final DimensionType dimensionType
+    final Integer sortIndex
     ImplementationType implementationType = ImplementationType.MODIFIER
 
     @CompileDynamic

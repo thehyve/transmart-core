@@ -44,7 +44,7 @@ interface MultiDimensionalDataResource {
      * @param user
      * @param constraint
      */
-    Iterable getDimensionElements(Dimension dimension, Constraint constraint, User user)
+    Iterable getDimensionElements(String dimensionName, Constraint constraint, User user)
 
     Hypercube highDimension(
             Constraint assayConstraint_,

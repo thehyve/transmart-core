@@ -21,6 +21,7 @@ package org.transmartproject.db.querytool
 
 import org.transmartproject.core.userquery.UserQuerySetInstance
 
+@Deprecated
 class QuerySetInstance implements UserQuerySetInstance {
 
     Long id

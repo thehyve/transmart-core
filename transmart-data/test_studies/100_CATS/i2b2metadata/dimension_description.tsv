@@ -1,4 +1,4 @@
-id	density	modifier_code	value_type	name	packable	size_cd
-0				study		
-1				concept		
-2				patient		
+id	density	modifier_code	value_type	name	packable	size_cd	dimension_type	sort_index
+0				study				
+1				concept				
+2				patient				

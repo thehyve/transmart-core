@@ -11,6 +11,7 @@ import groovy.transform.Immutable
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
 import org.springframework.jdbc.core.RowMapper
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -33,9 +34,9 @@ class Studies {
     final Database database
     final Dimensions dimensions
 
-    final LinkedHashMap<String, Class> studyColumns
-    final LinkedHashMap<String, Class> trialVisitColumns
-    final LinkedHashMap<String, Class> studyDimensionsColumns
+    final LinkedHashMap<String, ColumnMetadata> studyColumns
+    final LinkedHashMap<String, ColumnMetadata> trialVisitColumns
+    final LinkedHashMap<String, ColumnMetadata> studyDimensionsColumns
 
     final Map<String, Long> studyIdToStudyNum = [:]
     final List<Long> indexToStudyNum = []
@@ -187,7 +188,7 @@ class Studies {
     }
 
     void check(String rootPath) {
-        LinkedHashMap<String, Class> header = studyColumns
+        LinkedHashMap<String, Class> header
         def studiesFile = new File(rootPath, STUDY_TABLE.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
@@ -209,7 +210,7 @@ class Studies {
     }
 
     void delete(String rootPath, boolean failOnNoStudy = true) {
-        LinkedHashMap<String, Class> header = studyColumns
+        LinkedHashMap<String, Class> header
         def studiesFile = new File(rootPath, STUDY_TABLE.fileName)
         studiesFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
@@ -226,7 +227,7 @@ class Studies {
     }
 
     private void loadStudies(String rootPath) {
-        LinkedHashMap<String, Class> studyHeader = studyColumns
+        LinkedHashMap<String, Class> studyHeader
         // Insert study records
         def studiesFile = new File(rootPath, STUDY_TABLE.fileName)
         studiesFile.withReader { reader ->
@@ -252,7 +253,7 @@ class Studies {
     }
 
     private void loadTrialVisits(String rootPath) {
-        LinkedHashMap<String, Class> trialVisitHeader = trialVisitColumns
+        LinkedHashMap<String, Class> trialVisitHeader
         // Insert trial visits
         def trialVisitsFile = new File(rootPath, TRIAL_VISIT_TABLE.fileName)
         trialVisitsFile.withReader { reader ->
@@ -284,7 +285,7 @@ class Studies {
     }
 
     private void loadStudyDimensions(String rootPath) {
-        LinkedHashMap<String, Class> studyDimensionsHeader = studyDimensionsColumns
+        LinkedHashMap<String, Class> studyDimensionsHeader
         // Insert study dimension descriptions
         def studyDimensionsFile = new File(rootPath, STUDY_DIMENSIONS_TABLE.fileName)
         studyDimensionsFile.withReader { reader ->

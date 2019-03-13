@@ -5,8 +5,10 @@ import groovy.transform.CompileStatic
 
 /**
  * The frequency of emails for user query subscription
+ * @deprecated user queries related functionality has been moved to a gb-backend application
  */
 @CompileStatic
+@Deprecated
 enum SubscriptionFrequency {
 
     DAILY,

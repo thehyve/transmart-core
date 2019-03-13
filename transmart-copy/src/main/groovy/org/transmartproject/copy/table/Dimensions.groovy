@@ -9,6 +9,7 @@ package org.transmartproject.copy.table
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.jdbc.core.RowCallbackHandler
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -27,7 +28,7 @@ class Dimensions {
 
     final Database database
 
-    final LinkedHashMap<String, Class> columns
+    final LinkedHashMap<String, ColumnMetadata> columns
 
     final Map<String, Long> dimensionNameToId = [:]
     final List<Long> indexToDimensionId = []
@@ -75,7 +76,7 @@ class Dimensions {
             def insertCount = 0
             def existingCount = 0
             def tsvReader = Util.tsvReader(reader)
-            LinkedHashMap<String, Class> header = columns
+            LinkedHashMap<String, Class> header
             tsvReader.eachWithIndex { String[] data, int i ->
                 if (i == 0) {
                     header = Util.verifyHeader(TABLE.fileName, data, columns)
@@ -83,7 +84,7 @@ class Dimensions {
                 }
                 try {
                     def dimensionData = Util.asMap(header, data)
-                    def dimensionIndex = dimensionData['id'] as long
+                    def dimensionIndex = dimensionData['id'] as int
                     if (i != dimensionIndex + 1) {
                         throw new IllegalStateException(
                                 "The dimension descriptions are not in order. (Found ${dimensionIndex} on line ${i}.)")

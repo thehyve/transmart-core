@@ -132,6 +132,7 @@ class Config {
     public static final String MIX_HD_ID = 'MIX_HD'
     public static final String SURVEY1_ID = 'SURVEY1'
     public static final String SURVEY2_ID = 'SURVEY2'
+    public static final String CSR = 'CSR'
 
     //settings
     public static final boolean DB_MIGRATED = true

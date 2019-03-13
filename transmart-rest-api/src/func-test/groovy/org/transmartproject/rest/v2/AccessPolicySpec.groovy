@@ -347,6 +347,26 @@ class AccessPolicySpec extends V2ResourceSpec {
     }
 
     @Unroll
+    void 'test dimensions access (GET .../dimensions) for #user.username.'() {
+
+        given:
+        selectUser(user)
+
+        when:
+        def response = get("${contextPath}/dimensions")
+
+        then:
+        checkResponseStatus(response, OK, user)
+        Map result = toObject(response, Map)
+        result
+        result.dimensions
+        result.dimensions.name as Set == ['patient', 'concept', 'start time', 'end time', 'trial visit', 'study'] as Set
+
+        where:
+        user << [admin, s1mUser, s1sS2sUser, s1ctUser, s2sUser, publicUser]
+    }
+
+    @Unroll
     void 'test observations forbidden access (POST .../observations) for #user.username when constraint explicitly refers to the protected resource.'() {
 
         given:

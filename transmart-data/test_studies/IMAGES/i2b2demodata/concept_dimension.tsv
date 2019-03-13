@@ -1,0 +1,5 @@
+concept_blob	concept_cd	concept_path	download_date	import_date	name_char	sourcesystem_cd	table_name	update_date	upload_id
+	IMAGES:DEM:AGE	\Public Studies\IMAGES\Demography\Age\			Age				
+	IMAGES:DEM:GENDER	\Public Studies\IMAGES\Demography\Gender\			Gender				
+	IMAGES:IMG:TISSUE	\Public Studies\IMAGES\Images\Tissue\			Tissue				
+	IMAGES:IMG:TYPE	\Public Studies\IMAGES\Images\Type\			Type				

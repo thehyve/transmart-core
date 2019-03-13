@@ -43,7 +43,7 @@ class PatientQueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, authContext.user)
+        def patients = multiDimService.getDimensionElements('patient', constraint, authContext.user)
         respond wrapPatients(apiVersion, patients)
     }
 
@@ -66,7 +66,7 @@ class PatientQueryController extends AbstractQueryController {
         checkForUnsupportedParams(params, ['id'])
 
         Constraint constraint = new PatientSetConstraint(patientIds: [id])
-        def patient = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+        def patient = multiDimService.getDimensionElements('patient',
                 constraint, authContext.user)[0]
         if (patient == null) {
             throw new NoSuchResourceException("Patient not found with id ${id}.")

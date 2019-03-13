@@ -256,9 +256,8 @@ class InsertConceptsService {
                 return 'FAS'
             } else if (concept.type == ConceptType.CATEGORICAL) {
                 return 'FAC'
-            } else {
-                return 'FA '
             }
+            return 'FA '
         }
     }
 

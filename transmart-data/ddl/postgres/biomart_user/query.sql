@@ -1,5 +1,6 @@
 --
 -- Name: query; Type: TABLE; Schema: biomart_user; Owner: -
+-- DEPRECATED! user queries related functionality has been moved to a gb-backend application
 --
 CREATE TABLE biomart_user.query (
     id SERIAL PRIMARY KEY,
@@ -29,7 +30,7 @@ CREATE INDEX query_username_subscribed ON biomart_user.query USING btree (userna
 --
 -- Table documentation
 --
-COMMENT ON TABLE biomart_user.query IS 'Storage for patients and observations queries to support front end functionality.';
+COMMENT ON TABLE biomart_user.query IS 'Storage for patients and observations queries to support front end functionality. DEPRECATED! This table has been moved to a gb-backend application database.';
 
 COMMENT ON COLUMN biomart_user.query.name IS 'The query name.';
 COMMENT ON COLUMN biomart_user.query.username IS 'The username of the user that created the query.';
