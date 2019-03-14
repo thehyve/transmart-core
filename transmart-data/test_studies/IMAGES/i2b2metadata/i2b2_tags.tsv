@@ -2,5 +2,5 @@ tag_id	path	tag	tag_type	tags_idx	tag_option_id
 0	\Public Studies\IMAGES\	10-01-2019	Load date	3	
 1	\Public Studies\IMAGES\Demography\Age\	patient	subject_dimension	0	
 2	\Public Studies\IMAGES\Demography\Gender\	patient	subject_dimension	1	
-3	\Public Studies\IMAGES\Images\Tissue\	Image Id	subject_dimension	0	
-4	\Public Studies\IMAGES\Images\Type\	Image Id	subject_dimension	1	
+3	\Public Studies\IMAGES\Images\Tissue\	Images Id	subject_dimension	0	
+4	\Public Studies\IMAGES\Images\Type\	Images Id	subject_dimension	1	
