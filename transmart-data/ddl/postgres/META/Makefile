@@ -1,7 +1,7 @@
 include ../../../makefile.inc
 
 ALL_FIXES = fix_tablespaces fix_owners fix_permissions
-PGVERSION ?= 'default'
+PGVERSION ?= default
 
 .PHONY: fix_%
 fix_%: assign_%.sql
