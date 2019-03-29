@@ -268,6 +268,22 @@ class QueryRewriterSpec extends Specification {
         result.toJson() == expected.toJson()
     }
 
+    void 'test rewriting of disjunction with true constraint'() {
+        given: 'two logically equivalent constraints'
+        Constraint constraint = new OrConstraint([
+                new ConceptConstraint('favouritebook'),
+                new TrueConstraint()
+        ])
+
+        Constraint expected = new TrueConstraint()
+
+        when: 'rewriting the first constraint'
+        def result = new CombinationConstraintRewriter().build(constraint)
+
+        then: 'the rewrite result is equal to the preferred form'
+        result.toJson() == expected.toJson()
+    }
+
     void 'test canonising constraints'() {
         given: 'two logically equivalent constraints'
         Constraint constraint1 = new AndConstraint([
