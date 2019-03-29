@@ -82,12 +82,12 @@ class Copy implements AutoCloseable {
     }
 
     void restoreIndexes() {
-        def observations = new Observations(database, null, null, null, null)
+        def observations = new Observations(database, null, null, null, null, null)
         observations.restoreTableIndexesIfNotExist()
     }
 
     void dropIndexes() {
-        def observations = new Observations(database, null, null, null, null)
+        def observations = new Observations(database, null, null, null, null, null)
         observations.dropTableIndexesIfExist()
     }
 
@@ -112,6 +112,10 @@ class Copy implements AutoCloseable {
         concepts.fetch()
         concepts.load(rootPath)
 
+        def visits = new Visits(database, patients)
+        visits.fetch()
+        visits.load(rootPath)
+
         def modifiers = new Modifiers(database)
         modifiers.fetch()
         modifiers.load(rootPath)
@@ -124,7 +128,7 @@ class Copy implements AutoCloseable {
         tags.fetch()
         tags.load(rootPath)
 
-        def observations = new Observations(database, studies, concepts, patients, config)
+        def observations = new Observations(database, studies, concepts, visits, patients, config)
         observations.checkFiles(rootPath)
         observations.load(rootPath)
     }
