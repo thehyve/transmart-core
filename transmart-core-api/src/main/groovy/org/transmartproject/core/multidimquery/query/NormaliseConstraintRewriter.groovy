@@ -46,16 +46,17 @@ class NormaliseConstraintRewriter extends ConstraintRewriter {
     @Override
     Constraint build(Combination constraint) {
         List<Constraint> normalisedArgs = []
-        constraint.args.collect { build(it) }.each {
-            if (it instanceof Combination && it.getOperator() == constraint.getOperator()) {
-                normalisedArgs.addAll(it.args)
-            } else if (constraint.getOperator() == Operator.AND && it instanceof TrueConstraint) {
+        List<Constraint> args = constraint.args.collect { build(it) }
+        for (Constraint arg in args) {
+            if (arg instanceof Combination && ((Combination)arg).getOperator() == constraint.getOperator()) {
+                normalisedArgs.addAll(((Combination)arg).args)
+            } else if (constraint.getOperator() == Operator.AND && arg instanceof TrueConstraint) {
                 // skip
-            } else if (constraint.getOperator() == Operator.OR && it instanceof TrueConstraint) {
+            } else if (constraint.getOperator() == Operator.OR && arg instanceof TrueConstraint) {
                 // disjunction with true constraint as argument is equal to the true constraint
                 return new TrueConstraint()
             } else {
-                normalisedArgs.add(it)
+                normalisedArgs.add(arg)
             }
         }
         if (normalisedArgs.size() == 1) {
