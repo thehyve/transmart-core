@@ -42,7 +42,7 @@ The following are required:
 * tar with support for the -J switch (GNU tar only?)
 * An up-to-date checkout of the [`tranSMART-ETL` repository][ts_etl]. Revision
   e712fcd7 is necessary for Faceted Search support (ETL only)
-* Groovy (>= 2.1). Can be installed with `make -C env groovy` and updating the
+* Groovy (>= 2.1 and <= 2.4). Can be installed with `make -C env groovy` and updating the
   `PATH` (Oracle and some secondary functionality only)
 * [Kettle][kettle] (ETL only)
 * rsync (Solr only)
