@@ -62,7 +62,8 @@ class Copy implements AutoCloseable {
         options.addOption('p', 'partition', false,
                 'Partition observation_fact table based on trial_visit_num.')
         options.addOption('n', 'base-on-max-instance-num', false,
-                'Adds to each instance num a base. The base detected as max(observation_fact.incstance_num).')
+                'Adds to each instance num a base.' +
+                        ' The base is autodetected as max(observation_fact.instance_num).')
     }
 
     static printHelp() {
