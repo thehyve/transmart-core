@@ -86,7 +86,7 @@ class Visits {
             log.debug "Visit (${encounterIndex}, ${patientNum}) already present."
         } else {
             counts.insertCount++
-            log.info "Inserting new visit: (${encounterIndex}, ${patientNum}) ..."
+            log.debug "Inserting new visit: (${encounterIndex}, ${patientNum}) ..."
             database.insertEntry(TABLE, header, visitData)
             patientEncounters[patientNum].add(encounterIndex)
         }

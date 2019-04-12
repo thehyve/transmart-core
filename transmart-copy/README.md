@@ -6,11 +6,11 @@ only substituting indexes for database identifiers for subjects, trial visits an
 
 ### Download
 The latest version can be downloaded here:
-[transmart-copy-17.1-HYVE-5.2.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-5.2/transmart-copy-17.1-HYVE-5.2.jar).
+[transmart-copy-17.1-HYVE-5.9-RC1.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-5.9-RC1/transmart-copy-17.1-HYVE-5.9-RC1.jar).
 
 ```bash
 # Download transmart-copy
-curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-5.2/transmart-copy-17.1-HYVE-5.2.jar -o transmart-copy.jar
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-5.9-RC1/transmart-copy-17.1-HYVE-5.9-RC1.jar -o transmart-copy.jar
 ```
 
 ### Usage
@@ -22,14 +22,20 @@ java -jar transmart-copy.jar [-h|--help] [--delete <STUDY_ID>]
 _Parameters:_
 - `-h`, `--help`: Shows the available parameters. 
 - `-D <STUDY_ID>`, `--delete <STUDY_ID`: Deletes the study with id `<STUDY_ID>` and related data.
+- `-n`, `--base-on-max-instance-num`: Adds to each `instance_num` a base
+    to avoid primary key collisions in `observation_fact`.
+    The base is autodetected as `max(observation_fact.instance_num)`.
 - `-r`, `--restore-indexes`: Restore indexes.
 - `-i`, `--drop-indexes`: Drop indexes when loading, restore them afterwards.
 - `-u`, `--unlogged`: Set observations table to unlogged when loading.
+- `-b`, `--batch-size`: Number of observation to insert in a batch (default: `500`).
+- `-f`, `--flush-size`: Number of batches to flush to the database (default: `1000`).
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
 - `-v`, `--vacuum-analyze`: Vacuum analyze the `observation_fact` table.
 - `-d`, `--directory`: Specifies a data directory.
 - `-U`, `--update-concept-paths`: **Workaround.** Updates concept paths and tree nodes when there is concept code collision.
 - `-m`, `--mode <study|pedigree>`: Load mode. What type of data to load. Data loading does not happen if you skip the mode.
+- `-p`, `--partition`: Partition observation_fact table based on `trial_visit_num` (Experimental).
 
 
 The program reads table data from the current working directory

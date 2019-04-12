@@ -1,5 +1,8 @@
 concept_cd	concept_path	name_char	concept_blob	update_date	download_date	import_date	sourcesystem_cd	upload_id	table_name
 demographics	\Demographics\	Demographics							
+height	\Demographics\Height\	Height							
+gender	\Demographics\Gender\	Gender							
+birthdate	\Demographics\Birth Date\	Birth Date							
 interests	\Interests\	Interests							
 favouritefood	\Interests\Favourite Food\	Favourite Food	"{
     ""type"": ""String"",
@@ -7,3 +10,4 @@ favouritefood	\Interests\Favourite Food\	Favourite Food	"{
     ""columns"": 400,
     ""measure"": ""Nominal""
 }"						
+description	\General\Description\	Description							
