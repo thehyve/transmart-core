@@ -43,6 +43,7 @@ class TreeCacheService {
         path[0 .. path.lastIndexOf('\\', path.size() - 2)]
     }
 
+    // FIXME: Does not work if columnName == 'concept_cd'
     static final String getConceptPath(String table, String code){
         return table == 'concept_dimension' ? code : null
     }
