@@ -1,4 +1,3 @@
----
 version: '2.0'
 services:
     tm_test_db:
@@ -8,3 +7,15 @@ services:
         build: ./solr
         ports: ['8983:8983']
         depends_on: ['tm_test_db']
+    transmart-api-server:
+        build: transmart-api-server
+        image: transmart-api-server:17.1-HYVE-5.9-RC1
+        environment:
+          PGHOST: tm_test_db
+          PGPORT: 5432
+          KEYCLOAK_HOST: keycloak
+          KEYCLOAK_PORT: 8080
+        depends_on:
+        - tm_test_db
+        ports:
+        - 8081:8081
