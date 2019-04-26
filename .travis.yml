@@ -20,6 +20,7 @@ env:
     - DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST=check
     - DIR=transmart-solr-indexing; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-batch:travisProperties :transmart-batch:loadPublicTestStudy"; TEST="check"; START_SOLR=true
     - DIR=transmart-copy; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; PREPARE=shadowJar; TEST=check
+    - DIR=transmart-schemas; PREPARE=assemble; TEST=check
     - DIR=.; TEST="publishToMavenLocal"
 
 addons:

@@ -1,0 +1,10 @@
+spring:
+    profiles:
+        active: dev
+    datasource:
+        platform: postgresql
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://${db_host:localhost}:${db_port:5432}/${db_name:transmartDev}?currentSchema=public
+        username: ${db_username:tm_admin}
+        hikari:
+            jdbc-url: jdbc:postgresql://${db_host:localhost}:${db_port:5432}/${db_name:transmartDev}?currentSchema=public
