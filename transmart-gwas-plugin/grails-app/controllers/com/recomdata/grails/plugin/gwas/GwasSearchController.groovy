@@ -307,7 +307,7 @@ class GwasSearchController {
         def columnNames = []
 
         def wasShortcut = false
-        if (!regions && !geneNames && !transcriptGeneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0) {
+        if (!regions && !geneNames && !transcriptGeneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0 && offset < 500) {
             println("Triggering shortcut query")
             wasShortcut = true
             //If displaying no regions and only one analysis, run the alternative query and pull back the rows for the limits
