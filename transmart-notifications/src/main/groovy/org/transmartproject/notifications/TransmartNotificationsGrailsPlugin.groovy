@@ -34,7 +34,15 @@ A plugin that provides an email subscription functionality.
 
     Closure doWithSpring() { {->
             // enable/disable the plugin
-            enabled = config.getProperty("org.transmartproject.notifications.enabled", Boolean, true)
+            enabled = config.getProperty("org.transmartproject.notifications.enabled", Boolean, false)
+            // enable/disable the daily quartz job scheduler
+            querySetSubscriptionDailyJob(QuerySetSubscriptionDailyJob) {
+                jobEnabled = enabled
+            }
+            // enable/disable the weekly quartz job scheduler
+            querySetSubscriptionWeeklyJob(QuerySetSubscriptionWeeklyJob) {
+                jobEnabled = enabled
+            }
         }
     }
 
