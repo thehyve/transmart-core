@@ -13,7 +13,14 @@ import org.transmartproject.core.userquery.SubscriptionFrequency
 @Slf4j
 class QuerySetSubscriptionDailyJob {
 
-    static jobEnabled =  Holders.config.org.transmartproject.notifications.enabled
+    /**
+     * Quartz plugin configuration option.
+     * By default all jobs are considered enabled. Setting this property to false can disable the job.
+     *
+     * Value of this option is controlled in the notifications plugin descriptor.
+     * @see {@link org.transmartproject.notifications.TransmartNotificationsGrailsPlugin}
+     */
+    static jobEnabled
 
     QuerySetSubscriptionMailService querySetSubscriptionMailService
 
