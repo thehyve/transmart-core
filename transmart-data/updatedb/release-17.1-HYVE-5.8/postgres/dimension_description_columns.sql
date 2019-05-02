@@ -15,3 +15,10 @@ COMMENT ON COLUMN i2b2metadata.dimension_description.modifier_code IS 'The modif
 COMMENT ON COLUMN i2b2metadata.dimension_description.size_cd IS 'Indicates the typical size of the dimension. [SMALL, MEDIUM, LARGE]';
 COMMENT ON COLUMN i2b2metadata.dimension_description.density IS 'Indicates the typical density of the dimension. [DENSE, SPARSE]';
 COMMENT ON COLUMN i2b2metadata.dimension_description.packable IS 'Indicates if dimensions values can be packed when serialising. NOT_PACKABLE is a good default. [PACKABLE, NOT_PACKABLE]';
+
+-- Fill in columns values for known dimensions
+
+update i2b2metadata.dimension_description set sort_index = 1 where name = 'patient';
+update i2b2metadata.dimension_description set dimension_type = 'SUBJECT', sort_index = 2 where name = 'Diagnosis ID';
+update i2b2metadata.dimension_description set dimension_type = 'SUBJECT', sort_index = 3 where name = 'Biosource ID';
+update i2b2metadata.dimension_description set dimension_type = 'SUBJECT', sort_index = 4 where name = 'Biomaterial ID';
