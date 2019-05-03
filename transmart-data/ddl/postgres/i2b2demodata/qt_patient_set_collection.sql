@@ -30,6 +30,11 @@ ALTER TABLE ONLY qt_patient_set_collection
 CREATE INDEX qt_idx_qpsc_riid ON qt_patient_set_collection USING btree (result_instance_id);
 
 --
+-- Name: qt_idx_qpsc_riid_pn; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX qt_idx_qpsc_riid_pn ON qt_patient_set_collection USING btree (result_instance_id, patient_num);
+
+--
 -- Name: qt_fk_psc_ri; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY qt_patient_set_collection
