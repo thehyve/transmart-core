@@ -3,6 +3,7 @@
 package org.transmartproject.db.log
 
 import grails.transaction.Transactional
+import grails.util.Holders
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -16,6 +17,10 @@ class AccessLogService implements AccessLogEntryResource {
 
     static final Logger log = LoggerFactory.getLogger(AccessLogService.class)
 
+    boolean writeLogToDatabase() {
+        Holders.config.getProperty('org.transmartproject.system.writeLogToDatabase', Boolean.class, true)
+    }
+
     @Override
     AccessLogEntry report(Map<String, Object> additionalParams = [:], User user, String event) {
         def eventMessage = additionalParams?.eventMessage as String
@@ -27,13 +32,15 @@ class AccessLogService implements AccessLogEntryResource {
                 eventMessage:   eventMessage,
                 requestURL:     requestURL,
                 accessTime:     accessTime]))
-        new AccessLogEntry(
-                username:       user?.username,
-                event:          event.take(255),
-                eventMessage:   eventMessage,
-                requestURL:     requestURL?.take(255),
-                accessTime:     accessTime,
-        ).save()
+        if (writeLogToDatabase()) {
+            new AccessLogEntry(
+                    username: user?.username,
+                    event: event.take(255),
+                    eventMessage: eventMessage,
+                    requestURL: requestURL?.take(255),
+                    accessTime: accessTime,
+            ).save()
+        }
     }
 
     @Override

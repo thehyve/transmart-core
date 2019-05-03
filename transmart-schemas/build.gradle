@@ -1,0 +1,44 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.4.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter'
+    compile "org.liquibase:liquibase-core:${liquibaseVersion}"
+    compile "org.postgresql:postgresql:${postgresqlVersion}"
+    compile 'commons-cli:commons-cli:1.4'
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'ch.qos.logback:logback-classic:1.2.2'
+    compile 'com.zaxxer:HikariCP:2.6.1'
+    compile 'org.springframework:spring-jdbc:4.3.12.RELEASE'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testRuntime 'com.h2database:h2:1.4.197'
+}
+
+jar {
+    manifest {
+        attributes(
+            'Implementation-Version': project.version
+        )
+    }
+}
+
+task createVersionFile() {
+    def file = new File("$projectDir/VERSION")
+    file.createNewFile()
+    file.text = "${version}"
+}
+assemble.dependsOn 'createVersionFile'
+
+publishToMavenLocal.dependsOn assemble
+
+publishing {
+    publications {
+        bootJava(MavenPublication) {
+            artifact jar
+        }
+    }
+}

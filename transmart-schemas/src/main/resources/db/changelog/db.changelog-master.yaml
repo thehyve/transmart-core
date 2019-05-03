@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - include:
+      file: classpath:db/changelog/changes/00000000000000_i2b2demodata.xml
+  - include:
+      file: classpath:db/changelog/changes/00000000000000_i2b2metadata.xml
+  - include:
+      file: classpath:db/changelog/changes/00000000000000_ts_batch.xml
+relativeToChangelogFile: false

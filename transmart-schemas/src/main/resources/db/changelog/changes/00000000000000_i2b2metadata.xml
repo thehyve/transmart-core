@@ -1,0 +1,165 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="gijs@thehyve.nl" id="1556187475651-0">
+        <sql dbms="postgresql, h2" endDelimiter=";">
+            create schema i2b2metadata
+        </sql>
+    </changeSet>
+
+    <changeSet author="gijs@thehyve.nl" id="1556187475651-1">
+
+        <createTable remarks="All supported dimensions and their properties." schemaName="i2b2metadata" tableName="dimension_description">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="dimension_description_pkey"/>
+            </column>
+            <column name="density" remarks="Indicates the typical density of the dimension. [DENSE, SPARSE]" type="VARCHAR(255)"/>
+            <column name="modifier_code" remarks="The modifier code if the dimension is a modifier dimension" type="VARCHAR(255)"/>
+            <column name="value_type" remarks="T for string, N for numeric, B for raw text and D for date values. [T, N, B, D]" type="VARCHAR(50)"/>
+            <column name="name" remarks="The name of the dimension." type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="packable" remarks="Indicates if dimensions values can be packed when serialising. NOT_PACKABLE is a good default. [PACKABLE, NOT_PACKABLE]" type="VARCHAR(255)"/>
+            <column name="size_cd" remarks="Indicates the typical size of the dimension. [SMALL, MEDIUM, LARGE]" type="VARCHAR(255)"/>
+            <column name="dimension_type" remarks="Indicates whether the dimension represents subjects or observation attributes. [SUBJECT, ATTRIBUTE]" type="VARCHAR(50)"/>
+            <column name="sort_index" remarks="Specifies a relative order between dimensions." type="INTEGER"/>
+        </createTable>
+
+        <createTable remarks="The same as i2b2, but with an added security token." schemaName="i2b2metadata" tableName="i2b2_secure">
+            <column name="c_hlevel" remarks="Number that represents the depth of the node. 0 for root." type="numeric(22)"/>
+            <column name="c_fullname" remarks="Full path to the node. E.g., \Vital Signs\Heart Rate\." type="VARCHAR(900)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_name" remarks="Name of the node. E.g., Heart Rate." type="VARCHAR(2000)"/>
+            <column name="c_synonym_cd" type="CHAR(1)"/>
+            <column name="c_visualattributes" remarks="Visual attributes describing how a node should be displayed. Can have three characters at maximum. See OntologyTerm#VisualAttributes for documentation on the values." type="CHAR(3)"/>
+            <column name="c_totalnum" type="numeric(22)"/>
+            <column name="c_basecode" remarks="Code that represents node. E.g., VSIGN:HR. Not used." type="VARCHAR(450)"/>
+            <column name="c_metadataxml" remarks="Metadata encoded as XML." type="TEXT"/>
+            <column name="c_facttablecolumn" remarks="Column of observation_fact corresponding with c_columnname." type="VARCHAR(50)"/>
+            <column name="c_tablename" remarks="Table of the dimension referred to by this node." type="VARCHAR(150)"/>
+            <column name="c_columnname" remarks="Column of the table of the dimension referred to by this node" type="VARCHAR(50)"/>
+            <column name="c_columndatatype" type="VARCHAR(50)"/>
+            <column name="c_operator" remarks="Operator. E.g., like, =" type="VARCHAR(10)"/>
+            <column name="c_dimcode" remarks="Refers to a dimension element, linked to observations." type="VARCHAR(900)"/>
+            <column name="c_comment" remarks="Meant for comments, not for storing study based security tokens." type="TEXT"/>
+            <column name="c_tooltip" type="VARCHAR(900)"/>
+            <column name="m_applied_path" type="VARCHAR(700)"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(50)"/>
+            <column name="valuetype_cd" type="VARCHAR(50)"/>
+            <column name="m_exclusion_cd" type="VARCHAR(25)"/>
+            <column name="c_path" type="VARCHAR(900)"/>
+            <column name="c_symbol" type="VARCHAR(50)"/>
+            <column name="i2b2_id" type="numeric(18)"/>
+            <column name="secure_obj_token" remarks="Token encoding access the node. Refers to bio_data_unique_id in searchapp.search_secure_object. E.g., PUBLIC or EXP:SCSCP." type="VARCHAR(50)"/>
+        </createTable>
+
+        <createTable schemaName="i2b2metadata" tableName="i2b2_tag_options">
+            <column name="tag_option_id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="i2b2_tag_options_pkey"/>
+            </column>
+            <column name="tag_type_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(1000)"/>
+        </createTable>
+
+        <createTable schemaName="i2b2metadata" tableName="i2b2_tag_types">
+            <column name="tag_type_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="i2b2_tag_types_pkey"/>
+            </column>
+            <column name="tag_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="solr_field_name" type="VARCHAR(255)"/>
+            <column name="node_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shown_if_empty" type="BOOLEAN"/>
+            <column name="index" type="INTEGER"/>
+        </createTable>
+
+        <createTable schemaName="i2b2metadata" tableName="i2b2_tags">
+            <column name="tag_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="i2b2_tags_pkey"/>
+            </column>
+            <column name="path" type="VARCHAR(700)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tag" type="TEXT"/>
+            <column name="tag_type" type="VARCHAR(400)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tags_idx" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tag_option_id" type="INTEGER"/>
+        </createTable>
+
+        <createTable schemaName="i2b2metadata" tableName="study_dimension_descriptions">
+            <column name="dimension_description_id" type="integer">
+                <constraints primaryKey="true" primaryKeyName="study_dimension_descriptions_pkey"/>
+            </column>
+            <column name="study_id" type="integer">
+                <constraints primaryKey="true" primaryKeyName="study_dimension_descriptions_pkey"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="node_type, tag_type" constraintName="i2b2_tag_types_node_type_tag_type_unique" schemaName="i2b2metadata" tableName="i2b2_tag_types"/>
+
+        <addUniqueConstraint columnNames="path, tag_type" constraintName="i2b2_tags_path_tag_type_key" schemaName="i2b2metadata" tableName="i2b2_tags"/>
+
+        <createIndex indexName="idx_i2b2_secure_fullname" schemaName="i2b2metadata" tableName="i2b2_secure">
+            <column name="c_fullname"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="dimension_description_id"
+                                 baseTableName="study_dimension_descriptions"
+                                 baseTableSchemaName="i2b2metadata"
+                                 constraintName="study_dimension_descriptions_ddi_fk"
+                                 referencedColumnNames="id"
+                                 referencedTableName="dimension_description"
+                                 referencedTableSchemaName="i2b2metadata"/>
+
+        <addForeignKeyConstraint baseColumnNames="study_id"
+                                 baseTableName="study_dimension_descriptions"
+                                 baseTableSchemaName="i2b2metadata"
+                                 constraintName="study_dimension_descriptions_study_fk"
+                                 referencedColumnNames="study_num"
+                                 referencedTableName="study"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="tag_type_id"
+                                 baseTableName="i2b2_tag_options"
+                                 baseTableSchemaName="i2b2metadata"
+                                 constraintName="i2b2_tag_options_tag_type_fk"
+                                 referencedColumnNames="tag_type_id"
+                                 referencedTableName="i2b2_tag_types"
+                                 referencedTableSchemaName="i2b2metadata"/>
+
+        <addForeignKeyConstraint baseColumnNames="tag_option_id"
+                                 baseTableName="i2b2_tags"
+                                 baseTableSchemaName="i2b2metadata"
+                                 constraintName="i2b2_tags_tag_option_fk"
+                                 referencedColumnNames="tag_option_id"
+                                 referencedTableName="i2b2_tag_options"
+                                 referencedTableSchemaName="i2b2metadata"/>
+
+    </changeSet>
+
+</databaseChangeLog>
