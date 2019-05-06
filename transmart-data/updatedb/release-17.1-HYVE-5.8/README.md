@@ -12,6 +12,13 @@ Add columns:
 - `dimension_type` Indicates whether the dimension represents subjects or observation attributes. [`SUBJECT`, `ATTRIBUTE`].
 - `sort_index`. Specifies a relative order between dimensions.
 
+Also documentation on the table and default values are added.
+
+### Add index on `result_instance_id` and `patient_num` to the `qt_patient_set_collection` table
+
+This new index improves the speed of querying patient sets.
+
+
 ## How to apply all changes
 
 Given that transmart-data is configured correctly, you can apply the changes using one of the following make commands:

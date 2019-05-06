@@ -125,6 +125,19 @@ java -jar -Dlogging.config=/path/to/logback.groovy -Dspring.config.location=tran
 ```
 See [logback.groovy](grails-app/conf/logback.groovy) for the default logging configuration.
 
+To disable writing logs to the database, add the following line to `transmart-api-server.config.yml`:
+```yaml
+org.transmartproject.system.writeLogToDatabase: false
+```
+
+To have the application create or update the database schemas at startup, add:
+```yaml
+grails.plugin.databasemigration.updateOnStart: true
+``` 
+This requires the configured database user to have permissions to create schemas and tables.
+<br>*N.B.*: this only creates the essential tables from the `i2b2demodata`, `i2b2metadata` and `ts_batch` schemas.
+E.g., high dimensional data tables and legacy user management tables are not included.
+
 
 [OpenID Connect]: https://openid.net/connect
 [Keycloak]: https://www.keycloak.org

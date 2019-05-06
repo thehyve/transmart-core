@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.transaction.TransactionStatus
 import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Copy
+import org.transmartproject.copy.Counter
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -141,24 +142,24 @@ class Observations {
     }
 
     private void loadRow(CSVWriter tsvWriter,
-                 LinkedHashMap<String, Class> header,
-                 Map<String, Object> row,
-                 Integer batchCount,
-                 ArrayList<Map> batch,
-                 SimpleJdbcInsert insert,
-                 TransactionStatus tx) {
+                         LinkedHashMap<String, Class> header,
+                         Map<String, Object> row,
+                         Counter batchCount,
+                         ArrayList<Map> batch,
+                         SimpleJdbcInsert insert,
+                         TransactionStatus tx) {
         if (config.write) {
             tsvWriter.writeNext(row.values()*.toString() as String[])
         } else {
             batch.add(row)
             if (batch.size() == config.batchSize) {
-                batchCount++
+                batchCount.increment()
                 if (config.partition) {
                     insertRowsToChildTables(batch, header)
                 } else {
                     insert.executeBatch(batch.toArray() as Map[])
                 }
-                if (config.flushSize > 0 && batchCount % config.flushSize == 0) {
+                if (config.flushSize > 0 && batchCount.value % config.flushSize == 0) {
                     tx.flush()
                 }
                 batch.clear()
@@ -174,14 +175,15 @@ class Observations {
 
         // Count number of rows
         log.info "Counting number of rows ..."
-        int rowCount = 0
+        def rowCount = new Counter()
         observationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             while (tsvReader.readNext() != null) {
-                rowCount++
+                rowCount.increment()
             }
         }
-        log.info "${NumberFormat.instance.format(rowCount > 0 ? rowCount - 1 : 0)} rows in ${TABLE.fileName}."
+        def formattedRowCount = NumberFormat.instance.format(rowCount.value > 0 ? rowCount.value - 1 : 0)
+        log.info "${formattedRowCount} rows in ${TABLE.fileName}."
 
         Writer writer
         CSVWriter tsvWriter
@@ -207,12 +209,12 @@ class Observations {
             int i = 1
             LinkedHashMap<String, Class> header = Util.verifyHeader(TABLE.fileName, data, columns)
             def insert = database.getInserter(TABLE, header)
-            def progressBar = new ProgressBar("Insert into ${TABLE}", rowCount - 1)
+            def progressBar = new ProgressBar("Insert into ${TABLE}", rowCount.value - 1)
             progressBar.start()
             ArrayList<Map> batch = []
             data = tsvReader.readNext()
             i++
-            Integer batchCount = 0
+            def batchCount = new Counter()
             while (data != null) {
                 try {
                     if (header.size() != data.length) {
@@ -232,7 +234,7 @@ class Observations {
                 i++
             }
             if (batch.size() > 0) {
-                batchCount++
+                batchCount.increment()
                 if (config.partition) {
                     insertRowsToChildTables(batch, header)
                 } else {
@@ -240,7 +242,7 @@ class Observations {
                 }
             }
             progressBar.stop()
-            log.info "${batchCount} batches of ${config.batchSize} inserted."
+            log.info "${batchCount.value} batches of ${config.batchSize} inserted."
             void
         }
 

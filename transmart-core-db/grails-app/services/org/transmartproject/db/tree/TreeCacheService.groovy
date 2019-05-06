@@ -43,8 +43,15 @@ class TreeCacheService {
         path[0 .. path.lastIndexOf('\\', path.size() - 2)]
     }
 
-    static final String getConceptPath(String table, String code){
-        return table == 'concept_dimension' ? code : null
+    // Gets the concept path for a concept node row
+    final String getConceptPath(String table, String columnName, String dimensionCode){
+        if (table == 'concept_dimension') {
+            switch(columnName) {
+                case 'concept_path': return dimensionCode
+                case 'concept_cd': return conceptsResource.getConceptByConceptCode(dimensionCode).conceptPath
+            }
+        }
+        return null
     }
 
     private static String getModifierDimension(String modifierCode) {
@@ -100,7 +107,7 @@ class TreeCacheService {
                     child.parent = node
                 }
                 if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
-                    node.conceptPath = getConceptPath(node.tableName, node.dimensionCode)
+                    node.conceptPath = getConceptPath(node.tableName, node.columnName, node.dimensionCode)
                     if (node.conceptPath) {
                         node.conceptCode = conceptsResource.getConceptCodeByConceptPath(node.conceptPath)
                     }

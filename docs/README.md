@@ -49,15 +49,46 @@ To set up a test database for tranSMART, you can follow these steps:
 Or to set up an empty tranSMART database follow those:
 * [Drop the database](../transmart-data#drop-the-database)
 * [Create the database and load the essentials](../transmart-data#create-the-database-and-load-the-essentials)
- 
-And then a data loading tool based on Spring Batch is available as [transmart-batch](../transmart-batch).
 
+Alternatively, the database can be created at application startup using Liquibase, by adding this line to the configuration:
+```yaml
+grails.plugin.databasemigration.updateOnStart: true
+```
+However, this creates only the essential tables for TranSMART 17.1. E.g., high dimensional data tables and
+user management tables are not created.
+ 
+Two data loading tools are available:
+ * [transmart-batch](../transmart-batch), based on Spring Batch, which is best suited for loading studies
+   for the TranSMART 16.2 schema and loading high dimensional data.
+ * [transmart-copy](../transmart-copy), which is best suited for loading studies for the TranSMART 17.1 schema.
 
 ## 3. Setup configuration
 
 **tranSMART API Server** is configured in the [application.yml file](../transmart-api-server/grails-app/conf/application.yml). The settings, especially for the database connection and [Keycloak](https://www.keycloak.org/) identity provider, should be overwritten by an external file. See the [transmart-api-server documentation](../transmart-api-server#configure-transmart-to-accept-tokens-from-keycloak) on how to create and use the external file.
 Setting it up Keycloak requires [just a few steps](../transmart-api-server#how-to-set-up-authentication-for-the-api-server).
 
+An example configuration file:
+```yaml
+# Database configuration
+dataSource:
+    driverClassName: org.postgresql.Driver
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    url: jdbc:postgresql://localhost:5432/transmart?currentSchema=public
+
+# Create or update the database schema at application startup 
+grails.plugin.databasemigration.updateOnStart: true
+
+# Disable saving application logs in the database 
+org.transmartproject.system.writeLogToDatabase: false
+
+# Keycloak configuration
+keycloak:
+    realm: transmart-dev
+    bearer-only: true
+    auth-server-url: https://keycloak-dwh-test.thehyve.net/auth
+    resource: transmart-client
+    use-resource-role-mappings: true
+```
 
 **tranSMART Server** requires a configuration file to be generated in `~/.grails/transmartConfig`.
 Scripts to generate the configuration are shipped with
@@ -66,7 +97,7 @@ Scripts to generate the configuration are shipped with
 Either use the sources in this repository (`transmart-core/transmart-data`),
 or fetch `transmart-data` from a Nexus repository:
 ```bash
-TRANSMART_VERSION=17.1-HYVE-5.2
+TRANSMART_VERSION=17.1-HYVE-5.9-RC2
 curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-data/${TRANSMART_VERSION}/transmart-data-${TRANSMART_VERSION}.tar -o transmart-data-${TRANSMART_VERSION}.tar && \
 tar xf transmart-data-${TRANSMART_VERSION}.tar 
 ```
@@ -116,8 +147,8 @@ Deployment artefacts are published to [the Nexus repository of The Hyve](https:/
 To fetch and run `transmart-server`:
 ```bash
 # Fetch artefacts from Maven
-TRANSMART_VERSION=17.1-HYVE-5.2
-curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-server-${TRANSMART_VERSION}.war -o transmart-server-${TRANSMART_VERSION}.war && \
+TRANSMART_VERSION=17.1-HYVE-5.9-RC2
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-server/${TRANSMART_VERSION}/transmart-server-${TRANSMART_VERSION}.war -o transmart-server-${TRANSMART_VERSION}.war && \
 # Run it with:
 java -jar transmart-server-${TRANSMART_VERSION}.war
 ```
@@ -125,7 +156,7 @@ java -jar transmart-server-${TRANSMART_VERSION}.war
 To fetch and run `transmart-api-server`:
 ```bash
 # Fetch artefacts from Maven
-TRANSMART_VERSION=17.1-HYVE-5.2
+TRANSMART_VERSION=17.1-HYVE-5.9-RC2
 curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-api-server-${TRANSMART_VERSION}.war -o transmart-api-server-${TRANSMART_VERSION}.war && \
 # Run it with:
 java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server-${TRANSMART_VERSION}.war
@@ -145,7 +176,7 @@ that they are not used by `transmart-api-server`.
 
 Start `Solr`:
 ```bash
-pushd transmart-data-17.1-HYVE-5.2/solr
+pushd transmart-data-17.1-HYVE-5.9-RC2/solr
 java -jar start.jar &
 popd
 ```

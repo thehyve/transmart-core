@@ -1,0 +1,554 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="gijs@thehyve.nl" id="1556187426158-0">
+        <sql dbms="postgresql, h2" endDelimiter=";">
+            create schema i2b2demodata
+        </sql>
+    </changeSet>
+
+    <changeSet author="gijs@thehyve.nl" id="1556187426158-1">
+
+        <createTable remarks="Stores record per an advanced analysis job." schemaName="i2b2demodata" tableName="async_job">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="async_job_pkey"/>
+            </column>
+            <column name="job_name" remarks="The job name. e.g. admin-RHeatmap-100448" type="VARCHAR(200)"/>
+            <column name="job_status" remarks="The status of the job. [Started|Cancelled|Error|Completed|...]" type="VARCHAR(200)"/>
+            <column name="run_time" type="VARCHAR(200)"/>
+            <column name="job_status_time" remarks="The time when current job_status took place." type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="last_run_on" remarks="The start time of the job." type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="viewer_url" type="VARCHAR(4000)"/>
+            <column name="alt_viewer_url" type="VARCHAR(4000)"/>
+            <column name="job_results" type="TEXT"/>
+            <column name="job_inputs_json" type="TEXT"/>
+            <column name="job_type" type="VARCHAR(20)"/>
+            <column name="user_id" remarks="Name of the user." type="VARCHAR(50)"/>
+        </createTable>
+
+        <createTable remarks="Table contains the concepts that classify observations." schemaName="i2b2demodata" tableName="concept_dimension">
+            <column name="concept_cd" remarks="REQUIRED. The code that is used to refer to the concept from observation_fact." type="VARCHAR(50)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="concept_path" remarks="Primary key. The path that uniquely identifies a concept." type="VARCHAR(700)">
+                <constraints primaryKey="true" primaryKeyName="concept_dimension_pk"/>
+            </column>
+            <column name="name_char" remarks="REQUIRED. The name of the concept." type="VARCHAR(2000)"/>
+            <column name="concept_blob" type="TEXT"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(50)"/>
+            <column name="upload_id" type="BIGINT"/>
+            <column name="table_name" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable schemaName="i2b2demodata" tableName="encounter_mapping">
+            <column name="encounter_ide" type="VARCHAR(200)">
+                <constraints primaryKey="true" primaryKeyName="encounter_mapping_pk"/>
+            </column>
+            <column name="encounter_ide_source" type="VARCHAR(50)">
+                <constraints primaryKey="true" primaryKeyName="encounter_mapping_pk"/>
+            </column>
+            <column name="encounter_num" type="numeric(38)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patient_ide" type="VARCHAR(200)"/>
+            <column name="patient_ide_source" type="VARCHAR(50)"/>
+            <column name="encounter_ide_status" type="VARCHAR(50)"/>
+            <column name="upload_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(50)"/>
+            <column name="upload_id" type="numeric(38)"/>
+        </createTable>
+
+        <createTable remarks="Table holds the modifiers on an observation. Used to link to highdim data and samples as well." schemaName="i2b2demodata" tableName="modifier_dimension">
+            <column name="modifier_path" remarks="Primary key. The path that uniquely identifies a modifier." type="VARCHAR(700)">
+                <constraints primaryKey="true" primaryKeyName="modifier_dimension_pk"/>
+            </column>
+            <column name="modifier_cd" remarks="The code that is used to refer to the modifier from obervation_fact. However, it is nullable." type="VARCHAR(50)"/>
+            <column name="name_char" remarks="The name of the modifier." type="VARCHAR(2000)"/>
+            <column name="modifier_blob" type="TEXT"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(50)"/>
+            <column name="upload_id" type="BIGINT"/>
+            <column name="modifier_level" type="BIGINT"/>
+            <column name="modifier_node_type" type="VARCHAR(10)"/>
+        </createTable>
+
+        <createTable remarks="Table that stores all observations" schemaName="i2b2demodata" tableName="observation_fact">
+            <column name="encounter_num" remarks="Primary key. Refers to encounter_num in visit_dimension." type="integer">
+                <constraints primaryKey="true" primaryKeyName="observation_fact_pkey"/>
+            </column>
+            <column name="patient_num" remarks="Primary key. Refers to patient_num in patient_dimension." type="integer">
+                <constraints primaryKey="true" primaryKeyName="observation_fact_pkey"/>
+            </column>
+            <column name="concept_cd" remarks="Primary key. Refers to concept_cd in concept_dimension." type="VARCHAR(50)">
+                <constraints primaryKey="true" primaryKeyName="observation_fact_pkey"/>
+            </column>
+            <column name="provider_id" remarks="Primary key. Refers to provider_id in provider_dimension." type="VARCHAR(50)">
+                <constraints primaryKey="true" primaryKeyName="observation_fact_pkey"/>
+            </column>
+            <column name="start_date" remarks="Primary key. Starting date-time of the observation. Default: 0001-01-01 00:00:00." type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints primaryKey="true" primaryKeyName="observation_fact_pkey"/>
+            </column>
+            <column name="modifier_cd" remarks="Primary key. Refers to modifier_cd in modifier_dimension. Default: @. Highdim values: [TRANSMART:HIGHDIM:GENE EXPRESSION, TRANSMART:HIGHDIM:RNASEQ_TRANSCRIPT], original variable: [TRANSMART:ORIGINAL_VARIABLE], sample type: [TNS:SMPL]." type="VARCHAR(100)">
+                <constraints primaryKey="true" primaryKeyName="observation_fact_pkey"/>
+            </column>
+            <column name="instance_num" remarks="Primary key. Default: 1." type="numeric(18)">
+                <constraints primaryKey="true" primaryKeyName="observation_fact_pkey"/>
+            </column>
+            <column name="valtype_cd" remarks="T for string, N for numeric, B for raw text and D for date values." type="VARCHAR(50)"/>
+            <column name="tval_char" remarks="If valtype_cd is T, the observations text value. If valtype_cd is N, an i2b2 supported operator [E = Equals, NE = Not equal, L = Less than, LE = Less than or Equal to, G = Greater than, GE = Greater than or Equal to]" type="VARCHAR(255)"/>
+            <column name="nval_num" remarks="Used in conjunction with valtype_cd = N to store a numerical value" type="numeric(29, 16)"/>
+            <column name="valueflag_cd" type="VARCHAR(50)"/>
+            <column name="quantity_num" type="numeric(18, 5)"/>
+            <column name="units_cd" type="VARCHAR(50)"/>
+            <column name="end_date" remarks="The end date-time of the observation" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="location_cd" type="VARCHAR(50)"/>
+            <column name="observation_blob" type="TEXT"/>
+            <column name="confidence_num" type="numeric(18, 5)"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" remarks="Deprecated. Is currently being ignored." type="VARCHAR(50)"/>
+            <column name="upload_id" type="numeric(38)"/>
+            <column name="sample_cd" remarks="Deprecated. Refers to the sample_dimension table." type="VARCHAR(200)"/>
+            <column name="trial_visit_num" remarks="Refers to the new trial_visit dimension. Is not part of the primary key to make the primary key of observation_fact identical with that used by i2b2." type="integer"/>
+        </createTable>
+
+        <createTable remarks="Table holds patients." schemaName="i2b2demodata" tableName="patient_dimension">
+            <column name="patient_num" remarks="Primary key. Id of the patient." type="serial">
+                <constraints primaryKey="true" primaryKeyName="patient_dimension_pk"/>
+            </column>
+            <column name="vital_status_cd" type="VARCHAR(50)"/>
+            <column name="birth_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="death_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sex_cd" remarks="One of [Male, Female, Unknown]." type="VARCHAR(50)"/>
+            <column name="age_in_years_num" type="numeric(38)"/>
+            <column name="language_cd" type="VARCHAR(50)"/>
+            <column name="race_cd" type="VARCHAR(50)"/>
+            <column name="marital_status_cd" type="VARCHAR(50)"/>
+            <column name="religion_cd" type="VARCHAR(50)"/>
+            <column name="zip_cd" type="VARCHAR(50)"/>
+            <column name="statecityzip_path" type="VARCHAR(700)"/>
+            <column name="income_cd" type="VARCHAR(50)"/>
+            <column name="patient_blob" type="TEXT"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(107)"/>
+            <column name="upload_id" type="numeric(38)"/>
+        </createTable>
+
+        <createTable remarks="Table with subject identifiers from different sources." schemaName="i2b2demodata" tableName="patient_mapping">
+            <column name="patient_ide" remarks="Primary key. Subject identifier associated with a patient." type="VARCHAR(200)">
+                <constraints primaryKey="true" primaryKeyName="patient_mapping_pk"/>
+            </column>
+            <column name="patient_ide_source" remarks="Primary key. Source of the subject identifier." type="VARCHAR(50)">
+                <constraints primaryKey="true" primaryKeyName="patient_mapping_pk"/>
+            </column>
+            <column name="patient_num" remarks="The id of the patient in TranSMART. Refers to patient_num in patient_dimension." type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patient_ide_status" type="VARCHAR(50)"/>
+            <column name="upload_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(50)"/>
+            <column name="upload_id" type="numeric(38)"/>
+        </createTable>
+
+        <createTable remarks="Table that holds providers, e.g., physicians." schemaName="i2b2demodata" tableName="provider_dimension">
+            <column name="provider_id" remarks="Primary key." type="VARCHAR(50)">
+                <constraints primaryKey="true" primaryKeyName="provider_dimension_pk"/>
+            </column>
+            <column name="provider_path" remarks="Primary key. A path that identifies a provider." type="VARCHAR(700)">
+                <constraints primaryKey="true" primaryKeyName="provider_dimension_pk"/>
+            </column>
+            <column name="name_char" remarks="The name of the provider." type="VARCHAR(850)"/>
+            <column name="provider_blob" type="TEXT"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(50)"/>
+            <column name="upload_id" type="numeric(38)"/>
+        </createTable>
+
+        <createTable schemaName="i2b2demodata" tableName="qt_patient_set_collection">
+            <column name="patient_set_coll_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="qt_patient_set_collection_pkey"/>
+            </column>
+            <column name="result_instance_id" type="integer"/>
+            <column name="set_index" type="numeric(10)"/>
+            <column name="patient_num" type="integer"/>
+        </createTable>
+
+        <createTable schemaName="i2b2demodata" tableName="qt_query_instance">
+            <column name="query_instance_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="qt_query_instance_pkey"/>
+            </column>
+            <column name="query_master_id" type="integer"/>
+            <column name="user_id" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="batch_mode" type="VARCHAR(50)"/>
+            <column name="start_date" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="delete_flag" type="VARCHAR(3)"/>
+            <column name="status_type_id" type="integer"/>
+            <column name="message" type="TEXT"/>
+        </createTable>
+
+        <createTable remarks="This master table to the holds the client’s anaysis request information. i.e.&#10;the user_id, analysis definition , the i2b2 request_xml, etc.." schemaName="i2b2demodata" tableName="qt_query_master">
+            <column name="query_master_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="qt_query_master_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="master_type_cd" type="VARCHAR(2000)"/>
+            <column name="plugin_id" type="numeric(10)"/>
+            <column name="create_date" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delete_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="delete_flag" type="VARCHAR(3)"/>
+            <column name="generated_sql" type="TEXT"/>
+            <column name="request_xml" type="TEXT"/>
+            <column name="i2b2_request_xml" type="TEXT"/>
+            <column name="request_constraints" type="TEXT"/>
+            <column name="api_version" type="TEXT"/>
+        </createTable>
+
+        <createTable schemaName="i2b2demodata" tableName="qt_query_result_instance">
+            <column name="result_instance_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="qt_query_result_instance_pkey"/>
+            </column>
+            <column name="query_instance_id" type="integer"/>
+            <column name="result_type_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="set_size" type="numeric(10)"/>
+            <column name="start_date" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="delete_flag" type="VARCHAR(3)"/>
+            <column name="status_type_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="TEXT"/>
+            <column name="description" type="VARCHAR(200)"/>
+            <column name="real_set_size" type="numeric(10)"/>
+            <column name="obfusc_method" type="VARCHAR(500)"/>
+        </createTable>
+
+        <createTable schemaName="i2b2demodata" tableName="qt_query_result_type">
+            <column name="result_type_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="qt_query_result_type_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(100)"/>
+            <column name="description" type="VARCHAR(200)"/>
+            <column name="display_type_id" type="VARCHAR(500)"/>
+            <column name="visual_attribute_type_id" type="VARCHAR(3)"/>
+        </createTable>
+
+        <createTable schemaName="i2b2demodata" tableName="qt_query_status_type">
+            <column name="status_type_id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="qt_query_status_type_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(100)"/>
+            <column name="description" type="VARCHAR(200)"/>
+        </createTable>
+
+        <createTable remarks="Represents relationships between subjects. e.g. pedigree." schemaName="i2b2demodata" tableName="relation">
+            <column name="left_subject_id" remarks="Id of the left subject in the relation." type="integer">
+                <constraints primaryKey="true" primaryKeyName="relation_pk"/>
+            </column>
+            <column name="relation_type_id" remarks="Relation type id." type="INTEGER">
+                <constraints primaryKey="true" primaryKeyName="relation_pk"/>
+            </column>
+            <column name="right_subject_id" remarks="Id of the right subject in the relation." type="integer">
+                <constraints primaryKey="true" primaryKeyName="relation_pk"/>
+            </column>
+            <column name="biological" remarks="Specifies whether relation biological." type="BOOLEAN"/>
+            <column name="share_household" remarks="Specifies whether subjects share household." type="BOOLEAN"/>
+        </createTable>
+
+        <createTable remarks="Dictionary of relations. e.g. &quot;parent of&quot; relation." schemaName="i2b2demodata" tableName="relation_type">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" primaryKeyName="relation_type_pkey"/>
+            </column>
+            <column name="label" remarks="Short unique name of the relation." type="VARCHAR(200)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="description" remarks="Detailed description of the relation." type="TEXT"/>
+            <column name="symmetrical" remarks="Whether relation is symmetrical. e.g. &quot;sibling of&quot; is symmetrical. &quot;parent of&quot; is not." type="BOOLEAN"/>
+            <column name="biological" remarks="Whether relation is biological. e.g. &quot;parent of&quot; is biological. &quot;spouse of&quot; is not." type="BOOLEAN"/>
+        </createTable>
+
+        <createTable remarks="Table holds studies and their access tokens" schemaName="i2b2demodata" tableName="study">
+            <column name="study_num" type="serial" remarks="Primary key.">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="study_pk"/>
+            </column>
+            <column name="bio_experiment_id" remarks="Foreign key: bio_experiment_id in bio_experiment." type="BIGINT"/>
+            <column name="study_id" remarks="Unique study name. E.g., GSE8581." type="VARCHAR(100)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="secure_obj_token" remarks="Token needed for access to the study. E.g., ‘PUBLIC’ or ‘EXP:GSE8581’." type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="study_blob" remarks="Stores arbitrary information about the study" type="TEXT"/>
+        </createTable>
+
+        <createTable remarks="Table holds descriptions of trial visits, which represent relative time points in a study." schemaName="i2b2demodata" tableName="trial_visit_dimension">
+            <column name="trial_visit_num" remarks="Primary key." type="serial">
+                <constraints primaryKey="true" primaryKeyName="trial_visit_dimension_pk"/>
+            </column>
+            <column name="study_num" remarks="Foreign key to study_num in study." type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rel_time_unit_cd" remarks="The unit in which rel_time_num is expressed. E.g., Week, Day, Visit." type="VARCHAR(50)"/>
+            <column name="rel_time_num" remarks="E.g., 1 (for Week 1)." type="numeric(38)"/>
+            <column name="rel_time_label" remarks="Descriptive name. E.g., Baseline, Week 1." type="VARCHAR(900)"/>
+        </createTable>
+
+        <createTable remarks="Table holds descriptions of actual visits in real time." schemaName="i2b2demodata" tableName="visit_dimension">
+            <column name="encounter_num" remarks="Primary key. Id of the visit. Referred to by the encounter_num column of observation_fact." type="integer">
+                <constraints primaryKey="true" primaryKeyName="visit_dimension_pk"/>
+            </column>
+            <column name="patient_num" remarks="Primary key. Id linking to patient_num in the patient_dimension." type="integer">
+                <constraints primaryKey="true" primaryKeyName="visit_dimension_pk"/>
+            </column>
+            <column name="active_status_cd" type="VARCHAR(50)"/>
+            <column name="start_date" remarks="Start date and time of the visit." type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="end_date" remarks="End date and time of the visit." type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="inout_cd" type="VARCHAR(50)"/>
+            <column name="location_cd" type="VARCHAR(50)"/>
+            <column name="location_path" type="VARCHAR(900)"/>
+            <column name="length_of_stay" type="numeric(38)"/>
+            <column name="visit_blob" type="TEXT"/>
+            <column name="update_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="download_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="import_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="sourcesystem_cd" type="VARCHAR(50)"/>
+            <column name="upload_id" type="numeric(38)"/>
+        </createTable>
+
+        <createIndex indexName="idx_em" schemaName="i2b2demodata" tableName="encounter_mapping">
+            <column name="encounter_ide"/>
+            <column name="encounter_ide_source"/>
+            <column name="patient_ide"/>
+            <column name="patient_ide_source"/>
+            <column name="encounter_num"/>
+        </createIndex>
+
+        <createIndex indexName="idx_fact_concept" schemaName="i2b2demodata" tableName="observation_fact">
+            <column name="concept_cd"/>
+        </createIndex>
+
+        <createIndex indexName="idx_fact_patient_num" schemaName="i2b2demodata" tableName="observation_fact">
+            <column name="patient_num"/>
+        </createIndex>
+
+        <createIndex indexName="idx_fact_trial_visit_num" schemaName="i2b2demodata" tableName="observation_fact">
+            <column name="trial_visit_num"/>
+        </createIndex>
+
+        <createIndex indexName="idx_study_secure_obj_token" schemaName="i2b2demodata" tableName="study">
+            <column name="secure_obj_token"/>
+        </createIndex>
+
+        <createIndex indexName="idx_trial_visit_study_num" schemaName="i2b2demodata" tableName="trial_visit_dimension">
+            <column name="study_num"/>
+        </createIndex>
+
+        <createIndex indexName="observation_fact_tmceppis_idx" schemaName="i2b2demodata" tableName="observation_fact">
+            <column name="trial_visit_num"/>
+            <column name="modifier_cd"/>
+            <column name="concept_cd"/>
+            <column name="encounter_num"/>
+            <column name="patient_num"/>
+            <column name="provider_id"/>
+            <column name="instance_num"/>
+            <column name="start_date"/>
+        </createIndex>
+
+        <createIndex indexName="idx_pd_name_char" schemaName="i2b2demodata" tableName="provider_dimension">
+            <column name="provider_id"/>
+            <column name="name_char"/>
+        </createIndex>
+
+        <createIndex indexName="idx_pm_patnum" schemaName="i2b2demodata" tableName="patient_mapping">
+            <column name="patient_num"/>
+        </createIndex>
+
+        <createIndex indexName="idx_qi_mstartid" schemaName="i2b2demodata" tableName="qt_query_instance">
+            <column name="query_master_id"/>
+            <column name="start_date"/>
+        </createIndex>
+
+        <createIndex indexName="idx_qi_ugid" schemaName="i2b2demodata" tableName="qt_query_instance">
+            <column name="user_id"/>
+            <column name="group_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_qm_ugid" schemaName="i2b2demodata" tableName="qt_query_master">
+            <column name="user_id"/>
+            <column name="group_id"/>
+            <column name="master_type_cd"/>
+        </createIndex>
+
+        <createIndex indexName="idx_psc_riid" schemaName="i2b2demodata" tableName="qt_patient_set_collection">
+            <column name="result_instance_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_psc_riid_pn" schemaName="i2b2demodata" tableName="qt_patient_set_collection">
+            <column name="result_instance_id"/>
+            <column name="patient_num"/>
+        </createIndex>
+
+        <createIndex indexName="idx_relation_type_id" schemaName="i2b2demodata" tableName="relation">
+            <column name="relation_type_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_visitdim_en_pn_lp_io_sd" schemaName="i2b2demodata" tableName="visit_dimension">
+            <column name="encounter_num"/>
+            <column name="patient_num"/>
+            <column name="location_path"/>
+            <column name="inout_cd"/>
+            <column name="start_date"/>
+            <column name="end_date"/>
+            <column name="length_of_stay"/>
+        </createIndex>
+
+        <createIndex indexName="idx_visitdim_std_edd" schemaName="i2b2demodata" tableName="visit_dimension">
+            <column name="start_date"/>
+            <column name="end_date"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="left_subject_id"
+                                 baseTableName="relation"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="left_subject_id_fk"
+                                 referencedColumnNames="patient_num"
+                                 referencedTableName="patient_dimension"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="trial_visit_num"
+                                 baseTableName="observation_fact"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="observation_fact_trial_visit_fk"
+                                 referencedColumnNames="trial_visit_num"
+                                 referencedTableName="trial_visit_dimension"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="result_instance_id"
+                                 baseTableName="qt_patient_set_collection"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="qt_fk_psc_ri"
+                                 referencedColumnNames="result_instance_id"
+                                 referencedTableName="qt_query_result_instance"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="query_master_id"
+                                 baseTableName="qt_query_instance"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="qt_fk_qi_mid"
+                                 referencedColumnNames="query_master_id"
+                                 referencedTableName="qt_query_master"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="status_type_id"
+                                 baseTableName="qt_query_instance"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="qt_fk_qi_stid"
+                                 referencedColumnNames="status_type_id"
+                                 referencedTableName="qt_query_status_type"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="query_instance_id"
+                                 baseTableName="qt_query_result_instance"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="qt_fk_qri_rid"
+                                 referencedColumnNames="query_instance_id"
+                                 referencedTableName="qt_query_instance"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="result_type_id"
+                                 baseTableName="qt_query_result_instance"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="qt_fk_qri_rtid"
+                                 referencedColumnNames="result_type_id"
+                                 referencedTableName="qt_query_result_type"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="status_type_id"
+                                 baseTableName="qt_query_result_instance"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="qt_fk_qri_stid"
+                                 referencedColumnNames="status_type_id"
+                                 referencedTableName="qt_query_status_type"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="relation_type_id"
+                                 baseTableName="relation"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="relation_type_id_fk"
+                                 referencedColumnNames="id"
+                                 referencedTableName="relation_type"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="right_subject_id"
+                                 baseTableName="relation"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="right_subject_id_fk"
+                                 referencedColumnNames="patient_num"
+                                 referencedTableName="patient_dimension"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+        <addForeignKeyConstraint baseColumnNames="study_num"
+                                 baseTableName="trial_visit_dimension"
+                                 baseTableSchemaName="i2b2demodata"
+                                 constraintName="trial_visit_dimension_study_fk"
+                                 referencedColumnNames="study_num"
+                                 referencedTableName="study"
+                                 referencedTableSchemaName="i2b2demodata"/>
+
+    </changeSet>
+
+    <changeSet id="1556187426158-2" author="gijs@thehyve.nl" dbms="postgresql">
+
+        <sql dbms="postgresql, h2" endDelimiter=";">
+            create index observation_fact_pct_idx on i2b2demodata.observation_fact using btree (patient_num, concept_cd, trial_visit_num) where modifier_cd = '@'
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

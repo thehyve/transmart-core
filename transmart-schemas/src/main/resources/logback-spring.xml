@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true">
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%highlight(%-5level) %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.orm.cache" level="ERROR"/>
+    <logger name="org.hibernate.ejb.HibernatePersistence" level="OFF"/>
+    <logger name="liquibase" level="WARN"/>
+    <logger name="liquibase.changelog.ChangeSet" level="INFO"/>
+    <logger name="liquibase.integration.spring" level="ERROR"/>
+    <logger name="LiquibaseSchemaResolver" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    <logger name="org.springframework.beans" level="WARN"/>
+    <logger name="org.springframework.context" level="WARN"/>
+    <logger name="org.springframework.data.repository" level="WARN"/>
+    <logger name="org.springframework.jmx" level="WARN"/>
+    <logger name="org.springframework.orm.jpa" level="WARN"/>
+    <logger name="org.transmartproject.schemas.SchemaLoaderApplication" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

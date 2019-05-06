@@ -1,0 +1,6 @@
+${AnsiColor.BRIGHT_WHITE}  ______                _____ __  ______    ____  ______${AnsiColor.BRIGHT_GREEN}             __
+${AnsiColor.BRIGHT_WHITE} /_  __/________ _____ / ___//  |/  /   |  / __ \/_  __/${AnsiColor.BRIGHT_GREEN}  __________/ /_  ___  ____ ___  ____ ______
+${AnsiColor.BRIGHT_WHITE}  / / / ___/ __ `/ __ \\__ \/ /|_/ / /| | / /_/ / / /   ${AnsiColor.BRIGHT_GREEN} / ___/ ___/ __ \/ _ \/ __ `__ \/ __ `/ ___/
+${AnsiColor.BRIGHT_WHITE} / / / /  / /_/ / / / /__/ / /  / / ___ |/ _, _/ / /    ${AnsiColor.BRIGHT_GREEN}(__  ) /__/ / / /  __/ / / / / / /_/ (__  )
+${AnsiColor.BRIGHT_WHITE}/_/ /_/   \__,_/_/ /_/____/_/  /_/_/  |_/_/ |_| /_/    ${AnsiColor.BRIGHT_GREEN}/____/\___/_/ /_/\___/_/ /_/ /_/\__,_/____/
+${AnsiColor.BRIGHT_WHITE}TranSMART schemas ${application.version} :: Running Spring Boot ${spring-boot.version}
