@@ -18,6 +18,11 @@
 
     <changeSet author="gijs@thehyve.nl" id="1556187426158-1">
 
+        <createSequence schemaName="i2b2demodata" sequenceName="qt_sq_qi_qiid"/> <!-- QtQueryInstance -->
+        <createSequence schemaName="i2b2demodata" sequenceName="qt_sq_qm_qmid"/> <!-- QtQueryMaster -->
+        <createSequence schemaName="i2b2demodata" sequenceName="qt_sq_qpr_pcid"/> <!-- QtPatientSetCollection -->
+        <createSequence schemaName="i2b2demodata" sequenceName="qt_sq_qri_qriid"/> <!-- QtQueryResultInstance -->
+
         <createTable remarks="Stores record per an advanced analysis job." schemaName="i2b2demodata" tableName="async_job">
             <column name="id" type="serial">
                 <constraints primaryKey="true" primaryKeyName="async_job_pkey"/>
@@ -549,6 +554,17 @@
             create index observation_fact_pct_idx on i2b2demodata.observation_fact using btree (patient_num, concept_cd, trial_visit_num) where modifier_cd = '@'
         </sql>
 
+    </changeSet>
+
+    <changeSet id="1556187426158-3" author="gijs@thehyve.nl">
+        <loadData file="classpath:db/changelog/changes/data/qt_query_result_type.csv"
+                  relativeToChangelogFile="false"
+                  schemaName="i2b2demodata"
+                  tableName="qt_query_result_type"/>
+        <loadData file="classpath:db/changelog/changes/data/qt_query_status_type.csv"
+                  relativeToChangelogFile="false"
+                  schemaName="i2b2demodata"
+                  tableName="qt_query_status_type"/>
     </changeSet>
 
 </databaseChangeLog>
