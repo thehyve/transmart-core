@@ -97,7 +97,7 @@ Scripts to generate the configuration are shipped with
 Either use the sources in this repository (`transmart-core/transmart-data`),
 or fetch `transmart-data` from a Nexus repository:
 ```bash
-TRANSMART_VERSION=17.1-HYVE-5.9-RC2
+TRANSMART_VERSION=17.1-HYVE-5.9-RC3
 curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-data/${TRANSMART_VERSION}/transmart-data-${TRANSMART_VERSION}.tar -o transmart-data-${TRANSMART_VERSION}.tar && \
 tar xf transmart-data-${TRANSMART_VERSION}.tar 
 ```
@@ -147,7 +147,7 @@ Deployment artefacts are published to [the Nexus repository of The Hyve](https:/
 To fetch and run `transmart-server`:
 ```bash
 # Fetch artefacts from Maven
-TRANSMART_VERSION=17.1-HYVE-5.9-RC2
+TRANSMART_VERSION=17.1-HYVE-5.9-RC3
 curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-server/${TRANSMART_VERSION}/transmart-server-${TRANSMART_VERSION}.war -o transmart-server-${TRANSMART_VERSION}.war && \
 # Run it with:
 java -jar transmart-server-${TRANSMART_VERSION}.war
@@ -156,7 +156,7 @@ java -jar transmart-server-${TRANSMART_VERSION}.war
 To fetch and run `transmart-api-server`:
 ```bash
 # Fetch artefacts from Maven
-TRANSMART_VERSION=17.1-HYVE-5.9-RC2
+TRANSMART_VERSION=17.1-HYVE-5.9-RC3
 curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-api-server-${TRANSMART_VERSION}.war -o transmart-api-server-${TRANSMART_VERSION}.war && \
 # Run it with:
 java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server-${TRANSMART_VERSION}.war
@@ -176,7 +176,7 @@ that they are not used by `transmart-api-server`.
 
 Start `Solr`:
 ```bash
-pushd transmart-data-17.1-HYVE-5.9-RC2/solr
+pushd transmart-data-17.1-HYVE-5.9-RC3/solr
 java -jar start.jar &
 popd
 ```
