@@ -26,7 +26,7 @@ _Parameters:_
     to avoid primary key collisions in `observation_fact`.
     The base is autodetected as `max(observation_fact.instance_num)`.
 - `-r`, `--restore-indexes`: Restore indexes.
-- `-i`, `--drop-indexes`: Drop indexes when loading, restore them afterwards.
+- `-i`, `--drop-indexes`: Drop indexes when loading.
 - `-u`, `--unlogged`: Set observations table to unlogged when loading.
 - `-b`, `--batch-size`: Number of observation to insert in a batch (default: `500`).
 - `-f`, `--flush-size`: Number of batches to flush to the database (default: `1000`).
