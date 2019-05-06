@@ -1,0 +1,10 @@
+result_type_id,name,description,display_type_id,visual_attribute_type_id
+1,PATIENTSET,Patient set,LIST,LA
+2,PATIENT_ENCOUNTER_SET,Encounter set,LIST,LA
+3,XML,Generic query result,CATNUM,LH
+4,PATIENT_COUNT_XML,Number of patients,CATNUM,LA
+5,PATIENT_GENDER_COUNT_XML,Gender patient breakdown,CATNUM,LA
+6,PATIENT_VITALSTATUS_COUNT_XML,Vital Status patient breakdown,CATNUM,LA
+7,PATIENT_RACE_COUNT_XML,Race patient breakdown,CATNUM,LA
+8,PATIENT_AGE_COUNT_XML,Age patient breakdown,CATNUM,LA
+9,PATIENTSET,Timeline,LIST,LA
