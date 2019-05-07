@@ -70,5 +70,5 @@ exec java -jar -server \
           "-Dserver.port=${APP_PORT}" \
           "-Djava.security.egd=file:///dev/urandom" \
           "-Dspring.config.location=${TRANSMART_API_SERVER_CONFIG_FILE}" \
-          "-Dlogging.config=${TRANSMART_USER_HOME}/logback.groovy" \
+          "-Dlogging.config=/logback.groovy" \
 					"${TRANSMART_SERVICE_WAR_FILE}"
