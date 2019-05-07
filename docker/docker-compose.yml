@@ -16,13 +16,13 @@ services:
 
   transmart-api-server:
     container_name: transmart-api-server
-    image: transmart-api-server:17.1-HYVE-5.9-RC2
+    image: thehyve/transmart-api-server:17.1-HYVE-5.9-RC3
     ports:
       - 9081:8081
     environment:
       KEYCLOAK_SERVER_URL: ${KEYCLOAK_SERVER_URL:-https://keycloak-dwh-test.thehyve.net/auth}
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-transmart-dev}
-      KEYCLOAK_CLIENT_ID: transmart-client
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-transmart-client}
       PGHOST: transmart-database
       PGPORT: 5432
       PGDATABASE: transmart
