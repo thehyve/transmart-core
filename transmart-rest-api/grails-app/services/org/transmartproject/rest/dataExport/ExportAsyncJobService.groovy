@@ -56,7 +56,7 @@ class ExportAsyncJobService extends AbstractDataResourceService {
 
     AsyncJobCoreDb createNewJob(String jobName, User user) {
         // Check input
-        jobName = jobName?.trim() ? null : escapeInvalidFileNameChars(jobName)
+        jobName = jobName?.trim() ? escapeInvalidFileNameChars(jobName) : null
 
         // Save job
         def newJob = new AsyncJobCoreDb(lastRunOn: new Date())
