@@ -56,12 +56,7 @@ class ExportAsyncJobService extends AbstractDataResourceService {
 
     AsyncJobCoreDb createNewJob(String jobName, User user) {
         // Check input
-        if (jobName != null) {
-            jobName = jobName.trim()
-            if (jobName.empty) {
-                jobName = null
-            }
-        }
+        jobName = jobName?.trim() ? null : escapeInvalidFileNameChars(jobName)
 
         // Save job
         def newJob = new AsyncJobCoreDb(lastRunOn: new Date())
@@ -158,6 +153,11 @@ class ExportAsyncJobService extends AbstractDataResourceService {
 
     private static JobKey getJobKeyForId(Long jobId) {
         new JobKey(jobId.toString(), 'DataExport')
+    }
+
+    private static escapeInvalidFileNameChars(String fileName) {
+        // escape characters that are not permited to be used in file names (Windows+Linux/Unix)
+        fileName?.replaceAll("[/\\\\?%*:|\\\"<>]", "_")
     }
 
     private AsyncJobCoreDb executeExportJob(AsyncJobCoreDb job, Map dataMap) {
