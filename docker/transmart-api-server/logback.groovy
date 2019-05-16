@@ -36,3 +36,4 @@ appender('STDOUT', ConsoleAppender) {
 root(WARN, ['STDOUT'])
 
 logger('org.transmartproject.db.log', TRACE, ['STDOUT'], false)
+logger('org.apache.catalina.webresources.Cache', ERROR, ['STDOUT'], false)
