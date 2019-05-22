@@ -13,14 +13,18 @@ import spock.lang.Specification
 class CopySpec extends Specification {
 
     static final String TEST_STUDY = 'SURVEY0'
+    static final String INCREMENTAL_STUDY = 'SURVEY_INC'
     static final String STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY
     static final String CORRUPTED_STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY + '_corrupted'
+    static final String INCREMENTAL_STUDY_FOLDER = './src/test/resources/examples/' + INCREMENTAL_STUDY
+
     static final Map<String, String> DATABASE_CREDENTIALS = [
-            PGHOST    : 'localhost',
-            PGPORT    : '5432',
-            PGDATABASE: 'transmart',
-            PGUSER    : 'i2b2demodata',
-            PGPASSWORD: 'i2b2demodata'
+            PGHOST     : 'localhost',
+            PGPORT     : '5432',
+            PGDATABASE : 'transmart',
+            PGUSER     : 'i2b2demodata',
+            PGPASSWORD : 'i2b2demodata',
+            MAXPOOLSIZE: '5'
     ]
 
     def studySpecificTables = [
@@ -41,12 +45,12 @@ class CopySpec extends Specification {
     }
 
     def cleanup() {
+        ensureAllStudiesUnloaded()
         copy.close()
     }
 
     def 'test loading the study data'() {
         given: 'Test database is available, the study is not loaded'
-        ensureTestStudyUnloaded()
         Map beforeCounts = count(studySpecificTables)
         Map fileRowCounts = count(STUDY_FOLDER, studySpecificTables)
         def expectedConceptPaths = readFieldsFromFile(STUDY_FOLDER, Concepts.TABLE, 'concept_path')
@@ -78,7 +82,6 @@ class CopySpec extends Specification {
 
     def 'test loading the relations data'() {
         given: 'Test database is available, the study is not loaded'
-
         def expectedRelationTypeLabels = readFieldsFromFile(STUDY_FOLDER, Relations.RELATION_TABLE, 'label')
 
         when: 'Loading the pedigree data'
@@ -143,7 +146,6 @@ class CopySpec extends Specification {
 
     def 'delete by path when no study'() {
         given: 'there is no study'
-        ensureTestStudyUnloaded()
 
         when:
         copy.deleteStudy(STUDY_FOLDER, false)
@@ -173,7 +175,7 @@ class CopySpec extends Specification {
         Options options = new Options()
         options.addOption(new Option('D', 'delete', true, ''))
 
-        when: 'error during load happens'
+        when: 'running with delete option'
         CommandLine cli1 = new DefaultParser()
                 .parse(options, ['--delete', TEST_STUDY] as String[])
         Copy.runCopy(cli1, DATABASE_CREDENTIALS)
@@ -203,10 +205,8 @@ class CopySpec extends Specification {
         testStudyDbIdentifier > studyId1
     }
 
-
     def 'test partitioning handling'() {
         given: 'there is no study'
-        ensureTestStudyUnloaded()
         Options options = new Options()
         options.addOption(new Option('d', 'directory', true, ''))
         options.addOption(new Option('p', 'partition', false, ''))
@@ -254,7 +254,6 @@ class CopySpec extends Specification {
 
     def 'test instance num recalculation'() {
         given: 'there is no study'
-        ensureTestStudyUnloaded()
         Options options = new Options()
         options.addOption(new Option('d', 'directory', true, ''))
         options.addOption(new Option('n', 'base-on-max-instance-num', false, ''))
@@ -283,6 +282,116 @@ class CopySpec extends Specification {
         zeroBasedInstanceNums.min() == 1
     }
 
+    def 'test incremental loading'() {
+        given: 'there is no study'
+        Options options = new Options()
+        options.addOption(new Option('I', 'incremental', false, ''))
+        options.addOption(new Option('d', 'directory', true, ''))
+
+
+        when: 'loading a first part of a study'
+        def studyPart1Folder = INCREMENTAL_STUDY_FOLDER + '/part1'
+        Map fileRowCounts1 = count(studyPart1Folder, studySpecificTables)
+        def expectedConceptPaths1 = readFieldsFromFile(studyPart1Folder, Concepts.TABLE, 'concept_path')
+        def expectedModifierPaths1 = readFieldsFromFile(studyPart1Folder, Modifiers.TABLE, 'modifier_path')
+        def expectedSubjectIds1 =
+                readFieldsFromFile(studyPart1Folder, Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def expectedTreeNodePaths1 = readFieldsFromFile(studyPart1Folder, TreeNodes.TABLE, 'c_fullname')
+
+        CommandLine cli1 = new DefaultParser().parse(options, ['--directory', studyPart1Folder] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+
+        def inDbPatientNums1 = readFieldsFromDb(Observations.TABLE,'patient_num') as Set
+        Map countsAfterUpload1 = count(studySpecificTables)
+        def inDbConceptPaths1 = readFieldsFromDb(Concepts.TABLE, 'concept_path')
+        def inDbModifierPaths1 = readFieldsFromDb(Modifiers.TABLE, 'modifier_path')
+        def inDbSubjectIds1 = readFieldsFromDb(Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def inDbTreeNodePaths1 = readFieldsFromDb(TreeNodes.TABLE, 'c_fullname')
+
+
+        then: 'the first part of the study has been loaded'
+        incrementalStudyDbIdentifier
+        fileRowCounts1 == countsAfterUpload1
+        inDbPatientNums1.size() == expectedSubjectIds1.size()
+        inDbConceptPaths1.containsAll(expectedConceptPaths1)
+        inDbModifierPaths1.containsAll(expectedModifierPaths1)
+        inDbSubjectIds1.containsAll(expectedSubjectIds1)
+        inDbTreeNodePaths1.containsAll(expectedTreeNodePaths1)
+
+
+        when: 'loading a second part of the study with incremental option'
+        def studyPart2Folder = INCREMENTAL_STUDY_FOLDER + '/part2'
+        def expectedConceptPaths2 = readFieldsFromFile(studyPart2Folder, Concepts.TABLE, 'concept_path')
+        def expectedModifierPaths2 = readFieldsFromFile(studyPart2Folder, Modifiers.TABLE, 'modifier_path')
+        def expectedSubjectIds2 =
+                readFieldsFromFile(studyPart2Folder, Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def expectedTreeNodePaths2 = readFieldsFromFile(studyPart2Folder, TreeNodes.TABLE, 'c_fullname')
+
+        CommandLine cli2 = new DefaultParser()
+                .parse(options, ['--incremental', '--directory', studyPart2Folder] as String[])
+        Copy.runCopy(cli2, DATABASE_CREDENTIALS)
+
+        Map countsAfterUpload2 = count(studySpecificTables)
+        def inDbPatientNums2 = readFieldsFromDb(Observations.TABLE,'patient_num') as Set
+        def inDbConceptPaths2 = readFieldsFromDb(Concepts.TABLE, 'concept_path')
+        def inDbModifierPaths2 = readFieldsFromDb(Modifiers.TABLE, 'modifier_path')
+        def inDbSubjectIds2 = readFieldsFromDb(Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def inDbPatientIdeToPatientNum = readPatientIdeToPatientNum()
+        def inDbTreeNodePaths2 = readFieldsFromDb(TreeNodes.TABLE, 'c_fullname')
+
+
+        then: 'the second part of the study has been loaded incrementally'
+        incrementalStudyDbIdentifier
+        /** 1 patient not present in part2: SURVEY_INC_P2 -> 3 observations
+         *  1 patient updated in part2    : SURVEY_INC_P1 -> 3 observations
+         *  1 patient added in part 2     : SURVEY_INC_P3 -> 3 observations
+         */
+        inDbPatientNums2.size() == inDbPatientNums1.size() + 1
+        countsAfterUpload2[Observations.TABLE] == countsAfterUpload1[Observations.TABLE] + 3
+        countsAfterUpload2[Studies.TRIAL_VISIT_TABLE] == countsAfterUpload1[Studies.TRIAL_VISIT_TABLE] + 1
+        countsAfterUpload2[Studies.STUDY_TABLE] == countsAfterUpload1[Studies.STUDY_TABLE]
+        countsAfterUpload2[Studies.STUDY_DIMENSIONS_TABLE] == countsAfterUpload1[Studies.STUDY_DIMENSIONS_TABLE]
+        inDbConceptPaths2.containsAll(expectedConceptPaths2)
+        inDbModifierPaths2.containsAll(expectedModifierPaths2)
+        inDbSubjectIds2.containsAll(expectedSubjectIds2)
+        inDbTreeNodePaths2.containsAll(expectedTreeNodePaths2)
+        inDbSubjectIds2.findAll{ it.toString().startsWith("SURVEY_INC_")} as Set ==
+                (expectedSubjectIds1 + expectedSubjectIds2) as Set
+
+        // observation for patient from part1 only - old value
+        readFieldsFromDb(Observations.TABLE,'nval_num',
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P2']} AND concept_cd='age'")[0] == 33
+        // observation for patient updated in part2 - updated value
+        readFieldsFromDb(Observations.TABLE,'nval_num',
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P1']} AND concept_cd='age'")[0] == 26
+        // observation for patient added in part2 - new value
+        readFieldsFromDb(Observations.TABLE,'nval_num',
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P3']} AND concept_cd='age'")[0] == 60
+    }
+
+    def 'test incremental loading of the same data'() {
+        given: 'there is a study'
+        ensureTestStudyLoaded()
+        Map beforeCounts = count(studySpecificTables)
+        Options options = new Options()
+        options.addOption(new Option('I', 'incremental', false, ''))
+        options.addOption(new Option('d', 'directory', true, ''))
+
+        when: 'loading the same study with incremental option'
+        CommandLine cli1 = new DefaultParser()
+                .parse(options, ['--incremental', '--directory', STUDY_FOLDER] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+        Map afterCounts = count(studySpecificTables)
+
+        then: 'study has not been deleted'
+        testStudyDbIdentifier
+        beforeCounts[Observations.TABLE] == afterCounts[Observations.TABLE]
+        beforeCounts[Studies.STUDY_TABLE] == afterCounts[Studies.STUDY_TABLE]
+        beforeCounts[Studies.STUDY_DIMENSIONS_TABLE] == afterCounts[Studies.STUDY_DIMENSIONS_TABLE]
+        // additional trial visits linked to the 2 new observations
+        beforeCounts[Studies.TRIAL_VISIT_TABLE] + 2 == afterCounts[Studies.TRIAL_VISIT_TABLE]
+    }
+
     List<Number> getTestTrialVisitsDbIdentifiers() {
         readFieldsFromDb(
                 Studies.TRIAL_VISIT_TABLE,
@@ -295,6 +404,11 @@ class CopySpec extends Specification {
         list ? list.first() : null
     }
 
+    Number getIncrementalStudyDbIdentifier() {
+        def list = readFieldsFromDb(Studies.STUDY_TABLE, 'study_num', "where study_id='${INCREMENTAL_STUDY}'")
+        list ? list.first() : null
+    }
+
     void ensureTestStudyLoaded() {
         if (noTestStudyInDb()) {
             copy.uploadStudy(STUDY_FOLDER, defaultConfig)
@@ -302,15 +416,19 @@ class CopySpec extends Specification {
         }
     }
 
-    void ensureTestStudyUnloaded() {
-        if (testStudyDbIdentifier) {
-            copy.deleteStudyById(TEST_STUDY)
-            assert noTestStudyInDb()
-        }
+    void ensureAllStudiesUnloaded() {
+        copy.deleteStudyById(TEST_STUDY, false)
+        copy.deleteStudyById(INCREMENTAL_STUDY, false)
+        assert noTestStudyInDb()
+        assert noIncrementalStudyInDb()
     }
 
     boolean noTestStudyInDb() {
         testStudyDbIdentifier == null
+    }
+
+    boolean noIncrementalStudyInDb() {
+        incrementalStudyDbIdentifier == null
     }
 
     Map<Table, Number> count(Iterable<Table> tables) {
@@ -332,6 +450,12 @@ class CopySpec extends Specification {
                     table,
                     rows
             ]
+        }
+    }
+
+    Map readPatientIdeToPatientNum() {
+        readFieldsFromDb(Patients.PATIENT_MAPPING_TABLE, ['patient_ide', 'patient_num']).collectEntries {
+            [(it['patient_ide']): it['patient_num']]
         }
     }
 

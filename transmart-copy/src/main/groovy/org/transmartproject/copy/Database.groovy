@@ -91,11 +91,18 @@ class Database implements AutoCloseable {
         if (!password) {
             throw new IllegalArgumentException('Please set the PGPASSWORD environment variable.')
         }
+        Integer maximumPoolSize
+        try{
+            maximumPoolSize = Integer.parseInt(params['MAXPOOLSIZE'])
+        } catch (NumberFormatException e) {
+            maximumPoolSize = 8
+        }
 
         config.jdbcUrl = url
         config.username = username
         config.password = password
         config.autoCommit = false
+        config.maximumPoolSize = maximumPoolSize
         dataSource = new HikariDataSource(config)
 
         def dataSourceTransactionManager = new DataSourceTransactionManager()
