@@ -14,9 +14,12 @@ class CopySpec extends Specification {
 
     static final String TEST_STUDY = 'SURVEY0'
     static final String INCREMENTAL_STUDY = 'SURVEY_INC'
+    static final String INCREMENTAL_STUDY_SHARED_PATIENT = 'SURVEY_INC2_SHARED_PATIENT'
     static final String STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY
     static final String CORRUPTED_STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY + '_corrupted'
     static final String INCREMENTAL_STUDY_FOLDER = './src/test/resources/examples/' + INCREMENTAL_STUDY
+    static final String INCREMENTAL_STUDY_SHARED_PATIENT_FOLDER =
+            './src/test/resources/examples/' + INCREMENTAL_STUDY_SHARED_PATIENT
 
     static final Map<String, String> DATABASE_CREDENTIALS = [
             PGHOST     : 'localhost',
@@ -392,6 +395,31 @@ class CopySpec extends Specification {
         beforeCounts[Studies.TRIAL_VISIT_TABLE] + 2 == afterCounts[Studies.TRIAL_VISIT_TABLE]
     }
 
+    def 'test incremental loading with patient present in multiple studies'() {
+        given: 'there are 2 studies with the same patient'
+        copy.uploadStudy(INCREMENTAL_STUDY_SHARED_PATIENT_FOLDER, defaultConfig)
+        copy.uploadStudy(INCREMENTAL_STUDY_FOLDER + '/part1', defaultConfig)
+        Options options = new Options()
+        options.addOption(new Option('I', 'incremental', false, ''))
+        options.addOption(new Option('d', 'directory', true, ''))
+        def inDbPatientIdeToPatientNum = readPatientIdeToPatientNum()
+        def observationsForSharedUserBeforeUpdate = readFieldsFromDb(Observations.TABLE,'nval_num',
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P1']} AND concept_cd='age'")
+
+        when: 'loading one of the studies incrementally'
+        CommandLine cli1 = new DefaultParser()
+                .parse(options, ['--incremental', '--directory', INCREMENTAL_STUDY_FOLDER + '/part2'] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+        def observationsForSharedUserAfterUpdate = readFieldsFromDb(Observations.TABLE,'nval_num',
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P1']} AND concept_cd='age'")
+
+        then: 'observations from a different study for the shared patient are not changed'
+        observationsForSharedUserBeforeUpdate.size() == 2
+        observationsForSharedUserBeforeUpdate == [42.0000000000000000, 24.0000000000000000]
+        observationsForSharedUserAfterUpdate.size() == 2
+        observationsForSharedUserAfterUpdate == [42.0000000000000000, 26.0000000000000000]
+    }
+
     List<Number> getTestTrialVisitsDbIdentifiers() {
         readFieldsFromDb(
                 Studies.TRIAL_VISIT_TABLE,
@@ -409,6 +437,12 @@ class CopySpec extends Specification {
         list ? list.first() : null
     }
 
+    Number getIncrementalStudySharedPatientDbIdentifier() {
+        def list = readFieldsFromDb(Studies.STUDY_TABLE, 'study_num',
+                "where study_id='${INCREMENTAL_STUDY_SHARED_PATIENT}'")
+        list ? list.first() : null
+    }
+
     void ensureTestStudyLoaded() {
         if (noTestStudyInDb()) {
             copy.uploadStudy(STUDY_FOLDER, defaultConfig)
@@ -419,8 +453,10 @@ class CopySpec extends Specification {
     void ensureAllStudiesUnloaded() {
         copy.deleteStudyById(TEST_STUDY, false)
         copy.deleteStudyById(INCREMENTAL_STUDY, false)
+        copy.deleteStudyById(INCREMENTAL_STUDY_SHARED_PATIENT, false)
         assert noTestStudyInDb()
         assert noIncrementalStudyInDb()
+        assert noIncrementalStudySharedPatientInDb()
     }
 
     boolean noTestStudyInDb() {
@@ -429,6 +465,10 @@ class CopySpec extends Specification {
 
     boolean noIncrementalStudyInDb() {
         incrementalStudyDbIdentifier == null
+    }
+
+    boolean noIncrementalStudySharedPatientInDb() {
+        incrementalStudySharedPatientDbIdentifier == null
     }
 
     Map<Table, Number> count(Iterable<Table> tables) {
