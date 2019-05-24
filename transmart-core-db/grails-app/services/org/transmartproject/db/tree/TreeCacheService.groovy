@@ -114,7 +114,7 @@ class TreeCacheService {
                     node.dimension = getDimension(node.tableName, currentNode.code)
                 }
                 node as TreeNode
-            }
+            }.sort { it.name }
             forest[level] = levelForest
         }
         def t3 = new Date()
