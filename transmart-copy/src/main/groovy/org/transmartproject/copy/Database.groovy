@@ -92,6 +92,9 @@ class Database implements AutoCloseable {
             throw new IllegalArgumentException('Please set the PGPASSWORD environment variable.')
         }
 
+        if (params['MAXPOOLSIZE']) {
+            config.maximumPoolSize = Integer.parseInt(params['MAXPOOLSIZE'])
+        }
         config.jdbcUrl = url
         config.username = username
         config.password = password
