@@ -363,13 +363,13 @@ class CopySpec extends Specification {
 
         // observation for patient from part1 only - old value
         readFieldsFromDb(Observations.TABLE,'nval_num',
-                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P2']} AND concept_cd='age'")[0] == 33
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P2']} AND concept_cd='age'") == [33]
         // observation for patient updated in part2 - updated value
         readFieldsFromDb(Observations.TABLE,'nval_num',
-                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P1']} AND concept_cd='age'")[0] == 26
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P1']} AND concept_cd='age'") == [26]
         // observation for patient added in part2 - new value
         readFieldsFromDb(Observations.TABLE,'nval_num',
-                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P3']} AND concept_cd='age'")[0] == 60
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P3']} AND concept_cd='age'") == [60]
     }
 
     def 'test incremental loading of the same data'() {
@@ -415,9 +415,9 @@ class CopySpec extends Specification {
 
         then: 'observations from a different study for the shared patient are not changed'
         observationsForSharedUserBeforeUpdate.size() == 2
-        observationsForSharedUserBeforeUpdate == [42.0000000000000000, 24.0000000000000000]
+        observationsForSharedUserBeforeUpdate.containsAll([42.0000000000000000, 24.0000000000000000])
         observationsForSharedUserAfterUpdate.size() == 2
-        observationsForSharedUserAfterUpdate == [42.0000000000000000, 26.0000000000000000]
+        observationsForSharedUserAfterUpdate.containsAll([42.0000000000000000, 26.0000000000000000])
     }
 
     List<Number> getTestTrialVisitsDbIdentifiers() {

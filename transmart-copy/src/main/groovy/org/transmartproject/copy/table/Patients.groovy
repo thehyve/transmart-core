@@ -149,36 +149,20 @@ class Patients {
         log.info "${insertCount} patients inserted."
     }
 
-    void removeObservations(String rootPath, Set<Long> trialVisitNums) {
-        LinkedHashMap<String, Class> header
-        def patientsFile = new File(rootPath, PATIENT_MAPPING_TABLE.fileName)
-        patientsFile.withReader { reader ->
-            def tsvReader = Util.tsvReader(reader)
-            tsvReader.eachWithIndex { String[] data, int i ->
-                if (i == 0) {
-                    header = Util.verifyHeader(PATIENT_MAPPING_TABLE.fileName, data, patientMappingColumns)
-                    return
-                }
-                def patientData = Util.asMap(header, data)
-                def patientIde = patientData['patient_ide'] as String
-                def patientIdeSource = patientData['patient_ide_source'] as String
-                def key = "${patientIdeSource}:${patientIde}".toString()
-                def patientNum = subjectIdToPatientNum[key]
-
-                removeObservationsForPatientAndTrials(patientNum, trialVisitNums)
-            }
-        }
+    void removeObservations(Set<Long> trialVisitNums) {
+        def patientNums = indexToPatientNum.values() as Set
+        removeObservationsForPatientAndTrials(patientNums, trialVisitNums)
     }
 
-    private void removeObservationsForPatientAndTrials(Long patientNum, Set<Long> trialVisitNums) {
+    private void removeObservationsForPatientAndTrials(Set<Long> patientNums, Set<Long> trialVisitNums) {
         if (!trialVisitNums) {
             return
         }
         int observationCount = database.namedParameterJdbcTemplate.update(
                 """delete from ${Observations.TABLE} where
-                patient_num = :patientNum and
+                patient_num in (:patientNums) and
                 trial_visit_num in (:trialVisitNums)""".toString(),
-                [patientNum: patientNum, trialVisitNums: trialVisitNums]
+                [patientNums: patientNums, trialVisitNums: trialVisitNums]
         )
         log.info "${observationCount} observations deleted from ${Observations.TABLE}."
     }

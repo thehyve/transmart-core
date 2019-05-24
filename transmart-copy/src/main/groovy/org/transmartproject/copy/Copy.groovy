@@ -101,19 +101,20 @@ class Copy implements AutoCloseable {
         dimensions.fetch()
         dimensions.load(rootPath)
 
+        patients = new Patients(database)
+        patients.fetch()
+        patients.load(rootPath)
+
         // Insert study, trial visit objects
         studies = new Studies(database, dimensions)
         if (incremental) {
             studies.fetch()
             studies.fetchStudyDimensionDescriptions()
+            deleteObservationsForPatientsInStudies(rootPath)
         } else {
             studies.check(rootPath)
         }
         studies.load(rootPath)
-
-        patients = new Patients(database)
-        patients.fetch()
-        patients.load(rootPath)
 
         def concepts = new Concepts(database, config.updateConceptPaths)
         concepts.fetch()
@@ -169,14 +170,10 @@ class Copy implements AutoCloseable {
 
     void deleteObservationsForPatientsInStudies(String rootPath) {
         log.info "Deleting observations for patients found in ${rootPath} ..."
-        def dimensions = new Dimensions(database)
-        studies = new Studies(database, dimensions)
         def studyIds = studies.readStudyIds(rootPath)
         for (String studyId : studyIds) {
             def trialVisitNums = studies.findTrialVisitNumsForStudyId(studyId)
-            patients = new Patients(database)
-            patients.fetch()
-            patients.removeObservations(rootPath, trialVisitNums as Set)
+            patients.removeObservations(trialVisitNums as Set)
         }
     }
 
@@ -247,13 +244,11 @@ class Copy implements AutoCloseable {
                     copy.uploadPedigree(directory, config)
                 }
                 if (!modes || 'study' in modes) {
-                    if (cl.hasOption('incremental')) {
-                        copy.deleteObservationsForPatientsInStudies(directory)
-                        copy.uploadStudy(directory, config, true)
-                    } else {
+                    boolean incremental = cl.hasOption('incremental')
+                    if (!incremental) {
                         copy.deleteStudy(directory, false)
-                        copy.uploadStudy(directory, config, false)
                     }
+                    copy.uploadStudy(directory, config, incremental)
                 }
             }
             if (cl.hasOption('restore-indexes')) {
