@@ -49,7 +49,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
     }
 
     void 'test subtree retrieval for admin user'() {
@@ -80,7 +80,7 @@ class TreeServiceSpec extends Specification {
                 'SHARED_HD_CONCEPTS_STUDY_A',
                 'SHARED_HD_CONCEPTS_STUDY_B',
                 'TUMOR_NORMAL_SAMPLES'
-        ]
+        ].sort()
     }
 
     void 'test tree retrieval with limited depth for admin user'() {
@@ -102,7 +102,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
         forest*.children.unique() == [null]
     }
 
@@ -125,7 +125,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
     }
 
     void 'test access denied for public access user on private study'() {
@@ -169,7 +169,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
     }
 
     void 'test access granted for private access user on private study'() {
