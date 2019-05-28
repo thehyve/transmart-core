@@ -39,6 +39,7 @@ class Studies {
     final LinkedHashMap<String, ColumnMetadata> studyDimensionsColumns
 
     final Map<String, Long> studyIdToStudyNum = [:]
+    final Map<Long, List<Long>> studyNumToDimensionDescriptionId = [:]
     final List<Long> indexToStudyNum = []
     final List<Long> indexToTrialVisitNum = []
 
@@ -72,16 +73,31 @@ class Studies {
         }
     }
 
-    Study findStudy(String studyId) {
-        def studies = database.namedParameterJdbcTemplate.query(
-                "select * from ${STUDY_TABLE} where study_id = :studyId".toString(),
-                [studyId: studyId],
-                new StudyRowMapper()
-        )
-        if (studies.size() == 0) {
-            return null
+    @CompileStatic
+    static class StudyRowHandler implements RowCallbackHandler {
+        final Map<String, Long> studyIdToStudyNum = [:]
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            def studyId = rs.getString('study_id')
+            Long studyNum = rs.getLong('study_num')
+            studyIdToStudyNum[studyId] = studyNum
         }
-        studies[0]
+    }
+
+    @CompileStatic
+    static class StudyDimensionDescriptionRowHandler implements RowCallbackHandler {
+        final Map<Long, List<Long>> studyNumToDimensionDescriptionId = [:]
+
+        @Override
+        void processRow(ResultSet rs) throws SQLException {
+            Long studyId = rs.getLong('study_id')
+            Long dimensionDescriptionId = rs.getLong('dimension_description_id')
+            if (!studyNumToDimensionDescriptionId.containsKey(studyId)) {
+                studyNumToDimensionDescriptionId[studyId] = []
+            }
+            studyNumToDimensionDescriptionId[studyId].add(dimensionDescriptionId)
+        }
     }
 
     @CompileStatic
@@ -94,7 +110,49 @@ class Studies {
         }
     }
 
-    List<Long> findTrialVisitNumsForStudy(Long studyNum) {
+    Study findStudy(String studyId) {
+        def studies = database.namedParameterJdbcTemplate.query(
+                "select * from ${STUDY_TABLE} where study_id = :studyId".toString(),
+                [studyId: studyId],
+                new StudyRowMapper()
+        )
+        if (studies.size() == 0) {
+            return null
+        }
+        studies[0]
+    }
+
+    void fetch() {
+        def studyHandler = new StudyRowHandler()
+        database.jdbcTemplate.query(
+                "select study_id, study_num from ${STUDY_TABLE}".toString(),
+                studyHandler
+        )
+        studyIdToStudyNum.putAll(studyHandler.studyIdToStudyNum)
+        indexToStudyNum.addAll(studyHandler.studyIdToStudyNum.values())
+        log.info "Study entries in the database: ${studyIdToStudyNum.size()}."
+    }
+
+    void fetchStudyDimensionDescriptions() {
+        def studyDimensionDescriptionHandler = new StudyDimensionDescriptionRowHandler()
+        database.jdbcTemplate.query(
+                "select study_id, dimension_description_id from ${STUDY_DIMENSIONS_TABLE}".toString(),
+                studyDimensionDescriptionHandler
+        )
+        studyNumToDimensionDescriptionId.putAll(studyDimensionDescriptionHandler.studyNumToDimensionDescriptionId)
+        log.info "Study dimension description entries in the database: ${studyIdToStudyNum.size()}."
+    }
+
+    List<Long> findTrialVisitNumsForStudyId(String studyId) {
+        def study = findStudy(studyId)
+        if (!study) {
+            log.info("No ${studyId} found.")
+            return []
+        }
+        findTrialVisitNumsForStudyNum(study.studyNum)
+    }
+
+    List<Long> findTrialVisitNumsForStudyNum(Long studyNum) {
         def trialVisitHandler = new TrialVisitRowHandler()
         database.namedParameterJdbcTemplate.query(
                 "select trial_visit_num from ${TRIAL_VISIT_TABLE} where study_num = :studyNum".toString(),
@@ -136,7 +194,7 @@ class Studies {
             }
         }
         log.info "Deleting observations for study ${studyId} ..."
-        List<Long> trialVisitNums = findTrialVisitNumsForStudy(study.studyNum)
+        List<Long> trialVisitNums = findTrialVisitNumsForStudyNum(study.studyNum)
         removeObservationsForTrials(trialVisitNums as Set)
 
         log.info "Deleting trial visits for study ${studyId} ..."
@@ -180,8 +238,10 @@ class Studies {
     void checkIfStudyExists(String studyId) {
         def study = findStudy(studyId)
         if (study) {
+
             log.error "Found existing study: ${study}."
-            log.error "You can delete the study and associated data with: `transmart-copy --delete ${studyId}`."
+            log.error "You can delete the study and associated data with: `transmart-copy --delete ${studyId}` " +
+                      "or load data incrementally with: `transmart-copy --incremental`."
             throw new IllegalStateException("Study already exists: ${studyId}.")
         }
         log.info "Study ${studyId} does not exists in the database yet."
@@ -198,11 +258,7 @@ class Studies {
                     return
                 }
                 def studyData = Util.asMap(header, data)
-                def studyIndex = studyData['study_num'] as long
-                if (i != studyIndex + 1) {
-                    throw new IllegalStateException(
-                            "The studies ${STUDY_TABLE.fileName} are not in order. (Found ${studyIndex} on line ${i}.)")
-                }
+                verifyStudiesOrder(studyData, i)
                 def studyId = studyData['study_id'] as String
                 checkIfStudyExists(studyId)
             }
@@ -210,6 +266,14 @@ class Studies {
     }
 
     void delete(String rootPath, boolean failOnNoStudy = true) {
+        def studyIds = readStudyIds(rootPath)
+        for (String studyId : studyIds) {
+            deleteById(studyId, failOnNoStudy)
+        }
+    }
+
+    List<String> readStudyIds(String rootPath) {
+        List<String> studyIds = []
         LinkedHashMap<String, Class> header
         def studiesFile = new File(rootPath, STUDY_TABLE.fileName)
         studiesFile.withReader { reader ->
@@ -220,9 +284,18 @@ class Studies {
                     return
                 }
                 def studyData = Util.asMap(header, data)
-                def studyId = studyData['study_id'] as String
-                deleteById(studyId, failOnNoStudy)
+                verifyStudiesOrder(studyData, i)
+                studyIds.add(studyData['study_id'] as String)
             }
+        }
+        studyIds
+    }
+
+    private void verifyStudiesOrder(Map<String, Object> studyData, int i) {
+        def studyIndex = studyData['study_num'] as long
+        if (i != studyIndex + 1) {
+            throw new IllegalStateException(
+                    "The studies ${STUDY_TABLE.fileName} are not in order. (Found ${studyIndex} on line ${i}.)")
         }
     }
 
@@ -240,10 +313,12 @@ class Studies {
                 try {
                     def studyData = Util.asMap(studyHeader, data)
                     def studyId = studyData['study_id'] as String
-                    def studyNum = database.insertEntry(STUDY_TABLE, studyHeader, 'study_num', studyData)
-                    log.info "Study ${studyId} inserted [study_num: ${studyNum}]."
-                    indexToStudyNum.add(studyNum)
-                    studyIdToStudyNum[studyId] = studyNum
+                    if (!studyIdToStudyNum.containsKey(studyId)) {
+                        def studyNum = database.insertEntry(STUDY_TABLE, studyHeader, 'study_num', studyData)
+                        log.info "Study ${studyId} inserted [study_num: ${studyNum}]."
+                        indexToStudyNum.add(studyNum)
+                        studyIdToStudyNum[studyId] = studyNum
+                    }
                 } catch(Throwable e) {
                     log.error "Error on line ${i} of ${STUDY_TABLE.fileName}: ${e.message}."
                     throw e
@@ -306,7 +381,6 @@ class Studies {
                                 "Invalid study index (${studyIndex}). Only ${indexToStudyNum.size()} studies found.")
                     }
                     def studyNum = indexToStudyNum[studyIndex]
-                    studyDimensionData['study_id'] = studyNum
                     def dimensionIndex = studyDimensionData['dimension_description_id'] as int
                     if (dimensionIndex >= dimensions.indexToDimensionId.size()) {
                         throw new IllegalStateException(
@@ -314,11 +388,15 @@ class Studies {
                                         "Only ${dimensions.indexToDimensionId.size()} dimensions found.")
                     }
                     def dimensionId = dimensions.indexToDimensionId[dimensionIndex]
-                    studyDimensionData['dimension_description_id'] = dimensionId
-                    database.insertEntry(STUDY_DIMENSIONS_TABLE, studyDimensionsHeader, studyDimensionData)
-                    insertCount++
-                    log.debug "Study dimension inserted [study_id: ${studyNum}, " +
-                            "dimension_description_id: ${dimensionId}]."
+                    if (!(studyNumToDimensionDescriptionId.containsKey(studyNum) &&
+                          studyNumToDimensionDescriptionId[studyNum].contains(dimensionId))) {
+                        studyDimensionData['study_id'] = studyNum
+                        studyDimensionData['dimension_description_id'] = dimensionId
+                        database.insertEntry(STUDY_DIMENSIONS_TABLE, studyDimensionsHeader, studyDimensionData)
+                        insertCount++
+                        log.debug "Study dimension inserted [study_id: ${studyNum}, " +
+                                "dimension_description_id: ${dimensionId}]."
+                    }
                 } catch(Throwable e) {
                     log.error "Error on line ${i} of ${STUDY_DIMENSIONS_TABLE.fileName}: ${e.message}."
                     throw e

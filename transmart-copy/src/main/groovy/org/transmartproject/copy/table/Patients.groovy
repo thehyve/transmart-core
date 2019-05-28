@@ -149,4 +149,22 @@ class Patients {
         log.info "${insertCount} patients inserted."
     }
 
+    void removeObservations(Set<Long> trialVisitNums) {
+        def patientNums = indexToPatientNum.values() as Set
+        removeObservationsForPatientAndTrials(patientNums, trialVisitNums)
+    }
+
+    private void removeObservationsForPatientAndTrials(Set<Long> patientNums, Set<Long> trialVisitNums) {
+        if (!trialVisitNums) {
+            return
+        }
+        int observationCount = database.namedParameterJdbcTemplate.update(
+                """delete from ${Observations.TABLE} where
+                patient_num in (:patientNums) and
+                trial_visit_num in (:trialVisitNums)""".toString(),
+                [patientNums: patientNums, trialVisitNums: trialVisitNums]
+        )
+        log.info "${observationCount} observations deleted from ${Observations.TABLE}."
+    }
+
 }

@@ -35,6 +35,7 @@ _Parameters:_
 - `-d`, `--directory`: Specifies a data directory.
 - `-U`, `--update-concept-paths`: **Workaround.** Updates concept paths and tree nodes when there is concept code collision.
 - `-m`, `--mode <study|pedigree>`: Load mode. What type of data to load. Data loading does not happen if you skip the mode.
+- `-I`, `--incremental`: Enable incremental loading of patient data for a study (supported for a study mode).
 - `-p`, `--partition`: Partition observation_fact table based on `trial_visit_num` (Experimental).
 
 
@@ -94,6 +95,7 @@ The database settings are read from the environment variables:
 - `PGDATABASE`: the database name (default: `transmart`)
 - `PGUSER`: the database admin user (required)
 - `PGPASSWORD`: the password of the admin user (required)
+- `MAXPOOLSIZE`: maximum pool size to avoid too many clients connection issue in db (default: `8`)
 
 
 

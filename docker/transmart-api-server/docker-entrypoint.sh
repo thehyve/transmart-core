@@ -46,7 +46,7 @@ org.transmartproject.system.writeLogToDatabase: false
 keycloak:
     realm: ${KEYCLOAK_REALM}
     bearer-only: true
-    auth-server-url: ${KEYCLOAK_SERVER_URL}
+    auth-server-url: ${KEYCLOAK_SERVER_URL}/auth
     resource: ${KEYCLOAK_CLIENT_ID}
     use-resource-role-mappings: true
 EndOfMessage

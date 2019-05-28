@@ -57,6 +57,8 @@ class Copy implements AutoCloseable {
                 'Specifies a data directory.')
         options.addOption('m', 'mode', true,
                 'Load mode (e.g. \'study\' or \'pedigree\').')
+        options.addOption('I', 'incremental', false,
+                'Enable incremental loading of patient data for a study (supported for a \'study\' mode).')
         options.addOption('U', 'update-concept-paths', false,
                 'Updates concept paths and tree nodes when there is concept code collision.')
         options.addOption('p', 'partition', false,
@@ -92,22 +94,27 @@ class Copy implements AutoCloseable {
         observations.dropTableIndexesIfExist()
     }
 
-    void uploadStudy(String rootPath, Config config) {
+    void uploadStudy(String rootPath, Config config, boolean incremental = false) {
 
         // Check if dimensions are present, load mapping from file
         def dimensions = new Dimensions(database)
         dimensions.fetch()
         dimensions.load(rootPath)
 
-        // Check if study is not already present
-        studies = new Studies(database, dimensions)
-        studies.check(rootPath)
-        // Insert study, trial visit objects
-        studies.load(rootPath)
-
         patients = new Patients(database)
         patients.fetch()
         patients.load(rootPath)
+
+        // Insert study, trial visit objects
+        studies = new Studies(database, dimensions)
+        if (incremental) {
+            studies.fetch()
+            studies.fetchStudyDimensionDescriptions()
+            deleteObservationsForPatientsInStudies(rootPath)
+        } else {
+            studies.check(rootPath)
+        }
+        studies.load(rootPath)
 
         def concepts = new Concepts(database, config.updateConceptPaths)
         concepts.fetch()
@@ -159,6 +166,15 @@ class Copy implements AutoCloseable {
         studies = new Studies(database, dimensions)
         studies.delete(rootPath, failOnNoStudy)
         log.info "Study found in ${rootPath} deleted."
+    }
+
+    void deleteObservationsForPatientsInStudies(String rootPath) {
+        log.info "Deleting observations for patients found in ${rootPath} ..."
+        def studyIds = studies.readStudyIds(rootPath)
+        for (String studyId : studyIds) {
+            def trialVisitNums = studies.findTrialVisitNumsForStudyId(studyId)
+            patients.removeObservations(trialVisitNums as Set)
+        }
     }
 
     static void main(String[] args) {
@@ -228,8 +244,11 @@ class Copy implements AutoCloseable {
                     copy.uploadPedigree(directory, config)
                 }
                 if (!modes || 'study' in modes) {
-                    copy.deleteStudy(directory, false)
-                    copy.uploadStudy(directory, config)
+                    boolean incremental = cl.hasOption('incremental')
+                    if (!incremental) {
+                        copy.deleteStudy(directory, false)
+                    }
+                    copy.uploadStudy(directory, config, incremental)
                 }
             }
             if (cl.hasOption('restore-indexes')) {

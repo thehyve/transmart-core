@@ -1,0 +1,7 @@
+encounter_num	patient_num	concept_cd	provider_id	start_date	modifier_cd	instance_num	trial_visit_num	valtype_cd	tval_char	nval_num	valueflag_cd	quantity_num	units_cd	end_date	location_cd	observation_blob	confidence_num	update_date	download_date	import_date	sourcesystem_cd	upload_id	sample_cd
+-1	0	gender	@	2019-03-21 10:36:01	@	1	0	T	Male														
+-1	1	gender	@	2015-12-16 20:23:15	@	1	0	T	Male														
+-1	0	age	@	2019-03-21 10:36:01	@	1	0	N	E	26													
+-1	1	age	@	2015-12-16 20:23:15	@	1	0	N	E	60													
+-1	0	height	@	2019-03-21 10:36:01	@	1	0	N	E	184													
+-1	1	height	@	2015-12-16 20:23:15	@	1	0	N	E	170													

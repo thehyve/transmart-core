@@ -1,0 +1,7 @@
+c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode	c_metadataxml	c_facttablecolumn	c_tablename	c_columnname	c_columndatatype	c_operator	c_dimcode	c_comment	c_tooltip	m_applied_path	update_date	download_date	import_date	sourcesystem_cd	valuetype_cd	m_exclusion_cd	c_path	c_symbol	i2b2_id	secure_obj_token
+1	\Projects\Survey_Inc\	Survey_Inc 1	N	FAS				@	STUDY	STUDY_ID	T	=	SURVEY_INC			@				SURVEY_INC						SURVEY_INC
+0	\Projects\	Projects	N	CA				@	@	@	T	=				@										PUBLIC
+2	\Projects\Survey_Inc\Demographics\	Demographics	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\			@				SURVEY_INC						SURVEY_INC
+3	\Projects\Survey_Inc\Demographics\Gender\	Gender	N	LAC		gender		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Gender\			@				SURVEY_INC						SURVEY_INC
+3	\Projects\Survey_Inc\Demographics\Age\	Age	N	LAN		age		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Age\			@				SURVEY_INC						SURVEY_INC
+3	\Projects\Survey_Inc\Demographics\Height\	Height	N	LAN		height		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Height\			@				SURVEY_INC						SURVEY_INC
