@@ -17,7 +17,7 @@ can be used to configure Keycloak:
 
 Variable              | Default value
 ----------------------|---------------
-`KEYCLOAK_SERVER_URL` | https://keycloak-dwh-test.thehyve.net/auth
+`KEYCLOAK_SERVER_URL` | https://keycloak-dwh-test.thehyve.net
 `KEYCLOAK_REALM`      | transmart-dev
 `KEYCLOAK_CLIENT_ID`  | transmart-client
 
