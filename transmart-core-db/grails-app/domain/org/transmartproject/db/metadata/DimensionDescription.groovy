@@ -53,10 +53,6 @@ class DimensionDescription {
         size    column: 'size_cd'
     }
 
-    boolean isLegacyTabular() {
-        return name == LEGACY_MARKER
-    }
-
     def afterLoad() {
         check()
     }

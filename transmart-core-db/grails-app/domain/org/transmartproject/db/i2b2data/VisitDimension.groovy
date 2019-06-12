@@ -2,6 +2,9 @@
 
 package org.transmartproject.db.i2b2data
 
+import com.google.common.collect.ImmutableMap
+import groovy.transform.CompileStatic
+
 class VisitDimension {
 
     PatientDimension    patient
@@ -18,6 +21,10 @@ class VisitDimension {
     Date                importDate
     String              sourcesystemCd
     BigDecimal          uploadId
+
+    static hasMany = [mappings: EncounterMapping]
+
+    static mappedBy = [mappings: 'visit']
 
     static mapping = {
         table           name: 'visit_dimension', schema: 'I2B2DEMODATA'
@@ -36,6 +43,7 @@ class VisitDimension {
         importDate      column: 'import_date'
         sourcesystemCd  column: 'sourcesystem_cd'
         uploadId        column: 'upload_id'
+        mappings        fetch:  'join'
         version         false
     }
 
@@ -58,4 +66,17 @@ class VisitDimension {
     String getPatientInTrialId() {
         patient.inTrialId
     }
+
+    @Lazy
+    ImmutableMap<String, String> encounterIds = computeEncounterIds()
+
+    @CompileStatic
+    private ImmutableMap<String,String> computeEncounterIds () {
+        ImmutableMap.Builder<String,String> builder = ImmutableMap.builder()
+        if (mappings != null) for(def mapping : mappings) {
+            builder.put(mapping.source, mapping.encryptedId)
+        }
+        builder.build()
+    }
+
 }
