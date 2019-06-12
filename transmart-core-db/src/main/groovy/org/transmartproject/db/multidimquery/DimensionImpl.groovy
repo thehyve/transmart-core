@@ -723,7 +723,7 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 @CompileStatic @InheritConstructors
 class VisitDimension extends I2b2NullablePKDimension<I2b2VisitDimension, Long> implements CompositeElemDim<I2b2VisitDimension, Long> {
     Class elemType = I2b2VisitDimension
-    List elemFields = ['id', 'activeStatusCd', 'startDate', 'endDate', 'inoutCd', 'locationCd']
+    List elemFields = ['id', 'activeStatusCd', 'startDate', 'endDate', 'inoutCd', 'locationCd', 'encounterIds']
     String name = 'visit'
     String alias = 'visit'
     String columnName = 'encounterNum'
