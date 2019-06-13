@@ -20,24 +20,23 @@ java -jar transmart-copy.jar [-h|--help] [--delete <STUDY_ID>]
 ```
 
 _Parameters:_
-- `-h`, `--help`: Shows the available parameters. 
+- `-d`, `--directory`: Specifies a data directory.
+- `-m`, `--mode <study|pedigree>`: Load mode, specifies what type(s) of data to load (default: `study`).
+- `-I`, `--incremental`: Enable incremental loading of patient data for a study (supported only for study mode).
 - `-D <STUDY_ID>`, `--delete <STUDY_ID`: Deletes the study with id `<STUDY_ID>` and related data.
+- `-U`, `--update-concept-paths`: **Workaround.** Updates concept paths and tree nodes when there is concept code collision.
 - `-n`, `--base-on-max-instance-num`: Adds to each `instance_num` a base
     to avoid primary key collisions in `observation_fact`.
     The base is autodetected as `max(observation_fact.instance_num)`.
-- `-r`, `--restore-indexes`: Restore indexes.
 - `-i`, `--drop-indexes`: Drop indexes when loading.
+- `-r`, `--restore-indexes`: Restore indexes.
 - `-u`, `--unlogged`: Set observations table to unlogged when loading.
+- `-v`, `--vacuum-analyze`: Vacuum analyze the `observation_fact` table.
 - `-b`, `--batch-size`: Number of observation to insert in a batch (default: `500`).
 - `-f`, `--flush-size`: Number of batches to flush to the database (default: `1000`).
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
-- `-v`, `--vacuum-analyze`: Vacuum analyze the `observation_fact` table.
-- `-d`, `--directory`: Specifies a data directory.
-- `-U`, `--update-concept-paths`: **Workaround.** Updates concept paths and tree nodes when there is concept code collision.
-- `-m`, `--mode <study|pedigree>`: Load mode. What type of data to load. Data loading does not happen if you skip the mode.
-- `-I`, `--incremental`: Enable incremental loading of patient data for a study (supported for a study mode).
 - `-p`, `--partition`: Partition observation_fact table based on `trial_visit_num` (Experimental).
-
+- `-h`, `--help`: Shows the available parameters.
 
 The program reads table data from the current working directory
 and inserts new rows into the database if a row with the same identifier
