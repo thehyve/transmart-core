@@ -15,7 +15,7 @@ import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.crosstable.CrossTableRequest
 import org.transmartproject.core.multidimquery.datatable.DataTable
 import org.transmartproject.core.multidimquery.datatable.DataTableRequest
-import org.transmartproject.core.multidimquery.datatable.DimensionRequest
+import org.transmartproject.core.multidimquery.datatable.Dimension
 import org.transmartproject.core.multidimquery.export.ExportElement
 import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
 import org.transmartproject.core.multidimquery.export.Format
@@ -123,24 +123,23 @@ class AccessPolicySpec extends V2ResourceSpec {
         checkResponseStatus(response, OK, user)
         DataTable result = toObject(response, DataTable)
         result.columnDimensions.size() == 2
-        DimensionRequest studyDim = result.columnDimensions.find { it.name == 'study' }
-        Set<String> studyIds = studyDim.elements.keySet()
+        Dimension studyDim = result.columnDimensions.find { it.name == 'study' }
+        def studyIds = studyDim.elements.keySet() as Set<String>
         studyIds == expectedStudies as Set<String>
-        DimensionRequest patientDim = result.rowDimensions.find { it.name == 'patient' }
-        patientDim.elements.keySet() == expectedSubjects as Set<String>
-        Set<String> subjectsFromRowHeaders = result.rows.collect { row -> row.rowHeaders.find { el -> el.dimension == 'patient' }.key } as Set<String>
-        subjectsFromRowHeaders == expectedSubjects as Set<String>
+        Dimension patientDim = result.rowDimensions.find { it.name == 'patient' }
+        patientDim.elements.keySet().collect{ it as Long } as Set<Long> == expectedSubjects as Set<Long>
+        def subjectsFromRowHeaders = result.rows.collect { row -> row.rowHeaders.find { el -> el.dimension == 'patient' }.key } as Set<Long>
+        subjectsFromRowHeaders == expectedSubjects as Set<Long>
 
         where:
         user       | expectedStudies                     | expectedSubjects
-        admin      | ['study1', 'study2', 'publicStudy'] | ['1/Subject 1', '2/Subject 2', '3/Subject 3', '4/Subject from public study']
-        s1mUser    | ['study1', 'publicStudy']           | ['1/Subject 1', '2/Subject 2', '4/Subject from public study']
-        s1sS2sUser | ['publicStudy']                     | ['4/Subject from public study']
-        s1ctUser   | ['publicStudy']                     | ['4/Subject from public study']
-        s2sUser    | ['publicStudy']                     | ['4/Subject from public study']
-        publicUser | ['publicStudy']                     | ['4/Subject from public study']
+        admin      | ['study1', 'study2', 'publicStudy'] | [1L, 2L, 3L, 4L]
+        s1mUser    | ['study1', 'publicStudy']           | [1L, 2L, 4L]
+        s1sS2sUser | ['publicStudy']                     | [4L]
+        s1ctUser   | ['publicStudy']                     | [4L]
+        s2sUser    | ['publicStudy']                     | [4L]
+        publicUser | ['publicStudy']                     | [4L]
     }
-
 
     @Unroll
     void 'test aggregates (POST .../observations/aggregates_per_concept) for #user.username.'() {
@@ -348,6 +347,26 @@ class AccessPolicySpec extends V2ResourceSpec {
     }
 
     @Unroll
+    void 'test dimensions access (GET .../dimensions) for #user.username.'() {
+
+        given:
+        selectUser(user)
+
+        when:
+        def response = get("${contextPath}/dimensions")
+
+        then:
+        checkResponseStatus(response, OK, user)
+        Map result = toObject(response, Map)
+        result
+        result.dimensions
+        result.dimensions.name as Set == ['patient', 'concept', 'start time', 'end time', 'trial visit', 'study'] as Set
+
+        where:
+        user << [admin, s1mUser, s1sS2sUser, s1ctUser, s2sUser, publicUser]
+    }
+
+    @Unroll
     void 'test observations forbidden access (POST .../observations) for #user.username when constraint explicitly refers to the protected resource.'() {
 
         given:
@@ -360,7 +379,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -382,7 +401,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -401,7 +420,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -420,7 +439,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -439,7 +458,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s2sUser, publicUser]
@@ -460,7 +479,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         rowConstraints     | columnConstraints  | subjectConstraint
@@ -483,7 +502,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         url << [
@@ -506,7 +525,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -563,7 +582,7 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
         where:
         user << [s1ctUser, s2sUser, publicUser]
@@ -583,8 +602,33 @@ class AccessPolicySpec extends V2ResourceSpec {
         then:
         checkResponseStatus(response, FORBIDDEN, user)
         def error = toObject(response, Map)
-        error.message.startsWith('Access denied to study or study does not exist')
+        error.message.startsWith("Access denied for ${user.username} user to study or study does not exist")
 
+    }
+
+    @Unroll
+    void 'test patient sets size (POST .../patient_sets) for constraint=#constraint and user with st1AccLvl=#s1AccLvl,  st2AccLvl=#s2AccLvl and threshold=#threshold.'() {
+
+        given:
+        def user = new MockUser('counts with threshold user', [study1: s1AccLvl, study2: s2AccLvl])
+        selectUser(user)
+        aggregateDataResourceImplService.patientCountThreshold = threshold
+
+        when:
+        def response = post("${contextPath}/patient_sets?name=test&reuse=false", constraint)
+
+        then:
+        checkResponseStatus(response, CREATED, user)
+        def result = toObject(response, Map)
+        result.setSize == size
+
+        where:
+        constraint         | threshold | s1AccLvl              | s2AccLvl              | size
+        trueConstraint     | 5         | SUMMARY               | SUMMARY               | 4L
+        trueConstraint     | 5         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | -2L
+        trueConstraint     | 4         | COUNTS_WITH_THRESHOLD | COUNTS_WITH_THRESHOLD | 4L
+        trueConstraint     | 5         | SUMMARY               | COUNTS_WITH_THRESHOLD | -2L
+        study1OnlySubjects | 5         | SUMMARY               | COUNTS_WITH_THRESHOLD | 1L
     }
 
     @Autowired

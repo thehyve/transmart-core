@@ -74,6 +74,7 @@ downloadR.dependsOn 'createVars'
 distTar.dependsOn 'downloadR'
 
 task generateRequiredFiles << {
+    make('-C ddl/postgres extension_sources')
     make('-C ddl/postgres drivers')
     make('-C ddl/oracle drivers')
     make('-C data/common makefiles')
@@ -133,7 +134,7 @@ distributions {
             exclude 'lib/schemaSpy_*.jar', 'solr/solr-*/**'
             from '.'
             include 'config/**', 'data/**', 'ddl/**','env/**', 'lib/**', 'R/**', 'samples/**', 'solr/**',
-                    'test_data/**', 'updatedb/**',
+                    'test_data/**', 'test_studies/**', 'updatedb/**',
                     'LICENSE', 'Makefile', 'makefile.inc', 'README.md', 'vars.sample', 'VERSION'
         }
     }

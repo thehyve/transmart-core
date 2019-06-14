@@ -1,0 +1,27 @@
+tag_id	path	tag	tag_type	tags_idx	tag_option_id
+1	\Public Studies\CSR\03. Biosource information\01. Biosource parent\	Biosource ID	subject_dimension	5	
+2	\Public Studies\CSR\04. Biomaterial information\02. Date of biomaterial\	Biomaterial ID	subject_dimension	5	
+3	\Public Studies\CSR\03. Biosource information\02. Date of biosource\	Biosource ID	subject_dimension	5	
+4	\Public Studies\CSR\03. Biosource information\06. Biosource dedicated for specific study\	Biosource ID	subject_dimension	5	
+5	\Public Studies\CSR\01. Patient information\01. Date of birth\	patient	subject_dimension	5	
+6	\Public Studies\CSR\02. Diagnosis information\05. Center of treatment\	Diagnosis ID	subject_dimension	5	
+7	\Public Studies\CSR\01. Patient information\05. Date of death\	patient	subject_dimension	5	
+8	\Public Studies\CSR\02. Diagnosis information\01. Date of diagnosis\	Diagnosis ID	subject_dimension	5	
+9	\Public Studies\CSR\03. Biosource information\04. Disease status\	Biosource ID	subject_dimension	5	
+10	\Public Studies\CSR\01. Patient information\02. Gender\	patient	subject_dimension	5	
+11	\Public Studies\CSR\01. Patient information\Informed consent\05. Informed consent data\	patient	subject_dimension	5	
+12	\Public Studies\CSR\01. Patient information\Informed consent\06. Informed concent linking external database\	patient	subject_dimension	5	
+13	\Public Studies\CSR\01. Patient information\Informed consent\04. Informed consent material\	patient	subject_dimension	5	
+14	\Public Studies\CSR\01. Patient information\Informed consent\01. Informed consent type\	patient	subject_dimension	5	
+15	\Public Studies\CSR\01. Patient information\Informed consent\03. Date informed consent withdrawn\	patient	subject_dimension	5	
+16	\Public Studies\CSR\01. Patient information\Informed consent\07. Report heriditary susceptibility\	patient	subject_dimension	5	
+17	\Public Studies\CSR\04. Biomaterial information\01. Biomaterial parent\	Biomaterial ID	subject_dimension	5	
+18	\Public Studies\CSR\01. Patient information\Taxonomy\	patient	subject_dimension	5	
+19	\Public Studies\CSR\03. Biosource information\03. Tissue\	Biosource ID	subject_dimension	5	
+20	\Public Studies\CSR\02. Diagnosis information\03. Topography\	Diagnosis ID	subject_dimension	5	
+21	\Public Studies\CSR\02. Diagnosis information\Treatment\	Diagnosis ID	subject_dimension	5	
+22	\Public Studies\CSR\03. Biosource information\05. Tumor percentage\	Biosource ID	subject_dimension	5	
+23	\Public Studies\CSR\02. Diagnosis information\04. Tumor stage\	Diagnosis ID	subject_dimension	5	
+24	\Public Studies\CSR\02. Diagnosis information\02. Tumor type\	Diagnosis ID	subject_dimension	5	
+25	\Public Studies\CSR\04. Biomaterial information\03. Biomaterial type\	Biomaterial ID	subject_dimension	5	
+26	\Public Studies\CSR\	15-02-2019	Load date	3	

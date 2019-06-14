@@ -1,3 +1,6 @@
+@GrabConfig(systemClassLoader = true)
+@Grab('org.postgresql:postgresql:9.3-1100-jdbc4')
+
 import org.postgresql.copy.CopyManager
 
 import java.sql.Connection
@@ -5,8 +8,9 @@ import java.sql.DriverManager
 
 import static java.lang.System.getenv
 
-@GrabConfig(systemClassLoader = true)
-@Grab('org.postgresql:postgresql:9.3-1100-jdbc4')
+
+// Load the PostgreSQL JDBC driver
+Class.forName('org.postgresql.Driver')
 
 String host = getenv('PGHOST')
 if (!host || host == '/tmp') {

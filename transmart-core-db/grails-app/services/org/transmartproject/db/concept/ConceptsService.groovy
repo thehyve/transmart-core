@@ -63,7 +63,7 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
         if (user.admin) {
             return ConceptDimension.findAll()
         } else {
-            return multiDimService.getDimensionElements(multiDimService.getDimension('concept'), new TrueConstraint(), user).asList()
+            return multiDimService.getDimensionElements('concept', new TrueConstraint(), user).asList()
         }
     }
 
@@ -74,7 +74,7 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
             concept = ConceptDimension.findByConceptCode(conceptCode)
         } else {
             def constraint = new ConceptConstraint(conceptCode: conceptCode)
-            Iterable<Concept> concepts = multiDimService.getDimensionElements(multiDimService.getDimension('concept'), constraint, user)
+            Iterable<Concept> concepts = multiDimService.getDimensionElements('concept', constraint, user)
             def iterator = concepts.iterator()
             if (iterator.hasNext()) {
                 concept = iterator.next()

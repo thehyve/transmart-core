@@ -57,12 +57,15 @@ class Copy implements AutoCloseable {
                 'Specifies a data directory.')
         options.addOption('m', 'mode', true,
                 'Load mode (e.g. \'study\' or \'pedigree\').')
+        options.addOption('I', 'incremental', false,
+                'Enable incremental loading of patient data for a study (supported for a \'study\' mode).')
         options.addOption('U', 'update-concept-paths', false,
                 'Updates concept paths and tree nodes when there is concept code collision.')
         options.addOption('p', 'partition', false,
                 'Partition observation_fact table based on trial_visit_num.')
         options.addOption('n', 'base-on-max-instance-num', false,
-                'Adds to each instance num a base. The base detected as max(observation_fact.incstance_num).')
+                'Adds to each instance num a base.' +
+                        ' The base is autodetected as max(observation_fact.instance_num).')
     }
 
     static printHelp() {
@@ -82,35 +85,44 @@ class Copy implements AutoCloseable {
     }
 
     void restoreIndexes() {
-        def observations = new Observations(database, null, null, null, null)
+        def observations = new Observations(database, null, null, null, null, null)
         observations.restoreTableIndexesIfNotExist()
     }
 
     void dropIndexes() {
-        def observations = new Observations(database, null, null, null, null)
+        def observations = new Observations(database, null, null, null, null, null)
         observations.dropTableIndexesIfExist()
     }
 
-    void uploadStudy(String rootPath, Config config) {
+    void uploadStudy(String rootPath, Config config, boolean incremental = false) {
 
         // Check if dimensions are present, load mapping from file
         def dimensions = new Dimensions(database)
         dimensions.fetch()
         dimensions.load(rootPath)
 
-        // Check if study is not already present
-        studies = new Studies(database, dimensions)
-        studies.check(rootPath)
-        // Insert study, trial visit objects
-        studies.load(rootPath)
-
         patients = new Patients(database)
         patients.fetch()
         patients.load(rootPath)
 
+        // Insert study, trial visit objects
+        studies = new Studies(database, dimensions)
+        if (incremental) {
+            studies.fetch()
+            studies.fetchStudyDimensionDescriptions()
+            deleteObservationsForPatientsInStudies(rootPath)
+        } else {
+            studies.check(rootPath)
+        }
+        studies.load(rootPath)
+
         def concepts = new Concepts(database, config.updateConceptPaths)
         concepts.fetch()
         concepts.load(rootPath)
+
+        def visits = new Visits(database, patients)
+        visits.fetch()
+        visits.load(rootPath)
 
         def modifiers = new Modifiers(database)
         modifiers.fetch()
@@ -124,7 +136,7 @@ class Copy implements AutoCloseable {
         tags.fetch()
         tags.load(rootPath)
 
-        def observations = new Observations(database, studies, concepts, patients, config)
+        def observations = new Observations(database, studies, concepts, visits, patients, config)
         observations.checkFiles(rootPath)
         observations.load(rootPath)
     }
@@ -156,13 +168,26 @@ class Copy implements AutoCloseable {
         log.info "Study found in ${rootPath} deleted."
     }
 
+    void deleteObservationsForPatientsInStudies(String rootPath) {
+        log.info "Deleting observations for patients found in ${rootPath} ..."
+        def studyIds = studies.readStudyIds(rootPath)
+        for (String studyId : studyIds) {
+            def trialVisitNums = studies.findTrialVisitNumsForStudyId(studyId)
+            patients.removeObservations(trialVisitNums as Set)
+        }
+    }
+
     static void main(String[] args) {
         def parser = new DefaultParser()
         try {
             CommandLine cl = parser.parse(options, args)
-            if (cl.hasOption('help') || !cl.options) {
+            if (!cl.options) {
                 printHelp()
-                return
+                System.exit(1)
+            }
+            if (cl.hasOption('help')) {
+                printHelp()
+                System.exit(0)
             }
             runCopy(cl, [:].withDefault { Object key -> System.getenv((String) key) })
         } catch (ParseException e) {
@@ -219,8 +244,11 @@ class Copy implements AutoCloseable {
                     copy.uploadPedigree(directory, config)
                 }
                 if (!modes || 'study' in modes) {
-                    copy.deleteStudy(directory, false)
-                    copy.uploadStudy(directory, config)
+                    boolean incremental = cl.hasOption('incremental')
+                    if (!incremental) {
+                        copy.deleteStudy(directory, false)
+                    }
+                    copy.uploadStudy(directory, config, incremental)
                 }
             }
             if (cl.hasOption('restore-indexes')) {

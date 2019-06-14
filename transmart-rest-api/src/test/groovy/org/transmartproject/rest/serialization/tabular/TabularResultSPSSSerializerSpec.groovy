@@ -20,21 +20,31 @@
 package org.transmartproject.rest.serialization.tabular
 
 import com.google.common.collect.ImmutableList
+import com.opencsv.CSVParserBuilder
+import com.opencsv.CSVReaderBuilder
 import org.transmartproject.core.dataquery.DataColumn
+import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.ValueFetchingDataColumn
 import org.transmartproject.core.ontology.Measure
 import org.transmartproject.core.ontology.MissingValues
 import org.transmartproject.core.ontology.VariableDataType
 import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
+import org.transmartproject.db.multidimquery.HypercubeDataRow
 import spock.lang.Specification
-
 import java.util.zip.ZipOutputStream
 
 import static org.transmartproject.rest.serialization.tabular.TabularResultSPSSSerializer.writeSpsFile
 
 class TabularResultSPSSSerializerSpec extends Specification {
+
+    public static final String DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss'
+    private static interface MetadataAwareValueFetchingDataColumn extends MetadataAwareDataColumn, ValueFetchingDataColumn {}
+
+    private final UTC = TimeZone.getTimeZone('UTC')
+    private final CEST = TimeZone.getTimeZone('CEST')
 
     def 'responses on empty table'() {
         def table = Mock(TabularResult)
@@ -138,7 +148,7 @@ class TabularResultSPSSSerializerSpec extends Specification {
 
         commands.first().startsWith('GET DATA ')
         def getDataAttributes = commands[0].split('/')*.trim()
-        'VARIABLES = column1 F15.3 column2 DATETIME20 column3 A30' in getDataAttributes
+        'VARIABLES = column1 F15.3 column2 DATE20 column3 A30' in getDataAttributes
 
         def varLabelsCommand = commands.find { it.startsWith('VARIABLE LABELS') }
         varLabelsCommand
@@ -203,6 +213,43 @@ class TabularResultSPSSSerializerSpec extends Specification {
         'column1 \'1\' \'val\'\'1\' \'2\' \'val\'\'2\'' in valLabels
     }
 
+    def 'new lines escaping'() {
+        def user = Mock(User)
+        user.getUsername() >> { 'test' }
+        ByteArrayOutputStream bout = new ByteArrayOutputStream()
+        def out = new ZipOutputStream(bout)
+        def table = Mock(TabularResult)
+        def column1 = Mock(MetadataAwareValueFetchingDataColumn)
+        column1.label >> 'column1'
+        column1.metadata >> new VariableMetadata(
+                type: VariableDataType.STRING,
+                width: 30,
+                columns: 40,
+                measure: Measure.NOMINAL,
+                description: 'string variable',
+        )
+        def columns = ImmutableList.copyOf([column1] as List<DataColumn>)
+        table.indicesList >> [column1]
+        def row1 = Mock(HypercubeDataRow)
+        row1.getAt(column1) >> "this string contains line break\nin the middle"
+        List<DataRow> rows = [row1]
+        table.rows >> rows.iterator()
+
+        when: 'producing tsv files '
+        new TabularResultSPSSSerializer(user, out, columns, 'testFile')
+                .writeValues(columns, table, bout)
+        def bytes = new ByteArrayInputStream(bout.toByteArray())
+        def tsvReader = new CSVReaderBuilder(new InputStreamReader(bytes))
+                .withCSVParser(new CSVParserBuilder().withSeparator(AbstractTSVSerializer.COLUMN_SEPARATOR).build())
+                .build()
+        def lines = tsvReader.readAll()
+
+        then:
+        !lines.isEmpty()
+        lines.size() == 1
+        lines[0][0] == "this string contains line break in the middle"
+    }
+
     def 'missing values'() {
         def table = Mock(TabularResult)
         def column1 = Mock(MetadataAwareDataColumn)
@@ -265,6 +312,74 @@ class TabularResultSPSSSerializerSpec extends Specification {
         'column4 (100 THRU HIGHEST)' in missingValuesDeclarations
         'column5 (\'-1\')' in missingValuesDeclarations
     }
+
+    def 'write tsv file content with date values'() {
+        def user = Mock(User)
+        user.getUsername() >> { 'test' }
+        ByteArrayOutputStream bout = new ByteArrayOutputStream()
+        def out = new ZipOutputStream(bout)
+        def table = Mock(TabularResult)
+        def column1 = Mock(MetadataAwareValueFetchingDataColumn)
+        column1.label >> 'column1'
+        column1.metadata >> new VariableMetadata(
+                type: VariableDataType.DATETIME,
+                width: 20,
+                columns: 25,
+                measure:  Measure.SCALE,
+                description: 'datetime variable',
+        )
+        def column2 =Mock(MetadataAwareValueFetchingDataColumn)
+        column2.label >> 'column2'
+        column2.metadata >> new VariableMetadata(
+                type: VariableDataType.DATE,
+                width: 20,
+                columns: 25,
+                measure:  Measure.SCALE,
+                description: 'date variable',
+        )
+        def column3 = Mock(MetadataAwareValueFetchingDataColumn)
+        column3.label >> 'column3'
+        column3.metadata >> new VariableMetadata(
+                type: VariableDataType.STRING,
+                width: 30,
+                columns: 40,
+                measure: Measure.NOMINAL,
+                description: 'string variable',
+        )
+        def columns = ImmutableList.copyOf([column1, column2, column3] as List<DataColumn>)
+        table.indicesList >> [column1, column2, column3]
+        def row1 = Mock(HypercubeDataRow)
+        row1.getAt(column1) >> Date.parse(DATE_TIME_FORMAT, '2001-09-01 09:45:18', UTC)
+        row1.getAt(column2) >> Date.parse(DATE_TIME_FORMAT, '2009-12-01 09:45:18', UTC)
+        row1.getAt(column3) >> Date.parse(DATE_TIME_FORMAT, '2001-09-01 09:45:18', UTC)
+        def row2 = Mock(HypercubeDataRow)
+        row2.getAt(column1) >> Date.parse('dd-MM-yyyy', '28-11-2005', UTC)
+        row2.getAt(column2) >> Date.parse(DATE_TIME_FORMAT, '1998-02-12 00:45:33', CEST)
+        row2.getAt(column3) >> Date.parse(DATE_TIME_FORMAT, '1998-02-12 18:30:05', CEST)
+        List<DataRow> rows = [row1, row2]
+        table.rows >> rows.iterator()
+
+        when: 'producing tsv files '
+        new TabularResultSPSSSerializer(user, out, columns, 'testFile')
+                .writeValues(columns, table, bout)
+        def bytes = new ByteArrayInputStream(bout.toByteArray())
+        def tsvReader = new CSVReaderBuilder(new InputStreamReader(bytes))
+                .withCSVParser(new CSVParserBuilder().withSeparator(AbstractTSVSerializer.COLUMN_SEPARATOR).build())
+                .build()
+        def lines = tsvReader.readAll()
+
+        then:
+        !lines.isEmpty()
+        lines.size() == 2
+        lines[0][0] == "01-09-2001 09:45:18"
+        lines[0][1] == "01-12-2009"
+        lines[0][2] == "01-09-2001 09:45:18"
+        lines[1][0] == "28-11-2005 00:00:00"
+        lines[1][1] == "12-02-1998"
+        lines[1][2] == "12-02-1998 18:30:05"
+
+    }
+
 
     static List<String> parseSpsCommands(ByteArrayOutputStream out) {
         parseSpsCommands(getTextContent(out))

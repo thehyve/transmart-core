@@ -12,7 +12,9 @@ import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.transaction.TransactionStatus
+import org.transmartproject.copy.ColumnMetadata
 import org.transmartproject.copy.Copy
+import org.transmartproject.copy.Counter
 import org.transmartproject.copy.Database
 import org.transmartproject.copy.Table
 import org.transmartproject.copy.Util
@@ -34,20 +36,23 @@ class Observations {
     final Database database
     final Copy.Config config
 
-    final LinkedHashMap<String, Class> columns
+    final LinkedHashMap<String, ColumnMetadata> columns
 
     final Studies studies
     final Concepts concepts
+    final Visits visits
     final Patients patients
 
     private final Map<Long, Table> partitionToTable = [:]
 
-    Observations(Database database, Studies studies, Concepts concepts, Patients patients, Copy.Config config) {
+    Observations(Database database, Studies studies, Concepts concepts,
+                 Visits visits, Patients patients, Copy.Config config) {
         this.database = database
         this.config = config
         this.columns = this.database.getColumnMetadata(TABLE)
         this.studies = studies
         this.concepts = concepts
+        this.visits = visits
         this.patients = patients
     }
 
@@ -77,6 +82,7 @@ class Observations {
                     "Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
         }
         row.put('patient_num', patients.indexToPatientNum[patientIndex])
+        def patientNum = (Long)row.get('patient_num')
         int trialVisitIndex = ((BigDecimal) row.get('trial_visit_num')).intValueExact()
         if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
             throw new IllegalStateException(
@@ -86,6 +92,17 @@ class Observations {
         String conceptCode = (String) row.get('concept_cd')
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new IllegalStateException("Unknown concept code: ${conceptCode}")
+        }
+        int visitIndex = ((BigDecimal) row.get('encounter_num')).intValueExact()
+        if (visitIndex >= 0) {
+            if (!(visits.patientEncounters.containsKey(patientNum))) {
+                throw new IllegalStateException(
+                        "No patient found for visit with patient index ${patientIndex}")
+            }
+            if (!visits.patientEncounters[patientNum].contains(visitIndex)) {
+                throw new IllegalStateException(
+                        "No visit found for visit index ${visitIndex} for patient ${patientIndex}")
+            }
         }
         int instanceIndex = ((BigDecimal) row.get('instance_num')).intValueExact()
         row.put('instance_num', baseInstanceNum + instanceIndex)
@@ -125,24 +142,24 @@ class Observations {
     }
 
     private void loadRow(CSVWriter tsvWriter,
-                 LinkedHashMap<String, Class> header,
-                 Map<String, Object> row,
-                 Integer batchCount,
-                 ArrayList<Map> batch,
-                 SimpleJdbcInsert insert,
-                 TransactionStatus tx) {
+                         LinkedHashMap<String, Class> header,
+                         Map<String, Object> row,
+                         Counter batchCount,
+                         ArrayList<Map> batch,
+                         SimpleJdbcInsert insert,
+                         TransactionStatus tx) {
         if (config.write) {
             tsvWriter.writeNext(row.values()*.toString() as String[])
         } else {
             batch.add(row)
             if (batch.size() == config.batchSize) {
-                batchCount++
+                batchCount.increment()
                 if (config.partition) {
                     insertRowsToChildTables(batch, header)
                 } else {
                     insert.executeBatch(batch.toArray() as Map[])
                 }
-                if (config.flushSize > 0 && batchCount % config.flushSize == 0) {
+                if (config.flushSize > 0 && batchCount.value % config.flushSize == 0) {
                     tx.flush()
                 }
                 batch.clear()
@@ -158,14 +175,15 @@ class Observations {
 
         // Count number of rows
         log.info "Counting number of rows ..."
-        int rowCount = 0
+        def rowCount = new Counter()
         observationsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             while (tsvReader.readNext() != null) {
-                rowCount++
+                rowCount.increment()
             }
         }
-        log.info "${NumberFormat.instance.format(rowCount > 0 ? rowCount - 1 : 0)} rows in ${TABLE.fileName}."
+        def formattedRowCount = NumberFormat.instance.format(rowCount.value > 0 ? rowCount.value - 1 : 0)
+        log.info "${formattedRowCount} rows in ${TABLE.fileName}."
 
         Writer writer
         CSVWriter tsvWriter
@@ -191,12 +209,12 @@ class Observations {
             int i = 1
             LinkedHashMap<String, Class> header = Util.verifyHeader(TABLE.fileName, data, columns)
             def insert = database.getInserter(TABLE, header)
-            def progressBar = new ProgressBar("Insert into ${TABLE}", rowCount - 1)
+            def progressBar = new ProgressBar("Insert into ${TABLE}", rowCount.value - 1)
             progressBar.start()
             ArrayList<Map> batch = []
             data = tsvReader.readNext()
             i++
-            Integer batchCount = 0
+            def batchCount = new Counter()
             while (data != null) {
                 try {
                     if (header.size() != data.length) {
@@ -216,7 +234,7 @@ class Observations {
                 i++
             }
             if (batch.size() > 0) {
-                batchCount++
+                batchCount.increment()
                 if (config.partition) {
                     insertRowsToChildTables(batch, header)
                 } else {
@@ -224,7 +242,7 @@ class Observations {
                 }
             }
             progressBar.stop()
-            log.info "${batchCount} batches of ${config.batchSize} inserted."
+            log.info "${batchCount.value} batches of ${config.batchSize} inserted."
             void
         }
 

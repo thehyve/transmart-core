@@ -14,7 +14,9 @@ import static tests.rest.dimensions.*
 
 /**
  *  CRUD endpoint for user queries.
+ *  @deprecated user queries related functionality has been moved to a gb-backend application
  */
+@Deprecated
 class UserQuerySpec extends RESTSpec {
 
     def "list queries"() {

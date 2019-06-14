@@ -1,7 +1,11 @@
 package org.transmartproject.core.ontology
+
+import groovy.transform.CompileStatic
+
 /**
  * Metadata about the variable/column taken from SPSS.
  */
+@CompileStatic
 class VariableMetadata {
 
     /**

@@ -49,7 +49,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
     }
 
     void 'test subtree retrieval for admin user'() {
@@ -64,11 +64,14 @@ class TreeServiceSpec extends Specification {
         then: "the top level should contain one node with all public studies as children"
         forest*.name == ['Public Studies']
         forest[0].children*.name == [
+                '100 CATS',
                 'CATEGORICAL_VALUES',
                 'CLINICAL_TRIAL',
                 'CLINICAL_TRIAL_HIGHDIM',
+                'CSR',
                 'EHR',
                 'EHR_HIGHDIM',
+                'IMAGES',
                 'MIX_HD',
                 'Oracle_1000_Patient',
                 'RNASEQ_TRANSCRIPT',
@@ -77,8 +80,7 @@ class TreeServiceSpec extends Specification {
                 'SHARED_HD_CONCEPTS_STUDY_A',
                 'SHARED_HD_CONCEPTS_STUDY_B',
                 'TUMOR_NORMAL_SAMPLES'
-
-        ]
+        ].sort()
     }
 
     void 'test tree retrieval with limited depth for admin user'() {
@@ -100,7 +102,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
         forest*.children.unique() == [null]
     }
 
@@ -123,7 +125,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
     }
 
     void 'test access denied for public access user on private study'() {
@@ -167,7 +169,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
-        ]
+        ].sort()
     }
 
     void 'test access granted for private access user on private study'() {

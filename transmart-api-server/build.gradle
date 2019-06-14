@@ -21,6 +21,8 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache:5.1.2.Final"
     compile "org.grails.plugins:views-json"
     compile "org.grails.plugins:views-json-templates"
+    compile "org.grails.plugins:database-migration:3.0.4"
+    compile "org.liquibase:liquibase-core:${liquibaseVersion}"
     console("org.grails:grails-console") {
         exclude group: 'org.fusesource.jansi', module: 'jansi'
     }
@@ -28,7 +30,9 @@ dependencies {
 
     //Custom dependencies
     compile project(':transmart-rest-api')
+    //Deprecated plugin - user queries related functionality has been moved to a gb-backend application
     compile project(':transmart-notifications')
+    compile project(':transmart-schemas')
 
     compile "org.keycloak:keycloak-spring-boot-starter:4.0.0.Final"
     compile "org.springframework.boot:spring-boot-starter-security"

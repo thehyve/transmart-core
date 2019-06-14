@@ -33,7 +33,7 @@ hibernate:
         region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
 
 dataSource:
-    url: jdbc:postgresql://localhost:5432/transmart
+    url: jdbc:postgresql://localhost:5432/transmart?currentSchema=public
     driverClassName: org.postgresql.Driver
     username: biomart_user
     password: biomart_user
@@ -62,6 +62,13 @@ dataSource:
         defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
 
 grails:
+    plugin:
+        databasemigration:
+            updateOnStartFileName: classpath:db/changelog/db.changelog-master.yaml
+            # updateOnStart: true  # If true, schema update scripts are executed at startup
+
+---
+grails:
     cors:
         enabled: true
 
@@ -87,3 +94,5 @@ environments:
 
 #        keycloakOffline:
 #            offlineToken: <offline token>
+
+# org.transmartproject.system.writeLogToDatabase: true  # write log messages to the searchapp.search_app_access_log table

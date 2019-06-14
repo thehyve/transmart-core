@@ -1,10 +1,39 @@
----
-version: '2.0'
+version: '3'
 services:
-    tm_test_db:
-        build: ./tm_test_db
-        ports: ['6000:5432']
-    solr:
-        build: ./solr
-        ports: ['8983:8983']
-        depends_on: ['tm_test_db']
+  transmart-database:
+    container_name: transmart-database
+    image: postgres:11-alpine
+    ports:
+      - 9432:5432
+    environment:
+      POSTGRES_USER: biomart_user
+      POSTGRES_PASSWORD: biomart_user
+      POSTGRES_DB: transmart
+    volumes:
+      - transmart-db-data:/var/lib/postgresql/data
+    networks:
+      - db-network
+
+  transmart-api-server:
+    container_name: transmart-api-server
+    image: thehyve/transmart-api-server:17.1-HYVE-5.9
+    ports:
+      - 9081:8081
+    environment:
+      KEYCLOAK_SERVER_URL: ${KEYCLOAK_SERVER_URL:-https://keycloak-dwh-test.thehyve.net}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-transmart-dev}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-transmart-client}
+      PGHOST: transmart-database
+      PGPORT: 5432
+      PGDATABASE: transmart
+    depends_on:
+      - transmart-database
+    networks:
+      - db-network
+
+volumes:
+  transmart-db-data:
+
+networks:
+  db-network:
+    driver: bridge

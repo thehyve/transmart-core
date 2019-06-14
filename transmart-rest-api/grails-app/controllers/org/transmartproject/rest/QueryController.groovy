@@ -105,6 +105,8 @@ class QueryController extends AbstractQueryController {
             }
             highdimObservations(args.type, args.constraint, args.biomarker_constraint, args.projection)
         }
+
+        return false //to prevent Grails seeking for view
     }
 
     static final TypeReference<List<SortSpecification>> sortListTypeReference =
@@ -131,13 +133,9 @@ class QueryController extends AbstractQueryController {
         try {
             def args = new DataRetrievalParameters(constraint: constraint, sort: sort)
             hypercubeDataSerializationService.writeClinical(format, args, authContext.user, out)
-        } catch(LegacyStudyException e) {
+        } catch (LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
-        } finally {
-            out.close()
         }
-
-        return false
     }
 
     private getLazyOutputStream(Format format) {
@@ -452,7 +450,7 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, String projection) {
 
         Constraint assayConstraint = getConstraintFromString(assay_constraint)
 
@@ -462,12 +460,8 @@ class QueryController extends AbstractQueryController {
         Format format = contentFormat
         OutputStream out = getLazyOutputStream(format)
 
-        try {
-            hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection,
-                    authContext.user, out)
-        } finally {
-            out.close()
-        }
+        hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection,
+                authContext.user, out)
     }
 
 

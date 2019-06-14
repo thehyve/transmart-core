@@ -9,9 +9,9 @@ import org.hibernate.criterion.Order
 import org.hibernate.criterion.Restrictions
 import org.hibernate.sql.JoinType
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.transaction.annotation.Propagation
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
-import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.userquery.*
 import org.transmartproject.core.users.User
@@ -29,6 +29,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.PATIENT
 
 @Transactional
 @CompileStatic
+@Deprecated
 class UserQuerySetService implements UserQuerySetResource {
 
     @Autowired
@@ -54,38 +55,30 @@ class UserQuerySetService implements UserQuerySetResource {
     /**
      * @return list of all subscribed queries that were not deleted.
      */
-    List<UserQuery> listSubscribed() {
+    List<Query> listSubscribed() {
         Query.createCriteria().list {
             eq 'deleted', false
             eq 'subscribed', true
-        } as List<UserQuery>
+        } as List<Query>
     }
 
     @Override
     Integer scan() {
         log.info 'Scanning for subscribed user queries updates ...'
         int numberOfResults = 0
-        // get list of all not deleted queries per user
-        List<UserQuery> userQueries = listSubscribed()
-        if (!userQueries) {
-            log.info "No subscribed queries were found."
-            return numberOfResults
-        }
+        List<Query> userQueries = listSubscribed()
+        log.info "${userQueries.size()} subscribed user queries are found."
 
-        for (UserQuery query: userQueries) {
+        for (Query query: userQueries) {
             try {
-                List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(query.id)
-                User user = usersResource.getUserFromUsername(query.username)
-                def queryRepresentation = UserQueryService.toRepresentation(query)
-                List<Long> newPatientIds = getPatientsForQuery(queryRepresentation, user)
-
-                if (createSetWithDiffEntries(previousQuerySetInstances*.objectId, newPatientIds, (Query) query)) {
+                if (createSetWithDiffEntries(query)) {
                     numberOfResults++
                 }
-            } catch (NoSuchResourceException e) {
+            } catch (Exception e) {
                 log.error "Could not compute updates for user query ${query.id}", e
             }
         }
+        log.info "${numberOfResults} subscribed user queries got updated."
         return numberOfResults
     }
 
@@ -196,7 +189,15 @@ class UserQuerySetService implements UserQuerySetResource {
                 .list() as List<QuerySetInstance>
     }
 
-    private boolean createSetWithDiffEntries(List<Long> previousPatientIds, List<Long> newPatientIds, Query query) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private boolean createSetWithDiffEntries(Query query) {
+        Long queryId = query.id
+        List<QuerySetInstance> previousQuerySetInstances = getInstancesForLatestQuerySet(queryId)
+        List<Long> previousPatientIds = previousQuerySetInstances.collect { it.objectId }
+
+        User user = usersResource.getUserFromUsername(query.username)
+        def queryRepresentation = UserQueryService.toRepresentation(query)
+        List<Long> newPatientIds = getPatientsForQuery(queryRepresentation, user)
 
         List<Long> addedIds = newPatientIds - previousPatientIds
         List<Long> removedIds = previousPatientIds - newPatientIds
@@ -243,7 +244,7 @@ class UserQuerySetService implements UserQuerySetResource {
 
     private List<Long> getPatientsForQuery(UserQueryRepresentation query, User user) {
         userQueryService.checkConstraintAccess(query.patientsQuery, user)
-        List<Patient> newPatients = multiDimService.getDimensionElements(PATIENT, query.patientsQuery, user).toList()
+        List<Patient> newPatients = multiDimService.getDimensionElements(PATIENT.name, query.patientsQuery, user).toList()
         newPatients.id
     }
 

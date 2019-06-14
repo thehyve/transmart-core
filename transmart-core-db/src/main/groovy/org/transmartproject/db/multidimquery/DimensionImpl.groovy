@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.*
 import org.apache.commons.lang.NotImplementedException
-import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
@@ -16,6 +15,7 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.hypercube.Dimension
+import org.transmartproject.core.multidimquery.hypercube.DimensionType
 import org.transmartproject.core.multidimquery.hypercube.Property
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.clinical.Query
@@ -28,6 +28,8 @@ import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
+
+import java.util.function.Supplier
 
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.DENSE
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.SPARSE
@@ -42,10 +44,11 @@ typed twice for every dimension due to the use of generic traits.
 @CompileStatic
 abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
-    final Dimension.Size size
-    final Dimension.Density density
-    final Dimension.Packable packable
-
+    final Size size
+    final Density density
+    final Packable packable
+    private DimensionType dimensionType
+    private Integer sortIndex
 
     // Size is currently not used.
     //
@@ -68,9 +71,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static final TrialVisitDimension TRIAL_VISIT = new TrialVisitDimension(SMALL, DENSE, PACKABLE)
     static final ProviderDimension PROVIDER =      new ProviderDimension(SMALL, DENSE, NOT_PACKABLE)
 
-    // Todo: implement sample dimension as a marker for studies that can have multiple samples
-    //static final DimensionImpl SAMPLE =         new SampleDimension(SMALL, DENSE, NOT_PACKABLE)
-
     static final BioMarkerDimension BIOMARKER =    new BioMarkerDimension(LARGE, DENSE, PACKABLE)
     static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
     static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
@@ -90,8 +90,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
             (LOCATION.name)   : LOCATION,
             (TRIAL_VISIT.name): TRIAL_VISIT,
             (PROVIDER.name)   : PROVIDER,
-//            (SAMPLE.name) : SAMPLE,
-
             (BIOMARKER.name) : BIOMARKER,
             (ASSAY.name)     : ASSAY,
             (PROJECTION.name): PROJECTION,
@@ -106,24 +104,36 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
 
     @CompileDynamic
+    static DimensionDescription findDimensionDescriptionByName(String name) {
+        DimensionDescription.findByName(name)
+    }
+
     static DimensionImpl fromName(String name) {
         if (name == 'value') {
             return VALUE
         }
-        DimensionDescription.findByName(name)?.dimension
+        findDimensionDescriptionByName(name)?.dimension
     }
 
-    DimensionImpl(Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
+    DimensionImpl(Size size, Density density, Packable packable, DimensionType dimensionType = null, Integer sortIndex = null) {
         this.size = size
         this.density = density
         this.packable = packable
+        this.dimensionType = dimensionType
+        this.sortIndex = sortIndex
     }
-    
-    enum SelectType {
-        ELEMENTS,
-        COUNT,
+
+    @Memoized
+    DimensionType getDimensionType() {
+        findDimensionDescriptionByName(name).dimensionType ?:
+                (name == 'patient' ? DimensionType.SUBJECT : DimensionType.ATTRIBUTE)
     }
-    
+
+    @Memoized
+    Integer getSortIndex() {
+        findDimensionDescriptionByName(name).sortIndex
+    }
+
     abstract DetachedCriteria selectDimensionElements(DetachedCriteria criteria)
 
     abstract DetachedCriteria elementCount(DetachedCriteria criteria)
@@ -198,10 +208,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         assert (elementFields == null) == serializable
     }
 
-    static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
-        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
+    static List<ELT> resolveWithInQuery(Supplier<HibernateCriteriaBuilder> builderProducer, List<ELKey> elementKeys, String property = 'id') {
+        List res = InQuery.listIn(builderProducer, property, elementKeys)
         sort(res, elementKeys, property)
-        res
+        res as List<ELT>
     }
 
     static void sort(List res, List<ELKey> elementKeys, String property) {
@@ -326,7 +336,7 @@ trait CompositeElemDim<ELT,ELKey> {
                     "$elementKeys")
         } else if (resultSize < keysSize) {
             throw new DataInconsistencyException("Unable to find ${this.class.simpleName} elements for all keys, this" +
-                    " may be a database inconsitency.\nkeys: $elementKeys\nelements: $results")
+                    " may be a database inconsistency.\nkeys: $elementKeys\nelements: $results")
         } else { // resultSize > keysSize
             throw new DataInconsistencyException("Duplicate ${this.class.simpleName} elements found. Elements must " +
                     "have unique keys. keys: $elementKeys")
@@ -427,20 +437,24 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 }
 
 
-// ModifierDimension is currently only implemented for serializable types. If desired, the implementation could be
-// extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
-// element types
-// See DimensionDescription for how the instances of modifier dimensions are stored in the database.
+/**
+ * ModifierDimension is currently only implemented for serializable types. If desired, the implementation could be
+ * extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
+ * element types
+ * @see {@link DimensionDescription} for how the instances of modifier dimensions are stored in the database.
+ */
 @CompileStatic
 class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object> {
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
+
     synchronized static ModifierDimension get(String name, String modifierCode, String valueType,
-                                              Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
-        if(name in byName) {
+                                              Size size, Density density, Packable packable,
+                                              DimensionType dimensionType, Integer sortIndex) {
+        if (name in byName) {
             ModifierDimension dim = byName[name]
             assert dim.is(byCode[dim.modifierCode])
-            if(modifierCode == dim.modifierCode && size == dim.size && density == dim.density
+            if (modifierCode == dim.modifierCode && size == dim.size && density == dim.density
                     && packable == dim.packable) {
                 return dim
             }
@@ -451,7 +465,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         }
         assert !byCode.containsKey(modifierCode)
 
-        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable)
+        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable, dimensionType, sortIndex)
         dim.verify()
         byName[name] = dim
         byCode[modifierCode] = dim
@@ -459,13 +473,17 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         dim
     }
 
-    private ModifierDimension(String name, String modifierCode, String valueType, Dimension.Size size, Dimension.Density density, Dimension.Packable packable) {
-        super(size, density, packable)
+    private ModifierDimension(String name, String modifierCode, String valueType,
+                              Size size, Density density, Packable packable,
+                              DimensionType dimensionType, Integer sortIndex) {
+        super(size, density, packable, dimensionType, sortIndex)
         this.name = name
+        this.dimensionType = dimensionType
+        this.sortIndex = sortIndex
         this.modifierCode = modifierCode
         this.valueType = valueType
         Class elementType = DimensionDescription.classForType(valueType)
-        if(!isSerializableType(elementType)) {
+        if (!isSerializableType(elementType)) {
             throw new NotImplementedException("Support for non-serializable modifier dimensions is not implemented: ${name}")
         }
         this.elemType = elementType
@@ -477,6 +495,8 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     final Class elemType
     final String name
     final String modifierCode
+    final DimensionType dimensionType
+    final Integer sortIndex
     ImplementationType implementationType = ImplementationType.MODIFIER
 
     @CompileDynamic
@@ -574,23 +594,10 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String columnName = 'patient.id'
     String keyProperty = 'id'
 
-    // FIXME: do not rely on hardcoded id source
-    final static String SOURCE_SUBJECT_KEY = 'SUBJ_ID'
-
-    // For patients there are several identifiers. The internal `id` is guaranteed unique, but only meaningful within
-    // the TM database. `inTrialId` and `subjectIds[SOURCE_SUBJECT_KEY]` are external identifiers, but therefore are
-    // not guaranteed to be unique, but they are much more useful for users. `subjectIds[SOURCE_SUBJECT_KEY]` is the
-    // newer way so that is preferred over `inTrialId` if it is available.
+    // For patients there are several identifiers. The internal `id` is guaranteed unique.
     @Override def getKey(element) {
         def patient = (I2B2PatientDimension) element
-        def source_subj_id = patient.subjectIds[SOURCE_SUBJECT_KEY]
-        if(source_subj_id) {
-            return "${patient.id}/$source_subj_id".toString()
-        } else if (patient.inTrialId) {
-            return "${patient.id}/${patient.trial}:${patient.inTrialId}".toString()
-        } else {
-            return patient.id
-        }
+        return patient.id
     }
 
     @Override def selectIDs(Query query) {
@@ -601,7 +608,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
 
     @CompileDynamic
     @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
+        resolveWithInQuery({ -> I2B2PatientDimension.createCriteria() as HibernateCriteriaBuilder }, elementKeys)
     }
 }
 
@@ -621,7 +628,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 
     @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
-        resolveWithInQuery(I2b2ConceptDimensions.createCriteria(), elementKeys, columnName)
+        resolveWithInQuery({ -> I2b2ConceptDimensions.createCriteria() as HibernateCriteriaBuilder }, elementKeys, columnName)
     }
 }
 
@@ -637,12 +644,12 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     @CompileDynamic
     @Override
     List<TrialVisit> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
+        resolveWithInQuery({ -> TrialVisit.createCriteria() as HibernateCriteriaBuilder}, elementKeys)
     }
 }
 
 @CompileStatic @InheritConstructors
-class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeElemDim<MDStudy, Long> {
+class StudyDimension extends I2b2Dimension<MDStudy, String> implements CompositeElemDim<MDStudy, String> {
     Class elemType = MDStudy
     List elemFields = ["name"]
     String name = 'study'
@@ -655,14 +662,16 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     def selectIDs(Query query) {
         query.criteria.with {
             trialVisit {
-                property 'study.id', alias
+                study {
+                    property 'studyId', alias
+                }
             }
         }
     }
 
     @CompileDynamic
-    @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
+    @Override List<MDStudy> doResolveElements(List<String> elementKeys) {
+        resolveWithInQuery({ -> I2B2Study.createCriteria() as HibernateCriteriaBuilder}, elementKeys, 'studyId')
     }
     @Override
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
@@ -673,7 +682,6 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
         dimensionCriteria.createAlias('trialVisits', 'trialVisits')
         dimensionCriteria.add(Subqueries.propertyIn('trialVisits.id', criteria))
         dimensionCriteria
-
     }
 
     @Override
@@ -724,13 +732,18 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
     ImplementationType implementationType = ImplementationType.VISIT
 
     /**
-     * This must return a unique key for this dimension, and it must be a number, string or date (used in e.g. json
-     * serialization) so VisitKey is not going to work here.
+     * This must return a unique key of type VisitKey for this dimension
+     * and must be parsed to string during serialisation
      */
     @Override
     def getKey(element) {
-        def visit = (I2b2VisitDimension) element
-        visit ? "${visit.encounterNum}/${visit.patient.id}".toString() : null
+        if (element) {
+            BigDecimal encounterNum = ((I2b2VisitDimension) element).encounterNum
+            Long patientId = (Long) ((I2b2VisitDimension) element).patientId
+            encounterNum == minusOne ? null : new VisitKey(encounterNum, patientId)
+        } else {
+            null
+        }
     }
 
     @Override def selectIDs(Query query) {
@@ -788,8 +801,9 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
             this.encounterNum = encounterNum; this.patientId = patientId
         }
 
-        String toString() { "VisitKey(encounterNum: $encounterNum, patientId: $patientId)" }
+        String toString() { "${encounterNum}/${patientId}".toString() }
     }
+
 }
 
 @CompileStatic @InheritConstructors

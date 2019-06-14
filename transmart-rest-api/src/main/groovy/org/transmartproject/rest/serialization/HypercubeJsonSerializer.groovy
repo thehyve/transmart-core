@@ -8,8 +8,12 @@ import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.hypercube.DimensionProperties
+import org.transmartproject.core.multidimquery.hypercube.DimensionType
+import org.transmartproject.core.multidimquery.hypercube.Field
 
 import java.time.Instant
+import java.util.stream.Collectors
 
 /**
  * <code>
@@ -52,25 +56,7 @@ import java.time.Instant
  * Serializes a {@link Hypercube} to JSON format.
  */
 @CompileStatic
-class HypercubeJsonSerializer extends HypercubeSerializer {
-
-    /**
-     * Contains information about a field of a dimension
-     */
-    static class Field {
-        String name
-        Type type
-    }
-
-    /**
-     * Contains information about a dimension
-     */
-    static class DimensionProperties {
-        String name
-        Type type
-        List<Field> fields
-        boolean inline = false
-    }
+class HypercubeJsonSerializer {
 
     /**
      * Contains information about an observation.
@@ -98,8 +84,21 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
     protected JsonWriter writer
 
     /**
-     * Begins the output message.
+     * Creates a hypercube serializer.
+     *
+     * @param cube the hypercube to serialize.
      * @param out the stream to write to.
+     */
+    HypercubeJsonSerializer(Hypercube cube, OutputStream out) {
+        this.cube = cube
+        this.writer = new JsonWriter(new BufferedWriter(
+                new OutputStreamWriter(out),
+                // large 32k chars buffer to reduce overhead
+                32*1024))
+    }
+
+    /**
+     * Begins the output message.
      */
     protected void begin() {
         writer.beginObject()
@@ -107,7 +106,6 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
 
     /**
      * Ends the output message.
-     * @param out the stream to write to.
      */
     protected void end() {
         writer.endObject()
@@ -144,6 +142,8 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         if (value.value != null) {
             if (value.value instanceof Number) {
                 cell.numericValue = (Double) value.value
+            } else if (value.value instanceof Date) {
+                cell.stringValue = Instant.ofEpochMilli(((Date) value.value).time).toString()
             } else {
                 cell.stringValue = value.value.toString()
             }
@@ -208,7 +208,6 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
     /**
      * Writes the sequence of messages representing the values passed by the
      * value iterator.
-     * @param out the stream to write to.
      * @param valueIterator an iterator for the values to serialize.
      */
     protected void writeCells() {
@@ -227,34 +226,24 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      * @return a list of dimension declarations.
      */
     protected List<DimensionProperties> buildDimensionDeclarations() {
-        def declarations = cube.dimensions.collect { dim ->
-            // Sparse dimensions are inlined, dense dimensions are referred to by indexes
-            // (referring to objects in the footer message).
-            def dimensionProperties = new DimensionProperties(name: dim.name, inline: dim.density.isSparse)
-            if(dim.elementsSerializable) {
-                dimensionProperties.type = Type.get(dim.elementType)
-            } else {
-                dimensionProperties.fields = dim.elementFields.values().asList().collect {
-                    new Field(name: it.name, type: Type.get(it.type))
-                }
-            }
-
-            dimensionProperties
-        }
-        declarations
+        cube.dimensions.stream()
+                .map({Dimension dim -> DimensionProperties.forDimension(dim)})
+                .collect(Collectors.toList())
     }
 
     protected void writeField(Field field) {
         writer.beginObject()
         writer.name('name').value(field.name)
-        writer.name('type').value(field.type.jsonType)
+        writer.name('type').value(field.type.toJson())
         writer.endObject()
     }
 
     protected void writeDimensionProperties(DimensionProperties dimension) {
         writer.beginObject()
         writer.name('name').value(dimension.name)
-        writer.name('type').value(dimension.type?.jsonType ?: 'Object')
+        writer.name('dimensionType').value(dimension.dimensionType?.toJson())
+        writer.name('sortIndex').value(dimension.sortIndex)
+        writer.name('valueType').value(dimension.valueType?.toJson() ?: 'Object')
         if (dimension.fields) {
             writer.name('fields')
             writer.beginArray()
@@ -272,7 +261,6 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
     /**
      * Writes a header message describing the dimensions of the value messages that
      * will be written.
-     * @param out the stream to write to.
      */
     protected void writeHeader() {
         writer.name('dimensionDeclarations')
@@ -296,7 +284,6 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
     /**
      * Writes a footer message containing the indexed dimension elements referred to in the value
      * messages.
-     * @param out the stream to write to.
      */
     protected void writeFooter() {
         writer.name('dimensionElements')
@@ -318,15 +305,8 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      * First the header is written ({@link #writeHeader}, then the cells serializing
      * the values in the cube ({@link #writeCells}), then the footer containing referenced objects
      * (@link #writeFooter).
-     *
-     * @param out the stream to write to.
      */
-    void write(Map args, Hypercube cube, OutputStream out) {
-        this.cube = cube
-        this.writer = new JsonWriter(new BufferedWriter(
-                new OutputStreamWriter(out),
-                // large 32k chars buffer to reduce overhead
-                32*1024))
+    void write() {
         begin()
         writeHeader()
         writeCells()

@@ -1,5 +1,5 @@
-# Copyright 2017, tranSMART Foundation, Inc.
-# Copyright 2018, The Hyve B.V.
+# Copyright 2017  tranSMART Foundation, Inc.
+# Copyright 2018, 2019  The Hyve B.V.
 
 openapi: 3.0.0
 servers: []
@@ -245,7 +245,7 @@ info:
 
     ## SubSelection
 
-    Create a subselection of patients, visits, or another dimension element, and
+    Create a subselection of patients, visits, or another dimension element (including modifier-based), and
     then select all observations for these dimension elements.
 
 
@@ -267,6 +267,45 @@ info:
                     "valueType": "STRING",
                     "operator": "=",
                     "value": "My eye hurts"
+                }]
+        }
+    }
+
+    ```
+
+    Example that includes modifier-based dimensions: Select all observations for patients who have certain tumor type and it's biomaterial with certain type.
+
+    ```json
+
+    {
+        "type": "subselection",
+        "dimension": "patient",
+        "constraint": {
+            "type": "and",
+            "args": [{
+                    "type": "concept",
+                    "path": "\\Public Studies\\CSR\\02. Diagnosis information\\02. Tumor type\\"
+                }, {
+                    "type": "value",
+                    "valueType": "STRING",
+                    "operator": "=",
+                    "value": "neuroblastoma"
+                }, {
+                    "type": "subselection",
+                    "dimension": "Diagnosis ID",
+                    "constraint": {
+                        "type": "and",
+                        "args": [{
+                                "type": "concept",
+                                "path": "\\Public Studies\\CSR\\04. Biomaterial information\\03. Biomaterial type\\"
+                            }, {
+                                "type": "value",
+                                "valueType": "STRING",
+                                "operator": "=",
+                                "value": "RNA"
+                            }]
+                    }
+
                 }]
         }
     }
@@ -1309,6 +1348,7 @@ paths:
               required:
                 - constraint
         required: true
+
   /v2/observations/counts_per_study:
     get:
       description: >
@@ -1368,6 +1408,7 @@ paths:
               required:
                 - constraint
         required: true
+
   /v2/observations/counts_per_concept:
     get:
       description: >
@@ -1427,6 +1468,7 @@ paths:
               required:
                 - constraint
         required: true
+
   /v2/observations/counts_per_study_and_concept:
     get:
       description: >
@@ -1492,6 +1534,7 @@ paths:
               required:
                 - constraint
         required: true
+
   /v2/patient_counts_threshold:
     get:
       tags:
@@ -1508,6 +1551,7 @@ paths:
                 properties:
                   threshold:
                     type: integer
+
   /v2/observations/table:
     post:
       description: |
@@ -1626,6 +1670,7 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/CrossTable'
+
   /v2/patients:
     get:
       description: >
@@ -1686,6 +1731,7 @@ paths:
               required:
                 - constraint
         required: true
+
   '/v2/patients/{id}':
     get:
       description: |
@@ -1707,6 +1753,7 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Patient'
+
   /v2/patient_sets:
     get:
       tags:
@@ -1743,6 +1790,7 @@ paths:
                 $ref: '#/components/schemas/PatientSet'
       requestBody:
         $ref: '#/components/requestBodies/Constraint'
+
   '/v2/patient_sets/{resultInstanceId}':
     get:
       parameters:
@@ -1764,6 +1812,7 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/PatientSet'
+
   /v2/concepts:
     get:
       description: |
@@ -1784,6 +1833,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Concept'
+
   '/v2/concepts/{conceptCode}':
     get:
       description: >
@@ -1810,6 +1860,7 @@ paths:
           description: >
             No concept exists with the concept code, or the user does not have
             access to the concept.
+
   /v2/tree_nodes:
     get:
       description: >
@@ -1872,6 +1923,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/TreeNode'
+
   /v2/storage:
     get:
       description: |
@@ -1922,6 +1974,7 @@ paths:
                 singleFileCollections:
                   type: boolean
         required: true
+
   '/v2/storage/{id}':
     get:
       description: |
@@ -1993,6 +2046,7 @@ paths:
       responses:
         '204':
           description: returns null
+
   /v2/files:
     get:
       description: |
@@ -2041,6 +2095,7 @@ paths:
                 uuid:
                   type: string
         required: true
+
   '/v2/files/{id}':
     get:
       description: |
@@ -2110,6 +2165,7 @@ paths:
       responses:
         '204':
           description: returns null
+
   '/v2/studies/{studyId}/files':
     get:
       description: |
@@ -2136,6 +2192,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FileLink'
+
   /v2/arvados/workflows:
     get:
       description: |
@@ -2191,6 +2248,7 @@ paths:
                   description: a map of key value pairs
                   type: object
         required: true
+
   '/v2/arvados/workflows/{id}':
     get:
       description: |
@@ -2268,42 +2326,31 @@ paths:
       responses:
         '204':
           description: returns null
-  '/v2/dimensions/{dimensionName}/elements':
+
+  /v2/dimensions:
     get:
       description: >
-        Gets all elements from a dimension of given name that satisfy the
-        constaint if given.
+        Gets all dimensions.
       tags:
         - v2
-      parameters:
-        - name: dimensionName
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: constraint
-          required: false
-          in: query
-          description: >-
-            json that specifies the constraint. Example:
-            `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart
-            Rate\\"}`.
-          schema:
-            type: string
       responses:
         '200':
           description: >
-            Returns list of all elements from the given dimension that user has
-            access to.
+            Returns list of all dimensions that the user has access to.
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/DimensionElements'
-    post:
+                type: object
+                properties:
+                  dimensions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DimensionProperties'
+
+  /v2/dimensions/{dimensionName}:
+    get:
       description: >
-        Works the same as GET, but with support for longer constraints. Use
-        this, if the total length of the URL may be longer than the maximum
-        length.
+        Gets dimension properties for a dimension.
       tags:
         - v2
       parameters:
@@ -2315,6 +2362,28 @@ paths:
       responses:
         '200':
           description: >
+            Returns a dimension properties object.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DimensionProperties'
+
+  '/v2/dimensions/{dimensionName}/elements':
+    post:
+      description: >
+        Gets all elements from a dimension of given name that satisfy the
+        constraint if given.
+      tags:
+        - v2
+      parameters:
+        - name: dimensionName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
             Returns list of all elements from the given dimension that user has
             access to.
           content:
@@ -2322,14 +2391,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/DimensionElements'
       requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-        description: >-
-          json that specifies the constraint. Example:
-          `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart
-          Rate\\"}`.
+        $ref: '#/components/requestBodies/ConstraintHolder'
+
   /v2/export/job:
     post:
       description: |
@@ -2353,6 +2416,7 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ExportJob'
+
   '/v2/export/{jobId}/run':
     post:
       description: >
@@ -2438,6 +2502,7 @@ paths:
                 - elements
         description: contains json object to initialize export job.
         required: true
+
   '/v2/export/{jobId}/download':
     get:
       description: |
@@ -2457,6 +2522,7 @@ paths:
             Zip file stream with expoted data.
           content:
             '*/*': {}
+
   '/v2/export/{jobId}/status':
     get:
       description: >
@@ -2480,6 +2546,7 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ExportJob'
+
   '/v2/export/{jobId}':
     get:
       description: |
@@ -2517,6 +2584,7 @@ paths:
         '200':
           description: |
             200 http status when job has been deleted.
+
   '/v2/export/{jobId}/cancel':
     post:
       description: |
@@ -2534,6 +2602,7 @@ paths:
         '200':
           description: |
             200 http status when job has been cancelled.
+
   /v2/export/jobs:
     get:
       description: |
@@ -2550,6 +2619,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ExportJob'
+
   /v2/export/data_formats:
     post:
       description: >
@@ -2574,6 +2644,7 @@ paths:
                       type: string
       requestBody:
         $ref: '#/components/requestBodies/Constraint'
+
   /v2/export/file_formats:
     get:
       description: |
@@ -2601,10 +2672,30 @@ paths:
                     type: array
                     items:
                       type: string
+
+  /v2/pedigree/relation_types:
+    get:
+      description: |
+        Gets the list of the relation types.
+      tags:
+        - v2
+      responses:
+        '200':
+          description: |
+            returns the list of the relation types.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RelationType'
+
   /v2/queries:
     get:
       description: |
         Gets a list of all queries for current user.
+        Deprecated. User queries related functionality has been moved to a gb-backend application
+      deprecated: true
       tags:
         - v2
       responses:
@@ -2623,6 +2714,8 @@ paths:
     post:
       description: |
         Adds a new user query with the properties provided in the body.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       responses:
@@ -2654,10 +2747,13 @@ paths:
                 queryBlob:
                   type: object
         required: true
+
   '/v2/queries/{id}':
     get:
       description: |
-        Gets the user query with the given `id`
+        Gets the user query with the given `id`.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2677,6 +2773,8 @@ paths:
     put:
       description: |
         Updates the user query with given id with the values in the body.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2708,6 +2806,8 @@ paths:
     delete:
       description: |
         Deletes the user query with the given id.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2719,27 +2819,14 @@ paths:
       responses:
         '204':
           description: returns null
-  /v2/pedigree/relation_types:
-    get:
-      description: |
-        Gets the list of the relation types.
-      tags:
-        - v2
-      responses:
-        '200':
-          description: |
-            returns the list of the relation types.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RelationType'
+
   '/v2/queries/{queryId}/sets':
     get:
       description: |
         Gets a list of query result change entries by query id.
         History of data changes for specific query.
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
       parameters:
@@ -2763,6 +2850,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/UserQuerySet'
+
   /v2/queries/sets/scan:
       post:
         description: |
@@ -2783,6 +2871,7 @@ paths:
                   properties:
                     numberOfUpdatedSets:
                       type: integer
+
   /v2/admin/system/clear_cache:
     get:
       description: |
@@ -2865,6 +2954,7 @@ paths:
         '404':
           description: |
             No update task has been created.
+
   /v2/admin/system/config:
     get:
       description: >
@@ -2905,16 +2995,21 @@ paths:
             schema:
               $ref: '#/components/schemas/RuntimeConfig'
         required: true
+
   /v2/admin/notifications/notify:
     get:
       description: >
         Triggers sending of emails to users that subscribed for updates
+
         regarding queries they have created.
 
         Only for administrators.
 
         This requires transmart-notifications plugin and
         `/v2/admin/notifications/notify` endpoint to be enabled.
+
+        Deprecated. User queries related functionality has been moved to a gb-backend application.
+      deprecated: true
       tags:
         - v2
         - admin
@@ -2923,15 +3018,20 @@ paths:
           required: true
           in: path
           description: >-
-            DAILY|WEEKLY - determines whether the email should be sent to users
+            determines whether the email should be sent to users
             with a DAILY or WEEKLY subscription.
           schema:
             type: string
+            enum: [DAILY, WEEKLY]
       responses:
         '200':
           description: Successfull response
+
+
 components:
+
   schemas:
+
     Version:
       type: object
       properties:
@@ -3067,6 +3167,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/HalStudy'
+
     StorageSystem:
       type: object
       properties:
@@ -3082,6 +3183,7 @@ components:
           type: string
         singleFileCollections:
           type: boolean
+
     FileLink:
       type: object
       properties:
@@ -3101,6 +3203,7 @@ components:
           type: string
         uuid:
           type: string
+
     SupportedWorkflow:
       type: object
       properties:
@@ -3119,6 +3222,7 @@ components:
         defaultParams:
           description: a map of key value pairs
           type: object
+
     TreeNode:
       type: object
       properties:
@@ -3157,6 +3261,7 @@ components:
             conceptCode:
               description: 'Example: `age`'
               type: string
+
     Study:
       type: object
       properties:
@@ -3172,17 +3277,20 @@ components:
             type: string
         metadata:
           $ref: '#/components/schemas/StudyMetadata'
+
     StudyMetadata:
       type: object
       properties:
-        conceptToVariableName:
-          description: a map from concept code to variable name in the study.
+        conceptCodeToVariableMetadata:
+          description: a map from concept code to variable metadata in the study.
           type: object
           properties:
             <conceptCode>:
-              type: string
+              $ref: '#/components/schemas/VariableMetadata'
+
           additionalProperties:
             type: string
+
     Patient:
       type: object
       properties:
@@ -3208,6 +3316,7 @@ components:
           type: string
         trial:
           type: string
+
     PatientSet:
       type: object
       properties:
@@ -3227,6 +3336,7 @@ components:
           type: string
         apiVersion:
           type: string
+
     Concept:
       type: object
       properties:
@@ -3236,17 +3346,16 @@ components:
           type: string
         name:
           type: string
-        metadata:
-          $ref: '#/components/schemas/VariableMetadata'
+
     VariableMetadata:
       type: object
       properties:
         type:
-          description: 'NUMERIC, DATE, STRING'
           type: string
+          enum: [NUMERIC, DATE, STRING]
         measure:
-          description: 'NOMINAL, ORDINAL, SCALE'
           type: string
+          enum: [NOMINAL, ORDINAL, SCALE]
         description:
           type: string
         width:
@@ -3267,6 +3376,7 @@ components:
           type: array
           items:
             type: integer
+
     Counts:
       type: object
       properties:
@@ -3282,6 +3392,7 @@ components:
             count is below the threshold. See `/v2/patient_counts_threshold`
             call.
           type: integer
+
     CountsMap:
       description: a map from string to Counts.
       properties:
@@ -3530,7 +3641,7 @@ components:
             dimensionDeclarations:
               type: array
               items:
-                $ref: '#/components/schemas/DimensionDeclaration'
+                $ref: '#/components/schemas/DimensionProperties'
             sort:
               type: object
               properties:
@@ -3566,7 +3677,7 @@ components:
                 items:
                   $ref: '#/components/schemas/DimensionValue'
 
-    DimensionDeclaration:
+    DimensionProperties:
       type: object
       properties:
         inline:
@@ -3574,16 +3685,21 @@ components:
             If true, this dimension will be inlined in the cell. Only present if
             true.
           type: boolean
+        name:
+          type: string
+        dimensionType:
+          type: string
+          enum: [subject, attribute]
+        sortIndex:
+          type: number
+        valueType:
+          type: string
+          enum: [String, Int, Double, Timestamp, Object]
         fields:
-          description: Fields is omitted if the dimension consists of one field.
+          description: Fields is required only if the type is Object.
           type: array
           items:
             $ref: '#/components/schemas/Field'
-        name:
-          type: string
-        type:
-          description: 'STRING, INTEGER, DATE, OBJECT'
-          type: string
 
     Field:
       type: object
@@ -3591,8 +3707,8 @@ components:
         name:
           type: string
         type:
-          description: 'STRING, INTEGER, DATE'
           type: string
+          enum: [String, Int, Double, Timestamp, Object]
 
     Cell:
       type: object
@@ -3625,8 +3741,6 @@ components:
     DimensionElements:
       type: object
       properties:
-        apiVersion:
-          type: string
         elements:
           description: >-
             List of dimension elements with properties specific to a given
@@ -3843,8 +3957,7 @@ components:
       properties:
         status:
           type: string
-          description: |
-            CREATED, RUNNING, FAILED, COMPLETED
+          enum: [CREATED, RUNNING, FAILED, COMPLETED]
         createDate:
           type: string
           format: date-time
@@ -3874,12 +3987,27 @@ components:
             subtasks.
 
   requestBodies:
+
     Constraint:
       content:
         application/json:
           schema:
             type: string
       description: >-
-        json that specifies the constraint. Example:
+        json that specifies the constraint.
+      example: >-
         `{"type":"study_name","studyId":"EHR"}`.
       required: true
+
+    ConstraintHolder:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              constraint:
+                type: string
+                description: |
+                  json that specifies the constraint.
+            example: |
+              {"constraint": {"type":"study_name","studyId":"EHR"}}

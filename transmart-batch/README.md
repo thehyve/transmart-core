@@ -1,6 +1,5 @@
 <img src=images/batch_logo.png width="50" height="80"> tranSMART Batch
 ============================
-[![Build Status](https://travis-ci.org/thehyve/transmart-batch.svg?branch=master)](https://travis-ci.org/thehyve/transmart-batch)
 
 tranSMART pipeline alternative to ETL, using Spring Batch.
 
@@ -52,6 +51,15 @@ See example property files:
     batch.jdbc.password=tm_cz
 ```
 
+### Download
+The latest version can be downloaded here:
+[transmart-batch-17.1-HYVE-5.2.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-batch/17.1-HYVE-5.2/transmart-batch-17.1-HYVE-5.2.jar).
+
+```bash
+# Download transmart-batch
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-batch/17.1-HYVE-5.2/transmart-batch-17.1-HYVE-5.2.jar -o transmart-batch.jar
+```
+
 ## Build commands from source
 Next to stable releases you can also use the development version of transmart-batch.
 This means you will have to build the tool from the source files available on github.
@@ -99,22 +107,24 @@ Assuming the **batchdb.properties** file is in the directory transmart-batch is 
 ## Examples:
 
 * Loading clinical data with a gene expression data set  
-```
-    <path_to>/transmart-batch.sh -p <path_to>/study_folder/clinical/clinical.params
-    <path_to>/transmart-batch.sh -p <path_to>/study_folder/mRNA/expression.params
-```
+    ```bash
+    java -jar <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params
+    java -jar <path_to>/transmart-batch.jar -p <path_to>/study_folder/mRNA/expression.params
+    ```
 
 * Use a different **batchdb.properties**
-```
-    <path_to>/transmart-batch.sh -p <path_to>/study/clinical/clinical.params -c <path_to>/<file_name>
-```
+    ```bash
+    java -jar <path_to>/transmart-batch.jar -p <path_to>/study/clinical/clinical.params -c <path_to>/<file_name>
+    ```
 
 * Restart a failed job
-```
+    ```
     At the start of the failed job retrieve the execution id:  
         org...BetterExitMessageJobExecutionListener - Job id is 1186, execution id is 1271
-    <path_to>/transmart-batch.sh -p <path_to>/study_folder/clinical/clinical.params -r -j 1271
-```
+    ```
+    ```bash
+    java -jar <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params -r -j 1271
+    ```
 
 ## Expected file structure
 Below is the file structure that transmart-batch expects. Note that only the params files have set names, any of the other files and folders can be named freely.

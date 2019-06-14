@@ -10,6 +10,7 @@ import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.type.IntegerType
 import org.hibernate.type.LongType
+import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
@@ -17,6 +18,7 @@ import org.transmartproject.core.pedigree.RelationTypeResource
 import org.transmartproject.db.i2b2data.*
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.ModifierDimension
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.ontology.TrialVisitsService
 import org.transmartproject.db.pedigree.Relation
@@ -529,50 +531,58 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
      */
     DetachedCriteria buildSubselect(DimensionMetadata dimension, Constraint constraint) {
         log.debug "Subselect on dimension ${dimension.dimension.name}."
-        def subQuery = subQueryBuilder().buildCriteria(constraint)
-        switch (dimension.type) {
-            case ImplementationType.TABLE:
-            case ImplementationType.COLUMN:
-                String fieldName = dimension.fieldName
-                subQuery.projection = Projections.property(fieldName)
-                return subQuery
-            case ImplementationType.VISIT:
-                def projection = subQuery.projection = Projections.projectionList()
-                ['encounterNum', 'patient'].each {
-                    projection.add(Projections.property(it))
-                }
-                return subQuery
-            case ImplementationType.STUDY:
-                // What we actually want is something like
-                //
-                // def subquery = subQueryBuilder().buildCriteria(constraint.constraint)
-                // subquery.projection = Projections.property('trialVisit.study')
-                // return Subqueries.propertyIn('trialVisit.study', subquery)
-                //
-                // but the criterion api doesn't like 'trialVisit.study' as an identifier. I couldn't get it to work
-                // with joins, so now using a bunch of subqueries
 
-                // select trial visits from subselection observations
-                subQuery.projection = Projections.property('trialVisit')
+        DetachedCriteria constraintSubQuery = subQueryBuilder().buildCriteria(constraint)
 
-                // select studies from trial visits
-                def subQuery1 = DetachedCriteria.forClass(TrialVisit).setProjection(Projections.property('study'))
-                subQuery1.add(Subqueries.propertyIn('id', subQuery))
-
-                // select trial visits from studies
-                def subQuery2 = DetachedCriteria.forClass(TrialVisit)
-                subQuery2.projection = Projections.property('id')
-                subQuery2.add(Subqueries.propertyIn('study', subQuery1))
-                subQuery2
-
-                // limit to the last set of trial visits
-                return subQuery2
-
-            case ImplementationType.MODIFIER:
-                throw new QueryBuilderException('Subquery constraints for modifier dimensions are not implemented')
-
+        Projection projection = Projections.projectionList()
+        def subSelectionPropertyNames = subSelectionPropertyNames(dimension)
+        subSelectionPropertyNames.each { String propertyName ->
+            projection.add(Projections.property(propertyName))
         }
-        throw new QueryBuilderException("Dimension ${dimension.dimension.name} is not supported in subselection constraints")
+
+        constraintSubQuery.projection =  projection
+
+        if (dimension.type ==  ImplementationType.STUDY) {
+            // What we actually want is something like
+            //
+            // def subquery = subQueryBuilder().buildCriteria(constraint.constraint)
+            // subquery.projection = Projections.property('trialVisit.study')
+            // return Subqueries.propertyIn('trialVisit.study', subquery)
+            //
+            // but the criterion api doesn't like 'trialVisit.study' as an identifier. I couldn't get it to work
+            // with joins, so now using a bunch of subqueries
+
+            // select trial visits from subselection observations
+            // select studies from trial visits
+            def subQuery1 = DetachedCriteria.forClass(TrialVisit).setProjection(Projections.property('study'))
+            subQuery1.add(Subqueries.propertyIn('id', constraintSubQuery))
+
+            // select trial visits from studies
+            def subQuery2 = DetachedCriteria.forClass(TrialVisit)
+            subQuery2.projection = Projections.property('id')
+            subQuery2.add(Subqueries.propertyIn('study', subQuery1))
+
+            // limit to the last set of trial visits
+            return subQuery2
+        }
+
+        if (dimension.type ==  ImplementationType.MODIFIER) {
+            DetachedCriteria hasModifierSubQuery = DetachedCriteria.forClass(ObservationFact, 'has_mods_obf')
+            hasModifierSubQuery.projection = projection
+            ModifierDimension modifierDimension = (ModifierDimension) dimension.dimension
+            Criterion modifierObservationRow = Restrictions.eq('modifierCd', modifierDimension.modifierCode)
+            hasModifierSubQuery.add(modifierObservationRow)
+
+            DetachedCriteria modifierValuesSubQuery = DetachedCriteria.forClass(ObservationFact, 'mod_vals_obf')
+            String modifierValueField = ObservationFact.observationFactValueField(modifierDimension.valueType)
+            modifierValuesSubQuery.projection =  Projections.property(modifierValueField)
+            modifierValuesSubQuery.add(modifierObservationRow)
+            modifierValuesSubQuery.add(Subqueries.propertiesIn(subSelectionPropertyNames.toArray(new String[0]), constraintSubQuery))
+            hasModifierSubQuery.add(Subqueries.propertyIn(modifierValueField, modifierValuesSubQuery))
+
+            return hasModifierSubQuery
+        }
+        return constraintSubQuery
     }
 
     /**
@@ -592,7 +602,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             case ImplementationType.STUDY:
                 return ['trialVisit']
             case ImplementationType.MODIFIER:
-                throw new QueryBuilderException('Subquery constraints for modifier dimensions are not implemented')
+                return ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'instanceNum']
         }
         throw new QueryBuilderException("Dimension ${dimension.dimension.name} is not supported in subselection constraints")
     }

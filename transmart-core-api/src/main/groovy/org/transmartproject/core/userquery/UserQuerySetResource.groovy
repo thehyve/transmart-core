@@ -6,7 +6,9 @@ import org.transmartproject.core.users.User
 
 /**
  * User query result changes resource
+ * @deprecated user queries related functionality has been moved to a gb-backend application
  */
+@Deprecated
 interface UserQuerySetResource {
 
     /**

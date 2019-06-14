@@ -1,5 +1,6 @@
 --
 -- Type: TABLE; Owner: BIOMART_USER; Name: QUERY
+-- DEPRECATED! user queries related functionality has been moved to a gb-backend application
 --
 CREATE TABLE "BIOMART_USER"."QUERY"
 (
@@ -54,7 +55,7 @@ ALTER TRIGGER "BIOMART_USER"."TRG_QUERY_ID" ENABLE;
 --
 -- Table documentation
 --
-COMMENT ON TABLE biomart_user.query IS 'Storage for patients and observations queries to support front end functionality.';
+COMMENT ON TABLE biomart_user.query IS 'Storage for patients and observations queries to support front end functionality. DEPRECATED! This table has been moved to a gb-backend application database';
 
 COMMENT ON COLUMN biomart_user.query.name IS 'The query name.';
 COMMENT ON COLUMN biomart_user.query.username IS 'The username of the user that created the query.';

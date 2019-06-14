@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.PatientSetResource
+import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
@@ -49,6 +50,9 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
 
     @Autowired
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
+
+    @Autowired
+    AggregateDataResourceImplService aggregateDataResourceImplService
 
     @Transactional(readOnly = true)
     @CompileDynamic
@@ -232,7 +236,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
                 constraint,
                 apiVersion,
                 reusePatientSet,
-                this.&populatePatientSetQueryResult
+                this.&populatePatientSetQueryResultWithCwtControl
         )
     }
 
@@ -583,6 +587,22 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
         User user
         String apiVersion
         boolean reusePatientSets
+    }
+
+    /**
+     * Does the same as {@code populatePatientSetQueryResult}, plus checks whether user is allowed to see the count.
+     * @param patientSetDefinition
+     * @return Number of patients inserted in the patient set
+     * or {@code Counts.BELOW_THRESHOLD} when user does not have permission to see the count.
+     */
+    private Integer populatePatientSetQueryResultWithCwtControl(PatientSetDefinition patientSetDefinition) {
+        Constraint constraint = patientSetDefinition.constraint
+        User user = patientSetDefinition.user
+        Long patientCount = populatePatientSetQueryResult(patientSetDefinition)
+        if (aggregateDataResourceImplService.hidePatientCount(constraint, user, patientCount)) {
+            return Counts.BELOW_THRESHOLD
+        }
+        return patientCount
     }
 
     /**

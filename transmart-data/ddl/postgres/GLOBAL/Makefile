@@ -1,5 +1,7 @@
 include ../../../makefile.inc
 
+PG_BITCOUNT_VERSION = 0.0.3
+
 TBNAMES = transmart \
           indx
 
@@ -76,10 +78,13 @@ clean:
 clean_generated: clean
 	rm -f roles.sql
 
-postgresql-server-dev-all:
+# Check if variable PGVERSION is declared, otherwise make it all
+PGVERSION ?= all
+
+postgresql-server-dev-$(PGVERSION):
 	@if [ `uname` = "Linux" ]; then \
 	    if [ -f "/etc/debian_version" ]; then \
-            sudo apt -y install gcc postgresql-server-dev-all; \
+            sudo apt -y install gcc postgresql-server-dev-$(PGVERSION); \
         else \
             sudo yum -y install gcc postgresql-devel; \
         fi \
@@ -87,18 +92,20 @@ postgresql-server-dev-all:
 		echo 'You might need to install gcc and postgresql dev package.'; \
 	fi
 
-pg_bitcount-master.tar.gz:
-	curl -L -f https://github.com/thehyve/pg_bitcount/archive/master.tar.gz > $@
+pg_bitcount-$(PG_BITCOUNT_VERSION).tar.gz:
+	curl -L -f https://github.com/thehyve/pg_bitcount/archive/$(PG_BITCOUNT_VERSION).tar.gz > $@
 
-pg_bitcount-master: pg_bitcount-master.tar.gz
-	tar -xvzf pg_bitcount-master.tar.gz
+pg_bitcount-$(PG_BITCOUNT_VERSION): pg_bitcount-$(PG_BITCOUNT_VERSION).tar.gz
+	tar -xvzf pg_bitcount-$(PG_BITCOUNT_VERSION).tar.gz
 
-install_pg_bitcount: pg_bitcount-master postgresql-server-dev-all
-	$(MAKE) -C pg_bitcount-master $(PGCONFIG_PARAMS)
-	sudo $(MAKE) -C pg_bitcount-master $(PGCONFIG_PARAMS) install
+pg_bitcount_sources: pg_bitcount-$(PG_BITCOUNT_VERSION).tar.gz
+
+install_pg_bitcount: pg_bitcount-$(PG_BITCOUNT_VERSION) postgresql-server-dev-$(PGVERSION)
+	$(MAKE) -C pg_bitcount-$(PG_BITCOUNT_VERSION) $(PGCONFIG_PARAMS)
+	sudo $(MAKE) -C pg_bitcount-$(PG_BITCOUNT_VERSION) $(PGCONFIG_PARAMS) install
 
 pg_bitcount_extension: install_pg_bitcount
-	$(PSQL_COMMAND_NO_TRANSACTION) -d $(PGDATABASE) -c "CREATE EXTENSION IF NOT EXISTS pg_bitcount;"
+	$(PSQL_COMMAND_NO_TRANSACTION) -d $(PGDATABASE) -c "CREATE EXTENSION IF NOT EXISTS pg_bitcount VERSION '$(PG_BITCOUNT_VERSION)';"
 
 .PHONY: $(TBDROP_TARGETS)
 .PHONY: createdb clean_generated clean tablespaces load drop_roles \

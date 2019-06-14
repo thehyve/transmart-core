@@ -1,5 +1,6 @@
 --
 -- Type: TABLE; Owner: BIOMART_USER; Name: QUERY_SET_DIFF
+-- DEPRECATED! user queries related functionality has been moved to a gb-backend application
 --
 CREATE TABLE "BIOMART_USER"."QUERY_SET_DIFF"
 (
@@ -34,7 +35,7 @@ ALTER TRIGGER "BIOMART_USER"."TRG_QUERY_SET_DIFF_ID" ENABLE;
 --
 -- Table documentation
 --
-COMMENT ON TABLE biomart_user.query_set_diff IS 'Table stores information about specific objects, deleted or added to the subscribed user query related set.';
+COMMENT ON TABLE biomart_user.query_set_diff IS 'Table stores information about specific objects, deleted or added to the subscribed user query related set. DEPRECATED! This table has been moved to a gb-backend application database.';
 
 COMMENT ON COLUMN biomart_user.query_set_diff.query_set_id IS 'Foreign key to id in query_set table.';
 COMMENT ON COLUMN biomart_user.query_set_diff.object_id IS 'The id of the object from the set that was updated, e.g. id of an i2b2demodata.patient_dimension instance.';

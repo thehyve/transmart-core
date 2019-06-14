@@ -3,11 +3,10 @@ package org.transmartproject.rest.serialization
 import com.google.common.collect.Table
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
-import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.hypercube.Dimension
-
 import java.time.Instant
+import java.util.stream.Collectors
 
 @CompileStatic
 class DataTableSerializer {
@@ -16,10 +15,18 @@ class DataTableSerializer {
     private PagingDataTable table
 
     static void write(PagingDataTable table, OutputStream out) {
-        new DataTableSerializer().writeData(table, out)
+        new DataTableSerializer(table, out).writeData()
     }
 
-    void writeColumnHeader(Dimension dimension, int i) {
+    DataTableSerializer(PagingDataTable table, OutputStream out) {
+        this.writer = new JsonWriter(new BufferedWriter(
+                new OutputStreamWriter(out),
+                // large 32k chars buffer to reduce overhead
+                32*1024))
+        this.table = table
+    }
+
+    protected void writeColumnHeader(Dimension dimension, int i) {
         writer.beginObject()
         writer.name('dimension').value(dimension.name)
         if (dimension.elementsSerializable) {
@@ -38,7 +45,7 @@ class DataTableSerializer {
         writer.endObject()
     }
 
-    void writeColumnHeaders() {
+    protected void writeColumnHeaders() {
         writer.name('columnHeaders').beginArray()
         for (int i=0; i<table.columnDimensions.size(); i++) {
             def dimension = table.columnDimensions[i]
@@ -48,7 +55,7 @@ class DataTableSerializer {
         writer.endArray()
     }
 
-    void writeRowHeaders(DataTableRow row) {
+    protected void writeRowHeaders(DataTableRow row) {
         writer.name('rowHeaders')
         writer.beginArray()
         for (int i=0; i<table.rowDimensions.size(); i++) {
@@ -68,7 +75,7 @@ class DataTableSerializer {
         writer.endArray()
     }
 
-    void writeRow(DataTableRow row) {
+    protected void writeRow(DataTableRow row) {
         writer.beginObject()
         writeRowHeaders(row)
 
@@ -95,33 +102,66 @@ class DataTableSerializer {
         writer.endObject()
     }
 
-    void writeRows() {
+    protected void writeRows() {
         writer.name('rows')
         writer.beginArray()
-        for  (DataTableRow row : table.rowKeys) {
+        for (DataTableRow row : table.rowKeys) {
             writeRow(row)
         }
         writer.endArray()
     }
 
-    void writeDimension(Dimension dimension) {
+    /**
+     * Build an dimensional object to serialize using the field descriptions of the dimension.
+     * @param dim the dimension to serialize the object for.
+     * @param dimElement the value to serialize.
+     * @return an object to use for writing.
+     */
+    protected static Object buildDimensionElement(Dimension dim, Object dimElement) {
+        if (dimElement == null) return null
+        if (dim.elementsSerializable) {
+            return dimElement
+        } else {
+            def value = [:] as Map<String, Object>
+            for(prop in dim.elementFields.values()) {
+                value[prop.name] = prop.get(dimElement)
+            }
+            return value
+        }
+    }
+
+    protected void writeDimension(Dimension dimension) {
         writer.beginObject()
         writer.name('name').value(dimension.name)
         if (!dimension.elementsSerializable) {
+            Collection<Object> dimensionKeys
+            if (dimension in table.rowDimensions) {
+                int i = table.rowDimensions.indexOf(dimension)
+                dimensionKeys = table.rowKeys.stream()
+                        .map({ DataTableRow row -> dimension.getKey(row.elements[i]) })
+                        .distinct()
+                        .filter({key -> Objects.nonNull(key)})
+                        .collect(Collectors.toList())
+            } else {
+                int i = table.columnDimensions.indexOf(dimension)
+                dimensionKeys = table.columnKeys.stream()
+                        .map({ DataTableColumn column -> dimension.getKey(column.elements[i]) })
+                        .distinct()
+                        .filter({key -> Objects.nonNull(key)})
+                        .collect(Collectors.toList())
+            }
             writer.name('elements').beginObject()
-            for (def element: table.hypercube.dimensionElements(dimension)) {
+            for (def element: dimension.resolveElements(dimensionKeys)) {
                 def key = dimension.getKey(element)
                 writer.name(key.toString())
-                Map value = (Map) dimension.asSerializable(element)
-                value.label = key
-                writeValue(value)
+                writeValue(buildDimensionElement(dimension, element))
             }
             writer.endObject()
         }
         writer.endObject()
     }
 
-    void writeDimensions(String type, List<Dimension> dimensions) {
+    protected void writeDimensions(String type, List<Dimension> dimensions) {
         writer.name("${type}Dimensions")
         writer.beginArray()
         for (def dimension : dimensions) {
@@ -130,7 +170,7 @@ class DataTableSerializer {
         writer.endArray()
     }
 
-    void writeSorting() {
+    protected void writeSorting() {
         writer.name('sort').beginArray()
         for (def entry : table.sort) {
             writer.beginObject()
@@ -144,20 +184,14 @@ class DataTableSerializer {
         writer.endArray()
     }
 
-    void writeOtherKeys() {
+    protected void writeOtherKeys() {
         writer.name('offset').value(table.offset)
         if (table.totalRowCount != null) {
             writer.name('rowCount').value(table.totalRowCount)
         }
     }
 
-    private void writeData(PagingDataTable table, OutputStream out) {
-        this.writer = new JsonWriter(new BufferedWriter(
-                new OutputStreamWriter(out),
-                // large 32k chars buffer to reduce overhead
-                32*1024))
-        this.table = table
-
+    protected void writeData() {
         writer.beginObject()
         writeColumnHeaders()
         writeRows()
@@ -189,7 +223,7 @@ class DataTableSerializer {
             }
             writer.endObject()
         } else {
-            throw new UnexpectedResultException("Unexpected value of type ${value.class.simpleName}: $value")
+            writer.value(value.toString())
         }
     }
 }

@@ -135,11 +135,12 @@ class StudyMetadataTests {
     }
 
     @Test
-    void testQuotedMissingValues() {
+    void testQuotedMissingNumericValues() {
         def jsonText = """
             {
                 "conceptCodeToVariableMetadata": {
-                    "test": {  
+                    "test": {
+                       "type":"Numeric",
                        "missingValues":{"values": ["-2.0", "-3.2"]}
                     }
                 }
@@ -178,29 +179,42 @@ class StudyMetadataTests {
     }
 
     @Test
-    void testInvalidTabRepresentationMeta() {
+    void testStringMissingValues() {
         def jsonText = """
             {
-                "defaultTabularRepresentation": {
-                    "rowDimensions": [
-                       "patient",
-                        "study"
-                    ],
-                    "failed": [1, 2, 3],
-                    "columnDimensions": [
-                       "concept",
-                       "trial visit"
-                    ]
+                "conceptCodeToVariableMetadata": {
+                    "test": {
+                       "missingValues": {"values":["None"]}
+                    }
                 }
             }
         """
 
         StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
 
-        assertThat metadata, hasProperty('defaultTabularRepresentation', allOf(
-                hasProperty('rowDimensions', hasItems('patient', "study")),
-                hasProperty('columnDimensions', hasItems('concept', "trial visit"))
-        ))
+        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'),
+                hasProperty('missingValues', allOf(
+                        hasProperty('upper', nullValue()),
+                        hasProperty('lower', nullValue()),
+                        hasProperty('values', equalTo(["None"])))
+                )))
+    }
+
+    @Test
+    void testNoMissingNumericValuesSpecified() {
+        def jsonText = """
+            {
+                "conceptCodeToVariableMetadata": {
+                    "test": {
+                       "type":"Numeric"
+                    }
+                }
+            }
+        """
+
+        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'),
+                hasProperty('missingValues', nullValue())))
     }
 
 }

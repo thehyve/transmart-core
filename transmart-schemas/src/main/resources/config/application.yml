@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: transmart-schemas
+
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+  h2:
+    console:
+      enabled: false

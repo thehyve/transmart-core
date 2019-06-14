@@ -23,6 +23,7 @@ import org.springframework.validation.Errors
 import org.transmartproject.core.userquery.SubscriptionFrequency
 import org.transmartproject.core.userquery.UserQuery
 
+@Deprecated
 class Query implements UserQuery {
 
     String name

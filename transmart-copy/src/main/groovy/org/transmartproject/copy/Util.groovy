@@ -20,6 +20,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.function.Function
+import java.util.stream.Collectors
 
 /**
  * Collection of utility functions for transmart-copy.
@@ -43,7 +45,8 @@ class Util {
     }
 
     /**
-     * Verify that the column names in {@code header} are the same as the column names in {@code columns}.
+     * Verify that the column names in {@code header} are a subset of the column names in {@code columns} and
+     * at least contain all non-nullable columns.
      * Returns a map from column name to type, where the columns are ordered as in {@code header}.
      *
      * @param filename The filename to check the header for.
@@ -52,25 +55,33 @@ class Util {
      * @return a map from column name to type, where the columns are ordered as in {@code header}.
      */
     static LinkedHashMap<String, Class> verifyHeader(
-            String filename, String[] header, LinkedHashMap<String, Class> columns) {
-        List<String> columnNames = columns.collect { it.key }
-        if ((header as Set) != (columnNames as Set)) {
-            log.error "Expected: ${columnNames}"
-            log.error "Was: ${header.toList()}"
+            String filename, String[] header, LinkedHashMap<String, ColumnMetadata> columns) {
+        if (!columns.keySet().containsAll(header)) {
+            log.error "Supported columns: ${columns.keySet()}"
+            log.error "Columns in file: ${header.toList()}"
             throw new IllegalStateException("Incorrect headers in file ${filename}.")
         }
-        LinkedHashMap result = [:]
-        header.each { String column ->
-            result[column] = columns[column]
+        List<String> nonNullableColumns = columns.entrySet().stream()
+                .filter({ Map.Entry<String, ColumnMetadata> entry -> !(entry.value.nullable) })
+                .map({ Map.Entry<String, ColumnMetadata> entry -> entry.key })
+                .collect(Collectors.toList())
+        if (!(header as Set).containsAll(nonNullableColumns)) {
+            log.error "Non-nullable columns: ${nonNullableColumns}"
+            log.error "Columns in file: ${header.toList()}"
+            throw new IllegalStateException("Incorrect headers in file ${filename}.")
+        }
+        def result = [:] as LinkedHashMap<String, Class>
+        for (String column: header) {
+            result[column] = columns[column].type
         }
         result
     }
 
-    static final <T> T parseIfNotEmpty(String value, Closure<T> parser) {
+    static final <T> T parseIfNotEmpty(String value, Function<String, T> parser) {
         if (value == null || value.trim().empty) {
             null
         } else {
-            parser(value)
+            parser.apply(value)
         }
     }
 

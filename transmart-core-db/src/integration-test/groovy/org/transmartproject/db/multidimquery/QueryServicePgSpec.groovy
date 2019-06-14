@@ -17,10 +17,8 @@ import org.transmartproject.core.multidimquery.query.Field
 import org.transmartproject.core.multidimquery.query.FieldConstraint
 import org.transmartproject.core.multidimquery.query.ModifierConstraint
 import org.transmartproject.core.multidimquery.query.Operator
-import org.transmartproject.core.multidimquery.query.OrConstraint
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
-import org.transmartproject.core.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.core.multidimquery.query.TimeConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
@@ -44,6 +42,7 @@ import static spock.util.matcher.HamcrestSupport.that
 @Integration
 class QueryServicePgSpec extends Specification {
 
+    public static final String DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss'
     @Autowired
     MultiDimensionalDataResource multiDimService
 
@@ -53,10 +52,10 @@ class QueryServicePgSpec extends Specification {
     @Autowired
     PatientSetService patientSetResource
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT)
     private static final DateFormat UTC_DATE_FORMAT
     static {
-        UTC_DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd hh:mm:ss')
+        UTC_DATE_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT)
         UTC_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone('UTC'))
     }
 
@@ -449,35 +448,6 @@ class QueryServicePgSpec extends Specification {
         if (hypercube) hypercube.close()
     }
 
-    // This is basically a copy of QueryServiceSpec.test_visit_selection_constraint in transmart-core-db-tests.
-    // Since we cannot run that one due to limitations in the H2 database this version ensures that the functionality
-    // is still automatically tested.
-    void "test visit selection constraint"() {
-        def user = User.findByUsername('test-public-user-1')
-
-        Constraint constraint = new SubSelectionConstraint(
-                dimension: VISIT.name,
-                constraint: new AndConstraint([
-                        new ValueConstraint(
-                                valueType: "NUMERIC",
-                                operator: Operator.EQUALS,
-                                value: 59.0
-                        ),
-                        new StudyNameConstraint(studyId: "EHR")
-                ])
-        )
-
-        when:
-        def result = multiDimService.retrieveClinicalData(constraint, user).asList()
-        def visits = result.collect { it[VISIT] } as Set
-
-        then:
-        result.size() == 2
-        // ensure we are also finding other cells than the value we specified in the constraint
-        result.collect { it.value }.any { it != 59.0 }
-        visits.size() == 1
-    }
-
     // This test should be a part of QueryServiceSpec tests in transmart-core-db-tests.
     // The same issue as for the test above: since we cannot run that one due to limitations in the H2 database
     // this version ensures that the functionality is still automatically tested.
@@ -490,7 +460,7 @@ class QueryServicePgSpec extends Specification {
         def expectedResult = results.collect { it[VISIT] }.findAll { it } as Set
 
         when: "I query for all visits for a constraint"
-        def visits = multiDimService.getDimensionElements(dimension, constraint, user).collect {
+        def visits = multiDimService.getDimensionElements(dimension.name, constraint, user).collect {
             dimension.asSerializable(it)
         }
 
@@ -621,8 +591,8 @@ class QueryServicePgSpec extends Specification {
         def values = data.collect { HypercubeValue value -> value.value as String }
 
         then:
-        counts.observationCount == 2
-        that values, hasSize(2)
+        counts.observationCount == 3
+        that values, hasSize(3)
         that values, hasItems(containsString('The Brothers Karamazov'), containsString('funny dialogues'))
     }
 
@@ -676,49 +646,21 @@ class QueryServicePgSpec extends Specification {
     void "test values of date type"() {
         def user = User.findByUsername('test-public-user-1')
 
-        Constraint constraint = new ValueConstraint(valueType: Type.DATE, operator: Operator.AFTER,
-                value: DATE_FORMAT.parse('1986-10-21 00:00:00'))
+        Constraint constraint = new AndConstraint([
+                new StudyNameConstraint(studyId: 'SURVEY1'),
+                new ValueConstraint(valueType: Type.DATE, operator: Operator.AFTER,
+                        value: DATE_FORMAT.parse('1986-10-21 00:00:00'))
+        ])
 
         when:
         def values = multiDimService.retrieveClinicalData(constraint, user).asList()*.value
 
         then:
-        values.size() == 1
+        values.size() == 2
         values[0] instanceof Date
         values[0] == UTC_DATE_FORMAT.parse('1986-10-22 00:00:00')
-    }
-
-    void 'test multiple subselect constraints'() {
-        given: 'a query with two subselect subqueries'
-        def user = User.findByUsername('test-public-user-1')
-
-        Constraint subConstraint1 = new AndConstraint([
-                new StudyNameConstraint('SURVEY1'),
-                new ConceptConstraint('favouritebook')
-        ])
-
-        Constraint subselectConstraint1 = new SubSelectionConstraint('patient', subConstraint1)
-
-        Constraint subConstraint2 = new ConceptConstraint('twin')
-
-        Constraint subselectConstraint2 = new SubSelectionConstraint('patient', subConstraint2)
-
-        Constraint multipleSubselectConstraint = new OrConstraint([
-                subselectConstraint1,
-                subselectConstraint2
-        ])
-
-        when: 'executing the query and the subqueries of which it is are composed'
-        def subselectResult1 = multiDimService.retrieveClinicalData(subselectConstraint1, user).asList()
-        def subselectResult2 = multiDimService.retrieveClinicalData(subselectConstraint2, user).asList()
-        def multipleSubselectResult = multiDimService.retrieveClinicalData(multipleSubselectConstraint, user).asList()
-
-        then: 'the combined subselect result match the results of the separate subselect queries'
-        subselectResult1.size() == 16
-        subselectResult2.size() == 15
-        // in this case the selected patient sets (and, hence, the observation sets)
-        // happen to be disjoint, so the result should equal to the sum of the separate queries
-        multipleSubselectResult.size() == subselectResult1.size() + subselectResult2.size()
+        values[1] instanceof Date
+        values[1] == UTC_DATE_FORMAT.parse('2001-09-01 05:30:05')
     }
 
     void 'test numerical constraints'() {

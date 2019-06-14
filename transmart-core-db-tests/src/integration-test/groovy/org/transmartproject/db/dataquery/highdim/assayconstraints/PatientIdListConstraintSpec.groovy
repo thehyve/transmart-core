@@ -22,6 +22,7 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import spock.lang.Specification
@@ -75,14 +76,16 @@ class PatientIdListConstraintSpec extends Specification {
 
     void testEmpty() {
         setupData()
-        def result = new AssayQuery([
+        when:
+        new AssayQuery([
                 new PatientIdListCriteriaConstraint(
                         patientIdList: []
                 )
         ]).list()
 
-        expect:
-        result empty()
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message == 'Empty list'
     }
 
 }

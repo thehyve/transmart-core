@@ -198,6 +198,50 @@ class TreeNodesSpec extends RESTSpec {
         assert responseData.message == "Access denied to path: ${path}"
     }
 
+    /**
+     *  given: "Study CSR is loaded"
+     *  when: "I get the tree_nodes with tags=true"
+     *  then: "then the nodes have corresponding subject dimension specified"
+     */
+    @RequiresStudy([CSR])
+    def "nodes with subject dimension"() {
+        given: 'Study CSR is loaded'
+
+        when: 'I get the tree_nodes with tags=true'
+        def responseData = get([
+                path      : PATH_TREE_NODES,
+                acceptType: JSON,
+                query     : [root: "\\Public Studies\\CSR\\", depth: 3, tags: true],
+        ])
+
+        then: 'then the nodes have corresponding subject dimensions'
+        def csr = getRootNodeByName(responseData, 'CSR')
+
+        def patientInfo = getNodeByName(csr, '01. Patient information')
+        def gender = getNodeByName(patientInfo, '02. Gender')
+        gender
+        gender.metadata
+        gender.metadata.subject_dimension == 'patient'
+
+        def diagnosisInfo = getNodeByName(csr, '02. Diagnosis information')
+        def diagnosisDate = getNodeByName(diagnosisInfo, '01. Date of diagnosis')
+        diagnosisDate
+        diagnosisDate.metadata
+        diagnosisDate.metadata.subject_dimension == 'Diagnosis ID'
+
+        def biosourceInfo = getNodeByName(csr, '03. Biosource information')
+        def tissue = getNodeByName(biosourceInfo, '03. Tissue')
+        tissue
+        tissue.metadata
+        tissue.metadata.subject_dimension == 'Biosource ID'
+
+        def biomaterialInfo = getNodeByName(csr, '04. Biomaterial information')
+        def biomaterialParent = getNodeByName(biomaterialInfo, '01. Biomaterial parent')
+        biomaterialParent
+        biomaterialParent.metadata
+        biomaterialParent.metadata.subject_dimension == 'Biomaterial ID'
+    }
+
     def getRootNodeByName(list, name) {
         def root
         list.tree_nodes.each {

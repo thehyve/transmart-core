@@ -6,6 +6,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.SortOrder
 import org.transmartproject.core.multidimquery.hypercube.Dimension
+import org.transmartproject.core.multidimquery.hypercube.ValueType
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.hypercube.Property
@@ -14,12 +15,13 @@ import org.transmartproject.rest.hypercubeProto.ObservationsProto.SortOrder as P
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
 
 import javax.annotation.Nonnull
+import java.time.Instant
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
 @Slf4j
 @CompileStatic
-class HypercubeProtobufSerializer extends HypercubeSerializer {
+class HypercubeProtobufSerializer {
 
     protected Hypercube cube
     protected Dimension packedDimension
@@ -30,6 +32,19 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     private List<Dimension> inlineDims
     private List<Dimension> indexedDims
 
+    /**
+     * Creates a hypercube serializer.
+     *
+     * @param cube the hypercube to serialize.
+     * @param out the stream to write to.
+     * @param args a map with optional parameters.
+     */
+    HypercubeProtobufSerializer(Map args = [:], Hypercube cube, OutputStream out) {
+        this.cube = cube
+        this.out = out
+        this.packedDimension = (Dimension) args.packedDimension
+        this.packingEnabled = packedDimension != null
+    }
 
     protected List<DimensionDeclaration> getDimensionsDefs() {
         cube.dimensions.collect { Dimension dim ->
@@ -44,13 +59,14 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             if (dim == packedDimension) {
                 builder.packed = true
             }
-            builder.type = dim.elementsSerializable ? Type.get(dim.elementType).protobufType : ProtoType.OBJECT
+            builder.type = dim.elementsSerializable ?
+                    TypeProtobufSerializer.mapToProtobufType(ValueType.forClass(dim.elementType)) : ProtoType.OBJECT
 
-            if(!dim.elementsSerializable) {
+            if (!dim.elementsSerializable) {
                 dim.elementFields.values().each { field ->
                     builder.addFields FieldDefinition.newBuilder().with {
                         name = field.name
-                        type = Type.get(field.type).protobufType
+                        type = TypeProtobufSerializer.mapToProtobufType(ValueType.forClass(field.type))
                         build()
                     }
                 }
@@ -63,9 +79,11 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     protected Header buildHeader() {
         Header.newBuilder().with {
             addAllDimensionDeclarations(dimensionsDefs)
-            if(!iterator.hasNext()) last = true
+            if (!iterator.hasNext()) {
+                last = true
+            }
 
-            for(Map.Entry<Dimension, SortOrder> entry : cube.sortOrder) {
+            for (Map.Entry<Dimension, SortOrder> entry : cube.sortOrder) {
                 addSort(Sort.newBuilder().with {
                     setDimensionIndex(cube.dimensions.indexOf(entry.key))
                     setField(0)
@@ -82,8 +100,10 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         if (value.value != null) {
             if (value.value instanceof Number) {
                 builder.numericValue = ((Number) value.value).doubleValue()
+            } else if (value.value instanceof Date) {
+                builder.stringValue = Instant.ofEpochMilli(((Date) value.value).time).toString()
             } else {
-                builder.stringValue = value.value
+                builder.stringValue = value.value.toString()
             }
         }
         for (int i=0; i<indexedDims.size(); i++) {
@@ -108,7 +128,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     private Value.Builder buildValue(@Nonnull value) {
         def builder = Value.newBuilder()
         builder.clear()
-        Type.get(value.class).setValue(builder, value)
+        TypeProtobufSerializer.setValue(ValueType.forClass(value.class), builder, value)
         builder
     }
 
@@ -138,23 +158,24 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
     protected DimensionElements buildDimensionElements(Dimension dim, List dimElements, boolean setName=true) {
         def builder = DimensionElements.newBuilder()
-        if(setName) builder.name = dim.name
-        //builder.perSample = false //TODO: implement this
+        if (setName) {
+            builder.name = dim.name
+        }
 
-        if(dim.elementsSerializable) {
+        if (dim.elementsSerializable) {
             def fieldColumnBuilder = DimensionElementFieldColumn.newBuilder()
-            Type type = Type.get(dim.elementType)
+            def type = ValueType.forClass(dim.elementType)
             boolean allEmpty = true
             for(int i=0; i<dimElements.size(); i++) {
                 def element = dimElements[i]
                 if(element != null) {
                     allEmpty = false
-                    type.addToColumn(fieldColumnBuilder, element)
+                    TypeProtobufSerializer.addToColumn(type, fieldColumnBuilder, element)
                 } else {
                     fieldColumnBuilder.addAbsentValueIndices(i+1)
                 }
             }
-            if(allEmpty) {
+            if (allEmpty) {
                 builder.addAbsentFieldColumnIndices(1)
             } else {
                 builder.addFields(fieldColumnBuilder.build())
@@ -179,9 +200,9 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     protected DimensionElementFieldColumn buildElementFields(Property prop, List dimElements) {
         DimensionElementFieldColumn.Builder builder = DimensionElementFieldColumn.newBuilder()
 
-        Type type = Type.get(prop.type)
+        def type = ValueType.forClass(prop.type)
 
-        if (type == Type.MAP) {
+        if (type == ValueType.MAP) {
             return buildMapFields(prop, type, dimElements)
         }
 
@@ -192,7 +213,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 absentCount++
                 builder.addAbsentValueIndices(i+1)
             } else {
-                type.addToColumn(builder, elem)
+                TypeProtobufSerializer.addToColumn(type, builder, elem)
             }
         }
 
@@ -203,7 +224,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
     }
 
-    protected DimensionElementFieldColumn buildMapFields(Property prop, Type type, List dimElements) {
+    protected DimensionElementFieldColumn buildMapFields(Property prop, ValueType type, List dimElements) {
         // assert type == Type.MAP
 
         DimensionElementFieldColumn.Builder builder = DimensionElementFieldColumn.newBuilder()
@@ -230,7 +251,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                     def mapColumn = builders.mapColumn = MapColumn.newBuilder()
 
                     Value.Builder keyBuilder = Value.newBuilder()
-                    Type.get(entry.key.class).setValue(keyBuilder, entry.key)
+                    TypeProtobufSerializer.setValue(ValueType.forClass(entry.key.class), keyBuilder, entry.key)
                     mapColumn.setKey(keyBuilder)
 
                     def values = builders.values = DimensionElementFieldColumn.newBuilder()
@@ -240,25 +261,25 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                     }
                 }
 
-                if(entry.value == null) {
+                if (entry.value == null) {
                     builders.values.addAbsentValueIndices(i)
                     continue
                 }
-                if(builders.type == null) {
-                    builders.type = Type.get(entry.value.class)
+                if (builders.type == null) {
+                    builders.type = ValueType.forClass(entry.value.class)
                 }
 
-                if (builders.type == Type.MAP) {
+                if (builders.type == ValueType.MAP) {
                     def valueBuilder = Value.newBuilder()
-                    builders.type.setValue(valueBuilder, entry.value)
+                    TypeProtobufSerializer.setValue(builders.type, valueBuilder, entry.value)
                     builders.values.addUnpackedValue(valueBuilder)
                 } else {
-                    builders.type.addToColumn(builders.values, entry.value)
+                    TypeProtobufSerializer.addToColumn(builders.type, builders.values, entry.value)
                 }
             }
         }
 
-        for(def builders : keyBuilders.values()) {
+        for(def builders: keyBuilders.values()) {
             if (builders.type == null) continue  // values for this key are all missing or null
 
             MapColumn.Builder mapColumn = builders.mapColumn
@@ -276,7 +297,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     static class MapFieldBuilders {
         MapColumn.Builder mapColumn
         DimensionElementFieldColumn.Builder values
-        Type type
+        ValueType type
     }
 
     protected Footer buildFooter() {
@@ -291,12 +312,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         Error.newBuilder().setError(error).build()
     }
 
-    void write(Map args, Hypercube cube, OutputStream out) {
-        this.cube = cube
-        this.out = out
-        this.packedDimension = (Dimension) args.packedDimension
-        this.packingEnabled = packedDimension != null
-
+    void write() {
         this.iterator = cube.iterator()
         this.inlineDims = cube.dimensions.findAll { it != packedDimension && !it.density.isDense }
         this.indexedDims = cube.dimensions.findAll { it != packedDimension && it.density.isDense }

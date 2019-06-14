@@ -2,7 +2,9 @@ package org.transmartproject.core.userquery
 
 /**
  *  Stores query result changes
+ *  @deprecated user queries related functionality has been moved to a gb-backend application
  */
+@Deprecated
 interface UserQuerySet {
 
     /**

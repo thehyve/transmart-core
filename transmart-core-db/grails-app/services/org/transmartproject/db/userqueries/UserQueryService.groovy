@@ -28,6 +28,7 @@ import java.util.stream.Collectors
 
 @Transactional
 @CompileStatic
+@Deprecated
 class UserQueryService implements UserQueryResource {
 
     @Autowired

@@ -10,6 +10,7 @@ import org.transmartproject.rest.v2.V2ResourceSpec
 import static org.transmartproject.rest.utils.ResponseEntityUtils.toJson
 
 @Slf4j
+@Deprecated
 class UserQueryControllerSpec extends V2ResourceSpec {
 
     def grailsApplication

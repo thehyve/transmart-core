@@ -1,0 +1,167 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="gijs@thehyve.nl" id="1556187494766-0">
+        <sql dbms="postgresql, h2" endDelimiter=";">
+            create schema ts_batch
+        </sql>
+    </changeSet>
+    <changeSet author="gijs@thehyve.nl" id="1556187494766-1">
+        <createTable schemaName="ts_batch" tableName="batch_job_execution">
+            <column name="job_execution_id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="batch_job_execution_pkey"/>
+            </column>
+            <column name="version" type="BIGINT"/>
+            <column name="job_instance_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_time" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="end_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="status" type="VARCHAR(10)"/>
+            <column name="exit_code" type="VARCHAR(2500)"/>
+            <column name="exit_message" type="VARCHAR(2500)"/>
+            <column name="last_updated" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="job_configuration_location" type="VARCHAR(2500)"/>
+        </createTable>
+
+        <createTable schemaName="ts_batch" tableName="batch_job_execution_context">
+            <column name="job_execution_id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="batch_job_execution_context_pkey"/>
+            </column>
+            <column name="short_context" type="VARCHAR(2500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serialized_context" type="TEXT"/>
+        </createTable>
+
+        <createTable schemaName="ts_batch" tableName="batch_job_execution_params">
+            <column name="job_execution_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type_cd" type="VARCHAR(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="key_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="string_val" type="VARCHAR(250)"/>
+            <column name="date_val" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="long_val" type="BIGINT"/>
+            <column name="double_val" type="FLOAT8"/>
+            <column name="identifying" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable schemaName="ts_batch" tableName="batch_job_instance">
+            <column name="job_instance_id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="batch_job_instance_pkey"/>
+            </column>
+            <column name="version" type="BIGINT"/>
+            <column name="job_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="job_key" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable schemaName="ts_batch" tableName="batch_step_execution">
+            <column name="step_execution_id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="batch_step_execution_pkey"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="job_execution_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="status" type="VARCHAR(10)"/>
+            <column name="commit_count" type="BIGINT"/>
+            <column name="read_count" type="BIGINT"/>
+            <column name="filter_count" type="BIGINT"/>
+            <column name="write_count" type="BIGINT"/>
+            <column name="read_skip_count" type="BIGINT"/>
+            <column name="write_skip_count" type="BIGINT"/>
+            <column name="process_skip_count" type="BIGINT"/>
+            <column name="rollback_count" type="BIGINT"/>
+            <column name="exit_code" type="VARCHAR(2500)"/>
+            <column name="exit_message" type="VARCHAR(2500)"/>
+            <column name="last_updated" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+
+        <createTable schemaName="ts_batch" tableName="batch_step_execution_context">
+            <column name="step_execution_id" type="bigserial">
+                <constraints primaryKey="true" primaryKeyName="batch_step_execution_context_pkey"/>
+            </column>
+            <column name="short_context" type="VARCHAR(2500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serialized_context" type="TEXT"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="job_name, job_key"
+                             constraintName="job_inst_un"
+                             schemaName="ts_batch"
+                             tableName="batch_job_instance"/>
+
+        <addForeignKeyConstraint baseColumnNames="job_execution_id"
+                                 baseTableName="batch_job_execution_context"
+                                 baseTableSchemaName="ts_batch"
+                                 constraintName="job_exec_ctx_fk"
+                                 referencedColumnNames="job_execution_id"
+                                 referencedTableName="batch_job_execution"
+                                 referencedTableSchemaName="ts_batch"/>
+
+        <addForeignKeyConstraint baseColumnNames="job_execution_id"
+                                 baseTableName="batch_job_execution_params"
+                                 baseTableSchemaName="ts_batch"
+                                 constraintName="job_exec_params_fk"
+                                 referencedColumnNames="job_execution_id"
+                                 referencedTableName="batch_job_execution"
+                                 referencedTableSchemaName="ts_batch"/>
+
+        <addForeignKeyConstraint baseColumnNames="job_execution_id"
+                                 baseTableName="batch_step_execution"
+                                 baseTableSchemaName="ts_batch"
+                                 constraintName="job_exec_step_fk"
+                                 referencedColumnNames="job_execution_id"
+                                 referencedTableName="batch_job_execution"
+                                 referencedTableSchemaName="ts_batch"/>
+
+        <addForeignKeyConstraint baseColumnNames="job_instance_id"
+                                 baseTableName="batch_job_execution"
+                                 baseTableSchemaName="ts_batch"
+                                 constraintName="job_inst_exec_fk"
+                                 referencedColumnNames="job_instance_id"
+                                 referencedTableName="batch_job_instance"
+                                 referencedTableSchemaName="ts_batch"/>
+
+        <addForeignKeyConstraint baseColumnNames="step_execution_id"
+                                 baseTableName="batch_step_execution_context"
+                                 baseTableSchemaName="ts_batch"
+                                 constraintName="step_exec_ctx_fk"
+                                 referencedColumnNames="step_execution_id"
+                                 referencedTableName="batch_step_execution"
+                                 referencedTableSchemaName="ts_batch"/>
+    </changeSet>
+
+</databaseChangeLog>
