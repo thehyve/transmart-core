@@ -5,4 +5,6 @@ databaseChangeLog:
       file: classpath:db/changelog/changes/00000000000000_i2b2metadata.xml
   - include:
       file: classpath:db/changelog/changes/00000000000000_ts_batch.xml
+  - include:
+      file: classpath:db/changelog/changes/20190617133319_i2b2demodata_change_visit_pk.xml
 relativeToChangelogFile: false

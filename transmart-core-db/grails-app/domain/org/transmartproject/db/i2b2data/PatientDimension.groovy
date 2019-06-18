@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Sex
-import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 class PatientDimension implements Patient {

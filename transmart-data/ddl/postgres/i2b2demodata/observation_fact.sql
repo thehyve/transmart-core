@@ -2,7 +2,7 @@
 -- Name: observation_fact; Type: TABLE; Schema: i2b2demodata; Owner: -
 --
 CREATE TABLE observation_fact (
-    encounter_num numeric(38,0),
+    encounter_num integer,
     patient_num numeric(38,0) NOT NULL,
     concept_cd character varying(50) NOT NULL,
     provider_id character varying(50) NOT NULL,
