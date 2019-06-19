@@ -17,8 +17,6 @@ env:
     - DIR=transmart-rest-api; TEST=check
     - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST=check
     - DIR=transmart-api-server; TEST=check
-    - DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST=check
-    - DIR=transmart-solr-indexing; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-batch:travisProperties :transmart-batch:loadPublicTestStudy"; TEST="check"; START_SOLR=true
     - DIR=transmart-copy; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres"; PREPARE=shadowJar; TEST=check
     - DIR=transmart-schemas; PREPARE=assemble; TEST=check
     - DIR=.; TEST="publishToMavenLocal"
@@ -64,11 +62,6 @@ before_script:
   - pushd "$DIR"
   - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; $GRADLE_SCRIPT $PREPARE)
   - popd
-  - pushd transmart-data
-  - >
-    (( ! [ "$START_SOLR" == "true" ]) && echo "Skipping Solr.") || ($GRADLE_SCRIPT setupSolr; echo "Starting Solr ...";
-    source vars; (make -C solr start > solr.log 2> solr.err &); sleep 10; echo "Solr started.")
-  - popd
 
 script:
   - pushd "$DIR"
@@ -87,11 +80,3 @@ after_failure:
   - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done
   - ([ -d "$DIR/build/reports/tests/functional" ]) && (html2text "$DIR/build/reports/tests/functional/index.html")
   - ([ -d "$DIR/build/reports/tests/functional" ]) && (for f in "$DIR"/build/reports/tests/functional/classes/*.html; do echo "$f"; html2text "$f"; done)
-  - ([ "$START_SOLR" == "true" ]) && (echo "solr.log"; cat transmart-data/solr.log; echo "solr.err"; cat transmart-data/solr.err)
-
-notifications:
-  hipchat:
-    rooms:
-      secure: "rNPPKSL1o8R71YcD7T+jDFTFfSFoXO/YKCubqwP5TXFL+OtqEwZOrkpKSpyN+Ap6Uxk85TBgat8Bur/WkTWXcq6HruyhfKkKea96ZVVSWjZWhKHqqTLvMeABb1uh6JxpXAc/5Cm3K5/yTHBFFiFSyOemuEl88bqeqJjDSzIxvOLrdLhnYWVlo3SJcUwAab0IKab8MpbZUEa6eFB5+MmCQfwjDZBr9Qn7UGfQWQdEp801sHGzU2i58uwF7+RVYhUyZtT9428FmPhxAS2EgW663JpzNQYpVCws02UW8aCgu2SCWWtUKwk3dy/6hSc5UoxWIIKaIpPbre+SA5JYeB7RwIad7N6/eDHdb/ByN1lOP6/pAEzPSnajxJrU/AnohhIwgcPaZ3aHbrqq8RrGPy1sNwFTKvFzBkVu5aWKR7JMgKuBq0LXv4iq1qBJw1s+xK4CHNoOAESZG2a0wo/cmzK+C2OzKdTnjN25RoHwXBOS7AzJtdtqpU8PaESZ0X1BxT19nD3RALiCfS/054SU3mfswhVAdo6rVhHDgGNxqRflgZIVmDsYjBRZ4TR4jDnUhc+s9ILo1eI/imq7tQZ6rFeQrydCu4p2U4LrFAWu7E0QwTbsfnSs5KN7Fah1xhS+6xttOuqbAmPQXEeLKSkk6B9Q7G/R0VHAKdaNkLweA0ZzATM="
-    on_success: never
-    on_failure: always
