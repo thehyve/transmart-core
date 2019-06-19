@@ -136,3 +136,7 @@ subprojects { project ->
     }
 }
 
+task prepareTestDatabase(type: Exec) {
+    commandLine './scripts/prepare_database.sh'
+}
+prepareTestDatabase.dependsOn 'transmart-schemas:assemble'

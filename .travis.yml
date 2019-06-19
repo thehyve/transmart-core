@@ -17,7 +17,7 @@ env:
     - DIR=transmart-rest-api; TEST=check
     - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST=check
     - DIR=transmart-api-server; TEST=check
-    - DIR=transmart-copy; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres"; PREPARE=shadowJar; TEST=check
+    - DIR=transmart-copy; INSTALL=":prepareTestDatabase"; PREPARE=shadowJar; TEST=check
     - DIR=transmart-schemas; PREPARE=assemble; TEST=check
     - DIR=.; TEST="publishToMavenLocal"
 
