@@ -1,6 +1,6 @@
 SUBDIRS := $(wildcard */.)
 
-TRANSMART_COPY_VERSION := 17.1-HYVE-5.7
+TRANSMART_COPY_VERSION := $(shell cat ../VERSION)
 TRANSMART_COPY := transmart-copy-$(TRANSMART_COPY_VERSION).jar
 TRANSMART_COPY_SRC_URL := https://repo.thehyve.nl/content/repositories/releases/org/transmartproject/transmart-copy/$(TRANSMART_COPY_VERSION)/transmart-copy-$(TRANSMART_COPY_VERSION).jar
 
