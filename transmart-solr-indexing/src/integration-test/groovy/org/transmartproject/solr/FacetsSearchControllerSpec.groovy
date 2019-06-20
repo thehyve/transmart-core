@@ -102,9 +102,9 @@ class FacetsSearchControllerSpec extends Specification {
 
         then:
         response.status == 200
-        response.json.numFound == 16
+        response.json.numFound == 15
         that response.json.conceptKeys, instanceOf(JSONArray)
-        response.json.conceptKeys.size() == 16
+        response.json.conceptKeys.size() == 15
     }
 
 }
