@@ -21,8 +21,8 @@ import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
-import org.transmartproject.db.i2b2data.Study as I2B2Study
+import org.transmartproject.db.i2b2data.PatientDimension as I2b2PatientDimension
+import org.transmartproject.db.i2b2data.Study as I2b2Study
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.metadata.DimensionDescription
@@ -581,8 +581,8 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> implements CompositeElemDim<I2B2PatientDimension, Long> {
-    Class elemType = I2B2PatientDimension
+class PatientDimension extends I2b2Dimension<I2b2PatientDimension, Long> implements CompositeElemDim<I2b2PatientDimension, Long> {
+    Class elemType = I2b2PatientDimension
     List elemFields = ["id", "trial", "inTrialId", "subjectIds", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion", "sexCd",
                       new PropertyImpl('sex', 'sex', String) {
@@ -596,7 +596,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
 
     // For patients there are several identifiers. The internal `id` is guaranteed unique.
     @Override def getKey(element) {
-        def patient = (I2B2PatientDimension) element
+        def patient = (I2b2PatientDimension) element
         return patient.id
     }
 
@@ -607,8 +607,8 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     }
 
     @CompileDynamic
-    @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
-        resolveWithInQuery({ -> I2B2PatientDimension.createCriteria() as HibernateCriteriaBuilder }, elementKeys)
+    @Override List<I2b2PatientDimension> doResolveElements(List<Long> elementKeys) {
+        resolveWithInQuery({ -> I2b2PatientDimension.createCriteria() as HibernateCriteriaBuilder }, elementKeys)
     }
 }
 
@@ -640,7 +640,7 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
     String keyProperty = 'id'
-    
+
     @CompileDynamic
     @Override
     List<TrialVisit> doResolveElements(List<Long> elementKeys) {
@@ -671,14 +671,14 @@ class StudyDimension extends I2b2Dimension<MDStudy, String> implements Composite
 
     @CompileDynamic
     @Override List<MDStudy> doResolveElements(List<String> elementKeys) {
-        resolveWithInQuery({ -> I2B2Study.createCriteria() as HibernateCriteriaBuilder}, elementKeys, 'studyId')
+        resolveWithInQuery({ -> I2b2Study.createCriteria() as HibernateCriteriaBuilder}, elementKeys, 'studyId')
     }
     @Override
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
         criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
         criteria.setProjection(Projections.property('trialVisit'))
 
-        def dimensionCriteria = DetachedCriteria.forClass(I2B2Study, 'study')
+        def dimensionCriteria = DetachedCriteria.forClass(I2b2Study, 'study')
         dimensionCriteria.createAlias('trialVisits', 'trialVisits')
         dimensionCriteria.add(Subqueries.propertyIn('trialVisits.id', criteria))
         dimensionCriteria
@@ -721,89 +721,20 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> implements
-        CompositeElemDim<I2b2VisitDimension, VisitKey>, AliasAwareDimension {
+class VisitDimension extends I2b2NullablePKDimension<I2b2VisitDimension, Long> implements CompositeElemDim<I2b2VisitDimension, Long> {
     Class elemType = I2b2VisitDimension
-    List elemFields = ["patientInTrialId", "encounterNum", "activeStatusCd", "startDate", "endDate", "inoutCd",
-                                      "locationCd"]
+    List elemFields = ['id', 'activeStatusCd', 'startDate', 'endDate', 'inoutCd', 'locationCd']
     String name = 'visit'
-    String alias = 'encounterNum'
-    String keyProperty = null
+    String alias = 'visit'
+    String columnName = 'encounterNum'
+    Long nullValue = new Long(-1L)
+    String keyProperty = 'id'
     ImplementationType implementationType = ImplementationType.VISIT
 
-    /**
-     * This must return a unique key of type VisitKey for this dimension
-     * and must be parsed to string during serialisation
-     */
-    @Override
-    def getKey(element) {
-        if (element) {
-            BigDecimal encounterNum = ((I2b2VisitDimension) element).encounterNum
-            Long patientId = (Long) ((I2b2VisitDimension) element).patientId
-            encounterNum == minusOne ? null : new VisitKey(encounterNum, patientId)
-        } else {
-            null
-        }
-    }
-
-    @Override def selectIDs(Query query) {
-        query.criteria.with {
-            if(!query.params.patientSelected) {
-                property 'patient.id', 'patientId'
-                query.params.patientSelected = true
-            }
-            property 'encounterNum', alias
-        }
-    }
-
-    static private BigDecimal minusOne = new BigDecimal(-1)
-
-    @Override VisitKey getElementKey(Map result) {
-        BigDecimal encounterNum = (BigDecimal) getKey(result, alias)
-        encounterNum == minusOne ? null : new VisitKey(encounterNum, (Long) result.patientId)
-    }
-
     @CompileDynamic
-    @Override List<I2b2VisitDimension> doResolveElements(List<VisitKey> elementKeys) {
-        elementKeys.collect { VisitKey key ->
-            if (key) {
-                I2b2VisitDimension.findWhere(encounterNum:  key.encounterNum, 'patient.id': key.patientId)
-            }
-        }
+    @Override List<I2b2VisitDimension> doResolveElements(List<Long> elementKeys) {
+        resolveWithInQuery({ -> I2b2VisitDimension.createCriteria() as HibernateCriteriaBuilder }, elementKeys)
     }
-    
-    @Override
-    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
-        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
-
-        def projection = criteria.projection = Projections.projectionList()
-        ['encounterNum', 'patient'].each {
-            projection.add(Projections.property(it))
-        }
-        def dimensionCriteria = DetachedCriteria.forClass(I2b2VisitDimension, 'visit')
-        dimensionCriteria.add(Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], criteria))
-        dimensionCriteria
-    }
-
-    @Override
-    DetachedCriteria elementCount(DetachedCriteria criteria) {
-        selectDimensionElements(criteria).setProjection(Projections.rowCount())
-    }
-
-    // The same as @Immutable, but @Immutable generates some rather dynamic/inefficient constructors and a toString()
-    // I don't quite like
-    @EqualsAndHashCode
-    static private class VisitKey {
-        final BigDecimal encounterNum
-        final Long patientId
-
-        VisitKey(BigDecimal encounterNum, Long patientId) {
-            this.encounterNum = encounterNum; this.patientId = patientId
-        }
-
-        String toString() { "${encounterNum}/${patientId}".toString() }
-    }
-
 }
 
 @CompileStatic @InheritConstructors

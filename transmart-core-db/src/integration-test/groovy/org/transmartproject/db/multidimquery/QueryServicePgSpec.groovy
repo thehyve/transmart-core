@@ -297,7 +297,6 @@ class QueryServicePgSpec extends Specification {
                         fieldName: 'endDate',
                         type: 'DATE'
                 )
-
         )
         def conceptConstraint = new ConceptConstraint(
                 path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\'
@@ -468,7 +467,7 @@ class QueryServicePgSpec extends Specification {
         visits.size() == expectedResult.size()
         expectedResult.every { expect ->
             visits.any {
-                [expect.patientInTrialId, expect.encounterNum] == [it.patientInTrialId, it.encounterNum]
+                [expect.id] == [it.id]
             }
         }
 

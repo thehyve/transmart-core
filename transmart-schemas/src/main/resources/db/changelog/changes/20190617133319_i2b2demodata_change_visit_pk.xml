@@ -1,0 +1,32 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="gijs@thehyve.nl" id="20190617133319-0">
+        <comment>
+            Change the primary key of the visit_dimension table.
+        </comment>
+        <dropPrimaryKey schemaName="i2b2demodata" tableName="visit_dimension"/>
+        <modifyDataType schemaName="i2b2demodata" tableName="visit_dimension" columnName="encounter_num" newDataType="integer"/>
+        <addAutoIncrement schemaName="i2b2demodata" tableName="visit_dimension" columnName="encounter_num" columnDataType="integer"/>
+        <modifyDataType schemaName="i2b2demodata" tableName="encounter_mapping" columnName="encounter_num" newDataType="integer"/>
+        <addPrimaryKey schemaName="i2b2demodata" tableName="visit_dimension"
+                       constraintName="visit_dimension_pk" columnNames="encounter_num"/>
+        <setColumnRemarks schemaName="i2b2demodata" tableName="visit_dimension" columnName="patient_num"
+                          remarks="Foreign key. Id linking to patient_num in the patient_dimension."/>
+        <addForeignKeyConstraint constraintName="visit_dimension_patient_num_fk"
+                baseTableSchemaName="i2b2demodata" baseTableName="visit_dimension" baseColumnNames="patient_num"
+                referencedTableSchemaName="i2b2demodata" referencedTableName="patient_dimension" referencedColumnNames="patient_num"/>
+        <addForeignKeyConstraint constraintName="visit_encounter_mapping_encounter_num_fk"
+                                 baseTableSchemaName="i2b2demodata" baseTableName="encounter_mapping" baseColumnNames="encounter_num"
+                                 referencedTableSchemaName="i2b2demodata" referencedTableName="visit_dimension" referencedColumnNames="encounter_num"/>
+    </changeSet>
+</databaseChangeLog>

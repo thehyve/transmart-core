@@ -288,7 +288,7 @@ class HypercubeImpl implements Hypercube {
 
             if (!group.containsKey('@')) {
                 throw new IllegalStateException(
-                        'Modifier observations have to be selected together with the corresponding measurement obesrvation (modifierCd = "@")')
+                        'Modifier observations have to be selected together with the corresponding measurement observation (modifierCd = "@")')
             }
 
             Map result = group['@'].toMutable()

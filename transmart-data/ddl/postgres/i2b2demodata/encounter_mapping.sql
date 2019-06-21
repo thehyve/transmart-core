@@ -4,7 +4,7 @@
 CREATE TABLE encounter_mapping (
     encounter_ide character varying(200) NOT NULL,
     encounter_ide_source character varying(50) NOT NULL,
-    encounter_num numeric(38,0) NOT NULL,
+    encounter_num integer NOT NULL,
     patient_ide character varying(200),
     patient_ide_source character varying(50),
     encounter_ide_status character varying(50),
@@ -21,6 +21,11 @@ CREATE TABLE encounter_mapping (
 --
 ALTER TABLE ONLY encounter_mapping
     ADD CONSTRAINT encounter_mapping_pk PRIMARY KEY (encounter_ide, encounter_ide_source);
+
+-- Name: encounter_mapping_encounter_num_fk; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY encounter_mapping
+    ADD CONSTRAINT encounter_mapping_encounter_num_fk FOREIGN KEY (encounter_num) REFERENCES visit_dimension(encounter_num);
 
 --
 -- Name: em_encnum_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
