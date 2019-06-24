@@ -466,13 +466,6 @@ class QueryServicePgSpec extends Specification {
         then: "List of all visits matching the constraints is returned"
         visits.size() == expectedResult.size()
         visits.collect { it.encounterIds['VISIT_ID'] }.sort() == expectedResult.collect { it.encounterIds['VISIT_ID']}.sort()
-
-        //TODO Fix counting elements of visit dimension - find a way to count distinct on two properties
-        // (it does not seem possible in the legacy hibernate criteria api)
-        // when:"I query for visits count"
-        // def locationsCount = multiDimService.getDimensionElementsCount
-        // then: "Number of visits matching the constraints is returned"
-        // locationsCount == Long.valueOf(expectedResult.size())
     }
 
     void "test patient set query"() {
