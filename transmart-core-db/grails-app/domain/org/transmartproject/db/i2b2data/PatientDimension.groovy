@@ -126,8 +126,8 @@ class PatientDimension implements Patient {
     ImmutableMap<String, String> subjectIds = computeSubjectIds()
 
     @CompileStatic
-    private ImmutableMap<String,String> computeSubjectIds () {
-        def builder = ImmutableMap.builder()
+    private ImmutableMap<String, String> computeSubjectIds () {
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder()
         if (mappings != null) for(def mapping : mappings) {
             builder.put(mapping.source, mapping.encryptedId)
         }
