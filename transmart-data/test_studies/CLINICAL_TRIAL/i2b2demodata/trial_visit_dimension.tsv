@@ -1,0 +1,5 @@
+trial_visit_num	study_num	rel_time_unit_cd	rel_time_num	rel_time_label
+0	0			General
+1	0	days	0	Baseline
+2	0	days	7	Week 1
+3	0	days	21	Week 3

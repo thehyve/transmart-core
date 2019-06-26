@@ -1,0 +1,7 @@
+encounter_num	patient_num	concept_cd	provider_id	start_date	modifier_cd	instance_num	valtype_cd	tval_char	nval_num	valueflag_cd	quantity_num	units_cd	end_date	location_cd	observation_blob	confidence_num	update_date	download_date	import_date	sourcesystem_cd	upload_id	sample_cd	trial_visit_num
+-1	0	SCSCP:DEM:AGE	@		@	1	N	E	32	@				@					2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV			0
+-1	0	VSIGN:HR	@		@	1	N	E	82	@				@					2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV			0
+-1	1	SCSCP:DEM:AGE	@		@	1	N	E	37	@				@					2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV			0
+-1	1	VSIGN:HR	@		@	1	N	E	55	@				@					2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV			0
+-1	1	DEMO:POB	@		@	1	T	Place1		@				@					2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV			0
+-1	0	DEMO:POB	@		@	1	T	Place2		@				@					2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV			0

@@ -1,0 +1,5 @@
+concept_cd	concept_path	name_char	table_name	download_date	import_date	update_date	sourcesystem_cd
+CT:DEM	\Public Studies\CLINICAL_TRIAL\Demography\	Demography		2016-11-09 13:44:06	2016-11-09 13:44:06	2016-11-09 13:44:06	CLINICAL_TRIAL
+CT:DEM:AGE	\Public Studies\CLINICAL_TRIAL\Demography\Age\	Age		2016-11-09 13:44:06	2016-11-09 13:44:06	2016-11-09 13:44:06	CLINICAL_TRIAL
+CT:VSIGN	\Public Studies\CLINICAL_TRIAL\Vital Signs\	Vital Signs		2016-11-09 13:44:06	2016-11-09 13:44:06	2016-11-09 13:44:06	CLINICAL_TRIAL
+CT:VSIGN:HR	\Public Studies\CLINICAL_TRIAL\Vital Signs\Heart Rate\	Heart Rate		2016-11-09 13:44:06	2016-11-09 13:44:06	2016-11-09 13:44:06	CLINICAL_TRIAL
