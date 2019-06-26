@@ -7,4 +7,6 @@ databaseChangeLog:
       file: classpath:db/changelog/changes/00000000000000_ts_batch.xml
   - include:
       file: classpath:db/changelog/changes/20190617133319_i2b2demodata_change_visit_pk.xml
+  - include:
+      file: classpath:db/changelog/changes/20190625151656_create_pg_bitcount_extension.xml
 relativeToChangelogFile: false
