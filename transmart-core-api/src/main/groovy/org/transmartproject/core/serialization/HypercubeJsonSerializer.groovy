@@ -1,6 +1,6 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package org.transmartproject.rest.serialization
+package org.transmartproject.core.serialization
 
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
@@ -9,7 +9,6 @@ import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.hypercube.DimensionProperties
-import org.transmartproject.core.multidimquery.hypercube.DimensionType
 import org.transmartproject.core.multidimquery.hypercube.Field
 
 import java.time.Instant

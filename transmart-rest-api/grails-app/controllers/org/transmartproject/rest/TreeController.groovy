@@ -12,7 +12,7 @@ import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.user.AuthContext
-import org.transmartproject.rest.serialization.TreeJsonSerializer
+import org.transmartproject.core.serialization.TreeJsonSerializer
 
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 

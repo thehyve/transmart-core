@@ -20,7 +20,7 @@ import org.transmartproject.core.users.AuthorisationChecks
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.serialization.DimensionElementSerializer
+import org.transmartproject.core.serialization.DimensionElementSerializer
 
 import java.util.stream.Collectors
 

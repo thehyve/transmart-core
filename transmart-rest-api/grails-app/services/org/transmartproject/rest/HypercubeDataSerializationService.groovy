@@ -22,9 +22,9 @@ import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.*
-import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.serialization.HypercubeJsonSerializer
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.User
 import org.transmartproject.db.clinical.AbstractDataResourceService

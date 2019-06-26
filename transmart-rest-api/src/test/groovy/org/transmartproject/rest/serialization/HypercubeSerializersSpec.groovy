@@ -4,6 +4,7 @@ import groovy.json.JsonSlurper
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.hypercube.Dimension
+import org.transmartproject.core.serialization.HypercubeJsonSerializer
 import org.transmartproject.db.util.PeekingIteratorImpl
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import spock.lang.Specification

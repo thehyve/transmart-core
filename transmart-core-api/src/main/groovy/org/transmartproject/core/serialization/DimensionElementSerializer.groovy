@@ -1,4 +1,4 @@
-package org.transmartproject.rest.serialization
+package org.transmartproject.core.serialization
 
 import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic

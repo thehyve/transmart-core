@@ -1,6 +1,7 @@
 package org.transmartproject.rest.serialization
 
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.serialization.TreeJsonSerializer
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.tree.TreeNodeImpl
 import spock.lang.Specification

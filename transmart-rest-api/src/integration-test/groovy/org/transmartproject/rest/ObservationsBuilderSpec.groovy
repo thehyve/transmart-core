@@ -18,7 +18,7 @@ import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
-import org.transmartproject.rest.serialization.HypercubeJsonSerializer
+import org.transmartproject.core.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import spock.lang.Ignore
 import spock.lang.Specification
