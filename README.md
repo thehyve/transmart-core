@@ -17,16 +17,15 @@ For details on contributing code changes via pull requests, [see the Contributin
 
 The platform provides an API, which is available under [transmart-rest-api](transmart-rest-api).
 Its `v1` endpoints are documented there, the `v2` endpoints are documented using Swagger in [open-api](open-api).
-There are two main applications available: [transmart-server](transmart-server) and [transmart-api-server](transmart-api-server), both exposing the API and extended by multiple plugins.
-The OAuth2 authentication of the API for transmart-server is managed by [transmart-oauth](transmart-oauth) plugin, while transmart-api-server uses an external identity provider - [Keycloak](https://www.keycloak.org/).
+The main application is [transmart-api-server](transmart-api-server), exposing the API.
 
-As an user interface for transmart-server there is a frontend application [transmartApp](transmartApp) built as a "web" profiled Grails platform plugin. There is also a modern cohort selector for i2b2 tranSMART named [Glowing Bear](https://github.com/thehyve/glowing-bear) that can used both with transmart-server and transmart-api-server.
+As user interface, the modern cohort selector [Glowing Bear](https://glowingbear.app)
+is available.
 
 The database schema is described in the [data model documentation](docs/data-model.md).
 The schema is created using Liquibase at application startup, when it is configured to do so
 (see [Setup database](docs#2-setup-database)). This is only tested with PostgreSQL.
 The [transmart-copy](transmart-copy) tool can be used to load data into the database.
-
 Legacy database definitions and installation instructions are in [transmart-data](transmart-data),
 tested with both PostgreSQL and Oracle databases.
 A data loading tool based on Spring Batch is available as [transmart-batch](transmart-batch).
