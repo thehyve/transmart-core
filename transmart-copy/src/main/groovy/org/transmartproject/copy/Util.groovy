@@ -20,6 +20,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField
 import java.util.function.Function
 import java.util.stream.Collectors
 
@@ -85,7 +87,17 @@ class Util {
         }
     }
 
-    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss')
+    static final DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder()
+            .appendPattern('yyyy-MM-dd[ HH:mm:ss]')
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+            .optionalStart()
+            .appendPattern(".")
+            .appendFraction(ChronoField.MICRO_OF_SECOND, 1, 6, false)
+            .optionalEnd()
+            .toFormatter()
+
     static final ZoneId UTC = ZoneId.of('UTC')
 
     static final Timestamp parseDate(String value) {
