@@ -1,7 +1,7 @@
 # Generate documentation with Schema Spy
 
 You could use [Schema Spy](http://schemaspy.sourceforge.net/) to generate database documentation from the database.
-To get pictures you have to install [Graphviz](http://www.graphviz.org/Download..php).
+To get pictures you have to install [Graphviz](https://graphviz.org/download).
 
 Below is an examples on how to run Spider Spy for different databases:
 
@@ -151,7 +151,7 @@ Common examples:
 | Column           |           | 16.2   | i2b2 1.7 | 17.1   | Comments                                                                      | 
 |------------------|-----------|--------|----------|--------|-------------------------------------------------------------------------------| 
 | encounter_num    | numeric   | PK, NO | PK, NO   | PK, NO | Id of the visit. Referred to by the encounter_num column of observation_fact. | 
-| patient_num      | numeric   | PK, NO | PK, NO   | PK, NO | Id linking to patient_num in the patient_dimension.                           | 
+| patient_num      | numeric   | PK, NO | PK, NO   | FK, NO | Id linking to patient_num in the patient_dimension.                           | 
 | active_status_cd | varchar   |        |          |        |                                                                               | 
 | start_date       | timestamp |        |          |        | Start date and time of the visit.                                             | 
 | end_date         | timestamp |        |          |        | End date and time of the visit.                                               | 

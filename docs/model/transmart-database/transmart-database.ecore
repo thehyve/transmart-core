@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="transmart">
+  <eSubpackages name="i2b2metadata">
+    <eClassifiers xsi:type="ecore:EClass" name="dimension_description">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"
+          iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="modifier_code" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="value_type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="study_dimension_description">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="study_id" lowerBound="1"
+          eType="#//i2b2demodata/study"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="dimension_description_id"
+          lowerBound="1" eType="#//i2b2metadata/dimension_description"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="i2b2_secure">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_hlevel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_fullname" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_visualattributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_basecode" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_facttablecolumn" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_tablename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_columnname" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_columndatatype" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_operator" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_dimcode" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="secure_obj_token" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+  </eSubpackages>
+  <eSubpackages name="i2b2demodata">
+    <eClassifiers xsi:type="ecore:EClass" name="concept_dimension">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="concept_cd" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="concept_path" unique="false"
+          lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+          iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name_char" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="study">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="study_num" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"
+          iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="study_id" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="secure_obj_token" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+          defaultValueLiteral="PUBLIC"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="trial_visit_dimension">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="trial_visit_num" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"
+          iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="study_num" lowerBound="1"
+          eType="#//i2b2demodata/study"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="rel_time_unit_cd" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="rel_time_num" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="rel_time_label" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="patient_mapping">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="patient_ide" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="patient_ide_source" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="patient_num" lowerBound="1"
+          eType="#//i2b2demodata/patient_dimension"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="patient_dimension">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="patient_num" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"
+          iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="sex_cd" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="visit_dimension">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="encounter_num" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"
+          iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="patient_num" lowerBound="1"
+          eType="#//i2b2demodata/patient_dimension"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="active_status_cd" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="start_date" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="end_date" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="inout_cd" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="location_cd" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="location_path" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="length_of_stay" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELongObject"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="visit_blob" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="observation_fact">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="encounter_num" eType="#//i2b2demodata/visit_dimension"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="patient_num" lowerBound="1"
+          eType="#//i2b2demodata/patient_dimension"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="concept_cd" lowerBound="1"
+          eType="#//i2b2demodata/concept_dimension"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="provider_id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="start_date" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="modifier_cd" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="instance_num" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="trial_visit_num" eType="#//i2b2demodata/trial_visit_dimension"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="end_date" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="valtype_cd" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="tval_char" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="nval_num" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EFloatObject"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="observation_blob" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="encounter_mapping">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="encounter_ide" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="encounter_ide_source"
+          lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="encounter_num" lowerBound="1"
+          eType="#//i2b2demodata/visit_dimension"/>
+    </eClassifiers>
+  </eSubpackages>
+</ecore:EPackage>
