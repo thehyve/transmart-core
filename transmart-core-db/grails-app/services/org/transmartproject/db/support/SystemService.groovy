@@ -7,6 +7,7 @@ import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.core.config.CompletionStatus
 import org.transmartproject.core.config.RuntimeConfig
 import org.transmartproject.core.config.SystemResource
@@ -46,6 +47,9 @@ class SystemService implements SystemResource {
     )
 
     private final ModelMapper modelMapper = new ModelMapper()
+
+    @Value('${keycloakOffline.offlineToken:}')
+    private String offlineToken
 
     @Autowired
     AggregateDataService aggregateDataService
@@ -122,16 +126,31 @@ class SystemService implements SystemResource {
         trialVisitsService.clearCache()
     }
 
+    // update tasks keys
+    static final String CLEAR_CACHES_TASK_KEY = 'clear caches'
+    static final String REFRESH_MATERIALIZED_VIEW_TASK_KEY = 'refresh study concept bitset materialized view'
+    static final String SCAN_TASK_KEY = 'user query set scan'
+    static final String REBUILD_CACHES_TASK_KEY = 'rebuild caches'
+
     Map<String, Runnable> updateTasks = [
-            'clear caches': { ->
+            (CLEAR_CACHES_TASK_KEY)             : { ->
                 clearCaches() } as Runnable,
-            'refresh study concept bitset materialized view': { ->
+            (REFRESH_MATERIALIZED_VIEW_TASK_KEY): { ->
                 aggregateDataOptimisationsService.clearPatientSetBitset() } as Runnable,
-            'user query set scan': { ->
+            (SCAN_TASK_KEY)                     : { ->
                 userQuerySetResource.scan() } as Runnable,
-            'rebuild caches': { ->
+            (REBUILD_CACHES_TASK_KEY)           : { ->
                 rebuildCacheTask() } as Runnable
     ]
+
+    private Map<String, Runnable> getAvailableUpdateTasks() {
+        if (offlineToken?.trim()) {
+            return updateTasks
+        } else {
+            log.warn "Offline token not configured. $SCAN_TASK_KEY and $REBUILD_CACHES_TASK_KEY are skipped."
+            return updateTasks.subMap([CLEAR_CACHES_TASK_KEY, REFRESH_MATERIALIZED_VIEW_TASK_KEY])
+        }
+    }
 
     void updateAfterDataLoadingTask() {
         def session = null
@@ -140,7 +159,7 @@ class SystemService implements SystemResource {
             session = sessionFactory.openSession()
             changeUpdateStatus(CompletionStatus.RUNNING)
             // Execute tasks
-            for (Map.Entry<String, Runnable> task: updateTasks.entrySet()) {
+            for (Map.Entry<String, Runnable> task: getAvailableUpdateTasks().entrySet()) {
                 synchronized (updateStatusLock) {
                     updateStatus.tasks[task.key] = CompletionStatus.RUNNING
                     updateStatus.updateDate = new Date()
@@ -180,7 +199,7 @@ class SystemService implements SystemResource {
         synchronized (updateStatusLock) {
             def now = new Date()
             def tasks = [:] as Map<String, CompletionStatus>
-            for (String taskName: updateTasks.keySet()) {
+            for (String taskName: getAvailableUpdateTasks().keySet()) {
                 tasks[taskName] = CompletionStatus.CREATED
             }
             updateStatus = new UpdateStatus(CompletionStatus.CREATED, tasks, now, now, null)
@@ -205,15 +224,13 @@ class SystemService implements SystemResource {
         }
     }
 
-    static final String REBUILD_CACHES_KEY = 'rebuild caches'
-
     void rebuildCacheTask() {
         def session = null
         try {
             session = sessionFactory.openSession()
             changeUpdateStatus(CompletionStatus.RUNNING)
             synchronized (updateStatusLock) {
-                updateStatus.tasks[REBUILD_CACHES_KEY] = CompletionStatus.RUNNING
+                updateStatus.tasks[REBUILD_CACHES_TASK_KEY] = CompletionStatus.RUNNING
                 updateStatus.updateDate = new Date()
             }
             def stopWatch = new StopWatch('Rebuild cache')
@@ -247,7 +264,7 @@ class SystemService implements SystemResource {
             }
             log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
             synchronized (updateStatusLock) {
-                updateStatus.tasks[REBUILD_CACHES_KEY] = CompletionStatus.COMPLETED
+                updateStatus.tasks[REBUILD_CACHES_TASK_KEY] = CompletionStatus.COMPLETED
                 updateStatus.updateDate = new Date()
             }
             changeUpdateStatus(CompletionStatus.COMPLETED)
@@ -282,7 +299,7 @@ class SystemService implements SystemResource {
         synchronized (updateStatusLock) {
             def now = new Date()
             def tasks = [
-                    (REBUILD_CACHES_KEY): CompletionStatus.CREATED
+                    (REBUILD_CACHES_TASK_KEY): CompletionStatus.CREATED
             ] as Map<String, CompletionStatus>
             updateStatus = new UpdateStatus(CompletionStatus.CREATED, tasks, now, now, null)
         }
