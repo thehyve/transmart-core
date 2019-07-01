@@ -2913,8 +2913,10 @@ paths:
     get:
       description: |
         This endpoint should be called after loading, deleting or updating data in the database.
-        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches. Rebuilds the tree node cache per user.
-        Refreshes the bitsets materialized view. Updates data for subscribed user queries.
+        It does different cache levels recalculations. Clears tree nodes, counts and patient set ids caches.
+        Refreshes the bitsets materialized view.
+        If the offline token is configured, it also rebuilds the tree node cache per user
+        and updates data for subscribed user queries.
         Only for administrators.
       tags:
         - v2
