@@ -1,0 +1,5 @@
+Filename	Category Code	Column Number	Data Label	Data Label Source	Control Vocab Cd	Concept Type
+Nanostring_Sample_Annotation.txt		1	SUBJ_ID			
+Nanostring_Sample_Annotation.txt	NanoString	2	Sample Annotation			
+subjects.tsv		1	SUBJ_ID			
+subjects.tsv	Subjects	2	Subject ID			

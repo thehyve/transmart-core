@@ -30,9 +30,9 @@ class ObservationFactStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step insertPseudoFacts(ItemStreamReader<ClinicalFactsRowSet> dummyFactGenerator,
-                          ObservationFactTableWriter observationFactTableWriter) {
-        steps.get('writePseudoFactsStep')
+    Step insertHighDimFacts(ItemStreamReader<ClinicalFactsRowSet> dummyFactGenerator,
+                           ObservationFactTableWriter observationFactTableWriter) {
+        steps.get('writeHighDimFactsStep')
                 .chunk(WRITE_ASSAY_CHUNK_SIZE)
                 .reader(dummyFactGenerator)
                 .writer(observationFactTableWriter)
