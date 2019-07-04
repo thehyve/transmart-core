@@ -1,13 +1,13 @@
 FROM openjdk:8-jre-alpine
 LABEL maintainer="luk.zim91@gmail.com" \
       service="transmart-api-server" \
-      version="17.1-HYVE-5.9-RC3" \
+      version="17.1-HYVE-5.9" \
       description="This is the Docker image of the tranSMART API server"
 
 # The port is configured in the docker-entrypoint.sh when writing the config.yml
 EXPOSE 8081
 
-ENV TRANSMART_VERSION "17.1-HYVE-5.9-RC3"
+ENV TRANSMART_VERSION "17.1-HYVE-5.9"
 ENV TRANSMART_USER_NAME transmart
 ENV TRANSMART_GROUP_NAME "${TRANSMART_USER_NAME}"
 ENV TRANSMART_USER_HOME "/home/${TRANSMART_USER_NAME}"
@@ -32,6 +32,9 @@ RUN  addgroup -S "${TRANSMART_GROUP_NAME}" && \
      wget "${TRANSMART_API_SERVER_WAR_URL}" -O "${TRANSMART_SERVICE_WAR_FILE}" && \
      chown    "${TRANSMART_USER_NAME}:${TRANSMART_GROUP_NAME}" /opt/docker-entrypoint.sh && \
      chmod u+x /opt/docker-entrypoint.sh && \
+     chown "${TRANSMART_USER_NAME}" /etc/ssl/certs/java/cacerts && \
+     chown "${TRANSMART_USER_NAME}" /etc/ssl/certs/java && \
+     chmod 644 /etc/ssl/certs/java/cacerts && \
      rm -rf /tmp/* /var/tmp/* && sync
 
 # Set environment for runtime
