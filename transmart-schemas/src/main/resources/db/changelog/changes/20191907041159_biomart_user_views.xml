@@ -1,0 +1,95 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2019  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="artur@thehyve.nl" id="20191907041159-0">
+        <sql endDelimiter=";">
+            create schema biomart_user
+        </sql>
+    </changeSet>
+    <changeSet author="artur@thehyve.nl" id="20191907041159-1" dbms="PostgreSQL">
+        <preConditions onFail="WARN">
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM pg_extension WHERE extname='pg_bitcount'
+            </sqlCheck>
+        </preConditions>
+        <createView fullDefinition="false" viewName="patient_num_boundaries" schemaName="biomart_user">
+            SELECT Min(patient_dimension.patient_num) AS min_patient_num,
+                   Max(patient_dimension.patient_num) AS max_patient_num,
+                   ( ( Max(patient_dimension.patient_num) - Min(
+                       patient_dimension.patient_num) ) +
+                     (
+                       1 ) :: NUMERIC )               AS diameter
+            FROM   i2b2demodata.patient_dimension;
+        </createView>
+        <comment>
+            Materialized views are not supported yet by liquibase
+        </comment>
+        <sql endDelimiter=";">
+            CREATE MATERIALIZED VIEW biomart_user.study_concept_bitset AS
+            SELECT   s.study_id,
+                     o.concept_cd,
+                     Pg_int_to_bit_agg((o.patient_num - patient_num_boundaries.min_patient_num)::INTEGER, patient_num_boundaries.diameter::INTEGER) AS patient_set_bits
+            FROM     biomart_user.patient_num_boundaries,
+                     i2b2demodata.observation_fact o
+            JOIN     i2b2demodata.trial_visit_dimension tv
+            ON       o.trial_visit_num = tv.trial_visit_num
+            JOIN     i2b2demodata.study s
+            ON       s.study_num = tv.study_num
+            WHERE    o.modifier_cd::text = '@'::text
+            GROUP BY s.study_id,
+                     o.concept_cd
+        </sql>
+        <createView fullDefinition="false" viewName="patient_set_bitset" schemaName="biomart_user">
+            SELECT qri.result_instance_id,
+                   public.Pg_int_to_bit_agg((( collection.patient_num -
+                   patient_num_boundaries.min_patient_num )) :: INTEGER, (
+                   patient_num_boundaries.diameter ) :: INTEGER) AS patient_set
+            FROM   biomart_user.patient_num_boundaries,
+                   (i2b2demodata.qt_query_result_instance qri
+                    LEFT JOIN i2b2demodata.qt_patient_set_collection collection
+                           ON (( collection.result_instance_id = qri.result_instance_id )))
+            GROUP  BY qri.result_instance_id;
+        </createView>
+        <createView fullDefinition="false" viewName="study_concept_patient_set_bitset" schemaName="biomart_user">
+            SELECT psb.result_instance_id,
+                   scs.study_id,
+                   scs.concept_cd,
+                   public.pg_bitcount((scs.patient_set_bits
+                   &amp;psb.patient_set)) AS patient_count FROM biomart_user.study_concept_bitset scs,
+                   biomart_user.patient_set_bitset psb;
+        </createView>
+        <createView fullDefinition="false" viewName="concept_patient_set_bitset" schemaName="biomart_user">
+            WITH concept_bitset AS
+            (
+                     SELECT   study_concept_bitset.concept_cd,
+                              Bit_or(study_concept_bitset.patient_set_bits) AS patient_set_bits
+                     FROM     biomart_user.study_concept_bitset
+                     GROUP BY study_concept_bitset.concept_cd )
+            SELECT psb.result_instance_id,
+                   cb.concept_cd,
+                   public.pg_bitcount((cb.patient_set_bits
+                   &amp;psb.patient_set)) AS patient_count FROM concept_bitset cb,
+                   biomart_user.patient_set_bitset psb;
+        </createView>
+        <createView fullDefinition="false" viewName="study_patient_set_bitset" schemaName="biomart_user">
+            WITH study_bitset AS
+            (
+                     SELECT   study_concept_bitset.study_id,
+                              Bit_or(study_concept_bitset.patient_set_bits) AS patient_set_bits
+                     FROM     biomart_user.study_concept_bitset
+                     GROUP BY study_concept_bitset.study_id )
+            SELECT psb.result_instance_id,
+                   sb.study_id,
+                   public.pg_bitcount((sb.patient_set_bits
+                   &amp;psb.patient_set)) AS patient_count FROM study_bitset sb,
+                   biomart_user.patient_set_bitset psb;
+        </createView>
+    </changeSet>
+</databaseChangeLog>
