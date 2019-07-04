@@ -6,17 +6,10 @@
   -->
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <changeSet author="artur@thehyve.nl" id="20191907041159-0">
-        <createView fullDefinition="false" viewName="concept_patient_set_bitset"> WITH concept_bitset AS (
-         SELECT study_concept_bitset.concept_cd,
-            bit_or(study_concept_bitset.patient_set_bits) AS patient_set_bits
-           FROM study_concept_bitset
-          GROUP BY study_concept_bitset.concept_cd
-        )
- SELECT psb.result_instance_id,
-    cb.concept_cd,
-    public.pg_bitcount((cb.patient_set_bits &amp; psb.patient_set)) AS patient_count
-   FROM concept_bitset cb,
-    patient_set_bitset psb;</createView>
+        <createView fullDefinition="false" viewName="patient_num_boundaries"> SELECT min(patient_dimension.patient_num) AS min_patient_num,
+    max(patient_dimension.patient_num) AS max_patient_num,
+    ((max(patient_dimension.patient_num) - min(patient_dimension.patient_num)) + (1)::numeric) AS diameter
+   FROM i2b2demodata.patient_dimension;</createView>
     </changeSet>
     <changeSet author="artur@thehyve.nl" id="20191907041159-1">
         <createView fullDefinition="false" viewName="patient_set_bitset"> SELECT qri.result_instance_id,
