@@ -5,6 +5,12 @@
   ~  (see accompanying file LICENSE).
   -->
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <preConditions onFail="WARN">
+        <dbms type="PostgreSQL"
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM pg_available_extensions WHERE name='pg_bitcount'
+            </sqlCheck>
+    </preConditions>
     <changeSet author="artur@thehyve.nl" id="20191907041159-0">
         <createView fullDefinition="false" viewName="patient_num_boundaries"> SELECT min(patient_dimension.patient_num) AS min_patient_num,
     max(patient_dimension.patient_num) AS max_patient_num,
