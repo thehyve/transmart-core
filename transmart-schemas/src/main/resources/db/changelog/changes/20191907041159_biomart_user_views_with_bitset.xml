@@ -47,7 +47,20 @@
    FROM study_concept_bitset scs,
     patient_set_bitset psb;</createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907041159-3">
+    <changeSet author="artur@thehyve.nl" id="20191907041159-4">
+        <createView fullDefinition="false" viewName="concept_patient_set_bitset"> WITH concept_bitset AS (
+         SELECT study_concept_bitset.concept_cd,
+            bit_or(study_concept_bitset.patient_set_bits) AS patient_set_bits
+           FROM study_concept_bitset
+          GROUP BY study_concept_bitset.concept_cd
+        )
+ SELECT psb.result_instance_id,
+    cb.concept_cd,
+    public.pg_bitcount((cb.patient_set_bits &amp; psb.patient_set)) AS patient_count
+   FROM concept_bitset cb,
+    patient_set_bitset psb;</createView>
+    </changeSet>
+    <changeSet author="artur@thehyve.nl" id="20191907041159-5">
         <createView fullDefinition="false" viewName="study_patient_set_bitset"> WITH study_bitset AS (
          SELECT study_concept_bitset.study_id,
             bit_or(study_concept_bitset.patient_set_bits) AS patient_set_bits
