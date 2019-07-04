@@ -39,7 +39,7 @@
      LEFT JOIN i2b2demodata.qt_patient_set_collection collection ON ((collection.result_instance_id = qri.result_instance_id)))
   GROUP BY qri.result_instance_id;</createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907041159-2">
+    <changeSet author="artur@thehyve.nl" id="20191907041159-3">
         <createView fullDefinition="false" viewName="study_concept_patient_set_bitset"> SELECT psb.result_instance_id,
     scs.study_id,
     scs.concept_cd,
