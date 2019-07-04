@@ -12,6 +12,26 @@
    FROM i2b2demodata.patient_dimension;</createView>
     </changeSet>
     <changeSet author="artur@thehyve.nl" id="20191907041159-1">
+        <comment>
+            Materialized views are not supported yet by liquibase
+        </comment>
+        <sql endDelimiter=";">
+            CREATE MATERIALIZED VIEW study_concept_bitset
+            TABLESPACE pg_default
+            AS
+             SELECT s.study_id,
+                o.concept_cd,
+                pg_int_to_bit_agg((o.patient_num - patient_num_boundaries.min_patient_num)::integer, patient_num_boundaries.diameter::integer) AS patient_set_bits
+               FROM patient_num_boundaries,
+                i2b2demodata.observation_fact o
+                 JOIN i2b2demodata.trial_visit_dimension tv ON o.trial_visit_num = tv.trial_visit_num
+                 JOIN i2b2demodata.study s ON s.study_num = tv.study_num
+              WHERE o.modifier_cd::text = '@'::text
+              GROUP BY s.study_id, o.concept_cd
+            WITH DATA
+        </sql>
+    </changeSet>
+    <changeSet author="artur@thehyve.nl" id="20191907041159-2">
         <createView fullDefinition="false" viewName="patient_set_bitset"> SELECT qri.result_instance_id,
     public.pg_int_to_bit_agg(((collection.patient_num - patient_num_boundaries.min_patient_num))::integer, (patient_num_boundaries.diameter)::integer) AS patient_set
    FROM patient_num_boundaries,
