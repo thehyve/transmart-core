@@ -33,8 +33,6 @@
             GROUP BY s.study_id,
                      o.concept_cd WITH DATA
         </sql>
-    </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-1" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="patient_set_bitset" schemaName="biomart_user">
             SELECT qri.result_instance_id,
                    public.Pg_int_to_bit_agg((( collection.patient_num -
@@ -47,7 +45,7 @@
             GROUP  BY qri.result_instance_id;
         </createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-2" dbms="PostgreSQL">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-1" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="study_concept_patient_set_bitset" schemaName="biomart_user">
             SELECT psb.result_instance_id,
                    scs.study_id,
@@ -56,8 +54,6 @@
                    &amp;psb.patient_set)) AS patient_count FROM biomart_user.study_concept_bitset scs,
                    biomart_user.patient_set_bitset psb;
         </createView>
-    </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-3" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="concept_patient_set_bitset" schemaName="biomart_user">
             WITH concept_bitset AS
             (
@@ -71,8 +67,6 @@
                    &amp;psb.patient_set)) AS patient_count FROM concept_bitset cb,
                    biomart_user.patient_set_bitset psb;
         </createView>
-    </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-4" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="study_patient_set_bitset" schemaName="biomart_user">
             WITH study_bitset AS
             (
