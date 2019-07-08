@@ -11,7 +11,7 @@
     <preConditions onFail="WARN">
         <dbms type="PostgreSQL" />
         <sqlCheck expectedResult="1">
-            SELECT count(*) FROM pg_available_extensions WHERE name='pg_bitcount'
+            SELECT count(*) FROM pg_extensions WHERE name='pg_bitcount'
         </sqlCheck>
     </preConditions>
     <changeSet author="artur@thehyve.nl" id="20191907041159-0">
