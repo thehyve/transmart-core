@@ -34,7 +34,7 @@
                      o.concept_cd WITH DATA
         </sql>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907041159-3">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-1">
         <createView fullDefinition="false" viewName="patient_set_bitset" schemaName="biomart_user">
             SELECT qri.result_instance_id,
                    public.Pg_int_to_bit_agg((( collection.patient_num -
@@ -47,7 +47,7 @@
             GROUP  BY qri.result_instance_id;
         </createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907041159-4">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-2">
         <createView fullDefinition="false" viewName="study_concept_patient_set_bitset" schemaName="biomart_user">
             SELECT psb.result_instance_id,
                    scs.study_id,
@@ -57,7 +57,7 @@
                    biomart_user.patient_set_bitset psb;
         </createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907041159-5">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-3">
         <createView fullDefinition="false" viewName="concept_patient_set_bitset" schemaName="biomart_user">
             WITH concept_bitset AS
             (
@@ -72,7 +72,7 @@
                    biomart_user.patient_set_bitset psb;
         </createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907041159-6">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-4">
         <createView fullDefinition="false" viewName="study_patient_set_bitset" schemaName="biomart_user">
             WITH study_bitset AS
             (
