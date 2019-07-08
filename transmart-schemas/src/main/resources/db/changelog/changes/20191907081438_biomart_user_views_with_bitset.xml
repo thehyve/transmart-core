@@ -19,7 +19,7 @@
             Materialized views are not supported yet by liquibase
         </comment>
         <sql endDelimiter=";">
-            CREATE MATERIALIZED VIEW biomart_user.study_concept_bitset TABLESPACE pg_default AS
+            CREATE MATERIALIZED VIEW biomart_user.study_concept_bitset AS
             SELECT   s.study_id,
                      o.concept_cd,
                      Pg_int_to_bit_agg((o.patient_num - patient_num_boundaries.min_patient_num)::INTEGER, patient_num_boundaries.diameter::INTEGER) AS patient_set_bits
@@ -31,7 +31,7 @@
             ON       s.study_num = tv.study_num
             WHERE    o.modifier_cd::text = '@'::text
             GROUP BY s.study_id,
-                     o.concept_cd WITH DATA
+                     o.concept_cd
         </sql>
         <createView fullDefinition="false" viewName="patient_set_bitset" schemaName="biomart_user">
             SELECT qri.result_instance_id,
