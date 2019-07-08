@@ -15,9 +15,6 @@
         </sqlCheck>
     </preConditions>
     <changeSet author="artur@thehyve.nl" id="20191907041159-0">
-        <comment>
-            create biomart_user schema
-        </comment>
         <sql endDelimiter=";">
             create schema biomart_user
         </sql>
