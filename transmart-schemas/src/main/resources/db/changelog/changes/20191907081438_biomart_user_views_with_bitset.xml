@@ -9,12 +9,11 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <preConditions onFail="WARN">
-        <dbms type="PostgreSQL" />
         <sqlCheck expectedResult="1">
             SELECT count(*) FROM pg_extension WHERE extname='pg_bitcount'
         </sqlCheck>
     </preConditions>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-0">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-0" dbms="PostgreSQL">
         <comment>
             Materialized views are not supported yet by liquibase
         </comment>
@@ -34,7 +33,7 @@
                      o.concept_cd WITH DATA
         </sql>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-1">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-1" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="patient_set_bitset" schemaName="biomart_user">
             SELECT qri.result_instance_id,
                    public.Pg_int_to_bit_agg((( collection.patient_num -
@@ -47,7 +46,7 @@
             GROUP  BY qri.result_instance_id;
         </createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-2">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-2" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="study_concept_patient_set_bitset" schemaName="biomart_user">
             SELECT psb.result_instance_id,
                    scs.study_id,
@@ -57,7 +56,7 @@
                    biomart_user.patient_set_bitset psb;
         </createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-3">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-3" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="concept_patient_set_bitset" schemaName="biomart_user">
             WITH concept_bitset AS
             (
@@ -72,7 +71,7 @@
                    biomart_user.patient_set_bitset psb;
         </createView>
     </changeSet>
-    <changeSet author="artur@thehyve.nl" id="20191907081438-4">
+    <changeSet author="artur@thehyve.nl" id="20191907081438-4" dbms="PostgreSQL">
         <createView fullDefinition="false" viewName="study_patient_set_bitset" schemaName="biomart_user">
             WITH study_bitset AS
             (
