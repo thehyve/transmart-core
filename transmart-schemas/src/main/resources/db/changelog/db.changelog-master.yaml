@@ -10,5 +10,7 @@ databaseChangeLog:
   - include:
       file: classpath:db/changelog/changes/20190625151656_create_pg_bitcount_extension.xml
   - include:
-      file: classpath:db/changelog/changes/20191907041159_biomart_user_views_with_bitset.xml
+      file: classpath:db/changelog/changes/20191907041159_biomart_user_views.xml
+  - include:
+      file: classpath:db/changelog/changes/20191907081438_biomart_user_views_with_bitset.xml
 relativeToChangelogFile: false
