@@ -45,8 +45,8 @@ import static org.transmartproject.core.multidimquery.hypercube.Dimension.Packab
 
 class ClinicalTestData {
 
-    public static final BigDecimal DUMMY_ENCOUNTER_ID = -1
-    public static final long DUMMY_INSTANCE_ID = 1
+    public static final long DUMMY_ENCOUNTER_ID = -1L
+    public static final long DUMMY_INSTANCE_ID = 1L
 
     Study                   defaultStudy
     TrialVisit              defaultTrialVisit
@@ -117,6 +117,7 @@ class ClinicalTestData {
         ]
 
         def visits = createTestVisit(3, patients[2], sdf.parse('2016-10-17 10:00:00'), sdf.parse('2016-10-27 10:00:00')) + createTestVisit(3, patients[1], sdf.parse('2016-11-09 10:30:00'), sdf.parse('2016-12-27 10:00:00'))
+        visits*.save()
 
         def defaultStudy = StudyTestData.createDefaultTabularStudy()
         def trialVisit = new TrialVisit(study: defaultStudy, relTimeUnit: 'week', relTime: 3, relTimeLabel: '3 weeks')
@@ -231,7 +232,7 @@ class ClinicalTestData {
 
     static ObservationFact createObservationFact(ConceptDimension concept,
                                                  PatientDimension patient,
-                                                 BigDecimal encounterId,
+                                                 Long encounterId,
                                                  Object value,
                                                  TrialVisit trialVisit) {
 
@@ -249,7 +250,7 @@ class ClinicalTestData {
 
         def value = args.remove('value')
         def tv = args.remove('trialVisit') as TrialVisit
-        
+
         def of = new ObservationFact(args)
 
         tv.addToObservationFacts(of)
@@ -265,16 +266,16 @@ class ClinicalTestData {
 
         of
     }
-    
+
     static ObservationFact createObservationFact(String conceptCode,
                                                  PatientDimension patient,
-                                                 BigDecimal encounterId,
+                                                 long encounterId,
                                                  Object value,
                                                  long instanceNum = DUMMY_INSTANCE_ID,
                                                  TrialVisit trialVisit){
 
         def of = new ObservationFact(
-                encounterNum: encounterId as BigDecimal,
+                encounterNum: encounterId,
                 providerId: 'fakeProviderId',
                 modifierCd: '@',
                 patient: patient,
@@ -370,15 +371,15 @@ class ClinicalTestData {
         long encounterNum = -200
         def list1 = concepts[0..1].collect { ConceptDimension concept ->
             patients.collect { PatientDimension patient ->
-                createObservationFact(concept.conceptCode, patient, --encounterNum as BigDecimal,
+                createObservationFact(concept.conceptCode, patient, --encounterNum,
                         "value for $concept.conceptCode/$patient.id", DUMMY_INSTANCE_ID, trialVisit)
             }
         }.inject([], { accum, factList -> accum + factList })
 
         list1 + [
                 // missing fact for patients[0]
-                createObservationFact(concepts[2].conceptCode, patients[1], --encounterNum as BigDecimal, '', DUMMY_INSTANCE_ID, trialVisit), //empty value
-                createObservationFact(concepts[2].conceptCode, patients[2], --encounterNum as BigDecimal, -45.42, DUMMY_INSTANCE_ID, trialVisit) //numeric value
+                createObservationFact(concepts[2].conceptCode, patients[1], --encounterNum, '', DUMMY_INSTANCE_ID, trialVisit), //empty value
+                createObservationFact(concepts[2].conceptCode, patients[2], --encounterNum, -45.42, DUMMY_INSTANCE_ID, trialVisit) //numeric value
         ]
     }
 
@@ -435,7 +436,7 @@ class ClinicalTestData {
                                                 List<String> locations, List<String> providers){
         def ehrFacts = []
         for (int i = 0; i < visits.size(); i++) {
-            ehrFacts << createObservationFact(concept.conceptCode, visits[i].patient, visits[i].encounterNum, -45.42,
+            ehrFacts << createObservationFact(concept.conceptCode, visits[i].patient, visits[i].id, -45.42,
                     DUMMY_INSTANCE_ID, createTrialVisit('default', 0, null, study))
         }
         extendObservationFactList(ehrFacts, startDates, endDates, locations, providers)
@@ -460,11 +461,11 @@ class ClinicalTestData {
         def instanceNum = 1
         visits.each { visit -> trialVisits.each { tv ->
             factList << createObservationFact(
-                    conceptCode: concept[0].conceptCode, 
-                    patient: visit.patient, 
-                    encounterNum: visit.encounterNum, 
+                    conceptCode: concept[0].conceptCode,
+                    patient: visit.patient,
+                    encounterNum: visit.id,
                     value: val++,
-                    instanceNum: instanceNum++, 
+                    instanceNum: instanceNum++,
                     trialVisit: tv,
                     startDate: istartDates.peek(),
                     endDate: iendDates.peek(),
@@ -474,7 +475,7 @@ class ClinicalTestData {
             factList << createObservationFact(
                     conceptCode: concept[1].conceptCode,
                     patient: visit.patient,
-                    encounterNum: visit.encounterNum,
+                    encounterNum: visit.id,
                     value: "measurement ${val++}",
                     instanceNum: instanceNum++,
                     trialVisit: tv,
@@ -502,7 +503,6 @@ class ClinicalTestData {
         (1..n).collect { int i ->
             def visit = new VisitDimension(
                     patient: patient,
-                    encounterNum: (DUMMY_ENCOUNTER_ID + (i +1)).setScale(2, RoundingMode.HALF_EVEN),
                     startDate: startDate + (10*i),
                     endDate: endDate + (10*i),
             )

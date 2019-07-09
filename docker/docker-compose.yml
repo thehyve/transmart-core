@@ -16,7 +16,7 @@ services:
 
   transmart-api-server:
     container_name: transmart-api-server
-    image: thehyve/transmart-api-server:17.1-HYVE-5.9
+    image: thehyve/transmart-api-server:17.1-HYVE-6
     ports:
       - 9081:8081
     environment:
@@ -26,6 +26,8 @@ services:
       PGHOST: transmart-database
       PGPORT: 5432
       PGDATABASE: transmart
+    volumes:
+      - ./extra_certs.pem:/home/transmart/extra_certs.pem
     depends_on:
       - transmart-database
     networks:

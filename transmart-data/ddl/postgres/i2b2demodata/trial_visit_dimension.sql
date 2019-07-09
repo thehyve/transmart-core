@@ -31,7 +31,7 @@ ALTER TABLE ONLY trial_visit_dimension
     ADD CONSTRAINT trial_visit_dimension_pk PRIMARY KEY (trial_visit_num);
 
 --
--- Name: trial_visit_dimension_study_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
+-- Name: trial_visit_dimension_study_fk; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY trial_visit_dimension
 ADD CONSTRAINT trial_visit_dimension_study_fk FOREIGN KEY (study_num) REFERENCES study(study_num);

@@ -88,10 +88,19 @@ task setupPostgres << {
     make('postgres')
 }
 
+task copyTransmartCopy(type: Copy) {
+    from '../transmart-copy/build/libs'
+    include '*.jar'
+    into 'test_studies'
+}
+copyTransmartCopy.dependsOn ':transmart-copy:shadowJar'
+
 task setupPostgresTest << {
     sudo_make('-C env /var/lib/postgresql/tablespaces')
     make('postgres_test')
 }
+setupPostgresTest.dependsOn 'createVersionFile'
+setupPostgresTest.dependsOn 'copyTransmartCopy'
 
 task setupOracle << {
     make('oracle')

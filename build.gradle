@@ -12,7 +12,7 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
         maven { url 'https://repo.grails.org/grails/core' }
         maven { url 'https://dl.bintray.com/grails/plugins' }
-        maven { url 'https://repo.transmartfoundation.org/content/repositories/public' }
+        // maven { url 'https://repo.transmartfoundation.org/content/repositories/public' }
         maven { url 'https://repo.thehyve.nl/content/repositories/public' }
     }
     dependencies {
@@ -37,7 +37,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.owasp.dependencycheck'
 
 ext {
-    transmartVersion = '17.1-HYVE-5.9'
+    transmartVersion = '17.1-HYVE-6'
 
     assetPipelineVersion = '2.11.6'
     gradleWrapperVersion = '3.5.1'
@@ -84,10 +84,10 @@ allprojects {
             mavenLocal()
             mavenCentral()
             maven { url 'https://repo.grails.org/grails/core' }
-            maven { url 'https://repo.transmartfoundation.org/content/repositories/public/' }
+            // maven { url 'https://repo.transmartfoundation.org/content/repositories/public/' }
             maven { url 'https://repo.thehyve.nl/content/groups/public/' }
             maven { url 'https://dl.bintray.com/bluesliverx/grails-plugins' }
-            //maven { url 'https://jcenter.bintray.com' }
+            // maven { url 'https://jcenter.bintray.com' }
         }
     }
 }

@@ -128,12 +128,10 @@ class DataTableSpec extends Specification {
         out.flush()
         def result = new JsonSlurper().parse(out.toByteArray())
         def offset = result.offset
-        def columnHeaders = result.columnHeaders
         def columnDim = result.columnDimensions
 
         then:
         offset == 0
-        columnHeaders[2].keys == ["1.00/-103", "2.00/-103", "3.00/-103"]
         columnDim[2].elements.size() == 3
     }
 
