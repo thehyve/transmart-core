@@ -2,12 +2,11 @@
 
 package org.transmartproject.db.i2b2data
 
-import groovy.transform.EqualsAndHashCode
+import com.google.common.collect.ImmutableMap
+import groovy.transform.CompileStatic
 
-@EqualsAndHashCode(includes = [ 'encounterNum', 'patient'])
-class VisitDimension implements Serializable{
+class VisitDimension {
 
-    BigDecimal          encounterNum
     PatientDimension    patient
     String              activeStatusCd
     Date                startDate
@@ -23,14 +22,13 @@ class VisitDimension implements Serializable{
     String              sourcesystemCd
     BigDecimal          uploadId
 
-//    static hasMany = [
-//        observationFacts: ObservationFact
-//    ]
+    static hasMany = [mappings: EncounterMapping]
+
+    static mappedBy = [mappings: 'visit']
 
     static mapping = {
         table           name: 'visit_dimension', schema: 'I2B2DEMODATA'
-        id              composite: ['encounterNum', 'patient']
-        encounterNum    column: 'encounter_num'
+        id              column: 'encounter_num', type: Long
         patient         column: 'patient_num'
         activeStatusCd  column: 'active_status_cd'
         startDate       column: 'start_date'
@@ -45,6 +43,7 @@ class VisitDimension implements Serializable{
         importDate      column: 'import_date'
         sourcesystemCd  column: 'sourcesystem_cd'
         uploadId        column: 'upload_id'
+        mappings        fetch:  'join'
         version         false
     }
 
@@ -67,7 +66,17 @@ class VisitDimension implements Serializable{
     String getPatientInTrialId() {
         patient.inTrialId
     }
+
+    @Lazy
+    ImmutableMap<String, String> encounterIds = computeEncounterIds()
+
+    @CompileStatic
+    private ImmutableMap<String,String> computeEncounterIds () {
+        ImmutableMap.Builder<String,String> builder = ImmutableMap.builder()
+        if (mappings != null) for(def mapping : mappings) {
+            builder.put(mapping.source, mapping.encryptedId)
+        }
+        builder.build()
+    }
+
 }
-
-
-

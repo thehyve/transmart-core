@@ -2,7 +2,7 @@
 -- Name: visit_dimension; Type: TABLE; Schema: i2b2demodata; Owner: -
 --
 CREATE TABLE visit_dimension (
-    encounter_num numeric(38,0) NOT NULL,
+    encounter_num serial NOT NULL,
     patient_num numeric(38,0) NOT NULL,
     active_status_cd character varying(50),
     start_date timestamp without time zone,
@@ -23,7 +23,13 @@ CREATE TABLE visit_dimension (
 -- Name: visit_dimension_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY visit_dimension
-    ADD CONSTRAINT visit_dimension_pk PRIMARY KEY (encounter_num, patient_num);
+    ADD CONSTRAINT visit_dimension_pk PRIMARY KEY (encounter_num);
+
+--
+-- Name: visit_dimension_patient_num_fk; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY visit_dimension
+ADD CONSTRAINT visit_dimension_patient_num_fk FOREIGN KEY (patient_num) REFERENCES patient_dimension(patient_num);
 
 --
 -- Name: vd_uploadid_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
@@ -41,11 +47,11 @@ CREATE INDEX visitdim_en_pn_lp_io_sd_idx ON visit_dimension USING btree (encount
 CREATE INDEX visitdim_std_edd_idx ON visit_dimension USING btree (start_date, end_date);
 
 --
--- add documentation
+-- Add documentation
 --
 COMMENT ON TABLE i2b2demodata.visit_dimension IS 'Table holds descriptions of actual visits in real time.';
 
 COMMENT ON COLUMN visit_dimension.encounter_num IS 'Primary key. Id of the visit. Referred to by the encounter_num column of observation_fact.';
-COMMENT ON COLUMN visit_dimension.patient_num IS 'Primary key. Id linking to patient_num in the patient_dimension.';
+COMMENT ON COLUMN visit_dimension.patient_num IS 'Foreign key. Id linking to patient_num in the patient_dimension.';
 COMMENT ON COLUMN visit_dimension.start_date IS 'Start date and time of the visit.';
 COMMENT ON COLUMN visit_dimension.end_date IS 'End date and time of the visit.';

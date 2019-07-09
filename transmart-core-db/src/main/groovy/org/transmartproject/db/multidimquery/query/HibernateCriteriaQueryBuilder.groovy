@@ -10,7 +10,6 @@ import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.type.IntegerType
 import org.hibernate.type.LongType
-import org.transmartproject.core.multidimquery.hypercube.Dimension
 import org.transmartproject.core.multidimquery.query.*
 import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.MDStudy
@@ -128,12 +127,16 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
                 return metadata.fieldName
             case ImplementationType.MODIFIER:
             case ImplementationType.VALUE:
-            case ImplementationType.VISIT:
                 return field.fieldName
             default:
                 break
         }
-        String dimensionAlias = getAlias(metadata.fieldName)
+        String dimensionAlias
+        if (metadata.type == ImplementationType.VISIT) {
+            dimensionAlias = 'visit'
+        } else {
+            dimensionAlias = getAlias(metadata.fieldName)
+        }
         if (field.type == Type.OBJECT) {
             return "${dimensionAlias}.id".toString()
         }
@@ -432,13 +435,11 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
              * special case that requires a subquery, because there is no proper
              * reference to the visit dimension in {@link ObservationFact}.
              */
-            DetachedCriteria subCriteria = DetachedCriteria.forClass(VisitDimension, 'visit')
-            subCriteria.add(criterion)
-            return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[],
-                    subCriteria.setProjection(Projections.projectionList()
-                            .add(Projections.property('encounterNum'))
-                            .add(Projections.property('patient'))
-                    ))
+            DetachedCriteria subCriteria = DetachedCriteria
+                    .forClass(VisitDimension, 'visit')
+                    .add(criterion)
+                    .setProjection(Projections.id())
+            return Subqueries.propertyIn('encounterNum', subCriteria)
         } else {
             criterion
         }
@@ -534,7 +535,7 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
 
         DetachedCriteria constraintSubQuery = subQueryBuilder().buildCriteria(constraint)
 
-        Projection projection = Projections.projectionList()
+        ProjectionList projection = Projections.projectionList()
         def subSelectionPropertyNames = subSelectionPropertyNames(dimension)
         subSelectionPropertyNames.each { String propertyName ->
             projection.add(Projections.property(propertyName))
@@ -595,10 +596,9 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
         switch(dimension.type) {
             case ImplementationType.TABLE:
             case ImplementationType.COLUMN:
+            case ImplementationType.VISIT:
                 String fieldName = dimension.fieldName
                 return [fieldName]
-            case ImplementationType.VISIT:
-                return ['encounterNum', 'patient']
             case ImplementationType.STUDY:
                 return ['trialVisit']
             case ImplementationType.MODIFIER:

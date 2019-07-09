@@ -47,7 +47,7 @@ class ObservationFact implements Serializable {
     String     valueFlag
     String     sourcesystemCd
 
-    BigDecimal encounterNum
+    Long       encounterNum
     String     providerId
     Date       startDate
     Date       endDate
@@ -55,8 +55,6 @@ class ObservationFact implements Serializable {
     Long       instanceNum
     String     locationCd
 
-    //TrialVisit trialVisit
-    //VisitDimension visit
     // unused for now
     //BigDecimal quantityNum
     //String     unitsCd
@@ -69,6 +67,7 @@ class ObservationFact implements Serializable {
     static belongsTo = [
         patient      : PatientDimension,
         trialVisit   : TrialVisit,
+        // visit        : VisitDimension
     ]
 
     static mapping = {
@@ -115,7 +114,7 @@ class ObservationFact implements Serializable {
     }
 
     VisitDimension getVisit() {
-        VisitDimension.get(new VisitDimension(patient: patient, encounterNum: encounterNum))
+        VisitDimension.get(encounterNum)
     }
 
     @CompileStatic

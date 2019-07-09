@@ -26,6 +26,8 @@ services:
       PGHOST: transmart-database
       PGPORT: 5432
       PGDATABASE: transmart
+    volumes:
+      - ./extra_certs.pem:/home/transmart/extra_certs.pem
     depends_on:
       - transmart-database
     networks:

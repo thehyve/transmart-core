@@ -297,7 +297,6 @@ class QueryServicePgSpec extends Specification {
                         fieldName: 'endDate',
                         type: 'DATE'
                 )
-
         )
         def conceptConstraint = new ConceptConstraint(
                 path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\'
@@ -453,7 +452,7 @@ class QueryServicePgSpec extends Specification {
     // this version ensures that the functionality is still automatically tested.
     void "test query for 'visit' dimension elements"() {
         def user = User.findByUsername('test-public-user-1')
-        DimensionImpl dimension = DimensionImpl.VISIT
+        DimensionImpl dimension = VISIT
 
         Constraint constraint = new StudyNameConstraint(studyId: "EHR")
         def results = multiDimService.retrieveClinicalData(constraint, user).asList()
@@ -464,20 +463,9 @@ class QueryServicePgSpec extends Specification {
             dimension.asSerializable(it)
         }
 
-        then: "List of all trial visits matching the constraints is returned"
+        then: "List of all visits matching the constraints is returned"
         visits.size() == expectedResult.size()
-        expectedResult.every { expect ->
-            visits.any {
-                [expect.patientInTrialId, expect.encounterNum] == [it.patientInTrialId, it.encounterNum]
-            }
-        }
-
-        //TODO Fix counting elements of visit dimension - find a way to count distinct on two properties
-        // (it does not seem possible in the legacy hibernate criteria api)
-        // when:"I query for visits count"
-        // def locationsCount = multiDimService.getDimensionElementsCount
-        // then: "Number of visits matching the constraints is returned"
-        // locationsCount == Long.valueOf(expectedResult.size())
+        visits.collect { it.encounterIds['VISIT_ID'] }.sort() == expectedResult.collect { it.encounterIds['VISIT_ID']}.sort()
     }
 
     void "test patient set query"() {

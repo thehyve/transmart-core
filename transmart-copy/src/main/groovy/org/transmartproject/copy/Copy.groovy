@@ -238,12 +238,13 @@ class Copy implements AutoCloseable {
                         unlogged: cl.hasOption('unlogged'),
                         baseOnMaxInstanceNum: cl.hasOption('base-on-max-instance-num')
                 )
-                def modes = cl.getOptionValues('mode')
+                // Read modes, use 'study' as default
+                String[] modes = cl.getOptionValues('mode') ?: ['study'] as String[]
                 log.debug("Load modes specified: ${modes}")
                 if ('pedigree' in modes) {
                     copy.uploadPedigree(directory, config)
                 }
-                if (!modes || 'study' in modes) {
+                if ('study' in modes) {
                     boolean incremental = cl.hasOption('incremental')
                     if (!incremental) {
                         copy.deleteStudy(directory, false)

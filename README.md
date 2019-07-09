@@ -7,7 +7,9 @@ is maintained by the [i2b2 tranSMART Foundation](http://transmartfoundation.org)
 can be found on the Foundation website, and the Foundation's development repositories
 can be found at <https://github.com/transmart/>.
 
-All the instructions on how to install, build and run a private instance of tranSMART, get set up for developing or upgrade to the latest version of tranSMART from an older version are available [in the documentation.](docs/README.md)
+All the instructions on how to install, build and run a private instance of tranSMART,
+get set up for developing or upgrade to the latest version of tranSMART from an older version
+are available in the [installation documentation](docs/README.md).
 
 For details on contributing code changes via pull requests, [see the Contributing document.](CONTRIBUTING.md)
 
@@ -20,10 +22,14 @@ The OAuth2 authentication of the API for transmart-server is managed by [transma
 
 As an user interface for transmart-server there is a frontend application [transmartApp](transmartApp) built as a "web" profiled Grails platform plugin. There is also a modern cohort selector for i2b2 tranSMART named [Glowing Bear](https://github.com/thehyve/glowing-bear) that can used both with transmart-server and transmart-api-server.
 
+The database schema is described in the [data model documentation](docs/data-model.md).
+The schema is created using Liquibase at application startup, when it is configured to do so
+(see [Setup database](docs#2-setup-database)). This is only tested with PostgreSQL.
+The [transmart-copy](transmart-copy) tool can be used to load data into the database.
 
-Database definitions and installation instructions are in [transmart-data](transmart-data).
+Legacy database definitions and installation instructions are in [transmart-data](transmart-data),
+tested with both PostgreSQL and Oracle databases.
 A data loading tool based on Spring Batch is available as [transmart-batch](transmart-batch).
-There is also a PostgreSQL databases specific data uploader tool - [transmart-copy](transmart-copy).
 
 
 ## Relation to other tranSMART repositories and Git history

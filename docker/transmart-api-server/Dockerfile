@@ -32,6 +32,9 @@ RUN  addgroup -S "${TRANSMART_GROUP_NAME}" && \
      wget "${TRANSMART_API_SERVER_WAR_URL}" -O "${TRANSMART_SERVICE_WAR_FILE}" && \
      chown    "${TRANSMART_USER_NAME}:${TRANSMART_GROUP_NAME}" /opt/docker-entrypoint.sh && \
      chmod u+x /opt/docker-entrypoint.sh && \
+     chown "${TRANSMART_USER_NAME}" /etc/ssl/certs/java/cacerts && \
+     chown "${TRANSMART_USER_NAME}" /etc/ssl/certs/java && \
+     chmod 644 /etc/ssl/certs/java/cacerts && \
      rm -rf /tmp/* /var/tmp/* && sync
 
 # Set environment for runtime

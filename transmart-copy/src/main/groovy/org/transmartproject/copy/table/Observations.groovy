@@ -82,7 +82,6 @@ class Observations {
                     "Patient index higher than the number of patients (${patients.indexToPatientNum.size()})")
         }
         row.put('patient_num', patients.indexToPatientNum[patientIndex])
-        def patientNum = (Long)row.get('patient_num')
         int trialVisitIndex = ((BigDecimal) row.get('trial_visit_num')).intValueExact()
         if (trialVisitIndex >= studies.indexToTrialVisitNum.size()) {
             throw new IllegalStateException(
@@ -93,16 +92,14 @@ class Observations {
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new IllegalStateException("Unknown concept code: ${conceptCode}")
         }
-        int visitIndex = ((BigDecimal) row.get('encounter_num')).intValueExact()
-        if (visitIndex >= 0) {
-            if (!(visits.patientEncounters.containsKey(patientNum))) {
+        int encounterIndex = ((Long) row.get('encounter_num')).intValue()
+        if (encounterIndex != -1) {
+            Long encounterNum = visits.indexToEncounterNum[encounterIndex]
+            if (encounterNum == null) {
                 throw new IllegalStateException(
-                        "No patient found for visit with patient index ${patientIndex}")
+                        "No visit found for encounter index ${encounterIndex}")
             }
-            if (!visits.patientEncounters[patientNum].contains(visitIndex)) {
-                throw new IllegalStateException(
-                        "No visit found for visit index ${visitIndex} for patient ${patientIndex}")
-            }
+            row.put('encounter_num', encounterNum)
         }
         int instanceIndex = ((BigDecimal) row.get('instance_num')).intValueExact()
         row.put('instance_num', baseInstanceNum + instanceIndex)

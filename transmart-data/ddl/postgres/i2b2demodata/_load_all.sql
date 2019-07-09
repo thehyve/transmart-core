@@ -30,7 +30,6 @@
 \i i2b2demodata/crc_db_lookup.sql
 \i i2b2demodata/datamart_report.sql
 \i i2b2demodata/dimloader.sql
-\i i2b2demodata/encounter_mapping.sql
 \i i2b2demodata/hilosequences.sql
 \i i2b2demodata/jms_messages.sql
 \i i2b2demodata/jms_roles.sql
@@ -72,6 +71,7 @@
 \i i2b2demodata/timers.sql
 \i i2b2demodata/upload_status.sql
 \i i2b2demodata/visit_dimension.sql
+\i i2b2demodata/encounter_mapping.sql
 \i i2b2demodata/storage_system.sql
 \i i2b2demodata/linked_file_collection.sql
 \i i2b2demodata/supported_workflow.sql

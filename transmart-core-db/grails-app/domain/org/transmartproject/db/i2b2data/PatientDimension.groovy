@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Sex
-import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 class PatientDimension implements Patient {
@@ -127,8 +126,8 @@ class PatientDimension implements Patient {
     ImmutableMap<String, String> subjectIds = computeSubjectIds()
 
     @CompileStatic
-    private ImmutableMap<String,String> computeSubjectIds () {
-        def builder = ImmutableMap.builder()
+    private ImmutableMap<String, String> computeSubjectIds () {
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder()
         if (mappings != null) for(def mapping : mappings) {
             builder.put(mapping.source, mapping.encryptedId)
         }
