@@ -213,6 +213,7 @@ class RestApiUrlMappings {
                 apiVersion = "v2"
             }
             "/pedigree/relation_types"(method: 'GET', controller: 'relationType', action: 'index')
+            "/pedigree/relations"(method: 'GET', controller: 'relation', action: 'index')
 
             /**
              * @deprecated user queries related functionality has been moved to a gb-backend application

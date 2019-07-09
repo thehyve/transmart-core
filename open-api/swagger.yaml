@@ -2690,6 +2690,24 @@ paths:
                 items:
                   $ref: '#/components/schemas/RelationType'
 
+  /v2/pedigree/relations:
+    get:
+      description: |
+        Gets the list of the relations between subjects.
+        Only for administrators or if all studies are public.
+      tags:
+        - v2
+      responses:
+        '200':
+          description: |
+            returns the list of the relations.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Relation'
+
   /v2/queries:
     get:
       description: |
@@ -3911,6 +3929,21 @@ components:
         symmetrical:
           type: boolean
         biological:
+          type: boolean
+
+    Relation:
+      description: Relation between subjects, e.g. pedigree.
+      type: object
+      properties:
+        leftSubjectId:
+          type: integer
+        relationTypeLabel:
+          type: string
+        rightSubjectId:
+          type: integer
+        biological:
+          type: boolean
+        shareHousehold:
           type: boolean
 
     SortSpecification:
