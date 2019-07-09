@@ -1,4 +1,4 @@
-Database update scripts for release 17.1-HYVE-6.0
+Database update scripts for release 17.1-HYVE-6
 ========================================
 
 Overview

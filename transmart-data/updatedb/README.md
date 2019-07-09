@@ -14,6 +14,9 @@ This directory contains a set of scripts to update the database for:
 - release 17.1-HYVE-3 to release 17.1-HYVE-4
 - release 17.1-HYVE-4 to release 17.1-HYVE-5
 - release 17.1-HYVE-5 to release 17.1-HYVE-5.2
+- release 17.1-HYVE-5.2 to release 17.1-HYVE-5.7
+- release 17.1-HYVE-5.7 to release 17.1-HYVE-5.8
+- release 17.1-HYVE-5.8 to release 17.1-HYVE-6
 - latest release to current development version
 
 Each release folder contains the scripts to update from the previous release.

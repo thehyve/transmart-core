@@ -1,13 +1,13 @@
 FROM openjdk:8-jre-alpine
 LABEL maintainer="luk.zim91@gmail.com" \
       service="transmart-api-server" \
-      version="17.1-HYVE-5.9" \
+      version="17.1-HYVE-6" \
       description="This is the Docker image of the tranSMART API server"
 
 # The port is configured in the docker-entrypoint.sh when writing the config.yml
 EXPOSE 8081
 
-ENV TRANSMART_VERSION "17.1-HYVE-5.9"
+ENV TRANSMART_VERSION "17.1-HYVE-6"
 ENV TRANSMART_USER_NAME transmart
 ENV TRANSMART_GROUP_NAME "${TRANSMART_USER_NAME}"
 ENV TRANSMART_USER_HOME "/home/${TRANSMART_USER_NAME}"
