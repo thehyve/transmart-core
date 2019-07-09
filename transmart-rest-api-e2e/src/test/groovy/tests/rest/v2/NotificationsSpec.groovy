@@ -2,6 +2,7 @@ package tests.rest.v2
 
 import base.RESTSpec
 import base.RestHelper
+import org.junit.Ignore
 import org.transmartproject.core.multidimquery.ErrorResponse
 
 import static base.ContentTypeFor.JSON
@@ -14,6 +15,7 @@ import static config.Config.*
  * @deprecated user queries related functionality has been moved to a gb-backend application
  */
 @Deprecated
+@Ignore
 class NotificationsSpec extends RESTSpec {
 
     void 'test triggering email sending by a regular user is denied'() {
