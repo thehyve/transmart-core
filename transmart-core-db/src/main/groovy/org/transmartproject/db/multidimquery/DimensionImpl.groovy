@@ -49,6 +49,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     final Packable packable
     private DimensionType dimensionType
     private Integer sortIndex
+    private String modifierCode
 
     // Size is currently not used.
     //
@@ -115,12 +116,19 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         findDimensionDescriptionByName(name)?.dimension
     }
 
-    DimensionImpl(Size size, Density density, Packable packable, DimensionType dimensionType = null, Integer sortIndex = null) {
+    DimensionImpl(Size size, Density density, Packable packable, 
+                  DimensionType dimensionType = null, Integer sortIndex = null, String modifierCode = null) {
         this.size = size
         this.density = density
         this.packable = packable
         this.dimensionType = dimensionType
         this.sortIndex = sortIndex
+        this.modifierCode = modifierCode
+    }
+
+    @Memoized
+    String getModifierCode() {
+        findDimensionDescriptionByName(name).modifierCode
     }
 
     @Memoized
@@ -476,7 +484,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     private ModifierDimension(String name, String modifierCode, String valueType,
                               Size size, Density density, Packable packable,
                               DimensionType dimensionType, Integer sortIndex) {
-        super(size, density, packable, dimensionType, sortIndex)
+        super(size, density, packable, dimensionType, sortIndex, modifierCode)
         this.name = name
         this.dimensionType = dimensionType
         this.sortIndex = sortIndex

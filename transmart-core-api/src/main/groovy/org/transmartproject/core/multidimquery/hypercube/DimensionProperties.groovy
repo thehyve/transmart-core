@@ -15,6 +15,9 @@ class DimensionProperties {
 
     String name
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    String modifierCode
+
     DimensionType dimensionType
 
     Integer sortIndex
@@ -39,7 +42,15 @@ class DimensionProperties {
                 new Field(it.name, ValueType.forClass(it.type))
             }
         }
-        new DimensionProperties(dimension.name, dimension.dimensionType, dimension.sortIndex, valueType, fields, dimension.density.isSparse)
+        new DimensionProperties(
+                dimension.name, 
+                dimension.modifierCode, 
+                dimension.dimensionType, 
+                dimension.sortIndex, 
+                valueType, 
+                fields, 
+                dimension.density.isSparse
+        )
     }
 
 }

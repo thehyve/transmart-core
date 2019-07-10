@@ -3689,6 +3689,8 @@ components:
           type: boolean
         name:
           type: string
+        modifierCode:
+          type: string  
         dimensionType:
           type: string
           enum: [subject, attribute]
