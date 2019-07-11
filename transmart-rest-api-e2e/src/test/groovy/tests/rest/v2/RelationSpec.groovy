@@ -122,4 +122,14 @@ class RelationSpec extends RESTSpec {
         POST    | _
         GET     | _
     }
+
+    def "get relations"() {
+        when:
+        def responseData = get([
+                path      : PATH_RELATIONS,
+                acceptType: JSON,
+        ])
+        then:
+        responseData.relations.size() == 68
+    }
 }
