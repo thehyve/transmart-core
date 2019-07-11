@@ -6,6 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
@@ -160,10 +161,10 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
     Boolean areAllStudiesPublic() {
         def criteria = DetachedCriteria.forClass(Study)
         criteria.add(Restrictions.not(Restrictions.in('secureObjectToken', PUBLIC_TOKENS)))
-        List<MDStudy> privateStudies = criteria.getExecutableCriteria(sessionFactory.currentSession)
-                .list().stream()
-                .collect(Collectors.toList())
-        privateStudies.size() == 0
+        Integer privateStudiesCount = criteria.getExecutableCriteria(sessionFactory.currentSession)
+                .setProjection(Projections.rowCount())
+                .uniqueResult() as Integer
+        privateStudiesCount == 0
     }
 
     private void checkAccessToStudy(Study study, User user, id) {
