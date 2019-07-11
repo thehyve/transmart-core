@@ -36,7 +36,8 @@ _Parameters:_
 - `-f`, `--flush-size`: Number of batches to flush to the database (default: `1000`).
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
 - `-p`, `--partition`: Partition observation_fact table based on `trial_visit_num` (Experimental).
-- `-h`, `--help`: Shows the available parameters.
+- `-h`, `--help`: Shows the available parameters and exits.
+- `-V`, `--version`: Prints the application version and exits.
 
 The program reads table data from the current working directory
 and inserts new rows into the database if a row with the same identifier
