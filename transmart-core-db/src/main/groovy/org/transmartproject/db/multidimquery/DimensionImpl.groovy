@@ -643,7 +643,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 @CompileStatic @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
     Class elemType = TrialVisit
-    List elemFields = ["id", "relTimeLabel", "relTimeUnit", "relTime"]
+    List elemFields = ['id', 'studyId', 'relTimeLabel', 'relTimeUnit', 'relTime']
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
@@ -659,7 +659,7 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
 @CompileStatic @InheritConstructors
 class StudyDimension extends I2b2Dimension<MDStudy, String> implements CompositeElemDim<MDStudy, String> {
     Class elemType = MDStudy
-    List elemFields = ["name"]
+    List elemFields = ['name']
     String name = 'study'
     String alias = 'studyName'
     String getColumnName() {throw new UnsupportedOperationException()}
@@ -731,7 +731,8 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 @CompileStatic @InheritConstructors
 class VisitDimension extends I2b2NullablePKDimension<I2b2VisitDimension, Long> implements CompositeElemDim<I2b2VisitDimension, Long> {
     Class elemType = I2b2VisitDimension
-    List elemFields = ['id', 'activeStatusCd', 'startDate', 'endDate', 'inoutCd', 'locationCd', 'encounterIds']
+    List elemFields = ['id', 'patientId', 'activeStatusCd',
+                       'startDate', 'endDate', 'inoutCd', 'locationCd', 'lengthOfStay', 'encounterIds']
     String name = 'visit'
     String alias = 'visit'
     String columnName = 'encounterNum'
