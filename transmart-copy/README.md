@@ -60,7 +60,7 @@ We always assume the first row to have the column names, exactly matching
 the columns that exist in the database.
 
 If a study in the input data already exists in the database, the program
-aborts.
+aborts, unless incremental data loading is enabled.
 
 #### Identifying columns for shared data
 
@@ -76,8 +76,16 @@ For shared data, the following columns are used to identify if a record already 
 | `i2b2_tags` | `(path, tag_type, tags_idx)` |
 | `relation_type` | `label` |
 
+Currently, for patients and visits, only one identifier is allowed per patient or visit. I.e.,
+if the mapping contains multiple identifiers (from different sources) for the same patient, it fails.
+The patients and visits in the mapping files are expected to be numbered consecutively starting from 0.
+The `patient_ide_source` is expected to be `SUBJ_ID`.
+
 Observations are inserted without checking, because it is assumed that no
-data for the study is present.
+data for the study is already present in the database.
+For incremental data loading, pass the `--incremental` or `-I` option. Then prior to data loading
+all observations for for patients in the input data are deleted for the studies that are uploaded.
+This allows to update data for a subset of patients for an existing study.
 
 For relations data, the `relation` table is first truncated, and then
 the data from `relation.tsv` is loaded. 
