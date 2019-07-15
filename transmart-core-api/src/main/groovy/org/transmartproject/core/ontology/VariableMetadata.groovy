@@ -1,11 +1,13 @@
 package org.transmartproject.core.ontology
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
 
 /**
  * Metadata about the variable/column taken from SPSS.
  */
 @CompileStatic
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class VariableMetadata {
 
     /**

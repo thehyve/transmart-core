@@ -64,7 +64,7 @@
           ""width"": 14,
           ""decimals"": 2,
           ""columns"": 15,
-          ""measure"": ""Scale"",,
+          ""measure"": ""Scale"",
           ""valueLabels"": {""-1"":""Asked, but not answered""},
           ""missingValues"": {""values"": [""-1""] }
       },

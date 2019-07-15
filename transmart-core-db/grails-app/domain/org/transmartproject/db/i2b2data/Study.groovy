@@ -6,6 +6,7 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.Memoized
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.StudyMetadata
+import org.transmartproject.core.ontology.StudyMetadataFactory
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 
@@ -85,6 +86,9 @@ class Study implements MDStudy {
 
     @Memoized
     StudyMetadata getMetadata() {
-        StudyMetadata.fromJson(studyBlob)
+        if (!studyBlob) {
+            return null
+        }
+        StudyMetadataFactory.read(studyBlob)
     }
 }
