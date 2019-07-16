@@ -6,6 +6,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
@@ -25,6 +26,8 @@ import org.transmartproject.db.metadata.DimensionDescription
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.stream.Collectors
+
+import static org.transmartproject.core.users.AuthorisationHelper.getPUBLIC_TOKENS
 
 @Transactional
 @CompileStatic
@@ -153,6 +156,15 @@ class MDStudiesService implements MDStudiesResource, ApplicationRunner {
             throw new NoSuchResourceException("No study found for specified studyIds.")
         }
         studiesForUser
+    }
+
+    Boolean areAllStudiesPublic() {
+        def criteria = DetachedCriteria.forClass(Study)
+        criteria.add(Restrictions.not(Restrictions.in('secureObjectToken', PUBLIC_TOKENS)))
+        Integer privateStudiesCount = criteria.getExecutableCriteria(sessionFactory.currentSession)
+                .setProjection(Projections.rowCount())
+                .uniqueResult() as Integer
+        privateStudiesCount == 0
     }
 
     private void checkAccessToStudy(Study study, User user, id) {

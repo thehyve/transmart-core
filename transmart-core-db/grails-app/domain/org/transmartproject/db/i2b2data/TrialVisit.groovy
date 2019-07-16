@@ -31,4 +31,9 @@ class TrialVisit implements org.transmartproject.core.multidimquery.TrialVisit {
         relTimeLabel    column: 'rel_time_label'
         version false
     }
+
+    String getStudyId() {
+        study.studyId
+    }
+
 }

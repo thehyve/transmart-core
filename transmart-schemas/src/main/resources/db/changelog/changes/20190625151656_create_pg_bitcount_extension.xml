@@ -11,7 +11,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
     <changeSet author="ewelina@thehyve.nl" id="20190625151656-0" dbms="PostgreSQL">
-        <preConditions onFail="WARN">
+        <preConditions onFail="CONTINUE">
             <sqlCheck expectedResult="1">
                 SELECT count(*) FROM pg_available_extensions WHERE name='pg_bitcount'
             </sqlCheck>

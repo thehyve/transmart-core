@@ -37,6 +37,8 @@ class Copy implements AutoCloseable {
     static {
         options.addOption('h', 'help', false,
                 'Help.')
+        options.addOption('V', 'version', false,
+                'Print the version and exit.')
         options.addOption('D', 'delete', true,
                 'Delete study by id.')
         options.addOption('r', 'restore-indexes', false,
@@ -68,8 +70,17 @@ class Copy implements AutoCloseable {
                         ' The base is autodetected as max(observation_fact.instance_num).')
     }
 
+    static getVersion() {
+        Copy.package.implementationVersion
+    }
+
+    static printVersion() {
+        println("transmart-copy ${version}")
+    }
+
     static printHelp() {
-        String header = 'Copy tool for loading TranSMART data into a PostgreSQL database.\n\n'
+        String header = "\ntransmart-copy ${version}\n" +
+                'Copy tool for loading TranSMART data into a PostgreSQL database.\n\n'
         String footer = '\nPlease report issues at https://github.com/thehyve/transmart-core/issues.'
 
         HelpFormatter formatter = new HelpFormatter()
@@ -187,6 +198,10 @@ class Copy implements AutoCloseable {
             }
             if (cl.hasOption('help')) {
                 printHelp()
+                System.exit(0)
+            }
+            if (cl.hasOption('version')) {
+                printVersion()
                 System.exit(0)
             }
             runCopy(cl, [:].withDefault { Object key -> System.getenv((String) key) })

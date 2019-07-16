@@ -48,6 +48,8 @@ interface Dimension {
 
 
     String getName()
+    
+    String getModifierCode()
 
     Size getSize()
 

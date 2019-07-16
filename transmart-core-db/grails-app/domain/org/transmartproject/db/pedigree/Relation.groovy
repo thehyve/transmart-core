@@ -4,7 +4,7 @@ package org.transmartproject.db.pedigree
 
 import org.transmartproject.db.i2b2data.PatientDimension
 
-class Relation implements Serializable {
+class Relation implements org.transmartproject.core.pedigree.Relation, Serializable {
 
     PatientDimension leftSubject
     RelationType relationType
