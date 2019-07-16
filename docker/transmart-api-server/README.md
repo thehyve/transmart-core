@@ -1,7 +1,7 @@
 # TranSMART API Server Docker Image
 
 ## Version of the API server
-The currently used version is `17.1-HYVE-6`.
+The currently used version is `17.1-HYVE-6.1`.
 
 The `Dockerfile` needs to be inspected to determine the version. It
 is apparent from the URL of the downloaded `.war` file.
