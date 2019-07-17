@@ -6,11 +6,11 @@ only substituting indexes for database identifiers for subjects, trial visits an
 
 ### Download
 The latest version can be downloaded here:
-[transmart-copy-17.1-HYVE-6.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-6/transmart-copy-17.1-HYVE-6.jar).
+[transmart-copy-17.1-HYVE-6.1.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-6.1/transmart-copy-17.1-HYVE-6.1.jar).
 
 ```bash
 # Download transmart-copy
-curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-6/transmart-copy-17.1-HYVE-6.jar -o transmart-copy.jar
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-copy/17.1-HYVE-6.1/transmart-copy-17.1-HYVE-6.1.jar -o transmart-copy.jar
 ```
 
 ### Usage
@@ -36,7 +36,8 @@ _Parameters:_
 - `-f`, `--flush-size`: Number of batches to flush to the database (default: `1000`).
 - `-w <file>`, `--write <file>`: Write observations to TSV file `<file>`.
 - `-p`, `--partition`: Partition observation_fact table based on `trial_visit_num` (Experimental).
-- `-h`, `--help`: Shows the available parameters.
+- `-h`, `--help`: Shows the available parameters and exits.
+- `-V`, `--version`: Prints the application version and exits.
 
 The program reads table data from the current working directory
 and inserts new rows into the database if a row with the same identifier
@@ -59,7 +60,7 @@ We always assume the first row to have the column names, exactly matching
 the columns that exist in the database.
 
 If a study in the input data already exists in the database, the program
-aborts.
+aborts, unless incremental data loading is enabled.
 
 #### Identifying columns for shared data
 
@@ -75,8 +76,16 @@ For shared data, the following columns are used to identify if a record already 
 | `i2b2_tags` | `(path, tag_type, tags_idx)` |
 | `relation_type` | `label` |
 
+Currently, for patients and visits, only one identifier is allowed per patient or visit. I.e.,
+if the mapping contains multiple identifiers (from different sources) for the same patient, it fails.
+The patients and visits in the mapping files are expected to be numbered consecutively starting from 0.
+The `patient_ide_source` is expected to be `SUBJ_ID`.
+
 Observations are inserted without checking, because it is assumed that no
-data for the study is present.
+data for the study is already present in the database.
+For incremental data loading, pass the `--incremental` or `-I` option. Then prior to data loading
+all observations for for patients in the input data are deleted for the studies that are uploaded.
+This allows to update data for a subset of patients for an existing study.
 
 For relations data, the `relation` table is first truncated, and then
 the data from `relation.tsv` is loaded. 

@@ -244,6 +244,9 @@ class HypercubeJsonSerializer {
         writer.name('dimensionType').value(dimension.dimensionType?.toJson())
         writer.name('sortIndex').value(dimension.sortIndex)
         writer.name('valueType').value(dimension.valueType?.toJson() ?: 'Object')
+        if (dimension.modifierCode) {
+            writer.name('modifierCode').value(dimension.modifierCode)
+        }
         if (dimension.fields) {
             writer.name('fields')
             writer.beginArray()

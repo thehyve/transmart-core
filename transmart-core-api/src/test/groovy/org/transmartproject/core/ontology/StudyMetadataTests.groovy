@@ -19,6 +19,7 @@
 
 package org.transmartproject.core.ontology
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import org.junit.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -27,40 +28,31 @@ import static org.hamcrest.Matchers.*
 class StudyMetadataTests {
 
     @Test
-    void testBlankJsonString() {
-        def jsonText = ''
-
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
-        assertThat metadata, nullValue()
-    }
-
-    @Test
     void testNullJsonValue() {
         def jsonText = 'null'
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        StudyMetadata metadata = StudyMetadataFactory.read(jsonText)
         assertThat metadata, nullValue()
     }
 
-    @Test
+    @Test(expected = JsonProcessingException)
     void testInvalidJsonValue() {
         def jsonText = 'not a json at all'
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
-        assertThat metadata, nullValue()
+        StudyMetadataFactory.read(jsonText)
     }
 
     @Test
     void testEmptyJson() {
         def jsonText = '{}'
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        StudyMetadata metadata = StudyMetadataFactory.read(jsonText)
         assertThat metadata, allOf(
                 hasProperty('conceptCodeToVariableMetadata', nullValue()),
         )
     }
 
-    @Test
+    @Test(expected = JsonProcessingException)
     void testInvalidVarMeta() {
         def jsonText = """
             {
@@ -76,12 +68,7 @@ class StudyMetadataTests {
             }
         """
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
-
-        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', allOf(
-                hasEntry(equalTo('test1'), hasProperty('name', equalTo('test1'))),
-                hasEntry(equalTo('test2'), hasProperty('name', equalTo('test2'))),
-        ))
+        StudyMetadataFactory.read(jsonText)
     }
 
     @Test
@@ -91,7 +78,6 @@ class StudyMetadataTests {
                 "conceptCodeToVariableMetadata": {
                     "test": {  
                        "name": "test1",
-                       "type":"Numeric",
                        "measure":"ordinal",
                        "description":"this is description",
                        "width":"15",
@@ -105,14 +91,15 @@ class StudyMetadataTests {
                        "missingValues": { 
                             "lower": -100,
                             "upper": -10,
-                            "value": -10.5,
-                        }
+                            "value": -10.5
+                       },
+                       "type":"Numeric"
                     }
                 }
             }
         """
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        StudyMetadata metadata = StudyMetadataFactory.read(jsonText)
 
         assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'), allOf(
                 hasProperty('name', equalTo('test1')),
@@ -147,7 +134,7 @@ class StudyMetadataTests {
             }
         """
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        StudyMetadata metadata = StudyMetadataFactory.read(jsonText)
         assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'),
                 hasProperty('missingValues', allOf(
                     hasProperty('upper', nullValue()),
@@ -156,7 +143,7 @@ class StudyMetadataTests {
                 )))
     }
 
-    @Test
+    @Test(expected = JsonProcessingException)
     void testLabelKeysWithSpaces() {
         def jsonText = """
             {
@@ -170,12 +157,7 @@ class StudyMetadataTests {
             }
         """
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
-
-        assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'), allOf(
-                hasProperty('valueLabels',
-                        equalTo([(new BigDecimal('-1.0')): 'Minus One'])),
-        )))
+        StudyMetadataFactory.read(jsonText)
     }
 
     @Test
@@ -190,7 +172,7 @@ class StudyMetadataTests {
             }
         """
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        StudyMetadata metadata = StudyMetadataFactory.read(jsonText)
 
         assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'),
                 hasProperty('missingValues', allOf(
@@ -212,7 +194,7 @@ class StudyMetadataTests {
             }
         """
 
-        StudyMetadata metadata = StudyMetadata.fromJson(jsonText)
+        StudyMetadata metadata = StudyMetadataFactory.read(jsonText)
         assertThat metadata, hasProperty('conceptCodeToVariableMetadata', hasEntry(equalTo('test'),
                 hasProperty('missingValues', nullValue())))
     }

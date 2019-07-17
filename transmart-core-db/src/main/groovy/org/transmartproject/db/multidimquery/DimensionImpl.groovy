@@ -49,6 +49,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     final Packable packable
     private DimensionType dimensionType
     private Integer sortIndex
+    private String modifierCode
 
     // Size is currently not used.
     //
@@ -115,12 +116,19 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         findDimensionDescriptionByName(name)?.dimension
     }
 
-    DimensionImpl(Size size, Density density, Packable packable, DimensionType dimensionType = null, Integer sortIndex = null) {
+    DimensionImpl(Size size, Density density, Packable packable, 
+                  DimensionType dimensionType = null, Integer sortIndex = null, String modifierCode = null) {
         this.size = size
         this.density = density
         this.packable = packable
         this.dimensionType = dimensionType
         this.sortIndex = sortIndex
+        this.modifierCode = modifierCode
+    }
+
+    @Memoized
+    String getModifierCode() {
+        findDimensionDescriptionByName(name).modifierCode
     }
 
     @Memoized
@@ -476,7 +484,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     private ModifierDimension(String name, String modifierCode, String valueType,
                               Size size, Density density, Packable packable,
                               DimensionType dimensionType, Integer sortIndex) {
-        super(size, density, packable, dimensionType, sortIndex)
+        super(size, density, packable, dimensionType, sortIndex, modifierCode)
         this.name = name
         this.dimensionType = dimensionType
         this.sortIndex = sortIndex
@@ -635,7 +643,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 @CompileStatic @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
     Class elemType = TrialVisit
-    List elemFields = ["id", "relTimeLabel", "relTimeUnit", "relTime"]
+    List elemFields = ['id', 'studyId', 'relTimeLabel', 'relTimeUnit', 'relTime']
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
@@ -651,7 +659,7 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
 @CompileStatic @InheritConstructors
 class StudyDimension extends I2b2Dimension<MDStudy, String> implements CompositeElemDim<MDStudy, String> {
     Class elemType = MDStudy
-    List elemFields = ["name"]
+    List elemFields = ['name']
     String name = 'study'
     String alias = 'studyName'
     String getColumnName() {throw new UnsupportedOperationException()}
@@ -723,7 +731,8 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 @CompileStatic @InheritConstructors
 class VisitDimension extends I2b2NullablePKDimension<I2b2VisitDimension, Long> implements CompositeElemDim<I2b2VisitDimension, Long> {
     Class elemType = I2b2VisitDimension
-    List elemFields = ['id', 'activeStatusCd', 'startDate', 'endDate', 'inoutCd', 'locationCd', 'encounterIds']
+    List elemFields = ['id', 'patientId', 'activeStatusCd',
+                       'startDate', 'endDate', 'inoutCd', 'locationCd', 'lengthOfStay', 'encounterIds']
     String name = 'visit'
     String alias = 'visit'
     String columnName = 'encounterNum'

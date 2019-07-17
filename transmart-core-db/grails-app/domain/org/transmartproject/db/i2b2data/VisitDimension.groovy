@@ -63,6 +63,10 @@ class VisitDimension {
         uploadId          nullable:   true
     }
 
+    Long getPatientId() {
+        patient.id
+    }
+
     String getPatientInTrialId() {
         patient.inTrialId
     }

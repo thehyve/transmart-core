@@ -5,16 +5,15 @@
   ~  (see accompanying file LICENSE).
   -->
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <changeSet author="artur@thehyve.nl" id="20191907041159-0">
         <sql endDelimiter=";">
             create schema biomart_user
         </sql>
     </changeSet>
     <changeSet author="artur@thehyve.nl" id="20191907041159-1" dbms="PostgreSQL">
-        <preConditions onFail="WARN">
+        <preConditions onFail="CONTINUE">
             <sqlCheck expectedResult="1">
                 SELECT count(*) FROM pg_extension WHERE extname='pg_bitcount'
             </sqlCheck>
