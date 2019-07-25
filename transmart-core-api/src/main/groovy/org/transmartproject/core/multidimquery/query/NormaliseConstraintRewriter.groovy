@@ -15,12 +15,12 @@ import groovy.transform.CompileStatic
 class NormaliseConstraintRewriter extends ConstraintRewriter {
 
     /**
-     * Eliminate subselect true
+     * Eliminate subselect true for patient dimension.
      */
     @Override
     Constraint build(SubSelectionConstraint constraint) {
         Constraint subconstraint = build(constraint.constraint)
-        if (subconstraint instanceof TrueConstraint) {
+        if (constraint.dimension == 'patient' && subconstraint instanceof TrueConstraint) {
             return subconstraint
         } else {
             return new SubSelectionConstraint(constraint.dimension, subconstraint)
