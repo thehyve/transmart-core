@@ -238,6 +238,17 @@ class QueryRewriterSpec extends Specification {
         result.toJson() == expected.toJson()
     }
 
+    void 'test rewriting of non-patient dimension subselect with true subconstraint'() {
+        given: 'a subselect constraint for non-patient dimension'
+        Constraint constraint = new SubSelectionConstraint('sample', new TrueConstraint())
+
+        when: 'rewriting the first constraint'
+        def result = new CombinationConstraintRewriter().build(constraint)
+
+        then: 'the rewrite result is equal to the original'
+        result.toJson() == constraint.toJson()
+    }
+
     void 'test rewriting of conjunction with subselect with true subconstraint'() {
         given: 'two logically equivalent constraints, the second form preferred'
         Constraint constraint = new AndConstraint([
