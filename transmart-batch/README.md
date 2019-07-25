@@ -53,11 +53,11 @@ See example property files:
 
 ### Download
 The latest version can be downloaded here:
-[transmart-batch-17.1-HYVE-6.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-batch/17.1-HYVE-6/transmart-batch-17.1-HYVE-6.jar).
+[transmart-batch-17.1-HYVE-6.2.jar](https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-batch/17.1-HYVE-6.2/transmart-batch-17.1-HYVE-6.2.jar).
 
 ```bash
 # Download transmart-batch
-curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-batch/17.1-HYVE-6/transmart-batch-17.1-HYVE-6.jar -o transmart-batch.jar
+curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-batch/17.1-HYVE-6.2/transmart-batch-17.1-HYVE-6.2.jar -o transmart-batch.jar
 ```
 
 ## Build commands from source

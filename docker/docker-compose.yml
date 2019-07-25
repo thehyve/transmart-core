@@ -16,7 +16,7 @@ services:
 
   transmart-api-server:
     container_name: transmart-api-server
-    image: thehyve/transmart-api-server:17.1-HYVE-6
+    image: thehyve/transmart-api-server:17.1-HYVE-6.2
     ports:
       - 9081:8081
     environment:
