@@ -588,6 +588,19 @@ paths:
                 $ref: '#/components/schemas/Version'
         '404':
           description: Version not available.
+  /health:
+    get:
+      description: >
+        Shows application health information: a simple overall status (`UP` or `DOWN`) when accessed over
+        an unauthenticated connection or full message details (including database status) when authenticated;
+      responses:
+        '200':
+          description: |
+            An application health status.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
   /v1/studies:
     get:
       description: |
@@ -4022,6 +4035,40 @@ components:
           description: >-
             Chunk size for splitting patient set based tasks into smaller
             subtasks.
+
+    HealthStatus:
+      description:
+        The status of the application. When connection is authenticated, it shows the detailed information
+        depending on the configuration, e.g. status of connectivity with the database.
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN]
+          description: overall health status.
+        application:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [UP, DOWN]
+              description: >-
+                (optional) DOWN if there is any issue on the application side, e.g disc space is almost full.
+                Not shown, it the connection is not authenticated.
+        databaseHealthCheck:
+          type: object
+          description: >-
+            (optional) database health check status. Not shown, it the connection is not authenticated.
+          properties:
+            status:
+              type: string
+              enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN]
+            database:
+              type: string
+            <message>:
+              type: string
+
+
 
   requestBodies:
 

@@ -23,6 +23,12 @@ endpoints:
     enabled: false
     jmx:
         enabled: true
+    health:
+        enabled: true # enable health endpoint for application monitoring
+management:
+    health:
+        diskspace:
+            enabled: false # show diskspace health indicator properties
 
 ---
 hibernate:
