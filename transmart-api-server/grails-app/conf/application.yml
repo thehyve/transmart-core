@@ -26,6 +26,9 @@ endpoints:
     health:
         enabled: true # enable health endpoint for application monitoring
 management:
+    security:
+        roles: ADMIN # only ROLE_ADMIN can see the full health details
+        enabled: true
     health:
         diskspace:
             enabled: false # show diskspace health indicator properties
