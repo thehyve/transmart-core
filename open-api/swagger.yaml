@@ -13,13 +13,29 @@ info:
 
     # OAuth2
 
-    All calls need an [Authorization header](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+REST+API).
+    All tranSMART REST API calls need an [Authorization header](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+REST+API).
 
     ```
 
     Authorization:Bearer {token}
 
     ```
+
+
+    # Monitoring
+
+    For the application availability monitoring there is a
+    [Spring Boot Actuator health endpoint](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) configured.
+
+
+    The `GET` `/health` call can be used to access this resource.
+
+    The response contains application health information: a simple overall status (`UP` or `DOWN`) when accessed over
+    an unauthenticated connection or full message details (including database status) when authenticated
+    and the user has administrator role.
+
+
+    For more details see [the official Spring documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html#production-ready-health).
 
 
     # Constraints
@@ -588,20 +604,6 @@ paths:
                 $ref: '#/components/schemas/Version'
         '404':
           description: Version not available.
-  /health:
-    get:
-      description: >
-        Shows application health information: a simple overall status (`UP` or `DOWN`) when accessed over
-        an unauthenticated connection or full message details (including database status) when authenticated
-        and the user has administrator role;
-      responses:
-        '200':
-          description: |
-            An application health status.
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/HealthStatus'
   /v1/studies:
     get:
       description: |
@@ -4036,39 +4038,6 @@ components:
           description: >-
             Chunk size for splitting patient set based tasks into smaller
             subtasks.
-
-    HealthStatus:
-      description:
-        The status of the application. When connection is authenticated and user is administrator,
-        it shows the detailed information depending on the configuration, e.g. status of connectivity with the database.
-      type: object
-      properties:
-        status:
-          type: string
-          enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN]
-          description: overall health status.
-        application:
-          type: object
-          properties:
-            status:
-              type: string
-              enum: [UP, DOWN]
-              description: >-
-                (optional) DOWN if there is any issue on the application side, e.g disc space is almost full.
-                Not shown, it the connection is not authenticated or user is not administrator.
-        databaseHealthCheck:
-          type: object
-          description: >-
-            (optional) database health check status.
-            Not shown, if the connection is not authenticated or user is not administrator.
-          properties:
-            status:
-              type: string
-              enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN]
-            database:
-              type: string
-            <message>:
-              type: string
 
 
 
