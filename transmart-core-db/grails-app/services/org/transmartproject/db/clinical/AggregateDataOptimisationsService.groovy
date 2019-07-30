@@ -231,9 +231,9 @@ class AggregateDataOptimisationsService {
         long t1 = System.currentTimeMillis()
         List<Map<String, Object>> dbResults = namedParameterJdbcTemplate.queryForList(
                 """with 
-                    row_bitset as (select * from patient_set_bitset where result_instance_id in (:row_set_ids)),
-                    column_bitset as (select * from patient_set_bitset where result_instance_id in (:column_set_ids)),
-                    cell_bitset as (select * from patient_set_bitset where result_instance_id = :cell_set_id)
+                    row_bitset as (select * from biomart_user.patient_set_bitset where result_instance_id in (:row_set_ids)),
+                    column_bitset as (select * from biomart_user.patient_set_bitset where result_instance_id in (:column_set_ids)),
+                    cell_bitset as (select * from biomart_user.patient_set_bitset where result_instance_id = :cell_set_id)
                     select 
                       row_bitset.result_instance_id as row_set_id,
                       column_bitset.result_instance_id as column_set_id,
