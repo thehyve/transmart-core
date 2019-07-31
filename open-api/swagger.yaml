@@ -13,13 +13,29 @@ info:
 
     # OAuth2
 
-    All calls need an [Authorization header](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+REST+API).
+    All tranSMART REST API calls need an [Authorization header](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+REST+API).
 
     ```
 
     Authorization:Bearer {token}
 
     ```
+
+
+    # Monitoring
+
+    For the application availability monitoring there is a
+    [Spring Boot Actuator health endpoint](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) configured.
+
+
+    The `GET` `/health` call can be used to access this resource.
+
+    The response contains application health information: a simple overall status (`UP` or `DOWN`) when accessed over
+    an unauthenticated connection or full message details (including database status) when authenticated
+    and the user has administrator role.
+
+
+    For more details see [the official Spring documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html#production-ready-health).
 
 
     # Constraints
@@ -4022,6 +4038,8 @@ components:
           description: >-
             Chunk size for splitting patient set based tasks into smaller
             subtasks.
+
+
 
   requestBodies:
 
