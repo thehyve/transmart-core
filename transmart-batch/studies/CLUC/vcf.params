@@ -1,6 +1,0 @@
-DATA_FILE_PREFIX=shortened.vcf
-MAP_FILENAME=subject-sample-mapping.txt
-PLATFORM=VCF_HG19
-TITLE="VCF platform for hg19"
-ORGANISM="Homo Sapiens"
-GENOME_RELEASE=hg19

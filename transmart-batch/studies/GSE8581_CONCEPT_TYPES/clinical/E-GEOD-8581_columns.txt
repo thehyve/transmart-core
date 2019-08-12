@@ -1,6 +1,0 @@
-Filename	Category Code	Column Number	Data Label	Data Label Source	Control Vocab Cd	Concept Type
-E-GEOD-8581.sdrf-rewrite.txt	Subjects	1	SUBJ_ID			NUMERICAL
-E-GEOD-8581.sdrf-rewrite.txt	Endpoints	2	FEV1
-E-GEOD-8581.sdrf-rewrite.txt	Endpoints	3	Race			CATEGORICAL
-E-GEOD-8581.sdrf-rewrite.txt	Endpoints	4	Dummy1			CATEGORICAL
-E-GEOD-8581.sdrf-rewrite.txt	Endpoints	5	Dummy2			CATEGORICAL

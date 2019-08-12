@@ -1,5 +1,0 @@
-PLATFORM=RNASEQ_TRANSCRIPT_ANNOT
-TITLE="Test RNASeq Transcript Platform"
-ORGANISM="Homo Sapiens"
-ANNOTATIONS_FILE=rnaseq_transcript_annotations.tsv
-GENOME_RELEASE=hg19

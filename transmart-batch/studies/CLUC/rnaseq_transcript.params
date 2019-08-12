@@ -1,4 +1,0 @@
-DATA_FILE_PREFIX=rnaseq_transcript_data.tsv
-DATA_TYPE=R
-LOG_BASE=2
-MAP_FILENAME=rnaseq_transcript_subject_sample_mapping.tsv

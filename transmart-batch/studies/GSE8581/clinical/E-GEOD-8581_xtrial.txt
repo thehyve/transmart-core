@@ -1,5 +1,0 @@
-study_prefix	xtrial_prefix
-\Subjects\Sex\male	\Demographics\Sex\Male
-\Subjects\Sex\female	\Demographics\Sex\Female
-\Subjects\Ethnicity	\Demographics\Race
-\Endpoints\FEV1	\Findings\Laboratory Tests\Forced Expiratory Volume (FEV1)

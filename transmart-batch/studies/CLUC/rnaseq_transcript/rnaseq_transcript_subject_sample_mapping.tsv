@@ -1,4 +1,0 @@
-trial_name	site_id	subject_id	sample_cd	platform	sample_type	tissue_type	time_point	cat_cd	src_cd
-CLUC		CACO2	RNASEQ.CACO2	RNASEQ_TRANSCRIPT_ANNOT	rcnt	Colon	tp1	"Test+RnaSeqTranscript+SAMPLETYPE+data"	STD
-CLUC		COLO205	RNASEQ.COLO205	RNASEQ_TRANSCRIPT_ANNOT	rcnt	Colon	tp1	"Test+RnaSeqTranscript+SAMPLETYPE+data"	STD
-CLUC		DLD1	RNASEQ.DLD1	RNASEQ_TRANSCRIPT_ANNOT	rcnt	Colon	tp1	"Test+RnaSeqTranscript+SAMPLETYPE+data"	STD

@@ -1,5 +1,0 @@
-concept_key	tag_title	tag_description	index	foobar
-\	TITLE	Human Chronic Obstructive Pulmonary Disorder Biomarker	2	sada
-\	ORGANISM	Homo sapiens	3	sgffs
-\Endpoints\FEV1	NAME	FEV1/FVC ratio	4	sdfgdfg
-\Endpoints\FEV1	SYNONYMS	Tiffeneau-Pinelli	5	dfg
