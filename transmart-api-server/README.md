@@ -43,6 +43,7 @@ Login to `https://idp.example.com/auth/admin/` and:
 
     - Global roles:
 
+        `ROLE_PUBLIC`
         `ROLE_ADMIN`
 
     - Study permissions:
@@ -112,6 +113,9 @@ keycloak:
 # to enable use of keycloak API to fetch list of users for jobs
 keycloakOffline:
     offlineToken: {offlineToken}
+
+# by default, users without any role are not denied access
+org.transmartproject.security.denyAccessToUsersWithoutRole: false
 ```
 
 Start `transmart-api-server` with this configuration file:

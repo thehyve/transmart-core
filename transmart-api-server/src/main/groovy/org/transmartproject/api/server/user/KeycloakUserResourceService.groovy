@@ -32,6 +32,7 @@ import java.text.ParseException
 class KeycloakUserResourceService implements UsersResource {
 
     public static final String ROLE_ADMIN = 'ROLE_ADMIN'
+    public static final String ROLE_PUBLIC = 'ROLE_PUBLIC'
 
     @Autowired
     LegacyAuthorisationChecks authorisationChecks
@@ -85,6 +86,7 @@ class KeycloakUserResourceService implements UsersResource {
 
         final String username = principal.name
         List<String> authorities = principal.authorities.collect { GrantedAuthority ga -> ga.authority }
+        authorities.remove(ROLE_PUBLIC)
         final boolean admin = authorities.remove(ROLE_ADMIN)
         Map<String, PatientDataAccessLevel> studyToAccLvl =
                 buildStudyToPatientDataAccessLevel(authorities)
@@ -169,6 +171,7 @@ class KeycloakUserResourceService implements UsersResource {
     }
 
     private static User createUser(UserRepresentation keycloakUser, Set<String> roles) {
+        roles.remove(ROLE_PUBLIC)
         final boolean admin = roles.remove(ROLE_ADMIN)
         Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel = buildStudyToPatientDataAccessLevel(roles)
         new SimpleUser(keycloakUser.id,
