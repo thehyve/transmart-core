@@ -1,0 +1,37 @@
+c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode	c_metadataxml	c_facttablecolumn	c_tablename	c_columnname	c_columndatatype	c_operator	c_dimcode	c_comment	c_tooltip	m_applied_path	update_date	download_date	import_date	sourcesystem_cd	valuetype_cd	m_exclusion_cd	c_path	c_symbol	i2b2_id	secure_obj_token
+0	\Public studies\	Public studies	N	CA				@	@	@	T	=	@			@										PUBLIC
+1	\Public studies\Multi-DWH Test\	Multi-DWH Test	N	FAS				@	STUDY	STUDY_ID	T	=	MULTI-DWH-TEST-STUDY			@										PUBLIC
+2	\Public studies\Multi-DWH Test\Modifier variables\	Modifier variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+2	\Public studies\Multi-DWH Test\Observation date variables\	Observation date variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+2	\Public studies\Multi-DWH Test\Simple variables\	Simple variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+2	\Public studies\Multi-DWH Test\Ontology variables\	Ontology variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+2	\Public studies\Multi-DWH Test\Trial visit variables\	Trial visit variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+2	\Public studies\Multi-DWH Test\Visit variables\	Visit variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Modifier variables\Blood pressure\	Blood pressure	N	LAN		VAR_bloodpressure		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	VAR_bloodpressure			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Observation date variables\BMI\	BMI	N	LAN		VAR_bmi		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	VAR_bmi			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Simple variables\Sex\	Sex	N	LAC		VAR_sex		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	VAR_sex			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Simple variables\Age\	Age	N	LAN		VAR_age_yrs		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	VAR_age_yrs			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Simple variables\Favorite color\	Favorite color	N	LAC		TEST-ONTOLOGY_0201FAVCOLOR		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0201FAVCOLOR			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Ontology variables\Name\	Name	N	LAC		TEST-ONTOLOGY_0203FAVNAME		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0203FAVNAME			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Simple variables\Date of birth\	Date of birth	N	LAD		VAR_birthdate		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	VAR_birthdate			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Visit variables\Height\	Height	N	LAN		TEST-ONTOLOGY_0102HEIGHT		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0102HEIGHT			@										PUBLIC
+3	\Public studies\Multi-DWH Test\Trial visit variables\Weight\	Weight	N	LAN		VAR_weight		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	VAR_weight			@										PUBLIC
+1	\Public studies\Ontology overlap test study\	Ontology overlap test study	N	FAS				@	STUDY	STUDY_ID	T	=	ONTOLOGY-OVERLAP-STUDY			@										PUBLIC
+2	\Public studies\Ontology overlap test study\1. Shared variables\	1. Shared variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+2	\Public studies\Ontology overlap test study\2. Private variables\	2. Private variables	N	FA				@	@	@	T	=	@			@										PUBLIC
+3	\Public studies\Ontology overlap test study\1. Shared variables\Age\	Age	N	LAN		VAR_age_yrs		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Personal data\Age\			@										PUBLIC
+3	\Public studies\Ontology overlap test study\1. Shared variables\Sex\	Sex	N	LAC		VAR_sex		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Personal data\Sex\			@										PUBLIC
+3	\Public studies\Ontology overlap test study\1. Shared variables\Birthdate\	Birthdate	N	LAD		VAR_birthdate		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Personal data\Date of birth\			@										PUBLIC
+3	\Public studies\Ontology overlap test study\1. Shared variables\Favorite color (ONT)\	Favorite color (ONT)	N	LAC		TEST-ONTOLOGY_0201FAVCOLOR		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\TEST-ONTOLOGY_0201FAVCOLOR\			@										PUBLIC
+3	\Public studies\Ontology overlap test study\1. Shared variables\Height (ONT)\	Height (ONT)	N	LAN		TEST-ONTOLOGY_0102HEIGHT		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\TEST-ONTOLOGY_0102HEIGHT\			@										PUBLIC
+3	\Public studies\Ontology overlap test study\2. Private variables\Shoe size (ONT)\	Shoe size (ONT)	N	LAN		TEST-ONTOLOGY_0101SHOESIZE		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\TEST-ONTOLOGY_0101SHOESIZE\			@										PUBLIC
+3	\Public studies\Ontology overlap test study\2. Private variables\Favorite animal (ONT)\	Favorite animal (ONT)	N	LAC		TEST-ONTOLOGY_0202FAVANIMAL		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\TEST-ONTOLOGY_0202FAVANIMAL\			@										PUBLIC
+0	\Custom ontologies\	Custom ontologies	N	CA				@	@	@	T	=	@			@										PUBLIC
+1	\Custom ontologies\Ontology Test\	Ontology Test	N	FAC		TEST-ONTOLOGY		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY			@										PUBLIC
+2	\Custom ontologies\Ontology Test\Bodily measures\	Bodily measures	N	FAC		TEST-ONTOLOGY_01BODY		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_01BODY			@										PUBLIC
+3	\Custom ontologies\Ontology Test\Bodily measures\Height (m)\	Height (m)	N	LAN		TEST-ONTOLOGY_0102HEIGHT		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0102HEIGHT			@										PUBLIC
+3	\Custom ontologies\Ontology Test\Bodily measures\Shoe size (EU)\	Shoe size (EU)	N	LAN		TEST-ONTOLOGY_0101SHOESIZE		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0101SHOESIZE			@										PUBLIC
+2	\Custom ontologies\Ontology Test\Individual preferences\	Individual preferences	N	FAC		TEST-ONTOLOGY_02PREF		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_02PREF			@										PUBLIC
+3	\Custom ontologies\Ontology Test\Individual preferences\Favorite visible light interval\	Favorite visible light interval	N	LAC		TEST-ONTOLOGY_0201FAVCOLOR		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0201FAVCOLOR			@										PUBLIC
+3	\Custom ontologies\Ontology Test\Individual preferences\Favorite animal\	Favorite animal	N	LAC		TEST-ONTOLOGY_0202FAVANIMAL		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0202FAVANIMAL			@										PUBLIC
+3	\Custom ontologies\Ontology Test\Individual preferences\How I prefer to be called\	How I prefer to be called	N	LAC		TEST-ONTOLOGY_0203FAVNAME		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_CD	T	=	TEST-ONTOLOGY_0203FAVNAME			@										PUBLIC
