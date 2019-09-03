@@ -16,5 +16,5 @@ left_subject_id	relation_type_id	right_subject_id	biological	share_household
 6	8	5		f
 8	6	9		t
 9	5	8		t
-0	7	6
+0	7	6		
 6	7	0		

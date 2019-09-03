@@ -1,15 +1,15 @@
 concept_blob	concept_cd	concept_path	download_date	import_date	name_char	sourcesystem_cd	table_name	update_date	upload_id
-	VAR_bloodpressure	\Measurements\Blood pressure\			Blood pressure
-	VAR_bmi	\Measurements\BMI\			BMI
-	VAR_sex	\Personal data\Sex\			Sex
-	VAR_age_yrs	\Personal data\Age\			Age
-	VAR_birthdate	\Personal data\Date of birth\			Date of birth
-	VAR_weight	\Measurements\Weight\			Weight
-	TEST-ONTOLOGY_0101SHOESIZE	\TEST-ONTOLOGY_0101SHOESIZE\			Shoe size
-	TEST-ONTOLOGY_0102HEIGHT	\TEST-ONTOLOGY_0102HEIGHT\			Height
-	TEST-ONTOLOGY_0201FAVCOLOR	\TEST-ONTOLOGY_0201FAVCOLOR\			Favorite color
-	TEST-ONTOLOGY_0202FAVANIMAL	\TEST-ONTOLOGY_0202FAVANIMAL\			Favorite animal
-	TEST-ONTOLOGY_0203FAVNAME	\TEST-ONTOLOGY_0203FAVNAME\			Favorite name
-	TEST-ONTOLOGY_01BODY	\TEST-ONTOLOGY_01BODY\			Bodily measures
-	TEST-ONTOLOGY_02PREF	\TEST-ONTOLOGY_02PREF\			Personal preferences
-	TEST-ONTOLOGY	\TEST-ONTOLOGY\			Test ontology
+	VAR_bloodpressure	\Measurements\Blood pressure\			Blood pressure				
+	VAR_bmi	\Measurements\BMI\			BMI				
+	VAR_sex	\Personal data\Sex\			Sex				
+	VAR_age_yrs	\Personal data\Age\			Age				
+	VAR_birthdate	\Personal data\Date of birth\			Date of birth				
+	VAR_weight	\Measurements\Weight\			Weight				
+	TEST-ONTOLOGY_0101SHOESIZE	\TEST-ONTOLOGY_0101SHOESIZE\			Shoe size				
+	TEST-ONTOLOGY_0102HEIGHT	\TEST-ONTOLOGY_0102HEIGHT\			Height				
+	TEST-ONTOLOGY_0201FAVCOLOR	\TEST-ONTOLOGY_0201FAVCOLOR\			Favorite color				
+	TEST-ONTOLOGY_0202FAVANIMAL	\TEST-ONTOLOGY_0202FAVANIMAL\			Favorite animal				
+	TEST-ONTOLOGY_0203FAVNAME	\TEST-ONTOLOGY_0203FAVNAME\			Favorite name				
+	TEST-ONTOLOGY_01BODY	\TEST-ONTOLOGY_01BODY\			Bodily measures				
+	TEST-ONTOLOGY_02PREF	\TEST-ONTOLOGY_02PREF\			Personal preferences				
+	TEST-ONTOLOGY	\TEST-ONTOLOGY\			Test ontology				
