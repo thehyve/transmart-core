@@ -1,6 +1,0 @@
-FILENAME	COLUMN_NUMBER	FROM	TO
-main_data.tsv	12		(empty blob)
-main_data.tsv	11		DEM|SEX:@
-main_data.tsv	11	male	DEM|SEX:m
-main_data.tsv	11	female	DEM|SEX:f
-main_data.tsv	10	<a>to be replaced by null</a>	

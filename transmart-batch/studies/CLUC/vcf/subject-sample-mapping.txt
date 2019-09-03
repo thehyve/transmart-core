@@ -1,7 +1,0 @@
-trial_name	site_id	subject_id	sample_cd	platform	sample_type	tissue_type	time_point	cat_cd	src_cd
-CLUC		CACO2	CACO2_SNP_hg19.vcf.gz_Sample1	VCF_hg19	st	tissue	tp1	"Test+VCF+data"	STD
-CLUC		HCT116	HCT116_SNP_hg19_Sample1	VCF_hg19	st	tissue	tp1	"Test+VCF+data"	STD
-CLUC		HT29	HT29_SNP_hg19_Sample1	VCF_hg19	st	tissue	tp1	"Test+VCF+data"	STD
-CLUC		PC346c	PC346c_SNPs_hg19_Sample1	VCF_hg19	st	tissue	tp1	"Test+VCF+data"	STD
-CLUC		SW480	SW480_SNP_hg19_Sample1	VCF_hg19	st	tissue	tp1	"Test+VCF+data"	STD
-CLUC		VCaP	VCaP_SNP_hg19_Sample1	VCF_hg19	st	tissue	tp1	"Test+VCF+data"	STD

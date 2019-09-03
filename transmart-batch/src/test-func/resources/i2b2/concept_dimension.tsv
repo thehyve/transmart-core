@@ -1,6 +1,0 @@
-concept_path	concept_cd	name_char	concept_blob	update_date	download_date	import_date	sourcesystem_cd	upload_id
-\Custom Metadata\	CUSTOM_META_PAR	Custom Metadata		2010-09-28 11:15:00	2010-08-18 09:50:00	2010-09-28 11:40:00	DEMO
-\Custom Metadata\Concept 1\	C1-TEXT	Custom Metadata		2010-09-28 11:15:00	2010-08-18 09:50:00	2010-09-28 11:40:00	DEMO
-\Custom Metadata\Concept 2\	C2-BLOB	Custom Metadata		2010-09-28 11:15:00	2010-08-18 09:50:00	2010-09-28 11:40:00	DEMO
-\Custom Metadata\Concept 3\	C3-NUMBER	Custom Metadata		2010-09-28 11:15:00	2010-08-18 09:50:00	2010-09-28 11:40:00	DEMO
-\Custom Metadata\Concept 4\	C4-NLP	Custom Metadata		2010-09-28 11:15:00	2010-08-18 09:50:00	2010-09-28 11:40:00	DEMO

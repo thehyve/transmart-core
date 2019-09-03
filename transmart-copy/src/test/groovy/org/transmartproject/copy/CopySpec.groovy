@@ -25,8 +25,8 @@ class CopySpec extends Specification {
             PGHOST     : 'localhost',
             PGPORT     : '5432',
             PGDATABASE : 'transmart',
-            PGUSER     : 'i2b2demodata',
-            PGPASSWORD : 'i2b2demodata',
+            PGUSER     : 'biomart_user',
+            PGPASSWORD : 'biomart_user',
             MAXPOOLSIZE: '5'
     ]
 

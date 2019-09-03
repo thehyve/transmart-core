@@ -55,8 +55,6 @@ Please note that these tests will be ignored, when using [transmart-api-server](
 The `v2` API is covered with tests for happy cases, error cases, access rights.
 It also contains tests for constraints.
 
-The tests for subscription functionality require enabling and a proper configuration  of [transmart-notifications](../transmart-notifications) plugin. See the [configuration description of this plugin](../transmart-notifications/README.md).
-
 - `GET /observations`
 - `GET /observations/aggregate`
 - `GET /high_dim`

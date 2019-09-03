@@ -1,6 +1,0 @@
-Filename	Category Code	Column Number	Data Label	Data Label Source	Control Vocab Cd
-clinical.txt	Subjects	1	SUBJ_ID		
-clinical.txt	Demographics	2	Gender		
-clinical.txt	Demographics	3	Age		
-clinical.txt	Demographics	4	Weight		
-clinical.txt	Demographics	5	Trial Arm		

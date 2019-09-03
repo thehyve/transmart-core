@@ -1,2 +1,0 @@
-concept_key	tag_title	tag_description	index
-\	Test tag	Test option 4	0

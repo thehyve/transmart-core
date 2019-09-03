@@ -1,0 +1,101 @@
+concept_cd	concept_path	name_char	table_name	download_date	import_date	update_date	sourcesystem_cd
+O1KP:GENDER	\Public Studies\Oracle_1000_Patient\Demographics\Gender\	Gender		2017-02-06 19:14:07.499380	2017-02-06 19:14:07.499380	2017-02-06 19:14:07.499380	ORACLE_1000_PATIENT
+O1KP:AGE	\Public Studies\Oracle_1000_Patient\Demographics\Age\	Age		2017-02-06 19:14:07.499407	2017-02-06 19:14:07.499407	2017-02-06 19:14:07.499407	ORACLE_1000_PATIENT
+O1KP:NUM1	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_1\	numerical_1		2017-02-06 19:14:07.499419	2017-02-06 19:14:07.499419	2017-02-06 19:14:07.499419	ORACLE_1000_PATIENT
+O1KP:NUM2	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_2\	numerical_2		2017-02-06 19:14:07.499428	2017-02-06 19:14:07.499428	2017-02-06 19:14:07.499428	ORACLE_1000_PATIENT
+O1KP:NUM3	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_3\	numerical_3		2017-02-06 19:14:07.499435	2017-02-06 19:14:07.499435	2017-02-06 19:14:07.499435	ORACLE_1000_PATIENT
+O1KP:NUM4	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_4\	numerical_4		2017-02-06 19:14:07.499443	2017-02-06 19:14:07.499443	2017-02-06 19:14:07.499443	ORACLE_1000_PATIENT
+O1KP:NUM5	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_5\	numerical_5		2017-02-06 19:14:07.499450	2017-02-06 19:14:07.499450	2017-02-06 19:14:07.499450	ORACLE_1000_PATIENT
+O1KP:NUM6	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_6\	numerical_6		2017-02-06 19:14:07.499458	2017-02-06 19:14:07.499458	2017-02-06 19:14:07.499458	ORACLE_1000_PATIENT
+O1KP:NUM7	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_7\	numerical_7		2017-02-06 19:14:07.499464	2017-02-06 19:14:07.499464	2017-02-06 19:14:07.499464	ORACLE_1000_PATIENT
+O1KP:NUM8	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_8\	numerical_8		2017-02-06 19:14:07.499472	2017-02-06 19:14:07.499472	2017-02-06 19:14:07.499472	ORACLE_1000_PATIENT
+O1KP:NUM9	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_9\	numerical_9		2017-02-06 19:14:07.499478	2017-02-06 19:14:07.499478	2017-02-06 19:14:07.499478	ORACLE_1000_PATIENT
+O1KP:NUM10	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_10\	numerical_10		2017-02-06 19:14:07.499484	2017-02-06 19:14:07.499484	2017-02-06 19:14:07.499484	ORACLE_1000_PATIENT
+O1KP:NUM11	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_11\	numerical_11		2017-02-06 19:14:07.499491	2017-02-06 19:14:07.499491	2017-02-06 19:14:07.499491	ORACLE_1000_PATIENT
+O1KP:NUM12	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_12\	numerical_12		2017-02-06 19:14:07.499497	2017-02-06 19:14:07.499497	2017-02-06 19:14:07.499497	ORACLE_1000_PATIENT
+O1KP:NUM13	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_13\	numerical_13		2017-02-06 19:14:07.499503	2017-02-06 19:14:07.499503	2017-02-06 19:14:07.499503	ORACLE_1000_PATIENT
+O1KP:NUM14	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_14\	numerical_14		2017-02-06 19:14:07.499509	2017-02-06 19:14:07.499509	2017-02-06 19:14:07.499509	ORACLE_1000_PATIENT
+O1KP:NUM15	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_15\	numerical_15		2017-02-06 19:14:07.499515	2017-02-06 19:14:07.499515	2017-02-06 19:14:07.499515	ORACLE_1000_PATIENT
+O1KP:NUM16	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_16\	numerical_16		2017-02-06 19:14:07.499522	2017-02-06 19:14:07.499522	2017-02-06 19:14:07.499522	ORACLE_1000_PATIENT
+O1KP:NUM17	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_17\	numerical_17		2017-02-06 19:14:07.499528	2017-02-06 19:14:07.499528	2017-02-06 19:14:07.499528	ORACLE_1000_PATIENT
+O1KP:NUM18	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_18\	numerical_18		2017-02-06 19:14:07.499543	2017-02-06 19:14:07.499543	2017-02-06 19:14:07.499543	ORACLE_1000_PATIENT
+O1KP:NUM19	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_19\	numerical_19		2017-02-06 19:14:07.499550	2017-02-06 19:14:07.499550	2017-02-06 19:14:07.499550	ORACLE_1000_PATIENT
+O1KP:NUM20	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_20\	numerical_20		2017-02-06 19:14:07.499556	2017-02-06 19:14:07.499556	2017-02-06 19:14:07.499556	ORACLE_1000_PATIENT
+O1KP:NUM21	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_21\	numerical_21		2017-02-06 19:14:07.499562	2017-02-06 19:14:07.499562	2017-02-06 19:14:07.499562	ORACLE_1000_PATIENT
+O1KP:NUM22	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_22\	numerical_22		2017-02-06 19:14:07.499568	2017-02-06 19:14:07.499568	2017-02-06 19:14:07.499568	ORACLE_1000_PATIENT
+O1KP:NUM23	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_23\	numerical_23		2017-02-06 19:14:07.499574	2017-02-06 19:14:07.499574	2017-02-06 19:14:07.499574	ORACLE_1000_PATIENT
+O1KP:NUM24	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_24\	numerical_24		2017-02-06 19:14:07.499580	2017-02-06 19:14:07.499580	2017-02-06 19:14:07.499580	ORACLE_1000_PATIENT
+O1KP:NUM25	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_25\	numerical_25		2017-02-06 19:14:07.499586	2017-02-06 19:14:07.499586	2017-02-06 19:14:07.499586	ORACLE_1000_PATIENT
+O1KP:NUM26	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_26\	numerical_26		2017-02-06 19:14:07.499592	2017-02-06 19:14:07.499592	2017-02-06 19:14:07.499592	ORACLE_1000_PATIENT
+O1KP:NUM27	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_27\	numerical_27		2017-02-06 19:14:07.499603	2017-02-06 19:14:07.499603	2017-02-06 19:14:07.499603	ORACLE_1000_PATIENT
+O1KP:NUM28	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_28\	numerical_28		2017-02-06 19:14:07.499610	2017-02-06 19:14:07.499610	2017-02-06 19:14:07.499610	ORACLE_1000_PATIENT
+O1KP:NUM29	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_29\	numerical_29		2017-02-06 19:14:07.499615	2017-02-06 19:14:07.499615	2017-02-06 19:14:07.499615	ORACLE_1000_PATIENT
+O1KP:NUM30	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_30\	numerical_30		2017-02-06 19:14:07.499621	2017-02-06 19:14:07.499621	2017-02-06 19:14:07.499621	ORACLE_1000_PATIENT
+O1KP:NUM31	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_31\	numerical_31		2017-02-06 19:14:07.499627	2017-02-06 19:14:07.499627	2017-02-06 19:14:07.499627	ORACLE_1000_PATIENT
+O1KP:NUM32	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_32\	numerical_32		2017-02-06 19:14:07.499633	2017-02-06 19:14:07.499633	2017-02-06 19:14:07.499633	ORACLE_1000_PATIENT
+O1KP:NUM33	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_33\	numerical_33		2017-02-06 19:14:07.499639	2017-02-06 19:14:07.499639	2017-02-06 19:14:07.499639	ORACLE_1000_PATIENT
+O1KP:NUM34	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_34\	numerical_34		2017-02-06 19:14:07.499645	2017-02-06 19:14:07.499645	2017-02-06 19:14:07.499645	ORACLE_1000_PATIENT
+O1KP:NUM35	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_35\	numerical_35		2017-02-06 19:14:07.499651	2017-02-06 19:14:07.499651	2017-02-06 19:14:07.499651	ORACLE_1000_PATIENT
+O1KP:NUM36	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_36\	numerical_36		2017-02-06 19:14:07.499662	2017-02-06 19:14:07.499662	2017-02-06 19:14:07.499662	ORACLE_1000_PATIENT
+O1KP:NUM37	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_37\	numerical_37		2017-02-06 19:14:07.499668	2017-02-06 19:14:07.499668	2017-02-06 19:14:07.499668	ORACLE_1000_PATIENT
+O1KP:NUM38	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_38\	numerical_38		2017-02-06 19:14:07.499674	2017-02-06 19:14:07.499674	2017-02-06 19:14:07.499674	ORACLE_1000_PATIENT
+O1KP:NUM39	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_39\	numerical_39		2017-02-06 19:14:07.499680	2017-02-06 19:14:07.499680	2017-02-06 19:14:07.499680	ORACLE_1000_PATIENT
+O1KP:NUM40	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_40\	numerical_40		2017-02-06 19:14:07.499686	2017-02-06 19:14:07.499686	2017-02-06 19:14:07.499686	ORACLE_1000_PATIENT
+O1KP:NUM41	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_41\	numerical_41		2017-02-06 19:14:07.499692	2017-02-06 19:14:07.499692	2017-02-06 19:14:07.499692	ORACLE_1000_PATIENT
+O1KP:NUM42	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_42\	numerical_42		2017-02-06 19:14:07.499698	2017-02-06 19:14:07.499698	2017-02-06 19:14:07.499698	ORACLE_1000_PATIENT
+O1KP:NUM43	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_43\	numerical_43		2017-02-06 19:14:07.499705	2017-02-06 19:14:07.499705	2017-02-06 19:14:07.499705	ORACLE_1000_PATIENT
+O1KP:NUM44	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_44\	numerical_44		2017-02-06 19:14:07.499767	2017-02-06 19:14:07.499767	2017-02-06 19:14:07.499767	ORACLE_1000_PATIENT
+O1KP:NUM45	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_45\	numerical_45		2017-02-06 19:14:07.499784	2017-02-06 19:14:07.499784	2017-02-06 19:14:07.499784	ORACLE_1000_PATIENT
+O1KP:NUM46	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_46\	numerical_46		2017-02-06 19:14:07.499799	2017-02-06 19:14:07.499799	2017-02-06 19:14:07.499799	ORACLE_1000_PATIENT
+O1KP:NUM47	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_47\	numerical_47		2017-02-06 19:14:07.499812	2017-02-06 19:14:07.499812	2017-02-06 19:14:07.499812	ORACLE_1000_PATIENT
+O1KP:NUM48	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_48\	numerical_48		2017-02-06 19:14:07.499825	2017-02-06 19:14:07.499825	2017-02-06 19:14:07.499825	ORACLE_1000_PATIENT
+O1KP:NUM49	\Public Studies\Oracle_1000_Patient\Numerical Variables\numerical_49\	numerical_49		2017-02-06 19:14:07.499837	2017-02-06 19:14:07.499837	2017-02-06 19:14:07.499837	ORACLE_1000_PATIENT
+O1KP:CAT1	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_1\	categorical_1		2017-02-06 19:14:07.499850	2017-02-06 19:14:07.499850	2017-02-06 19:14:07.499850	ORACLE_1000_PATIENT
+O1KP:CAT2	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_2\	categorical_2		2017-02-06 19:14:07.499862	2017-02-06 19:14:07.499862	2017-02-06 19:14:07.499862	ORACLE_1000_PATIENT
+O1KP:CAT3	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_3\	categorical_3		2017-02-06 19:14:07.499874	2017-02-06 19:14:07.499874	2017-02-06 19:14:07.499874	ORACLE_1000_PATIENT
+O1KP:CAT4	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_4\	categorical_4		2017-02-06 19:14:07.499886	2017-02-06 19:14:07.499886	2017-02-06 19:14:07.499886	ORACLE_1000_PATIENT
+O1KP:CAT5	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_5\	categorical_5		2017-02-06 19:14:07.499898	2017-02-06 19:14:07.499898	2017-02-06 19:14:07.499898	ORACLE_1000_PATIENT
+O1KP:CAT6	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_6\	categorical_6		2017-02-06 19:14:07.499910	2017-02-06 19:14:07.499910	2017-02-06 19:14:07.499910	ORACLE_1000_PATIENT
+O1KP:CAT7	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_7\	categorical_7		2017-02-06 19:14:07.499922	2017-02-06 19:14:07.499922	2017-02-06 19:14:07.499922	ORACLE_1000_PATIENT
+O1KP:CAT8	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_8\	categorical_8		2017-02-06 19:14:07.499934	2017-02-06 19:14:07.499934	2017-02-06 19:14:07.499934	ORACLE_1000_PATIENT
+O1KP:CAT9	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_9\	categorical_9		2017-02-06 19:14:07.499947	2017-02-06 19:14:07.499947	2017-02-06 19:14:07.499947	ORACLE_1000_PATIENT
+O1KP:CAT10	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_10\	categorical_10		2017-02-06 19:14:07.499959	2017-02-06 19:14:07.499959	2017-02-06 19:14:07.499959	ORACLE_1000_PATIENT
+O1KP:CAT11	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_11\	categorical_11		2017-02-06 19:14:07.499972	2017-02-06 19:14:07.499972	2017-02-06 19:14:07.499972	ORACLE_1000_PATIENT
+O1KP:CAT12	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_12\	categorical_12		2017-02-06 19:14:07.499985	2017-02-06 19:14:07.499985	2017-02-06 19:14:07.499985	ORACLE_1000_PATIENT
+O1KP:CAT13	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_13\	categorical_13		2017-02-06 19:14:07.499997	2017-02-06 19:14:07.499997	2017-02-06 19:14:07.499997	ORACLE_1000_PATIENT
+O1KP:CAT14	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_14\	categorical_14		2017-02-06 19:14:07.500010	2017-02-06 19:14:07.500010	2017-02-06 19:14:07.500010	ORACLE_1000_PATIENT
+O1KP:CAT15	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_15\	categorical_15		2017-02-06 19:14:07.500023	2017-02-06 19:14:07.500023	2017-02-06 19:14:07.500023	ORACLE_1000_PATIENT
+O1KP:CAT16	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_16\	categorical_16		2017-02-06 19:14:07.500035	2017-02-06 19:14:07.500035	2017-02-06 19:14:07.500035	ORACLE_1000_PATIENT
+O1KP:CAT17	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_17\	categorical_17		2017-02-06 19:14:07.500047	2017-02-06 19:14:07.500047	2017-02-06 19:14:07.500047	ORACLE_1000_PATIENT
+O1KP:CAT18	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_18\	categorical_18		2017-02-06 19:14:07.500059	2017-02-06 19:14:07.500059	2017-02-06 19:14:07.500059	ORACLE_1000_PATIENT
+O1KP:CAT19	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_19\	categorical_19		2017-02-06 19:14:07.500071	2017-02-06 19:14:07.500071	2017-02-06 19:14:07.500071	ORACLE_1000_PATIENT
+O1KP:CAT20	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_20\	categorical_20		2017-02-06 19:14:07.500093	2017-02-06 19:14:07.500093	2017-02-06 19:14:07.500093	ORACLE_1000_PATIENT
+O1KP:CAT21	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_21\	categorical_21		2017-02-06 19:14:07.500106	2017-02-06 19:14:07.500106	2017-02-06 19:14:07.500106	ORACLE_1000_PATIENT
+O1KP:CAT22	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_22\	categorical_22		2017-02-06 19:14:07.500118	2017-02-06 19:14:07.500118	2017-02-06 19:14:07.500118	ORACLE_1000_PATIENT
+O1KP:CAT23	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_23\	categorical_23		2017-02-06 19:14:07.500132	2017-02-06 19:14:07.500132	2017-02-06 19:14:07.500132	ORACLE_1000_PATIENT
+O1KP:CAT24	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_24\	categorical_24		2017-02-06 19:14:07.500145	2017-02-06 19:14:07.500145	2017-02-06 19:14:07.500145	ORACLE_1000_PATIENT
+O1KP:CAT25	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_25\	categorical_25		2017-02-06 19:14:07.500157	2017-02-06 19:14:07.500157	2017-02-06 19:14:07.500157	ORACLE_1000_PATIENT
+O1KP:CAT26	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_26\	categorical_26		2017-02-06 19:14:07.500189	2017-02-06 19:14:07.500189	2017-02-06 19:14:07.500189	ORACLE_1000_PATIENT
+O1KP:CAT27	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_27\	categorical_27		2017-02-06 19:14:07.500197	2017-02-06 19:14:07.500197	2017-02-06 19:14:07.500197	ORACLE_1000_PATIENT
+O1KP:CAT28	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_28\	categorical_28		2017-02-06 19:14:07.500208	2017-02-06 19:14:07.500208	2017-02-06 19:14:07.500208	ORACLE_1000_PATIENT
+O1KP:CAT29	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_29\	categorical_29		2017-02-06 19:14:07.500215	2017-02-06 19:14:07.500215	2017-02-06 19:14:07.500215	ORACLE_1000_PATIENT
+O1KP:CAT30	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_30\	categorical_30		2017-02-06 19:14:07.500221	2017-02-06 19:14:07.500221	2017-02-06 19:14:07.500221	ORACLE_1000_PATIENT
+O1KP:CAT31	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_31\	categorical_31		2017-02-06 19:14:07.500227	2017-02-06 19:14:07.500227	2017-02-06 19:14:07.500227	ORACLE_1000_PATIENT
+O1KP:CAT32	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_32\	categorical_32		2017-02-06 19:14:07.500233	2017-02-06 19:14:07.500233	2017-02-06 19:14:07.500233	ORACLE_1000_PATIENT
+O1KP:CAT33	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_33\	categorical_33		2017-02-06 19:14:07.500239	2017-02-06 19:14:07.500239	2017-02-06 19:14:07.500239	ORACLE_1000_PATIENT
+O1KP:CAT34	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_34\	categorical_34		2017-02-06 19:14:07.500244	2017-02-06 19:14:07.500244	2017-02-06 19:14:07.500244	ORACLE_1000_PATIENT
+O1KP:CAT35	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_35\	categorical_35		2017-02-06 19:14:07.500250	2017-02-06 19:14:07.500250	2017-02-06 19:14:07.500250	ORACLE_1000_PATIENT
+O1KP:CAT36	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_36\	categorical_36		2017-02-06 19:14:07.500256	2017-02-06 19:14:07.500256	2017-02-06 19:14:07.500256	ORACLE_1000_PATIENT
+O1KP:CAT37	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_37\	categorical_37		2017-02-06 19:14:07.500262	2017-02-06 19:14:07.500262	2017-02-06 19:14:07.500262	ORACLE_1000_PATIENT
+O1KP:CAT38	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_38\	categorical_38		2017-02-06 19:14:07.500272	2017-02-06 19:14:07.500272	2017-02-06 19:14:07.500272	ORACLE_1000_PATIENT
+O1KP:CAT39	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_39\	categorical_39		2017-02-06 19:14:07.500280	2017-02-06 19:14:07.500280	2017-02-06 19:14:07.500280	ORACLE_1000_PATIENT
+O1KP:CAT40	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_40\	categorical_40		2017-02-06 19:14:07.500286	2017-02-06 19:14:07.500286	2017-02-06 19:14:07.500286	ORACLE_1000_PATIENT
+O1KP:CAT41	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_41\	categorical_41		2017-02-06 19:14:07.500292	2017-02-06 19:14:07.500292	2017-02-06 19:14:07.500292	ORACLE_1000_PATIENT
+O1KP:CAT42	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_42\	categorical_42		2017-02-06 19:14:07.500298	2017-02-06 19:14:07.500298	2017-02-06 19:14:07.500298	ORACLE_1000_PATIENT
+O1KP:CAT43	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_43\	categorical_43		2017-02-06 19:14:07.500304	2017-02-06 19:14:07.500304	2017-02-06 19:14:07.500304	ORACLE_1000_PATIENT
+O1KP:CAT44	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_44\	categorical_44		2017-02-06 19:14:07.500309	2017-02-06 19:14:07.500309	2017-02-06 19:14:07.500309	ORACLE_1000_PATIENT
+O1KP:CAT45	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_45\	categorical_45		2017-02-06 19:14:07.500315	2017-02-06 19:14:07.500315	2017-02-06 19:14:07.500315	ORACLE_1000_PATIENT
+O1KP:CAT46	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_46\	categorical_46		2017-02-06 19:14:07.500324	2017-02-06 19:14:07.500324	2017-02-06 19:14:07.500324	ORACLE_1000_PATIENT
+O1KP:CAT47	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_47\	categorical_47		2017-02-06 19:14:07.500331	2017-02-06 19:14:07.500331	2017-02-06 19:14:07.500331	ORACLE_1000_PATIENT
+O1KP:CAT48	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_48\	categorical_48		2017-02-06 19:14:07.500337	2017-02-06 19:14:07.500337	2017-02-06 19:14:07.500337	ORACLE_1000_PATIENT
+O1KP:CAT49	\Public Studies\Oracle_1000_Patient\Categorical_locations\categorical_49\	categorical_49		2017-02-06 19:14:07.500343	2017-02-06 19:14:07.500343	2017-02-06 19:14:07.500343	ORACLE_1000_PATIENT

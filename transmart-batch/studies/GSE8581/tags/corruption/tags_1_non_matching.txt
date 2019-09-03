@@ -1,3 +1,0 @@
-concept_key	tag_title	tag_description	index
-\	TITLE	Human Chronic Obstructive Pulmonary Disorder Biomarker	2
-\DOESNOTEXIST	SYNONYMS	Tiffeneau-Pinelli	5

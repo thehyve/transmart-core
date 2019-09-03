@@ -1,8 +1,0 @@
-COLUMN_MAP_FILE=column_map.tsv
-WORD_MAP_FILE=word_map.tsv
-PATIENT_IDE_SOURCE="Test data patient source"
-VISIT_IDE_SOURCE="Test data visit source"
-PROVIDER_PATH=/test data
-SOURCE_SYSTEM=TEST_DATA
-DOWNLOAD_DATE=2014-03-30T18:00:00+02:00
-PROJECT_ID=test_project

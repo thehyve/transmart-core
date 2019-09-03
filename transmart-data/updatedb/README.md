@@ -1,6 +1,15 @@
 Database update scripts
 ========================================
 
+:warning: Deprecated
+--------------------
+
+The transmart-data collection of scripts is not anymore
+the recommended way to create a TranSMART database.
+Please use the Liquibase scripts in [transmart-schemas](../../transmart-schemas)
+instead.
+
+
 Introduction
 ------------
 
