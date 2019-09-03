@@ -28,7 +28,6 @@ The schema is created using Liquibase at application startup, when it is configu
 The [transmart-copy](transmart-copy) tool can be used to load data into the database.
 Legacy database definitions and installation instructions are in [transmart-data](transmart-data),
 tested with both PostgreSQL and Oracle databases.
-A data loading tool based on Spring Batch is available as [transmart-batch](transmart-batch).
 
 
 ## Relation to other tranSMART repositories and Git history

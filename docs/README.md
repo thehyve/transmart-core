@@ -78,7 +78,7 @@ gradle :transmart-api-server:assemble
 This should create the file `transmart-api-server/build/libs/transmart-api-server-17.2-SNAPSHOT.war`.
 Run it in production mode with:
 ```
-java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server/build/libs/transmart-server-17.2-SNAPSHOT.war
+java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server/build/libs/transmart-api-server-17.2-SNAPSHOT.war
 ```
 Or in development mode with:
 ```
