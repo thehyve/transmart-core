@@ -5,10 +5,13 @@ import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticationProcess
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.GrantedAuthority
 
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+
+import static org.transmartproject.api.server.user.AccessLevels.*
 
 /**
  * This filter denies access to users without any roles assigned to them.
@@ -24,7 +27,8 @@ class TransmartKeycloakAuthenticationProcessingFilter extends KeycloakAuthentica
     @Override
     Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         Authentication authentication = super.attemptAuthentication(request, response)
-        if (authentication && authentication.authorities.empty) {
+        if (authentication &&
+                !hasAuthorities(authentication.authorities.collect { GrantedAuthority it -> it.authority })) {
             log.info("User ${authentication.principal} denied access. No authorities found.")
             throw new TransmartAuthenticationException("No authorities found.")
         }

@@ -16,12 +16,9 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.web.client.RestOperations
-import org.springframework.web.client.RestTemplate
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.User
 import spock.lang.Specification
-
-import java.text.ParseException
 
 import static org.transmartproject.core.users.PatientDataAccessLevel.*
 
@@ -83,32 +80,6 @@ class KeycloakUserResourceServiceSpec extends Specification {
         then:
         user.realName == 'Test User'
         user.email == 'test@test.org'
-    }
-
-    void 'test parse study token to access level corner cases'() {
-        when:
-        testee.parseStudyTokenToAccessLevel([accLvlToTok])
-        then:
-        def pe = thrown(exception)
-        pe.message == message
-
-        where:
-        accLvlToTok                  | exception                | message
-        '|'                          | ParseException           | "Can't parse permission '${accLvlToTok}'."
-        'STUDY1_TOKEN|UNEXISTING_OP' | IllegalArgumentException | 'No enum constant org.transmartproject.core.users.PatientDataAccessLevel.UNEXISTING_OP'
-        '|SUMMARY'                   | IllegalArgumentException | "Empty study: '${accLvlToTok}'."
-        '|||'                        | ParseException           | "Can't parse permission '${accLvlToTok}'."
-        ''                           | ParseException           | "Can't parse permission '${accLvlToTok}'."
-    }
-
-    void 'test choose the higher access level in case of collision'() {
-        expect:
-        result == testee.buildStudyToPatientDataAccessLevel(roles)
-
-        where:
-        roles                                                                     | result
-        ['STUDY1|COUNTS_WITH_THRESHOLD', 'STUDY1|SUMMARY']                        | ['STUDY1': SUMMARY]
-        ['STUDY1|COUNTS_WITH_THRESHOLD', 'STUDY1|MEASUREMENTS', 'STUDY1|SUMMARY'] | ['STUDY1': MEASUREMENTS]
     }
 
     void "test fetch users with roles"() {
