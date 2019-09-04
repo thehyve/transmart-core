@@ -4,7 +4,7 @@ TEST DATA DESCRIPTION
 
 # STUDIES
 
-  Public studies
+  Public Studies
   ├── Multi-DWH Test               -> Study ID: MULTI-DWH-TEST-STUDY
   └── Ontology overlap test study -> Study ID: ONTOLOGY-OVERLAP-STUDY
 

@@ -10,6 +10,3 @@ concept_blob	concept_cd	concept_path	download_date	import_date	name_char	sources
 	TEST-ONTOLOGY_0201FAVCOLOR	\TEST-ONTOLOGY_0201FAVCOLOR\			Favorite color				
 	TEST-ONTOLOGY_0202FAVANIMAL	\TEST-ONTOLOGY_0202FAVANIMAL\			Favorite animal				
 	TEST-ONTOLOGY_0203FAVNAME	\TEST-ONTOLOGY_0203FAVNAME\			Favorite name				
-	TEST-ONTOLOGY_01BODY	\TEST-ONTOLOGY_01BODY\			Bodily measures				
-	TEST-ONTOLOGY_02PREF	\TEST-ONTOLOGY_02PREF\			Personal preferences				
-	TEST-ONTOLOGY	\TEST-ONTOLOGY\			Test ontology				
