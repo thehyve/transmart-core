@@ -1,17 +1,17 @@
 FROM openjdk:8-jre-alpine
 LABEL maintainer="luk.zim91@gmail.com" \
       service="transmart-api-server" \
-      version="17.2-SNAPSHOT" \
+      version="17.2" \
       description="This is the Docker image of the tranSMART API server"
 
 # The port is configured in the docker-entrypoint.sh when writing the config.yml
 EXPOSE 8081
 
-ENV TRANSMART_VERSION "17.2-SNAPSHOT"
+ENV TRANSMART_VERSION "17.2"
 ENV TRANSMART_USER_NAME transmart
 ENV TRANSMART_GROUP_NAME "${TRANSMART_USER_NAME}"
 ENV TRANSMART_USER_HOME "/home/${TRANSMART_USER_NAME}"
-ENV TRANSMART_API_SERVER_WAR_URL  "https://repo.thehyve.nl/service/local/repositories/snapshots/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-api-server-${TRANSMART_VERSION}.war"
+ENV TRANSMART_API_SERVER_WAR_URL  "https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-api-server-${TRANSMART_VERSION}.war"
 ENV TRANSMART_SERVICE_WAR_FILE "/transmart-api-server.war"
 
 # Root does the following things in this order:

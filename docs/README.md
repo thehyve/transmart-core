@@ -1,6 +1,6 @@
-# tranSMART 17.2-SNAPSHOT Installation
+# tranSMART 17.2 Installation
 
-Below are the installation instructions for tranSMART version 17.2-SNAPSHOT. If you already have an older version of tranSMART, follow the [upgrade guide](upgrade.md) instead.
+Below are the installation instructions for tranSMART version 17.2. If you already have an older version of tranSMART, follow the [upgrade guide](upgrade.md) instead.
 
   1. [Prerequisites](#1-prerequisites)
   2. [Setup database](#2-setup-database)
@@ -101,7 +101,7 @@ Deployment artefacts are published to [the Nexus repository of The Hyve](https:/
 To fetch and run `transmart-api-server`:
 ```bash
 # Fetch artefacts from Maven
-TRANSMART_VERSION=17.2-SNAPSHOT
+TRANSMART_VERSION=17.2
 curl -f -L https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-api-server-${TRANSMART_VERSION}.war -o transmart-api-server-${TRANSMART_VERSION}.war && \
 # Run it with:
 java -jar -Dspring.config.location=/path/to/config.yaml transmart-api-server-${TRANSMART_VERSION}.war
