@@ -104,4 +104,7 @@ environments:
 #        keycloakOffline:
 #            offlineToken: <offline token>
 
+# org.transmartproject.security.denyAccessToUsersWithoutRole: false  # when true, users without any role are denied access.
+# If true, the ROLE_PUBLIC role can be used to grant access to users
+
 # org.transmartproject.system.writeLogToDatabase: true  # write log messages to the searchapp.search_app_access_log table

@@ -56,6 +56,9 @@ grails.plugin.databasemigration.updateOnStart: true
 # Disable saving application logs in the database 
 org.transmartproject.system.writeLogToDatabase: false
 
+# By default, users without any role are not denied access
+org.transmartproject.security.denyAccessToUsersWithoutRole: false
+
 # Keycloak configuration
 keycloak:
     realm: transmart-dev
@@ -64,6 +67,11 @@ keycloak:
     resource: transmart-client
     use-resource-role-mappings: true
 ```
+
+When `denyAccessToUsersWithoutRole` is set to `true`, users are not allowed to access any data, including
+public data, when no role has been assigned to them. To grant access to public data only,
+use the `ROLE_PUBLIC` role. When this setting is `false` (default), all users within the realm
+can access public data in TranSMART. 
 
 
 ## 4. Build and run tranSMART API Server

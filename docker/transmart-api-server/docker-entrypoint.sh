@@ -44,6 +44,9 @@ grails.plugin.databasemigration.updateOnStart: true
 # Disable saving application logs in the database
 org.transmartproject.system.writeLogToDatabase: false
 
+# If true, deny access to users without any role
+org.transmartproject.security.denyAccessToUsersWithoutRole: ${DENY_ACCESS_WITHOUT_ROLE:-false}
+
 # Keycloak configuration
 keycloak:
     realm: ${KEYCLOAK_REALM}

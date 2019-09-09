@@ -3,7 +3,7 @@
 
 ## Create database `transmartDev` with TranSMART schemas
 
-- Create a user `sudo -u postgres psql -c "create role biomart_user with password 'biomart_user'"`
+- Create a user `sudo -u postgres psql -c "create role biomart_user with password 'biomart_user' login"`
 - Set environment variables:
     ```bash
     PGUSER=biomart_user
@@ -44,7 +44,3 @@ and add a record in [db.changelog-master.yaml](src/main/resources/db/changelog/d
 `/path/to/liquibase --defaultSchemaName=i2b2demodata generateChangelog`
 
 This generates a changelog for the `i2b2demodata` schema in `db.changelog.xml`.
-
-
-## TODO
-- Add `biomart_user` schema (including bitset views)

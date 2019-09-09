@@ -23,6 +23,7 @@ services:
       KEYCLOAK_SERVER_URL: ${KEYCLOAK_SERVER_URL:-https://keycloak-dwh-test.thehyve.net}
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-transmart-dev}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-transmart-client}
+      DENY_ACCESS_WITHOUT_ROLE: ${DENY_ACCESS_WITHOUT_ROLE:-false}
       PGHOST: transmart-database
       PGPORT: 5432
       PGDATABASE: transmart
