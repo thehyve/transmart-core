@@ -67,6 +67,8 @@ Login to `https://idp.example.com/auth/admin/` and:
 
     Go to `Role Mappings` tab. Then select `Client Roles` to be `transmart` and
     assign some roles.
+    If TranSMART configured with the `denyAccessToUsersWithoutRole` setting,
+    at least the `ROLE_PUBLIC` needs to be assigned for a user to be able to access any data.
 
 ## Configure TranSMART to accept tokens from Keycloak
 
