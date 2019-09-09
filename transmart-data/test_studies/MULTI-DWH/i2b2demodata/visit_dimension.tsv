@@ -1,0 +1,11 @@
+encounter_num	patient_num	active_status_cd	start_date	end_date	inout_cd	location_cd	location_path	length_of_stay	visit_blob
+0	0	active	2015-07-21 10:00:00	2016-04-21 17:30:01	in	Hospital		2	
+1	1	inactive	2015-07-31 10:00:00	2015-07-31 12:00:00	in	Hospital		1	
+2	5	inactive	2015-07-21 10:00:00	2016-04-21 17:30:01	in	Research hospital		2	
+3	6	inactive	2015-07-31 10:00:00	2015-07-31 12:00:00	in	Hospital		1	
+4	8	active	2015-07-21 10:00:00	2015-07-22 10:00:00	in	Research hospital		7	
+5	9	active	2019-02-01 10:00:00	2019-09-01 10:00:00	in	Research hospital		10	
+6	1	active	2015-08-31 10:00:00	2015-08-31 12:00:00	in	Home visit		1	
+7	5	active	2019-09-21 10:00:00	2019-09-22 10:00:00	in	Home visit		30	
+8	6	active	2015-10-21 10:00:00	2015-11-22 10:00:00	in	Nursing home		7	
+9	8	inactive	2019-01-01 10:00:00	2019-06-01 10:00:00	in	Nursing home		10	

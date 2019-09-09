@@ -1,5 +1,0 @@
-PLATFORM=RNASEQ_ANNOT
-TITLE="Test RNASeq Platform"
-ORGANISM="Homo Sapiens"
-ANNOTATIONS_FILE=chromosomal_regions.tsv
-GENOME_RELEASE=hg19

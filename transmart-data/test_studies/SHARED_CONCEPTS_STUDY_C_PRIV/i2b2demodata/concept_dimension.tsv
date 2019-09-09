@@ -1,0 +1,3 @@
+concept_cd	concept_path	name_char	table_name	download_date	import_date	update_date	sourcesystem_cd
+SCSCP:DEM	\Private Studies\SHARED_CONCEPTS_STUDY_C_PRIV\Demography\	Demography		2016-11-09 13:44:06	2016-11-09 13:44:06	2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV
+SCSCP:DEM:AGE	\Private Studies\SHARED_CONCEPTS_STUDY_C_PRIV\Demography\Age\	Age		2016-11-09 13:44:06	2016-11-09 13:44:06	2016-11-09 13:44:06	SHARED_CONCEPTS_STUDY_C_PRIV

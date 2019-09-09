@@ -37,7 +37,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.owasp.dependencycheck'
 
 ext {
-    transmartVersion = '17.1-HYVE-6.2'
+    transmartVersion = '17.2-SNAPSHOT'
 
     assetPipelineVersion = '2.11.6'
     gradleWrapperVersion = '3.5.1'
@@ -99,8 +99,8 @@ subprojects { project ->
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
-    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-legacy-db|transmart-rest-api|transmartApp|transmart-server|transmart-oauth|transmart-solr-indexing|transmart-notifications|transmart-api-server)$/) {
-        if (project.name =~ /^(transmartApp|mock-ontology-server|transmart-server|transmart-solr-indexing|transmart-api-server)$/) {
+    if (project.name =~ /^(transmart-core-db-tests|transmart-core-db|transmart-rest-api|transmart-api-server)$/) {
+        if (project.name =~ /^(transmart-api-server)$/) {
             apply plugin: 'war'
             apply plugin: 'org.grails.grails-web'
         } else {
@@ -122,7 +122,7 @@ subprojects { project ->
             applyMavenExclusions false
         }
     }
-    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch|transmart-copy|transmart-api-server|transmart-schemas)$/) {
+    if (project.name =~ /^(transmart-core-api|transmart-data|transmart-copy|transmart-api-server|transmart-schemas)$/) {
         apply plugin: 'net.linguica.maven-settings'
         apply plugin: 'maven-publish'
         publishing {
@@ -136,3 +136,7 @@ subprojects { project ->
     }
 }
 
+task prepareTestDatabase(type: Exec) {
+    commandLine './scripts/prepare_database.sh'
+}
+prepareTestDatabase.dependsOn 'transmart-schemas:assemble'

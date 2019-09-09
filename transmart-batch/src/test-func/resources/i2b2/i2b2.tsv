@@ -1,7 +1,0 @@
-c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode	c_metadataxml	c_facttablecolumn	c_tablename	c_columnname	c_columndatatype	c_operator	c_dimcode	c_comment	c_tooltip	m_applied_path	update_date	download_date	import_date	sourcesystem_cd	valuetype_cd	m_exclusion_cd	c_path	c_symbol
-0	\Custom Metadata\	Custom Metadata	N	CAE				concept_cd	concept_dimension	concept_path	T	LIKE	\Custom Metadata\		Custom Metadata	@	2010-05-12 00:00:00
-1	\Custom Metadata\Concept 1\	Concept 1 (TEXT)\	N	LA				concept_cd	concept_dimension	concept_path	T	LIKE	\Custom Metadata\Concept 1\			@	2010-05-12 00:00:00
-1	\Custom Metadata\Concept 2\	Concept 2 (BLOB)\	N	LA				concept_cd	concept_dimension	concept_path	T	LIKE	\Custom Metadata\Concept 2\			@	2010-05-12 00:00:00
-1	\Custom Metadata\Concept 3\	Concept 3 (NUMBER)\	N	LA				concept_cd	concept_dimension	concept_path	T	LIKE	\Custom Metadata\Concept 3\			@	2010-05-12 00:00:00
-1	\Custom Metadata\Concept 4\	Concept 4 (NLP)\	N	LA				concept_cd	concept_dimension	concept_path	T	LIKE	\Custom Metadata\Concept 4\			@	2010-05-12 00:00:00
-1	\Principal Diagnosis\	Principal Diagnosis	N	RA 		1		modifier_cd	modifier_dimension	modifier_path	T	LIKE	\Principal Diagnosis\		Principal Diagnosis	\Custom Metadata\Concept 1\%	2011-04-14 12:55:00							

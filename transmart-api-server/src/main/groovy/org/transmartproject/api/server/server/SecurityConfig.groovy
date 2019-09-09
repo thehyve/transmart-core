@@ -5,7 +5,11 @@ import org.keycloak.adapters.KeycloakConfigResolver
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
+import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticatedActionsFilter
+import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticationProcessingFilter
+import org.keycloak.adapters.springsecurity.filter.KeycloakPreAuthActionsFilter
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -26,9 +30,24 @@ import org.transmartproject.api.server.client.OfflineTokenClientRequestFactory
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
+    @Value('${org.transmartproject.security.denyAccessToUsersWithoutRole:false}')
+    Boolean denyAccessToUsersWithoutRole
+
     @Autowired
     void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(keycloakAuthenticationProvider())
+    }
+
+    @Override
+    protected KeycloakAuthenticationProcessingFilter keycloakAuthenticationProcessingFilter() throws Exception {
+        KeycloakAuthenticationProcessingFilter filter
+        if (denyAccessToUsersWithoutRole) {
+            filter = new TransmartKeycloakAuthenticationProcessingFilter(authenticationManagerBean())
+        } else {
+            filter = new KeycloakAuthenticationProcessingFilter(authenticationManagerBean())
+        }
+        filter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy())
+        return filter
     }
 
     @Override
@@ -79,6 +98,7 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/error").permitAll()
                 .antMatchers("/open-api/**").permitAll()
+                .antMatchers("/health").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()

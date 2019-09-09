@@ -3,15 +3,15 @@
 
 ## Create database `transmartDev` with TranSMART schemas
 
-- Create a user `sudo -u postgres psql -c "create role tm_admin with password 'tm_admin'"`
-- Prepare a file `database.yml`:
-    ```yaml
-    spring:
-        datasource:
-            password: tm_admin
+- Create a user `sudo -u postgres psql -c "create role biomart_user with password 'biomart_user' login"`
+- Set environment variables:
+    ```bash
+    PGUSER=biomart_user
+    PGPASSWORD=biomart_user
+    PGDATABASE=transmartDev
     ```
 - Build the jar file with `gradle assemble` 
-- Run [rebuild.sh](rebuild.sh)
+- Run [prepare_database.sh](../scripts/prepare_database.sh)
 
 ## Development
 
@@ -44,7 +44,3 @@ and add a record in [db.changelog-master.yaml](src/main/resources/db/changelog/d
 `/path/to/liquibase --defaultSchemaName=i2b2demodata generateChangelog`
 
 This generates a changelog for the `i2b2demodata` schema in `db.changelog.xml`.
-
-
-## TODO
-- Add `biomart_user` schema (including bitset views)

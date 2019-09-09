@@ -2,10 +2,8 @@
 
 package config
 
-import base.AuthMethod
 import base.ContentTypeFor
 import base.TestContext
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovyx.net.http.ChainedHttpConfig
 import groovyx.net.http.FromServer
@@ -40,10 +38,6 @@ class Config {
      // Configure whether the currently used application for providing a REST API for a TranSMART supports the `v1` API.
      // In particular, if the application is transmart-api-server, this should be set to false.
     public static final Boolean IS_V1_API_SUPPORTED = getProperty('v1Supported', Boolean.FALSE, Boolean)
-
-    // Configure the authentication method: using Keycloak (OIDC) or spring security plugin (OAuth2) - transmart-oauth
-    // $ gradle -DauthMethod=OAuth2 test
-    public static final AuthMethod AUTH_METHOD = getProperty('authMethod', AuthMethod.OIDC, AuthMethod)
 
     static TestContext newTestContext() {
         new TestContext().setHttpBuilder(configure {
