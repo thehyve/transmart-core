@@ -16,9 +16,12 @@ $(TRANSMART_COPY):
 	curl -s -L -f -R -z '$@' -o '$@' '$(TRANSMART_COPY_SRC_URL)'
 	@chmod +x '$@'
 
-load: $(SUBDIRS)
+load: $(SUBDIRS) SURVEYS_PEDIGREE
 $(SUBDIRS): $(TRANSMART_COPY)
 	@echo "Loading test study from $@ folder."
 	@PGUSER=tm_cz PGPASSWORD=${TM_CZ_PWD} java -jar $(TRANSMART_COPY) -d $@
+SURVEYS_PEDIGREE: $(TRANSMART_COPY) SURVEYS
+	@echo "Loading pedigree data from SURVEYS folder."
+	@PGUSER=tm_cz PGPASSWORD=${TM_CZ_PWD} java -jar $(TRANSMART_COPY) -m pedigree -d SURVEYS
 
-.PHONY: load $(SUBDIRS)
+.PHONY: load $(SUBDIRS) SURVEYS_PEDIGREE

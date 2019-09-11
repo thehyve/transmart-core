@@ -23,6 +23,15 @@ endpoints:
     enabled: false
     jmx:
         enabled: true
+    health:
+        enabled: true # enable health endpoint for application monitoring
+management:
+    security:
+        roles: ADMIN # only ROLE_ADMIN can see the full health details
+        enabled: true
+    health:
+        diskspace:
+            enabled: false # show diskspace health indicator properties
 
 ---
 hibernate:
@@ -94,5 +103,8 @@ environments:
 
 #        keycloakOffline:
 #            offlineToken: <offline token>
+
+# org.transmartproject.security.denyAccessToUsersWithoutRole: false  # when true, users without any role are denied access.
+# If true, the ROLE_PUBLIC role can be used to grant access to users
 
 # org.transmartproject.system.writeLogToDatabase: true  # write log messages to the searchapp.search_app_access_log table

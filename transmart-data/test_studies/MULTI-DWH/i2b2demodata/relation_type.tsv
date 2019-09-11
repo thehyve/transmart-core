@@ -1,0 +1,11 @@
+id	label	description	symmetrical	biological
+0	PAR	Parent	f	f
+1	CHI	Child	f	f
+2	SPO	Spouse	t	f
+3	SIB	Sibling	t	f
+4	TW	Twin	t	t
+5	CLO	Clone of	f	t
+6	CLB	Cloned by	f	t
+7	DG	Doppelgänger	t	f
+8	FS	Future self	f	t
+9	PS	Past self	f	t

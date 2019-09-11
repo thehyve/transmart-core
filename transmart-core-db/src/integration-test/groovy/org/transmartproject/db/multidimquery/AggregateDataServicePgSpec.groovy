@@ -74,7 +74,9 @@ class AggregateDataServicePgSpec extends Specification {
                 'SURVEY2',
                 '100_CATS',
                 'CSR',
-                'IMAGES'
+                'IMAGES',
+                'MULTI-DWH-TEST-STUDY',
+                'ONTOLOGY-OVERLAP-STUDY'
         ] as Set
 
         then: "the result should have the correct counts for study EHR"

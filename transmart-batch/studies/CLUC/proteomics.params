@@ -1,4 +1,0 @@
-DATA_FILE_PREFIX=proteomics_data.txt
-DATA_TYPE=R
-LOG_BASE=2
-MAP_FILENAME=proteomics_subject_sample_mapping.txt

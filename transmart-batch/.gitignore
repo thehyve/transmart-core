@@ -1,6 +1,0 @@
-/bin
-/batchdb.properties
-/batchdb-*.properties
-*.sw[mnop]
-/logback.groovy
-VERSION

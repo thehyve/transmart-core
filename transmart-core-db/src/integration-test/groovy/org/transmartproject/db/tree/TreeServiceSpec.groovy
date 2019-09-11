@@ -49,6 +49,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
+                'Custom ontologies'
         ].sort()
     }
 
@@ -79,7 +80,9 @@ class TreeServiceSpec extends Specification {
                 'SHARED_CONCEPTS_STUDY_B',
                 'SHARED_HD_CONCEPTS_STUDY_A',
                 'SHARED_HD_CONCEPTS_STUDY_B',
-                'TUMOR_NORMAL_SAMPLES'
+                'TUMOR_NORMAL_SAMPLES',
+                'Multi-DWH Test',
+                'Ontology overlap test study'
         ].sort()
     }
 
@@ -102,6 +105,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
+                'Custom ontologies'
         ].sort()
         forest*.children.unique() == [null]
     }
@@ -125,6 +129,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
+                'Custom ontologies'
         ].sort()
     }
 
@@ -169,6 +174,7 @@ class TreeServiceSpec extends Specification {
                 'Interests',
                 'General',
                 'Demographics',
+                'Custom ontologies'
         ].sort()
     }
 

@@ -1,0 +1,10 @@
+encounter_num	patient_num	concept_cd	provider_id	start_date	modifier_cd	instance_num	valtype_cd	tval_char	nval_num	valueflag_cd	quantity_num	units_cd	end_date	location_cd	observation_blob	confidence_num	update_date	download_date	import_date	sourcesystem_cd	upload_id	sample_cd	trial_visit_num
+-1	0	CV:DEM:SEX:M	@		@	1	T	Male		@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	0	CV:DEM:RACE	@		@	1	T	Caucasian		@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	0	CV:DEM:AGE	@		@	1	N	E	26	@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	1	CV:DEM:SEX:M	@		@	1	T	Male		@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	1	CV:DEM:RACE	@		@	1	T	Latino		@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	1	CV:DEM:AGE	@		@	1	N	E	24	@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	2	CV:DEM:SEX:F	@		@	1	T	Female		@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	2	CV:DEM:RACE	@		@	1	T	Caucasian		@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0
+-1	2	CV:DEM:AGE	@		@	1	N	E	20	@				@					2016-11-09 13:44:06	CATEGORICAL_VALUES			0

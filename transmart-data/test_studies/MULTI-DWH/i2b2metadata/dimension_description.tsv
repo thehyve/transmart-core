@@ -1,0 +1,8 @@
+id	density	modifier_code	value_type	name	packable	size_cd
+0				study		
+1				concept		
+2				patient		
+3				start time		
+4				trial visit		
+5				visit		
+6	DENSE	POS	T	Position	NOT_PACKABLE	SMALL

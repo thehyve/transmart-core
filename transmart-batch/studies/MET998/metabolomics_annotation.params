@@ -1,4 +1,0 @@
-PLATFORM=MET998
-TITLE="Test Metabolomics Platform"
-ORGANISM="Homo Sapiens"
-ANNOTATIONS_FILE=MET998_annotation.tsv

@@ -7,8 +7,10 @@ import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.PatientSetResource
 import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.core.ontology.MDStudiesResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.core.users.UsersResource
 import spock.lang.Specification
 
@@ -26,7 +28,7 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
     MultiDimensionalDataResource multiDimService
 
     @Autowired
-    StudiesResource studiesResource
+    MDStudiesResource studiesResource
 
     @Autowired
     PatientSetResource patientSetResource
@@ -38,7 +40,8 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
 
     def 'test counts pers concept and study'() {
         def admin = usersResource.getUserFromUsername('admin')
-        Set<String> allStudyids = studiesResource.studySet*.id as Set<String>
+        Set<String> allStudyids = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(
+                admin, PatientDataAccessLevel.COUNTS)*.name as Set<String>
 
         QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult('All patients',
                 new TrueConstraint(), admin, 'v2', false)
@@ -56,8 +59,10 @@ class AggregateDataOptimisationsServiceSpec extends Specification {
     }
 
     def 'test counts for studies user does not have access do not show up'() {
+        def admin = usersResource.getUserFromUsername('admin')
         def publicUser1 = usersResource.getUserFromUsername('test-public-user-1')
-        Set<String> allStudyids = studiesResource.studySet*.id as Set<String>
+        Set<String> allStudyids = studiesResource.getStudiesWithMinimalPatientDataAccessLevel(
+                admin, PatientDataAccessLevel.COUNTS)*.name as Set<String>
 
         QueryResult patientSetQueryResult = patientSetResource.createPatientSetQueryResult(
                 'All patients available for test-public-user-1',

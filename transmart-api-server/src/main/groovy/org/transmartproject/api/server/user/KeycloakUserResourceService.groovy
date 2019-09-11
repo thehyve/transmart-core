@@ -23,15 +23,14 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.users.*
 
 import java.security.Principal
-import java.text.ParseException
+
+import static org.transmartproject.api.server.user.AccessLevels.*
 
 @Component
 @Primary
 @Slf4j
 @CompileStatic
 class KeycloakUserResourceService implements UsersResource {
-
-    public static final String ROLE_ADMIN = 'ROLE_ADMIN'
 
     @Autowired
     LegacyAuthorisationChecks authorisationChecks
@@ -64,7 +63,8 @@ class KeycloakUserResourceService implements UsersResource {
     @Override
     List<User> getUsers() {
         ResponseEntity<List<UserRepresentation>> response = offlineTokenBasedRestTemplate
-                .exchange("${keycloakServerUrl}/admin/realms/${realm}/users", HttpMethod.GET, null, userListRef)
+                .exchange("${keycloakServerUrl}/admin/realms/${realm}/users".toString(),
+                        HttpMethod.GET, null, userListRef)
         response.body.collect { UserRepresentation keycloakUser ->
             Set<String> roles = getRolesForUser(keycloakUser.id)
             createUser(keycloakUser, roles)
@@ -85,6 +85,7 @@ class KeycloakUserResourceService implements UsersResource {
 
         final String username = principal.name
         List<String> authorities = principal.authorities.collect { GrantedAuthority ga -> ga.authority }
+        authorities.remove(ROLE_PUBLIC)
         final boolean admin = authorities.remove(ROLE_ADMIN)
         Map<String, PatientDataAccessLevel> studyToAccLvl =
                 buildStudyToPatientDataAccessLevel(authorities)
@@ -107,50 +108,9 @@ class KeycloakUserResourceService implements UsersResource {
         new SimpleUser(username, realName, email, admin, studyToAccLvl)
     }
 
-    private static Map<String, PatientDataAccessLevel> buildStudyToPatientDataAccessLevel(
-            final Collection<String> roles) {
-        Map<String, PatientDataAccessLevel> result = [:]
-        for (String studyTokenToAccLvl : roles) {
-            try {
-                Tuple2<String, PatientDataAccessLevel> studyTokenToAccessLevel = parseStudyTokenToAccessLevel(studyTokenToAccLvl)
-                String studyToken = studyTokenToAccessLevel.first
-                PatientDataAccessLevel accLvl = studyTokenToAccessLevel.second
-                if (result.containsKey(studyToken)) {
-                    PatientDataAccessLevel memorisedAccLvl = result.get(studyToken)
-                    if (accLvl > memorisedAccLvl) {
-                        log.debug("Use ${accLvl} access level instead of ${memorisedAccLvl} on ${studyToken} study.")
-                        result.put(studyToken, accLvl)
-                    } else {
-                        log.debug("Keep ${memorisedAccLvl} access level and ignore ${accLvl} on ${studyToken} study.")
-                    }
-                } else {
-                    result.put(studyToken, accLvl)
-                    log.debug("Found ${accLvl} access level on ${studyToken} study.")
-                }
-            } catch (Exception e) {
-                log.error("Can't parse permission '${studyTokenToAccLvl}'.", e)
-            }
-        }
-        Collections.unmodifiableMap(result)
-    }
-
-    private static Tuple2<String, PatientDataAccessLevel> parseStudyTokenToAccessLevel(String studyTokenToAccLvl) {
-        String[] studyTokenToAccLvlSplit = studyTokenToAccLvl.split('\\|')
-        if (studyTokenToAccLvlSplit.length != 2) {
-            throw new ParseException("Can't parse permission '${studyTokenToAccLvl}'.", 0)
-        }
-
-        String studyToken = studyTokenToAccLvlSplit[0]
-        if (!studyToken) {
-            throw new IllegalArgumentException("Empty study: '${studyTokenToAccLvl}'.")
-        }
-        String accessLevel = studyTokenToAccLvlSplit[1]
-        new Tuple2(studyToken, PatientDataAccessLevel.valueOf(accessLevel))
-    }
-
     private Set<String> getRolesForUser(String userId) {
         ResponseEntity<MappingsRepresentation> result = offlineTokenBasedRestTemplate.getForEntity(
-                "$keycloakServerUrl/admin/realms/$realm/users/$userId/role-mappings",
+                "$keycloakServerUrl/admin/realms/$realm/users/$userId/role-mappings".toString(),
                 MappingsRepresentation.class)
 
         Map<String, ClientMappingsRepresentation> rolesPerClient = result.body.clientMappings
@@ -169,6 +129,7 @@ class KeycloakUserResourceService implements UsersResource {
     }
 
     private static User createUser(UserRepresentation keycloakUser, Set<String> roles) {
+        roles.remove(ROLE_PUBLIC)
         final boolean admin = roles.remove(ROLE_ADMIN)
         Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel = buildStudyToPatientDataAccessLevel(roles)
         new SimpleUser(keycloakUser.id,
