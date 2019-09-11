@@ -134,9 +134,9 @@ class ClinicalTestData {
                 locations, providers)
 
         def doseDimension = new DimensionDescription(name: "dose", modifierCode: "TEST:DOSE", valueType: ObservationFact.TYPE_NUMBER,
-                size: LARGE, density: SPARSE, packable: NOT_PACKABLE).save()
+                size: LARGE, density: SPARSE).save()
         def tissueTypeDimension = new DimensionDescription(name: "tissueType", modifierCode: "TEST:TISSUETYPE", valueType: ObservationFact.TYPE_TEXT,
-                size: MEDIUM, density: DENSE, packable: PACKABLE).save()
+                packable: PACKABLE).save()
 
         def sampleStudy = StudyTestData.createStudy "sample study", ["patient", "concept", "study",
                 "dose", "tissueType"] // todo: "sample"
