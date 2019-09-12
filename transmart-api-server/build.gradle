@@ -36,6 +36,8 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-security"
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+
+    runtime 'ch.qos.logback.contrib:logback-jackson:0.1.5'
 }
 
 bootRun {
