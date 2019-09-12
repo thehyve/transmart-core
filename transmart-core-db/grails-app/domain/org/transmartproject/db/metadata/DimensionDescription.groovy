@@ -53,6 +53,14 @@ class DimensionDescription {
         size    column: 'size_cd'
     }
 
+    def beforeInsert() {
+        if (!DimensionImpl.isBuiltinDimension(name)) {
+            size = size ?: Dimension.Size.SMALL
+            density = density ?: Dimension.Density.DENSE
+            packable = packable ?: Dimension.Packable.NOT_PACKABLE
+        }
+    }
+
     def afterLoad() {
         check()
     }
@@ -63,9 +71,12 @@ class DimensionDescription {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: For builtin " +
                     "'$name' dimension all other fields must be set to NULL")
         } else if (!DimensionImpl.isBuiltinDimension(name)) {
-            if ([modifierCode, valueType, size, density, packable].any { it == null }) {
+            size = size ?: Dimension.Size.SMALL
+            density = density ?: Dimension.Density.DENSE
+            packable = packable ?: Dimension.Packable.NOT_PACKABLE
+            if ([modifierCode, valueType].any { it == null }) {
                 throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
-                        " is not builtin and some modifier dimension fields are NULL")
+                        " is not builtin and modifier code or value type fields are NULL")
             } else if (!ObservationFact.ALL_TYPES.contains(valueType)) {
                 throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' " +
                         "dimension contains an unrecognized valueType '$valueType'.")
