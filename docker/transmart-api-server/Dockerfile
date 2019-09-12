@@ -7,7 +7,7 @@ LABEL maintainer="luk.zim91@gmail.com" \
 # The port is configured in the docker-entrypoint.sh when writing the config.yml
 EXPOSE 8081
 
-ENV TRANSMART_VERSION "17.2"
+ENV TRANSMART_VERSION "17.2.1"
 ENV TRANSMART_USER_NAME transmart
 ENV TRANSMART_GROUP_NAME "${TRANSMART_USER_NAME}"
 ENV TRANSMART_USER_HOME "/home/${TRANSMART_USER_NAME}"
