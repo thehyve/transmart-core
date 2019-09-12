@@ -1,3 +1,10 @@
+dependencyManagement {
+    imports {
+        mavenBom "org.keycloak.bom:keycloak-adapter-bom:${keycloakVersion}"
+    }
+    applyMavenExclusions false
+}
+
 dependencies {
     //Grails 3 dependencies
     compile "org.springframework.boot:spring-boot-starter-logging"
@@ -32,7 +39,7 @@ dependencies {
     compile project(':transmart-rest-api')
     compile project(':transmart-schemas')
 
-    compile "org.keycloak:keycloak-spring-boot-starter:4.0.0.Final"
+    compile "org.keycloak:keycloak-legacy-spring-boot-starter"
     compile "org.springframework.boot:spring-boot-starter-security"
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'

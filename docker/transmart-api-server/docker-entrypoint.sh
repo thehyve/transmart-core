@@ -54,6 +54,7 @@ keycloak:
     auth-server-url: ${KEYCLOAK_SERVER_URL}/auth
     resource: ${KEYCLOAK_CLIENT_ID}
     use-resource-role-mappings: true
+    verify-token-audience: true
 EndOfMessage
 sync
 
