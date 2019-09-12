@@ -66,6 +66,7 @@ keycloak:
     auth-server-url: https://keycloak-dwh-test.thehyve.net/auth
     resource: transmart-client
     use-resource-role-mappings: true
+    verify-token-audience: true
 ```
 
 When `denyAccessToUsersWithoutRole` is set to `true`, users are not allowed to access any data, including
