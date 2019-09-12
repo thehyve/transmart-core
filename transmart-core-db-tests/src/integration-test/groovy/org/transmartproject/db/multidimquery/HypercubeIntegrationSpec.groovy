@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.hypercube.Dimension
+import org.transmartproject.core.multidimquery.hypercube.DimensionType
 import org.transmartproject.db.TestData
+import org.transmartproject.db.i2b2data.ObservationFact
 import spock.lang.Specification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
@@ -121,6 +124,29 @@ class HypercubeIntegrationSpec extends Specification {
             assert iTrialVisit.relTimeLabel == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeLabel
             assert iTrialVisit.relTimeUnit == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeUnit
         }
+    }
+
+    void 'test_dimension_properties'() {
+        setupData()
+        def ttDim = clinicalData.tissueTypeDimension
+        def doseDim = clinicalData.doseDimension
+
+        def args = new DataRetrievalParameters(constraint: study(clinicalData.sampleStudy.studyId))
+        def hypercube = queryResource.retrieveData(args, 'clinical', adminUser)
+
+        def tissueTypeDimension = hypercube.dimensions.find{it.modifierCode == ttDim.modifierCode}
+        def doseTypeDimension = hypercube.dimensions.find{it.modifierCode == doseDim.modifierCode}
+
+        expect:
+        tissueTypeDimension.density == Dimension.Density.DENSE
+        tissueTypeDimension.packable == Dimension.Packable.PACKABLE
+        tissueTypeDimension.size == Dimension.Size.SMALL
+        tissueTypeDimension.name == "tissueType"
+
+        doseTypeDimension.density == Dimension.Density.SPARSE
+        doseTypeDimension.packable == Dimension.Packable.NOT_PACKABLE
+        doseTypeDimension.size == Dimension.Size.LARGE
+        doseTypeDimension.name == "dose"
     }
 
     void 'test_basic_sample_retrieval'() {

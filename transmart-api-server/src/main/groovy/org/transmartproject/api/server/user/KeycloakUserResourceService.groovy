@@ -102,7 +102,7 @@ class KeycloakUserResourceService implements UsersResource {
                 log.debug("No token in the security context. Giving up on getting email and name.")
             }
         } else {
-            log.debug("The details field of unexpected type: ${principal.details.class}. Giving up on getting email and name.")
+            log.debug("The details field of unexpected type: ${principal.details?.class}. Giving up on getting email and name.")
         }
 
         new SimpleUser(username, realName, email, admin, studyToAccLvl)

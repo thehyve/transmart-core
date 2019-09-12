@@ -37,23 +37,23 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.owasp.dependencycheck'
 
 ext {
-    transmartVersion = '17.2'
+    transmartVersion = '17.2.1'
 
     assetPipelineVersion = '2.11.6'
     gradleWrapperVersion = '3.5.1'
     grailsVersion = '3.2.3'
     guavaVersion = '19.0'
-    jacksonVersion = '2.9.5'
+    jacksonVersion = '2.9.9'
     liquibaseVersion = '3.6.1'
     modelMapperVersion = '1.1.3'
     ojdb7Version = '12.1.0.1'
-    openCsvVersion = '4.2'
+    openCsvVersion = '4.6'
     postgresqlVersion = '42.1.4'
     protobufVersion = '3.1.0'
     quartzVersion = '2.0.13'
-    springSecurityOauth2PluginVersion = '3.0.0-RC2'
     springSecurityPluginVersion = '3.1.1'
     springSecurityVersion = '3.2.3.RELEASE'
+    keycloakVersion = '6.0.1'
 }
 
 task wrapper(type: Wrapper) {
@@ -75,7 +75,6 @@ allprojects {
         postgresqlVersion = postgresqlVersion
         protobufVersion = protobufVersion
         quartzVersion = quartzVersion
-        springSecurityOauth2PluginVersion = springSecurityOauth2PluginVersion
         springSecurityPluginVersion = springSecurityPluginVersion
         springSecurityVersion = springSecurityVersion
     }

@@ -15,11 +15,11 @@ dependencies {
 
     compile 'org.slf4j:slf4j-api:1.7.23'
 
-    compile "com.google.guava:guava:$guavaVersion"
+    compile "com.google.guava:guava:${guavaVersion}"
     compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-    compile 'com.google.code.gson:gson:1.7.1'
+    compile 'com.google.code.gson:gson:2.8.5'
 }
 
 publishing {
