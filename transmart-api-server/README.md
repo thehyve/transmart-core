@@ -37,7 +37,7 @@ Login to `https://idp.example.com/auth/admin/` and:
     - Valid Redirect URIs: `https://glowingbear.example.com`
     - Web Origins: `https://glowingbear.example.com`
 
-    **Note:**For Keycloak versions > 4.5.0 configure client mappers to include client ID in the aud (audience) Claim 
+    **Note:** For Keycloak versions > 4.5.0 configure client mappers to include client ID in the aud (audience) Claim 
     by following [the official instruction](https://www.keycloak.org/docs/4.8/server_admin/#_audience_hardcoded).
 
 3. Create Roles.  
