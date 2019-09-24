@@ -1,34 +1,30 @@
 concept_blob	concept_cd	concept_path	download_date	import_date	name_char	sourcesystem_cd	table_name	update_date	upload_id
-	82fe43990271eabe4266c0392e99327f7b68d9a8	\Public Studies\CSR\03. Biosource information\01. Biosource parent\			01. Biosource parent				
-	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	\Public Studies\CSR\04. Biomaterial information\02. Date of biomaterial\			02. Date of biomaterial				
-	1ce3fc1098b2b8179e5b486b8349a5c08f807898	\Public Studies\CSR\03. Biosource information\02. Date of biosource\			02. Date of biosource				
-	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	\Public Studies\CSR\03. Biosource information\06. Biosource dedicated for specific study\			06. Biosource dedicated for specific study				
-	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	\Public Studies\CSR\01. Patient information\01. Date of birth\			01. Date of birth				
-	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	\Public Studies\CSR\02. Diagnosis information\05. Center of treatment\			05. Center of treatment				
-	e27724a7b7c9e8ed0c653d9e27ee0b770563f98e	\Public Studies\CSR\01. Patient information\05. Date of death\			05. Date of death				
-	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	\Public Studies\CSR\02. Diagnosis information\01. Date of diagnosis\			01. Date of diagnosis				
-	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	\Public Studies\CSR\03. Biosource information\04. Disease status\			04. Disease status				
-	e24277e1af6ded3d1a0b231f32e7723c566d5e67	\Public Studies\CSR\01. Patient information\02. Gender\			02. Gender				
-	246e7915066ee4a150322518b213181a7f3903d9	\Public Studies\CSR\01. Patient information\Informed consent\05. Informed consent data\			05. Informed consent data				
-	7816a9fbf89154bdbfadda6daded4b6c58dd37b3	\Public Studies\CSR\01. Patient information\Informed consent\06. Informed concent linking external database\			06. Informed concent linking external database				
-	0e87b77f99a0e9d444cf4729e88301231334630d	\Public Studies\CSR\01. Patient information\Informed consent\04. Informed consent material\			04. Informed consent material				
-	b64e4f7183e7b75a6faedb430285e326c5a30fde	\Public Studies\CSR\01. Patient information\Informed consent\01. Informed consent type\			01. Informed consent type				
-	e1ee31813ba7572cfd8ac3a36ec5a22a3d22512e	\Public Studies\CSR\01. Patient information\Informed consent\03. Date informed consent withdrawn\			03. Date informed consent withdrawn				
-	480736dfd7cc2d85ec65223382b7c480b32f455c	\Public Studies\CSR\01. Patient information\Informed consent\07. Report heriditary susceptibility\			07. Report heriditary susceptibility				
-	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	\Public Studies\CSR\04. Biomaterial information\01. Biomaterial parent\			01. Biomaterial parent				
-	debae43031f4a461b0e7a7fa0a0d89c793573df6	\Public Studies\CSR\01. Patient information\Taxonomy\			Taxonomy				
-	640e439053c924ca78f5ec339e4f6fe26bd4073d	\Public Studies\CSR\03. Biosource information\03. Tissue\			03. Tissue				
-	4f33eeb399622afda11f16c40a3e87dea82d6414	\Public Studies\CSR\02. Diagnosis information\03. Topography\			03. Topography				
-	c3bb4810113fc3daa877a2109c1a9c1358955021	\Public Studies\CSR\02. Diagnosis information\Treatment\			Treatment				
-	83faa63b282f9ff2e97312309b3b18760a6db97b	\Public Studies\CSR\03. Biosource information\05. Tumor percentage\			05. Tumor percentage				
-	7043ff91b2bd050feca89996be82eb1421a3372b	\Public Studies\CSR\02. Diagnosis information\04. Tumor stage\			04. Tumor stage				
-	4fc4afd045e321c824da01fae5c679cb34d71cac	\Public Studies\CSR\02. Diagnosis information\02. Tumor type\			02. Tumor type				
-	e0e1f2c1393ba80effa972e6f395566104fcce8e	\Public Studies\CSR\04. Biomaterial information\03. Biomaterial type\			03. Biomaterial type				
-	6b74b1eda880cca4473e2793e13e88869c0a03a5	\Public Studies\CSR\05. Study information\STD1\01. Study ID\			01. Study ID				
-	c18ba4a966d996090e78993dc087b24dfaeea87a	\Public Studies\CSR\05. Study information\STD1\04. Individual Study ID\			04. Individual Study ID				
-	1cbd83e436976dee45dd5c446290b2cb508b801e	\Public Studies\CSR\05. Study information\STD1\02. Study acronym\			02. Study acronym				
-	f79e5c3b50c3c3f889281a8567ba2db15c657a18	\Public Studies\CSR\05. Study information\STD1\03. Study title\			03. Study title				
-	f997c8d7bffdc73544e76688094f42b347fc8dac	\Public Studies\CSR\05. Study information\STD2\01. Study ID\			01. Study ID				
-	eecc1d9cbd2b8ac72e1fc9771e574b248931328c	\Public Studies\CSR\05. Study information\STD2\04. Individual Study ID\			04. Individual Study ID				
-	bb02b2fe41e213d2f2511228236e63c8144c2bd9	\Public Studies\CSR\05. Study information\STD2\02. Study acronym\			02. Study acronym				
-	e2823a4ea40466a199a724b967a1cd8f9f28b533	\Public Studies\CSR\05. Study information\STD2\03. Study title\			03. Study title				
+	Biosource.src_biosource_id	\Public Studies\CSR\03. Biosource information\01. Biosource parent\			01. Biosource parent				
+	Biomaterial.biomaterial_date	\Public Studies\CSR\04. Biomaterial information\02. Date of biomaterial\			02. Date of biomaterial				
+	Biosource.biosource_date	\Public Studies\CSR\03. Biosource information\02. Date of biosource\			02. Date of biosource				
+	Biosource.biosource_dedicated	\Public Studies\CSR\03. Biosource information\06. Biosource dedicated for specific study\			06. Biosource dedicated for specific study				
+	Patient.birth_date	\Public Studies\CSR\01. Patient information\01. Date of birth\			01. Date of birth				
+	Diagnosis.center_treatment	\Public Studies\CSR\02. Diagnosis information\05. Center of treatment\			05. Center of treatment				
+	Patient.death_date	\Public Studies\CSR\01. Patient information\05. Date of death\			05. Date of death				
+	Diagnosis.diagnosis_date	\Public Studies\CSR\02. Diagnosis information\01. Date of diagnosis\			01. Date of diagnosis				
+	Biosource.disease_status	\Public Studies\CSR\03. Biosource information\04. Disease status\			04. Disease status				
+	Patient.gender	\Public Studies\CSR\01. Patient information\02. Gender\			02. Gender				
+	Patient.ic_data	\Public Studies\CSR\01. Patient information\Informed consent\05. Informed consent data\			05. Informed consent data				
+	Patient.ic_linking_ext	\Public Studies\CSR\01. Patient information\Informed consent\06. Informed concent linking external database\			06. Informed concent linking external database				
+	Patient.ic_material	\Public Studies\CSR\01. Patient information\Informed consent\04. Informed consent material\			04. Informed consent material				
+	Patient.ic_type	\Public Studies\CSR\01. Patient information\Informed consent\01. Informed consent type\			01. Informed consent type				
+	Patient.ic_withdrawn_date	\Public Studies\CSR\01. Patient information\Informed consent\03. Date informed consent withdrawn\			03. Date informed consent withdrawn				
+	Patient.ic_report_her_susc	\Public Studies\CSR\01. Patient information\Informed consent\07. Report heriditary susceptibility\			07. Report heriditary susceptibility				
+	Biomaterial.src_biomaterial_id	\Public Studies\CSR\04. Biomaterial information\01. Biomaterial parent\			01. Biomaterial parent				
+	Patient.taxonomy	\Public Studies\CSR\01. Patient information\Taxonomy\			Taxonomy				
+	Biosource.tissue	\Public Studies\CSR\03. Biosource information\03. Tissue\			03. Tissue				
+	Diagnosis.topography	\Public Studies\CSR\02. Diagnosis information\03. Topography\			03. Topography				
+	Diagnosis.treatment_protocol	\Public Studies\CSR\02. Diagnosis information\Treatment\			Treatment				
+	Biosource.tumor_percentage	\Public Studies\CSR\03. Biosource information\05. Tumor percentage\			05. Tumor percentage				
+	Diagnosis.tumor_stage	\Public Studies\CSR\02. Diagnosis information\04. Tumor stage\			04. Tumor stage				
+	Diagnosis.tumor_type	\Public Studies\CSR\02. Diagnosis information\02. Tumor type\			02. Tumor type				
+	Biomaterial.type	\Public Studies\CSR\04. Biomaterial information\03. Biomaterial type\			03. Biomaterial type				
+	Study.study_id	\Public Studies\CSR\05. Study information\01. Study ID\			01. Study ID				
+	IndividualStudy.individual_study_id	\Public Studies\CSR\05. Study information\04. Individual Study ID\			04. Individual Study ID				
+	Study.acronym	\Public Studies\CSR\05. Study information\02. Study acronym\			02. Study acronym				
+	Study.title	\Public Studies\CSR\05. Study information\03. Study title\			03. Study title				

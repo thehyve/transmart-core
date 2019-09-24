@@ -1,619 +1,619 @@
 encounter_num	patient_num	concept_cd	provider_id	start_date	modifier_cd	instance_num	trial_visit_num	valtype_cd	tval_char	nval_num	valueflag_cd	quantity_num	units_cd	end_date	location_cd	observation_blob	confidence_num	update_date	download_date	import_date	sourcesystem_cd	upload_id	sample_cd
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	21	0	T	BS1														
--1	2	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	22	0	T	BS2														
--1	3	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	23	0	T	BS3														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	25	0	T	BS5														
--1	6	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	26	0	T	BS6														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	27	0	T	BS7														
--1	8	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	28	0	T	BS8														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	29	0	T	BS9														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	30	0	T	BS10														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	31	0	T	BS11														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	32	0	T	B4														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	33	0	T	BS1														
--1	2	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	34	0	T	BS2														
--1	3	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	35	0	T	BS3														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	36	0	T	BS4														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	37	0	T	BS5														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	38	0	T	BS7														
--1	8	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	39	0	T	BS8														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	40	0	T	BS9														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	41	0	T	BS10														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	42	0	T	BS11														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	43	0	T	BS12														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	44	0	T	BS4														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	45	0	T	BS5														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	46	0	T	BS7														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		@	47	0	T	BS10														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
--1	2	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
--1	6	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
--1	8	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	33	0	T	D1														
--1	2	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	34	0	T	D11														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	36	0	T	D5														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	37	0	T	D6														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
--1	8	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	39	0	T	D9														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	40	0	T	D6														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	42	0	T	D12														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	43	0	T	D5														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	44	0	T	D5														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	45	0	T	D6														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	46	0	T	D8														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
--1	2	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
--1	3	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
--1	6	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
--1	8	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	33	0	T	BS1														
--1	2	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	34	0	T	BS2														
--1	3	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	35	0	T	BS3														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	36	0	T	BS4														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	37	0	T	BS5														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
--1	8	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	39	0	T	BS8														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	40	0	T	BS9														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	42	0	T	BS11														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	43	0	T	BS12														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	44	0	T	BS4														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	45	0	T	BS5														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	46	0	T	BS7														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	33	0	T	BM1														
--1	2	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	34	0	T	BM2														
--1	3	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	35	0	T	BM3														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	36	0	T	BM4														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	37	0	T	BM5														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
--1	8	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	39	0	T	BM7														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	40	0	T	BM8														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	42	0	T	BM10														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	43	0	T	BM11														
--1	4	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	44	0	T	BM12														
--1	5	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	45	0	T	BM13														
--1	7	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	46	0	T	BM14														
--1	0	82fe43990271eabe4266c0392e99327f7b68d9a8	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	33	0	D	E	1507766400000						2017-10-12							
--1	2	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	34	0	D	E	1511308800000						2017-11-22							
--1	3	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	35	0	D	E	1513036800000						2017-12-12							
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	36	0	D	E	1507766400000						2017-10-12							
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	37	0	D	E	1511308800000						2017-11-22							
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	38	0	D	E	1505174400000						2017-09-12							
--1	8	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	39	0	D	E	1507766400000						2017-10-12							
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	40	0	D	E	1503360000000						2017-08-22							
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	41	0	D	E	1513036800000						2017-12-12							
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	42	0	D	E	1507766400000						2017-10-12							
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	43	0	D	E	1511308800000						2017-11-22							
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	44	0	D	E	1513036800000						2017-12-12							
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	45	0	D	E	1499817600000						2017-07-12							
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	46	0	D	E	1511308800000						2017-11-22							
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		@	47	0	D	E	1512172800000						2017-12-02							
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	33	0	T	D1														
--1	2	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	34	0	T	D11														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	36	0	T	D5														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	37	0	T	D6														
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
--1	8	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	39	0	T	D9														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	40	0	T	D6														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	42	0	T	D12														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	43	0	T	D5														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	44	0	T	D5														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	45	0	T	D6														
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	46	0	T	D8														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	33	0	T	BS1														
--1	2	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	34	0	T	BS2														
--1	3	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	35	0	T	BS3														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	36	0	T	BS4														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	37	0	T	BS5														
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
--1	8	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	39	0	T	BS8														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	40	0	T	BS9														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	42	0	T	BS11														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	43	0	T	BS12														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	44	0	T	BS4														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	45	0	T	BS5														
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	46	0	T	BS7														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	33	0	T	BM1														
--1	2	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	34	0	T	BM2														
--1	3	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	35	0	T	BM3														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	36	0	T	BM4														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	37	0	T	BM5														
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
--1	8	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	39	0	T	BM7														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	40	0	T	BM8														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	42	0	T	BM10														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	43	0	T	BM11														
--1	4	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	44	0	T	BM12														
--1	5	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	45	0	T	BM13														
--1	7	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	46	0	T	BM14														
--1	0	1d92eaf563dcb89a4beca0698e983acf9b7c37a6	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
--1	0	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	21	0	D	E	1489276800000						2017-03-12							
--1	2	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	22	0	D	E	1491004800000						2017-04-01							
--1	3	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	23	0	D	E	1494720000000						2017-05-14							
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	24	0	D	E	1498003200000						2017-06-21							
--1	5	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	25	0	D	E	1499644800000						2017-07-10							
--1	6	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	26	0	D	E	1503273600000						2017-08-21							
--1	7	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	27	0	D	E	1489104000000						2017-03-10							
--1	8	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	28	0	D	E	1493510400000						2017-04-30							
--1	5	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	29	0	D	E	1494374400000						2017-05-10							
--1	0	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	30	0	D	E	1497052800000						2017-06-10							
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	31	0	D	E	1500681600000						2017-07-22							
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		@	32	0	D	E	1470873600000						2016-08-11							
--1	0	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
--1	2	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
--1	5	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
--1	6	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
--1	7	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
--1	8	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
--1	5	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
--1	0	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
--1	0	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
--1	2	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
--1	3	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
--1	5	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
--1	6	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
--1	7	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
--1	8	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
--1	5	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
--1	0	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
--1	4	1ce3fc1098b2b8179e5b486b8349a5c08f807898	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
--1	0	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		@	21	0	T	Yes														
--1	4	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		@	24	0	T	No														
--1	8	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		@	28	0	T	No														
--1	4	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		@	32	0	T	Yes														
--1	0	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
--1	4	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
--1	8	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
--1	4	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
--1	0	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
--1	4	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
--1	8	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
--1	4	309c81ae7e5f3fdcb3d32721460fb1796d4b24c3	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
--1	0	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	0	0	D	E	728524800000						1993-02-01							
--1	1	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	1	0	D	E	699494400000						1992-03-02							
--1	2	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	2	0	D	E	765331200000						1994-04-03							
--1	3	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	3	0	D	E	736473600000						1993-05-04							
--1	4	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	4	0	D	E	802310400000						1995-06-05							
--1	5	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	5	0	D	E	741916800000						1993-07-06							
--1	6	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	6	0	D	E	744681600000						1993-08-07							
--1	7	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	7	0	D	E	873676800000						1997-09-08							
--1	8	60da92e9c0229b8ce64785ce3060f2ac7a2ce8ac	@		@	8	0	D	E	750124800000						1993-10-09							
--1	0	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	9	0	T	Center 1														
--1	1	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	10	0	T	Center 2														
--1	2	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	11	0	T	Center 3														
--1	4	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	12	0	T	Center 2														
--1	5	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	13	0	T	Center 1														
--1	6	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	14	0	T	Center 2														
--1	7	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	15	0	T	Center 3														
--1	8	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	16	0	T	Center 1														
--1	0	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	17	0	T	Center 2														
--1	2	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	18	0	T	Center 3														
--1	4	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	19	0	T	Center 1														
--1	6	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		@	20	0	T	Center 2														
--1	0	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
--1	1	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
--1	2	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
--1	4	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
--1	5	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
--1	6	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
--1	7	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
--1	8	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
--1	0	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
--1	2	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
--1	4	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
--1	6	a7cfe8e9c9d0ee7d282ee4bc579d9ea2d2f5f167	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
--1	0	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	9	0	D	E	1462060800000						2016-05-01							
--1	1	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	10	0	D	E	1467417600000						2016-07-02							
--1	2	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	11	0	D	E	1478131200000						2016-11-03							
--1	4	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	12	0	D	E	1473033600000						2016-09-05							
--1	5	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	13	0	D	E	1480982400000						2016-12-06							
--1	6	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	14	0	D	E	1485907200000						2017-02-01							
--1	7	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	15	0	D	E	1491091200000						2017-04-02							
--1	8	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	16	0	D	E	1462752000000						2016-05-09							
--1	0	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	17	0	D	E	1470787200000						2016-08-10							
--1	2	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	18	0	D	E	1457654400000						2016-03-11							
--1	4	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	19	0	D	E	1462060800000						2016-05-01							
--1	6	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		@	20	0	D	E	1469145600000						2016-07-22							
--1	0	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
--1	1	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
--1	2	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
--1	4	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
--1	5	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
--1	6	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
--1	7	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
--1	8	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
--1	0	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
--1	2	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
--1	4	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
--1	6	9a35d3ffc12c75bbd93a8804e27d31ea1ee20c93	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
--1	0	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	21	0	T	ST1														
--1	2	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	22	0	T	ST2														
--1	3	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	23	0	T	ST1														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	24	0	T	ST2														
--1	5	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	25	0	T	ST2														
--1	6	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	26	0	T	ST3														
--1	7	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	27	0	T	ST2														
--1	8	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	28	0	T	ST3														
--1	5	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	29	0	T	ST3														
--1	0	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	30	0	T	ST4														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	31	0	T	ST3														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		@	32	0	T	ST4														
--1	0	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
--1	2	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
--1	5	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
--1	6	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
--1	7	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
--1	8	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
--1	5	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
--1	0	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
--1	0	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
--1	2	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
--1	3	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
--1	5	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
--1	6	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
--1	7	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
--1	8	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
--1	5	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
--1	0	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
--1	4	584786ca0ff21ee8ceb22dc1e0d7d6ca7b2a90e3	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
--1	0	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	0	0	T	f														
--1	1	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	1	0	T	m														
--1	2	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	2	0	T	f														
--1	3	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	3	0	T	m														
--1	4	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	4	0	T	f														
--1	5	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	5	0	T	m														
--1	6	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	6	0	T	f														
--1	7	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	7	0	T	m														
--1	8	e24277e1af6ded3d1a0b231f32e7723c566d5e67	@		@	8	0	T	f														
--1	0	246e7915066ee4a150322518b213181a7f3903d9	@		@	0	0	T	yes														
--1	1	246e7915066ee4a150322518b213181a7f3903d9	@		@	1	0	T	yes														
--1	3	246e7915066ee4a150322518b213181a7f3903d9	@		@	3	0	T	yes														
--1	5	246e7915066ee4a150322518b213181a7f3903d9	@		@	5	0	T	yes														
--1	6	246e7915066ee4a150322518b213181a7f3903d9	@		@	6	0	T	yes														
--1	8	246e7915066ee4a150322518b213181a7f3903d9	@		@	8	0	T	yes														
--1	2	7816a9fbf89154bdbfadda6daded4b6c58dd37b3	@		@	2	0	T	not applicable														
--1	0	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	0	0	T	yes														
--1	1	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	1	0	T	yes														
--1	2	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	2	0	T	yes														
--1	3	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	3	0	T	yes														
--1	5	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	5	0	T	yes														
--1	6	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	6	0	T	yes														
--1	7	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	7	0	T	yes														
--1	8	0e87b77f99a0e9d444cf4729e88301231334630d	@		@	8	0	T	yes														
--1	0	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	0	0	T	yes														
--1	1	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	1	0	T	yes														
--1	2	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	2	0	T	yes														
--1	3	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	3	0	T	no														
--1	4	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	4	0	T	yes														
--1	5	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	5	0	T	yes														
--1	6	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	6	0	T	yes														
--1	7	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	7	0	T	yes														
--1	8	b64e4f7183e7b75a6faedb430285e326c5a30fde	@		@	8	0	T	yes														
--1	5	e1ee31813ba7572cfd8ac3a36ec5a22a3d22512e	@		@	5	0	D	E	1507939200000						2017-10-14							
--1	0	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	0	0	T	yes														
--1	1	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	1	0	T	yes														
--1	2	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	2	0	T	yes														
--1	3	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	3	0	T	yes														
--1	4	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	4	0	T	yes														
--1	5	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	5	0	T	yes														
--1	6	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	6	0	T	yes														
--1	7	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	7	0	T	yes														
--1	8	480736dfd7cc2d85ec65223382b7c480b32f455c	@		@	8	0	T	yes														
--1	7	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		@	38	0	T	BM6														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		@	41	0	T	9														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		@	47	0	T	BM9														
--1	7	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
--1	7	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
--1	7	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
--1	0	08e58306d0b4cf7e9b10dfe47135ef607d2bae3a	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
--1	0	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	0	0	T	Human														
--1	1	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	1	0	T	Human														
--1	2	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	2	0	T	Human														
--1	3	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	3	0	T	Human														
--1	4	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	4	0	T	Human														
--1	5	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	5	0	T	Human														
--1	6	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	6	0	T	Human														
--1	7	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	7	0	T	Human														
--1	8	debae43031f4a461b0e7a7fa0a0d89c793573df6	@		@	8	0	T	Human														
--1	0	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	21	0	T	medula														
--1	2	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	22	0	T	cortex														
--1	3	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	23	0	T	cortex														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	24	0	T	medula														
--1	5	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	25	0	T	medula														
--1	6	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	26	0	T	cortex														
--1	7	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	27	0	T	cortex														
--1	8	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	28	0	T	medula														
--1	5	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	29	0	T	medula														
--1	0	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	30	0	T	cortex														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	31	0	T	medula														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		@	32	0	T	medula														
--1	0	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
--1	2	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
--1	5	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
--1	6	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
--1	7	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
--1	8	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
--1	5	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
--1	0	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
--1	0	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
--1	2	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
--1	3	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
--1	5	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
--1	6	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
--1	7	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
--1	8	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
--1	5	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
--1	0	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
--1	4	640e439053c924ca78f5ec339e4f6fe26bd4073d	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
--1	0	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	9	0	T	liver														
--1	1	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	10	0	T	kidney														
--1	2	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	11	0	T	bone marrow														
--1	4	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	12	0	T	kidney														
--1	5	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	13	0	T	bone marrow														
--1	6	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	14	0	T	liver														
--1	7	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	15	0	T	liver														
--1	8	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	16	0	T	kidney														
--1	0	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	17	0	T	liver														
--1	2	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	18	0	T	liver														
--1	4	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	19	0	T	bone marrow														
--1	6	4f33eeb399622afda11f16c40a3e87dea82d6414	@		@	20	0	T	kidney														
--1	0	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
--1	1	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
--1	2	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
--1	4	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
--1	5	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
--1	6	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
--1	7	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
--1	8	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
--1	0	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
--1	2	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
--1	4	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
--1	6	4f33eeb399622afda11f16c40a3e87dea82d6414	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
--1	0	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	9	0	T	chemo														
--1	1	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	10	0	T	surgery														
--1	2	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	11	0	T	Protocol 1														
--1	4	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	12	0	T	chemo														
--1	5	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	13	0	T	chemo														
--1	6	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	14	0	T	surgery														
--1	7	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	15	0	T	chemo														
--1	8	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	16	0	T	surgery														
--1	0	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	17	0	T	chemo														
--1	2	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	18	0	T	Protocol 1														
--1	4	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	19	0	T	surgery														
--1	6	c3bb4810113fc3daa877a2109c1a9c1358955021	@		@	20	0	T	surgery														
--1	0	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
--1	1	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
--1	2	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
--1	4	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
--1	5	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
--1	6	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
--1	7	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
--1	8	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
--1	0	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
--1	2	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
--1	4	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
--1	6	c3bb4810113fc3daa877a2109c1a9c1358955021	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
--1	0	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	21	0	N	E	5													
--1	2	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	22	0	N	E	3													
--1	3	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	23	0	N	E	2													
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	24	0	N	E	1													
--1	5	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	25	0	N	E	4													
--1	6	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	26	0	N	E	3													
--1	7	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	27	0	N	E	1													
--1	8	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	28	0	N	E	1													
--1	5	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	29	0	N	E	2													
--1	0	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	30	0	N	E	3													
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	31	0	N	E	5													
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		@	32	0	N	E	1													
--1	0	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
--1	2	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
--1	5	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
--1	6	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
--1	7	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
--1	8	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
--1	5	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
--1	0	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
--1	0	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
--1	2	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
--1	3	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
--1	5	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
--1	6	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
--1	7	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
--1	8	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
--1	5	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
--1	0	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
--1	4	83faa63b282f9ff2e97312309b3b18760a6db97b	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
--1	0	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	9	0	T	IV														
--1	1	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	10	0	T	III														
--1	2	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	11	0	T	IV														
--1	4	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	12	0	T	I														
--1	5	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	13	0	T	II														
--1	6	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	14	0	T	III														
--1	7	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	15	0	T	IV														
--1	8	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	16	0	T	II														
--1	0	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	17	0	T	III														
--1	2	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	18	0	T	II														
--1	4	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	19	0	T	I														
--1	6	7043ff91b2bd050feca89996be82eb1421a3372b	@		@	20	0	T	II														
--1	0	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
--1	1	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
--1	2	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
--1	4	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
--1	5	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
--1	6	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
--1	7	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
--1	8	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
--1	0	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
--1	2	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
--1	4	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
--1	6	7043ff91b2bd050feca89996be82eb1421a3372b	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
--1	0	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	9	0	T	neuroblastoma														
--1	1	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	10	0	T	nephroblastoma														
--1	2	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	11	0	T	hepatoblastoma														
--1	4	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	12	0	T	nephroblastoma														
--1	5	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	13	0	T	hepatoblastoma														
--1	6	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	14	0	T	neuroblastoma														
--1	7	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	15	0	T	nephroblastoma														
--1	8	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	16	0	T	hepatoblastoma														
--1	0	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	17	0	T	neuroblastoma														
--1	2	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	18	0	T	nephroblastoma														
--1	4	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	19	0	T	hepatoblastoma														
--1	6	4fc4afd045e321c824da01fae5c679cb34d71cac	@		@	20	0	T	neuroblastoma														
--1	0	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
--1	1	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
--1	2	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
--1	4	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
--1	5	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
--1	6	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
--1	7	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
--1	8	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
--1	0	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
--1	2	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
--1	4	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
--1	6	4fc4afd045e321c824da01fae5c679cb34d71cac	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	33	0	T	RNA														
--1	2	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	34	0	T	DNA														
--1	3	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	35	0	T	RNA														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	36	0	T	DNA														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	37	0	T	RNA														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	38	0	T	DNA														
--1	8	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	39	0	T	RNA														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	40	0	T	DNA														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	41	0	T	RNA														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	42	0	T	DNA														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	43	0	T	RNA														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	44	0	T	DNA														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	45	0	T	RNA														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	46	0	T	DNA														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		@	47	0	T	DNA														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	33	0	T	D1														
--1	2	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	34	0	T	D11														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	36	0	T	D5														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	37	0	T	D6														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
--1	8	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	39	0	T	D9														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	40	0	T	D6														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	42	0	T	D12														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	43	0	T	D5														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	44	0	T	D5														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	45	0	T	D6														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	46	0	T	D8														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	33	0	T	BS1														
--1	2	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	34	0	T	BS2														
--1	3	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	35	0	T	BS3														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	36	0	T	BS4														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	37	0	T	BS5														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
--1	8	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	39	0	T	BS8														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	40	0	T	BS9														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	42	0	T	BS11														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	43	0	T	BS12														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	44	0	T	BS4														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	45	0	T	BS5														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	46	0	T	BS7														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	33	0	T	BM1														
--1	2	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	34	0	T	BM2														
--1	3	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	35	0	T	BM3														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	36	0	T	BM4														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	37	0	T	BM5														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
--1	8	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	39	0	T	BM7														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	40	0	T	BM8														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	42	0	T	BM10														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	43	0	T	BM11														
--1	4	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	44	0	T	BM12														
--1	5	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	45	0	T	BM13														
--1	7	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	46	0	T	BM14														
--1	0	e0e1f2c1393ba80effa972e6f395566104fcce8e	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
--1	0	6b74b1eda880cca4473e2793e13e88869c0a03a5	@		@	0	0	T	STUDY1														
--1	1	6b74b1eda880cca4473e2793e13e88869c0a03a5	@		@	1	0	T	STUDY1														
--1	2	6b74b1eda880cca4473e2793e13e88869c0a03a5	@		@	2	0	T	STUDY1														
--1	3	6b74b1eda880cca4473e2793e13e88869c0a03a5	@		@	3	0	T	STUDY1														
--1	4	6b74b1eda880cca4473e2793e13e88869c0a03a5	@		@	4	0	T	STUDY1														
--1	0	c18ba4a966d996090e78993dc087b24dfaeea87a	@		@	0	0	N	E	1													
--1	1	c18ba4a966d996090e78993dc087b24dfaeea87a	@		@	1	0	N	E	2													
--1	2	c18ba4a966d996090e78993dc087b24dfaeea87a	@		@	2	0	N	E	3													
--1	3	c18ba4a966d996090e78993dc087b24dfaeea87a	@		@	3	0	N	E	4													
--1	4	c18ba4a966d996090e78993dc087b24dfaeea87a	@		@	4	0	N	E	5													
--1	0	1cbd83e436976dee45dd5c446290b2cb508b801e	@		@	0	0	T	STD1														
--1	1	1cbd83e436976dee45dd5c446290b2cb508b801e	@		@	1	0	T	STD1														
--1	2	1cbd83e436976dee45dd5c446290b2cb508b801e	@		@	2	0	T	STD1														
--1	3	1cbd83e436976dee45dd5c446290b2cb508b801e	@		@	3	0	T	STD1														
--1	4	1cbd83e436976dee45dd5c446290b2cb508b801e	@		@	4	0	T	STD1														
--1	0	f79e5c3b50c3c3f889281a8567ba2db15c657a18	@		@	0	0	T	Study 1														
--1	1	f79e5c3b50c3c3f889281a8567ba2db15c657a18	@		@	1	0	T	Study 1														
--1	2	f79e5c3b50c3c3f889281a8567ba2db15c657a18	@		@	2	0	T	Study 1														
--1	3	f79e5c3b50c3c3f889281a8567ba2db15c657a18	@		@	3	0	T	Study 1														
--1	4	f79e5c3b50c3c3f889281a8567ba2db15c657a18	@		@	4	0	T	Study 1														
--1	4	f997c8d7bffdc73544e76688094f42b347fc8dac	@		@	4	0	T	STUDY2														
--1	5	f997c8d7bffdc73544e76688094f42b347fc8dac	@		@	5	0	T	STUDY2														
--1	6	f997c8d7bffdc73544e76688094f42b347fc8dac	@		@	6	0	T	STUDY2														
--1	7	f997c8d7bffdc73544e76688094f42b347fc8dac	@		@	7	0	T	STUDY2														
--1	8	f997c8d7bffdc73544e76688094f42b347fc8dac	@		@	8	0	T	STUDY2														
--1	4	eecc1d9cbd2b8ac72e1fc9771e574b248931328c	@		@	4	0	N	E	6													
--1	5	eecc1d9cbd2b8ac72e1fc9771e574b248931328c	@		@	5	0	N	E	7													
--1	6	eecc1d9cbd2b8ac72e1fc9771e574b248931328c	@		@	6	0	N	E	8													
--1	7	eecc1d9cbd2b8ac72e1fc9771e574b248931328c	@		@	7	0	N	E	9													
--1	8	eecc1d9cbd2b8ac72e1fc9771e574b248931328c	@		@	8	0	N	E	10													
--1	4	bb02b2fe41e213d2f2511228236e63c8144c2bd9	@		@	4	0	T	STD2														
--1	5	bb02b2fe41e213d2f2511228236e63c8144c2bd9	@		@	5	0	T	STD2														
--1	6	bb02b2fe41e213d2f2511228236e63c8144c2bd9	@		@	6	0	T	STD2														
--1	7	bb02b2fe41e213d2f2511228236e63c8144c2bd9	@		@	7	0	T	STD2														
--1	8	bb02b2fe41e213d2f2511228236e63c8144c2bd9	@		@	8	0	T	STD2														
--1	4	e2823a4ea40466a199a724b967a1cd8f9f28b533	@		@	4	0	T	Study 2														
--1	5	e2823a4ea40466a199a724b967a1cd8f9f28b533	@		@	5	0	T	Study 2														
--1	6	e2823a4ea40466a199a724b967a1cd8f9f28b533	@		@	6	0	T	Study 2														
--1	7	e2823a4ea40466a199a724b967a1cd8f9f28b533	@		@	7	0	T	Study 2														
--1	8	e2823a4ea40466a199a724b967a1cd8f9f28b533	@		@	8	0	T	Study 2														
+-1	0	Biosource.src_biosource_id	@		@	21	0	T	BS1														
+-1	2	Biosource.src_biosource_id	@		@	22	0	T	BS2														
+-1	3	Biosource.src_biosource_id	@		@	23	0	T	BS3														
+-1	5	Biosource.src_biosource_id	@		@	25	0	T	BS5														
+-1	6	Biosource.src_biosource_id	@		@	26	0	T	BS6														
+-1	7	Biosource.src_biosource_id	@		@	27	0	T	BS7														
+-1	8	Biosource.src_biosource_id	@		@	28	0	T	BS8														
+-1	5	Biosource.src_biosource_id	@		@	29	0	T	BS9														
+-1	0	Biosource.src_biosource_id	@		@	30	0	T	BS10														
+-1	4	Biosource.src_biosource_id	@		@	31	0	T	BS11														
+-1	4	Biosource.src_biosource_id	@		@	32	0	T	B4														
+-1	0	Biosource.src_biosource_id	@		@	33	0	T	BS1														
+-1	2	Biosource.src_biosource_id	@		@	34	0	T	BS2														
+-1	3	Biosource.src_biosource_id	@		@	35	0	T	BS3														
+-1	4	Biosource.src_biosource_id	@		@	36	0	T	BS4														
+-1	5	Biosource.src_biosource_id	@		@	37	0	T	BS5														
+-1	7	Biosource.src_biosource_id	@		@	38	0	T	BS7														
+-1	8	Biosource.src_biosource_id	@		@	39	0	T	BS8														
+-1	5	Biosource.src_biosource_id	@		@	40	0	T	BS9														
+-1	0	Biosource.src_biosource_id	@		@	41	0	T	BS10														
+-1	4	Biosource.src_biosource_id	@		@	42	0	T	BS11														
+-1	4	Biosource.src_biosource_id	@		@	43	0	T	BS12														
+-1	4	Biosource.src_biosource_id	@		@	44	0	T	BS4														
+-1	5	Biosource.src_biosource_id	@		@	45	0	T	BS5														
+-1	7	Biosource.src_biosource_id	@		@	46	0	T	BS7														
+-1	0	Biosource.src_biosource_id	@		@	47	0	T	BS10														
+-1	0	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
+-1	2	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
+-1	5	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
+-1	6	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
+-1	7	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
+-1	8	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
+-1	5	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
+-1	0	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
+-1	4	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
+-1	4	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
+-1	0	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	33	0	T	D1														
+-1	2	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	34	0	T	D11														
+-1	4	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	36	0	T	D5														
+-1	5	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	37	0	T	D6														
+-1	7	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
+-1	8	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	39	0	T	D9														
+-1	5	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	40	0	T	D6														
+-1	0	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
+-1	4	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	42	0	T	D12														
+-1	4	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	43	0	T	D5														
+-1	4	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	44	0	T	D5														
+-1	5	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	45	0	T	D6														
+-1	7	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	46	0	T	D8														
+-1	0	Biosource.src_biosource_id	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
+-1	2	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
+-1	3	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
+-1	6	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
+-1	7	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
+-1	8	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	33	0	T	BS1														
+-1	2	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	34	0	T	BS2														
+-1	3	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	35	0	T	BS3														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	36	0	T	BS4														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	37	0	T	BS5														
+-1	7	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
+-1	8	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	39	0	T	BS8														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	40	0	T	BS9														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	42	0	T	BS11														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	43	0	T	BS12														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	44	0	T	BS4														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	45	0	T	BS5														
+-1	7	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	46	0	T	BS7														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	33	0	T	BM1														
+-1	2	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	34	0	T	BM2														
+-1	3	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	35	0	T	BM3														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	36	0	T	BM4														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	37	0	T	BM5														
+-1	7	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
+-1	8	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	39	0	T	BM7														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	40	0	T	BM8														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	42	0	T	BM10														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	43	0	T	BM11														
+-1	4	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	44	0	T	BM12														
+-1	5	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	45	0	T	BM13														
+-1	7	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	46	0	T	BM14														
+-1	0	Biosource.src_biosource_id	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
+-1	0	Biomaterial.biomaterial_date	@		@	33	0	D	E	1507766400000						2017-10-12							
+-1	2	Biomaterial.biomaterial_date	@		@	34	0	D	E	1511308800000						2017-11-22							
+-1	3	Biomaterial.biomaterial_date	@		@	35	0	D	E	1513036800000						2017-12-12							
+-1	4	Biomaterial.biomaterial_date	@		@	36	0	D	E	1507766400000						2017-10-12							
+-1	5	Biomaterial.biomaterial_date	@		@	37	0	D	E	1511308800000						2017-11-22							
+-1	7	Biomaterial.biomaterial_date	@		@	38	0	D	E	1505174400000						2017-09-12							
+-1	8	Biomaterial.biomaterial_date	@		@	39	0	D	E	1507766400000						2017-10-12							
+-1	5	Biomaterial.biomaterial_date	@		@	40	0	D	E	1503360000000						2017-08-22							
+-1	0	Biomaterial.biomaterial_date	@		@	41	0	D	E	1513036800000						2017-12-12							
+-1	4	Biomaterial.biomaterial_date	@		@	42	0	D	E	1507766400000						2017-10-12							
+-1	4	Biomaterial.biomaterial_date	@		@	43	0	D	E	1511308800000						2017-11-22							
+-1	4	Biomaterial.biomaterial_date	@		@	44	0	D	E	1513036800000						2017-12-12							
+-1	5	Biomaterial.biomaterial_date	@		@	45	0	D	E	1499817600000						2017-07-12							
+-1	7	Biomaterial.biomaterial_date	@		@	46	0	D	E	1511308800000						2017-11-22							
+-1	0	Biomaterial.biomaterial_date	@		@	47	0	D	E	1512172800000						2017-12-02							
+-1	0	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	33	0	T	D1														
+-1	2	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	34	0	T	D11														
+-1	4	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	36	0	T	D5														
+-1	5	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	37	0	T	D6														
+-1	7	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
+-1	8	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	39	0	T	D9														
+-1	5	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	40	0	T	D6														
+-1	0	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
+-1	4	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	42	0	T	D12														
+-1	4	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	43	0	T	D5														
+-1	4	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	44	0	T	D5														
+-1	5	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	45	0	T	D6														
+-1	7	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	46	0	T	D8														
+-1	0	Biomaterial.biomaterial_date	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
+-1	0	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	33	0	T	BS1														
+-1	2	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	34	0	T	BS2														
+-1	3	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	35	0	T	BS3														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	36	0	T	BS4														
+-1	5	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	37	0	T	BS5														
+-1	7	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
+-1	8	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	39	0	T	BS8														
+-1	5	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	40	0	T	BS9														
+-1	0	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	42	0	T	BS11														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	43	0	T	BS12														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	44	0	T	BS4														
+-1	5	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	45	0	T	BS5														
+-1	7	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	46	0	T	BS7														
+-1	0	Biomaterial.biomaterial_date	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
+-1	0	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	33	0	T	BM1														
+-1	2	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	34	0	T	BM2														
+-1	3	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	35	0	T	BM3														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	36	0	T	BM4														
+-1	5	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	37	0	T	BM5														
+-1	7	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
+-1	8	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	39	0	T	BM7														
+-1	5	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	40	0	T	BM8														
+-1	0	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	42	0	T	BM10														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	43	0	T	BM11														
+-1	4	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	44	0	T	BM12														
+-1	5	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	45	0	T	BM13														
+-1	7	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	46	0	T	BM14														
+-1	0	Biomaterial.biomaterial_date	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
+-1	0	Biosource.biosource_date	@		@	21	0	D	E	1489276800000						2017-03-12							
+-1	2	Biosource.biosource_date	@		@	22	0	D	E	1491004800000						2017-04-01							
+-1	3	Biosource.biosource_date	@		@	23	0	D	E	1494720000000						2017-05-14							
+-1	4	Biosource.biosource_date	@		@	24	0	D	E	1498003200000						2017-06-21							
+-1	5	Biosource.biosource_date	@		@	25	0	D	E	1499644800000						2017-07-10							
+-1	6	Biosource.biosource_date	@		@	26	0	D	E	1503273600000						2017-08-21							
+-1	7	Biosource.biosource_date	@		@	27	0	D	E	1489104000000						2017-03-10							
+-1	8	Biosource.biosource_date	@		@	28	0	D	E	1493510400000						2017-04-30							
+-1	5	Biosource.biosource_date	@		@	29	0	D	E	1494374400000						2017-05-10							
+-1	0	Biosource.biosource_date	@		@	30	0	D	E	1497052800000						2017-06-10							
+-1	4	Biosource.biosource_date	@		@	31	0	D	E	1500681600000						2017-07-22							
+-1	4	Biosource.biosource_date	@		@	32	0	D	E	1470873600000						2016-08-11							
+-1	0	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
+-1	2	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
+-1	4	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
+-1	5	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
+-1	6	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
+-1	7	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
+-1	8	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
+-1	5	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
+-1	0	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
+-1	4	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
+-1	4	Biosource.biosource_date	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
+-1	0	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
+-1	2	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
+-1	3	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
+-1	4	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
+-1	5	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
+-1	6	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
+-1	7	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
+-1	8	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
+-1	5	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
+-1	0	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
+-1	4	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
+-1	4	Biosource.biosource_date	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
+-1	0	Biosource.biosource_dedicated	@		@	21	0	T	Yes														
+-1	4	Biosource.biosource_dedicated	@		@	24	0	T	No														
+-1	8	Biosource.biosource_dedicated	@		@	28	0	T	No														
+-1	4	Biosource.biosource_dedicated	@		@	32	0	T	Yes														
+-1	0	Biosource.biosource_dedicated	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
+-1	4	Biosource.biosource_dedicated	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
+-1	8	Biosource.biosource_dedicated	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
+-1	4	Biosource.biosource_dedicated	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
+-1	0	Biosource.biosource_dedicated	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
+-1	4	Biosource.biosource_dedicated	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
+-1	8	Biosource.biosource_dedicated	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
+-1	4	Biosource.biosource_dedicated	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
+-1	0	Patient.birth_date	@		@	0	0	D	E	728524800000						1993-02-01							
+-1	1	Patient.birth_date	@		@	1	0	D	E	699494400000						1992-03-02							
+-1	2	Patient.birth_date	@		@	2	0	D	E	765331200000						1994-04-03							
+-1	3	Patient.birth_date	@		@	3	0	D	E	736473600000						1993-05-04							
+-1	4	Patient.birth_date	@		@	4	0	D	E	802310400000						1995-06-05							
+-1	5	Patient.birth_date	@		@	5	0	D	E	741916800000						1993-07-06							
+-1	6	Patient.birth_date	@		@	6	0	D	E	744681600000						1993-08-07							
+-1	7	Patient.birth_date	@		@	7	0	D	E	873676800000						1997-09-08							
+-1	8	Patient.birth_date	@		@	8	0	D	E	750124800000						1993-10-09							
+-1	0	Diagnosis.center_treatment	@		@	9	0	T	Center 1														
+-1	1	Diagnosis.center_treatment	@		@	10	0	T	Center 2														
+-1	2	Diagnosis.center_treatment	@		@	11	0	T	Center 3														
+-1	4	Diagnosis.center_treatment	@		@	12	0	T	Center 2														
+-1	5	Diagnosis.center_treatment	@		@	13	0	T	Center 1														
+-1	6	Diagnosis.center_treatment	@		@	14	0	T	Center 2														
+-1	7	Diagnosis.center_treatment	@		@	15	0	T	Center 3														
+-1	8	Diagnosis.center_treatment	@		@	16	0	T	Center 1														
+-1	0	Diagnosis.center_treatment	@		@	17	0	T	Center 2														
+-1	2	Diagnosis.center_treatment	@		@	18	0	T	Center 3														
+-1	4	Diagnosis.center_treatment	@		@	19	0	T	Center 1														
+-1	6	Diagnosis.center_treatment	@		@	20	0	T	Center 2														
+-1	0	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
+-1	1	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
+-1	2	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
+-1	4	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
+-1	5	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
+-1	6	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
+-1	7	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
+-1	8	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
+-1	0	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
+-1	2	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
+-1	4	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
+-1	6	Diagnosis.center_treatment	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
+-1	0	Diagnosis.diagnosis_date	@		@	9	0	D	E	1462060800000						2016-05-01							
+-1	1	Diagnosis.diagnosis_date	@		@	10	0	D	E	1467417600000						2016-07-02							
+-1	2	Diagnosis.diagnosis_date	@		@	11	0	D	E	1478131200000						2016-11-03							
+-1	4	Diagnosis.diagnosis_date	@		@	12	0	D	E	1473033600000						2016-09-05							
+-1	5	Diagnosis.diagnosis_date	@		@	13	0	D	E	1480982400000						2016-12-06							
+-1	6	Diagnosis.diagnosis_date	@		@	14	0	D	E	1485907200000						2017-02-01							
+-1	7	Diagnosis.diagnosis_date	@		@	15	0	D	E	1491091200000						2017-04-02							
+-1	8	Diagnosis.diagnosis_date	@		@	16	0	D	E	1462752000000						2016-05-09							
+-1	0	Diagnosis.diagnosis_date	@		@	17	0	D	E	1470787200000						2016-08-10							
+-1	2	Diagnosis.diagnosis_date	@		@	18	0	D	E	1457654400000						2016-03-11							
+-1	4	Diagnosis.diagnosis_date	@		@	19	0	D	E	1462060800000						2016-05-01							
+-1	6	Diagnosis.diagnosis_date	@		@	20	0	D	E	1469145600000						2016-07-22							
+-1	0	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
+-1	1	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
+-1	2	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
+-1	4	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
+-1	5	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
+-1	6	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
+-1	7	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
+-1	8	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
+-1	0	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
+-1	2	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
+-1	4	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
+-1	6	Diagnosis.diagnosis_date	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
+-1	0	Biosource.disease_status	@		@	21	0	T	ST1														
+-1	2	Biosource.disease_status	@		@	22	0	T	ST2														
+-1	3	Biosource.disease_status	@		@	23	0	T	ST1														
+-1	4	Biosource.disease_status	@		@	24	0	T	ST2														
+-1	5	Biosource.disease_status	@		@	25	0	T	ST2														
+-1	6	Biosource.disease_status	@		@	26	0	T	ST3														
+-1	7	Biosource.disease_status	@		@	27	0	T	ST2														
+-1	8	Biosource.disease_status	@		@	28	0	T	ST3														
+-1	5	Biosource.disease_status	@		@	29	0	T	ST3														
+-1	0	Biosource.disease_status	@		@	30	0	T	ST4														
+-1	4	Biosource.disease_status	@		@	31	0	T	ST3														
+-1	4	Biosource.disease_status	@		@	32	0	T	ST4														
+-1	0	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
+-1	2	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
+-1	4	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
+-1	5	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
+-1	6	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
+-1	7	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
+-1	8	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
+-1	5	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
+-1	0	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
+-1	4	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
+-1	4	Biosource.disease_status	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
+-1	0	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
+-1	2	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
+-1	3	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
+-1	4	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
+-1	5	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
+-1	6	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
+-1	7	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
+-1	8	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
+-1	5	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
+-1	0	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
+-1	4	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
+-1	4	Biosource.disease_status	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
+-1	0	Patient.gender	@		@	0	0	T	f														
+-1	1	Patient.gender	@		@	1	0	T	m														
+-1	2	Patient.gender	@		@	2	0	T	f														
+-1	3	Patient.gender	@		@	3	0	T	m														
+-1	4	Patient.gender	@		@	4	0	T	f														
+-1	5	Patient.gender	@		@	5	0	T	m														
+-1	6	Patient.gender	@		@	6	0	T	f														
+-1	7	Patient.gender	@		@	7	0	T	m														
+-1	8	Patient.gender	@		@	8	0	T	f														
+-1	0	Patient.ic_data	@		@	0	0	T	yes														
+-1	1	Patient.ic_data	@		@	1	0	T	yes														
+-1	3	Patient.ic_data	@		@	3	0	T	yes														
+-1	5	Patient.ic_data	@		@	5	0	T	yes														
+-1	6	Patient.ic_data	@		@	6	0	T	yes														
+-1	8	Patient.ic_data	@		@	8	0	T	yes														
+-1	2	Patient.ic_linking_ext	@		@	2	0	T	not applicable														
+-1	0	Patient.ic_material	@		@	0	0	T	yes														
+-1	1	Patient.ic_material	@		@	1	0	T	yes														
+-1	2	Patient.ic_material	@		@	2	0	T	yes														
+-1	3	Patient.ic_material	@		@	3	0	T	yes														
+-1	5	Patient.ic_material	@		@	5	0	T	yes														
+-1	6	Patient.ic_material	@		@	6	0	T	yes														
+-1	7	Patient.ic_material	@		@	7	0	T	yes														
+-1	8	Patient.ic_material	@		@	8	0	T	yes														
+-1	0	Patient.ic_type	@		@	0	0	T	yes														
+-1	1	Patient.ic_type	@		@	1	0	T	yes														
+-1	2	Patient.ic_type	@		@	2	0	T	yes														
+-1	3	Patient.ic_type	@		@	3	0	T	no														
+-1	4	Patient.ic_type	@		@	4	0	T	yes														
+-1	5	Patient.ic_type	@		@	5	0	T	yes														
+-1	6	Patient.ic_type	@		@	6	0	T	yes														
+-1	7	Patient.ic_type	@		@	7	0	T	yes														
+-1	8	Patient.ic_type	@		@	8	0	T	yes														
+-1	5	Patient.ic_withdrawn_date	@		@	5	0	D	E	1507939200000						2017-10-14							
+-1	0	Patient.ic_report_her_susc	@		@	0	0	T	yes														
+-1	1	Patient.ic_report_her_susc	@		@	1	0	T	yes														
+-1	2	Patient.ic_report_her_susc	@		@	2	0	T	yes														
+-1	3	Patient.ic_report_her_susc	@		@	3	0	T	yes														
+-1	4	Patient.ic_report_her_susc	@		@	4	0	T	yes														
+-1	5	Patient.ic_report_her_susc	@		@	5	0	T	yes														
+-1	6	Patient.ic_report_her_susc	@		@	6	0	T	yes														
+-1	7	Patient.ic_report_her_susc	@		@	7	0	T	yes														
+-1	8	Patient.ic_report_her_susc	@		@	8	0	T	yes														
+-1	7	Biomaterial.src_biomaterial_id	@		@	38	0	T	BM6														
+-1	0	Biomaterial.src_biomaterial_id	@		@	41	0	T	9														
+-1	0	Biomaterial.src_biomaterial_id	@		@	47	0	T	BM9														
+-1	7	Biomaterial.src_biomaterial_id	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
+-1	0	Biomaterial.src_biomaterial_id	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
+-1	0	Biomaterial.src_biomaterial_id	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
+-1	7	Biomaterial.src_biomaterial_id	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
+-1	0	Biomaterial.src_biomaterial_id	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
+-1	0	Biomaterial.src_biomaterial_id	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
+-1	7	Biomaterial.src_biomaterial_id	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
+-1	0	Biomaterial.src_biomaterial_id	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
+-1	0	Biomaterial.src_biomaterial_id	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
+-1	0	Patient.taxonomy	@		@	0	0	T	Human														
+-1	1	Patient.taxonomy	@		@	1	0	T	Human														
+-1	2	Patient.taxonomy	@		@	2	0	T	Human														
+-1	3	Patient.taxonomy	@		@	3	0	T	Human														
+-1	4	Patient.taxonomy	@		@	4	0	T	Human														
+-1	5	Patient.taxonomy	@		@	5	0	T	Human														
+-1	6	Patient.taxonomy	@		@	6	0	T	Human														
+-1	7	Patient.taxonomy	@		@	7	0	T	Human														
+-1	8	Patient.taxonomy	@		@	8	0	T	Human														
+-1	0	Biosource.tissue	@		@	21	0	T	medula														
+-1	2	Biosource.tissue	@		@	22	0	T	cortex														
+-1	3	Biosource.tissue	@		@	23	0	T	cortex														
+-1	4	Biosource.tissue	@		@	24	0	T	medula														
+-1	5	Biosource.tissue	@		@	25	0	T	medula														
+-1	6	Biosource.tissue	@		@	26	0	T	cortex														
+-1	7	Biosource.tissue	@		@	27	0	T	cortex														
+-1	8	Biosource.tissue	@		@	28	0	T	medula														
+-1	5	Biosource.tissue	@		@	29	0	T	medula														
+-1	0	Biosource.tissue	@		@	30	0	T	cortex														
+-1	4	Biosource.tissue	@		@	31	0	T	medula														
+-1	4	Biosource.tissue	@		@	32	0	T	medula														
+-1	0	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
+-1	2	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
+-1	4	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
+-1	5	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
+-1	6	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
+-1	7	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
+-1	8	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
+-1	5	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
+-1	0	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
+-1	4	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
+-1	4	Biosource.tissue	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
+-1	0	Biosource.tissue	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
+-1	2	Biosource.tissue	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
+-1	3	Biosource.tissue	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
+-1	4	Biosource.tissue	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
+-1	5	Biosource.tissue	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
+-1	6	Biosource.tissue	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
+-1	7	Biosource.tissue	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
+-1	8	Biosource.tissue	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
+-1	5	Biosource.tissue	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
+-1	0	Biosource.tissue	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
+-1	4	Biosource.tissue	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
+-1	4	Biosource.tissue	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
+-1	0	Diagnosis.topography	@		@	9	0	T	liver														
+-1	1	Diagnosis.topography	@		@	10	0	T	kidney														
+-1	2	Diagnosis.topography	@		@	11	0	T	bone marrow														
+-1	4	Diagnosis.topography	@		@	12	0	T	kidney														
+-1	5	Diagnosis.topography	@		@	13	0	T	bone marrow														
+-1	6	Diagnosis.topography	@		@	14	0	T	liver														
+-1	7	Diagnosis.topography	@		@	15	0	T	liver														
+-1	8	Diagnosis.topography	@		@	16	0	T	kidney														
+-1	0	Diagnosis.topography	@		@	17	0	T	liver														
+-1	2	Diagnosis.topography	@		@	18	0	T	liver														
+-1	4	Diagnosis.topography	@		@	19	0	T	bone marrow														
+-1	6	Diagnosis.topography	@		@	20	0	T	kidney														
+-1	0	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
+-1	1	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
+-1	2	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
+-1	4	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
+-1	5	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
+-1	6	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
+-1	7	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
+-1	8	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
+-1	0	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
+-1	2	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
+-1	4	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
+-1	6	Diagnosis.topography	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
+-1	0	Diagnosis.treatment_protocol	@		@	9	0	T	chemo														
+-1	1	Diagnosis.treatment_protocol	@		@	10	0	T	surgery														
+-1	2	Diagnosis.treatment_protocol	@		@	11	0	T	Protocol 1														
+-1	4	Diagnosis.treatment_protocol	@		@	12	0	T	chemo														
+-1	5	Diagnosis.treatment_protocol	@		@	13	0	T	chemo														
+-1	6	Diagnosis.treatment_protocol	@		@	14	0	T	surgery														
+-1	7	Diagnosis.treatment_protocol	@		@	15	0	T	chemo														
+-1	8	Diagnosis.treatment_protocol	@		@	16	0	T	surgery														
+-1	0	Diagnosis.treatment_protocol	@		@	17	0	T	chemo														
+-1	2	Diagnosis.treatment_protocol	@		@	18	0	T	Protocol 1														
+-1	4	Diagnosis.treatment_protocol	@		@	19	0	T	surgery														
+-1	6	Diagnosis.treatment_protocol	@		@	20	0	T	surgery														
+-1	0	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
+-1	1	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
+-1	2	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
+-1	4	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
+-1	5	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
+-1	6	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
+-1	7	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
+-1	8	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
+-1	0	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
+-1	2	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
+-1	4	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
+-1	6	Diagnosis.treatment_protocol	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
+-1	0	Biosource.tumor_percentage	@		@	21	0	N	E	5													
+-1	2	Biosource.tumor_percentage	@		@	22	0	N	E	3													
+-1	3	Biosource.tumor_percentage	@		@	23	0	N	E	2													
+-1	4	Biosource.tumor_percentage	@		@	24	0	N	E	1													
+-1	5	Biosource.tumor_percentage	@		@	25	0	N	E	4													
+-1	6	Biosource.tumor_percentage	@		@	26	0	N	E	3													
+-1	7	Biosource.tumor_percentage	@		@	27	0	N	E	1													
+-1	8	Biosource.tumor_percentage	@		@	28	0	N	E	1													
+-1	5	Biosource.tumor_percentage	@		@	29	0	N	E	2													
+-1	0	Biosource.tumor_percentage	@		@	30	0	N	E	3													
+-1	4	Biosource.tumor_percentage	@		@	31	0	N	E	5													
+-1	4	Biosource.tumor_percentage	@		@	32	0	N	E	1													
+-1	0	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	21	0	T	D1														
+-1	2	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	22	0	T	D11														
+-1	4	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	24	0	T	D5														
+-1	5	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	25	0	T	D6														
+-1	6	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	26	0	T	D7														
+-1	7	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	27	0	T	D8														
+-1	8	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	28	0	T	D9														
+-1	5	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	29	0	T	D6														
+-1	0	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	30	0	T	D10														
+-1	4	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	31	0	T	D12														
+-1	4	Biosource.tumor_percentage	@		CSR_DIAGNOSIS_MOD	32	0	T	D5														
+-1	0	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	21	0	T	BS1														
+-1	2	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	22	0	T	BS2														
+-1	3	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	23	0	T	BS3														
+-1	4	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	24	0	T	BS4														
+-1	5	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	25	0	T	BS5														
+-1	6	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	26	0	T	BS6														
+-1	7	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	27	0	T	BS7														
+-1	8	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	28	0	T	BS8														
+-1	5	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	29	0	T	BS9														
+-1	0	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	30	0	T	BS10														
+-1	4	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	31	0	T	BS11														
+-1	4	Biosource.tumor_percentage	@		CSR_BIOSOURCE_MOD	32	0	T	BS12														
+-1	0	Diagnosis.tumor_stage	@		@	9	0	T	IV														
+-1	1	Diagnosis.tumor_stage	@		@	10	0	T	III														
+-1	2	Diagnosis.tumor_stage	@		@	11	0	T	IV														
+-1	4	Diagnosis.tumor_stage	@		@	12	0	T	I														
+-1	5	Diagnosis.tumor_stage	@		@	13	0	T	II														
+-1	6	Diagnosis.tumor_stage	@		@	14	0	T	III														
+-1	7	Diagnosis.tumor_stage	@		@	15	0	T	IV														
+-1	8	Diagnosis.tumor_stage	@		@	16	0	T	II														
+-1	0	Diagnosis.tumor_stage	@		@	17	0	T	III														
+-1	2	Diagnosis.tumor_stage	@		@	18	0	T	II														
+-1	4	Diagnosis.tumor_stage	@		@	19	0	T	I														
+-1	6	Diagnosis.tumor_stage	@		@	20	0	T	II														
+-1	0	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
+-1	1	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
+-1	2	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
+-1	4	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
+-1	5	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
+-1	6	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
+-1	7	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
+-1	8	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
+-1	0	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
+-1	2	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
+-1	4	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
+-1	6	Diagnosis.tumor_stage	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
+-1	0	Diagnosis.tumor_type	@		@	9	0	T	neuroblastoma														
+-1	1	Diagnosis.tumor_type	@		@	10	0	T	nephroblastoma														
+-1	2	Diagnosis.tumor_type	@		@	11	0	T	hepatoblastoma														
+-1	4	Diagnosis.tumor_type	@		@	12	0	T	nephroblastoma														
+-1	5	Diagnosis.tumor_type	@		@	13	0	T	hepatoblastoma														
+-1	6	Diagnosis.tumor_type	@		@	14	0	T	neuroblastoma														
+-1	7	Diagnosis.tumor_type	@		@	15	0	T	nephroblastoma														
+-1	8	Diagnosis.tumor_type	@		@	16	0	T	hepatoblastoma														
+-1	0	Diagnosis.tumor_type	@		@	17	0	T	neuroblastoma														
+-1	2	Diagnosis.tumor_type	@		@	18	0	T	nephroblastoma														
+-1	4	Diagnosis.tumor_type	@		@	19	0	T	hepatoblastoma														
+-1	6	Diagnosis.tumor_type	@		@	20	0	T	neuroblastoma														
+-1	0	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	9	0	T	D1														
+-1	1	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	10	0	T	D2														
+-1	2	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	11	0	T	D3														
+-1	4	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	12	0	T	D5														
+-1	5	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	13	0	T	D6														
+-1	6	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	14	0	T	D7														
+-1	7	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	15	0	T	D8														
+-1	8	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	16	0	T	D9														
+-1	0	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	17	0	T	D10														
+-1	2	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	18	0	T	D11														
+-1	4	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	19	0	T	D12														
+-1	6	Diagnosis.tumor_type	@		CSR_DIAGNOSIS_MOD	20	0	T	D13														
+-1	0	Biomaterial.type	@		@	33	0	T	RNA														
+-1	2	Biomaterial.type	@		@	34	0	T	DNA														
+-1	3	Biomaterial.type	@		@	35	0	T	RNA														
+-1	4	Biomaterial.type	@		@	36	0	T	DNA														
+-1	5	Biomaterial.type	@		@	37	0	T	RNA														
+-1	7	Biomaterial.type	@		@	38	0	T	DNA														
+-1	8	Biomaterial.type	@		@	39	0	T	RNA														
+-1	5	Biomaterial.type	@		@	40	0	T	DNA														
+-1	0	Biomaterial.type	@		@	41	0	T	RNA														
+-1	4	Biomaterial.type	@		@	42	0	T	DNA														
+-1	4	Biomaterial.type	@		@	43	0	T	RNA														
+-1	4	Biomaterial.type	@		@	44	0	T	DNA														
+-1	5	Biomaterial.type	@		@	45	0	T	RNA														
+-1	7	Biomaterial.type	@		@	46	0	T	DNA														
+-1	0	Biomaterial.type	@		@	47	0	T	DNA														
+-1	0	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	33	0	T	D1														
+-1	2	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	34	0	T	D11														
+-1	4	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	36	0	T	D5														
+-1	5	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	37	0	T	D6														
+-1	7	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	38	0	T	D8														
+-1	8	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	39	0	T	D9														
+-1	5	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	40	0	T	D6														
+-1	0	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	41	0	T	D10														
+-1	4	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	42	0	T	D12														
+-1	4	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	43	0	T	D5														
+-1	4	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	44	0	T	D5														
+-1	5	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	45	0	T	D6														
+-1	7	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	46	0	T	D8														
+-1	0	Biomaterial.type	@		CSR_DIAGNOSIS_MOD	47	0	T	D10														
+-1	0	Biomaterial.type	@		CSR_BIOSOURCE_MOD	33	0	T	BS1														
+-1	2	Biomaterial.type	@		CSR_BIOSOURCE_MOD	34	0	T	BS2														
+-1	3	Biomaterial.type	@		CSR_BIOSOURCE_MOD	35	0	T	BS3														
+-1	4	Biomaterial.type	@		CSR_BIOSOURCE_MOD	36	0	T	BS4														
+-1	5	Biomaterial.type	@		CSR_BIOSOURCE_MOD	37	0	T	BS5														
+-1	7	Biomaterial.type	@		CSR_BIOSOURCE_MOD	38	0	T	BS7														
+-1	8	Biomaterial.type	@		CSR_BIOSOURCE_MOD	39	0	T	BS8														
+-1	5	Biomaterial.type	@		CSR_BIOSOURCE_MOD	40	0	T	BS9														
+-1	0	Biomaterial.type	@		CSR_BIOSOURCE_MOD	41	0	T	BS10														
+-1	4	Biomaterial.type	@		CSR_BIOSOURCE_MOD	42	0	T	BS11														
+-1	4	Biomaterial.type	@		CSR_BIOSOURCE_MOD	43	0	T	BS12														
+-1	4	Biomaterial.type	@		CSR_BIOSOURCE_MOD	44	0	T	BS4														
+-1	5	Biomaterial.type	@		CSR_BIOSOURCE_MOD	45	0	T	BS5														
+-1	7	Biomaterial.type	@		CSR_BIOSOURCE_MOD	46	0	T	BS7														
+-1	0	Biomaterial.type	@		CSR_BIOSOURCE_MOD	47	0	T	BS10														
+-1	0	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	33	0	T	BM1														
+-1	2	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	34	0	T	BM2														
+-1	3	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	35	0	T	BM3														
+-1	4	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	36	0	T	BM4														
+-1	5	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	37	0	T	BM5														
+-1	7	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	38	0	T	BM6														
+-1	8	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	39	0	T	BM7														
+-1	5	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	40	0	T	BM8														
+-1	0	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	41	0	T	BM9														
+-1	4	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	42	0	T	BM10														
+-1	4	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	43	0	T	BM11														
+-1	4	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	44	0	T	BM12														
+-1	5	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	45	0	T	BM13														
+-1	7	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	46	0	T	BM14														
+-1	0	Biomaterial.type	@		CSR_BIOMATERIAL_MOD	47	0	T	BM15														
+-1	0	Study.study_id	@		@	0	0	T	STUDY1														
+-1	1	Study.study_id	@		@	1	0	T	STUDY1														
+-1	2	Study.study_id	@		@	2	0	T	STUDY1														
+-1	3	Study.study_id	@		@	3	0	T	STUDY1														
+-1	4	Study.study_id	@		@	4	0	T	STUDY1														
+-1	0	IndividualStudy.individual_study_id	@		@	0	0	N	E	1													
+-1	1	IndividualStudy.individual_study_id	@		@	1	0	N	E	2													
+-1	2	IndividualStudy.individual_study_id	@		@	2	0	N	E	3													
+-1	3	IndividualStudy.individual_study_id	@		@	3	0	N	E	4													
+-1	4	IndividualStudy.individual_study_id	@		@	4	0	N	E	5													
+-1	0	Study.acronym	@		@	0	0	T	STD1														
+-1	1	Study.acronym	@		@	1	0	T	STD1														
+-1	2	Study.acronym	@		@	2	0	T	STD1														
+-1	3	Study.acronym	@		@	3	0	T	STD1														
+-1	4	Study.acronym	@		@	4	0	T	STD1														
+-1	0	Study.title	@		@	0	0	T	Study 1														
+-1	1	Study.title	@		@	1	0	T	Study 1														
+-1	2	Study.title	@		@	2	0	T	Study 1														
+-1	3	Study.title	@		@	3	0	T	Study 1														
+-1	4	Study.title	@		@	4	0	T	Study 1														
+-1	4	Study.study_id	@		@	5	0	T	STUDY2														
+-1	5	Study.study_id	@		@	6	0	T	STUDY2														
+-1	6	Study.study_id	@		@	7	0	T	STUDY2														
+-1	7	Study.study_id	@		@	8	0	T	STUDY2														
+-1	8	Study.study_id	@		@	9	0	T	STUDY2														
+-1	4	IndividualStudy.individual_study_id	@		@	5	0	N	E	6													
+-1	5	IndividualStudy.individual_study_id	@		@	6	0	N	E	7													
+-1	6	IndividualStudy.individual_study_id	@		@	7	0	N	E	8													
+-1	7	IndividualStudy.individual_study_id	@		@	8	0	N	E	9													
+-1	8	IndividualStudy.individual_study_id	@		@	9	0	N	E	10													
+-1	4	Study.acronym	@		@	5	0	T	STD2														
+-1	5	Study.acronym	@		@	6	0	T	STD2														
+-1	6	Study.acronym	@		@	7	0	T	STD2														
+-1	7	Study.acronym	@		@	8	0	T	STD2														
+-1	8	Study.acronym	@		@	9	0	T	STD2														
+-1	4	Study.title	@		@	5	0	T	Study 2														
+-1	5	Study.title	@		@	6	0	T	Study 2														
+-1	6	Study.title	@		@	7	0	T	Study 2														
+-1	7	Study.title	@		@	8	0	T	Study 2														
+-1	8	Study.title	@		@	9	0	T	Study 2														
