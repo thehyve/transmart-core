@@ -146,6 +146,9 @@ class ClinicalTestData {
         def ehrStudy = StudyTestData.createStudy "ehr study", ["patient", "concept", "study", "visit"]
         def ehrClinicalFacts = createEhrFacts(conceptDims[6], visits[0..2], ehrStudy, observationStartDates, observationEndDates,
                 locations, providers)
+        // Add non-visit related observation to EHR study
+        ehrClinicalFacts << createObservationFact(conceptDims[5].conceptCode, visits[0].patient, -1, 52,
+                DUMMY_INSTANCE_ID, createTrialVisit('default', 0, null, ehrStudy))
 
         def modifierDimensions = AcrossTrialsTestData.createModifier(path: '\\Public Studies\\Medications\\Doses\\',
                 code:'TEST:DOSE', nodeType: 'F')
