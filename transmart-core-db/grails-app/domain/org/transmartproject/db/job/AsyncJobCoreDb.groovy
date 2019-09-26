@@ -39,7 +39,7 @@ class AsyncJobCoreDb {
 
     static mapping = {
         id      generator: 'sequence',
-                params:     [sequence: 'hibernate_sequence', schema: 'searchapp']
+                params:     [sequence: 'async_job_seq', schema: 'i2b2demodata']
         table   'I2B2DEMODATA.ASYNC_JOB'
         version false
 
