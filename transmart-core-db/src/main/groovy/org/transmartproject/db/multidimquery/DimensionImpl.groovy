@@ -116,7 +116,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         findDimensionDescriptionByName(name)?.dimension
     }
 
-    DimensionImpl(Size size, Density density, Packable packable, 
+    DimensionImpl(Size size, Density density, Packable packable,
                   DimensionType dimensionType = null, Integer sortIndex = null, String modifierCode = null) {
         this.size = size
         this.density = density
@@ -258,7 +258,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 @CompileStatic @TupleConstructor
 class PropertyImpl implements Property {
     final String name; final String propertyName; final Class type
-    def get(element) { element.getAt(propertyName) }
+    def get(element) { element?.getAt(propertyName) }
 }
 
 
@@ -315,14 +315,17 @@ trait CompositeElemDim<ELT,ELKey> {
     }
 
     Map<String,Object> asSerializable(/*ELT*/ element) {
-        if(!elemType.isInstance(element)) {
+        if (element == null) {
+            return null
+        }
+        if (!elemType.isInstance(element)) {
             throw new InvalidArgumentsException("element with wrong type passed to ${this}.asSerializable; " +
                     "expected $elemType, got type ${element.class}, value $element")
         }
 
         Map result = [:]
         def pogo = (GroovyObject) element
-        for(prop in elementFields.values()) {
+        for (prop in elementFields.values()) {
             result[prop.name] = prop.get(pogo)
         }
         result

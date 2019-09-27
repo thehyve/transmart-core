@@ -19,7 +19,6 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.PropertyImpl
 import org.transmartproject.mock.MockUser
-import org.transmartproject.core.multidimquery.export.Format
 import org.transmartproject.rest.serialization.tabular.DataTableTSVSerializer
 import spock.lang.Specification
 
@@ -74,6 +73,34 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
                 files.concept)
     }
 
+    void testVisitSerialization() {
+        setupData()
+
+        def file = new ByteArrayOutputStream()
+        def zipFile = new ZipOutputStream(file)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.ehrStudy.studyId)
+        def tableConfig = new TableConfig(
+                rowDimensions: ['patient', 'visit'],
+                columnDimensions: ['concept']
+        )
+
+        serializationService.writeTableToTsv(constraint, tableConfig, adminUser, zipFile)
+        def files = parseTSVZip(file)
+
+        expect:
+        'data' in files
+        // Check data file
+        def visitIds = clinicalData.ehrClinicalFacts*.visit.collect { it?.id?.toString() }.unique()
+        files.data == [[/* Patient Id */ '', /* Visit Id */ '', /* Value for non-visit observations */ 'c6', /* Multiple observations for concept */ 'c7'],
+                       ['-103', '', '52.0000000000000000', ''],
+                       ['-103', visitIds[0], '', '-45.4200000000000000;-45.4200000000000000;-45.4200000000000000;-45.4200000000000000'],
+                       ['-103', visitIds[1], '', '-45.4200000000000000;-45.4200000000000000;-45.4200000000000000;-45.4200000000000000'],
+                       ['-103', visitIds[2], '', '-45.4200000000000000;-45.4200000000000000;-45.4200000000000000;-45.4200000000000000']]
+        // Check visit ids in visit file
+        files.visit[0][1] == 'id'
+        visitIds == files.visit[1..-1].collect { it ? it[1] : it } + [null]
+    }
+
     void testTSVDimensionSerialization() {
         // This is actually more of a unittest, so no setupData()
 
@@ -117,6 +144,16 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
                 ['1', 'no1', '', ''],
                 ['2', 'no2', '42', ''],
                 ['3', 'no3', '', '44']
+        ]
+        // Test nullable dimensions
+        roundTrip(dim, [
+                [id: 1, name: 'no1'],
+                null,
+                [id: 2, name: 'no2']
+        ]) == [
+                ['id', 'name'],
+                ['1', 'no1'],
+                ['2', 'no2'],
         ]
     }
 
@@ -180,7 +217,7 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
         }
 
         assert elementsMap as Set ==
-                elements.collect { dim.asSerializable(it).collectEntries(valuesToString) } as Set
+                elements.collect { dim.asSerializable(it)?.collectEntries(valuesToString) } as Set
         return true
     }
 
