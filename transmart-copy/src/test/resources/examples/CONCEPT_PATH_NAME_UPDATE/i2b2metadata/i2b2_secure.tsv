@@ -1,0 +1,10 @@
+c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode	c_metadataxml	c_facttablecolumn	c_tablename	c_columnname	c_columndatatype	c_operator	c_dimcode	c_comment	c_tooltip	m_applied_path	update_date	download_date	import_date	sourcesystem_cd	valuetype_cd	m_exclusion_cd	c_path	c_symbol	i2b2_id	secure_obj_token
+1	\Projects\CPNU\	CPNU	N	FAS				@	STUDY	STUDY_ID	T	=	CPNU			@				CPNU						PUBLIC
+0	\Projects\	Projects	N	CA				@	@	@	T	=	@			@										PUBLIC
+2	\Projects\CPNU\01. Patient information\	01. Patient information	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\CPNU\01. Patient information\			@				CPNU						PUBLIC
+2	\Projects\CPNU\02. Diagnosis information\	02. Diagnosis information	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\CPNU\02. Diagnosis information\			@				CPNU						PUBLIC
+3	\Projects\CPNU\01. Patient information\01. Birth date\	01. Birth date	N	LAD		Patient.birth_date		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\CPNU\01. Patient information\01. Birth date\			@				CPNU						PUBLIC
+3	\Projects\CPNU\02. Diagnosis information\02. Type of tumor\	02. Tumor type	N	LAC		Diagnosis.tumor_type		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\CPNU\02. Diagnosis information\02. Type of tumor\			@				CPNU						PUBLIC
+3	\Projects\CPNU\01. Patient information\Taxonomy\	Taxonomy	N	LAC		Patient.taxonomy		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\CPNU\01. Patient information\Taxonomy\			@				CPNU						PUBLIC
+3	\Projects\CPNU\02. Diagnosis information\02. Diagnosis Data\	05. Diagnosis Data	N	LAC		Diagnosis.data		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\CPNU\02. Diagnosis information\02. Diagnosis Data\			@				CPNU						PUBLIC
+3	\Projects\CPNU\01. Patient information\02. Diagnosis Data\	05. Diagnosis Data	N	LAC		Patient.data		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\CPNU\01. Patient information\02. Diagnosis Data\			@				CPNU						PUBLIC

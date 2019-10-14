@@ -15,11 +15,14 @@ class CopySpec extends Specification {
     static final String TEST_STUDY = 'SURVEY0'
     static final String INCREMENTAL_STUDY = 'SURVEY_INC'
     static final String INCREMENTAL_STUDY_SHARED_PATIENT = 'SURVEY_INC2_SHARED_PATIENT'
+    static final String CONCEPT_PATH_NAME_UPDATE_STUDY = 'CPNU'
     static final String STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY
     static final String CORRUPTED_STUDY_FOLDER = './src/test/resources/examples/' + TEST_STUDY + '_corrupted'
     static final String INCREMENTAL_STUDY_FOLDER = './src/test/resources/examples/' + INCREMENTAL_STUDY
     static final String INCREMENTAL_STUDY_SHARED_PATIENT_FOLDER =
             './src/test/resources/examples/' + INCREMENTAL_STUDY_SHARED_PATIENT
+    static final String CONCEPT_PATH_NAME_UPDATE_STUDY_FOLDER =
+            './src/test/resources/examples/CONCEPT_PATH_NAME_UPDATE'
 
     static final Map<String, String> DATABASE_CREDENTIALS = [
             PGHOST     : 'localhost',
@@ -420,6 +423,43 @@ class CopySpec extends Specification {
         observationsForSharedUserAfterUpdate.containsAll([42.0000000000000000, 26.0000000000000000])
     }
 
+    def 'test concept path and name updating'() {
+        given: 'there are concepts with the same code, but different name or path'
+        Options options = new Options()
+        options.addOption(new Option('U', 'update-concept-paths', false, ''))
+        options.addOption(new Option('d', 'directory', true, ''))
+
+        def expectedConceptNames = ['05. Diagnosis Data', '05. Diagnosis Data', '01. Birth date',
+                                    'Biological taxonomy', '02. Tumor type']
+        def expectedConceptPaths = ['\\Projects\\CPNU\\01. Patient information\\02. Diagnosis Data\\',
+                                    '\\Projects\\CPNU\\02. Diagnosis information\\02. Diagnosis Data\\',
+                                    '\\Projects\\CPNU\\01. Patient information\\01. Birth date\\',
+                                    '\\Projects\\CPNU\\01. Patient information\\Taxonomy\\',
+                                    '\\Projects\\CPNU\\02. Diagnosis information\\02. Type of tumor\\']
+
+        def expectedTreeNodePaths = readFieldsFromFile(CONCEPT_PATH_NAME_UPDATE_STUDY_FOLDER,
+                TreeNodes.TABLE, 'c_fullname')
+
+        when: 'Loading example study data'
+        CommandLine cli1 = new DefaultParser().parse(options,
+                ['--directory', CONCEPT_PATH_NAME_UPDATE_STUDY_FOLDER, '--update-concept-paths'] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+
+        def inDbConceptPaths = readFieldsFromDb(Concepts.TABLE,
+                'concept_path',
+                "where concept_path like '\\\\Projects\\\\CPNU\\\\%'")
+        def inDbConceptNames = readFieldsFromDb(Concepts.TABLE,
+                'name_char',
+                "where concept_path like '\\\\Projects\\\\CPNU\\\\%'")
+        def inDbTreeNodePaths = readFieldsFromDb(TreeNodes.TABLE, 'c_fullname')
+
+        then: 'Concept names and paths were updated'
+        inDbConceptPaths.size() == 5
+        inDbConceptPaths.containsAll(expectedConceptPaths)
+        inDbConceptNames.containsAll(expectedConceptNames)
+        inDbTreeNodePaths.containsAll(expectedTreeNodePaths)
+    }
+
     List<Number> getTestTrialVisitsDbIdentifiers() {
         readFieldsFromDb(
                 Studies.TRIAL_VISIT_TABLE,
@@ -454,6 +494,7 @@ class CopySpec extends Specification {
         copy.deleteStudyById(TEST_STUDY, false)
         copy.deleteStudyById(INCREMENTAL_STUDY, false)
         copy.deleteStudyById(INCREMENTAL_STUDY_SHARED_PATIENT, false)
+        copy.deleteStudyById(CONCEPT_PATH_NAME_UPDATE_STUDY, false)
         assert noTestStudyInDb()
         assert noIncrementalStudyInDb()
         assert noIncrementalStudySharedPatientInDb()
