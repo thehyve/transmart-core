@@ -90,32 +90,22 @@ class Concepts {
         log.debug "Concept codes: ${conceptCodes}"
     }
 
-    void updatePathForConcept(
-            String conceptCode, String conceptPath, Map conceptData, LinkedHashMap<String, Class> header) {
-        log.info "Updating concept path from '${conceptCodeToConceptPath[conceptCode]}' to '${conceptPath}'."
+    void updateConceptWithCode(String conceptCode, Map conceptData, LinkedHashMap<String, Class> header) {
+        def conceptPath = conceptData['concept_path'] as String
+        def conceptName = conceptData['name_char'] as String
+        log.info "Updating concept path from '${conceptCodeToConceptPath[conceptCode]}' to '${conceptPath}'" +
+                " and/or concept name from '${conceptCodeToConceptName[conceptCode]}' to '${conceptName}'."
         int records = database.namedParameterJdbcTemplate.update(
-                "delete from ${TABLE} where concept_cd = :conceptCode and concept_path = :conceptPath",
-                [conceptPath: conceptCodeToConceptPath[conceptCode],
-                 conceptCode: conceptCode])
+                "delete from ${TABLE} where concept_cd = :conceptCode",
+                 [conceptCode: conceptCode])
         conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
-        log.debug "${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path were removed." +
-                " Inserting '${conceptPath}' instead."
+        log.debug "${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path " +
+                "and '${conceptCodeToConceptName[conceptCode]}' concept name were removed." +
+                " Inserting path: '${conceptPath}' and name: '${conceptName}' instead."
         database.insertEntry(TABLE, header, conceptData)
         conceptPaths.add(conceptPath)
         oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
         conceptCodeToConceptPath[conceptCode] = conceptPath
-    }
-
-    void updateNameForConcept(
-            String conceptCode, String conceptName, Map conceptData, LinkedHashMap<String, Class> header) {
-        log.info "Updating concept name from '${conceptCodeToConceptName[conceptCode]}' to '${conceptName}'."
-        int records = database.namedParameterJdbcTemplate.update(
-                "delete from ${TABLE} where concept_cd = :conceptCode and name_char = :conceptName",
-                [conceptName: conceptCodeToConceptName[conceptCode],
-                 conceptCode: conceptCode])
-        log.debug "${records} records with '${conceptCodeToConceptName[conceptCode]}' concept name were removed." +
-                " Inserting '${conceptName}' instead."
-        database.insertEntry(TABLE, header, conceptData)
         conceptCodeToConceptName[conceptCode] = conceptName
     }
 
@@ -128,11 +118,8 @@ class Concepts {
             def knownConceptName = conceptCodeToConceptName[conceptCode]
 
             if (updateConceptPathName) {
-                if (conceptPath != knownConceptPath) {
-                    updatePathForConcept(conceptCode, conceptPath, conceptData, header)
-                    counts.updatedCount++
-                } else if (conceptName != knownConceptName) {
-                    updateNameForConcept(conceptCode, conceptName, conceptData, header)
+                if (conceptPath != knownConceptPath || conceptName != knownConceptName) {
+                    updateConceptWithCode(conceptCode, conceptData, header)
                     counts.updatedCount++
                 } else {
                     counts.existingCount++
