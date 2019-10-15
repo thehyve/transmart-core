@@ -563,7 +563,7 @@ class PatientSetService extends AbstractDataResourceService implements PatientSe
                       where p.result_instance_id = ?
                       and p.patient_num in (
                           select pm.patient_num
-                          from patient_mapping pm
+                          from i2b2demodata.patient_mapping pm
                           inner join subject_ids si on pm.patient_ide = si.patient_ide)''')
             query.setLong(1, patientSet.id)
             def rs = query.executeQuery()

@@ -60,11 +60,11 @@ class TreeNodeImpl implements TreeNode {
     }
 
     final String getTableName() {
-        delegate.dimensionTableName.toLowerCase().trim()
+        delegate.dimensionTableName?.toLowerCase()?.trim()
     }
 
     final String getColumnName() {
-        delegate.columnName.toLowerCase().trim()
+        delegate.columnName?.toLowerCase()?.trim()
     }
 
     final Constraint getConstraint() {

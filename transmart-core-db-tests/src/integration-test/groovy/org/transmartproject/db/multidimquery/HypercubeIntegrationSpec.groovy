@@ -270,6 +270,7 @@ class HypercubeIntegrationSpec extends Specification {
         } as Set
         def expectedPatients = clinicalData.ehrClinicalFacts*.patient as Set
         def expectedVisits = clinicalData.ehrClinicalFacts*.visit as Set
+        expectedVisits.remove(null)
 
         expect:
         hypercube.dimensions.size() == clinicalData.ehrStudy.dimensions.size()

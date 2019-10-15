@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 import org.transmartproject.core.concept.ConceptsResource
-import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermType
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
@@ -24,6 +24,8 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.util.StringUtils
+
+import static org.transmartproject.core.ontology.OntologyTermType.*
 
 @Transactional(readOnly = true)
 @CompileStatic
@@ -74,6 +76,11 @@ class TreeCacheService {
         return 'UNKNOWN'
     }
 
+    private static final EnumSet<OntologyTermType> VALUE_NODE_TYPES = EnumSet.noneOf(OntologyTermType)
+    static {
+        VALUE_NODE_TYPES.addAll(NUMERIC, CATEGORICAL, CATEGORICAL_OPTION, TEXT, DATE, HIGH_DIMENSIONAL)
+    }
+
     /**
      * Create a forest from a flat list of tree nodes, i.e., children will be attached
      * to their parents.
@@ -106,7 +113,7 @@ class TreeCacheService {
                     def child = it as TreeNodeImpl
                     child.parent = node
                 }
-                if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
+                if (node.ontologyTermType in VALUE_NODE_TYPES) {
                     node.conceptPath = getConceptPath(node.tableName, node.columnName, node.dimensionCode)
                     if (node.conceptPath) {
                         node.conceptCode = conceptsResource.getConceptCodeByConceptPath(node.conceptPath)

@@ -1,0 +1,13 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2019  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="gijs@thehyve.nl" id="20190926092415-0">
+        <createSequence sequenceName="async_job_seq" schemaName="i2b2demodata"/>
+    </changeSet>
+</databaseChangeLog>

@@ -27,9 +27,6 @@ class TreeNodeConstraintHelper {
         if (node.studyNode && node.studyId) {
             return new StudyNameConstraint(studyId: node.studyId)
         }
-        if (!(LEAF in node.visualAttributes || MODIFIER_LEAF in node.visualAttributes)) {
-            return null
-        }
         switch (node.tableName) {
             case 'concept_dimension':
                 if (node.columnName in ['concept_path', 'concept_cd'] && node.hasOperator(['=', 'like'])) {
