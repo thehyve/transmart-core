@@ -24,7 +24,7 @@ _Parameters:_
 - `-m`, `--mode <study|pedigree>`: Load mode, specifies what type(s) of data to load (default: `study`).
 - `-I`, `--incremental`: Enable incremental loading of patient data for a study (supported only for study mode).
 - `-D <STUDY_ID>`, `--delete <STUDY_ID`: Deletes the study with id `<STUDY_ID>` and related data.
-- `-U`, `--update-concept-paths`: **Workaround.** Updates concept paths and tree nodes when there is concept code collision.
+- `-U`, `--update-concept-paths`: **Workaround.** Updates concept paths, names and tree nodes when there is concept code collision.
 - `-n`, `--base-on-max-instance-num`: Adds to each `instance_num` a base
     to avoid primary key collisions in `observation_fact`.
     The base is autodetected as `max(observation_fact.instance_num)`.
