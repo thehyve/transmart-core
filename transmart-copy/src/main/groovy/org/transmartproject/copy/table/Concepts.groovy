@@ -98,13 +98,15 @@ class Concepts {
         int records = database.namedParameterJdbcTemplate.update(
                 "delete from ${TABLE} where concept_cd = :conceptCode",
                  [conceptCode: conceptCode])
-        conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
         log.debug "${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path " +
                 "and '${conceptCodeToConceptName[conceptCode]}' concept name were removed." +
                 " Inserting path: '${conceptPath}' and name: '${conceptName}' instead."
         database.insertEntry(TABLE, header, conceptData)
-        conceptPaths.add(conceptPath)
-        oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
+        if (conceptCodeToConceptPath[conceptCode] != conceptPath) {
+            conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
+            conceptPaths.add(conceptPath)
+            oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
+        }
         conceptCodeToConceptPath[conceptCode] = conceptPath
         conceptCodeToConceptName[conceptCode] = conceptName
     }
@@ -135,7 +137,6 @@ class Concepts {
                 counts.existingCount++
                 log.debug "Found existing concept: ${conceptCode}."
             }
-
         } else if (conceptPath in conceptPaths) {
             log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},"
             log.error "but concept with that path already exists with another code."

@@ -1,5 +1,0 @@
-id	density	modifier_code	value_type	name	packable	size_cd	dimension_type	sort_index
-0				study				5
-1				concept				6
-2				patient				1
-3	DENSE	CSR_DIAGNOSIS_MOD	T	Diagnosis ID	NOT_PACKABLE	SMALL	SUBJECT	2
