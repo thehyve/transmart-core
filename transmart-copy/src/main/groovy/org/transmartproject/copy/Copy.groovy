@@ -62,7 +62,7 @@ class Copy implements AutoCloseable {
         options.addOption('I', 'incremental', false,
                 'Enable incremental loading of patient data for a study (supported for a \'study\' mode).')
         options.addOption('U', 'update-concept-paths', false,
-                'Updates concept paths and tree nodes when there is concept code collision.')
+                'Updates concept paths, names and tree nodes when there is concept code collision.')
         options.addOption('p', 'partition', false,
                 'Partition observation_fact table based on trial_visit_num.')
         options.addOption('n', 'base-on-max-instance-num', false,

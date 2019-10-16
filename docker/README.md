@@ -51,7 +51,7 @@ Publish the image to [Docker Hub](https://hub.docker.com/r/thehyve/transmart-api
 
 ```bash
 docker login
-TRANSMART_VERSION="17.2.4"
+TRANSMART_VERSION="17.2.5"
 docker tag transmart-api-server "thehyve/transmart-api-server:${TRANSMART_VERSION}"
 docker push "thehyve/transmart-api-server:${TRANSMART_VERSION}"
 ```
