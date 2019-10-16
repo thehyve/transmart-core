@@ -20,6 +20,8 @@ class CopySpec extends Specification {
     static final String INCREMENTAL_STUDY_FOLDER = './src/test/resources/examples/' + INCREMENTAL_STUDY
     static final String INCREMENTAL_STUDY_SHARED_PATIENT_FOLDER =
             './src/test/resources/examples/' + INCREMENTAL_STUDY_SHARED_PATIENT
+    static final String CONCEPT_PATH_NAME_UPDATE_SET_FOLDER =
+            './src/test/resources/examples/CONCEPT_PATH_NAME_UPDATE'
 
     static final Map<String, String> DATABASE_CREDENTIALS = [
             PGHOST     : 'localhost',
@@ -418,6 +420,58 @@ class CopySpec extends Specification {
         observationsForSharedUserBeforeUpdate.containsAll([42.0000000000000000, 24.0000000000000000])
         observationsForSharedUserAfterUpdate.size() == 2
         observationsForSharedUserAfterUpdate.containsAll([42.0000000000000000, 26.0000000000000000])
+    }
+
+    def 'test concept and tree nodes updating'() {
+        given: 'there are concepts and tree nodes in the database'
+        Options options = new Options()
+        options.addOption(new Option('d', 'directory', true, ''))
+        CommandLine cli1 = new DefaultParser().parse(options,
+                ['--directory', "$CONCEPT_PATH_NAME_UPDATE_SET_FOLDER/part1"] as String[])
+        Copy.runCopy(cli1, DATABASE_CREDENTIALS)
+
+        when: 'trying to upload concepts with duplicated codes'
+        CommandLine cli2 = new DefaultParser().parse(options,
+                ['--directory', "$CONCEPT_PATH_NAME_UPDATE_SET_FOLDER/part2"] as String[])
+        Copy.runCopy(cli2, DATABASE_CREDENTIALS)
+        then: 'exception is thrown'
+        def exception = thrown(IllegalStateException)
+        exception.message.startsWith('Cannot load concept with code')
+        exception.message.endsWith('Other concept already exists with that path.')
+
+        when: 'trying to upload concepts with duplicated codes and update-concept-paths flag'
+        options.addOption(new Option('U', 'update-concept-paths', false, ''))
+        CommandLine cli3 = new DefaultParser().parse(options,
+                ['--directory', "$CONCEPT_PATH_NAME_UPDATE_SET_FOLDER/part2", '--update-concept-paths'] as String[])
+        Copy.runCopy(cli3, DATABASE_CREDENTIALS)
+        def expectedConceptNames = ['02. Diagnosis Data', '02. Patient Data', '01. Birth date',
+                                    'Biological taxonomy', '02. Type of tumor']
+        def expectedConceptPaths = ['\\Projects\\CPNU\\01. Patient information\\02. Patient Data\\',
+                                    '\\Projects\\CPNU\\02. Diagnosis information\\02. Diagnosis Data\\',
+                                    '\\Projects\\CPNU\\01. Patient information\\01. Birth date\\',
+                                    '\\Projects\\CPNU\\01. Patient information\\Taxonomy\\',
+                                    '\\Projects\\CPNU\\02. Diagnosis information\\02. Type of tumor\\']
+        def inDbConceptPaths = readFieldsFromDb(Concepts.TABLE,
+                'concept_path',
+                "where concept_path like '\\\\Projects\\\\CPNU\\\\%'")
+        def inDbConceptNames = readFieldsFromDb(Concepts.TABLE,
+                'name_char',
+                "where concept_path like '\\\\Projects\\\\CPNU\\\\%'")
+        def expectedNodePathForBirthDateConcept = readFieldsFromDb(TreeNodes.TABLE,
+                'c_fullname',
+                "where c_basecode = 'Patient.birth_date'")
+        def expectedConceptPathForBirthDateConcept = readFieldsFromDb(TreeNodes.TABLE,
+                'c_dimcode',
+                "where c_basecode = 'Patient.birth_date'")
+
+        then: 'concept path, names and tree nodes are updated'
+        inDbConceptPaths.size() == 5
+        inDbConceptPaths.containsAll(expectedConceptPaths)
+        inDbConceptNames.containsAll(expectedConceptNames)
+        expectedConceptPathForBirthDateConcept.size() == 1
+        expectedConceptPathForBirthDateConcept[0] == '\\Projects\\CPNU\\01. Patient information\\01. Birth date\\'
+        expectedNodePathForBirthDateConcept.size() == 1
+        expectedNodePathForBirthDateConcept[0] == '\\Projects\\CPNU\\01. Patient information\\01. Date of birth\\'
     }
 
     List<Number> getTestTrialVisitsDbIdentifiers() {

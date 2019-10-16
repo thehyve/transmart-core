@@ -34,16 +34,17 @@ class Concepts {
     final Set<String> conceptCodes = []
     final Set<String> conceptPaths = []
     final Map<String, String> conceptCodeToConceptPath = [:]
+    final Map<String, String> conceptCodeToConceptName = [:]
     /**
      * Workaround. Stores old to new concept path mapping to be able to update tree nodes on later step.
      */
     final Map<String, String> oldToNewConceptPath = [:]
-    final boolean updateConceptPath
+    final boolean updateConceptPathName
 
-    Concepts(Database database, updateConceptPath = false) {
+    Concepts(Database database, updateConceptPathName = false) {
         this.database = database
         this.columns = this.database.getColumnMetadata(TABLE)
-        this.updateConceptPath = updateConceptPath
+        this.updateConceptPathName = updateConceptPathName
     }
 
     @CompileStatic
@@ -51,11 +52,13 @@ class Concepts {
         final List<String> conceptCodes = []
         final List<String> conceptPaths = []
         final Map<String, String> conceptCodeToConceptPath = [:]
+        final Map<String, String> conceptCodeToConceptName = [:]
 
         @Override
         void processRow(ResultSet rs) throws SQLException {
             def conceptCode = rs.getString('concept_cd')
             def conceptPath = rs.getString('concept_path')
+            def conceptName = rs.getString('name_char')
             def codeInserted = conceptCodes << conceptCode
             conceptPaths << conceptPath
             if (!codeInserted) {
@@ -69,54 +72,67 @@ class Concepts {
                 }
             }
             conceptCodeToConceptPath[conceptCode] = conceptPath
+            conceptCodeToConceptName[conceptCode] = conceptName
         }
     }
 
     void fetch() {
         def rowHandler = new ConceptRowHandler()
         database.jdbcTemplate.query(
-                "select concept_path, concept_cd from ${TABLE}".toString(),
+                "select concept_path, name_char, concept_cd from ${TABLE}".toString(),
                 rowHandler
         )
         conceptPaths.addAll(rowHandler.conceptPaths)
         conceptCodes.addAll(rowHandler.conceptCodes)
         conceptCodeToConceptPath.putAll(rowHandler.conceptCodeToConceptPath)
+        conceptCodeToConceptName.putAll(rowHandler.conceptCodeToConceptName)
         log.info "Concepts in the database: ${conceptCodes.size()}."
         log.debug "Concept codes: ${conceptCodes}"
     }
 
-    void updatePathForConcept(
-            String conceptCode, String conceptPath, Map conceptData, LinkedHashMap<String, Class> header) {
-        log.info "Updating concept path from '${conceptCodeToConceptPath[conceptCode]}' to '${conceptPath}'."
+    void updateConceptWithCode(String conceptCode, Map conceptData, LinkedHashMap<String, Class> header) {
+        def conceptPath = conceptData['concept_path'] as String
+        def conceptName = conceptData['name_char'] as String
+        log.info "Updating concept path from '${conceptCodeToConceptPath[conceptCode]}' to '${conceptPath}'" +
+                " and/or concept name from '${conceptCodeToConceptName[conceptCode]}' to '${conceptName}'."
         int records = database.namedParameterJdbcTemplate.update(
-                "delete from ${TABLE} where concept_cd = :conceptCode and concept_path = :conceptPath",
-                [conceptPath: conceptCodeToConceptPath[conceptCode],
-                 conceptCode: conceptCode])
-        conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
-        log.debug "${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path were removed." +
-                " Inserting '${conceptPath}' instead."
+                "delete from ${TABLE} where concept_cd = :conceptCode",
+                 [conceptCode: conceptCode])
+        log.debug "${records} records with '${conceptCodeToConceptPath[conceptCode]}' concept path " +
+                "and '${conceptCodeToConceptName[conceptCode]}' concept name were removed." +
+                " Inserting path: '${conceptPath}' and name: '${conceptName}' instead."
         database.insertEntry(TABLE, header, conceptData)
-        conceptPaths.add(conceptPath)
-        oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
+        if (conceptCodeToConceptPath[conceptCode] != conceptPath) {
+            conceptPaths.remove(conceptCodeToConceptPath[conceptCode])
+            conceptPaths.add(conceptPath)
+            oldToNewConceptPath[conceptCodeToConceptPath[conceptCode]] = conceptPath
+        }
         conceptCodeToConceptPath[conceptCode] = conceptPath
+        conceptCodeToConceptName[conceptCode] = conceptName
     }
 
     private void loadConceptData(LinkedHashMap<String, Class> header, Map conceptData, Counts counts) {
         def conceptCode = conceptData['concept_cd'] as String
         def conceptPath = conceptData['concept_path'] as String
+        def conceptName = conceptData['name_char'] as String
         if (conceptCode in conceptCodes) {
             def knownConceptPath = conceptCodeToConceptPath[conceptCode]
-            if (conceptPath != knownConceptPath) {
-                if (updateConceptPath) {
-                    updatePathForConcept(conceptCode, conceptPath, conceptData, header)
+            def knownConceptName = conceptCodeToConceptName[conceptCode]
+
+            if (updateConceptPathName) {
+                if (conceptPath != knownConceptPath || conceptName != knownConceptName) {
+                    updateConceptWithCode(conceptCode, conceptData, header)
                     counts.updatedCount++
                 } else {
-                    log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},\n" +
-                            "but concept with that code already exists with path ${knownConceptPath}."
-                    throw new IllegalStateException(
-                            "Cannot load concept with code ${conceptCode}. " +
-                                    "Other concept already exists with that code.")
+                    counts.existingCount++
+                    log.debug "Found existing concept: ${conceptCode}."
                 }
+            } else if (conceptPath != knownConceptPath) {
+                log.error "Error: trying to load concept with code ${conceptCode} and path ${conceptPath},\n" +
+                        "but concept with that code already exists with path ${knownConceptPath}."
+                throw new IllegalStateException(
+                        "Cannot load concept with code ${conceptCode}. " +
+                                "Other concept already exists with that path.")
             } else {
                 counts.existingCount++
                 log.debug "Found existing concept: ${conceptCode}."
@@ -133,6 +149,7 @@ class Concepts {
             conceptCodes.add(conceptCode)
             conceptPaths.add(conceptPath)
             conceptCodeToConceptPath[conceptCode] = conceptPath
+            conceptCodeToConceptName[conceptCode] = conceptName
         }
     }
 
