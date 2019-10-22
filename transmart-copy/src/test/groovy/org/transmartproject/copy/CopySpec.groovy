@@ -62,6 +62,8 @@ class CopySpec extends Specification {
         def expectedModifierPaths = readFieldsFromFile(STUDY_FOLDER, Modifiers.TABLE, 'modifier_path')
         def expectedSubjectIds =
                 readFieldsFromFile(STUDY_FOLDER, Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def expectedEncounterIds =
+                readFieldsFromFile(STUDY_FOLDER, Visits.ENCOUNTER_MAPPING_TABLE, 'encounter_ide')
         def expectedTreeNodePaths = readFieldsFromFile(STUDY_FOLDER, TreeNodes.TABLE, 'c_fullname')
 
         when: 'Loading example study data'
@@ -73,6 +75,7 @@ class CopySpec extends Specification {
         def inDbConceptPaths = readFieldsFromDb(Concepts.TABLE, 'concept_path')
         def inDbModifierPaths = readFieldsFromDb(Modifiers.TABLE, 'modifier_path')
         def inDbSubjectIds = readFieldsFromDb(Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def inDbEncounterIds = readFieldsFromDb(Visits.ENCOUNTER_MAPPING_TABLE, 'encounter_ide')
         def inDbTreeNodePaths = readFieldsFromDb(TreeNodes.TABLE, 'c_fullname')
 
 
@@ -82,6 +85,7 @@ class CopySpec extends Specification {
         inDbConceptPaths.containsAll(expectedConceptPaths)
         inDbModifierPaths.containsAll(expectedModifierPaths)
         inDbSubjectIds.containsAll(expectedSubjectIds)
+        inDbEncounterIds.containsAll(expectedEncounterIds)
         inDbTreeNodePaths.containsAll(expectedTreeNodePaths)
     }
 
@@ -301,6 +305,8 @@ class CopySpec extends Specification {
         def expectedModifierPaths1 = readFieldsFromFile(studyPart1Folder, Modifiers.TABLE, 'modifier_path')
         def expectedSubjectIds1 =
                 readFieldsFromFile(studyPart1Folder, Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def expectedEncounterIds1 =
+                readFieldsFromFile(studyPart1Folder, Visits.ENCOUNTER_MAPPING_TABLE, 'encounter_ide')
         def expectedTreeNodePaths1 = readFieldsFromFile(studyPart1Folder, TreeNodes.TABLE, 'c_fullname')
 
         CommandLine cli1 = new DefaultParser().parse(options, ['--directory', studyPart1Folder] as String[])
@@ -311,6 +317,7 @@ class CopySpec extends Specification {
         def inDbConceptPaths1 = readFieldsFromDb(Concepts.TABLE, 'concept_path')
         def inDbModifierPaths1 = readFieldsFromDb(Modifiers.TABLE, 'modifier_path')
         def inDbSubjectIds1 = readFieldsFromDb(Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def inDbEncounterIds1 = readFieldsFromDb(Visits.ENCOUNTER_MAPPING_TABLE, 'encounter_ide')
         def inDbTreeNodePaths1 = readFieldsFromDb(TreeNodes.TABLE, 'c_fullname')
 
 
@@ -321,6 +328,7 @@ class CopySpec extends Specification {
         inDbConceptPaths1.containsAll(expectedConceptPaths1)
         inDbModifierPaths1.containsAll(expectedModifierPaths1)
         inDbSubjectIds1.containsAll(expectedSubjectIds1)
+        inDbEncounterIds1.containsAll(expectedEncounterIds1)
         inDbTreeNodePaths1.containsAll(expectedTreeNodePaths1)
 
 
@@ -330,6 +338,8 @@ class CopySpec extends Specification {
         def expectedModifierPaths2 = readFieldsFromFile(studyPart2Folder, Modifiers.TABLE, 'modifier_path')
         def expectedSubjectIds2 =
                 readFieldsFromFile(studyPart2Folder, Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
+        def expectedEncounterIds2 =
+                readFieldsFromFile(studyPart2Folder, Visits.ENCOUNTER_MAPPING_TABLE, 'encounter_ide')
         def expectedTreeNodePaths2 = readFieldsFromFile(studyPart2Folder, TreeNodes.TABLE, 'c_fullname')
 
         CommandLine cli2 = new DefaultParser()
@@ -342,26 +352,30 @@ class CopySpec extends Specification {
         def inDbModifierPaths2 = readFieldsFromDb(Modifiers.TABLE, 'modifier_path')
         def inDbSubjectIds2 = readFieldsFromDb(Patients.PATIENT_MAPPING_TABLE, 'patient_ide')
         def inDbPatientIdeToPatientNum = readPatientIdeToPatientNum()
+        def inDbEncounterIds2 = readFieldsFromDb(Visits.ENCOUNTER_MAPPING_TABLE, 'encounter_ide')
         def inDbTreeNodePaths2 = readFieldsFromDb(TreeNodes.TABLE, 'c_fullname')
 
 
         then: 'the second part of the study has been loaded incrementally'
         incrementalStudyDbIdentifier
         /** 1 patient not present in part2: SURVEY_INC_P2 -> 3 observations
-         *  1 patient updated in part2    : SURVEY_INC_P1 -> 3 observations
-         *  1 patient added in part 2     : SURVEY_INC_P3 -> 3 observations
+         *  1 patient updated in part2    : SURVEY_INC_P1 -> 4 observations + extra visit
+         *  1 patient added in part2      : SURVEY_INC_P3 -> 3 observations
          */
         inDbPatientNums2.size() == inDbPatientNums1.size() + 1
-        countsAfterUpload2[Observations.TABLE] == countsAfterUpload1[Observations.TABLE] + 3
+        countsAfterUpload2[Observations.TABLE] == countsAfterUpload1[Observations.TABLE] + 4
         countsAfterUpload2[Studies.TRIAL_VISIT_TABLE] == countsAfterUpload1[Studies.TRIAL_VISIT_TABLE] + 1
         countsAfterUpload2[Studies.STUDY_TABLE] == countsAfterUpload1[Studies.STUDY_TABLE]
         countsAfterUpload2[Studies.STUDY_DIMENSIONS_TABLE] == countsAfterUpload1[Studies.STUDY_DIMENSIONS_TABLE]
         inDbConceptPaths2.containsAll(expectedConceptPaths2)
         inDbModifierPaths2.containsAll(expectedModifierPaths2)
         inDbSubjectIds2.containsAll(expectedSubjectIds2)
-        inDbTreeNodePaths2.containsAll(expectedTreeNodePaths2)
         inDbSubjectIds2.findAll{ it.toString().startsWith("SURVEY_INC_")} as Set ==
                 (expectedSubjectIds1 + expectedSubjectIds2) as Set
+        inDbEncounterIds2.containsAll(expectedEncounterIds2)
+        inDbEncounterIds2.findAll{ it.toString().startsWith("SURVEY_INC_")} as Set ==
+                (expectedEncounterIds1 + expectedEncounterIds2) as Set
+        inDbTreeNodePaths2.containsAll(expectedTreeNodePaths2)
 
         // observation for patient from part1 only - old value
         readFieldsFromDb(Observations.TABLE,'nval_num',
@@ -369,6 +383,10 @@ class CopySpec extends Specification {
         // observation for patient updated in part2 - updated value
         readFieldsFromDb(Observations.TABLE,'nval_num',
                 "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P1']} AND concept_cd='age'") == [26]
+        // observation for patient updated in part2 - new value
+        readFieldsFromDb(Observations.TABLE,'nval_num',
+                "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P1']} AND concept_cd='height'") ==
+                [184, 185]
         // observation for patient added in part2 - new value
         readFieldsFromDb(Observations.TABLE,'nval_num',
                 "where patient_num=${inDbPatientIdeToPatientNum['SURVEY_INC_P3']} AND concept_cd='age'") == [60]
