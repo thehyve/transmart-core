@@ -25,8 +25,8 @@ class CopySpec extends Specification {
 
     static final Map<String, String> DATABASE_CREDENTIALS = [
             PGHOST     : 'localhost',
-            PGPORT     : '5432',
-            PGDATABASE : 'transmart',
+            PGPORT     : System.getenv('PGPORT') ?: '5432',
+            PGDATABASE : System.getenv('PGDATABASE') ?: 'transmart',
             PGUSER     : 'biomart_user',
             PGPASSWORD : 'biomart_user',
             MAXPOOLSIZE: '5'
