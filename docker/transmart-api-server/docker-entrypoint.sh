@@ -24,8 +24,6 @@ EndOfMessage
 
 # Fixed values, not configurable by user
 APP_PORT=8081
-BIOMART_USER='biomart_user'
-BIOMART_PASSWORD="${BIOMART_USER}"
 TRANSMART_API_SERVER_CONFIG_FILE="${TRANSMART_USER_HOME}/transmart-api-server.config.yml"
 
 CERTS_PATH="${TRANSMART_USER_HOME}/extra_certs.pem"
@@ -37,6 +35,8 @@ dataSource:
     driverClassName: org.postgresql.Driver
     dialect: org.hibernate.dialect.PostgreSQLDialect
     url: jdbc:postgresql://${PGHOST}:${PGPORT:-5432}/${PGDATABASE:-transmart}?currentSchema=public
+    username: ${BIOMART_USER:-biomart_user}
+    password: ${BIOMART_PASSWORD:-biomart_user}
 
 # Create or update the database schema at application startup
 grails.plugin.databasemigration.updateOnStart: true
