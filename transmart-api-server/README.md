@@ -30,17 +30,22 @@ The prerequisite is to have admin credentials to a Keycloak instance.
 Login to `https://idp.example.com/auth/admin/` and:
 
 1. Create a realm, e.g., `dev`
-2. Create a client, e.g., `transmart`
+2. Create a client, e.g., `transmart-client`
     - Client Protocol: `openid-connect`
     - Access Type: `confidential`
     - Standard Flow Enabled: `On`
     - Valid Redirect URIs: `https://glowingbear.example.com`
     - Web Origins: `https://glowingbear.example.com`
 
-    **Note:** For Keycloak versions > 4.5.0 configure client mappers to include client ID in the aud (audience) Claim 
-    by following [the official instruction](https://www.keycloak.org/docs/4.8/server_admin/#_audience_hardcoded).
+    **Note:** For Keycloak versions > 4.5.0, configure client mappers to include client ID in the aud (audience) claim. 
 
-3. Create Roles.  
+    - Add a client mapper to include an `aud` (audience) claim to the token (see the [official Keycloak documentation](https://www.keycloak.org/docs/6.0/server_admin/#_audience_hardcoded)).
+    - Go to `Clients`, select `transmart-client`, and select the `Mappers` tab.
+      ![client mappers overview](images/client%20mappers%20overview.png)
+    - Click `Create`, type name `transmart-client-audience`, select mapper type `Audience`, select the included client audience: `transmart-client`, and click `Save`.
+      ![create client audience mapper](images/create%20client%20audience%20mapper.png)
+
+3. Create Roles.
     **Note:** not realm roles, but client roles.
     Follow `Clients > Roles` (tab)
 
@@ -109,7 +114,7 @@ to enable fetching of users with this token.
 Create a file `transmart-api-server.config.yml` with the following settings (replace names in brackets with your data):
 ```yaml
 keycloak:
-    resource: {transmart}
+    resource: {transmart-client}
     auth-server-url: https://{idp.example.com}/auth
     realm: {dev}
     bearer-only: true
