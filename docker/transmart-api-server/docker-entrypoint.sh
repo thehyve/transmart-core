@@ -35,7 +35,7 @@ dataSource:
     driverClassName: org.postgresql.Driver
     dialect: org.hibernate.dialect.PostgreSQLDialect
     url: jdbc:postgresql://${PGHOST}:${PGPORT:-5432}/${PGDATABASE:-transmart}?currentSchema=public
-    username: ${BIOMART_USER:-biomart_user}
+    username: biomart_user
     password: ${BIOMART_PASSWORD:-biomart_user}
 
 # Create or update the database schema at application startup
@@ -68,7 +68,6 @@ unset PGDATABASE
 unset KEYCLOAK_SERVER_URL
 unset KEYCLOAK_REALM
 unset KEYCLOAK_CLIENT_ID
-unset BIOMART_USER
 unset BIOMART_PASSWORD
 unset TRANSMART_USER_NAME
 unset TRANSMART_GROUP_NAME
