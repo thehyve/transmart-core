@@ -47,6 +47,9 @@ org.transmartproject.system.writeLogToDatabase: false
 # If true, deny access to users without any role
 org.transmartproject.security.denyAccessToUsersWithoutRole: ${DENY_ACCESS_WITHOUT_ROLE:-false}
 
+# Threshold value, below which counts are not available for users with COUNTS_WITH_THRESHOLD access permission to a study.
+org.transmartproject.patientCountThreshold: ${PATIENT_COUNT_THRESHOLD:-0}
+
 # Keycloak configuration
 keycloak:
     realm: ${KEYCLOAK_REALM}
