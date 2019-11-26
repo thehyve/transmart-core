@@ -9,7 +9,8 @@ package org.transmartproject.copy
 import com.opencsv.CSVParserBuilder
 import com.opencsv.CSVReader
 import com.opencsv.CSVReaderBuilder
-import com.opencsv.CSVWriter
+import com.opencsv.CSVWriterBuilder
+import com.opencsv.ICSVWriter
 import com.opencsv.ICSVParser
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -42,8 +43,12 @@ class Util {
                 .build()
     }
 
-    static CSVWriter tsvWriter(Writer writer) {
-        new CSVWriter(writer, '\t' as char, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER)
+    static ICSVWriter tsvWriter(Writer writer) {
+        new CSVWriterBuilder(writer)
+            .withSeparator('\t' as char)
+            .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
+            .withEscapeChar(ICSVWriter.NO_ESCAPE_CHARACTER)
+            .build()
     }
 
     /**
