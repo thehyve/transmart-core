@@ -125,8 +125,8 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
             createCriteriaBuilder(DeSubjectRnaseqData, 'rnaseqdata', session)
 
         criteriaBuilder.with {
-            createAlias 'jRegion', 'region', INNER_JOIN
-            createAlias 'jRegion.platform', 'platform', INNER_JOIN
+            createAlias 'region', 'region', INNER_JOIN
+            createAlias 'region.platform', 'platform', INNER_JOIN
 
             projections {
                 property 'assay.id',               'assayId'

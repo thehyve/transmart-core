@@ -70,7 +70,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
             createCriteriaBuilder(DeSubjectRnaData, 'rnadata', session)
 
         criteriaBuilder.with {
-            createAlias 'jAnnotation', 'ann', INNER_JOIN
+            createAlias 'annotation', 'ann', INNER_JOIN
 
             projections {
                 property 'assay.id',         'assayId'

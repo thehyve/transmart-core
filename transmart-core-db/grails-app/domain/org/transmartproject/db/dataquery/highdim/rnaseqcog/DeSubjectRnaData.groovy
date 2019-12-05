@@ -29,8 +29,6 @@ class DeSubjectRnaData implements Serializable {
     BigDecimal logIntensity
     BigDecimal zscore
 
-    DeRnaseqAnnotation jAnnotation //due to criteria bug
-
     // irrelevant
     //String     trialSource
     //String     trialName
@@ -48,9 +46,6 @@ class DeSubjectRnaData implements Serializable {
 
         annotation  column: 'probeset_id' // poor name; no probes involved
         assay       column: 'assay_id'
-
-        // here due to criteria bug
-        jAnnotation column: 'probeset_id', insertable: false, updateable: false
 
         version     false
 
