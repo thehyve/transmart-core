@@ -1,7 +1,8 @@
 package org.transmartproject.rest.serialization.tabular
 
 import com.google.common.collect.ImmutableList
-import com.opencsv.CSVWriter
+import com.opencsv.CSVWriterBuilder
+import com.opencsv.ICSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.DataColumn
@@ -19,7 +20,8 @@ import java.util.zip.ZipOutputStream
 class TabularResultTSVSerializer extends AbstractTSVSerializer implements TabularResultSerializer {
 
     private void writeValues(TabularResult<DataColumn, DataRow> tabularResult, OutputStream outputStream) {
-        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
+        ICSVWriter csvWriter = new CSVWriterBuilder(new OutputStreamWriter(outputStream))
+                .withSeparator(COLUMN_SEPARATOR).build()
         for (DataRow row in tabularResult) {
             List valuesRow = columns.collect { DataColumn column -> row[column] }
             csvWriter.writeNext(formatRowValues(valuesRow))
@@ -28,7 +30,8 @@ class TabularResultTSVSerializer extends AbstractTSVSerializer implements Tabula
     }
 
     static void writeHeader(List<DataColumn> columns, OutputStream outputStream) {
-        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
+        ICSVWriter csvWriter = new CSVWriterBuilder(new OutputStreamWriter(outputStream))
+                .withSeparator(COLUMN_SEPARATOR).build()
         csvWriter.writeNext(columns*.label as String[])
         csvWriter.flush()
     }
@@ -37,7 +40,8 @@ class TabularResultTSVSerializer extends AbstractTSVSerializer implements Tabula
         def columns = indicesList
                 .findAll { it instanceof MetadataAwareDataColumn } as List<MetadataAwareDataColumn>
         if (!columns) return
-        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
+        ICSVWriter csvWriter = new CSVWriterBuilder(new OutputStreamWriter(outputStream))
+                .withSeparator(COLUMN_SEPARATOR).build()
         csvWriter.writeNext(['name', 'type', 'width', 'decimals', 'description', 'columns', 'measure'] as String[])
         columns.each { MetadataAwareDataColumn column ->
             csvWriter.writeNext([
@@ -57,7 +61,8 @@ class TabularResultTSVSerializer extends AbstractTSVSerializer implements Tabula
         def columns = indicesList
                 .findAll { it instanceof MetadataAwareDataColumn && it.metadata?.valueLabels } as List<MetadataAwareDataColumn>
         if (!columns) return
-        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream), COLUMN_SEPARATOR)
+        ICSVWriter csvWriter = new CSVWriterBuilder(new OutputStreamWriter(outputStream))
+                .withSeparator(COLUMN_SEPARATOR).build()
         csvWriter.writeNext(['name', 'value', 'label'] as String[])
         columns.each { MetadataAwareDataColumn column ->
             column.metadata.valueLabels.each { value, label ->

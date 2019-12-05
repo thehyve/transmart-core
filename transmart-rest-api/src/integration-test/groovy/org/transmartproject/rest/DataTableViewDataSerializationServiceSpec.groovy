@@ -2,8 +2,10 @@ package org.transmartproject.rest
 
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.ImmutableMap
-import com.opencsv.CSVReader
-import com.opencsv.CSVWriter
+import com.opencsv.CSVParserBuilder
+import com.opencsv.CSVReaderBuilder
+import com.opencsv.ICSVParser
+import com.opencsv.ICSVWriter
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
@@ -174,12 +176,17 @@ class DataTableViewDataSerializationServiceSpec extends Specification {
     }
 
     List<List<String>> readCSV(InputStream inp) {
-        def csvReader = new CSVReader(new InputStreamReader(inp), DataTableTSVSerializer.COLUMN_SEPARATOR,
-                // CSVReader always treats doubled quote characters as an escaped quote when inside a quoted
-                // string, the configurable escape character is an additional escape character. The writer only
-                // has nested quotes to escape and nothing else, so in this case we don't want to interpret any
-                // additional escape characters. (By default CSVReader interprets a backslash as escape.)
-                CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER)
+        def csvReader = new CSVReaderBuilder(new InputStreamReader(inp))
+            .withCSVParser(new CSVParserBuilder()
+                    .withSeparator(DataTableTSVSerializer.COLUMN_SEPARATOR)
+                    // CSVReader always treats doubled quote characters as an escaped quote when inside a quoted
+                    // string, the configurable escape character is an additional escape character. The writer only
+                    // has nested quotes to escape and nothing else, so in this case we don't want to interpret any
+                    // additional escape characters. (By default CSVReader interprets a backslash as escape.)
+                    .withQuoteChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                    .withEscapeChar(ICSVWriter.NO_ESCAPE_CHARACTER)
+                    .build()
+            ).build()
         def data = csvReader.readAll().collect { it as List<String> }
         data
     }
