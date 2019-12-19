@@ -36,7 +36,7 @@ dataSource:
     dialect: org.hibernate.dialect.PostgreSQLDialect
     url: jdbc:postgresql://${PGHOST}:${PGPORT:-5432}/${PGDATABASE:-transmart}?currentSchema=public
     username: biomart_user
-    password: ${BIOMART_PASSWORD:-biomart_user}
+    password: ${BIOMART_USER_PASSWORD:-biomart_user}
 
 # Create or update the database schema at application startup
 grails.plugin.databasemigration.updateOnStart: true
@@ -68,7 +68,7 @@ unset PGDATABASE
 unset KEYCLOAK_SERVER_URL
 unset KEYCLOAK_REALM
 unset KEYCLOAK_CLIENT_ID
-unset BIOMART_PASSWORD
+unset BIOMART_USER_PASSWORD
 unset TRANSMART_USER_NAME
 unset TRANSMART_GROUP_NAME
 unset TRANSMART_USER_HOME
