@@ -170,7 +170,7 @@ class ClinicalDataJoinedIterator extends AbstractIterator<PatientRow> {
         // we don't need to actually fill the patient
         // we actually use that fact to reuse the object
         new PatientIdAnnotatedDataRow(
-                data: indices.collect { null },
+                data: indices.collect { null as Object },
                 columnToIndex: indices.collectEntries { [it, i++] })
     }
 }

@@ -1,7 +1,7 @@
 package org.transmartproject.rest.serialization.tabular
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.opencsv.CSVWriter
+import com.opencsv.ICSVWriter
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.multidimquery.hypercube.Dimension
@@ -67,7 +67,7 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         writer.flush()
     }
 
-    private void writeHeaders(CSVWriter csvWriter, StreamingDataTable dataTable) {
+    private void writeHeaders(ICSVWriter csvWriter, StreamingDataTable dataTable) {
         if(!dataTable.columnKeys) return
 
         for(int i=0; i<dataTable.columnDimensions.size(); i++) {
@@ -81,7 +81,7 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
     }
 
     private List<Set> writeValues(StreamingDataTable table) {
-        CSVWriter csvWriter = getCSVWriter()
+        ICSVWriter csvWriter = getCSVWriter()
 
         writeHeaders(csvWriter, table)
 

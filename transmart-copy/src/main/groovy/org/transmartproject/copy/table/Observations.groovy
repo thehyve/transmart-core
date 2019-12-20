@@ -6,7 +6,7 @@
 
 package org.transmartproject.copy.table
 
-import com.opencsv.CSVWriter
+import com.opencsv.ICSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import me.tongfei.progressbar.ProgressBar
@@ -138,7 +138,7 @@ class Observations {
         database.commit(tx)
     }
 
-    private void loadRow(CSVWriter tsvWriter,
+    private void loadRow(ICSVWriter tsvWriter,
                          LinkedHashMap<String, Class> header,
                          Map<String, Object> row,
                          Counter batchCount,
@@ -183,7 +183,7 @@ class Observations {
         log.info "${formattedRowCount} rows in ${TABLE.fileName}."
 
         Writer writer
-        CSVWriter tsvWriter
+        ICSVWriter tsvWriter
         if (config.write) {
             writer = new PrintWriter(config.outputFile)
             tsvWriter = Util.tsvWriter(writer)
@@ -208,7 +208,7 @@ class Observations {
             def insert = database.getInserter(TABLE, header)
             def progressBar = new ProgressBar("Insert into ${TABLE}", rowCount.value - 1)
             progressBar.start()
-            ArrayList<Map> batch = []
+            def batch = [] as ArrayList<Map>
             data = tsvReader.readNext()
             i++
             def batchCount = new Counter()

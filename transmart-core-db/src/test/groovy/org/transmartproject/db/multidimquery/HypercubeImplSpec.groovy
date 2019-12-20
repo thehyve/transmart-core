@@ -16,7 +16,7 @@ class HypercubeImplSpec extends Specification {
                 [1, 'a'] as Object[],
                 [2, 'b'] as Object[]
         ]
-        def testee = new HypercubeImpl.ProjectionMapIterator(
+        def testee = new ProjectionMapIterator(
                 ['col1', 'col2'].withIndex().collectEntries(),
                 [
                         next: { -> !data.empty },

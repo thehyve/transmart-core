@@ -44,7 +44,9 @@ dependencies {
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 
-    runtime 'ch.qos.logback.contrib:logback-jackson:0.1.5'
+    runtime('ch.qos.logback.contrib:logback-jackson:0.1.5') {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
 }
 
 bootRun {

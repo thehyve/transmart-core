@@ -21,6 +21,9 @@ fi
 if [[ "x${PGDATABASE}" == "x" ]]; then
     PGDATABASE=transmart
 fi
+if [[ "x${PGPORT}" == "x" ]]; then
+    PGPORT=5432
+fi
 if [[ "x${PGUSER}" == "x" ]]; then
     PGUSER=biomart_user
 fi
@@ -37,7 +40,7 @@ if [[ "$(sudo -u postgres psql -At -c "select datname from pg_database where dat
   sudo -u postgres psql -c "create database \"${PGDATABASE}\";"
   sudo -u postgres psql -c "grant all on database \"${PGDATABASE}\" to ${PGUSER};"
 fi
-${prefix}java -jar "-Ddb_name=${PGDATABASE}" "-Ddb_username=${PGUSER}" "-Dspring.datasource.password=${PGPASSWORD}" "${jar}" || {
+"${prefix}java" -jar "-Ddb_name=${PGDATABASE}" "-Ddb_port=${PGPORT}" "-Ddb_username=${PGUSER}" "-Dspring.datasource.password=${PGPASSWORD}" "${jar}" || {
     echo "Database creation or update failed. Maybe the database was created with another tool?"
     exit 1
 }

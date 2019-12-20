@@ -1,6 +1,7 @@
 package org.transmartproject.rest.serialization.tabular
 
-import com.opencsv.CSVWriter
+import com.opencsv.CSVWriterBuilder
+import com.opencsv.ICSVWriter
 import groovy.transform.CompileStatic
 import org.transmartproject.core.users.User
 
@@ -36,11 +37,11 @@ class AbstractTSVSerializer {
         return s
     }
 
-    void writeRow(CSVWriter csvWriter, List row) {
+    void writeRow(ICSVWriter csvWriter, List row) {
         csvWriter.writeNext(formatRowValues(row))
     }
 
-    CSVWriter getCSVWriter() {
-        new CSVWriter(new OutputStreamWriter(zipOutStream), COLUMN_SEPARATOR)
+    ICSVWriter getCSVWriter() {
+        new CSVWriterBuilder(new OutputStreamWriter(zipOutStream)).withSeparator(COLUMN_SEPARATOR).build()
     }
 }

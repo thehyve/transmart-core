@@ -34,8 +34,6 @@ import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.rest.misc.HandleAllExceptionsBeanFactoryPostProcessor
 
 class TransmartRestApiGrailsPlugin extends Plugin {
-    def grailsVersion = "3.1.10 > *"
-
     def title = "Transmart Rest Api Plugin"
     def author = "Transmart Foundation"
     def authorEmail = "admin@transmartproject.org"

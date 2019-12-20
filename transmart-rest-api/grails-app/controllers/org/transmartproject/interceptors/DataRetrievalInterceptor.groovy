@@ -3,7 +3,7 @@ package org.transmartproject.interceptors
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class DataRetrievalInterceptor extends ApiAuditInterceptor {
+class DataRetrievalInterceptor extends AuditInterceptor {
 
     // /v1 interceptor
     DataRetrievalInterceptor() {

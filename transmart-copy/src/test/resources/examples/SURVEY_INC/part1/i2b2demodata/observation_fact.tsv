@@ -3,5 +3,5 @@ encounter_num	patient_num	concept_cd	provider_id	start_date	modifier_cd	instance
 -1	1	gender	@	2019-12-16 20:23:15	@	1	0	T	Female														
 -1	0	age	@	2019-03-21 10:36:01	@	1	0	N	E	24													
 -1	1	age	@	2019-12-16 20:23:15	@	1	0	N	E	33													
--1	0	height	@	2019-03-21 10:36:01	@	1	0	N	E	184													
--1	1	height	@	2019-12-16 20:23:15	@	1	0	N	E	163													
+0	0	height	@	2019-03-21 10:36:01	@	1	0	N	E	184													
+1	1	height	@	2019-12-16 20:23:15	@	1	0	N	E	163													
