@@ -41,8 +41,6 @@ class DeSubjectMicroarrayDataCoreDb implements Serializable {
     //BigDecimal newLog
     //BigDecimal newZscore
 
-    DeMrnaAnnotationCoreDb jProbe //see comment on mapping
-
     static belongsTo = [
             probe: DeMrnaAnnotationCoreDb,
             assay: DeSubjectSampleMapping,
@@ -57,10 +55,6 @@ class DeSubjectMicroarrayDataCoreDb implements Serializable {
         probe    column: 'probeset_id'
         assay    column: 'assay_id'
         patient  column: 'patient_id'
-
-        // this is needed due to a Criteria bug.
-        // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
-        jProbe   column: 'probeset_id', insertable: false, updateable: false
 
         version  false
     }

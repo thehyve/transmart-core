@@ -19,6 +19,20 @@ import org.transmartproject.db.util.IndexedArraySet
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
 
+@TupleConstructor
+@CompileStatic
+class ProjectionMapIterator extends AbstractIterator<ProjectionMap> implements Iterator<ProjectionMap> {
+    final Map<String, Integer> aliases
+    final ScrollableResults results
+
+    ProjectionMap computeNext() {
+        if (!results.next()) {
+            return super.endOfData()
+        }
+        new ProjectionMap(aliases, results.get())
+    }
+}
+
 /**
  *
  */
@@ -166,7 +180,7 @@ class HypercubeImpl implements Hypercube {
             }
             this.resultIterator = (modifierDimensions
                     ? new ModifierResultIterator(modifierDimensions, aliases, results)
-                    : new ProjectionMapIterator(aliases, results)
+                    : (Iterator<ProjectionMap>)new ProjectionMapIterator(aliases, results)
             )
         }
 
@@ -256,9 +270,8 @@ class HypercubeImpl implements Hypercube {
      * queries, and build SQL directly. When streaming large datasets the CPU overhead of hibernate can become quite
      * significant, so using raw SQL avoids that.
      */
-    // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
-    // ResultIterator constructor. (Groovy 3.1.10)
-    static class ModifierResultIterator extends UnmodifiableIterator<Map<String, Object>> {
+    @CompileStatic
+    static class ModifierResultIterator implements Iterator<Map<String, Object>> {
 
         static final List<String> primaryKey = ImmutableList.of(
                 // excludes modifierCd as we want to group them
@@ -331,20 +344,6 @@ class HypercubeImpl implements Hypercube {
             return true
         }
     }
-
-    @TupleConstructor
-    static class ProjectionMapIterator extends AbstractIterator<ProjectionMap> {
-        final Map<String, Integer> aliases
-        final ScrollableResults results
-
-        ProjectionMap computeNext() {
-            if (!results.next()) {
-                return super.endOfData()
-            }
-            new ProjectionMap(aliases, results.get())
-        }
-    }
-
 }
 
 @CompileStatic

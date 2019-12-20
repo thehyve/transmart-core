@@ -48,7 +48,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     private HibernateCriteriaBuilder createCriteriaBuilder() {
         HibernateCriteriaBuilder builder = DeSubjectMicroarrayDataCoreDb.createCriteria()
         builder.buildCriteria {
-            createAlias('jProbe', 'p', INNER_JOIN)
+            createAlias('probe', 'p', INNER_JOIN)
 
             eq 'trialName', MrnaTestData.TRIAL_NAME
         }

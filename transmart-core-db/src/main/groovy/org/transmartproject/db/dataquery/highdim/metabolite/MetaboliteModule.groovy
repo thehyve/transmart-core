@@ -118,7 +118,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
             createCriteriaBuilder(DeSubjectMetabolomicsData, 'metabolitedata', session)
 
         criteriaBuilder.with {
-            createAlias 'jAnnotation', 'a', INNER_JOIN
+            createAlias 'annotation', 'a', INNER_JOIN
 
             projections {
                 property 'assay.id',          'assayId'

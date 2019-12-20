@@ -43,8 +43,6 @@ class DeSubjectProteinData implements Serializable {
     //BigDecimal medianIntensity
     //BigDecimal logIntensity
 
-    DeProteinAnnotation jAnnotation
-
     static belongsTo = [
             assay:      DeSubjectSampleMapping,
             annotation: DeProteinAnnotation,
@@ -57,9 +55,6 @@ class DeSubjectProteinData implements Serializable {
         assay      column: 'assay_id'
         annotation column: 'protein_annotation_id'
 
-        // this is needed due to a Criteria bug.
-        // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
-        jAnnotation column: 'protein_annotation_id', updateable: false, insertable: false
         version false
     }
 

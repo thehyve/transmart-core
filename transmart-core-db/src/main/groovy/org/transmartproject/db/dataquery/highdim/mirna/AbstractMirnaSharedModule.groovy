@@ -100,7 +100,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
             createCriteriaBuilder(DeSubjectMirnaData, 'm', session)
 
         criteriaBuilder.with {
-            createAlias 'jProbe', 'p', INNER_JOIN
+            createAlias 'probe', 'p', INNER_JOIN
 
             projections {
                 property 'assay.id',   'assayId'

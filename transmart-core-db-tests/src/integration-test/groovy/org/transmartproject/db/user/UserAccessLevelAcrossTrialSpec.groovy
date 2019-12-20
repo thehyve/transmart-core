@@ -29,6 +29,7 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.users.LegacyAuthorisationChecks
+import org.transmartproject.db.TestData
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
@@ -55,13 +56,12 @@ class UserAccessLevelAcrossTrialSpec extends Specification {
     @Autowired
     LegacyAuthorisationChecks authorisationChecks
 
-    AcrossTrialsTestData testData = AcrossTrialsTestData.createDefault()
-
     void testQueryDefinitionAllowAcrossTrialNodes() {
-        User secondUser = testData.accessLevelTestData.users[1]
-
+        TestData.clearData()
         def acrossTrialsTestData = AcrossTrialsTestData.createDefault()
         acrossTrialsTestData.saveAll()
+
+        User secondUser = acrossTrialsTestData.accessLevelTestData.users[1]
 
         /* add entry in I2b2Secure to make sure we're not allowing the thing
          * because of the "public by default" behavior */

@@ -38,9 +38,6 @@ class DeSubjectAcghData implements AcghValues, Serializable {
     Double probabilityOfGain
     Double probabilityOfAmplification
 
-    // see comment in mapping
-    DeChromosomalRegion jRegion
-
     /* unused; should be the same as assay.patient */
     PatientDimension patient
 
@@ -67,10 +64,6 @@ class DeSubjectAcghData implements AcghValues, Serializable {
         region   column: 'region_id'
         assay    column: 'assay_id'
         patient  column: 'patient_id'
-
-        // this duplicate mapping is needed due to a Criteria bug.
-        // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
-        jRegion  column: 'region_id', insertable: false, updateable: false
 
         sort    assay:  'asc'
 

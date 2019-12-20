@@ -30,6 +30,7 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.TestData
 import spock.lang.Specification
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.I2b2Secure
@@ -54,9 +55,10 @@ class UserAccessLevelSpec extends Specification {
     @Autowired
     AccessControlChecks accessControlChecks
 
-    AccessLevelTestData accessLevelTestData = AccessLevelTestData.createDefault()
+    AccessLevelTestData accessLevelTestData = createDefault()
 
     void setupData() {
+        TestData.clearData()
         accessLevelTestData.saveAll()
     }
 
