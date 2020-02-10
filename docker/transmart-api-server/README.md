@@ -1,11 +1,5 @@
 # TranSMART API Server Docker Image
 
-## Version of the API server
-The currently used version is `17.2.6`.
-
-The `Dockerfile` needs to be inspected to determine the version. It
-is apparent from the URL of the downloaded `.war` file.
-
 ## Configuration
 
 The image requires the following environment variables to be present:

@@ -1,18 +1,17 @@
 FROM openjdk:8-jre-alpine
 LABEL maintainer="luk.zim91@gmail.com" \
       service="transmart-api-server" \
-      version="17.2.6" \
       description="This is the Docker image of the tranSMART API server"
 
-# The port is configured in the docker-entrypoint.sh when writing the config.yml
-EXPOSE 8081
+ARG TRANSMART_VERSION="17.2.6"
 
-ENV TRANSMART_VERSION "17.2.6"
 ENV TRANSMART_USER_NAME transmart
 ENV TRANSMART_GROUP_NAME "${TRANSMART_USER_NAME}"
 ENV TRANSMART_USER_HOME "/home/${TRANSMART_USER_NAME}"
-ENV TRANSMART_API_SERVER_WAR_URL  "https://repo.thehyve.nl/service/local/repositories/releases/content/org/transmartproject/transmart-api-server/${TRANSMART_VERSION}/transmart-api-server-${TRANSMART_VERSION}.war"
 ENV TRANSMART_SERVICE_WAR_FILE "/transmart-api-server.war"
+ENV APP_PORT 8081
+
+EXPOSE ${APP_PORT}
 
 # Root does the following things in this order:
 # 1. Copies the entrypoint
@@ -23,19 +22,25 @@ ENV TRANSMART_SERVICE_WAR_FILE "/transmart-api-server.war"
 USER root
 COPY docker-entrypoint.sh /opt/docker-entrypoint.sh
 COPY logback.groovy /logback.groovy
-RUN  addgroup -S "${TRANSMART_GROUP_NAME}" && \
+RUN  apk add curl && \
+     addgroup -S "${TRANSMART_GROUP_NAME}" && \
      adduser -h "${TRANSMART_USER_HOME}" \
              -G "${TRANSMART_GROUP_NAME}" \
              -S \
              -D \
              "${TRANSMART_USER_NAME}" && \
-     wget "${TRANSMART_API_SERVER_WAR_URL}" -O "${TRANSMART_SERVICE_WAR_FILE}" && \
      chown    "${TRANSMART_USER_NAME}:${TRANSMART_GROUP_NAME}" /opt/docker-entrypoint.sh && \
      chmod u+x /opt/docker-entrypoint.sh && \
      chown "${TRANSMART_USER_NAME}" /etc/ssl/certs/java/cacerts && \
      chown "${TRANSMART_USER_NAME}" /etc/ssl/certs/java && \
      chmod 644 /etc/ssl/certs/java/cacerts && \
      rm -rf /tmp/* /var/tmp/* && sync
+
+RUN if echo "${TRANSMART_VERSION}" | grep '\.*-SNAPSHOT$' -; then \
+      curl -f -L "https://repo.thehyve.nl/service/local/artifact/maven/redirect?r=snapshots&g=org.transmartproject&a=transmart-api-server&v=${TRANSMART_VERSION}&p=war" -o "${TRANSMART_SERVICE_WAR_FILE}"; \
+    else \
+      curl -f -L "https://repo.thehyve.nl/service/local/artifact/maven/redirect?r=releases&g=org.transmartproject&a=transmart-api-server&v=${TRANSMART_VERSION}&p=war" -o "${TRANSMART_SERVICE_WAR_FILE}"; \
+    fi
 
 # Set environment for runtime
 USER "${TRANSMART_USER_NAME}"

@@ -1,28 +1,15 @@
+os: linux
 dist: trusty
-sudo: required
-
 language: groovy
-
-jdk:
-  - oraclejdk8
-php:
-  - 5.6
+jdk: oraclejdk8
+php: 5.6
 env:
   global:
     - TERM=dumb
     - PGCONFIG_PARAMS="PG_CONFIG=/usr/lib/postgresql/9.6/bin/pg_config"
-  matrix:
-    - DIR=transmart-core-api; TEST=check
-    - DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
-    - DIR=transmart-rest-api; TEST=check
-    - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST=check
-    - DIR=transmart-api-server; TEST=check
-    - DIR=transmart-copy; INSTALL=":prepareTestDatabase"; PREPARE=shadowJar; TEST=check
-    - DIR=transmart-schemas; PREPARE=assemble; TEST=check
-    - DIR=.; TEST="publishToMavenLocal"
 
 addons:
-  postgresql: 9.6
+  postgresql: '9.6'
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -35,38 +22,158 @@ cache:
     - $HOME/pg
 
 before_install:
-  - gradle wrapper
-  - GRADLE_SCRIPT="$(pwd)/gradlew"
+  - curl -f -L https://services.gradle.org/distributions/gradle-3.5.1-bin.zip -o gradle-3.5.1-bin.zip
+  - unzip gradle-3.5.1-bin.zip
+  - GRADLE_HOME="$(pwd)/gradle-3.5.1"
+  - GRADLE_SCRIPT="${GRADLE_HOME}/bin/gradle"
   - $GRADLE_SCRIPT --version
   - groovy --version
   - sudo chmod a+rX $HOME
-# We don't currently use these sources, but they can be re-enabled if necessary
-#  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
-#  - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
-#  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
-#  - echo deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main  | sudo tee /etc/apt/sources.list.d/ondrej_php.list
   - sudo apt-get -qq update
   - sudo apt-get install -y tk-dev html2text gnupg2
   - gpg2 --version
   - php --version
-  - ([ -z "$PREINSTALL" ] && echo "Skipping preinstall.") || (echo $PREINSTALL; $PREINSTALL)
   - PWD=`pwd`
   - echo $PWD
 
-install:
-  - pushd "$DIR"
-  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; $GRADLE_SCRIPT $INSTALL)
-  - popd
+install: true
 
-before_script:
-  - pushd "$DIR"
-  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; $GRADLE_SCRIPT $PREPARE)
-  - popd
+jobs:
+  include:
+    - stage: test
+      name: transmart-core-api
+      env: DIR=transmart-core-api
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
 
-script:
-  - pushd "$DIR"
-  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; $GRADLE_SCRIPT $TEST)
-  - popd
+    - name: transmart-core-db-tests
+      env: DIR=transmart-core-db-tests
+      before_script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT assemble
+        - popd
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+
+    - name: transmart-rest-api
+      env: DIR=transmart-rest-api
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+
+    - name: transmart-core-db on PostgreSQL 9.6
+      env: DIR=transmart-core-db
+      install:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT :transmart-data:createVars :transmart-data:setupPostgresTest
+        - popd
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+    - name: transmart-core-db on PostgreSQL 11
+      env:
+        - DIR=transmart-core-db
+        - PGCONFIG_PARAMS="PG_CONFIG=/usr/lib/postgresql/11/bin/pg_config"
+        - PGVERSION=11
+        - PGPORT=5433
+      addons:
+        postgresql: "11"
+      install:
+        - sudo apt-get --yes remove postgresql-9.2
+        - sudo apt-get --yes install postgresql-server-dev-11 postgresql-11 postgresql-client-11
+        - sudo -u postgres psql -c 'CREATE ROLE travis SUPERUSER LOGIN CREATEDB;'
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT :transmart-data:createVars :transmart-data:setupPostgresTest
+        - popd
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+
+    - name: transmart-api-server
+      env: DIR=transmart-api-server
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+
+    - name: transmart-copy on PostgreSQL 9.6
+      env: DIR=transmart-copy
+      install:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT :prepareTestDatabase
+        - popd
+      before_script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT shadowJar
+        - popd
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+    - name: transmart-copy on PostgreSQL 11
+      env:
+        - DIR=transmart-copy
+        - PGPORT=5433
+      addons:
+        postgresql: "11"
+      install:
+        - sudo apt-get --yes remove postgresql-9.2
+        - sudo apt-get --yes install postgresql-11 postgresql-client-11
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT :prepareTestDatabase
+        - popd
+      before_script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT shadowJar
+        - popd
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+
+    - name: transmart-schemas
+      env: DIR=transmart-schemas
+      before_script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT assemble
+        - popd
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+
+    - name: Test publish task
+      script: $GRADLE_SCRIPT publishToMavenLocal
+
+    - stage: deploy
+      if: branch in (dev, master) and type != pull_request
+      name: Publish to Nexus and Docker Hub
+      script: skip
+      # For deployment to Nexus, configure the `NEXUS_USERNAME` and `NEXUS_PASSWORD` variables:
+      # - `travis env set NEXUS_USERNAME ...`
+      # - `travis env set NEXUS_PASSWORD ...`
+      deploy:
+        - provider: script
+          skip_cleanup: true
+          script: "cp .travis/settings.xml $HOME/.m2/settings.xml && $GRADLE_SCRIPT publish"
+          on:
+            all_branches: true
+
+      # For deployment to Docker Hub, configure the `DOCKER_USERNAME` and `DOCKER_PASSWORD` variables:
+      # - `travis env set DOCKER_USERNAME ...`
+      # - `travis env set DOCKER_PASSWORD ...` (create a new access token for this purpose)
+      # For the notification, configure `SLACK_WEBHOOK`
+      # - `travis env set SLACK_WEBHOOK "https://hooks.slack.com/services/..."`
+      after_deploy:
+        - travis_retry ./.travis/docker_release.sh
+        - ./.travis/notify.sh
 
 after_success:
   - echo "Writing summary..."
@@ -78,5 +185,7 @@ after_failure:
   - echo "Writing reports..."
   - html2text "$DIR/build/reports/tests/index.html"
   - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done
-  - ([ -d "$DIR/build/reports/tests/functional" ]) && (html2text "$DIR/build/reports/tests/functional/index.html")
-  - ([ -d "$DIR/build/reports/tests/functional" ]) && (for f in "$DIR"/build/reports/tests/functional/classes/*.html; do echo "$f"; html2text "$f"; done)
+  - ([ -d "$DIR/build/reports/tests/functionalTest" ]) && (html2text "$DIR/build/reports/tests/functionalTest/index.html")
+  - ([ -d "$DIR/build/reports/tests/functionalTest" ]) && (for f in "$DIR"/build/reports/tests/functionalTest/classes/*.html; do echo "$f"; html2text "$f"; done)
+  - ([ -d "$DIR/build/reports/tests/integrationTest" ]) && (html2text "$DIR/build/reports/tests/integrationTest/index.html")
+  - ([ -d "$DIR/build/reports/tests/integrationTest" ]) && (for f in "$DIR"/build/reports/tests/integrationTest/classes/*.html; do echo "$f"; html2text "$f"; done)

@@ -11,7 +11,7 @@ environments:
                 region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
 
         dataSource:
-            url: jdbc:postgresql://localhost:5432/transmart
+            url: jdbc:postgresql://localhost:${PGPORT:5432}/transmart
             driverClassName: org.postgresql.Driver
             username: biomart_user
             password: biomart_user
