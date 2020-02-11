@@ -1,7 +1,6 @@
 os: linux
-dist: trusty
 language: groovy
-jdk: oraclejdk8
+jdk: openjdk8
 php: 5.6
 env:
   global:
