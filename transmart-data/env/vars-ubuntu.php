@@ -1,5 +1,6 @@
 PGHOST=
-PGPORT=5432
+PGPORT=<?= getenv("PGPORT") ?: 5432 ?>
+
 PGDATABASE=transmart
 PGUSER=postgres
 PGPASSWORD=

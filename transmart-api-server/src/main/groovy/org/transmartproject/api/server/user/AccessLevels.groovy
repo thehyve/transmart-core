@@ -84,7 +84,7 @@ class AccessLevels {
             return true
         }
         Map<String, PatientDataAccessLevel> studyToPatientDataAccessLevel = buildStudyToPatientDataAccessLevel(authorities)
-        return !studyToPatientDataAccessLevel.empty
+        return !studyToPatientDataAccessLevel.isEmpty()
     }
 
 }

@@ -42,6 +42,7 @@ The application is available at http://localhost:9081.
 ### Build
 
 ```bash
+TRANSMART_VERSION=$(gradle properties | grep '^version: ' - | awk '{print $2}')
 docker build -t transmart-api-server transmart-api-server
 ```
 

@@ -17,13 +17,12 @@ EndOfMessage
 
 # Check that Postgres and Keycloak Host are configured
 # via environment variables
-[[ ! -z ${PGHOST+x} ]] || fatal 'PGHOST'
-[[ ! -z ${KEYCLOAK_SERVER_URL+x} ]] || fatal 'KEYCLOAK_SERVER_URL'
-[[ ! -z ${KEYCLOAK_REALM+x} ]] || fatal 'KEYCLOAK_REALM'
-[[ ! -z ${KEYCLOAK_CLIENT_ID+x} ]] || fatal 'KEYCLOAK_CLIENT_ID'
+[ -n "${PGHOST+x}" ] || fatal 'PGHOST'
+[ -n "${KEYCLOAK_SERVER_URL+x}" ] || fatal 'KEYCLOAK_SERVER_URL'
+[ -n "${KEYCLOAK_REALM+x}" ] || fatal 'KEYCLOAK_REALM'
+[ -n "${KEYCLOAK_CLIENT_ID+x}" ] || fatal 'KEYCLOAK_CLIENT_ID'
 
 # Fixed values, not configurable by user
-APP_PORT=8081
 TRANSMART_API_SERVER_CONFIG_FILE="${TRANSMART_USER_HOME}/transmart-api-server.config.yml"
 
 CERTS_PATH="${TRANSMART_USER_HOME}/extra_certs.pem"
@@ -58,7 +57,7 @@ keycloak:
 EndOfMessage
 sync
 
-[[ -f "${CERTS_PATH}" ]] && \
+[ -f "${CERTS_PATH}" ] && \
   keytool -import -trustcacerts -file "${CERTS_PATH}" -alias certificate-alias -keystore "${TRANSMART_USER_HOME}/cacerts" -storepass password -noprompt && \
   mv "${TRANSMART_USER_HOME}/cacerts" /etc/ssl/certs/java/cacerts
 
