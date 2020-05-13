@@ -12,10 +12,16 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.query.AndConstraint
+import org.transmartproject.core.multidimquery.query.Constraint
+import org.transmartproject.core.multidimquery.query.Field
+import org.transmartproject.core.multidimquery.query.FieldConstraint
+import org.transmartproject.core.multidimquery.query.Operator
 import org.transmartproject.core.users.User
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.TrueConstraint
+import org.transmartproject.db.i2b2data.ObservationFact
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -122,4 +128,8 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
         code
     }
 
+    @Override
+    List<String> getModifiersByConceptCode(String conceptCode) throws NoSuchResourceException {
+        multiDimService.getModifiersForConcept(conceptCode)
+    }
 }

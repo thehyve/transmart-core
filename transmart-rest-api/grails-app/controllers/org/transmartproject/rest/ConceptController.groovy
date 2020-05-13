@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.concept.ConceptsResource
+import org.transmartproject.rest.marshallers.ConceptModifiersWrapper
 import org.transmartproject.rest.marshallers.ConceptWrapper
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 
@@ -40,6 +41,15 @@ class ConceptController extends AbstractQueryController {
         respond new ConceptWrapper(
                 apiVersion: apiVersion,
                 concept: conceptsResource.getConceptByConceptCodeForUser(conceptCode, authContext.user)
+        )
+    }
+
+    def getModifiers(@RequestParam('api_version') String apiVersion, @PathVariable('conceptCode') String conceptCode) {
+        checkForUnsupportedParams(params, ['conceptCode'])
+        respond new ConceptModifiersWrapper(
+                apiVersion: apiVersion,
+                conceptCode: conceptCode,
+                modifiers: conceptsResource.getModifiersByConceptCode(conceptCode)
         )
     }
 
