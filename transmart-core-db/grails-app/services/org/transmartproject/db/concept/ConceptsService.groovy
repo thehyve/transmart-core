@@ -129,7 +129,8 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
     }
 
     @Override
-    List<String> getModifiersByConceptCode(String conceptCode) throws NoSuchResourceException {
+    List<String> getModifiersByConceptCode(String conceptCode, User user) throws NoSuchResourceException {
+        getConceptByConceptCodeForUser(conceptCode, user)
         multiDimService.getModifiersForConcept(conceptCode)
     }
 }

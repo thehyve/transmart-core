@@ -47,9 +47,7 @@ class ConceptController extends AbstractQueryController {
     def getModifiers(@RequestParam('api_version') String apiVersion, @PathVariable('conceptCode') String conceptCode) {
         checkForUnsupportedParams(params, ['conceptCode'])
         respond new ConceptModifiersWrapper(
-                apiVersion: apiVersion,
-                conceptCode: conceptCode,
-                modifiers: conceptsResource.getModifiersByConceptCode(conceptCode)
+                modifiers: conceptsResource.getModifiersByConceptCode(conceptCode, authContext.user)
         )
     }
 
