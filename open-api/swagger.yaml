@@ -1876,6 +1876,32 @@ paths:
           description: >
             No concept exists with the concept code, or the user does not have
             access to the concept.
+  '/v2/concepts/{conceptCode}/modifiers':
+    get:
+      description: >
+        Gets the modifiers associated with a particular concept code if it exists
+        and the user has access to it.
+      tags:
+        - v2
+      parameters:
+        - name: conceptCode
+          required: true
+          in: path
+          description: Concept code of the concept.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+            Returns a list of modifier names associated with the given concept.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConceptModifiers'
+        '404':
+          description: >
+            No concept exists with the concept code, or the user does not have
+            access to the concept.
 
   /v2/tree_nodes:
     get:
@@ -3382,6 +3408,14 @@ components:
           type: string
         name:
           type: string
+
+    ConceptModifiers:
+      type: object
+      properties:
+        modifiers:
+          type: array
+          items:
+            type: string
 
     VariableMetadata:
       type: object
