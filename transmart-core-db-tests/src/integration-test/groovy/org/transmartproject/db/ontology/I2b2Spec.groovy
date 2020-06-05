@@ -29,6 +29,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.StudyTestData
+import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.I2b2Data
@@ -44,6 +45,8 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 class I2b2Spec extends Specification {
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 table code', tableName: 'i2b2')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo',

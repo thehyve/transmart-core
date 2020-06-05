@@ -16,9 +16,10 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
     OntologyTermTagsResourceService ontologyTermTagsResourceService
     OntologyTermsResource ontologyTermsResourceService
 
-    TabularStudyTestData studyTestData = new TabularStudyTestData()
+    TabularStudyTestData studyTestData
 
     void setupData() {
+        studyTestData = new TabularStudyTestData()
         studyTestData.saveAll()
     }
 
