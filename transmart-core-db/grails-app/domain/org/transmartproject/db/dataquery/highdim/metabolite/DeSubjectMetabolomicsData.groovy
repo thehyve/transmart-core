@@ -28,7 +28,6 @@ class DeSubjectMetabolomicsData implements Serializable {
     double zscore
     double rawIntensity
     double logIntensity
-    DeMetaboliteAnnotation jAnnotation
 
     static belongsTo = [
             assay:      DeSubjectSampleMapping,
@@ -42,9 +41,6 @@ class DeSubjectMetabolomicsData implements Serializable {
         assay      column:    'assay_id'
         annotation column:    'metabolite_annotation_id'
 
-        // this is needed due to a Criteria bug.
-        // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
-        jAnnotation column: 'metabolite_annotation_id', updateable: false, insertable: false
         version false
     }
 }

@@ -24,6 +24,7 @@ import grails.transaction.Rollback
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.db.TestData
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
@@ -45,6 +46,8 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
     def sessionFactory
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         innerMock = Mock(OntologyTermsResource)
         testee = new AcrossTrialsConceptsResourceDecorator(inner: innerMock)
 

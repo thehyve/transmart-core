@@ -195,7 +195,7 @@ class Relations {
                 def insert = database.getInserter(RELATION_TABLE, header)
                 def progressBar = new ProgressBar("Insert into ${RELATION_TABLE}", rowCount - 1)
                 progressBar.start()
-                ArrayList<Map> batch = []
+                def batch = [] as ArrayList<Map>
                 data = tsvReader.readNext()
                 i++
                 while (data != null) {

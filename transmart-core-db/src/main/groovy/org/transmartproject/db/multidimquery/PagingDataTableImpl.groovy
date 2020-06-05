@@ -65,12 +65,12 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
 
         Table<DataTableRowImpl, DataTableColumnImpl, List<HypercubeValue>> table = HashBasedTable.create()
 
-        for(int i=0; i<rows.size(); i++) {
+        for (int i=0; i<rows.size(); i++) {
             def firstHv = rows[i][0]
             if (firstHv == null) continue
             List elems = []
             List keys = []
-            for(def dim : rowDimensions) {
+            for (def dim : rowDimensions) {
                 elems.add(firstHv[dim])
                 keys.add(firstHv.getDimKey(dim))
             }
@@ -78,17 +78,19 @@ class PagingDataTableImpl extends AbstractDataTable implements PagingDataTable {
 
             def row = table.row(rowHeader)
 
-            for(def hv : rows[i]) {
+            for (def hv : rows[i]) {
                 elems.clear()
                 keys.clear()
-                for(def dim: columnDimensions) {
+                for (def dim: columnDimensions) {
                     elems.add(hv[dim])
                     keys.add(hv.getDimKey(dim))
                 }
                 def column = newDataTableColumnImpl(elems, keys)
 
-                def vals = (List) row[column]
-                if(vals == null) vals = row[column] = []
+                List vals = (List) row[column]
+                if (vals == null) {
+                    vals = row[column] = []
+                }
                 vals.add(hv)
             }
         }

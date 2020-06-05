@@ -116,8 +116,8 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 createCriteriaBuilder(DeSubjectAcghData, 'acgh', session)
 
         criteriaBuilder.with {
-            createAlias 'jRegion', 'region', INNER_JOIN
-            createAlias 'jRegion.platform', 'platform', INNER_JOIN
+            createAlias 'region', 'region', INNER_JOIN
+            createAlias 'region.platform', 'platform', INNER_JOIN
 
             projections {
                 property 'acgh.assay.id', 'assayId'

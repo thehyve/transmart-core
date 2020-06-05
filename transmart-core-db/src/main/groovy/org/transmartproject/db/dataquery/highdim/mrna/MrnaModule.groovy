@@ -69,7 +69,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
             createCriteriaBuilder(DeSubjectMicroarrayDataCoreDb, 'mrnadata', session)
 
         criteriaBuilder.with {
-            createAlias 'jProbe', 'p', INNER_JOIN
+            createAlias 'probe', 'p', INNER_JOIN
 
             projections {
                 property 'assay.id',     'assayId'

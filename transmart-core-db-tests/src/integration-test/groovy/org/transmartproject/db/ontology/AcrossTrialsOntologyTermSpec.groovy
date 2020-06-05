@@ -24,6 +24,7 @@ import grails.transaction.Rollback
 import org.thehyve.commons.test.FastMatchers
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.db.TestData
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
@@ -43,6 +44,8 @@ class AcrossTrialsOntologyTermSpec extends Specification {
     def sessionFactory
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
     }

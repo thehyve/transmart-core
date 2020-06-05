@@ -2,7 +2,8 @@
 package org.transmartproject.rest.serialization.tabular
 
 import com.google.common.collect.ImmutableList
-import com.opencsv.CSVWriter
+import com.opencsv.CSVWriterBuilder
+import com.opencsv.ICSVWriter
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
@@ -102,23 +103,27 @@ class TabularResultSPSSSerializer implements TabularResultSerializer {
     }
 
     static writeHeader(ImmutableList<DataColumn> columns, OutputStream outputStream) {
-        CSVWriter csvWriter = new CSVWriter(
+        ICSVWriter csvWriter = new CSVWriterBuilder(
                 new BufferedWriter(
                         new OutputStreamWriter(outputStream, 'utf-8'),
                         // large 32k chars buffer to reduce overhead
-                        32*1024),
-                COLUMN_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER)
+                        32*1024))
+            .withSeparator(COLUMN_SEPARATOR)
+            .withQuoteChar(ICSVWriter.DEFAULT_QUOTE_CHARACTER)
+            .build()
         csvWriter.writeNext(columns.collect { toSpssLabel(it.label) } as String[])
         csvWriter.flush()
     }
 
     void writeValues(ImmutableList<DataColumn> columns, TabularResult tabularResult, OutputStream outputStream) {
-        CSVWriter csvWriter = new CSVWriter(
+        ICSVWriter csvWriter = new CSVWriterBuilder(
                 new BufferedWriter(
                         new OutputStreamWriter(outputStream, 'utf-8'),
                         // large 32k chars buffer to reduce overhead
-                        32*1024),
-                COLUMN_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER)
+                        32*1024))
+            .withSeparator(COLUMN_SEPARATOR)
+            .withQuoteChar(ICSVWriter.DEFAULT_QUOTE_CHARACTER)
+            .build()
         Iterator<DataRow> rows = tabularResult.rows
         while (rows.hasNext()) {
             DataRow row = rows.next()

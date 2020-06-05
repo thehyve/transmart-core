@@ -5,7 +5,6 @@ import groovy.transform.CompileStatic
 import org.apache.commons.lang3.tuple.Pair
 import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
-import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.core.config.CompletionStatus
@@ -46,8 +45,6 @@ class SystemService implements SystemResource {
             Holders.config.getProperty('org.transmartproject.system.patientSetChunkSize', Integer.class, DEFAULT_PATIENT_SET_CHUNK_SIZE)
     )
 
-    private final ModelMapper modelMapper = new ModelMapper()
-
     @Value('${keycloakOffline.offlineToken:}')
     private String offlineToken
 
@@ -85,7 +82,7 @@ class SystemService implements SystemResource {
     SessionFactory sessionFactory
 
     RuntimeConfig getRuntimeConfig() {
-        return modelMapper.map(runtimeConfig, RuntimeConfigRepresentation.class)
+        new RuntimeConfigRepresentation(runtimeConfig.numberOfWorkers, runtimeConfig.patientSetChunkSize)
     }
 
     RuntimeConfig updateRuntimeConfig(@Valid RuntimeConfig config) {

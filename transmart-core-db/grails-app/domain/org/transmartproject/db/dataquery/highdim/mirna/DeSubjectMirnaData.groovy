@@ -29,8 +29,6 @@ class DeSubjectMirnaData implements Serializable {
     BigDecimal logIntensity
     BigDecimal zscore
 
-    DeQpcrMirnaAnnotation jProbe //see comment on mapping
-
     // irrelevant
     //String trialSource
     //String trialName
@@ -51,10 +49,6 @@ class DeSubjectMirnaData implements Serializable {
 
         // irrelevant
         //patient column: 'patient_id'
-
-        // this is needed due to a Criteria bug.
-        // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
-        jProbe column: 'probeset_id', insertable: false, updateable: false
 
         version false
     }

@@ -42,6 +42,7 @@ The application is available at http://localhost:9081.
 ### Build
 
 ```bash
+TRANSMART_VERSION=$(gradle properties | grep '^version: ' - | awk '{print $2}')
 docker build -t transmart-api-server transmart-api-server
 ```
 
@@ -51,7 +52,7 @@ Publish the image to [Docker Hub](https://hub.docker.com/r/thehyve/transmart-api
 
 ```bash
 docker login
-TRANSMART_VERSION="17.2.5"
+TRANSMART_VERSION="17.2.7"
 docker tag transmart-api-server "thehyve/transmart-api-server:${TRANSMART_VERSION}"
 docker push "thehyve/transmart-api-server:${TRANSMART_VERSION}"
 ```

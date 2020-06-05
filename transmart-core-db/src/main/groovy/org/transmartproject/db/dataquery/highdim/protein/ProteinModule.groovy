@@ -93,8 +93,8 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
             createCriteriaBuilder(DeSubjectProteinData, 'proteindata', session)
 
         criteriaBuilder.with {
-            createAlias 'jAnnotation', 'a', INNER_JOIN
-            createAlias 'jAnnotation.platform', 'platform', INNER_JOIN
+            createAlias 'annotation', 'a', INNER_JOIN
+            createAlias 'annotation.platform', 'platform', INNER_JOIN
 
             projections {
                 property 'assay.id',      'assayId'

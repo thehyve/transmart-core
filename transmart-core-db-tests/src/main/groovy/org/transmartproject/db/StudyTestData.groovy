@@ -6,7 +6,9 @@ import org.transmartproject.db.metadata.DimensionDescription
 class StudyTestData {
 
     static Study createDefaultTabularStudy() {
-        def legacyDimension = new DimensionDescription(
+        def legacyDimension = DimensionDescription.createCriteria().get {
+            eq('name', DimensionDescription.LEGACY_MARKER)
+        } ?: new DimensionDescription(
                 name: DimensionDescription.LEGACY_MARKER
         )
 

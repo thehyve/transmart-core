@@ -34,9 +34,6 @@ class DeSubjectRnaseqData implements RnaSeqValues, Serializable {
     Double  logNormalizedReadcount
     Double  zscore
 
-    // see comment in mapping
-    DeChromosomalRegion jRegion
-
     /* unused; should be the same as assay.patient */
     PatientDimension patient
 
@@ -59,10 +56,6 @@ class DeSubjectRnaseqData implements RnaSeqValues, Serializable {
         normalizedReadcount    column: 'normalized_readcount'
         logNormalizedReadcount column: 'log_normalized_readcount'
         zscore                 column: 'zscore'
-
-        // this duplicate mapping is needed due to a Criteria bug.
-        // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
-        jRegion  column: 'region_id', insertable: false, updateable: false
 
         sort    assay:  'asc'
 
