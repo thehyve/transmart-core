@@ -83,7 +83,6 @@ class ApiAuditInterceptorSpec extends V2ResourceSpec {
         sleep(1000)
 
         then: "A log entry is created"
-        response.statusCode == HttpStatus.NOT_FOUND
         logEntries.size() == 1
     }
 

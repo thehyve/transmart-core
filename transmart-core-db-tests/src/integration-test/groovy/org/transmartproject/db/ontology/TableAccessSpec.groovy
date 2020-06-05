@@ -22,6 +22,7 @@ package org.transmartproject.db.ontology
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.db.TestData
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
@@ -34,6 +35,8 @@ import static spock.util.matcher.HamcrestSupport.that
 class TableAccessSpec extends Specification {
 
     void setupData() {
+        TestData.prepareCleanDatabase()
+
         addI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto')
         addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
                 cVisualattributes: 'FH')
