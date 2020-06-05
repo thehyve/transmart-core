@@ -40,7 +40,7 @@ class TestDataHelper {
         objects.forEach({ object ->
             try {
                 object.save(flush: true, failOnError: true)
-                LoggerFactory.getLogger(TestDataHelper).info "Saved ${object.class.simpleName}: ${object}"
+                LoggerFactory.getLogger(TestDataHelper).debug "Saved ${object.class.simpleName}: ${object}"
             } catch (Exception e) {
                 LoggerFactory.getLogger(TestDataHelper).error "Error while saving ${object.class.simpleName}: ${object}"
                 throw new UnexpectedResultException("Cannot save object of type ${object.class.simpleName}", e)
