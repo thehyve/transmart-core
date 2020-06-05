@@ -193,8 +193,8 @@ class HighDimBuilder {
         }
 
         columnValueBuilderCreators.each {
-                Closure<HighDimProtos.ColumnValue.Builder> builderClosure ->
-            rowBuilder.addValue builderClosure.call(inputRow)
+                Closure<ColumnValue.Builder> builderClosure ->
+            rowBuilder.addValue((ColumnValue.Builder)(builderClosure.call(inputRow)))
         }
 
         rowBuilder.build()

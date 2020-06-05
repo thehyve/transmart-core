@@ -17,7 +17,7 @@ environments:
             username: sa
             password:
             dbCreate: create-drop
-            logSql: true
+            logSql: false
             formatql: true
 
         grails:

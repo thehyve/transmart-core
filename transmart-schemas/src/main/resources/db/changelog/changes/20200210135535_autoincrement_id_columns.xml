@@ -1,0 +1,43 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2020  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="gijs@thehyve.nl" id="20200210135535-0" dbms="PostgreSQL">
+        <preConditions onFail="CONTINUE">
+            <sqlCheck expectedResult="0">
+                SELECT count(*) FROM pg_class WHERE relkind = 'S' AND relname = 'dimension_description_id_seq'
+            </sqlCheck>
+        </preConditions>
+        <comment>
+            If autoincrement sequences were not already created at table creation,
+            they need to be created explicitly.
+            With previous version of PostgreSQL, such sequences were automatically
+            created for columns of type 'serial'.
+        </comment>
+
+        <comment>Add autoincrement to the dimension identifier column.</comment>
+        <addAutoIncrement schemaName="i2b2metadata" tableName="dimension_description" columnName="id" columnDataType="integer"/>
+
+        <comment>Add autoincrement to the study identifier column.</comment>
+        <addAutoIncrement schemaName="i2b2demodata" tableName="study" columnName="study_num" columnDataType="integer"/>
+
+        <comment>Add autoincrement to the trial visit identifier column.</comment>
+        <addAutoIncrement schemaName="i2b2demodata" tableName="trial_visit_dimension" columnName="trial_visit_num" columnDataType="integer"/>
+
+        <comment>Add autoincrement to the patient identifier column.</comment>
+        <addAutoIncrement schemaName="i2b2demodata" tableName="patient_dimension" columnName="patient_num" columnDataType="integer"/>
+
+        <comment>Add autoincrement to relation type identifier column.</comment>
+        <addAutoIncrement schemaName="i2b2demodata" tableName="relation_type" columnName="id" columnDataType="integer"/>
+
+        <comment>Add autoincrement to the metadata tag identifier columns.</comment>
+        <addAutoIncrement schemaName="i2b2metadata" tableName="i2b2_tag_types" columnName="tag_type_id" columnDataType="integer"/>
+        <addAutoIncrement schemaName="i2b2metadata" tableName="i2b2_tag_options" columnName="tag_option_id" columnDataType="integer"/>
+        <addAutoIncrement schemaName="i2b2metadata" tableName="i2b2_tags" columnName="tag_id" columnDataType="integer"/>
+    </changeSet>
+</databaseChangeLog>

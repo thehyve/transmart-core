@@ -1,7 +1,7 @@
 buildscript {
     ext {
         assetPipelineVersion = '2.11.6'
-        grailsVersion = '3.2.12'
+        grailsVersion = '3.2.13'
         guavaVersion = '19.0'
         jansiVersion = '1.14'
         protobufVersion = '3.1.0'
@@ -41,7 +41,7 @@ ext {
 
     assetPipelineVersion = '2.11.6'
     gradleWrapperVersion = '3.5.1'
-    grailsVersion = '3.2.12'
+    grailsVersion = '3.2.13'
     guavaVersion = '19.0'
     jacksonVersion = '2.10.1'
     liquibaseVersion = '3.7.0'
