@@ -171,6 +171,7 @@ jobs:
       # For the notification, configure `SLACK_WEBHOOK`
       # - `travis env set SLACK_WEBHOOK "https://hooks.slack.com/services/..."`
       after_deploy:
+        - export GRADLE_SCRIPT=$GRADLE_SCRIPT
         - travis_retry ./.travis/docker_release.sh
         - ./.travis/notify.sh
 
