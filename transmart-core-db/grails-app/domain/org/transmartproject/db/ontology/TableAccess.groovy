@@ -27,9 +27,7 @@ import org.hibernate.criterion.MatchMode
 
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.util.HibernateUtils
 import org.transmartproject.db.util.StringUtils
 import org.transmartproject.core.concept.ConceptKey
 
@@ -86,8 +84,6 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     }
 
     static constraints = {
-        HibernateUtils.fixupClassPropertyFetcher(TableAccess)
-
         tableCode maxSize: 50
         tableName maxSize: 50
         cProtectedAccess nullable: true

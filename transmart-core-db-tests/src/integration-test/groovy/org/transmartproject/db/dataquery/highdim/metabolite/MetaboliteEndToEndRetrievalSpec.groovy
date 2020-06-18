@@ -20,7 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
 import com.google.common.collect.Lists
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.TabularResult

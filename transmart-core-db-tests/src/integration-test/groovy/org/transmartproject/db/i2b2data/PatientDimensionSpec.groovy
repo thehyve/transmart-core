@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.i2b2data
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.highdim.SampleHighDimTestData

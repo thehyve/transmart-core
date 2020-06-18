@@ -2,7 +2,7 @@
 
 package org.transmartproject.rest
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
@@ -14,7 +14,6 @@ import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.User
 import org.transmartproject.db.TestData
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
-import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
@@ -35,7 +34,6 @@ import static spock.util.matcher.HamcrestSupport.that
 class ObservationsBuilderSpec extends Specification {
 
     TestData testData
-    ClinicalTestData clinicalData
     AccessLevelTestData accessLevelTestData
     User adminUser
 
@@ -47,7 +45,6 @@ class ObservationsBuilderSpec extends Specification {
         TestData.prepareCleanDatabase()
 
         testData = TestData.createHypercubeDefault()
-        clinicalData = testData.clinicalData
         testData.saveAll()
         accessLevelTestData = new AccessLevelTestData()
         accessLevelTestData.saveAuthorities()

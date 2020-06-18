@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.i2b2data.I2b2Data

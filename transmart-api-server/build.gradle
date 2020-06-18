@@ -6,12 +6,17 @@ dependencyManagement {
 }
 
 dependencies {
-    //Grails 3 dependencies
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
+    profile "org.grails.profiles:rest-api"
+
+    console("org.grails:grails-console") {
+        exclude group: 'org.fusesource.jansi', module: 'jansi'
+    }
+
+    compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+    compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.grails:grails-logging"
     compile "org.grails:grails-plugin-url-mappings"
     compile "org.grails:grails-plugin-rest"
     compile "org.grails:grails-plugin-codecs"
@@ -19,34 +24,44 @@ dependencies {
     compile "org.grails:grails-plugin-services"
     compile "org.grails:grails-plugin-datasource"
     compile "org.grails:grails-plugin-databinding"
-    compile "org.grails:grails-plugin-async"
     compile "org.grails:grails-web-boot"
-    compile "org.grails:grails-logging"
+    compile "org.grails.plugins:async"
     compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:database-migration:3.0.4"
     compile "org.grails.plugins:hibernate5"
-    compile "org.hibernate:hibernate-core:5.1.2.Final"
-    compile "org.hibernate:hibernate-ehcache:5.1.2.Final"
     compile "org.grails.plugins:views-json"
     compile "org.grails.plugins:views-json-templates"
-    compile "org.grails.plugins:database-migration:3.0.4"
-    compile "org.liquibase:liquibase-core:${liquibaseVersion}"
-    console("org.grails:grails-console") {
-        exclude group: 'org.fusesource.jansi', module: 'jansi'
+    compile "org.hibernate:hibernate-core:${hibernateVersion}"
+    compile "org.hibernate:hibernate-ehcache:${hibernateVersion}"
+    compile("org.keycloak:keycloak-legacy-spring-boot-starter") {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
-    profile "org.grails.profiles:rest-api"
+    compile "org.liquibase:liquibase-core:${liquibaseVersion}"
+    compile "org.postgresql:postgresql:${postgresqlVersion}"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
+    compile("org.springframework.boot:spring-boot-starter-actuator") {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.springframework.security:spring-security-config:${springSecurityVersion}"
+    compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
+    compile "org.springframework.security:spring-security-web:${springSecurityVersion}"
+    compile "org.apache.tomcat:tomcat-annotations-api:${tomcatVersion}"
+    compile "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
+    compile "org.apache.tomcat.embed:tomcat-embed-el:${tomcatVersion}"
+    compile "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}"
 
-    //Custom dependencies
     compile project(':transmart-rest-api')
     compile project(':transmart-schemas')
-
-    compile "org.keycloak:keycloak-legacy-spring-boot-starter"
-    compile "org.springframework.boot:spring-boot-starter-security"
-
-    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 
     runtime('ch.qos.logback.contrib:logback-jackson:0.1.5') {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
+
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 }
 
 bootRun {

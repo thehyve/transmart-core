@@ -16,7 +16,7 @@ class Application extends GrailsAutoConfiguration {
         { ->
             // Configure data source health indicator based
             // on the dataSource in the application context.
-            databaseHealthCheck(DataSourceHealthIndicator, dataSource)
+            databaseHealthCheck(DataSourceHealthIndicator, ref('dataSource'))
         }
     }
 }

@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.querytool
 
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -44,6 +45,7 @@ import static org.transmartproject.db.support.DatabasePortabilityService.Databas
  * Legacy patient set builder service.
  * @deprecated Use {@link org.transmartproject.core.multidimquery.PatientSetResource} instead.
  */
+@Slf4j
 @Deprecated
 class PatientSetQueryBuilderService {
 

@@ -72,41 +72,6 @@ class HibernateUtils {
         return impl;
     }
 
-    /**
-     * Workaround for bug https://github.com/grails/grails-core/issues/10403 in Grails 3.2.3 that the getters of
-     * properties declared as e.g. cProtectedAccess are not correctly identified as such by the ClassPropertyFetcher.
-     *
-     * Properties like cProtectedAccess have a getter named getcProtectedAccess. Grails recognizes getters by
-     * starting with 'get' and having the fourth letter capitalized, so it misses these. If this bug is fixed in
-     * grails this workaround can be dropped.
-     *
-     * This workaround only fixes instance properties, not static properties.
-     *
-     * The problems from this Gorm bug manifested itself in that the loading of TestData in an integration test in
-     * transmart-core-db-tests would result in a java.lang.IllegalArgumentException: "object is not an instance of
-     * declaring class" at groovy.lang.MetaBeanProperty.getProperty(MetaBeanProperty.java:62), which is called
-     * indirectly from the 'constraints' closure in domain classes which have affected properties.
-     *
-     * If loading of TestData works without this workaround, this can be removed.
-     *
-     * NB: not thread safe! But if called once from a class-to-fix's static initializer the chance of hitting a bad
-     * race should be minimal.
-     *
-     * @param cls the class of which fix the property getter
-     */
-    static void fixupClassPropertyFetcher(Class cls) {
-        ClassPropertyFetcher cpf = ClassPropertyFetcher.forClass(cls)
-        Map<String, ClassPropertyFetcher.PropertyFetcher> instanceFetchers = cpf.instanceFetchers
-
-        Set<String> toFix = instanceFetchers.keySet().findAll { String it ->
-            it.length() >= 5 && it.startsWith("get") &&
-                    Character.isLowerCase(it.charAt(3)) && Character.isUpperCase(it.charAt(4))
-        }
-        toFix.each {
-            instanceFetchers[it.substring(3)] = instanceFetchers.remove(it)
-        }
-    }
-
     static class NativeSQLQueryDetails {
         final NativeSQLQuerySpecification specification
         final QueryParameters parameters

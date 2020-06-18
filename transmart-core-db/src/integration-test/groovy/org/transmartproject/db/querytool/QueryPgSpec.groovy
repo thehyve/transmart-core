@@ -2,7 +2,7 @@
 
 package org.transmartproject.db.querytool
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import spock.lang.Specification
 

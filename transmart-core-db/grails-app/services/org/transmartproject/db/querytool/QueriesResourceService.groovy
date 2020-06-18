@@ -20,9 +20,10 @@
 package org.transmartproject.db.querytool
 
 import grails.core.GrailsApplication
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import grails.util.Environment
 import grails.util.Holders
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.jdbc.Work
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,6 +37,7 @@ import org.transmartproject.core.users.UsersResource
 
 import java.sql.Connection
 
+@Slf4j
 @Transactional
 class QueriesResourceService implements QueriesResource {
 

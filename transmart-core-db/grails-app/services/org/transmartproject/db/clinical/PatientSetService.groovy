@@ -6,6 +6,7 @@ import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.hibernate.Criteria
 import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
@@ -37,6 +38,7 @@ import org.transmartproject.db.util.HibernateUtils
 
 import java.util.function.Function
 
+@Slf4j
 @CompileStatic
 class PatientSetService extends AbstractDataResourceService implements PatientSetResource {
 

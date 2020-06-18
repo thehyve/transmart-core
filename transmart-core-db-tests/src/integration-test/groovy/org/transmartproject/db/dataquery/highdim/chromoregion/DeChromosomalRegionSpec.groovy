@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.chromoregion
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region

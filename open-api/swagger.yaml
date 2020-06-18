@@ -13,12 +13,11 @@ info:
 
     # OAuth2
 
-    All tranSMART REST API calls need an [Authorization header](https://wiki.transmartfoundation.org/display/transmartwiki/tranSMART+REST+API).
+    All tranSMART REST API calls need an Authorization header with a valid authentication token:
+
 
     ```
-
-    Authorization:Bearer {token}
-
+    Authorization: Bearer {token}
     ```
 
 
@@ -531,6 +530,7 @@ info:
     [observations.proto](../transmart-rest-api/src/protobuf/v2/observations.proto).
     Information on [google
     protobuf](https://developers.google.com/protocol-buffers/).
+
 paths:
   /versions:
     get:
@@ -3063,8 +3063,17 @@ paths:
         '200':
           description: Successfull response
 
+security:
+  - OpenID:
+      - openid
 
 components:
+
+  securitySchemes:
+    OpenID:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
   schemas:
 
@@ -3724,7 +3733,7 @@ components:
         name:
           type: string
         modifierCode:
-          type: string  
+          type: string
         dimensionType:
           type: string
           enum: [subject, attribute]

@@ -24,10 +24,8 @@ import groovy.transform.EqualsAndHashCode
 import org.hibernate.criterion.MatchMode
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
-import org.transmartproject.db.util.HibernateUtils
 import org.transmartproject.db.util.StringUtils
 
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
@@ -57,6 +55,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     static transients = [ 'synonym', 'metadata', 'tableCode' ]
 
     static mapping = {
+        autowire true
         fullName           column: 'C_FULLNAME'
         level              column: 'C_HLEVEL'
         name               column: 'C_NAME'
@@ -72,8 +71,6 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     }
 
     static constraints = {
-        HibernateUtils.fixupClassPropertyFetcher(AbstractI2b2Metadata)
-
         level             nullable: false, min:     0
         fullName          nullable: false, size:    2..700
         name              nullable: false, size:    1..2000

@@ -5,12 +5,14 @@ package org.transmartproject.db.ontology
 import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.Cacheable
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.hibernate.criterion.CriteriaSpecification
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.db.util.StringUtils
 
+@Slf4j
 class OntologyTermTagsResourceService implements OntologyTermTagsResource {
 
     /**

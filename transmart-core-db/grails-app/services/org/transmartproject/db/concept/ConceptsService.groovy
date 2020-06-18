@@ -1,8 +1,9 @@
 package org.transmartproject.db.concept
 
 import com.google.common.io.CountingOutputStream
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.transform.Memoized
+import groovy.util.logging.Slf4j
 import org.grails.io.support.DevNullPrintStream
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
@@ -19,6 +20,7 @@ import org.transmartproject.core.multidimquery.query.TrueConstraint
 
 import java.util.concurrent.ConcurrentHashMap
 
+@Slf4j
 @Transactional
 class ConceptsService implements ConceptsResource, ApplicationRunner {
 
