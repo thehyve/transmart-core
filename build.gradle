@@ -40,7 +40,7 @@ ext {
     guavaVersion = '29.0-jre'
     hibernateVersion = '5.1.9.Final'
     jacksonVersion = '2.11.0'
-    keycloakVersion = '9.0.3'
+    keycloakVersion = '10.0.2'
     liquibaseVersion = '3.10.0'
     ojdb8Version = '12.2.0.1'
     openCsvVersion = '5.0'
