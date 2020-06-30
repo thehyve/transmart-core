@@ -18,6 +18,7 @@ import org.transmartproject.core.multidimquery.query.Operator
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TimeConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResult
@@ -152,6 +153,16 @@ class QueryServicePgSpec extends Specification {
         then: "List of all visits matching the constraints is returned"
         visits.size() == expectedResult.size()
         visits.collect { it.encounterIds['VISIT_ID'] }.sort() == expectedResult.collect { it.encounterIds['VISIT_ID']}.sort()
+    }
+
+    void "test query all observations"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        when: "I enumerate all observations"
+        def results = multiDimService.retrieveClinicalData(new TrueConstraint(), user).asList()
+
+        then: "No errors occur and the observation count is non-zero"
+        results.size() > 0
     }
 
     void "test patient set query"() {
