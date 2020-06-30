@@ -2,6 +2,9 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode(includes = ['id'])
 class TrialVisit implements org.transmartproject.core.multidimquery.TrialVisit {
 
     String relTimeUnit
@@ -19,7 +22,7 @@ class TrialVisit implements org.transmartproject.core.multidimquery.TrialVisit {
     ]
 
     static belongsTo = [
-            study: Study
+        study: Study
     ]
 
     static mapping = {

@@ -55,8 +55,7 @@ class Study implements MDStudy {
     }
 
     static hasMany = [
-        trialVisits: TrialVisit,
-        dimensionDescriptions: DimensionDescription,
+        dimensionDescriptions: DimensionDescription
     ]
 
     static mapping = {
