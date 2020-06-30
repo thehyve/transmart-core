@@ -491,8 +491,8 @@ class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> impleme
             if (constraint.offset != null && constraint.limit != null) {
                 log.debug "Restrict subquery to offset ${constraint.offset}, limit ${constraint.limit}"
                 subCriteria.add(Restrictions.sqlRestriction(
-                        '{alias}.result_instance_id = ? order by {alias}.patient_num OFFSET ?' + dbTypeSpecificLimit(),
-                        [constraint.patientSetId, constraint.offset, constraint.limit].toArray(),
+                        '{alias}.result_instance_id = ? order by {alias}.patient_num ' + dbTypeSpecificLimit() + ' OFFSET ?',
+                        [constraint.patientSetId, constraint.limit, constraint.offset].toArray(),
                         [LongType.INSTANCE, IntegerType.INSTANCE, IntegerType.INSTANCE] as org.hibernate.type.Type[]))
             } else {
                 subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))

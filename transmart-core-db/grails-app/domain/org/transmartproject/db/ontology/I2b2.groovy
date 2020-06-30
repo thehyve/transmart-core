@@ -21,7 +21,6 @@ package org.transmartproject.db.ontology
 
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.util.HibernateUtils
 
 /**
  * Domain class for storing an ontology tree.
@@ -64,8 +63,6 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
     }
 
     static constraints = {
-        HibernateUtils.fixupClassPropertyFetcher(I2b2)
-
         cTotalnum      nullable: true
         cComment       nullable: true
         mAppliedPath   nullable: false, maxSize: 700

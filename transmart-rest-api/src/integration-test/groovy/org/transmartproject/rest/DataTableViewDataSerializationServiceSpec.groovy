@@ -6,7 +6,7 @@ import com.opencsv.CSVParserBuilder
 import com.opencsv.CSVReaderBuilder
 import com.opencsv.ICSVParser
 import com.opencsv.ICSVWriter
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired

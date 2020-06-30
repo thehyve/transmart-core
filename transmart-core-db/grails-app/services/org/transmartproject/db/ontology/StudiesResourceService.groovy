@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.ontology
 
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.MatchMode
@@ -33,6 +34,7 @@ import org.transmartproject.core.users.LegacyAuthorisationChecks
 import org.transmartproject.core.users.User
 import org.transmartproject.db.util.StringUtils
 
+@Slf4j
 class StudiesResourceService implements StudiesResource {
 
     @Autowired

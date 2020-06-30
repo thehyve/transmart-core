@@ -20,7 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
 import com.google.common.collect.Lists
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay

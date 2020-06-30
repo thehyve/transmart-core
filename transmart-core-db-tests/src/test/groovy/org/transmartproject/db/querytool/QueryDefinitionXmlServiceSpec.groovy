@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.querytool
 
-import grails.test.mixin.TestFor
+import grails.testing.services.ServiceUnitTest
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
@@ -37,8 +37,7 @@ import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOW
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOWER_THAN
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
 
-@TestFor(QueryDefinitionXmlService)
-class QueryDefinitionXmlServiceSpec extends Specification {
+class QueryDefinitionXmlServiceSpec extends Specification implements ServiceUnitTest<QueryDefinitionXmlService> {
 
     private Document xmlStringToDocument(String xmlString) {
         DocumentBuilder builder =

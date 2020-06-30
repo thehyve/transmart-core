@@ -20,10 +20,14 @@
 package org.transmartproject.db.ontology
 
 import grails.core.GrailsDomainClassProperty
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import grails.util.Holders
 import org.grails.core.DefaultGrailsDomainClass
+import org.grails.datastore.mapping.model.PersistentEntity
+import org.grails.datastore.mapping.model.PersistentProperty
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
@@ -43,6 +47,8 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 @Integration
 @Rollback
 class I2b2Spec extends Specification {
+
+    @Autowired SessionFactory sessionFactory
 
     void setupData() {
         TestData.prepareCleanDatabase()
@@ -68,6 +74,7 @@ class I2b2Spec extends Specification {
                 cVisualattributes: 'FA')
         addI2b2(level: 1, fullName: '\\shared\\property\\', name: 'property',
                 cVisualattributes: 'LA')
+        sessionFactory.currentSession.flush()
     }
 
     void testGetVisualAttributes() {
@@ -182,6 +189,7 @@ class I2b2Spec extends Specification {
         HighDimTestData.save patients
         HighDimTestData.save observations
         HighDimTestData.save ConceptTestData.createConceptDimensions(concepts)
+        sessionFactory.currentSession.flush()
 
         when:
         def result = concepts[0].getPatients()
@@ -211,13 +219,11 @@ class I2b2Spec extends Specification {
 
     void testSynonymIsTransient() {
         setupData()
-        DefaultGrailsDomainClass domainClass =
-                Holders.grailsApplication.getDomainClass('org.transmartproject.db.ontology.I2b2')
-        GrailsDomainClassProperty synonymProperty =
-                domainClass.getPropertyByName('synonym')
+        PersistentEntity entity =
+                Holders.grailsApplication.mappingContext.getPersistentEntity('org.transmartproject.db.ontology.I2b2')
 
         expect:
-        !synonymProperty.isPersistent()
+        !entity.persistentPropertyNames.contains('synonym')
     }
 
     void testSynonym() {

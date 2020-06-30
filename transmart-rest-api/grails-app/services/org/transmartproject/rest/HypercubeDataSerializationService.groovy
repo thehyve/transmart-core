@@ -20,6 +20,7 @@ package org.transmartproject.rest
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
@@ -31,6 +32,7 @@ import org.transmartproject.db.clinical.AbstractDataResourceService
 import org.transmartproject.rest.serialization.*
 import org.transmartproject.core.multidimquery.export.Format
 
+@Slf4j
 @Transactional
 @CompileStatic
 class HypercubeDataSerializationService extends AbstractDataResourceService {

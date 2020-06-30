@@ -1,33 +1,41 @@
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
+    profile "org.grails.profiles:web-plugin"
+
+    provided "org.grails:grails-plugin-services"
+    provided "org.grails:grails-plugin-domain-class"
     provided "org.springframework.boot:spring-boot-starter-tomcat"
-    compile "org.grails:grails-dependencies"
-    compile "org.grails:grails-web-boot"
-    compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:scaffolding"
-    compile "org.grails.plugins:hibernate5"
-    compile "org.hibernate:hibernate-ehcache"
+
     console("org.grails:grails-console") {
         exclude group: 'org.fusesource.jansi', module: 'jansi'
     }
+
+    compile "com.google.guava:guava:${guavaVersion}"
     compile "com.opencsv:opencsv:${openCsvVersion}"
-    profile "org.grails.profiles:web-plugin"
-    provided "org.grails:grails-plugin-services"
-    provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
-    testCompile "org.grails:grails-plugin-testing"
-    testCompile "org.grails.plugins:geb"
-    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-
-    compile "com.google.guava:guava:$guavaVersion"
-
-    runtime "org.postgresql:postgresql:${postgresqlVersion}"
-    runtime "com.oracle:ojdbc7:${ojdb7Version}"
+    compile "org.codehaus.gpars:gpars:1.2.1"
+    compile "org.grails:grails-core"
+    compile "org.grails:grails-dependencies"
+    compile "org.grails:grails-web-boot"
+    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:hibernate5"
+    compile "org.grails.plugins:scaffolding"
+    compile "org.hibernate:hibernate-core:${hibernateVersion}"
+    compile "org.hibernate:hibernate-ehcache"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
+    compile "org.springframework.boot:spring-boot-starter-logging"
 
     compile project(':transmart-core-api')
+
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
+    runtime "org.postgresql:postgresql:${postgresqlVersion}"
+    runtime "com.oracle.database.jdbc:ojdbc8:${ojdb8Version}"
+
+    testCompile "org.grails:grails-plugin-testing"
+    testCompile "org.grails.plugins:geb"
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.grails:grails-testing-support'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
+    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 }
 
 assets {

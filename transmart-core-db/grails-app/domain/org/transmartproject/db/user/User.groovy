@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.user
 
+import groovy.util.logging.Slf4j
 import org.hibernate.FetchMode
 import org.transmartproject.core.users.PatientDataAccessLevel
 import org.transmartproject.db.accesscontrol.AccessLevelCoreDb
@@ -27,6 +28,7 @@ import org.transmartproject.db.accesscontrol.SecuredObjectAccessView
 
 import static org.hibernate.sql.JoinType.INNER_JOIN
 
+@Slf4j
 class User extends PrincipalCoreDb implements org.transmartproject.core.users.User {
 
     String email

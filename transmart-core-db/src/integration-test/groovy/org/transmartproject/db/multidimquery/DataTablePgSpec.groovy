@@ -1,7 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.Lists
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.datatable.PaginationParameters
@@ -11,7 +11,6 @@ import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.users.SimpleUser
 import org.transmartproject.db.user.User
-import spock.lang.Ignore
 import spock.lang.Specification
 
 @Rollback

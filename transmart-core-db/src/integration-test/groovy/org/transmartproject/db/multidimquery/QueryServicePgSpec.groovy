@@ -2,14 +2,12 @@
 
 package org.transmartproject.db.multidimquery
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint

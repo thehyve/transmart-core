@@ -1,6 +1,6 @@
 package org.transmartproject.db.user
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import spock.lang.Specification
 

@@ -3,7 +3,9 @@ include ../../../makefile.inc
 ALL_FIXES = fix_tablespaces fix_owners fix_permissions
 
 ifeq ($(PGVERSION), 11)
-    FIX_VERSION := $(PGVERSION)
+    FIX_VERSION := 11
+else ifeq ($(PGVERSION), 12)
+    FIX_VERSION := 11
 else
     FIX_VERSION := default
 endif

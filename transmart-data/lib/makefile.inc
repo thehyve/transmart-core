@@ -1,7 +1,7 @@
-JDBC_DL_PSQL     := https://repo.thehyve.nl/service/local/repositories/central/content/org/postgresql/postgresql/9.4.1211.jre7
-JDBC_DRIVER_PSQL := postgresql-9.4.1211.jre7.jar
-JDBC_DL_ORA      := https://repo.thehyve.nl/service/local/repositories/thirdparty/content/com/oracle/ojdbc7/12.1.0.1
-JDBC_DRIVER_ORA  := ojdbc7-12.1.0.1.jar
+JDBC_DL_PSQL     := https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.14.jre7
+JDBC_DRIVER_PSQL := postgresql-42.2.14.jre7.jar
+JDBC_DL_ORA      := https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc8/12.2.0.1
+JDBC_DRIVER_ORA  := ojdbc8-12.2.0.1.jar
 JDBC_DL_XDB_ORA  := http://files.thehyve.net
 JDBC_XDB_ORA     := xdb.jar
 
@@ -35,7 +35,7 @@ SCHEMA_SPY_JAR=schemaSpy_$(SCHEMA_SPY_VERSION).jar
 SCHEMA_SPY_JAR_PATH  := $(LIB_DIR)$(SCHEMA_SPY_JAR)
 $(SCHEMA_SPY_JAR_PATH):
 	curl -L -f "https://downloads.sourceforge.net/project/schemaspy/schemaspy/SchemaSpy%20$(SCHEMA_SPY_VERSION)/$(SCHEMA_SPY_JAR)" > $@
-	
+
 .DELETE_ON_ERROR:
 
 # vim: ft=make list

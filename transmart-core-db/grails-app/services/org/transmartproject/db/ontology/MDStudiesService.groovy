@@ -1,9 +1,10 @@
 package org.transmartproject.db.ontology
 
 import grails.plugin.cache.CacheEvict
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
@@ -29,6 +30,7 @@ import java.util.stream.Collectors
 
 import static org.transmartproject.core.users.AuthorisationHelper.getPUBLIC_TOKENS
 
+@Slf4j
 @Transactional
 @CompileStatic
 class MDStudiesService implements MDStudiesResource, ApplicationRunner {

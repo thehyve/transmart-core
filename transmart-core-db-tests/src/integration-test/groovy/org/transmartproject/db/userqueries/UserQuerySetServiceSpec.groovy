@@ -1,6 +1,6 @@
 package org.transmartproject.db.userqueries
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import grails.util.Holders

@@ -498,6 +498,7 @@ class ClinicalTestData {
                 relTime: relTime,
                 relTimeLabel: relTimeLabel,
         )
+        tv.study = study
         study.addToTrialVisits(tv)
         tv
     }

@@ -22,7 +22,7 @@ as well.
 * For all components:
     * JDK 8
 * For building tranSMART from sources:
-    * [gradle](https://gradle.org). Any version `> 2.12` and `<= 3.5.1` should suffice (version `3.5.1` is recommended). Other versions may cause some build issues.
+    * [gradle](https://gradle.org). Any version `> 2.12` and `<= 4.10.3` should suffice (version `4.10.3` is recommended). Other versions may cause some build issues.
 
 
 ## 2. Setup database

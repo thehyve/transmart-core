@@ -9,7 +9,7 @@ apply plugin: 'application'
 apply plugin: 'codenarc'
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.7'
+    compile 'org.codehaus.groovy:groovy-all:2.4.15'
     compile "com.opencsv:opencsv:${openCsvVersion}"
     compile 'commons-cli:commons-cli:1.4'
     compile 'org.slf4j:slf4j-api:1.7.25'
@@ -58,15 +58,6 @@ codenarc {
     configFile = new File("${project.parent.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
 
     reportFormat = 'html'
-}
-
-//FIXME A fix should apear here https://discuss.gradle.org/t/sudden-issue-with-gradle-3-5-1-and-codenarc/30064
-configurations.codenarc {
-    resolutionStrategy.eachDependency { DependencyResolveDetails d ->
-        if (d.requested.group == 'org.codehaus.groovy') {
-            d.useVersion '2.1.8'
-        }
-    }
 }
 
 test.testLogging.exceptionFormat = 'full'

@@ -1,7 +1,7 @@
 package org.transmartproject.db.support
 
 import grails.orm.HibernateCriteriaBuilder
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.PatientMapping

@@ -12,6 +12,7 @@ import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
+import groovy.util.logging.Slf4j
 import jsr166y.ForkJoinPool
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
@@ -56,6 +57,7 @@ import static groovyx.gpars.GParsPool.withExistingPool
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.SubtaskParameters
 import static org.transmartproject.db.support.ParallelPatientSetTaskService.TaskParameters
 
+@Slf4j
 @CompileStatic
 class AggregateDataService extends AbstractDataResourceService {
 
@@ -207,13 +209,13 @@ class AggregateDataService extends AbstractDataResourceService {
     }
 
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.cachedCounts',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     Counts counts(Constraint constraint, User user) {
         freshCounts(constraint, user)
     }
 
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.cachedCounts',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     @Transactional(readOnly = true)
     Counts updateCountsCache(Constraint constraint, User user) {
         freshCounts(constraint, user)
@@ -328,14 +330,14 @@ class AggregateDataService extends AbstractDataResourceService {
     }
 
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     @Transactional(readOnly = true)
     Map<String, Counts> countsPerConcept(Constraint constraint, User user) {
         freshCountsPerConcept(constraint, user)
     }
 
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerConcept',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     @Transactional(readOnly = true)
     Map<String, Counts> updateCountsPerConceptCache(Constraint constraint, User user) {
         freshCountsPerConcept(constraint, user)
@@ -371,14 +373,14 @@ class AggregateDataService extends AbstractDataResourceService {
     }
 
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     @Transactional(readOnly = true)
     Map<String, Counts> countsPerStudy(Constraint constraint, User user) {
         freshCountsPerStudy(constraint, user)
     }
 
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudy',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     @Transactional(readOnly = true)
     Map<String, Counts> updateCountsPerStudyCache(Constraint constraint, User user) {
         freshCountsPerStudy(constraint, user)
@@ -437,7 +439,7 @@ class AggregateDataService extends AbstractDataResourceService {
 
     @CompileDynamic
     @Cacheable(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     @Transactional(readOnly = true)
     Map<String, Map<String, Counts>> countsPerStudyAndConcept(Constraint constraint, User user) {
         log.debug "Fetching counts per per study per concept for user: ${user.username}, constraint: ${constraint.toJson()}"
@@ -489,7 +491,7 @@ class AggregateDataService extends AbstractDataResourceService {
     }
 
     @CachePut(value = 'org.transmartproject.db.clinical.AggregateDataService.countsPerStudyAndConcept',
-            key = '{ #constraint.toJson(), #user.admin, #user.studyToPatientDataAccessLevel }')
+            key = { new Tuple(constraint.toJson(), user.admin, user.studyToPatientDataAccessLevel) })
     @Transactional(readOnly = true)
     Map<String, Map<String, Counts>> updateCountsPerStudyAndConceptCache(Constraint constraint,
                                                             User user,

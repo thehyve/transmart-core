@@ -2,7 +2,7 @@
 
 package org.transmartproject.db.multidimquery
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.util.Holders
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.RuntimeConfigRepresentation

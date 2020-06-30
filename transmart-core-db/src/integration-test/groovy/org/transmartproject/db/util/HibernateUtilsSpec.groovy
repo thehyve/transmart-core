@@ -2,7 +2,7 @@
 
 package org.transmartproject.db.util
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.Criteria
 import org.hibernate.SessionFactory

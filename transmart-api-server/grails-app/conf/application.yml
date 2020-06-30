@@ -42,7 +42,7 @@ hibernate:
         region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
 
 dataSource:
-    url: jdbc:postgresql://localhost:5432/transmart?currentSchema=public
+    url: jdbc:postgresql://localhost:${PGPORT:5432}/transmart?currentSchema=public
     driverClassName: org.postgresql.Driver
     username: biomart_user
     password: biomart_user
@@ -95,10 +95,10 @@ environments:
             verify-token-audience: true
     development:
         keycloak:
-            realm: dev
+            realm: ${KEYCLOAK_REALM:dev}
             bearer-only: true
-            auth-server-url: http://localhost:8080/auth
-            resource: transmart
+            auth-server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}/auth
+            resource: ${KEYCLOAK_CLIENT_ID:transmart}
             use-resource-role-mappings: true
             verify-token-audience: true
 #            disable-trust-manager: false  # when true, SSL certificate checking is disabled. Do not use that in production!
@@ -109,4 +109,9 @@ environments:
 # org.transmartproject.security.denyAccessToUsersWithoutRole: false  # when true, users without any role are denied access.
 # If true, the ROLE_PUBLIC role can be used to grant access to users
 
+---
 # org.transmartproject.system.writeLogToDatabase: true  # write log messages to the searchapp.search_app_access_log table
+
+environments:
+    development:
+        org.transmartproject.system.writeLogToDatabase: false

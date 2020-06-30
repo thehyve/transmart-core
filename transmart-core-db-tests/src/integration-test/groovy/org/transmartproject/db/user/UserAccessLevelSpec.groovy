@@ -19,8 +19,8 @@
 
 package org.transmartproject.db.user
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.testing.mixin.integration.Integration
+import grails.gorm.transactions.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.MDStudiesResource
@@ -55,10 +55,11 @@ class UserAccessLevelSpec extends Specification {
     @Autowired
     AccessControlChecks accessControlChecks
 
-    AccessLevelTestData accessLevelTestData = createDefault()
+    AccessLevelTestData accessLevelTestData
 
     void setupData() {
-        TestData.clearData()
+        TestData.prepareCleanDatabase()
+        accessLevelTestData = createDefault()
         accessLevelTestData.saveAll()
     }
 

@@ -19,7 +19,7 @@
 
 package org.transmartproject.rest.http
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import org.hamcrest.Matchers
 import org.springframework.context.ApplicationContext
 import org.springframework.web.servlet.HandlerExceptionResolver
