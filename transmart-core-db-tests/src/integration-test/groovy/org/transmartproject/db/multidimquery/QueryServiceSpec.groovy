@@ -475,7 +475,7 @@ class QueryServiceSpec extends Specification {
         setupHypercubeData()
         DimensionImpl dimension = DimensionImpl.TRIAL_VISIT
         Constraint constraint = new StudyNameConstraint(hypercubeTestData.clinicalData.multidimsStudy.studyId )
-        def expectedResults = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
+        def expectedResults = hypercubeTestData.clinicalData.trialVisits as Set<TrialVisit>
 
         when:"I query for all trial visits for a constraint"
         def trialVisits = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[1]).collect {

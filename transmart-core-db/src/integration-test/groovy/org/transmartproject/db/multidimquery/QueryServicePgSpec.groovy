@@ -165,6 +165,24 @@ class QueryServicePgSpec extends Specification {
         results.size() > 0
     }
 
+    void "test query for 'study' dimension elements"() {
+        def user = User.findByUsername('test-public-user-1')
+        DimensionImpl dimension = STUDY
+
+        Constraint constraint = new TrueConstraint()
+        def results = multiDimService.retrieveClinicalData(constraint, user).asList()
+        def expectedResult = results.collect { it[STUDY] }.findAll { it } as Set
+
+        when: "I query for all studies for a constraint"
+        def studies = multiDimService.getDimensionElements(dimension.name, constraint, user).collect {
+            dimension.asSerializable(it)
+        }
+
+        then: "List of all studies matching the constraints is returned"
+        studies.size() == expectedResult.size()
+        studies.collect { it.name }.sort() == expectedResult.collect { it.studyId }.sort()
+    }
+
     void "test patient set query"() {
         def user = User.findByUsername('test-public-user-1')
 
