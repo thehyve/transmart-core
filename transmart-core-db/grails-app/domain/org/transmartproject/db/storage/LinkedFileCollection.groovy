@@ -20,7 +20,7 @@ class LinkedFileCollection {
 
     static mapping = {
         table          schema:   'I2B2DEMODATA'
-        id generator: 'sequence'
+        id generator: 'sequence', params: [sequence: 'hibernate_sequence', schema: 'biomart']
         version false
     }
 

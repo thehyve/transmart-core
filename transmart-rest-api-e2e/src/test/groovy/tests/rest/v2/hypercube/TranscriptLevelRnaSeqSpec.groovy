@@ -5,6 +5,7 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.json.JsonBuilder
+import spock.lang.Ignore
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
@@ -17,6 +18,7 @@ import static tests.rest.constraints.*
  *  TMPREQ-13 Retrieving transcript level RNA-Seq data via the REST API
  *  TMPREQ-15 Retrieving data filtered by proteins, transcripts, and genes using standard ontologies via the API
  */
+@Ignore("No highdim test data available")
 @RequiresStudy(RNASEQ_TRANSCRIPT_ID)
 class TranscriptLevelRnaSeqSpec extends RESTSpec {
 

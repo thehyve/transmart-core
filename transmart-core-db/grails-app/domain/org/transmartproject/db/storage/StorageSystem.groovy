@@ -10,14 +10,14 @@ class StorageSystem {
     String systemType // e.g. MongoDB, Arvados
     String url        // resolvable url to the storage system
     String systemVersion    // version of the storage system,
-    // called systemVersion because version is a resevered column in grails
+    // called systemVersion because version is a reserved column in grails
     boolean singleFileCollections // true for systems where FileCollection=file
 
     static mapping = {
         table          schema:   'I2B2DEMODATA'
         singleFileCollections defaultValue: false
         version false
-        id generator: 'sequence'
+        id generator: 'sequence', params: [sequence: 'hibernate_sequence', schema: 'biomart']
     }
 
     static constraints = {
