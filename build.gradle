@@ -43,7 +43,7 @@ ext {
     keycloakVersion = '10.0.2'
     liquibaseVersion = '3.10.0'
     ojdb8Version = '12.2.0.1'
-    openCsvVersion = '5.0'
+    openCsvVersion = '5.2'
     postgresqlVersion = '42.2.14.jre7'
     protobufVersion = '3.12.2'
     quartzPluginVersion = '2.0.13'
