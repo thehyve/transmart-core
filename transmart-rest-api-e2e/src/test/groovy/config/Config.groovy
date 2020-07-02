@@ -32,8 +32,8 @@ class Config {
         value
     }
 
-    // $ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
-    public static final String BASE_URL = getProperty('baseUrl', 'http://localhost:8081/', String)
+    // $ gradle -DbaseUrl=https://transmart-dev.thehyve.net/ test
+    public static final String BASE_URL = getProperty('baseUrl', 'http://localhost:8070/', String)
 
      // Configure whether the currently used application for providing a REST API for a TranSMART supports the `v1` API.
      // In particular, if the application is transmart-api-server, this should be set to false.
@@ -62,13 +62,13 @@ class Config {
     public static final String ADMIN_USER = 'admin'
 
     // Configure Keycloak settings
-    public static final String AUTH_SERVER_URL = 'http://localhost:8080/'
-    public static final String REALM = 'test'
-    public static final String RESOURCE = 'transmart'
+    public static final String AUTH_SERVER_URL = 'https://keycloak-dwh-test.thehyve.net/'
+    public static final String REALM = 'transmart-dev'
+    public static final String RESOURCE = 'transmart-client'
     public static final Map<String, String> USER_SUB_MAPPING = [
-            (DEFAULT_USER)     : '01ec82a4-dd7d-45ff-ac14-c5e10c20eb44',
-            (UNRESTRICTED_USER): '7227d767-0412-4be4-8b26-116bd707670d',
-            (ADMIN_USER)       : '75154b3b-fff2-4727-8d9a-96dfdbae39bb'
+            (DEFAULT_USER)     : '09fe381f-7e6b-49ec-a600-a6c68e1210ee',
+            (UNRESTRICTED_USER): 'a6fe7901-c53d-4dca-ad82-4addadee1111',
+            (ADMIN_USER)       : 'd92ea2b2-ba88-4169-b392-3c2ac241f1a0'
     ]
 
     public static final String VERSIONS_PATH = '/versions'
@@ -104,6 +104,7 @@ class Config {
     public static final String PATH_DIMENSION = "/v2/dimensions"
     public static final String PATH_DATA_EXPORT = "/v2/export"
     public static final String PATH_QUERY = "/v2/queries"
+    public static final String PATH_RELATIONS = "/v2/pedigree/relations"
     public static final String PATH_RELATION_TYPES = "/v2/pedigree/relation_types"
     public static final String PATH_NOTIFICATIONS = "/v2/admin/notifications/notify"
 
@@ -117,11 +118,8 @@ class Config {
     public static final String CATEGORICAL_VALUES_ID = 'CATEGORICAL_VALUES'
     public static final String TUMOR_NORMAL_SAMPLES_ID = 'TUMOR_NORMAL_SAMPLES'
     public static final String SHARED_CONCEPTS_A_ID = 'SHARED_CONCEPTS_STUDY_A'
-    public static final Long SHARED_CONCEPTS_A_DB_ID = -27L
     public static final String SHARED_CONCEPTS_B_ID = 'SHARED_CONCEPTS_STUDY_B'
-    public static final Long SHARED_CONCEPTS_B_DB_ID = -28L
     public static final String SHARED_CONCEPTS_RESTRICTED_ID = 'SHARED_CONCEPTS_STUDY_C_PRIV'
-    public static final Long SHARED_CONCEPTS_RESTRICTED_DB_ID = -29L
     public static final String RNASEQ_TRANSCRIPT_ID = 'RNASEQ_TRANSCRIPT'
     public static final String MIX_HD_ID = 'MIX_HD'
     public static final String SURVEY1_ID = 'SURVEY1'

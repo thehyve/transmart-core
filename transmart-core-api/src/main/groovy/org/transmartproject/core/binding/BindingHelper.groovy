@@ -18,7 +18,9 @@ class BindingHelper {
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss"
 
     static ObjectMapper getObjectMapper() {
-        new ObjectMapper().setDateFormat(new SimpleDateFormat(DATE_TIME_FORMAT))
+        def df = new SimpleDateFormat(DATE_TIME_FORMAT)
+        df.setTimeZone(TimeZone.getTimeZone("UTC"))
+        new ObjectMapper().setDateFormat(df)
     }
 
     static <T> void validate(T object) {
