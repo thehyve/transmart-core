@@ -49,4 +49,5 @@ interface ConceptsResource {
      */
     String getConceptCodeByConceptPath(String conceptPath) throws NoSuchResourceException
 
+    List<String> getModifiersByConceptCode(String conceptCode, User user) throws NoSuchResourceException
 }

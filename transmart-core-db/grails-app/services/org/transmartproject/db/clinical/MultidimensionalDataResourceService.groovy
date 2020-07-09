@@ -19,6 +19,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
+import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.multidimquery.datatable.PaginationParameters
@@ -179,6 +180,21 @@ class MultidimensionalDataResourceService extends AbstractDataResourceService im
 
     Set<? extends Dimension> getSupportedDimensions(Constraint constraint) {
         getAvailableDimensions(getConstraintStudies(constraint))
+    }
+
+    @CompileDynamic
+    List<String> getModifiersForConcept(String conceptCode) {
+        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
+        session.connection().autoCommit = false
+        def results = (List)session.createSQLQuery("SELECT DISTINCT of.concept_cd, of.modifier_cd, mod.name_char " + \
+                "FROM i2b2demodata.observation_fact as of " + \
+                "INNER JOIN i2b2demodata.modifier_dimension as mod ON of.modifier_cd = mod.modifier_cd " + \
+                "WHERE of.concept_cd = :conceptCode")
+            .setString("conceptCode", conceptCode)
+            .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+            .list()
+        session.close()
+        results.collect{ Map result -> (String)result.get('name_char') }
     }
 
     // FIXME: Enable static compilation
