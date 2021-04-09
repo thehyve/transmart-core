@@ -27,11 +27,6 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
  */
 class TestDataHelper {
 
-    static List<String> getMissingValueFields(Object obj, Collection<String> fields) {
-        def props = obj.class.metaClass.properties.findAll { fields.contains(it.name) }
-        props.findAll({ !it.getProperty(obj) }).collect({ it.name })
-    }
-
     static void save(Collection objects) {
         if (objects == null) {
             return //shortcut for no objects to save

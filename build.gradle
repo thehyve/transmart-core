@@ -1,10 +1,10 @@
 buildscript {
     ext {
-        assetPipelineVersion = '2.11.6'
-        grailsVersion = '3.2.13'
-        guavaVersion = '19.0'
+        assetPipelineVersion = '2.15.1'
+        grailsVersion = '3.3.11'
+        guavaVersion = '29.0-jre'
         jansiVersion = '1.14'
-        protobufVersion = '3.1.0'
+        protobufVersion = '3.12.2'
     }
     repositories {
         mavenLocal()
@@ -12,25 +12,21 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
         maven { url 'https://repo.grails.org/grails/core' }
         maven { url 'https://dl.bintray.com/grails/plugins' }
-        // maven { url 'https://repo.transmartfoundation.org/content/repositories/public' }
         maven { url 'https://repo.thehyve.nl/content/repositories/public' }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.google.guava:guava:$guavaVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:$assetPipelineVersion"
-        classpath 'org.grails.plugins:hibernate5:6.0.4'
+        classpath 'org.grails.plugins:hibernate5:6.1.12'
         classpath "com.google.protobuf:protobuf-java:${protobufVersion}"
         classpath "com.google.protobuf:protobuf-java-util:${protobufVersion}"
-        classpath 'org.grails.plugins:views-gradle:1.0.12'
+        classpath 'org.grails.plugins:views-gradle:1.2.10'
         classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
         classpath "org.fusesource.jansi:jansi:${jansiVersion}"
-        classpath 'org.owasp:dependency-check-gradle:3.2.1'
+        classpath 'org.owasp:dependency-check-gradle:5.3.2.1'
     }
 }
-
-// Workaround suggested in https://github.com/gradle/gradle/issues/778
-org.fusesource.jansi.AnsiConsole.out.println('[init jansi library conflict workaround]')
 
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
@@ -39,52 +35,34 @@ apply plugin: 'org.owasp.dependencycheck'
 ext {
     transmartVersion = '17.2.7'
 
-    assetPipelineVersion = '2.11.6'
-    gradleWrapperVersion = '3.5.1'
-    grailsVersion = '3.2.13'
-    guavaVersion = '19.0'
-    jacksonVersion = '2.10.1'
-    liquibaseVersion = '3.7.0'
-    ojdb7Version = '12.1.0.1'
-    openCsvVersion = '5.0'
-    postgresqlVersion = '42.2.5.jre7'
-    protobufVersion = '3.1.0'
-    quartzVersion = '2.0.13'
-    springSecurityPluginVersion = '3.2.3'
-    springSecurityVersion = '4.1.4.RELEASE'
-    keycloakVersion = '6.0.1'
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = gradleWrapperVersion
+    assetPipelineVersion = '2.15.1'
+    grailsVersion = '3.3.11'
+    guavaVersion = '29.0-jre'
+    hibernateVersion = '5.1.17.Final'
+    jacksonVersion = '2.11.0'
+    keycloakVersion = '10.0.2'
+    liquibaseVersion = '3.10.0'
+    ojdb8Version = '12.2.0.1'
+    openCsvVersion = '5.2'
+    postgresqlVersion = '42.2.14.jre7'
+    protobufVersion = '3.12.2'
+    quartzPluginVersion = '2.0.13'
+    quartzVersion = '2.3.2'
+    springSecurityVersion = '4.2.17.RELEASE'
+    tomcatVersion = '8.5.56'
 }
 
 version = transmartVersion
 group = 'org.transmartproject'
 
 allprojects {
-    ext {
-        assetPipelineVersion = assetPipelineVersion
-        guavaVersion = guavaVersion
-        jacksonVersion = jacksonVersion
-        liquibaseVersion = liquibaseVersion
-        ojdb7Version = ojdb7Version
-        openCsvVersion = openCsvVersion
-        postgresqlVersion = postgresqlVersion
-        protobufVersion = protobufVersion
-        quartzVersion = quartzVersion
-        springSecurityPluginVersion = springSecurityPluginVersion
-        springSecurityVersion = springSecurityVersion
-    }
     repositories {
         repositories {
             mavenLocal()
             mavenCentral()
             maven { url 'https://repo.grails.org/grails/core' }
-            // maven { url 'https://repo.transmartfoundation.org/content/repositories/public/' }
             maven { url 'https://repo.thehyve.nl/content/groups/public/' }
             maven { url 'https://dl.bintray.com/bluesliverx/grails-plugins' }
-            // maven { url 'https://jcenter.bintray.com' }
         }
     }
 }
@@ -95,6 +73,7 @@ subprojects { project ->
 
     apply plugin: 'eclipse'
     apply plugin: 'idea'
+    apply plugin: 'org.owasp.dependencycheck'
 
     if (project.name =~ /^(transmart-core-db-tests|transmart-core-db|transmart-rest-api|transmart-api-server)$/) {
         if (project.name =~ /^(transmart-api-server)$/) {

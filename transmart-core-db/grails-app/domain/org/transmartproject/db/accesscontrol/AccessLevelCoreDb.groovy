@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.accesscontrol
 
+import com.google.common.base.MoreObjects
 import org.transmartproject.core.users.PatientDataAccessLevel
 
 import static java.lang.Enum.valueOf
@@ -47,7 +48,7 @@ class AccessLevelCoreDb {
 
     @Override
     String toString() {
-        com.google.common.base.Objects.toStringHelper(this)
+        MoreObjects.toStringHelper(this)
                 .add("name", name)
                 .add("value", value).toString()
     }

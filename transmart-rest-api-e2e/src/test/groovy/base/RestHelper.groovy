@@ -118,7 +118,7 @@ class RestHelper {
                     } else {
                         serialisedValue = mapper.writeValueAsString(value)
                     }
-                    [(key): serialisedValue]
+                    [(key): URLEncoder.encode(serialisedValue, 'utf-8')]
                 } as Map<String, String>
             }
             request.accept = [requestMap.acceptType as String ?: ContentTypeFor.JSON]

@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.querytool
 
-import grails.test.mixin.TestFor
+import grails.testing.services.ServiceUnitTest
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.ontology.OntologyTermsResource
@@ -37,8 +37,7 @@ import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FL
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.POSTGRESQL
 
-@TestFor(PatientSetQueryBuilderService)
-class PatientSetQueryBuilderServiceSpec extends Specification {
+class PatientSetQueryBuilderServiceSpec extends Specification implements ServiceUnitTest<PatientSetQueryBuilderService> {
 
     QtQueryResultInstance resultInstance
 

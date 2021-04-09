@@ -2,6 +2,7 @@ package org.transmartproject.db.userqueries
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.hibernate.Criteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
@@ -27,6 +28,7 @@ import java.util.stream.Collectors
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.PATIENT
 
+@Slf4j
 @Transactional
 @CompileStatic
 @Deprecated

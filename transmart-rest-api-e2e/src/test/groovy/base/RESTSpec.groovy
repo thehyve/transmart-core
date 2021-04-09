@@ -71,10 +71,10 @@ abstract class RESTSpec extends Specification {
 
     static ObservationsMessageJson parseHypercube(Object data) {
         def jsonHypercube = data as Map
-        assert jsonHypercube.dimensionDeclarations : "Unexpectde json format: ${jsonHypercube}."
-        def dimensionDeclarations = jsonHypercube.dimensionDeclarations
-        def cells = jsonHypercube.cells
-        def dimensionElements = jsonHypercube.dimensionElements
+        assert jsonHypercube.containsKey('dimensionDeclarations') : "Unexpected json format: no dimensionDeclarations."
+        def dimensionDeclarations = jsonHypercube['dimensionDeclarations']
+        def cells = jsonHypercube['cells']
+        def dimensionElements = jsonHypercube['dimensionElements']
         return new ObservationsMessageJson(dimensionDeclarations, cells, dimensionElements)
     }
 

@@ -1,6 +1,6 @@
 package org.transmartproject.db.multidimquery
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.hibernate.internal.SessionImpl
@@ -13,9 +13,6 @@ import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.multidimquery.AggregateDataResource
 import org.transmartproject.core.multidimquery.DataRetrievalParameters
 import org.transmartproject.core.multidimquery.PatientSetResource
-import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.ConceptConstraint
-import org.transmartproject.core.multidimquery.query.Constraint
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.query.*
@@ -353,6 +350,7 @@ class QueryServiceSpec extends Specification {
                 adminUser,
                 apiVersion,
                 false)
+        sessionFactory.currentSession.flush()
 
         when: "I query for all patient sets with admin user"
         def adminPatientSetList = patientSetResource.findPatientSetQueryResults(adminUser)
@@ -477,7 +475,7 @@ class QueryServiceSpec extends Specification {
         setupHypercubeData()
         DimensionImpl dimension = DimensionImpl.TRIAL_VISIT
         Constraint constraint = new StudyNameConstraint(hypercubeTestData.clinicalData.multidimsStudy.studyId )
-        def expectedResults = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
+        def expectedResults = hypercubeTestData.clinicalData.trialVisits as Set<TrialVisit>
 
         when:"I query for all trial visits for a constraint"
         def trialVisits = multiDimService.getDimensionElements(dimension.name, constraint, accessLevelTestData.users[1]).collect {

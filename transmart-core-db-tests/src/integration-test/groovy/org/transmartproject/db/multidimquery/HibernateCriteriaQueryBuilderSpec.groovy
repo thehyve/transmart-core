@@ -1,7 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import grails.converters.JSON
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
@@ -488,7 +488,7 @@ class HibernateCriteriaQueryBuilderSpec extends Specification {
         setupHypercubeData()
         def studyWithoutTrialVisits =
                 StudyTestData.createStudy('studyWithoutTrialVisits', ['patient', 'concept'], false)
-        studyWithoutTrialVisits.save()
+        studyWithoutTrialVisits.save(flush: true)
         QueryBuilder builder = HibernateCriteriaQueryBuilder.forAllStudies()
 
         when: 'Querying for the study'

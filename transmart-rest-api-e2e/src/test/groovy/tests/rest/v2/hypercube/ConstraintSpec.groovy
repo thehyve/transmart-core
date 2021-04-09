@@ -54,7 +54,7 @@ class ConstraintSpec extends RESTSpec {
         then: "then I get a 400 with 'Cannot parse constraint parameter'"
         that responseData.httpStatus, is(400)
         that responseData.type, is(BINDING_EXCEPTION)
-        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'BadType\' into a subtype of')
+        that responseData.message, startsWith('Cannot parse constraint parameter: Could not resolve type id \'BadType\' as a subtype of')
 
         where:
         acceptType | _
@@ -91,7 +91,7 @@ class ConstraintSpec extends RESTSpec {
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query     : toQuery([
-                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                        type  : ModifierConstraint, modifierCode: "TNS:SMPL",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                 ])
         ]
@@ -464,7 +464,7 @@ class ConstraintSpec extends RESTSpec {
 
         responseData = get(request)
         selector = newSelector(responseData)
-        def visits = (0..<selector.cellCount).collect { selector.select(it, "visit", "encounterNum", "Double") } as Set
+        def visits = (0..<selector.cellCount).collect { selector.select(it, "visit", "id", "Int") } as Set
 
         then:
         selector.cellCount == 2

@@ -161,7 +161,7 @@ class TreeCacheService {
     }
 
     @CachePut(value = 'org.transmartproject.db.tree.TreeCacheService',
-            key = '{ #user.admin, #user.studyToPatientDataAccessLevel, #rootPath, #maxLevel }')
+            key = { new Tuple(user.admin, user.studyToPatientDataAccessLevel, rootPath, maxLevel) })
     List<TreeNode> updateSubtreeCache(User user, String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
         fetchSubtree(user, rootPath, maxLevel)
     }
@@ -179,7 +179,7 @@ class TreeCacheService {
      * @return the list of top level tree nodes with child nodes embedded.
      */
     @Cacheable(value = 'org.transmartproject.db.tree.TreeCacheService',
-            key = '{ #user.admin, #user.studyToPatientDataAccessLevel, #rootPath, #maxLevel }')
+            key = { new Tuple(user.admin, user.studyToPatientDataAccessLevel, rootPath, maxLevel) })
     List<TreeNode> fetchCachedSubtree(User user, String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
         fetchSubtree(user, rootPath, maxLevel)
     }

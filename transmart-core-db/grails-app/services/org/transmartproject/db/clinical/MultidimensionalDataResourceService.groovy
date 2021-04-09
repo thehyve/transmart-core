@@ -11,6 +11,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.TupleConstructor
+import groovy.util.logging.Slf4j
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
@@ -61,6 +62,7 @@ import java.util.stream.Collectors
 import static java.util.Objects.requireNonNull
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
+@Slf4j
 @CompileStatic
 class MultidimensionalDataResourceService extends AbstractDataResourceService implements MultiDimensionalDataResource {
 

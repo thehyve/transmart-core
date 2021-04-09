@@ -2,6 +2,7 @@ package org.transmartproject.db.support
 
 import grails.util.Holders
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.apache.commons.lang3.tuple.Pair
 import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
@@ -35,6 +36,7 @@ import java.util.stream.Collectors
 
 import static grails.async.Promises.task
 
+@Slf4j
 @CompileStatic
 class SystemService implements SystemResource {
 

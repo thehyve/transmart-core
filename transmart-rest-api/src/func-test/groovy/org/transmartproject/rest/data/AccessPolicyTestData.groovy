@@ -1,6 +1,6 @@
 package org.transmartproject.rest.data
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Restrictions
@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.CATEGORICAL
 
 @Slf4j
-class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
+class AccessPolicyTestData extends TestData {
 
     @Transactional
     void createTestData() {
@@ -74,24 +74,24 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
     protected static final Set<String> defaultDimensions =
             ['study', 'concept', 'patient', 'start time', 'end time', 'trial visit'] as Set<String>
 
-    protected List<TrialVisit> createTestStudyAndTrialVisits(String studyId, boolean isPublic, List<String> trialVisitLabels) {
+    protected static List<TrialVisit> createTestStudyAndTrialVisits(String studyId, boolean isPublic, List<String> trialVisitLabels) {
         log.info "Creating test study: ${studyId}"
+        List<TrialVisit> trialVisits = []
         def study = new Study(
                 studyId: studyId,
                 secureObjectToken: isPublic ? Study.PUBLIC : studyId,
-                trialVisits: [] as Set,
                 dimensionDescriptions: [] as Set
         )
         study.save(flush: true, failOnError: true)
-        // add trial visits
+        // create trial visits
         if (trialVisitLabels) {
-            for (String label : trialVisitLabels) {
-                study.trialVisits.add(
+            for (String label: trialVisitLabels) {
+                trialVisits.add(
                         new org.transmartproject.db.i2b2data.TrialVisit(study: study, relTimeLabel: label)
                                 .save(flush: true, failOnError: true))
             }
         } else {
-            study.trialVisits.add(
+            trialVisits.add(
                     new org.transmartproject.db.i2b2data.TrialVisit(study: study, relTimeLabel: 'default')
                             .save(flush: true, failOnError: true))
         }
@@ -101,10 +101,10 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
         } as List<DimensionDescription>
         study.dimensionDescriptions.addAll(dimensionDescriptions)
         study.save(flush: true, failOnError: true)
-        study.trialVisits as List<TrialVisit>
+        trialVisits
     }
 
-    protected Concept createTestConcept(String conceptCode) {
+    protected static Concept createTestConcept(String conceptCode) {
         log.info "Creating test concept: ${conceptCode}"
         new ConceptDimension(conceptCode: conceptCode, conceptPath: "\\Test\\${conceptCode}")
                 .save(flush: true, failOnError: true)
@@ -175,7 +175,7 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
         patient.save(flush: true, failOnError: true)
     }
 
-    protected void createTestCategoricalObservations(
+    protected static void createTestCategoricalObservations(
             Patient patient, Concept concept, TrialVisit trialVisit, List<Map<String, String>> values, Date startDate) {
         log.info "Adding ${values?.size()} observations for patient: ${patient.subjectIds}, concept: ${concept.conceptCode}"
         int instanceNum = 1
@@ -197,7 +197,7 @@ class AccessPolicyTestData extends org.transmartproject.rest.data.TestData {
         }
     }
 
-    protected void createTestNumericalObservations(
+    protected static void createTestNumericalObservations(
             Patient patient, Concept concept, TrialVisit trialVisit, List<Map<String, BigDecimal>> values, Date startDate) {
         log.info "Adding ${values?.size()} observations for patient: ${patient.subjectIds}, concept: ${concept.conceptCode}"
         int instanceNum = 1

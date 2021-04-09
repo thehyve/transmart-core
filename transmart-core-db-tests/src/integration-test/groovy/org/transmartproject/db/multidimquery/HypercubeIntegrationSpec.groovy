@@ -2,7 +2,7 @@ package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired

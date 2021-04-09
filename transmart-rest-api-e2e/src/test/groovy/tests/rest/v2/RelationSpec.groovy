@@ -128,6 +128,7 @@ class RelationSpec extends RESTSpec {
         def responseData = get([
                 path      : PATH_RELATIONS,
                 acceptType: JSON,
+                user: ADMIN_USER
         ])
         then:
         responseData.relations.size() == 68

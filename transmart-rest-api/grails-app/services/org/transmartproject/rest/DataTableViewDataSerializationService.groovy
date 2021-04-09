@@ -1,6 +1,7 @@
 package org.transmartproject.rest
 
 import grails.transaction.Transactional
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.StreamingDataTable
@@ -19,6 +20,7 @@ import java.util.zip.ZipOutputStream
  * Data serialisation service for the dataTable data view.
  * Only supports the table operations.
  */
+@Slf4j
 @Transactional
 class DataTableViewDataSerializationService extends AbstractDataResourceService {
 

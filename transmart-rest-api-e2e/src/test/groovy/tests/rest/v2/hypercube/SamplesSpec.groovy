@@ -30,10 +30,10 @@ class SamplesSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
-                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                query     : [constraint: [
+                        type  : ModifierConstraint, modifierCode: "TNS:SMPL",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
-                ])
+                ]]
         ]
 
         when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
@@ -63,9 +63,9 @@ class SamplesSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
-                        type: ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\"
-                ])
+                query     : [constraint: [
+                        type: ModifierConstraint, modifierCode: "TNS:SMPL"
+                ]]
         ]
 
         when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
@@ -95,9 +95,9 @@ class SamplesSpec extends RESTSpec {
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([
-                        type: ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\does not exist\\"
-                ])
+                query     : [constraint: [
+                        type: ModifierConstraint, modifierCode: "TNS:does not exist"
+                ]]
         ]
 
         when: "I get all observations related to a modifier 'does not exist'"

@@ -272,7 +272,7 @@ ruleset {
 	SerializableClassMustDefineSerialVersionUID
 
 	// rulesets/size.xml
-	AbcComplexity
+//	AbcComplexity
 	ClassSize
 //	CrapMetric
 	CyclomaticComplexity

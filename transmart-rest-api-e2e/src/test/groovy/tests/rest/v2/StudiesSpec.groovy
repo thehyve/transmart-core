@@ -73,10 +73,15 @@ class StudiesSpec extends RESTSpec {
      */
     def "study is fetched by id"() {
         given: "Shared concepts studies are loaded and I do have limited access"
+        def response = get([
+                path: "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}",
+                acceptType: JSON
+        ])
+        def shared_concepts_a_db_id = response.id
 
         when: "I try to fetch study A by id"
         def studyResponse = get([
-                path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_A_DB_ID}",
+                path      : "${PATH_STUDIES}/${shared_concepts_a_db_id}",
                 acceptType: JSON,
         ])
 
@@ -91,10 +96,16 @@ class StudiesSpec extends RESTSpec {
      */
     def "restricted study is fetched by id"() {
         given: "Shared concepts studies are loaded and I do have un limited access"
+        def response = get([
+                path: "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_RESTRICTED_ID}",
+                acceptType: JSON,
+                user: UNRESTRICTED_USER
+        ])
+        def shared_concepts_restricted_id = response.id
 
         when: "I try to fetch study A by id"
         def studyResponse = get([
-                path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
+                path      : "${PATH_STUDIES}/${shared_concepts_restricted_id}",
                 acceptType: JSON,
                 user      : UNRESTRICTED_USER
         ])
@@ -110,17 +121,23 @@ class StudiesSpec extends RESTSpec {
      */
     def "access denied when restricted study is fetched by id"() {
         given: "Shared concepts studies are loaded and I do have limited access"
+        def response = get([
+                path: "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_RESTRICTED_ID}",
+                acceptType: JSON,
+                user: UNRESTRICTED_USER
+        ])
+        def shared_concepts_restricted_db_id = response.id
 
         when: "I try to fetch study A by id"
         def studyResponse = get([
-                path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
+                path      : "${PATH_STUDIES}/${shared_concepts_restricted_db_id}",
                 acceptType: JSON,
                 statusCode: 404
         ])
 
         then: "we don't distinguish between study not found and the user does not have access to"
         assert studyResponse.httpStatus == 404
-        assert studyResponse.message == "Access denied to study or study does not exist: ${SHARED_CONCEPTS_RESTRICTED_DB_ID}"
+        assert studyResponse.message == "Access denied to study or study does not exist: ${shared_concepts_restricted_db_id}"
     }
 
     /**
@@ -139,34 +156,6 @@ class StudiesSpec extends RESTSpec {
 
         then: "the study object is returned"
         assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
-    }
-
-    def "list of studies is fetched by names"() {
-        given: "Shared concepts studies are loaded and I do have limited access"
-
-        when: "I try to fetch studies A and B by studyIds with limited access"
-        def studyResponse1 = get([
-                path      : "${PATH_STUDIES}/studyIds",
-                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_DB_ID]],
-                acceptType: JSON,
-                user      : DEFAULT_USER
-        ])
-
-        then: "only one study is returned"
-        assert studyResponse1.studies.size() == 1
-        assert studyResponse1.studies*.studyId == [SHARED_CONCEPTS_A_ID]
-
-        when: "I try to fetch studies A and B by studyIds with the admin user"
-        def studyResponse2 = get([
-                path      : "${PATH_STUDIES}/studyIds",
-                query     : [studyIds: [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID]],
-                acceptType: JSON,
-                user      : ADMIN_USER
-        ])
-
-        then: "both study objects are returned"
-        assert studyResponse2.studies.size() == 2
-        assert studyResponse2.studies*.studyId.sort() == [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_RESTRICTED_ID].sort()
     }
 
 }

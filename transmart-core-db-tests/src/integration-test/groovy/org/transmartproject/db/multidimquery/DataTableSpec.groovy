@@ -3,7 +3,7 @@ package org.transmartproject.db.multidimquery
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Lists
 import com.google.common.collect.Table
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -150,7 +150,7 @@ class DataTableSpec extends Specification {
         def pagination = new PaginationParameters(limit: 10)
         PagingDataTable reverseSortTable = queryResource.retrieveDataTablePage(tableConfig, pagination, 'clinical', constraint, adminUser)
         def reverseSortDims = reverseSortTable.sort.keySet().withIndex().collectEntries()
-        
+
         then:
         reverseSortTable.requestedSort == ['patient', 'study', 'concept', 'trial visit'].collectEntries {
             [queryResource.getDimension(it), SortOrder.ASC]

@@ -20,7 +20,8 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
@@ -38,6 +39,7 @@ import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFact
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.PatientDimension
 
+@Slf4j
 @Transactional
 class ClinicalDataResourceService implements ClinicalDataResource {
 

@@ -1,6 +1,6 @@
 package org.transmartproject.db.clinical
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.query.*

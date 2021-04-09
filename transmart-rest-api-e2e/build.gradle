@@ -2,25 +2,25 @@ apply plugin: 'groovy'
 apply plugin: 'java'
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.3'
-    compile 'com.google.protobuf:protobuf-java:3.1.0'
-    compile 'com.google.protobuf:protobuf-java-util:3.1.0' // provides  protobuf-to-json serialization
-    compile 'ch.qos.logback:logback-classic:1.1.7'
-    compile 'org.slf4j:slf4j-api:1.7.20'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile "com.google.protobuf:protobuf-java:${protobufVersion}"
+    compile "com.google.protobuf:protobuf-java-util:${protobufVersion}" // provides  protobuf-to-json serialization
+    compile 'javax.servlet:javax.servlet-api:4.0.1'
+    compile 'org.codehaus.groovy:groovy-all:2.4.19'
+    compile 'org.slf4j:slf4j-api:1.7.30'
 
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-    testCompile 'org.grails:grails-dependencies:3.1.10'
-    testCompile 'org.grails:grails-web:3.1.10'
+    testCompile "org.grails:grails-dependencies:${grailsVersion}"
+    testCompile 'org.grails:grails-web'
     testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'
+    // testCompile 'org.hamcrest:hamcrest-all:1.3'
     testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
-    testCompile 'io.github.http-builder-ng:http-builder-ng-apache:0.17.0'
+    testCompile 'io.github.http-builder-ng:http-builder-ng-apache:1.0.4'
     testCompile "com.google.guava:guava:${guavaVersion}"
     testCompile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
     testCompile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     testCompile "com.opencsv:opencsv:${openCsvVersion}"
     testCompile project(':transmart-core-api') //to get beans to de-serialise to
-
-    compile 'javax.servlet:javax.servlet-api:3.1.0'
 }
 
 tasks.withType(Test) { systemProperties = System.getProperties() }

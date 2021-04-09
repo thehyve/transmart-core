@@ -21,9 +21,10 @@ cache:
     - $HOME/pg
 
 before_install:
-  - curl -f -L https://services.gradle.org/distributions/gradle-3.5.1-bin.zip -o gradle-3.5.1-bin.zip
-  - unzip gradle-3.5.1-bin.zip
-  - GRADLE_HOME="$(pwd)/gradle-3.5.1"
+  - GRADLE_VERSION=4.10.3
+  - curl -f -L "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o "gradle-${GRADLE_VERSION}-bin.zip"
+  - unzip "gradle-${GRADLE_VERSION}-bin.zip"
+  - GRADLE_HOME="$(pwd)/gradle-${GRADLE_VERSION}"
   - GRADLE_SCRIPT="${GRADLE_HOME}/bin/gradle"
   - $GRADLE_SCRIPT --version
   - groovy --version

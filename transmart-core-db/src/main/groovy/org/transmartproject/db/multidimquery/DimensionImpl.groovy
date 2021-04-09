@@ -684,14 +684,18 @@ class StudyDimension extends I2b2Dimension<MDStudy, String> implements Composite
     @Override List<MDStudy> doResolveElements(List<String> elementKeys) {
         resolveWithInQuery({ -> I2b2Study.createCriteria() as HibernateCriteriaBuilder}, elementKeys, 'studyId')
     }
+
     @Override
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
         criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
         criteria.setProjection(Projections.property('trialVisit'))
 
+        def trialVisitCriteria = DetachedCriteria.forClass(TrialVisit, 'trialVisits')
+        trialVisitCriteria.add(Subqueries.propertyIn('id', criteria))
+        trialVisitCriteria.setProjection(Projections.property('study'))
+
         def dimensionCriteria = DetachedCriteria.forClass(I2b2Study, 'study')
-        dimensionCriteria.createAlias('trialVisits', 'trialVisits')
-        dimensionCriteria.add(Subqueries.propertyIn('trialVisits.id', criteria))
+        dimensionCriteria.add(Subqueries.propertyIn('id', trialVisitCriteria))
         dimensionCriteria
     }
 

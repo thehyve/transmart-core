@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.thehyve.commons.test.FastMatchers
 import org.transmartproject.core.concept.ConceptKey

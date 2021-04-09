@@ -3,16 +3,12 @@ package tests.rest.v2
 
 import annotations.RequiresStudy
 import base.RESTSpec
-import com.opencsv.CSVReader
+import com.opencsv.CSVParserBuilder
+import com.opencsv.CSVReaderBuilder
 import groovy.transform.CompileStatic
-import org.transmartproject.core.multidimquery.PagingDataTable
 import org.transmartproject.core.multidimquery.SortOrder
-import org.transmartproject.core.multidimquery.SortSpecification
 import org.transmartproject.core.multidimquery.datatable.DataTable
-import org.transmartproject.core.multidimquery.datatable.PaginationParameters
-import org.transmartproject.core.multidimquery.datatable.TableConfig
 import org.transmartproject.core.multidimquery.export.ExportJob
-import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry
@@ -160,7 +156,9 @@ class DataTableSpec extends RESTSpec {
             while (entry = zipInputStream.nextEntry) {
                 if (entry.name == 'data.tsv') {
                     def reader = new BufferedReader(new InputStreamReader(zipInputStream))
-                    def csvReader = new CSVReader(reader, COLUMN_SEPARATOR)
+                    def csvReader = new CSVReaderBuilder(reader).withCSVParser(
+                            new CSVParserBuilder().withSeparator(COLUMN_SEPARATOR).build()
+                    ).build()
                     return csvReader.readAll().stream()
                             .map({ String[] line -> Arrays.asList(line) })
                             .collect(Collectors.toList())
@@ -278,7 +276,6 @@ class DataTableSpec extends RESTSpec {
         exportData[2] == ['', '', 'Normal', 'Tumor', 'Normal', 'Tumor', 'Normal', 'Tumor']
 
         // Patient TNS:63
-        exportData[3][0] == '-63'
         new BigDecimal(exportData[3][1]).compareTo(new BigDecimal('40')) == 0
         exportData[3][2] == ''
         exportData[3][3] == 'sample3'
@@ -288,7 +285,6 @@ class DataTableSpec extends RESTSpec {
         new BigDecimal(exportData[3][7]).compareTo(new BigDecimal('100')) == 0
 
         // Patient TNS:43
-        exportData[5][0] == '-43'
         new BigDecimal(exportData[5][1]).compareTo(new BigDecimal('52')) == 0
         exportData[5][2] == 'sample9'
         exportData[5][3] == ''
