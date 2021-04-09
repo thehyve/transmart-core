@@ -1,0 +1,24 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2020  The Hyve B.V.
+  ~  This file is distributed under the GNU General Public License
+  ~  (see accompanying file LICENSE).
+  -->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="gijs@thehyve.nl" id="20210409092726-0" dbms="PostgreSQL">
+        <preConditions onFail="CONTINUE">
+            <sqlCheck expectedResult="0">
+                SELECT count(*) FROM pg_class WHERE relkind = 'S' AND relname = 'qt_patient_set_collection_patient_set_coll_id_seq'
+            </sqlCheck>
+        </preConditions>
+        <comment>
+            Fix autoincrement for the patient set collection table.
+            With previous versions of PostgreSQL, autoincrement sequences were created automatically.
+        </comment>
+
+        <comment>Add autoincrement to the patient set collection identifier column.</comment>
+        <addAutoIncrement schemaName="i2b2demodata" tableName="qt_patient_set_collection" columnName="patient_set_coll_id" columnDataType="integer"/>
+    </changeSet>
+</databaseChangeLog>

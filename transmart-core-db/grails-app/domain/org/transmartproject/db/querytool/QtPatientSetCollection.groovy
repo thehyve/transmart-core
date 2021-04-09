@@ -36,7 +36,7 @@ class QtPatientSetCollection {
 
         id             column:   'patient_set_coll_id', type: Long,
                        generator: Environment.current == Environment.TEST ? 'identity' : 'sequence',
-                       params: [sequence: 'qt_sq_qpr_pcid', schema: 'i2b2demodata']
+                       params: [sequence: 'qt_patient_set_collection_patient_set_coll_id_seq', schema: 'i2b2demodata']
         resultInstance column:   'result_instance_id'
         patient        column:   'patient_num'
 
