@@ -2,6 +2,7 @@ package org.transmartproject.rest.dataExport
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
@@ -17,6 +18,7 @@ import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.core.multidimquery.export.ExportJobRepresentation
 
+@Slf4j
 @Transactional
 @CompileStatic
 class ExportAsyncJobService extends AbstractDataResourceService {

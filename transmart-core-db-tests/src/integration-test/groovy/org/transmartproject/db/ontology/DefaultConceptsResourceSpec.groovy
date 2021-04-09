@@ -19,8 +19,10 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTermsResource
@@ -34,6 +36,8 @@ import static spock.util.matcher.HamcrestSupport.that
 @Integration
 @Rollback
 class DefaultConceptsResourceSpec extends Specification {
+
+    @Autowired SessionFactory sessionFactory
 
     OntologyTermsResource ontologyTermsResourceService = new DefaultOntologyTermsResource()
 
@@ -53,6 +57,8 @@ class DefaultConceptsResourceSpec extends Specification {
                 cSynonymCd: 'Y')
 
         addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'bar')
+
+        sessionFactory.currentSession.flush()
     }
 
     void testGetAllCategories() {

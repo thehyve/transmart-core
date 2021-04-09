@@ -2,8 +2,10 @@
 
 package org.transmartproject.db.pedigree
 
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.i2b2data.PatientDimension
 
+@EqualsAndHashCode(includes = [ 'leftSubject', 'relationType', 'rightSubject' ])
 class Relation implements org.transmartproject.core.pedigree.Relation, Serializable {
 
     PatientDimension leftSubject

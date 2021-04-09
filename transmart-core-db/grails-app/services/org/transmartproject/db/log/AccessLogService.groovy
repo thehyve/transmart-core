@@ -39,7 +39,7 @@ class AccessLogService implements AccessLogEntryResource {
                     eventMessage: eventMessage,
                     requestURL: requestURL?.take(255),
                     accessTime: accessTime,
-            ).save()
+            ).save(flush: true)
         }
     }
 

@@ -1,46 +1,55 @@
 dependencies {
-    compile 'org.javassist:javassist:3.16.1-GA'
 
-    compile "com.google.protobuf:protobuf-java:${protobufVersion}"
-    compile "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+    profile "org.grails.profiles:web-plugin"
 
-    testCompile 'org.gmock:gmock:0.8.3'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-    testCompile 'org.hamcrest:hamcrest-all:1.3'
-    testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
-
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
+    provided "org.grails:grails-plugin-domain-class"
+    provided "org.grails:grails-plugin-services"
     provided "org.springframework.boot:spring-boot-starter-tomcat"
-    compile "org.grails:grails-dependencies"
-    compile "org.grails:grails-web-boot"
-    compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:scaffolding"
+
     console("org.grails:grails-console") {
         exclude group: 'org.fusesource.jansi', module: 'jansi'
     }
 
-    compile "org.hibernate:hibernate-ehcache"
-
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
     compile "com.google.guava:guava:${guavaVersion}"
-    profile "org.grails.profiles:web-plugin"
-    provided "org.grails:grails-plugin-services"
-    provided "org.grails:grails-plugin-domain-class"
-    testCompile "org.grails:grails-plugin-testing"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    testCompile 'org.grails:grails-datastore-rest-client'
+    compile "com.google.protobuf:protobuf-java:${protobufVersion}"
+    compile "com.google.protobuf:protobuf-java-util:${protobufVersion}"
     compile "com.opencsv:opencsv:${openCsvVersion}"
-    compile "org.grails.plugins:quartz:${quartzVersion}"
     compile "commons-io:commons-io:2.6"
     compile "commons-fileupload:commons-fileupload:1.4"
-    compile 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
-
+    compile "org.grails:grails-core"
+    compile "org.grails:grails-dependencies"
+    compile "org.grails:grails-web-boot"
+    compile "org.grails.plugins:cache"
+    compile 'org.grails.plugins:hibernate5'
+    compile "org.grails.plugins:scaffolding"
+    compile ("org.grails.plugins:quartz:${quartzPluginVersion}") {
+        exclude group: 'org.quartz-scheduler', module: 'quartz'
+    }
+    compile "org.hibernate:hibernate-core:${hibernateVersion}"
+    compile "org.hibernate:hibernate-ehcache"
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
+    compile "org.quartz-scheduler:quartz:${quartzVersion}"
+
     compile project(':transmart-core-api')
     compile project(':transmart-core-db')
+
     testCompile project(':transmart-core-db-tests')
+
+    testCompile 'cglib:cglib-nodep:3.3.0'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
+    testCompile 'org.grails:grails-datastore-rest-client'
+    testCompile 'org.grails:grails-plugin-testing'
+    testCompile 'org.grails:grails-testing-support'
+    testCompile 'org.gmock:gmock:0.8.3'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+
+    testRuntime 'net.sourceforge.htmlunit:htmlunit:2.18'
 }
 
 assets {
@@ -76,9 +85,9 @@ task functionalTest(type: Test) {
 
 check.dependsOn functionalTest
 
-gradlePlugin {
-    testSourceSets sourceSets.functionalTest
-}
+//gradlePlugin {
+//    testSourceSets sourceSets.functionalTest
+//}
 
 // Force selected tests to always run, even if Gradle thinks they are up to date
 test.outputs.upToDateWhen { false }

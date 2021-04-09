@@ -2,14 +2,12 @@
 
 package org.transmartproject.db.multidimquery
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.multidimquery.counts.Counts
 import org.transmartproject.core.multidimquery.query.AndConstraint
-import org.transmartproject.core.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.core.multidimquery.query.Combination
 import org.transmartproject.core.multidimquery.query.ConceptConstraint
 import org.transmartproject.core.multidimquery.query.Constraint
@@ -20,6 +18,7 @@ import org.transmartproject.core.multidimquery.query.Operator
 import org.transmartproject.core.multidimquery.query.PatientSetConstraint
 import org.transmartproject.core.multidimquery.query.StudyNameConstraint
 import org.transmartproject.core.multidimquery.query.TimeConstraint
+import org.transmartproject.core.multidimquery.query.TrueConstraint
 import org.transmartproject.core.multidimquery.query.Type
 import org.transmartproject.core.multidimquery.query.ValueConstraint
 import org.transmartproject.core.querytool.QueryResult
@@ -154,6 +153,34 @@ class QueryServicePgSpec extends Specification {
         then: "List of all visits matching the constraints is returned"
         visits.size() == expectedResult.size()
         visits.collect { it.encounterIds['VISIT_ID'] }.sort() == expectedResult.collect { it.encounterIds['VISIT_ID']}.sort()
+    }
+
+    void "test query all observations"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        when: "I enumerate all observations"
+        def results = multiDimService.retrieveClinicalData(new TrueConstraint(), user).asList()
+
+        then: "No errors occur and the observation count is non-zero"
+        results.size() > 0
+    }
+
+    void "test query for 'study' dimension elements"() {
+        def user = User.findByUsername('test-public-user-1')
+        DimensionImpl dimension = STUDY
+
+        Constraint constraint = new TrueConstraint()
+        def results = multiDimService.retrieveClinicalData(constraint, user).asList()
+        def expectedResult = results.collect { it[STUDY] }.findAll { it } as Set
+
+        when: "I query for all studies for a constraint"
+        def studies = multiDimService.getDimensionElements(dimension.name, constraint, user).collect {
+            dimension.asSerializable(it)
+        }
+
+        then: "List of all studies matching the constraints is returned"
+        studies.size() == expectedResult.size()
+        studies.collect { it.name }.sort() == expectedResult.collect { it.studyId }.sort()
     }
 
     void "test patient set query"() {

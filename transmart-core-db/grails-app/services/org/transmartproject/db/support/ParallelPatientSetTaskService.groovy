@@ -2,6 +2,7 @@ package org.transmartproject.db.support
 
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import jsr166y.ForkJoinPool
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.config.SystemResource
@@ -22,6 +23,7 @@ import java.util.function.Function
 
 import static groovyx.gpars.GParsPool.withExistingPool
 
+@Slf4j
 class ParallelPatientSetTaskService {
 
     @Autowired

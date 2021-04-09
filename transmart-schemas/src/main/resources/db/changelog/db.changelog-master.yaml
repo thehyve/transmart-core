@@ -15,4 +15,6 @@ databaseChangeLog:
       file: classpath:db/changelog/changes/20190926092415_async_job_seq.xml
   - include:
       file: classpath:db/changelog/changes/20200210135535_autoincrement_id_columns.xml
+  - include:
+      file: classpath:db/changelog/changes/20210409092726_autoincrement_patient_set_id_column.xml
 relativeToChangelogFile: false

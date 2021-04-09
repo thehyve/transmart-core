@@ -60,6 +60,7 @@ class ClinicalTestData {
     Study                   ehrStudy
     List<ObservationFact>   ehrClinicalFacts
     Study                   multidimsStudy
+    List<TrialVisit>        trialVisits
     List<ObservationFact>   multidimsClinicalFacts
     List<ModifierDimensionCoreDb> modifierDimensions
     ModifierDimension       doseDimension
@@ -126,7 +127,13 @@ class ClinicalTestData {
 
         def multidimsStudy = StudyTestData.createStudy "multidimensional study", ["patient", "concept", "study", "visit", "trial visit",
                                                                "start time", "end time", "location", "provider"], true
-        def multidimsClinicalFacts = createMultidimensionalFacts(conceptDims[5..6], visits[3..5], multidimsStudy, observationStartDates, observationEndDates,
+
+        def trialVisits = [
+                createTrialVisit('day', 0, 'baseline', multidimsStudy),
+                createTrialVisit('day', 10, 'after 10 days', multidimsStudy),
+                createTrialVisit('day', 35, 'after 5 weeks', multidimsStudy)]
+
+        def multidimsClinicalFacts = createMultidimensionalFacts(conceptDims[5..6], visits[3..5], trialVisits, observationStartDates, observationEndDates,
                 locations, providers)
 
         def longitudinalStudy = StudyTestData.createStudy "longitudinal study", ["patient", "concept", "trial visit", "study"]
@@ -167,7 +174,8 @@ class ClinicalTestData {
                 tissueTypeDimension: tissueTypeDimension.dimension as ModifierDimension,
                 ehrStudy: ehrStudy,
                 ehrClinicalFacts: ehrClinicalFacts,
-                multidimsStudy:multidimsStudy,
+                multidimsStudy: multidimsStudy,
+                trialVisits: trialVisits,
                 multidimsClinicalFacts: multidimsClinicalFacts,
                 modifierDimensions: [modifierDimensions.left]
         )
@@ -446,15 +454,11 @@ class ClinicalTestData {
     }
 
 
-    static List<ObservationFact> createMultidimensionalFacts (List<ConceptDimension> concept, List<VisitDimension> visits,
-                                                         Study study, List<Date> startDates, List<Date> endDates,
-                                                         List<String> locations, List<String> providers){
+    static List<ObservationFact> createMultidimensionalFacts (
+            List<ConceptDimension> concept, List<VisitDimension> visits,
+            List<TrialVisit> trialVisits, List<Date> startDates, List<Date> endDates,
+            List<String> locations, List<String> providers){
 
-        // These trialVisits don't really make sense, since different trial visits share the same visit, but it works
-        // fine for testing
-        def trialVisits = [createTrialVisit('day', 0, 'baseline', study),
-                           createTrialVisit('day', 10, 'after 10 days', study),
-                           createTrialVisit('day', 35, 'after 5 weeks', study)]
         def istartDates = peekingIterator(cycle(startDates))
         def iendDates = peekingIterator(cycle(endDates))
         def ilocations = peekingIterator(cycle(locations))
@@ -498,7 +502,7 @@ class ClinicalTestData {
                 relTime: relTime,
                 relTimeLabel: relTimeLabel,
         )
-        study.addToTrialVisits(tv)
+        tv.study = study
         tv
     }
 

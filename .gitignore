@@ -6,6 +6,7 @@ Thumbs.db
 .gradle
 build/
 gradlew*
+gradle/wrapper
 
 # IDEs
 # - IntelliJ IDEA

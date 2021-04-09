@@ -19,8 +19,10 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.TestData
 import spock.lang.Specification
@@ -33,6 +35,8 @@ import static spock.util.matcher.HamcrestSupport.that
 @Integration
 @Rollback
 class TableAccessSpec extends Specification {
+
+    @Autowired SessionFactory sessionFactory
 
     void setupData() {
         TestData.prepareCleanDatabase()
@@ -52,6 +56,7 @@ class TableAccessSpec extends Specification {
         addTableAccess(level: 0, fullName: '\\notini2b2\\',
                 name: 'notini2b2', tableCode: 'i2b2 2nd code',
                 tableName: 'i2b2')
+        sessionFactory.currentSession.flush()
     }
 
     void testBogusTable() {

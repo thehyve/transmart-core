@@ -6,6 +6,7 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import base.RestHelper
 import org.transmartproject.core.multidimquery.ErrorResponse
+import spock.lang.Ignore
 
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.PROTOBUF
@@ -17,6 +18,7 @@ import static tests.rest.Operator.*
 import static tests.rest.ValueType.*
 import static tests.rest.constraints.*
 
+@Ignore("No highdim test data available")
 class HighDimSpec extends RESTSpec {
 
     //see CLINICAL_TRIAL_HIGHDIM, EHR_HIGHDIM and TUMOR_NORMAL_SAMPLES studies at the transmart-data/test_data/studies folder

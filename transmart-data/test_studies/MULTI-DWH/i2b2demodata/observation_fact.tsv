@@ -7,9 +7,9 @@ encounter_num	patient_num	concept_cd	provider_id	start_date	modifier_cd	instance
 -1	5	VAR_bloodpressure	@		@	5	0	N	E	70.2													
 -1	6	VAR_bloodpressure	@		@	6	0	N	E	81.4													
 -1	8	VAR_bloodpressure	@		@	7	0	N	E	66.6													
--1	1	VAR_bloodpressure	@		POS	0	0	T	Standing														
--1	5	VAR_bloodpressure	@		POS	1	0	T	Standing														
--1	6	VAR_bloodpressure	@		POS	2	0	T	Standing														
+1	1	VAR_bloodpressure	@		POS	0	0	T	Standing														
+2	5	VAR_bloodpressure	@		POS	1	0	T	Standing														
+3	6	VAR_bloodpressure	@		POS	2	0	T	Standing														
 -1	8	VAR_bloodpressure	@		POS	3	0	T	Standing														
 -1	1	VAR_bloodpressure	@		POS	4	0	T	Sitting														
 -1	5	VAR_bloodpressure	@		POS	5	0	T	Sitting														

@@ -1,6 +1,7 @@
 package org.transmartproject.db.clinical
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.crosstable.CrossTable
 import org.transmartproject.core.multidimquery.AggregateDataResource
@@ -14,6 +15,7 @@ import org.transmartproject.core.users.User
 
 import java.util.stream.Collectors
 
+@Slf4j
 @CompileStatic
 class CrossTableService extends AbstractDataResourceService {
 

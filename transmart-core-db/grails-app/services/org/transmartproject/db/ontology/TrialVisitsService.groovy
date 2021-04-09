@@ -3,6 +3,7 @@ package org.transmartproject.db.ontology
 import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.Order
 import org.hibernate.criterion.Restrictions
@@ -10,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.i2b2data.TrialVisit
 
+@Slf4j
 @Transactional(readOnly = true)
 class TrialVisitsService {
 
     @Autowired
     SessionFactory sessionFactory
 
-    @Cacheable(value = 'org.transmartproject.db.ontology.TrialVisitsService', key = '#study.name')
+    @Cacheable(value = 'org.transmartproject.db.ontology.TrialVisitsService', key = {study.name})
     List<TrialVisit> findTrialVisitsForStudy(MDStudy study) {
         def session = sessionFactory.openStatelessSession()
         try {

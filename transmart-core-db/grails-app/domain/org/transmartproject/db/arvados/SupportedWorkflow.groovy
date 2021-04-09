@@ -20,7 +20,7 @@ class SupportedWorkflow {
         table          schema:   'I2B2DEMODATA'
         defaultParams type: "text"
         version false
-        id generator: 'sequence'
+        id generator: 'sequence', params: [sequence: 'hibernate_sequence', schema: 'biomart']
     }
 
     static constraints = {
