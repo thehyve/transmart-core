@@ -22,7 +22,7 @@ package org.transmartproject.db.test
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.springframework.beans.factory.annotation.Autowired
 
 import javax.annotation.PostConstruct
@@ -45,12 +45,13 @@ class H2Views {
         Session session = sessionFactory.openSession()
 
         try {
-            if (session instanceof SessionImplementor && !isH2(session)) {
+            if (session instanceof SharedSessionContractImplementor && !isH2(session)) {
                 log.warn 'Skip test resources creation as database is not H2.'
                 return
             }
             log.info 'Executing H2Views init actions'
 
+            def tx = session.beginTransaction()
             createSearchBioMkrCorrelView(session)
             createSearchAuthUserSecAccessV(session)
             createBioMarkerCorrelMv(session)
@@ -58,8 +59,9 @@ class H2Views {
             createSuperPathwayCorrelView(session)
             createModifierDimensionView(session)
             createDeVariantSummaryDetailGene(session)
-        } finally {
             session.flush()
+            tx.commit()
+        } finally {
             session.close()
         }
     }
@@ -69,13 +71,14 @@ class H2Views {
         Session session = sessionFactory.openSession()
 
         try {
-            if (session instanceof SessionImplementor && !isH2(session)) {
+            if (session instanceof SharedSessionContractImplementor && !isH2(session)) {
                 log.warn 'Skip test resources cleanup as the database is not H2.'
                 return
             }
 
             log.info 'Cleaning resources created in H2Views'
 
+            def tx = session.beginTransaction()
             dropViewIfExists(session, 'SEARCHAPP', 'SEARCH_BIO_MKR_CORREL_VIEW')
             dropViewIfExists(session, 'SEARCHAPP', 'SEARCH_AUTH_USER_SEC_ACCESS_V')
             dropViewIfExists(session, 'BIOMART', 'BIO_MARKER_CORREL_MV')
@@ -83,9 +86,9 @@ class H2Views {
             dropViewIfExists(session, 'BIOMART', 'BIO_METAB_SUPERPATHWAY_VIEW')
             dropViewIfExists(session, 'I2B2DEMODATA', 'MODIFIER_DIMENSION_VIEW')
             dropViewIfExists(session, 'DEAPP', 'DE_VARIANT_SUMMARY_DETAIL_GENE')
-
-        } finally {
             session.flush()
+            tx.commit()
+        } finally {
             session.close()
         }
     }
@@ -93,7 +96,7 @@ class H2Views {
     protected static createBioMarkerCorrelMv(Session session) {
         dropTableIfExist(session, 'BIOMART', 'BIO_MARKER_CORREL_MV')
 
-        session.createSQLQuery('''
+        session.createNativeQuery('''
             CREATE VIEW BIOMART.BIO_MARKER_CORREL_MV (
                 BIO_MARKER_ID,
                 ASSO_BIO_MARKER_ID,
@@ -240,7 +243,7 @@ class H2Views {
 
         log.info 'Creating SEARCHAPP.SEARCH_AUTH_USER_SEC_ACCESS_V'
 
-        session.createSQLQuery('''
+        session.createNativeQuery('''
             CREATE VIEW SEARCHAPP.SEARCH_AUTH_USER_SEC_ACCESS_V(
                 search_auth_user_sec_access_id,
                 search_auth_user_id,
@@ -287,7 +290,7 @@ class H2Views {
 
         log.info 'Creating SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW'
 
-        session.createSQLQuery('''
+        session.createNativeQuery('''
             CREATE VIEW SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW (
                 DOMAIN_OBJECT_ID,
                 ASSO_BIO_MARKER_ID,
@@ -344,7 +347,7 @@ class H2Views {
 
         log.info 'Creating BIOMART.BIO_METAB_SUBPATHWAY_VIEW'
 
-        session.createSQLQuery('''
+        session.createNativeQuery('''
             CREATE VIEW BIOMART.BIO_METAB_SUBPATHWAY_VIEW(
                 SUBPATHWAY_ID,
                 ASSO_BIO_MARKER_ID,
@@ -367,7 +370,7 @@ class H2Views {
 
         log.info 'Creating BIOMART.BIO_METAB_SUPERPATHWAY_VIEW'
 
-        session.createSQLQuery('''
+        session.createNativeQuery('''
             CREATE VIEW BIOMART.BIO_METAB_SUPERPATHWAY_VIEW(
                 SUPERPATHWAY_ID,
                 ASSO_BIO_MARKER_ID,
@@ -391,7 +394,7 @@ class H2Views {
 
         log.info 'Creating I2B2DEMODATA.MODIFIER_DIMENSION_VIEW'
 
-        session.createSQLQuery('''
+        session.createNativeQuery('''
             CREATE VIEW I2B2DEMODATA.MODIFIER_DIMENSION_VIEW AS
             SELECT
                 MD.modifier_path,
@@ -414,7 +417,7 @@ class H2Views {
 
         log.info 'Creating DEAPP.DE_VARIANT_SUMMARY_DETAIL_GENE'
 
-        session.createSQLQuery('''
+        session.createNativeQuery('''
             CREATE OR REPLACE VIEW DEAPP.DE_VARIANT_SUMMARY_DETAIL_GENE AS
             SELECT summary.variant_subject_summary_id,
                 summary.chr,
@@ -457,14 +460,14 @@ class H2Views {
     }
 
     protected static boolean dropTableIfExist(Session session, String schema, String tableName) {
-        session.createSQLQuery("DROP TABLE IF EXISTS $schema.$tableName" as String).executeUpdate()
+        session.createNativeQuery("DROP TABLE IF EXISTS $schema.$tableName" as String).executeUpdate()
     }
 
     protected static boolean dropViewIfExists(Session session, String schema, String viewName) {
-        session.createSQLQuery("DROP VIEW IF EXISTS $schema.$viewName" as String).executeUpdate()
+        session.createNativeQuery("DROP VIEW IF EXISTS $schema.$viewName" as String).executeUpdate()
     }
 
-    protected static boolean isH2(SessionImplementor session) {
+    protected static boolean isH2(SharedSessionContractImplementor session) {
         session.connection().metaData.databaseProductName.equalsIgnoreCase('h2')
     }
 }

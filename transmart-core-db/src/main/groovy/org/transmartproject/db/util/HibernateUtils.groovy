@@ -4,7 +4,6 @@ package org.transmartproject.db.util
 
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.Criteria
-import org.hibernate.SharedSessionContract
 import org.hibernate.StatelessSession
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projection
@@ -13,7 +12,7 @@ import org.hibernate.engine.query.spi.sql.NativeSQLQueryScalarReturn
 import org.hibernate.engine.query.spi.sql.NativeSQLQuerySpecification
 import org.hibernate.engine.spi.QueryParameters
 import org.hibernate.engine.spi.SessionFactoryImplementor
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.loader.criteria.CriteriaJoinWalker
 import org.hibernate.loader.criteria.CriteriaQueryTranslator
@@ -32,12 +31,12 @@ class HibernateUtils {
     final static HibernateCriteriaBuilder createCriteriaBuilder(
             Class targetClass,
             String alias,
-            SharedSessionContract session,
+            SharedSessionContractImplementor session,
             readOnly = true,
             cacheable = false,
             fetchSize = 10000) {
 
-        HibernateCriteriaBuilder builder = new HibernateCriteriaBuilder(targetClass, ((SessionImplementor)session).factory)
+        HibernateCriteriaBuilder builder = new HibernateCriteriaBuilder(targetClass, session.factory)
 
         /* we have to write a private here */
         if (session) {
@@ -67,7 +66,7 @@ class HibernateUtils {
 
     final static Criteria getExecutableCriteria(DetachedCriteria detachedCriteria, StatelessSession session) {
         CriteriaImpl impl = detachedCriteria.criteriaImpl
-        impl.setSession((SessionImplementor) session);
+        impl.setSession((SharedSessionContractImplementor) session);
         return impl;
     }
 
@@ -83,7 +82,7 @@ class HibernateUtils {
 
     static NativeSQLQueryDetails getNativeSQLQueryDetails(Criteria criteria) {
         assert criteria instanceof CriteriaImpl
-        SessionImplementor session = criteria.session
+        SharedSessionContractImplementor session = criteria.session
         SessionFactoryImplementor factory = session.factory
         CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteria, criteria.entityOrClassName,
                 CriteriaQueryTranslator.ROOT_SQL_ALIAS)
@@ -116,7 +115,7 @@ class HibernateUtils {
 
     static int insertResultToTable(final Class entityClass, final List<String> properties, final Criteria resultCriteria) {
         assert resultCriteria instanceof CriteriaImpl
-        SessionImplementor session = resultCriteria.session
+        SharedSessionContractImplementor session = resultCriteria.session
         SessionFactoryImplementor factory = session.factory
         String[] implementors = factory.getImplementors(entityClass.name)
         String implementor = implementors[0]
