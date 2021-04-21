@@ -11,7 +11,7 @@ Below are the installation instructions for tranSMART version 17.2.8. If you alr
 ## 1. Prerequisites
 
 Supported operating systems (some others are likely supported, but not tested):
-* Ubuntu 16.04 and 18.04
+* Ubuntu 16.04, 18.04 and 20.04
 * CentOS 7
 * MacOS Sierra
 

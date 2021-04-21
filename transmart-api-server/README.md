@@ -32,9 +32,9 @@ Login to `https://idp.example.com/auth/admin/` and:
 1. Create a realm, e.g., `dev`
 2. Create a client, e.g., `transmart-client`
     - Client Protocol: `openid-connect`
-    - Access Type: `confidential`
+    - Access Type: `public`
     - Standard Flow Enabled: `On`
-    - Valid Redirect URIs: `https://glowingbear.example.com`
+    - Valid Redirect URIs: `https://glowingbear.example.com/*`
     - Web Origins: `https://glowingbear.example.com`
 
     **Note:** For Keycloak versions > 4.5.0, configure client mappers to include client ID in the aud (audience) claim. 
@@ -80,50 +80,15 @@ Login to `https://idp.example.com/auth/admin/` and:
 
 ## Configure TranSMART to accept tokens from Keycloak
 
-Create an offline token in order to access Keycloak offline (e.g. by offline quartz jobs from transmart-notifications). To get the token on behalf of a user, the user needs to have the role mapping for the realm-level: `"offline_access"`.
-```bash
-    curl \
-      -d 'client_id=<CLIENT_ID>' \
-      -d 'username=<USERNAME>' \
-      -d 'password=<PASSWORD>' \
-      -d 'grant_type=password' \
-      -d 'scope=offline_access' \
-      'https://YOUR_KEYCLOAK_SERVER_HOST/auth/realms/YOUR_REALM/protocol/openid-connect/token'
-```
-
-You will get the following reply:
-```json
-{
-  "access_token": "...",
-  "expires_in": 480,
-  "refresh_expires_in": 0,
-  "refresh_token": "{the offline token}",
-  "token_type": "bearer",
-  "not-before-policy": 0,
-  "session_state": "2b5e947f-4143-4e07-bf21-fc0871e3e335",
-  "scope": "offline_access"
-}
-```
-
-The value of the `refresh_token` field is the offline token.
-It is used as an Refresh token, except it does not have the expiration date.
-
-Note that the user needs to have the `view-users` rol for the `realm-management` client
-to enable fetching of users with this token.
-
 Create a file `transmart-api-server.config.yml` with the following settings (replace names in brackets with your data):
 ```yaml
 keycloak:
     resource: {transmart-client}
-    auth-server-url: https://{idp.example.com}/auth
+    auth-server-url: {https://idp.example.com/auth}
     realm: {dev}
     bearer-only: true
     use-resource-role-mappings: true
     verify-token-audience: true
-
-# to enable use of keycloak API to fetch list of users for jobs
-keycloakOffline:
-    offlineToken: {offlineToken}
 
 # by default, users without any role are not denied access
 org.transmartproject.security.denyAccessToUsersWithoutRole: false

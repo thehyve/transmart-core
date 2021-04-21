@@ -1,15 +1,17 @@
-# TranSMART API Server Docker Image
+# TranSMART API server Docker image
 
 ## Configuration
 
 The image requires the following environment variables to be present:
 
-NAME            | Description
-----------------|--------------------------------------------------------
-`PGHOST`        | Where the Postgres database is hosted
-`PGPORT`        | Port that the API server should use to contact Postgres
-`KEYCLOAK_HOST` | Where Keycloak is hosted
-`KEYCLOAK_PORT` | Port that the API server should use to contact Keycloak
+Variable              | Default
+----------------------|-------------
+`PGHOST`              |
+`PGPORT`              | `5432`
+`PGDATABASE`          | `transmart`
+`KEYCLOAK_SERVER_URL` |
+`KEYCLOAK_REALM`      |
+`KEYCLOAK_CLIENT_ID`  |
 
 The values are set in the config.yml file in the entrypoint of the Docker image,
 represented by the `docker-entrypoint.sh` file.
@@ -19,12 +21,12 @@ the file is imported to the default certificate store of Java at startup.
 
 ## Ports
 
-The image exposes the following ports:
+The docker-compose script exposes the following ports:
 
 Value    | Type  | Description
 ---------|-------|-----------------
-8081     | `tcp` | Port of the API Server  
-
+8081     | `tcp` | Port of the API Server
 
 ## Volumes
-None
+
+- `transmart-db-data`
