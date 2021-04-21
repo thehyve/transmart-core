@@ -50,7 +50,7 @@ org.transmartproject.security.denyAccessToUsersWithoutRole: ${DENY_ACCESS_WITHOU
 keycloak:
     realm: ${KEYCLOAK_REALM}
     bearer-only: true
-    auth-server-url: ${KEYCLOAK_SERVER_URL}/auth
+    auth-server-url: ${KEYCLOAK_SERVER_URL}
     resource: ${KEYCLOAK_CLIENT_ID}
     use-resource-role-mappings: true
     verify-token-audience: true

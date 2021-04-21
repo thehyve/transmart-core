@@ -97,14 +97,11 @@ environments:
         keycloak:
             realm: ${KEYCLOAK_REALM:dev}
             bearer-only: true
-            auth-server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}/auth
+            auth-server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080/auth}
             resource: ${KEYCLOAK_CLIENT_ID:transmart}
             use-resource-role-mappings: true
             verify-token-audience: true
 #            disable-trust-manager: false  # when true, SSL certificate checking is disabled. Do not use that in production!
-
-#        keycloakOffline:
-#            offlineToken: <offline token>
 
 # org.transmartproject.security.denyAccessToUsersWithoutRole: false  # when true, users without any role are denied access.
 # If true, the ROLE_PUBLIC role can be used to grant access to users

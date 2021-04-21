@@ -27,7 +27,7 @@ import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.criterion.Subqueries
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
@@ -44,7 +44,7 @@ class TerminalConceptVariablesDataQuery {
 
     Iterable<PatientDimension> patients
 
-    SessionImplementor session
+    SharedSessionContractImplementor session
 
     private boolean inited
 

@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.springframework.stereotype.Component
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
@@ -31,7 +31,7 @@ import org.transmartproject.db.i2b2data.PatientDimension
 class InnerClinicalTabularResultFactory {
 
     Collection<TerminalClinicalVariablesTabularResult> createIntermediateResults(
-            SessionImplementor session,
+            SharedSessionContractImplementor session,
             Iterable<PatientDimension> patients,
             List<TerminalClinicalVariable> flattenedVariables) {
         flattenedVariables.groupBy { it.group }.
@@ -42,7 +42,7 @@ class InnerClinicalTabularResultFactory {
 
     TerminalClinicalVariablesTabularResult createForGroup(
             String group,
-            SessionImplementor session,
+            SharedSessionContractImplementor session,
             Iterable<PatientDimension> patients,
             List<TerminalClinicalVariable> relevantVariables) {
         switch (group) {

@@ -25,7 +25,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.hibernate.FetchMode
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -216,7 +216,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
     @Override
     HibernateCriteriaBuilder prepareDataQuery(
         Projection projection,
-        SessionImplementor session) {
+        SharedSessionContractImplementor session) {
         throw new UnsupportedByDataTypeException("The snp_lz data module requires " +
             "the list of assays to be specified when querying data.")
     }
@@ -225,7 +225,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
     HibernateCriteriaBuilder prepareDataQuery(
         List<AssayColumn> assays,
         Projection projection,
-        SessionImplementor session) {
+        SharedSessionContractImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
                 createCriteriaBuilder(SnpDataByProbeCoreDb, 'snp', session)
 
