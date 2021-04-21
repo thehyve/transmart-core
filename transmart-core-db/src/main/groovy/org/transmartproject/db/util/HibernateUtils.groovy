@@ -3,8 +3,8 @@
 package org.transmartproject.db.util
 
 import grails.orm.HibernateCriteriaBuilder
-import org.grails.core.util.ClassPropertyFetcher
 import org.hibernate.Criteria
+import org.hibernate.SharedSessionContract
 import org.hibernate.StatelessSession
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projection
@@ -15,7 +15,6 @@ import org.hibernate.engine.spi.QueryParameters
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.internal.CriteriaImpl
-import org.hibernate.internal.SessionImpl
 import org.hibernate.loader.criteria.CriteriaJoinWalker
 import org.hibernate.loader.criteria.CriteriaQueryTranslator
 import org.hibernate.persister.entity.OuterJoinLoadable
@@ -33,12 +32,12 @@ class HibernateUtils {
     final static HibernateCriteriaBuilder createCriteriaBuilder(
             Class targetClass,
             String alias,
-            SessionImplementor session,
+            SharedSessionContract session,
             readOnly = true,
             cacheable = false,
             fetchSize = 10000) {
 
-        HibernateCriteriaBuilder builder = new HibernateCriteriaBuilder(targetClass, session.factory)
+        HibernateCriteriaBuilder builder = new HibernateCriteriaBuilder(targetClass, ((SessionImplementor)session).factory)
 
         /* we have to write a private here */
         if (session) {
