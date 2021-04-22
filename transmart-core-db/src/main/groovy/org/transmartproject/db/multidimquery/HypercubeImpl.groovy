@@ -246,11 +246,7 @@ class HypercubeImpl implements Hypercube {
 
     void close() {
         if (!criteria.session.isClosed()) {
-            if (criteria.session instanceof Closeable) {
-                ((Closeable) criteria.session).close()
-            } else {
-                throw new IllegalStateException('Session can not be closed')
-            }
+            criteria.session.close()
         }
     }
 

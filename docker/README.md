@@ -17,7 +17,7 @@ can be used to configure Keycloak:
 
 Variable              | Default value
 ----------------------|---------------
-`KEYCLOAK_SERVER_URL` | https://keycloak-dwh-test.thehyve.net
+`KEYCLOAK_SERVER_URL` | https://keycloak-dwh-test.thehyve.net/auth
 `KEYCLOAK_REALM`      | transmart-dev
 `KEYCLOAK_CLIENT_ID`  | transmart-client
 
@@ -52,7 +52,7 @@ Publish the image to [Docker Hub](https://hub.docker.com/r/thehyve/transmart-api
 
 ```bash
 docker login
-TRANSMART_VERSION="17.2.8"
+TRANSMART_VERSION="17.2.9"
 docker tag transmart-api-server "thehyve/transmart-api-server:${TRANSMART_VERSION}"
 docker push "thehyve/transmart-api-server:${TRANSMART_VERSION}"
 ```

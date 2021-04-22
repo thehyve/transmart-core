@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.SessionFactory
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.internal.CriteriaImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -156,16 +156,16 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     HibernateCriteriaBuilder prepareDataQuery(
             List<AssayColumn> assays,
             Projection projection,
-            SessionImplementor session) {
+            SharedSessionContractImplementor session) {
         return prepareDataQuery(projection, session)
     }
 
     abstract HibernateCriteriaBuilder prepareDataQuery(
             Projection projection,
-            SessionImplementor session)
+            SharedSessionContractImplementor session)
 
     final protected HibernateCriteriaBuilder createCriteriaBuilder(
-            Class targetClass, String alias, SessionImplementor session) {
+            Class targetClass, String alias, SharedSessionContractImplementor session) {
 
         HibernateCriteriaBuilder builder = new HibernateCriteriaBuilder(targetClass, sessionFactory)
 

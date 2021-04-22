@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.protein
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -88,7 +88,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection,
-                                              SessionImplementor session) {
+                                              SharedSessionContractImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
             createCriteriaBuilder(DeSubjectProteinData, 'proteindata', session)
 

@@ -23,7 +23,7 @@ import com.google.common.collect.*
 import com.google.common.io.Closer
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -38,14 +38,14 @@ class ClinicalDataTabularResult implements TabularResult<TerminalClinicalVariabl
 
     private SortedMap<Long, Patient> patientMap
 
-    private SessionImplementor session
+    private SharedSessionContractImplementor session
 
     List<TerminalClinicalVariable> indicesList
 
     Map<TerminalClinicalVariable, TerminalClinicalVariablesTabularResult> indexOwnerMap
 
     @CompileStatic(TypeCheckingMode.PASS)
-    ClinicalDataTabularResult(SessionImplementor session,
+    ClinicalDataTabularResult(SharedSessionContractImplementor session,
                               Collection<TerminalClinicalVariablesTabularResult> tabResults,
                               SortedMap<Long, Patient> patientMap) {
         this.session    = session
