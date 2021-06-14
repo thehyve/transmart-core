@@ -1,5 +1,5 @@
 # tranSMART
-[![Build Status](https://travis-ci.org/thehyve/transmart-core.svg?branch=master)](https://travis-ci.org/thehyve/transmart-core/branches)
+[![Build Status](https://travis-ci.com/thehyve/transmart-core.svg?branch=master)](https://travis-ci.com/thehyve/transmart-core/branches)
 
 This is the repository containing the core components and documentation of the _tranSMART_ platform,
 an open source data sharing and analytics platform for translational biomedical research. tranSMART

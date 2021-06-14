@@ -2,9 +2,9 @@ buildscript {
     ext {
         assetPipelineVersion = '2.15.1'
         grailsVersion = '3.3.11'
-        guavaVersion = '30.0-jre'
+        guavaVersion = '30.1.1-jre'
         jansiVersion = '1.14'
-        protobufVersion = '3.12.2'
+        protobufVersion = '3.17.3'
     }
     repositories {
         mavenLocal()
@@ -37,19 +37,19 @@ ext {
 
     assetPipelineVersion = '2.15.1'
     grailsVersion = '3.3.11'
-    guavaVersion = '30.0-jre'
+    guavaVersion = '30.1.1-jre'
     hibernateVersion = '5.2.18.Final'
-    jacksonVersion = '2.11.0'
-    keycloakVersion = '12.0.4'
-    liquibaseVersion = '3.10.0'
+    jacksonVersion = '2.12.3'
+    keycloakVersion = '13.0.1'
+    liquibaseVersion = '3.10.3'
     ojdb8Version = '12.2.0.1'
-    openCsvVersion = '5.2'
-    postgresqlVersion = '42.2.14.jre7'
-    protobufVersion = '3.12.2'
+    openCsvVersion = '5.4'
+    postgresqlVersion = '42.2.21.jre7'
+    protobufVersion = '3.17.3'
     quartzPluginVersion = '2.0.13'
     quartzVersion = '2.3.2'
-    springSecurityVersion = '4.2.17.RELEASE'
-    tomcatVersion = '8.5.63'
+    springSecurityVersion = '4.2.20.RELEASE'
+    tomcatVersion = '8.5.66'
 }
 
 version = transmartVersion
