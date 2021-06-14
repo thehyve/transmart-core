@@ -123,7 +123,7 @@ Database schemas for both Oracle and Postgres are stored in the [transmart-data]
 4. If required, change [the test data](transmart-data/test_data/).
 
 ## <a name="test-travis"></a> Automated tests on Travis CI
-All Pull Requests are automatically tested on [Travis CI](https://travis-ci.org/thehyve/transmart-core). Currently there is a set of tests for the core modules:
+All Pull Requests are automatically tested on [Travis CI](https://travis-ci.com/thehyve/transmart-core). Currently there is a set of tests for the core modules:
 * Tests for transmart-core-db module against H2 database, 
 * Tests for transmart-rest-api module, 
 * Tests for transmart-core-db module against Postgres database,
