@@ -33,7 +33,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.owasp.dependencycheck'
 
 ext {
-    transmartVersion = '17.2.9'
+    transmartVersion = '17.2.10'
 
     assetPipelineVersion = '2.15.1'
     grailsVersion = '3.3.11'
