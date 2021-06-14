@@ -292,12 +292,15 @@ class AggregateDataOptimisationsService {
 
     private void refreshMaterializedView(String schema, String function) {
         def connection = getConnection()
+        def statement = null
         try {
             log.info "Refreshing $schema.$function materialized view ..."
-            getConnection().prepareStatement("refresh materialized VIEW $schema.$function").executeUpdate()
+            statement = connection.prepareStatement("refresh materialized VIEW $schema.$function")
+            statement.executeUpdate()
         } catch (Exception e) {
             log.warn "$schema.$function materialized view not updated. $e.message"
         } finally {
+            statement?.close()
             connection?.close()
         }
     }
