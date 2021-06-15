@@ -106,7 +106,9 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     @CompileDynamic
     static DimensionDescription findDimensionDescriptionByName(String name) {
-        DimensionDescription.findByName(name)
+        DimensionDescription.withTransaction { status ->
+            DimensionDescription.findByName(name)
+        }
     }
 
     static DimensionImpl fromName(String name) {
