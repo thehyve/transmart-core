@@ -27,7 +27,7 @@ dependencies {
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:async"
     compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:database-migration:3.0.4"
+    compile "org.grails.plugins:database-migration:3.1.0"
     compile "org.grails.plugins:hibernate5"
     compile "org.grails.plugins:views-json"
     compile "org.grails.plugins:views-json-templates"

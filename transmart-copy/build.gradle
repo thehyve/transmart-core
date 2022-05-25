@@ -9,15 +9,15 @@ apply plugin: 'application'
 apply plugin: 'codenarc'
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.15'
+    compile 'org.codehaus.groovy:groovy-all:2.4.21'
     compile "com.opencsv:opencsv:${openCsvVersion}"
-    compile 'commons-cli:commons-cli:1.4'
-    compile 'org.slf4j:slf4j-api:1.7.25'
-    compile 'ch.qos.logback:logback-classic:1.2.2'
+    compile 'commons-cli:commons-cli:1.5.0'
+    compile 'org.slf4j:slf4j-api:1.7.36'
+    compile 'ch.qos.logback:logback-classic:1.2.11'
     compile "org.postgresql:postgresql:${postgresqlVersion}"
     compile 'me.tongfei:progressbar:0.5.5'
-    compile 'com.zaxxer:HikariCP:2.6.1'
-    compile 'org.springframework:spring-jdbc:4.3.12.RELEASE'
+    compile 'com.zaxxer:HikariCP:2.6.3'
+    compile 'org.springframework:spring-jdbc:4.3.30.RELEASE'
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 }

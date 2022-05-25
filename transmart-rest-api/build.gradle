@@ -10,13 +10,13 @@ dependencies {
         exclude group: 'org.fusesource.jansi', module: 'jansi'
     }
 
-    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile "ch.qos.logback:logback-classic:${logbackVersion}"
     compile 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
     compile "com.google.guava:guava:${guavaVersion}"
     compile "com.google.protobuf:protobuf-java:${protobufVersion}"
     compile "com.google.protobuf:protobuf-java-util:${protobufVersion}"
     compile "com.opencsv:opencsv:${openCsvVersion}"
-    compile "commons-io:commons-io:2.6"
+    compile "commons-io:commons-io:2.11.0"
     compile "commons-fileupload:commons-fileupload:1.4"
     compile "org.grails:grails-core"
     compile "org.grails:grails-dependencies"
