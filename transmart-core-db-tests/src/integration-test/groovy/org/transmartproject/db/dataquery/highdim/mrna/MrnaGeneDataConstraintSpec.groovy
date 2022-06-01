@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.mrna
 
 import grails.orm.HibernateCriteriaBuilder
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException

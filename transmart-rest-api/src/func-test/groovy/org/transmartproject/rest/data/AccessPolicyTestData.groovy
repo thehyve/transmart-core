@@ -122,11 +122,11 @@ class AccessPolicyTestData extends TestData {
         }
 
         def visualAttributes = 'FA '
-        def factTableColumn = ''
-        def dimensionTableName = ''
-        def columnName = ''
-        def operator = ''
-        def dimensionCode = ''
+        def factTableColumn = '@'
+        def dimensionTableName = '@'
+        def columnName = '@'
+        def operator = '@'
+        def dimensionCode = '@'
 
         if (conceptPath) {
             requireNonNull(conceptType)
@@ -139,7 +139,6 @@ class AccessPolicyTestData extends TestData {
             dimensionCode = conceptPath
         } else if (study) {
             visualAttributes = 'FAS'
-            factTableColumn = ''
             dimensionTableName = 'study'
             columnName = 'study_id'
             operator = '='

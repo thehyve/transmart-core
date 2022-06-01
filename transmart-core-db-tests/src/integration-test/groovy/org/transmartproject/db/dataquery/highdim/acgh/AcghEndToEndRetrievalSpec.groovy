@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.acgh
 
 import com.google.common.collect.Lists
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
@@ -38,6 +38,8 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import spock.lang.Specification
+
+import java.text.SimpleDateFormat
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VALUES_PROJECTION
@@ -197,7 +199,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
         def anotherPlatform = new DeGplInfo(
                 title: 'Another Test Region Platform',
                 organism: 'Homo Sapiens',
-                annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
+                annotationDate: new SimpleDateFormat('yyyy-MM-dd').parse('2013-08-03'),
                 markerType: 'Chromosomal',
                 genomeReleaseId: 'hg19',
         )

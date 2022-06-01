@@ -22,7 +22,7 @@ import grails.plugins.Plugin
  */
 
 class TransmartCoreDbTestsGrailsPlugin extends Plugin {
-    def grailsVersion = "3.1.10 > *"
+    def grailsVersion = "4.1.0 > *"
 
     def title = "Transmart Core Db Tests Plugin"
     def author = "Transmart Foundation"

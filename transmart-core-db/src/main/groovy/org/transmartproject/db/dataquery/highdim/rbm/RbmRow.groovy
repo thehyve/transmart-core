@@ -23,7 +23,6 @@ import groovy.transform.ToString
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
-@ToString(excludes = [ 'assayIndexMap' ])
 class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
     Integer annotationId

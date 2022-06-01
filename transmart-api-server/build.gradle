@@ -26,14 +26,14 @@ dependencies {
     compile "org.grails:grails-plugin-databinding"
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:async"
-    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:cache:${cachePluginVersion}"
     compile "org.grails.plugins:database-migration:3.1.0"
     compile "org.grails.plugins:hibernate5"
     compile "org.grails.plugins:views-json"
     compile "org.grails.plugins:views-json-templates"
     compile "org.hibernate:hibernate-core:${hibernateVersion}"
     compile "org.hibernate:hibernate-ehcache:${hibernateVersion}"
-    compile("org.keycloak:keycloak-legacy-spring-boot-starter") {
+    compile("org.keycloak:keycloak-spring-boot-starter") {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
@@ -54,21 +54,22 @@ dependencies {
     compile "org.apache.tomcat.embed:tomcat-embed-el:${tomcatVersion}"
     compile "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}"
 
-    compile project(':transmart-rest-api')
     compile project(':transmart-schemas')
+    compile project(':transmart-rest-api')
 
     runtime('ch.qos.logback.contrib:logback-jackson:0.1.5') {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
 
-    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+    testCompile 'org.spockframework:spock-core:2.1-groovy-2.5'
 }
 
 bootRun {
     jvmArgs = ['-Dspring.output.ansi.enabled=always']
+    sourceResources sourceSets.main
 }
 
-war {
+tasks.named("bootWar") {
     webInf {
         with copySpec({
             from '../open-api'
@@ -81,7 +82,7 @@ task executableWar(type: Copy) {
     from "${libsDir}/${project.name}-${project.version}.war"
     into "${distsDir}"
 }
-executableWar.dependsOn 'bootRepackage'
+executableWar.dependsOn 'bootWar'
 
 publishing {
     publications {

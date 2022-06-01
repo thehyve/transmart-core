@@ -1,7 +1,7 @@
 package org.transmartproject.db.log
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.transmartproject.core.users.User
 import spock.lang.Specification
 

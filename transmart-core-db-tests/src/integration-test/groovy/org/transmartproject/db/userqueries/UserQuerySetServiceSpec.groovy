@@ -1,8 +1,8 @@
 package org.transmartproject.db.userqueries
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.NotTransactional
+import grails.gorm.transactions.Transactional
 import grails.util.Holders
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.query.ConceptConstraint

@@ -130,7 +130,7 @@ class HypercubeImpl implements Hypercube {
         dimensionElementKeys[dim][idx]
     }
 
-    private <ELT, ELKey> int indexDimensionElement(DimensionImpl<ELT, ELKey> dimension, ELKey dimensionElementKey) {
+    private <Object, Object> int indexDimensionElement(DimensionImpl dimension, Object dimensionElementKey) {
         IndexedArraySet<Object> elementKeys = dimensionElementKeys[dimension]
         if (!elementKeys) {
             elementKeys = new IndexedArraySet()

@@ -17,14 +17,9 @@ spring:
     groovy:
         template:
             check-template-location: false
-
-# Spring Actuator Endpoints are Disabled by Default
-endpoints:
-    enabled: false
     jmx:
         enabled: true
-    health:
-        enabled: true # enable health endpoint for application monitoring
+
 management:
     security:
         roles: ADMIN # only ROLE_ADMIN can see the full health details
@@ -32,7 +27,17 @@ management:
     health:
         diskspace:
             enabled: false # show diskspace health indicator properties
-
+    endpoints:
+        enabled-by-default: false # Spring Actuator Endpoints are Disabled by Default
+        web:
+            exposure:
+                include: health
+            base-path: /
+            path-mapping:
+                health: health
+    endpoint:
+        health:
+            enabled: true  # enable health endpoint for application monitoring
 ---
 hibernate:
     cache:
@@ -58,8 +63,8 @@ dataSource:
 grails:
     plugin:
         databasemigration:
-            updateOnStartFileName: classpath:db/changelog/db.changelog-master.yaml
             # updateOnStart: true  # If true, schema update scripts are executed at startup
+            updateOnStartFileName: db/changelog/db.changelog-master.yaml
 
 ---
 grails:

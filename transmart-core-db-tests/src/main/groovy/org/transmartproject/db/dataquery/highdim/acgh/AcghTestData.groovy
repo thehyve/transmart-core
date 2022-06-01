@@ -29,6 +29,8 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
+import java.text.SimpleDateFormat
+
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 
@@ -37,6 +39,8 @@ class AcghTestData {
     static final String TRIAL_NAME = 'REGION_SAMP_TRIAL'
 
     static final String ACGH_PLATFORM_MARKER_TYPE = 'Chromosomal'
+
+    private SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd')
 
     SampleBioMarkerTestData bioMarkerTestData
 
@@ -59,7 +63,7 @@ class AcghTestData {
         def p = new DeGplInfo(
                 title: 'Test Region Platform',
                 organism: 'Homo Sapiens',
-                annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
+                annotationDate: sdf.parse('2013-05-03'),
                 markerType: ACGH_PLATFORM_MARKER_TYPE,
                 genomeReleaseId: 'hg18',
         )

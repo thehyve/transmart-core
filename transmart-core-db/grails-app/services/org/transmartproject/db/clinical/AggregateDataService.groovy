@@ -6,7 +6,7 @@ import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.CachePut
 import grails.plugin.cache.Cacheable
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileDynamic

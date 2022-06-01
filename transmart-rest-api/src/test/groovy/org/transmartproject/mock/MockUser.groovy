@@ -12,7 +12,7 @@ import org.transmartproject.core.users.User
 class MockUser implements User {
 
     protected boolean admin = false
-    protected String username
+    String username
     Map<String, PatientDataAccessLevel> accessLevels = [:]
 
     MockUser(String username) {

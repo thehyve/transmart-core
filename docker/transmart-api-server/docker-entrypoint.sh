@@ -38,7 +38,11 @@ dataSource:
     password: ${BIOMART_USER_PASSWORD:-biomart_user}
 
 # Create or update the database schema at application startup
-grails.plugin.databasemigration.updateOnStart: true
+grails:
+    plugin:
+        databasemigration:
+            updateOnStartFileName: db/changelog/db.changelog-master.yaml
+            updateOnStart: true
 
 # Disable saving application logs in the database
 org.transmartproject.system.writeLogToDatabase: false

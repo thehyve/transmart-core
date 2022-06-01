@@ -19,11 +19,9 @@
 
 package org.transmartproject.db.ontology
 
-import grails.core.GrailsDomainClassProperty
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import grails.util.Holders
-import org.grails.core.DefaultGrailsDomainClass
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.hibernate.SessionFactory

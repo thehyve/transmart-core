@@ -1,7 +1,7 @@
 package org.transmartproject.db.clinical
 
 import grails.orm.HibernateCriteriaBuilder
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import grails.util.Holders
 import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
