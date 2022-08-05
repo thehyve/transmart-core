@@ -1,7 +1,7 @@
 buildscript {
     ext {
         assetPipelineVersion = '2.15.1'
-        grailsVersion = '4.1.0'
+        grailsVersion = '4.1.1'
         gormVersion = '7.0.2'
         guavaVersion = '30.1.1-jre'
         jansiVersion = '1.14'
@@ -42,7 +42,7 @@ ext {
     transmartVersion = '17.2-SNAPSHOT'
 
     assetPipelineVersion = '2.15.1'
-    grailsVersion = '4.1.0'
+    grailsVersion = '4.1.1'
     guavaVersion = '30.1.1-jre'
     hibernateVersion = '5.4.0.Final'
     jacksonVersion = '2.12.6'

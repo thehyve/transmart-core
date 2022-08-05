@@ -81,6 +81,6 @@ exec java -jar -server \
           "-Djava.awt.headless=true" \
           "-Dserver.port=${APP_PORT}" \
           "-Djava.security.egd=file:///dev/urandom" \
-          "-Dspring.config.location=${TRANSMART_API_SERVER_CONFIG_FILE}" \
+          "-Dspring.config.additional-location=${TRANSMART_API_SERVER_CONFIG_FILE}" \
           "-Dlogging.config=/logback.groovy" \
 					"${TRANSMART_SERVICE_WAR_FILE}"
