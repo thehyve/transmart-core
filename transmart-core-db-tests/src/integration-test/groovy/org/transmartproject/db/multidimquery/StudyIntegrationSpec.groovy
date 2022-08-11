@@ -1,7 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.transmartproject.db.TestData
 import spock.lang.Specification
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData

@@ -4,7 +4,7 @@ package org.transmartproject.rest
 
 import grails.converters.JSON
 import grails.rest.RestfulController
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.db.arvados.SupportedWorkflow

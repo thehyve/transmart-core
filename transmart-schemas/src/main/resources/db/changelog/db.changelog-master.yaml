@@ -1,20 +1,20 @@
 databaseChangeLog:
   - include:
-      file: classpath:db/changelog/changes/00000000000000_i2b2demodata.xml
+      file: db/changelog/changes/00000000000000_i2b2demodata.xml
   - include:
-      file: classpath:db/changelog/changes/00000000000000_i2b2metadata.xml
+      file: db/changelog/changes/00000000000000_i2b2metadata.xml
   - include:
-      file: classpath:db/changelog/changes/00000000000000_ts_batch.xml
+      file: db/changelog/changes/00000000000000_ts_batch.xml
   - include:
-      file: classpath:db/changelog/changes/20190617133319_i2b2demodata_change_visit_pk.xml
+      file: db/changelog/changes/20190617133319_i2b2demodata_change_visit_pk.xml
   - include:
-      file: classpath:db/changelog/changes/20190625151656_create_pg_bitcount_extension.xml
+      file: db/changelog/changes/20190625151656_create_pg_bitcount_extension.xml
   - include:
-      file: classpath:db/changelog/changes/20191907041159_biomart_user_views.xml
+      file: db/changelog/changes/20191907041159_biomart_user_views.xml
   - include:
-      file: classpath:db/changelog/changes/20190926092415_async_job_seq.xml
+      file: db/changelog/changes/20190926092415_async_job_seq.xml
   - include:
-      file: classpath:db/changelog/changes/20200210135535_autoincrement_id_columns.xml
+      file: db/changelog/changes/20200210135535_autoincrement_id_columns.xml
   - include:
-      file: classpath:db/changelog/changes/20210409092726_autoincrement_patient_set_id_column.xml
+      file: db/changelog/changes/20210409092726_autoincrement_patient_set_id_column.xml
 relativeToChangelogFile: false

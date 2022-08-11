@@ -28,7 +28,7 @@ import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.db.dataquery.clinical.variables.AbstractComposedVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
 
-@ToString(includes = ['label', 'delegatingDataRow'])
+@ToString(includes = ['label', 'delegatingDataRows'])
 class PatientRowImpl implements PatientRow {
 
     Patient patient

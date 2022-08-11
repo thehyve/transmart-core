@@ -27,6 +27,8 @@ import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.util.StringUtils
 
+import java.text.SimpleDateFormat
+
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
@@ -46,7 +48,8 @@ import static org.transmartproject.db.support.DatabasePortabilityService.Databas
 class HibernateCriteriaQueryBuilder extends ConstraintBuilder<Criterion> implements QueryBuilder<DetachedCriteria> {
 
     public static final String SUBJECT_ID_SOURCE = 'SUBJ_ID'
-    public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+    static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final Date EMPTY_DATE = format.parse('0001-01-01 00:00:00')
     static final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
 
     static HibernateCriteriaQueryBuilder forStudies(Collection<MDStudy> studies) {

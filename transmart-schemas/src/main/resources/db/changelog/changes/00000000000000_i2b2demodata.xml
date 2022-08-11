@@ -557,11 +557,11 @@
     </changeSet>
 
     <changeSet id="1556187426158-3" author="gijs@thehyve.nl">
-        <loadData file="classpath:db/changelog/changes/data/qt_query_result_type.csv"
+        <loadData file="db/changelog/changes/data/qt_query_result_type.csv"
                   relativeToChangelogFile="false"
                   schemaName="i2b2demodata"
                   tableName="qt_query_result_type"/>
-        <loadData file="classpath:db/changelog/changes/data/qt_query_status_type.csv"
+        <loadData file="db/changelog/changes/data/qt_query_status_type.csv"
                   relativeToChangelogFile="false"
                   schemaName="i2b2demodata"
                   tableName="qt_query_status_type"/>

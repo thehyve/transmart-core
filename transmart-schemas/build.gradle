@@ -9,16 +9,19 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter'
     compile "org.liquibase:liquibase-core:${liquibaseVersion}"
     compile "org.postgresql:postgresql:${postgresqlVersion}"
-    compile 'commons-cli:commons-cli:1.4'
-    compile 'org.slf4j:slf4j-api:1.7.25'
-    compile 'ch.qos.logback:logback-classic:1.2.2'
-    compile 'com.zaxxer:HikariCP:2.6.1'
-    compile 'org.springframework:spring-jdbc:4.3.12.RELEASE'
+    compile 'commons-cli:commons-cli:1.5.0'
+    compile 'org.slf4j:slf4j-api:1.7.36'
+    compile "ch.qos.logback:logback-classic:${logbackVersion}"
+    compile 'com.zaxxer:HikariCP:2.6.3'
+    compile 'org.springframework:spring-jdbc:4.3.30.RELEASE'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
-    testRuntime 'com.h2database:h2:1.4.197'
+    testRuntime 'com.h2database:h2:1.4.200'
 }
 
-jar {
+tasks.named("bootJar") {
+    from('src/main/resources') {
+        include '**/*.*'
+    }
     manifest {
         attributes(
             'Implementation-Version': project.version

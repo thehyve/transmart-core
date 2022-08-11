@@ -1,6 +1,6 @@
 package org.transmartproject.db.userqueries
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.Criteria

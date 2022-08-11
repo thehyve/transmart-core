@@ -2,14 +2,14 @@ apply plugin: 'groovy'
 apply plugin: 'java'
 
 dependencies {
-    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile "ch.qos.logback:logback-classic:${logbackVersion}"
     compile "com.google.protobuf:protobuf-java:${protobufVersion}"
     compile "com.google.protobuf:protobuf-java-util:${protobufVersion}" // provides  protobuf-to-json serialization
     compile 'javax.servlet:javax.servlet-api:4.0.1'
-    compile 'org.codehaus.groovy:groovy-all:2.4.19'
-    compile 'org.slf4j:slf4j-api:1.7.30'
+    compile 'org.codehaus.groovy:groovy-all:2.5.6'
+    compile 'org.slf4j:slf4j-api:1.7.36'
 
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile 'org.spockframework:spock-core:2.1-groovy-2.5'
     testCompile "org.grails:grails-dependencies:${grailsVersion}"
     testCompile 'org.grails:grails-web'
     testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'

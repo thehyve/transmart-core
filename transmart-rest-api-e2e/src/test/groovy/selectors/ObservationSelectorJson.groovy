@@ -2,6 +2,8 @@
 
 package selectors
 
+import java.text.SimpleDateFormat
+
 class ObservationSelectorJson implements Selector {
     final ObservationsMessageJson hyperCubeMessage
     final int cellCount
@@ -46,7 +48,8 @@ class ObservationSelectorJson implements Selector {
             case 'Double':
                 return result as Double
             case 'Timestamp':
-                return result ? Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", result) : null
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                return result ? sdf.parse(result) : null
             default:
                 return result
         }

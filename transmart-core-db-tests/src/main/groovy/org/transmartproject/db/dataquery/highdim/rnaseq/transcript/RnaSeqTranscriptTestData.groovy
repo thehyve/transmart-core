@@ -7,6 +7,8 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
+import java.text.SimpleDateFormat
+
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 /**
@@ -17,6 +19,8 @@ class RnaSeqTranscriptTestData {
     static final String REGION_PLATFORM_MARKER_TYPE = "RNASEQ_TRANSCRIPT"
 
     static final String TRIAL_NAME = "RNASEQ_TRANSCRIPT_TRIAL"
+
+    private SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd')
 
     SampleBioMarkerTestData bioMarkerTestData
 
@@ -35,7 +39,7 @@ class RnaSeqTranscriptTestData {
         def p = new DeGplInfo(
                 title: 'Test Region Platform',
                 organism: 'Homo Sapiens',
-                annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
+                annotationDate: sdf.parse('2013-05-03'),
                 markerType: REGION_PLATFORM_MARKER_TYPE,
                 genomeReleaseId: 'hg18',
         )

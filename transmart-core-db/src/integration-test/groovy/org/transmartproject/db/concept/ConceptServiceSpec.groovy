@@ -1,7 +1,7 @@
 package org.transmartproject.db.concept
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.exceptions.AccessDeniedException

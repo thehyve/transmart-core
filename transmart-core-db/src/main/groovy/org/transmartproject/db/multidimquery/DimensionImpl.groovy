@@ -29,6 +29,7 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
 
+import java.text.SimpleDateFormat
 import java.util.function.Supplier
 
 import static org.transmartproject.core.multidimquery.hypercube.Dimension.Density.DENSE
@@ -42,7 +43,7 @@ interface, and we need to know the reified element type to check that the right 
 typed twice for every dimension due to the use of generic traits.
  */
 @CompileStatic
-abstract class DimensionImpl<ELT,ELKey> implements Dimension {
+abstract class DimensionImpl implements Dimension {
 
     final Size size
     final Density density
@@ -156,7 +157,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     abstract def selectIDs(Query query)
 
-    abstract ELKey getElementKey(Map result)
+    abstract def getElementKey(Map result)
 
     abstract def getKey(element)
 
@@ -218,17 +219,17 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         assert (elementFields == null) == serializable
     }
 
-    static List<ELT> resolveWithInQuery(Supplier<HibernateCriteriaBuilder> builderProducer, List<ELKey> elementKeys, String property = 'id') {
+    static List<Object> resolveWithInQuery(Supplier<HibernateCriteriaBuilder> builderProducer, List<Object> elementKeys, String property = 'id') {
         List res = InQuery.listIn(builderProducer, property, elementKeys)
         sort(res, elementKeys, property)
-        res as List<ELT>
+        res as List<Object>
     }
 
-    static void sort(List res, List<ELKey> elementKeys, String property) {
+    static void sort(List res, List<Object> elementKeys, String property) {
         if(res.size() > 0) {
-            Map<ELKey, ELT> ids = new HashMap(res.size(), 1.0f)
+            Map<Object, Object> ids = new HashMap(res.size(), 1.0f)
             for (object in res) {
-                ids[object[property] as ELKey] = object as ELT
+                ids[object[property]] = object
             }
             res.clear()
             for (key in elementKeys) {
@@ -269,7 +270,7 @@ class PropertyImpl implements Property {
  * @param <ELTKey> The type of both the key and the element, which must be the same
  */
 @CompileStatic
-trait SerializableElemDim<ELTKey> {
+trait SerializableElemDim {
     boolean getElementsSerializable() { true }
 
     abstract Class getElemType()
@@ -286,18 +287,16 @@ trait SerializableElemDim<ELTKey> {
 
     def asSerializable(/*ELTKey*/ element) { element }
 
-    List<ELTKey> resolveElements(List/*<ELTKey>*/ elementKeys) { elementKeys }
-    ELTKey resolveElement(/*ELTKey*/ key) { key }
+    List/*<ELTKey>*/ resolveElements(List/*<ELTKey>*/ elementKeys) { elementKeys }
+    def/*ELTKey*/ resolveElement(/*ELTKey*/ key) { key }
 }
 
 /**
  * Implement this in dimensions that have a compound element type. The implement the abstract methods to have support
  * for the required operations.
- * @param <ELT> The type of the dimension's elements
- * @param <ELKey> The type of the dimensions elements key
  */
 @CompileStatic
-trait CompositeElemDim<ELT,ELKey> {
+trait CompositeElemDim {
     boolean getElementsSerializable() { false }
 
     abstract Class getElemType()
@@ -330,15 +329,15 @@ trait CompositeElemDim<ELT,ELKey> {
         for (prop in elementFields.values()) {
             result[prop.name] = prop.get(pogo)
         }
-        result
+        result as Map<String, Object>
     }
 
-    abstract List<ELT> doResolveElements(List<ELKey> elementKeys)
+    abstract List doResolveElements(List elementKeys)
 
-    List<ELT> resolveElements(List/*<ELKey>*/ elementKeys) {
+    List resolveElements(List/*<ELKey>*/ elementKeys) {
         if (elementKeys.size() == 0) return []
 
-        List<ELT> results = doResolveElements(elementKeys)
+        List results = doResolveElements(elementKeys)
         int keysSize = elementKeys.size()
         int resultSize = results.size()
         if (keysSize == resultSize) return results
@@ -357,7 +356,7 @@ trait CompositeElemDim<ELT,ELKey> {
     }
 
     /* This default implementation should be overridden for efficiency for sparse dimensions. */
-    ELT resolveElement(/*ELKey*/ elementId) {
+    def resolveElement(elementId) {
         resolveElements([elementId])[0]
     }
 }
@@ -367,7 +366,7 @@ interface AliasAwareDimension extends Dimension {
 }
 
 @CompileStatic @InheritConstructors
-abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> implements AliasAwareDimension {
+abstract class I2b2Dimension extends DimensionImpl implements AliasAwareDimension {
     SessionFactory sessionFactory
     abstract String getAlias()
     abstract String getColumnName()
@@ -380,7 +379,7 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> impleme
     }
 
     @Override
-    ELKey getElementKey(Map result) {
+    def getElementKey(Map result) {
         assert result.getOrDefault('modifierCd', '@') == '@'
         getKey(result, alias)
     }
@@ -413,27 +412,27 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> impleme
 
 // Nullable primary key
 @CompileStatic @InheritConstructors
-abstract class I2b2NullablePKDimension<ELT,ELKey> extends I2b2Dimension<ELT,ELKey> {
-    abstract ELKey getNullValue()
+abstract class I2b2NullablePKDimension extends I2b2Dimension {
+    abstract def getNullValue()
 
-    @Override ELKey getElementKey(Map result) {
+    @Override def getElementKey(Map result) {
         assert result.getOrDefault('modifierCd', '@') == '@'
-        ELKey res = getKey(result, alias)
+        def res = getKey(result, alias)
         res == nullValue ? null : res
     }
 }
 
 @CompileStatic @InheritConstructors
-abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
+abstract class HighDimDimension extends DimensionImpl {
     @Override def selectIDs(Query query) {
         throw new NotImplementedException()
     }
 
-    List<ELT> doResolveElements(List<ELKey> elementKeys) {
+    List doResolveElements(List elementKeys) {
         throw new NotImplementedException()
     }
 
-    @Override ELKey getElementKey(Map result) {
+    @Override def getElementKey(Map result) {
         throw new NotImplementedException()
     }
 
@@ -457,7 +456,7 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
  * @see {@link DimensionDescription} for how the instances of modifier dimensions are stored in the database.
  */
 @CompileStatic
-class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object> {
+class ModifierDimension extends DimensionImpl implements SerializableElemDim {
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
 
@@ -594,7 +593,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class PatientDimension extends I2b2Dimension<I2b2PatientDimension, Long> implements CompositeElemDim<I2b2PatientDimension, Long> {
+class PatientDimension extends I2b2Dimension implements CompositeElemDim {
     Class elemType = I2b2PatientDimension
     List elemFields = ["id", "trial", "inTrialId", "subjectIds", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion", "sexCd",
@@ -626,8 +625,7 @@ class PatientDimension extends I2b2Dimension<I2b2PatientDimension, Long> impleme
 }
 
 @CompileStatic @InheritConstructors
-class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, String> implements
-        CompositeElemDim<I2b2ConceptDimensions, String> {
+class ConceptDimension extends I2b2NullablePKDimension implements CompositeElemDim {
     Class elemType = I2b2ConceptDimensions
     List elemFields = ["conceptPath", "conceptCode", "name"]
     String joinProperty = 'conceptCode'
@@ -646,7 +644,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 }
 
 @CompileStatic @InheritConstructors
-class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
+class TrialVisitDimension extends I2b2Dimension implements CompositeElemDim {
     Class elemType = TrialVisit
     List elemFields = ['id', 'studyId', 'relTimeLabel', 'relTimeUnit', 'relTime']
     String name = 'trial visit'
@@ -662,7 +660,7 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
 }
 
 @CompileStatic @InheritConstructors
-class StudyDimension extends I2b2Dimension<MDStudy, String> implements CompositeElemDim<MDStudy, String> {
+class StudyDimension extends I2b2Dimension implements CompositeElemDim {
     Class elemType = MDStudy
     List elemFields = ['name']
     String name = 'study'
@@ -710,11 +708,12 @@ class StudyDimension extends I2b2Dimension<MDStudy, String> implements Composite
 
 
 @CompileStatic @InheritConstructors
-class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements SerializableElemDim<Date> {
+class StartTimeDimension extends I2b2NullablePKDimension implements SerializableElemDim {
     Class elemType = Date
     String name = 'start time'
 
-    final static Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+    final static SimpleDateFormat format = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss');
+    final static Date EMPTY_DATE = format.parse('0001-01-01 00:00:00')
 
     String alias = 'startDate'
     String columnName = 'startDate'
@@ -722,7 +721,7 @@ class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements S
 }
 
 @CompileStatic @InheritConstructors
-class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableElemDim<Date> {
+class EndTimeDimension extends I2b2Dimension implements SerializableElemDim {
     Class elemType = Date
     String name = 'end time'
     String alias = 'endDate'
@@ -730,7 +729,7 @@ class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableE
 }
 
 @CompileStatic @InheritConstructors
-class LocationDimension extends I2b2Dimension<String,String> implements SerializableElemDim<String> {
+class LocationDimension extends I2b2Dimension implements SerializableElemDim {
     Class elemType = String
     String name = 'location'
     String alias = 'location'
@@ -738,7 +737,7 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class VisitDimension extends I2b2NullablePKDimension<I2b2VisitDimension, Long> implements CompositeElemDim<I2b2VisitDimension, Long> {
+class VisitDimension extends I2b2NullablePKDimension implements CompositeElemDim {
     Class elemType = I2b2VisitDimension
     List elemFields = ['id', 'patientId', 'activeStatusCd',
                        'startDate', 'endDate', 'inoutCd', 'locationCd', 'lengthOfStay', 'encounterIds']
@@ -756,7 +755,7 @@ class VisitDimension extends I2b2NullablePKDimension<I2b2VisitDimension, Long> i
 }
 
 @CompileStatic @InheritConstructors
-class ProviderDimension extends I2b2NullablePKDimension<String,String> implements SerializableElemDim<String> {
+class ProviderDimension extends I2b2NullablePKDimension implements SerializableElemDim {
     Class elemType = String
     String name = 'provider'
     String alias = 'provider'
@@ -765,7 +764,7 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
 }
 
 @CompileStatic @InheritConstructors
-class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeElemDim<Assay, Long> {
+class AssayDimension extends HighDimDimension implements CompositeElemDim {
     Class elemType = Assay
     List elemFields = ['id', 'sampleCode',
         new PropertyImpl('sampleTypeName', null, String) {
@@ -786,8 +785,8 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
 // TODO: Expose type-specific biomarker properties. E.g. ProbeRow has a probe, geneSymbol and geneId property
 
 @CompileStatic @InheritConstructors
-class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> implements
-        CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
+class BioMarkerDimension extends HighDimDimension/*<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object>*/ implements
+        CompositeElemDim/*<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object>*/ {
     Class elemType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
     List elemFields = ['label', 'biomarker']
     ImplementationType implementationType = ImplementationType.BIOMARKER
@@ -796,7 +795,7 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
 }
 
 @CompileStatic @InheritConstructors
-class ProjectionDimension extends HighDimDimension<String,String> implements SerializableElemDim<String> {
+class ProjectionDimension extends HighDimDimension/*<String,String>*/ implements SerializableElemDim/*<String>*/ {
     Class elemType = String
     ImplementationType implementationType = ImplementationType.PROJECTION
     String name = 'projection'

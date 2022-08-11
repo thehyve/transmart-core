@@ -2,7 +2,7 @@ package org.transmartproject.api.server
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
-import org.springframework.boot.actuate.health.DataSourceHealthIndicator
+import org.springframework.boot.actuate.jdbc.DataSourceHealthIndicator
 import org.springframework.context.annotation.ComponentScan
 
 @ComponentScan

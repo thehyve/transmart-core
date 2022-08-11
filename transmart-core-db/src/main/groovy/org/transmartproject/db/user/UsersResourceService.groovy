@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.user
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.hibernate.Query
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -47,7 +47,7 @@ class UsersResourceService implements UsersResource {
 
         User user = User.withSession { session ->
             Query query = session.createQuery(
-                    'FROM User u LEFT JOIN FETCH u.roles WHERE u.username = ?')
+                    'FROM User u LEFT JOIN FETCH u.roles WHERE u.username = ?0')
             query.setParameter 0, username
             def users = query.list()
 

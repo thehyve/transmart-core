@@ -6,6 +6,7 @@ import com.google.common.base.Function
 import com.google.common.collect.Iterators
 import grails.converters.JSON
 import grails.web.mime.MimeType
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.binding.BindingHelper
@@ -25,6 +26,9 @@ import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedPar
 class PatientQueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal']
+
+    @Autowired
+    VersionController versionController
 
     /**
      * Patients endpoint:
@@ -173,7 +177,7 @@ class PatientQueryController extends AbstractQueryController {
 
         checkForUnsupportedParams(params, ['name', 'constraint', 'reuse'])
 
-        String currentVersion = VersionController.currentVersion(apiVersion)
+        String currentVersion = versionController.currentVersion(apiVersion)
 
         // Canonise the constraint, to enable reuse
         constraint = constraint.canonise()

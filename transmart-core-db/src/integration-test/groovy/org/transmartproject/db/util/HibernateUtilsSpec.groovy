@@ -3,7 +3,7 @@
 package org.transmartproject.db.util
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.hibernate.Criteria
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.Projections

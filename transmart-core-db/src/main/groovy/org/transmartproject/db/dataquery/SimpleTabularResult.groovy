@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery
 import com.google.common.collect.AbstractIterator
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.hibernate.ScrollableResults
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -30,7 +30,7 @@ import org.transmartproject.core.dataquery.TabularResult
 /**
  * Implementation that maps 1-1 database rows with TabularResult rows.
  */
-@Log4j
+@Slf4j
 @CompileStatic
 class SimpleTabularResult <C, R extends DataRow>
         implements TabularResult<C, R>, Iterable<R> {

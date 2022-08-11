@@ -2,6 +2,8 @@ package org.transmartproject.core.querytool
 
 import groovy.transform.EqualsAndHashCode
 
+import java.text.SimpleDateFormat
+
 /**
  * A query definition is a set of panels. The data it represents is the
  * intersection of all the panels.
@@ -23,7 +25,7 @@ final class QueryDefinition {
 
     QueryDefinition(List<Panel> panels) {
         this.name = "tranSMART's Query at " +
-                "${new Date().format('E MMM d yyyy HH:mm:ss \'GMT\'Z')}"
+                "${new SimpleDateFormat('E MMM d yyyy HH:mm:ss \'GMT\'Z').format(new Date())}"
         this.panels = panels.asImmutable()
     }
 

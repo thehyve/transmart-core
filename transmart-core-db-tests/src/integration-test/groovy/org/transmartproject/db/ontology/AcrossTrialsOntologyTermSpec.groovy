@@ -20,7 +20,7 @@
 package org.transmartproject.db.ontology
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.thehyve.commons.test.FastMatchers
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.ontology.OntologyTerm

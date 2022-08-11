@@ -2,7 +2,7 @@
 
 package org.transmartproject.db.log
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import grails.util.Holders
 import groovy.transform.CompileStatic
 import org.slf4j.Logger

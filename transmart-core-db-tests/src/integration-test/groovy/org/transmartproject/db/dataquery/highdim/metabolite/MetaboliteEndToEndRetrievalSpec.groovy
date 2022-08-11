@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.metabolite
 
 import com.google.common.collect.Lists
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay

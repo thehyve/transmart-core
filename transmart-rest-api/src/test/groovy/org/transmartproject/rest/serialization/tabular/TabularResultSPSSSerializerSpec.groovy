@@ -34,6 +34,8 @@ import org.transmartproject.core.ontology.VariableMetadata
 import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.HypercubeDataRow
 import spock.lang.Specification
+
+import java.text.SimpleDateFormat
 import java.util.zip.ZipOutputStream
 
 import static org.transmartproject.rest.serialization.tabular.TabularResultSPSSSerializer.writeSpsFile
@@ -349,13 +351,18 @@ class TabularResultSPSSSerializerSpec extends Specification {
         def columns = ImmutableList.copyOf([column1, column2, column3] as List<DataColumn>)
         table.indicesList >> [column1, column2, column3]
         def row1 = Mock(HypercubeDataRow)
-        row1.getAt(column1) >> Date.parse(DATE_TIME_FORMAT, '2001-09-01 09:45:18', UTC)
-        row1.getAt(column2) >> Date.parse(DATE_TIME_FORMAT, '2009-12-01 09:45:18', UTC)
-        row1.getAt(column3) >> Date.parse(DATE_TIME_FORMAT, '2001-09-01 09:45:18', UTC)
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT)
+        sdf.setTimeZone(UTC)
+        row1.getAt(column1) >> sdf.parse('2001-09-01 09:45:18')
+        row1.getAt(column2) >> sdf.parse('2009-12-01 09:45:18')
+        row1.getAt(column3) >> sdf.parse('2001-09-01 09:45:18')
         def row2 = Mock(HypercubeDataRow)
-        row2.getAt(column1) >> Date.parse('dd-MM-yyyy', '28-11-2005', UTC)
-        row2.getAt(column2) >> Date.parse(DATE_TIME_FORMAT, '1998-02-12 00:45:33', CEST)
-        row2.getAt(column3) >> Date.parse(DATE_TIME_FORMAT, '1998-02-12 18:30:05', CEST)
+        SimpleDateFormat sdf2 = new SimpleDateFormat('dd-MM-yyyy')
+        sdf2.setTimeZone(UTC)
+        row2.getAt(column1) >> sdf2.parse('28-11-2005')
+        sdf.setTimeZone(CEST)
+        row2.getAt(column2) >> sdf.parse('1998-02-12 00:45:33')
+        row2.getAt(column3) >> sdf.parse('1998-02-12 18:30:05')
         List<DataRow> rows = [row1, row2]
         table.rows >> rows.iterator()
 
