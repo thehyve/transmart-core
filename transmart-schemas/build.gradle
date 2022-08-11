@@ -18,13 +18,10 @@ dependencies {
     testRuntime 'com.h2database:h2:1.4.200'
 }
 
-tasks.named("bootJar") {
-    from('src/main/resources') {
-        include '**/*.*'
-    }
+jar {
     manifest {
         attributes(
-            'Implementation-Version': project.version
+                'Implementation-Version': project.version
         )
     }
 }
@@ -37,6 +34,7 @@ task createVersionFile() {
 assemble.dependsOn 'createVersionFile'
 
 publishToMavenLocal.dependsOn assemble
+publish.dependsOn assemble
 
 publishing {
     publications {
