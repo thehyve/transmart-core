@@ -74,11 +74,11 @@ class TerminalClinicalVariablesTabularResult extends
         this.indicesList = indicesList
 
         this.indicesList.each { TerminalClinicalVariable it ->
-            localIndexMap[it] = indicesList.indexOf it
+            localIndexMap.put(it, indicesList.indexOf(it))
         }
 
         localIndexMap.each { TerminalClinicalVariable var, Integer index ->
-            codeToIndex[var.code] = index
+            codeToIndex.put(var.getCode(), index)
         }
 
         if (indicesList.empty) {

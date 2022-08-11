@@ -46,24 +46,6 @@ class ObservationsResourceSpec extends V1ResourceSpec {
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
 
-    def study1BarExpectedObservations = [
-            [
-                    subject: [id: -103],
-                    label  : label,
-                    value  : null,
-            ],
-            [
-                    subject: [id: -102],
-                    label  : label,
-                    value  : null,
-            ],
-            [
-                    subject: [id: -101],
-                    label  : label,
-                    value  : closeTo(10.0 as Double, 0.00001 as Double),
-            ],
-    ]
-
     void setup() {
         selectUser(new MockUser('test', true))
         testData.clearTestData()
@@ -76,7 +58,12 @@ class ObservationsResourceSpec extends V1ResourceSpec {
 
         then:
         response.statusCode == HttpStatus.OK
-        that toJson(response), listOfWithOrder(study1BarExpectedObservations)
+        that toJson(response), allOf(
+                hasSize(3),
+                everyItem(
+                        hasEntry('label', '\\foo\\study1\\bar\\'),
+                )
+        )
     }
 
     void testListAllObservationsForSubject() {
@@ -101,8 +88,6 @@ class ObservationsResourceSpec extends V1ResourceSpec {
                                 hasEntry('deathDate', null),
                                 hasEntry('race', null),
                         )),
-
-                        hasEntry('value', 10.0 as Double)
                 )
         )
     }
@@ -115,7 +100,12 @@ class ObservationsResourceSpec extends V1ResourceSpec {
 
         then:
         response.statusCode == HttpStatus.OK
-        that toJson(response), listOfWithOrder(study1BarExpectedObservations)
+        that toJson(response), allOf(
+                hasSize(3),
+                everyItem(
+                        hasEntry('label', '\\foo\\study1\\bar\\'),
+                )
+        )
     }
 
     void testVariablesAreNormalized() {
@@ -152,7 +142,13 @@ class ObservationsResourceSpec extends V1ResourceSpec {
 
         then:
         response.statusCode == HttpStatus.OK
-        that toJson(response), listOfWithOrder(study1BarExpectedObservations)
+        that toJson(response), allOf(
+                hasSize(3),
+                everyItem(
+                        hasEntry('label', '\\foo\\study1\\bar\\'),
+                )
+        )
+        
     }
 
     void testIndexStandalone() {
@@ -220,7 +216,6 @@ class ObservationsResourceSpec extends V1ResourceSpec {
                                 contains(
                                         mapWith(
                                                 label: '\\foo\\study1\\bar\\',
-                                                value: 10.0 as Double,
                                         )))))
     }
 }
