@@ -6,7 +6,7 @@ dependencies {
     compile "com.google.protobuf:protobuf-java:${protobufVersion}"
     compile "com.google.protobuf:protobuf-java-util:${protobufVersion}" // provides  protobuf-to-json serialization
     compile 'javax.servlet:javax.servlet-api:4.0.1'
-    compile 'org.codehaus.groovy:groovy-all:2.5.6'
+    compile 'org.codehaus.groovy:groovy-all:2.5.18'
     compile 'org.slf4j:slf4j-api:1.7.36'
 
     testCompile 'org.spockframework:spock-core:2.1-groovy-2.5'
