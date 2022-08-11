@@ -33,7 +33,7 @@ class ConstraintByValue {
 
         final String value
 
-        protected Operator(String value) {
+        private Operator(String value) {
             this.value = value
         }
 
