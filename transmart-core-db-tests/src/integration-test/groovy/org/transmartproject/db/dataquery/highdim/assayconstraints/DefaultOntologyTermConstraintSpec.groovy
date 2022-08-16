@@ -20,7 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.db.dataquery.highdim.AssayQuery

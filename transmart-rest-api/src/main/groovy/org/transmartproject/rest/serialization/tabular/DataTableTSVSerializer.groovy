@@ -90,7 +90,7 @@ class DataTableTSVSerializer extends AbstractTSVSerializer {
         for (FullDataTableRow row in table) {
             for (int i=0; i<rowElements.size(); i++) {
                 if (rowElements[i] != null) {
-                    rowElements[i].add(row.rowHeader.elements[i])
+                    ((Set) rowElements[i]).add(row.rowHeader.elements[i])
                 }
             }
             List csvValues = row.headerValues

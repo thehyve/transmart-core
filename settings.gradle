@@ -3,5 +3,5 @@ include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api',
         'transmart-data',
         'transmart-copy',
         'transmart-rest-api-e2e',
-        'transmart-api-server',
-        'transmart-schemas'
+        'transmart-schemas',
+        'transmart-api-server'

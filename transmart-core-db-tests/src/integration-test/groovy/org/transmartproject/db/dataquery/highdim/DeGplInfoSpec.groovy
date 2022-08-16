@@ -20,9 +20,11 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
 import spock.lang.Specification
+
+import java.text.SimpleDateFormat
 
 import static org.hamcrest.Matchers.*
 
@@ -45,7 +47,7 @@ class DeGplInfoSpec extends Specification {
                 hasProperty('title', equalTo('Test Generic Platform')),
                 hasProperty('organism', equalTo('Homo Sapiens')),
                 hasProperty('genomeReleaseId', equalTo('hg18')),
-                hasProperty('annotationDate', equalTo(Date.parse('yyyy-MM-dd', '2013-05-03'))),
+                hasProperty('annotationDate', equalTo(new SimpleDateFormat('yyyy-MM-dd').parse( '2013-05-03'))),
         )
 
         GenomeBuildNumber.forId(platform.genomeReleaseId) is(GenomeBuildNumber.GRCh36)

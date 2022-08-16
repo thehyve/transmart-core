@@ -20,7 +20,7 @@
 package org.transmartproject.db.ontology
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import spock.lang.Specification

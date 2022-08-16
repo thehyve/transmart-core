@@ -229,7 +229,7 @@ interface OntologyTerm {
         int position
         char keyChar
 
-        protected VisualAttributes(int position, char keyChar) {
+        private VisualAttributes(int position, char keyChar) {
             this.position = position
             this.keyChar = keyChar
         }

@@ -39,7 +39,7 @@ import java.sql.Clob
 @CompileStatic
 class SnpLzRow<T> implements BioMarkerDataRow<T> {
 
-    private Map<String, Object> probeData
+    Map<String, Object> probeData
 
     private int numberOfPatientsInTrial
 
@@ -50,7 +50,7 @@ class SnpLzRow<T> implements BioMarkerDataRow<T> {
      * resultIndexPatientIndex, that is,
      * resultIndexPatientIndex[i] == orderedAssayPatientIndex's (i + 1)-th element
      */
-    private LinkedHashMap<AssayColumn, Integer> orderedAssayPatientIndex
+    LinkedHashMap<AssayColumn, Integer> orderedAssayPatientIndex
 
     /**
      * Map kept to optimize the calls to snpLzRow[i]. The same as
@@ -58,7 +58,7 @@ class SnpLzRow<T> implements BioMarkerDataRow<T> {
      */
     private int[] resultIndexPatientIndex
 
-    private Projection<? extends T> projection
+    Projection<? extends T> projection
 
     @Lazy
     double[] gpsByProbe = {

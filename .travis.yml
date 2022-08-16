@@ -6,6 +6,8 @@ env:
   global:
     - TERM=dumb
     - PGCONFIG_PARAMS="PG_CONFIG=/usr/lib/postgresql/9.6/bin/pg_config"
+    - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    - PATH=/usr/lib/jvm/java-8-openjdk-amd64/bin:$PATH
 
 addons:
   postgresql: '9.6'
@@ -21,7 +23,7 @@ cache:
     - $HOME/pg
 
 before_install:
-  - GRADLE_VERSION=4.10.3
+  - GRADLE_VERSION=5.0
   - curl -f -L "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o "gradle-${GRADLE_VERSION}-bin.zip"
   - unzip "gradle-${GRADLE_VERSION}-bin.zip"
   - GRADLE_HOME="$(pwd)/gradle-${GRADLE_VERSION}"

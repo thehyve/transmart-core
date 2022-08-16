@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.mrna
 
 import com.google.common.collect.Lists
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import groovy.sql.Sql
 import org.hibernate.Session
 import org.springframework.beans.factory.annotation.Autowired

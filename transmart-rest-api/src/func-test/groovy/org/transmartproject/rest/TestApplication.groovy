@@ -2,10 +2,9 @@ package org.transmartproject.rest
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
-import org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor
+import org.grails.plugin.hibernate.support.GrailsOpenSessionInViewInterceptor
 import org.hibernate.SessionFactory
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
@@ -58,8 +57,8 @@ class TestApplication extends GrailsAutoConfiguration {
     }
 
     @Bean
-    EmbeddedServletContainerFactory containerFactory() {
-        new TomcatEmbeddedServletContainerFactory(0)
+    TomcatServletWebServerFactory containerFactory() {
+        new TomcatServletWebServerFactory(0)
     }
 
     /**

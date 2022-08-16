@@ -19,7 +19,7 @@
 package org.transmartproject.rest
 
 import com.google.common.collect.ImmutableList
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.core.util.StopWatch
@@ -117,7 +117,7 @@ class SurveyTableViewDataSerializationService {
         List<HypercubeDataColumn> hypercubeColumns = surveyTableColumnService.getHypercubeDataColumnsForConstraint(
                 parameters.constraint, user)
         Boolean includeMeasurementDateColumns = parameters.includeMeasurementDateColumns
-        final ImmutableList<MetadataAwareDataColumn> columns
+        ImmutableList<MetadataAwareDataColumn> columns
         if (includeMeasurementDateColumns == null) {
             columns = surveyTableColumnService
                     .getMetadataAwareColumns(hypercubeColumns)

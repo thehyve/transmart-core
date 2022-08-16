@@ -23,7 +23,7 @@ import groovy.transform.ToString
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
-@ToString(includes=['label', 'bioMarker', 'data'])
+@ToString(includes=['label', 'bioMarker'])
 class MetaboliteDataRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
     String hmdbId

@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.Lists
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.ontology.AcrossTrialsTestData

@@ -105,7 +105,7 @@ class VersionController {
                 it.remove('features')
             }
 
-            [it.id, new VersionWrapper(ImmutableMap.copyOf(it))]
+            [it.id, new VersionWrapper(ImmutableMap.copyOf(it) as ImmutableMap)]
         })
     }
 

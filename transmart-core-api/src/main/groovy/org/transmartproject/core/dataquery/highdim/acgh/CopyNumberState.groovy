@@ -50,7 +50,7 @@ public enum CopyNumberState {
      */
     Integer intValue
 
-    protected CopyNumberState(int intValue) {
+    private CopyNumberState(int intValue) {
         this.intValue = intValue
     }
 

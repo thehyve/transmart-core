@@ -13,6 +13,7 @@ import org.hibernate.engine.query.spi.sql.NativeSQLQuerySpecification
 import org.hibernate.engine.spi.QueryParameters
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.engine.spi.SharedSessionContractImplementor
+import org.hibernate.engine.spi.TypedValue
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.loader.criteria.CriteriaJoinWalker
 import org.hibernate.loader.criteria.CriteriaQueryTranslator
@@ -86,9 +87,9 @@ class HibernateUtils {
         SessionFactoryImplementor factory = session.factory
         CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteria, criteria.entityOrClassName,
                 CriteriaQueryTranslator.ROOT_SQL_ALIAS)
-        String[] implementors = factory.getImplementors(criteria.entityOrClassName)
+        String[] implementors = factory.getMetamodel().getImplementors(criteria.entityOrClassName)
         String implementor = implementors[0]
-        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementor)
+        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getMetamodel().entityPersister(implementor)
         CriteriaJoinWalker walker = new CriteriaJoinWalker(outerJoinLoadable,
                 translator,
                 factory,
@@ -107,6 +108,18 @@ class HibernateUtils {
         Set querySpaces = walker.querySpaces
         QueryParameters queryParameters = translator.queryParameters
 
+        /**
+         * In Hibernate >= 5.4 parameters binding was changed.
+         * Hibernate API criteria are translated by CriteriaQueryTranslator into positional parameters,
+         * while PositionalParamBinding requires named parameters to be specified.
+         * Otherwise it throws NullPointerException in PositionalParamBinding, when named parameters are missing.
+         */
+        Map namedParametersMap = new HashMap();
+        queryParameters.getPositionalParameterTypes().clone().eachWithIndex { type, index ->
+            namedParametersMap.put(Integer.toString(index+1), new TypedValue(type, queryParameters.getPositionalParameterValues()[index]))
+        }
+        queryParameters.setNamedParameters(namedParametersMap)
+
         new NativeSQLQueryDetails(
                 new NativeSQLQuerySpecification(sql, queryReturns, querySpaces),
                 queryParameters
@@ -117,9 +130,9 @@ class HibernateUtils {
         assert resultCriteria instanceof CriteriaImpl
         SharedSessionContractImplementor session = resultCriteria.session
         SessionFactoryImplementor factory = session.factory
-        String[] implementors = factory.getImplementors(entityClass.name)
+        String[] implementors = factory.getMetamodel().getImplementors(entityClass.name)
         String implementor = implementors[0]
-        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementor)
+        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) (OuterJoinLoadable) factory.getMetamodel().entityPersister(implementor)
         String tableName = outerJoinLoadable.tableName
         List<String> columns = properties
                 .collect { String column -> outerJoinLoadable.getPropertyColumnNames(column) as List }.flatten()

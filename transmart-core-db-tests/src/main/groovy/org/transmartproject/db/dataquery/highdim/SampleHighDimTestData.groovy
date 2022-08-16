@@ -21,6 +21,8 @@ package org.transmartproject.db.dataquery.highdim
 
 import org.transmartproject.db.i2b2data.PatientDimension
 
+import java.text.SimpleDateFormat
+
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 
 /**
@@ -31,12 +33,14 @@ class SampleHighDimTestData {
 
     public static final String TRIAL_NAME = 'GENERIC_SAMPLE_TRIAL'
 
+    private SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd')
+
     DeGplInfo platform = {
         def p = new DeGplInfo(
                 title: 'Test Generic Platform',
                 organism: 'Homo Sapiens',
                 markerType: 'generic',
-                annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
+                annotationDate: sdf.parse('2013-05-03'),
                 genomeReleaseId: 'hg18',
         )
         p.id = 'test-generic-platform'

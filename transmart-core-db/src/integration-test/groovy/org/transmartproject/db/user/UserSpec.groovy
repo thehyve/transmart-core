@@ -1,7 +1,7 @@
 package org.transmartproject.db.user
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import spock.lang.Specification
 
 import static org.transmartproject.core.users.PatientDataAccessLevel.MEASUREMENTS

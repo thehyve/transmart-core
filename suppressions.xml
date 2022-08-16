@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <!-- False positive vulnerability (CVE-2017-5929) according to https://github.com/qos-ch/logback-contrib/issues/25 -->
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback\.contrib/.*$</packageUrl>
+        <cpe>cpe:/a:logback:logback</cpe>
+        <cpe>cpe:/a:qos:logback</cpe>
+    </suppress>
+</suppressions>

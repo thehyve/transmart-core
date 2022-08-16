@@ -7,7 +7,7 @@ import com.opencsv.CSVReaderBuilder
 import com.opencsv.ICSVParser
 import com.opencsv.ICSVWriter
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.datatable.TableConfig
