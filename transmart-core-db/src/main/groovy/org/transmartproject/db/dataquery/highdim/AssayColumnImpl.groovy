@@ -27,7 +27,7 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 class AssayColumnImpl implements AssayColumn {
 
     @Delegate
-    private Assay assay
+    Assay assay
 
     final String label
 

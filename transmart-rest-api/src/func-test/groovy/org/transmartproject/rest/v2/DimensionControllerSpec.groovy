@@ -120,7 +120,7 @@ class DimensionControllerSpec extends V2ResourceSpec {
         response.statusCode == OK
         def result = toJson(response)
         result['elements'] instanceof List
-        result['elements'].collect { it.name } == ['study1', 'study2', 'publicStudy']
+        result['elements'].collect { it.name } == ['publicStudy', 'study1', 'study2']
     }
 
     void 'test get study dimension elements for constraint'() {

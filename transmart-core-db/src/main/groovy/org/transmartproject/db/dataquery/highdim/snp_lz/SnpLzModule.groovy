@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.snp_lz
 import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.hibernate.FetchMode
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SharedSessionContractImplementor
@@ -57,7 +57,7 @@ import static org.transmartproject.db.dataquery.highdim.parameterproducers.Bindi
  * referring to a specific patient in the same order indicated by
  * DE_SNP_SUBJECT_SORTED_DEF.PATIENT_POSITION.
  */
-@Log4j
+@Slf4j
 class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
     private static final int SNP_PATIENTS_FETCH_SIZE = 5000

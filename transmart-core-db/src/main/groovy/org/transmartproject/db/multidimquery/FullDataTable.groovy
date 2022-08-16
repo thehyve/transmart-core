@@ -64,7 +64,7 @@ class FullDataTable extends AbstractDataTable implements StreamingDataTable {
             Dimension dim = (Dimension) d
             List keys = k as List
             def elements = dim.resolveElements(keys)
-            elementsMap[dim] = [keys, elements].transpose().collectEntries()
+            elementsMap.put(dim, [keys, elements].transpose().collectEntries())
         }
 
         List<DataTableColumnImpl> finalColumns = sortedColumns.collect { col ->

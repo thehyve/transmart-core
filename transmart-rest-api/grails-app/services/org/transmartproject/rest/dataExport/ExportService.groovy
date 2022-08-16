@@ -1,6 +1,6 @@
 package org.transmartproject.rest.dataExport
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

@@ -3,7 +3,7 @@
 package org.transmartproject.db.querytool
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import spock.lang.Specification
 
 @Rollback

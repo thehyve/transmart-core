@@ -1,7 +1,8 @@
 buildscript {
     ext {
         assetPipelineVersion = '2.15.1'
-        grailsVersion = '3.3.11'
+        grailsVersion = '4.1.1'
+        gormVersion = '7.0.2'
         guavaVersion = '30.1.1-jre'
         jansiVersion = '1.14'
         protobufVersion = '3.17.3'
@@ -18,13 +19,13 @@ buildscript {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.google.guava:guava:$guavaVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:$assetPipelineVersion"
-        classpath 'org.grails.plugins:hibernate5:6.1.12'
+        classpath "org.grails.plugins:hibernate5:${gormVersion}"
         classpath "com.google.protobuf:protobuf-java:${protobufVersion}"
         classpath "com.google.protobuf:protobuf-java-util:${protobufVersion}"
         classpath 'org.grails.plugins:views-gradle:1.2.10'
         classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
         classpath "org.fusesource.jansi:jansi:${jansiVersion}"
-        classpath 'org.owasp:dependency-check-gradle:5.3.2.1'
+        classpath 'org.owasp:dependency-check-gradle:7.1.0.1'
     }
 }
 
@@ -32,24 +33,31 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: 'org.owasp.dependencycheck'
 
+dependencyCheck {
+    analyzers.assemblyEnabled = false
+    suppressionFile='suppressions.xml'
+}
+
 ext {
-    transmartVersion = '17.2.11'
+    transmartVersion = '17.2.12'
 
     assetPipelineVersion = '2.15.1'
-    grailsVersion = '3.3.11'
+    grailsVersion = '4.1.1'
     guavaVersion = '30.1.1-jre'
-    hibernateVersion = '5.2.18.Final'
-    jacksonVersion = '2.12.3'
-    keycloakVersion = '13.0.1'
+    hibernateVersion = '5.6.10.Final'
+    jacksonVersion = '2.12.6'
+    keycloakVersion = '18.0.0'
     liquibaseVersion = '3.10.3'
     ojdb8Version = '12.2.0.1'
     openCsvVersion = '5.4'
-    postgresqlVersion = '42.2.21.jre7'
+    postgresqlVersion = '42.2.25.jre7'
     protobufVersion = '3.17.3'
     quartzPluginVersion = '2.0.13'
     quartzVersion = '2.3.2'
-    springSecurityVersion = '4.2.20.RELEASE'
-    tomcatVersion = '8.5.66'
+    springSecurityVersion = '5.4.10'
+    tomcatVersion = '9.0.63'
+    logbackVersion = '1.2.7' // logback > 1.2.7 dropped a support for groovy (require logback.xml -> logback.groovy migration)
+    cachePluginVersion = '5.0.1'
 }
 
 version = transmartVersion
@@ -74,6 +82,7 @@ subprojects { project ->
     apply plugin: 'eclipse'
     apply plugin: 'idea'
     apply plugin: 'org.owasp.dependencycheck'
+    dependencyCheck { analyzers.assemblyEnabled = false }
 
     if (project.name =~ /^(transmart-core-db-tests|transmart-core-db|transmart-rest-api|transmart-api-server)$/) {
         if (project.name =~ /^(transmart-api-server)$/) {
@@ -81,7 +90,6 @@ subprojects { project ->
             apply plugin: 'org.grails.grails-web'
         } else {
             apply plugin: 'org.grails.grails-plugin'
-            bootRepackage.enabled = false
         }
         apply plugin: 'org.grails.grails-gsp'
         apply plugin: 'asset-pipeline'

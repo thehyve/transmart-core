@@ -2,7 +2,7 @@ package org.transmartproject.db.multidimquery
 
 import grails.converters.JSON
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria

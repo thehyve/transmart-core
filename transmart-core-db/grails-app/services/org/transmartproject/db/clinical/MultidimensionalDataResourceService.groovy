@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized

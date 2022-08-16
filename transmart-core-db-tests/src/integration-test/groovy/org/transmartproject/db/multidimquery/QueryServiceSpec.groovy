@@ -1,7 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.hibernate.SessionFactory
 import org.hibernate.internal.SessionImpl
 import org.springframework.beans.factory.annotation.Autowired

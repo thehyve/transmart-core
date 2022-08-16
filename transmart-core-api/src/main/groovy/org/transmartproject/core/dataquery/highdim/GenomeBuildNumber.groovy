@@ -17,7 +17,7 @@ public enum GenomeBuildNumber {
      */
     final String id  
 
-    protected GenomeBuildNumber(id) {
+    private GenomeBuildNumber(id) {
         this.id = id
     }
 

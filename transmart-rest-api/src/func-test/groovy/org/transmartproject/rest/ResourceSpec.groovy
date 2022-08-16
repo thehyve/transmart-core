@@ -58,9 +58,8 @@ abstract class ResourceSpec extends Specification {
     }
 
     TestRestTemplate getTestRestTemplate() {
-        RestTemplate restTemplate = new RestTemplateBuilder()
-                .rootUri(baseUrl).build()
-        new TestRestTemplate(restTemplate)
+        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder().rootUri(baseUrl)
+        new TestRestTemplate(restTemplateBuilder)
     }
 
     String getBaseUrl() {

@@ -38,7 +38,11 @@ dataSource:
     password: ${BIOMART_USER_PASSWORD:-biomart_user}
 
 # Create or update the database schema at application startup
-grails.plugin.databasemigration.updateOnStart: true
+grails:
+    plugin:
+        databasemigration:
+            updateOnStartFileName: db/changelog/db.changelog-master.yaml
+            updateOnStart: true
 
 # Disable saving application logs in the database
 org.transmartproject.system.writeLogToDatabase: false
@@ -77,6 +81,6 @@ exec java -jar -server \
           "-Djava.awt.headless=true" \
           "-Dserver.port=${APP_PORT}" \
           "-Djava.security.egd=file:///dev/urandom" \
-          "-Dspring.config.location=${TRANSMART_API_SERVER_CONFIG_FILE}" \
+          "-Dspring.config.additional-location=${TRANSMART_API_SERVER_CONFIG_FILE}" \
           "-Dlogging.config=/logback.groovy" \
 					"${TRANSMART_SERVICE_WAR_FILE}"

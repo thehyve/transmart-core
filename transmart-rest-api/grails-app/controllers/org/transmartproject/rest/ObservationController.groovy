@@ -26,6 +26,7 @@
 package org.transmartproject.rest
 
 import com.google.common.collect.AbstractIterator
+import grails.gorm.transactions.Transactional
 import grails.web.RequestParameter
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -59,6 +60,7 @@ class ObservationController {
     /** GET request on /v1/studies/XXX/observations/
      *  This will return the list of observations for study XXX
      */
+    @Transactional(readOnly = true)
     def index() {
         def study = studyLoadingServiceProxy.study
         def variables = [createClinicalVariable(study.ontologyTerm)]
@@ -93,6 +95,7 @@ class ObservationController {
      *
      * List
      */
+    @Transactional(readOnly = true)
     def indexStandalone(@RequestParameter('variable_type') String variableType) {
         List<Long> resultInstanceIds
         List<Long> patientIds
@@ -160,6 +163,7 @@ class ObservationController {
     /** GET request on /v1/studies/XXX/concepts/YYY/observations/
      *  This will return the list of observations for study XXX and concept YYY
      */
+    @Transactional(readOnly = true)
     def indexByConcept() {
         def variables = [createClinicalVariable(concept)]
         TabularResult<ClinicalVariable, PatientRow> observations =
@@ -175,6 +179,7 @@ class ObservationController {
     /** GET request on /v1/studies/XXX/subjects/YYY/observations/
      *  This will return the list of observations for study XXX and subject YYY
      */
+    @Transactional(readOnly = true)
     def indexBySubject() {
         def variables = [createClinicalVariable(study.ontologyTerm)]
         TabularResult<ClinicalVariable, PatientRow> observations =

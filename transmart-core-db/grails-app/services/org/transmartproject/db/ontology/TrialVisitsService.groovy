@@ -2,7 +2,7 @@ package org.transmartproject.db.ontology
 
 import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.Cacheable
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.Order

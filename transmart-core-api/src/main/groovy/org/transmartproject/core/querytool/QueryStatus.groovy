@@ -13,7 +13,7 @@ enum QueryStatus {
 
     final int id
 
-    protected QueryStatus(id) {
+    private QueryStatus(id) {
         this.id = id
     }
 
