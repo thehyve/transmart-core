@@ -18,7 +18,10 @@ dependencies {
     testRuntime 'com.h2database:h2:1.4.200'
 }
 
-jar {
+tasks.named("bootJar") {
+    from('src/main/resources') {
+        include '**/*.*'
+    }
     manifest {
         attributes(
                 'Implementation-Version': project.version
