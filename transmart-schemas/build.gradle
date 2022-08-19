@@ -18,6 +18,10 @@ dependencies {
     testRuntime 'com.h2database:h2:1.4.200'
 }
 
+jar {
+    enabled = true
+}
+
 tasks.named("bootJar") {
     from('src/main/resources') {
         include '**/*.*'

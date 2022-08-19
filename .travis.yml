@@ -98,6 +98,17 @@ jobs:
         - $GRADLE_SCRIPT check
         - popd
 
+    - name: transmart-schemas
+      env: DIR=transmart-schemas
+      before_script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT assemble
+        - popd
+      script:
+        - pushd "$DIR"
+        - $GRADLE_SCRIPT check
+        - popd
+
     - name: transmart-api-server
       env: DIR=transmart-api-server
       script:
@@ -134,17 +145,6 @@ jobs:
       before_script:
         - pushd "$DIR"
         - $GRADLE_SCRIPT shadowJar
-        - popd
-      script:
-        - pushd "$DIR"
-        - $GRADLE_SCRIPT check
-        - popd
-
-    - name: transmart-schemas
-      env: DIR=transmart-schemas
-      before_script:
-        - pushd "$DIR"
-        - $GRADLE_SCRIPT assemble
         - popd
       script:
         - pushd "$DIR"
