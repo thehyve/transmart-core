@@ -1,7 +1,4 @@
-plugins {
-    id 'java'
-}
-
+apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
@@ -22,27 +19,34 @@ tasks.named("bootJar") {
     from('src/main/resources') {
         include '**/*.*'
     }
+}
+
+bootJar {
     manifest {
         attributes(
-                'Implementation-Version': project.version
+            'Implementation-Version': project.version
         )
     }
 }
 
-task createVersionFile() {
-    def file = new File("$projectDir/VERSION")
-    file.createNewFile()
-    file.text = "${version}"
-}
-assemble.dependsOn 'createVersionFile'
+bootJar.enabled = true
+jar.enabled = false
 
+task createVersionFile {
+    doLast {
+        def file = new File("$projectDir/VERSION")
+        file.createNewFile()
+        file.text = "${version}"
+    }
+}
+bootJar.dependsOn 'createVersionFile'
 publishToMavenLocal.dependsOn assemble
 publish.dependsOn assemble
 
 publishing {
     publications {
         bootJava(MavenPublication) {
-            artifact jar
+            artifact bootJar
         }
     }
 }
