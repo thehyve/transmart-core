@@ -3,7 +3,7 @@ LABEL maintainer="luk.zim91@gmail.com" \
       service="transmart-api-server" \
       description="This is the Docker image of the tranSMART API server"
 
-ARG TRANSMART_VERSION="17.2.13"
+ARG TRANSMART_VERSION="17.2.14"
 
 ENV TRANSMART_USER_NAME transmart
 ENV TRANSMART_GROUP_NAME "${TRANSMART_USER_NAME}"
