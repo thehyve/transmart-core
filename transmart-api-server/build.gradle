@@ -93,3 +93,4 @@ publishing {
 }
 publishToMavenLocal.dependsOn 'executableWar'
 publish.dependsOn 'executableWar'
+assemble.dependsOn ':transmart-schemas:assemble'
