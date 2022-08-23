@@ -90,6 +90,7 @@ subprojects { project ->
             apply plugin: 'org.grails.grails-web'
         } else {
             apply plugin: 'org.grails.grails-plugin'
+            bootJar.enabled = false
         }
         apply plugin: 'org.grails.grails-gsp'
         apply plugin: 'asset-pipeline'
