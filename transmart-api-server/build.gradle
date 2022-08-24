@@ -91,6 +91,7 @@ publishing {
         }
     }
 }
+
+bootWar.dependsOn ':transmart-schemas:assemble'
 publishToMavenLocal.dependsOn 'executableWar'
 publish.dependsOn 'executableWar'
-assemble.dependsOn ':transmart-schemas:assemble'
