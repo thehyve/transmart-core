@@ -122,6 +122,9 @@ class RestApiUrlMappings {
             "/concepts/${conceptCode}"(method: 'GET', controller: 'concept', action: 'show') {
                 apiVersion = 'v2'
             }
+            "/concepts/${conceptCode}/modifiers"(method: 'GET', controller: 'concept', action: 'getModifiers') {
+                apiVersion = 'v2'
+            }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }

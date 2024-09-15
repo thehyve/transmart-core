@@ -69,4 +69,5 @@ interface MultiDimensionalDataResource {
 
     Iterable<Dimension> getSupportedDimensions(Constraint constraint)
 
+    List<String> getModifiersForConcept(String conceptCode)
 }
